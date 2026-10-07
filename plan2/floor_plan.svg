@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Floor plan, drawn to scale: 1 SVG unit = 1 mm.
+  Origin (0, 0) is the back-left inside corner of the room.
+  x runs along the back wall to the right, y runs down the left wall.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="-1500 -1000 9200 7000" width="1380" height="1050"
+     font-family="Helvetica, Arial, sans-serif">
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse"
+            markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5"
+            markerWidth="60" markerHeight="60" orient="auto-start-reverse"
+            markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2e7d32"/>
+    </marker>
+    <marker id="arrow-small" viewBox="0 0 10 10" refX="10" refY="5"
+            markerWidth="4" markerHeight="4" orient="auto-start-reverse"
+            markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+
+    <!-- The room and everything in it, without dimensions. -->
+    <g id="geometry">
+      <!-- Floor -->
+      <rect x="0" y="0" width="3838" height="5717" fill="#fbfaf7"/>
+
+      <!-- Walls, 100 thick, outside the room. Gap in the left wall for the doorway. -->
+      <g fill="#555">
+        <rect x="-100" y="-100" width="4038" height="100"/>
+        <rect x="-100" y="5717" width="4038" height="100"/>
+        <rect x="3838" y="-100" width="100" height="5917"/>
+        <rect x="-100" y="-100" width="100" height="1480"/>
+        <rect x="-100" y="2304" width="100" height="3513"/>
+      </g>
+
+      <!-- Back bench: x 500-3838, y 0-500 -->
+      <rect x="500" y="0" width="3338" height="500"
+            fill="#e8d9bf" stroke="#7a5c2e" stroke-width="12"/>
+
+      <!-- Tall cupboard, full height: x 0-500, y 0-1200 -->
+      <rect x="0" y="0" width="500" height="1200"
+            fill="#c9a877" stroke="#5a3f17" stroke-width="12"/>
+      <!-- Door cupboard, y 500-1200: full height, cross marks a tall unit -->
+      <line x1="0" y1="500" x2="500" y2="1200" stroke="#5a3f17" stroke-width="6"/>
+      <line x1="500" y1="500" x2="0" y2="1200" stroke="#5a3f17" stroke-width="6"/>
+      <!-- Upper cupboard, an L with the tall cupboard: x 0-1200, y 0-500,
+           from the bench top (780) to the ceiling. Its corner (x 0-500) is the
+           old open shelving; below 780 the corner is open to the door cupboard. -->
+      <rect x="0" y="0" width="1200" height="500" fill="#efe6d6" stroke="#5a3f17" stroke-width="12"/>
+      <!-- Where the upper cupboard meets the bench below it (dashed: above 780) -->
+      <line x1="500" y1="0" x2="500" y2="500" stroke="#5a3f17" stroke-width="6" stroke-dasharray="30 20"/>
+      <!-- Divider between the upper cupboard and the door cupboard: above 780 only -->
+      <line x1="0" y1="500" x2="500" y2="500" stroke="#5a3f17" stroke-width="12" stroke-dasharray="40 20"/>
+
+      <!-- Upper cupboard door: on y 500-518, x 521-1197 (676 wide, starts past
+           the tall door's thickness), hinged at (1200, 518), shown open at 90 degrees -->
+      <rect x="521" y="500" width="676" height="18"
+            fill="none" stroke="#5a3f17" stroke-width="4" stroke-dasharray="20 15"/>
+      <rect x="1182" y="521" width="18" height="676"
+            fill="#d8bd92" stroke="#5a3f17" stroke-width="5"/>
+      <path d="M521,518 A679,679 0 0 0 1200,1197"
+            fill="none" stroke="#5a3f17" stroke-width="5" stroke-dasharray="35 25"/>
+      <circle cx="1200" cy="518" r="14" fill="#5a3f17"/>
+
+      <!-- Cupboard door on the tall cupboard's exposed side (x = 500, y 500-1200),
+           700 wide, 18 thick (assumed), hinged at the front edge (500, 1200),
+           shown open at 90 degrees -->
+      <rect x="500" y="500" width="18" height="700"
+            fill="none" stroke="#5a3f17" stroke-width="4" stroke-dasharray="20 15"/>
+      <rect x="500" y="1200" width="700" height="18"
+            fill="#d8bd92" stroke="#5a3f17" stroke-width="5"/>
+      <path d="M500,500 A700,700 0 0 1 1200,1200"
+            fill="none" stroke="#5a3f17" stroke-width="5" stroke-dasharray="35 25"/>
+      <circle cx="500" cy="1200" r="14" fill="#5a3f17"/>
+
+      <!-- Door, 760 x 44, hinged at (0, 1380), shown open at 90 degrees -->
+      <rect x="0" y="1380" width="760" height="44"
+            fill="#8fb3d9" stroke="#1f4e79" stroke-width="6"/>
+      <!-- Closed position, in the doorway -->
+      <rect x="-44" y="1380" width="44" height="760"
+            fill="none" stroke="#1f4e79" stroke-width="5" stroke-dasharray="25 20"/>
+      <!-- Swing of the free end, radius 760 -->
+      <path d="M760,1380 A760,760 0 0 1 0,2140"
+            fill="none" stroke="#1f4e79" stroke-width="6" stroke-dasharray="40 30"/>
+      <!-- Hinge -->
+      <circle cx="0" cy="1380" r="18" fill="#1f4e79"/>
+    </g>
+
+    <clipPath id="detail-clip">
+      <rect x="4600" y="-600" width="3000" height="3500"/>
+    </clipPath>
+  </defs>
+
+  <!-- Title -->
+  <text x="-1400" y="-850" font-size="120" font-weight="bold">Floor plan 2: upper cupboard on the bench</text>
+  <text x="-1400" y="-700" font-size="70" fill="#555">To scale, all dimensions in mm. Room 3838 × 5717, ceiling 2400. Elevations A and B: see elevations.svg.</text>
+
+  <!-- ===================== Whole room ===================== -->
+  <use xlink:href="#geometry"/>
+
+  <!-- Labels -->
+  <g font-size="90" text-anchor="middle" fill="#222">
+    <text x="2500" y="230">BACK BENCH</text>
+    <text x="2500" y="340" font-size="70">3338 × 500, 780 high</text>
+
+    <text x="600" y="190" font-size="60">UPPER CUPBOARD</text>
+    <text x="600" y="260" font-size="45">1200 × 500, 780–2400</text>
+    <text x="600" y="320" font-size="38" fill="#555">corner below 780: open to door cupboard</text>
+
+    <text x="250" y="760" font-size="60">DOOR</text>
+    <text x="250" y="830" font-size="60">CUPBOARD</text>
+    <text x="250" y="900" font-size="45">500 × 700</text>
+    <text x="250" y="960" font-size="45">2400 high</text>
+
+    <text x="1950" y="3600" fill="#999" font-size="110">CLEAR FLOOR</text>
+
+    <text x="1260" y="1150" font-size="60" fill="#5a3f17" text-anchor="start">cupboard door 700, open</text>
+    <text x="1250" y="1990" font-size="70" fill="#1f4e79" text-anchor="start">DOOR 760 × 44</text>
+    <text x="1250" y="2080" font-size="60" fill="#1f4e79" text-anchor="start">open 90°, hinged at 1380</text>
+  </g>
+
+  <!-- Dimensions: across the top -->
+  <g stroke="#333" stroke-width="6" fill="none">
+    <line x1="0" y1="-450" x2="3838" y2="-450" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <line x1="0" y1="-260" x2="500" y2="-260" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <line x1="500" y1="-260" x2="3838" y2="-260" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <line x1="0" y1="-520" x2="0" y2="-120" stroke-width="3"/>
+    <line x1="500" y1="-330" x2="500" y2="-120" stroke-width="3"/>
+    <line x1="3838" y1="-520" x2="3838" y2="-120" stroke-width="3"/>
+  </g>
+  <g font-size="80" text-anchor="middle" fill="#222">
+    <text x="1919" y="-480">3838</text>
+    <text x="250" y="-290">500</text>
+    <text x="2169" y="-290">3338</text>
+  </g>
+
+  <!-- Dimensions: down the right, bench depth -->
+  <g stroke="#333" stroke-width="6" fill="none">
+    <line x1="4150" y1="0" x2="4150" y2="500" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <line x1="3938" y1="500" x2="4230" y2="500" stroke-width="3"/>
+  </g>
+  <text x="4230" y="280" font-size="80" fill="#222">500</text>
+
+  <!-- Dimensions: down the left, from the back wall -->
+  <g stroke="#333" stroke-width="6" fill="none">
+    <!-- Column 1: cupboard, gap, doorway -->
+    <line x1="-300" y1="0" x2="-300" y2="1200" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <line x1="-300" y1="1200" x2="-300" y2="1380" marker-start="url(#arrow-small)" marker-end="url(#arrow-small)"/>
+    <line x1="-300" y1="1380" x2="-300" y2="2304" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <!-- Column 2: to the hinge -->
+    <line x1="-700" y1="0" x2="-700" y2="1380" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <!-- Column 3: whole room -->
+    <line x1="-1100" y1="0" x2="-1100" y2="5717" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <!-- Extension lines -->
+    <line x1="-1180" y1="0" x2="-100" y2="0" stroke-width="3"/>
+    <line x1="-380" y1="1200" x2="0" y2="1200" stroke-width="3"/>
+    <line x1="-780" y1="1380" x2="-100" y2="1380" stroke-width="3"/>
+    <line x1="-380" y1="2304" x2="-100" y2="2304" stroke-width="3"/>
+    <line x1="-1180" y1="5717" x2="-100" y2="5717" stroke-width="3"/>
+  </g>
+  <g font-size="80" fill="#222" text-anchor="middle">
+    <text transform="translate(-330,600) rotate(-90)">1200</text>
+    <text x="-420" y="1320" font-size="60" text-anchor="end">180</text>
+    <text transform="translate(-330,1842) rotate(-90)">924 doorway</text>
+    <text transform="translate(-730,690) rotate(-90)">1380</text>
+    <text transform="translate(-1130,2858) rotate(-90)">5717</text>
+  </g>
+
+  <!-- Door width, below the open door -->
+  <g stroke="#1f4e79" stroke-width="5" fill="none">
+    <line x1="0" y1="1530" x2="760" y2="1530" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  </g>
+  <text x="380" y="1640" font-size="70" text-anchor="middle" fill="#1f4e79">760</text>
+
+  <!-- Access to the corner space below the shelving: in through the open
+       cupboard door, then back towards the back wall -->
+  <g stroke="#2e7d32" stroke-width="14" fill="none" stroke-linecap="round">
+    <path d="M900,880 L560,880 Q300,880 300,700 L300,450" marker-end="url(#arrow-green)"/>
+  </g>
+  <g font-size="52" fill="#2e7d32">
+    <text x="1320" y="860">← reach in through the tall door</text>
+    <text x="1320" y="925">to the corner space below 780</text>
+  </g>
+
+  <!-- The two inside legs of the L, 700 each -->
+  <g stroke="#c0392b" stroke-width="6" fill="none">
+    <line x1="500" y1="430" x2="1200" y2="430" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    
+  </g>
+  <text x="850" y="410" font-size="55" text-anchor="middle" fill="#c0392b">700</text>
+  <text x="1260" y="640" font-size="50" fill="#5a3f17">upper door 676, open</text>
+
+  <!-- Elevation markers: where each elevation is viewed from, looking along the arrow -->
+  <g fill="#c0392b" stroke="none" font-size="110" font-weight="bold" text-anchor="middle">
+    <!-- A: from the middle of the room, looking at the back wall -->
+    <circle cx="1919" cy="3000" r="110" fill="none" stroke="#c0392b" stroke-width="12"/>
+    <text x="1919" y="3040">A</text>
+    <path d="M1919,2700 L1849,2880 L1989,2880 z"/>
+    <!-- B: from the middle of the room, looking at the left wall -->
+    <circle cx="1500" cy="2858" r="110" fill="none" stroke="#c0392b" stroke-width="12" transform="translate(-300,1100)"/>
+    <text x="1200" y="3998">B</text>
+    <path d="M910,3958 L1080,3888 L1080,4028 z"/>
+  </g>
+  <text x="1919" y="3230" font-size="55" fill="#c0392b" text-anchor="middle">view A: facing back wall</text>
+  <text x="1200" y="4180" font-size="55" fill="#c0392b" text-anchor="middle">view B: facing left wall</text>
+
+  <!-- Outline of the detail area on the main plan -->
+  <rect x="-150" y="1000" width="1200" height="1400" fill="none"
+        stroke="#c0392b" stroke-width="8" stroke-dasharray="30 20"/>
+
+  <!-- ===================== Detail, 2.5 × the plan's scale ===================== -->
+  <text x="4600" y="-680" font-size="90" font-weight="bold">Detail: cupboard end and door</text>
+  <g clip-path="url(#detail-clip)">
+    <rect x="4600" y="-600" width="3000" height="3500" fill="#fff"/>
+    <!-- Maps plan x -150..1050, y 1000..2400 onto this box -->
+    <g transform="translate(4600,-600) scale(2.5) translate(150,-1000)">
+      <use xlink:href="#geometry"/>
+
+      <!-- Detail dimensions, in plan units (scaled 2.5 on screen) -->
+      <g stroke="#c0392b" stroke-width="2.5" fill="none">
+        <!-- Gap from cupboard end to door: 180 -->
+        <line x1="620" y1="1200" x2="620" y2="1380" marker-start="url(#arrow-small)" marker-end="url(#arrow-small)"/>
+        <line x1="0" y1="1200" x2="680" y2="1200" stroke-width="1.2" stroke-dasharray="6 4"/>
+        <!-- Door thickness: 44 -->
+        <line x1="880" y1="1380" x2="880" y2="1424" marker-start="url(#arrow-small)" marker-end="url(#arrow-small)"/>
+        <line x1="760" y1="1380" x2="930" y2="1380" stroke-width="1.2" stroke-dasharray="6 4"/>
+        <line x1="760" y1="1424" x2="930" y2="1424" stroke-width="1.2" stroke-dasharray="6 4"/>
+        <!-- Exposed side of the tall cupboard: 700 -->
+        <line x1="560" y1="1000" x2="560" y2="1200" stroke-width="1.2"/>
+      </g>
+      <g font-size="32" fill="#c0392b">
+        <text x="640" y="1300">180</text>
+        <text x="900" y="1412">44</text>
+        <text x="40" y="1170" fill="#222">tall cupboard end</text>
+        <text x="40" y="1360" fill="#1f4e79">hinge (0, 1380)</text>
+        <text x="40" y="1480" fill="#1f4e79">door 760 × 44, open</text>
+        <text x="40" y="2190" fill="#1f4e79">closed: free end at 2140</text>
+        <text x="40" y="2340" fill="#555">doorway frame to 2304</text>
+      </g>
+    </g>
+  </g>
+  <rect x="4600" y="-600" width="3000" height="3500" fill="none" stroke="#c0392b" stroke-width="8"/>
+  <text x="4600" y="3020" font-size="65" fill="#555">Area inside the red dashed box on the plan, enlarged 2.5 times.</text>
+
+  <!-- Scale bar: 1000 mm -->
+  <g transform="translate(4600,3400)">
+    <rect x="0" y="0" width="500" height="40" fill="#333"/>
+    <rect x="500" y="0" width="500" height="40" fill="#fff" stroke="#333" stroke-width="5"/>
+    <text x="0" y="130" font-size="60">0</text>
+    <text x="500" y="130" font-size="60" text-anchor="middle">500</text>
+    <text x="1000" y="130" font-size="60" text-anchor="middle">1000 mm</text>
+    <text x="0" y="-40" font-size="60" fill="#555">Scale bar (main plan)</text>
+  </g>
+
+  <!-- Key -->
+  <g transform="translate(4600,4000)" font-size="60">
+    <rect x="0" y="0" width="120" height="70" fill="#c9a877" stroke="#5a3f17" stroke-width="8"/>
+    <text x="170" y="55">Tall and upper cupboards (L-shape, 700 legs)</text>
+    <rect x="0" y="120" width="120" height="70" fill="#e8d9bf" stroke="#7a5c2e" stroke-width="8"/>
+    <text x="170" y="175">Back bench</text>
+    <rect x="0" y="240" width="120" height="70" fill="#8fb3d9" stroke="#1f4e79" stroke-width="8"/>
+    <text x="170" y="295">Door (open)</text>
+    <rect x="0" y="360" width="120" height="70" fill="#555"/>
+    <text x="170" y="415">Wall</text>
+  </g>
+</svg>
