@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room in 3D: shelving door</title>
+<style>
+  :root { color-scheme: light; }
+  html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetica, Arial, sans-serif; }
+  #view { position: fixed; inset: 0; }
+  #panel {
+    position: fixed; top: 12px; left: 12px; max-width: 300px;
+    background: rgba(255, 255, 255, 0.94); border-radius: 10px; padding: 12px 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15); font-size: 13px; line-height: 1.45;
+  }
+  #panel h1 { font-size: 15px; margin: 0 0 6px; }
+  #panel label { display: block; margin: 8px 0 2px; font-weight: bold; }
+  #panel input[type=range] { width: 100%; }
+  #panel .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  #panel button { font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid #999; background: #fff; cursor: pointer; }
+  #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
+  .key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+  @media (max-width: 600px) { #panel { max-width: calc(100% - 56px); font-size: 12px; } }
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="view"></div>
+<div id="panel">
+  <h1>Room in 3D: shelving door</h1>
+  <div>3838 × 5717, ceiling 2400. All sizes in mm. Variant: a door covers the shelves above the bench.</div>
+
+  <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
+  <input id="roomDoor" type="range" min="0" max="110" value="90">
+
+  <label for="cupboardDoor">Cupboard door: <span id="cupboardDoorValue">0°</span></label>
+  <input id="cupboardDoor" type="range" min="0" max="110" value="0">
+
+  <label for="shelfDoor">Shelving door: <span id="shelfDoorValue">0°</span></label>
+  <input id="shelfDoor" type="range" min="0" max="90" value="0">
+
+  <div class="row">
+    <button id="xray">See-through cupboard: off</button>
+    <button id="walls">Front &amp; right walls: off</button>
+  </div>
+  <div class="row">
+    <button data-view="corner">Corner view</button>
+    <button data-view="door">From the doorway</button>
+    <button data-view="top">Top</button>
+  </div>
+
+  <div class="hint">
+    Drag to rotate, scroll or pinch to zoom, right-drag to pan.<br>
+    <span class="key" style="background:#c9a877"></span>tall cupboard
+    <span class="key" style="background:#e8d9bf"></span>bench
+    <span class="key" style="background:#8fb3d9"></span>room door
+  </div>
+  <div class="hint">See-through shows the corner space behind the bench end, reached through the cupboard door below 780.</div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// Room coordinates in mm: x along the back wall, y from the back wall
+// towards the front, z up. Three.js is y-up, so (x, y, z) room maps to
+// (x, z, y) scene, in metres.
+const MM = 0.001;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef0f2);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.shadowMap.enabled = true;
+document.getElementById('view').appendChild(renderer.domElement);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 100);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb0a890, 0.9));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(4, 6, 7);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: 0.5, far: 20 });
+scene.add(sun);
+
+function material(color, extra = {}) {
+  return new THREE.MeshStandardMaterial({ color, roughness: 0.8, ...extra });
+}
+
+const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x3b2a12 });
+
+// A box from room corner (x0, y0, z0) to (x1, y1, z1), in mm.
+function box(x0, y0, z0, x1, y1, z1, mat, parent = scene, edges = true) {
+  const geometry = new THREE.BoxGeometry((x1 - x0) * MM, (z1 - z0) * MM, (y1 - y0) * MM);
+  const mesh = new THREE.Mesh(geometry, mat);
+  mesh.position.set((x0 + x1) / 2 * MM, (z0 + z1) / 2 * MM, (y0 + y1) / 2 * MM);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  if (edges) mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMaterial));
+  parent.add(mesh);
+  return mesh;
+}
+
+// --- Room ---
+const W = 3838, D = 5717, H = 2400, WALL = 100;
+const wallMat = material(0xf2efe9);
+box(0, 0, -20, W, D, 0, material(0xd9d3c5), scene, false);               // floor
+box(-WALL, -WALL, 0, W + WALL, 0, H, wallMat, scene, false);              // back wall
+box(-WALL, 0, 0, 0, 1380, H, wallMat, scene, false);                      // left wall, behind the doorway
+box(-WALL, 2304, 0, 0, D, H, wallMat, scene, false);                      // left wall, in front of the doorway
+box(-WALL, 1380, 2130, 0, 2304, H, wallMat, scene, false);                // over the doorway
+const frontRight = [
+  box(-WALL, D, 0, W + WALL, D + WALL, H, wallMat, scene, false),         // front wall
+  box(W, 0, 0, W + WALL, D, H, wallMat, scene, false),                    // right wall
+];
+frontRight.forEach(m => { m.visible = false; });
+
+// --- Back bench: x 500-3838, y 0-500, 780 high ---
+box(500, 0, 0, W, 500, 780, material(0xe8d9bf));
+
+// --- Tall cupboard: x 0-500, y 0-1200, full height ---
+const carcassMat = material(0xc9a877);
+const shelfMat = material(0xd6bc8f);
+const carcass = [
+  box(0, 1182, 0, 500, 1200, H, carcassMat),     // front end, y = 1200
+  box(0, 0, H - 18, 500, 1200, H, carcassMat),   // top
+  box(0, 0, 0, 500, 1200, 18, carcassMat),       // bottom
+  box(0, 500, 780, 500, 518, H - 18, carcassMat),// divider: shelving / door cupboard, above 780 only
+  box(482, 0, 18, 500, 500, 762, carcassMat),    // side behind the bench end, below 780
+];
+// Open shelving, y 0-500, open on the x = 500 side. Backing panel against
+// the left wall, then shelves at 780 (base), 1185, 1590, 1995 in front of it.
+box(0, 0, 780, 18, 500, H - 18, carcassMat);
+for (const top of [780, 1203, 1608, 2013]) box(18, 0, top - 18, 500, 500, top, shelfMat);
+// Two shelves inside the door cupboard
+for (const top of [1203, 1803]) carcass.push(box(0, 518, top - 18, 482, 1182, top, carcassMat));
+
+// --- Cupboard door: on x = 500, y 500-1200, hinged at y = 1200, 18 thick ---
+const cupboardHinge = new THREE.Group();
+cupboardHinge.position.set(500 * MM, 0, 1200 * MM);
+scene.add(cupboardHinge);
+// In hinge coordinates the closed door runs from y -700 to 0 (towards the back).
+box(0, -697, 3, 18, -3, 2397, material(0xd8bd92), cupboardHinge);
+box(18, -680, 950, 40, -660, 1250, material(0x333333), cupboardHinge, false); // handle: y 520-540, z 950-1250
+
+// --- Shelving door: covers all the shelves, on x 500-518, y 3-497,
+// z 783-2397, hinged at the back-wall side (y = 0). The pivot is on the
+// door's outer face so that, open at 90 degrees, it lies against the back wall.
+const shelfHinge = new THREE.Group();
+shelfHinge.position.set(518 * MM, 0, 0);
+scene.add(shelfHinge);
+box(-18, 3, 783, 0, 497, 2397, material(0xd8bd92), shelfHinge);
+box(0, 460, 950, 22, 480, 1250, material(0x333333), shelfHinge, false); // handle: y 460-480, z 950-1250, mirrors the cupboard door handle
+
+// --- Room door: 760 x 44 x 2048, hinged at (0, 1380), opens into the room ---
+const roomHinge = new THREE.Group();
+roomHinge.position.set(0, 0, 1380 * MM);
+scene.add(roomHinge);
+// Closed, the door sits in the doorway: x -44 to 0, y 0 to 760 from the hinge.
+box(-44, 0, 0, 0, 760, 2048, material(0x8fb3d9), roomHinge);
+box(0, 600, 1000, 60, 720, 1020, material(0x333333), roomHinge, false); // lever handle, room side
+
+// --- Controls ---
+const roomDoor = document.getElementById('roomDoor');
+const cupboardDoor = document.getElementById('cupboardDoor');
+const shelfDoor = document.getElementById('shelfDoor');
+
+function update() {
+  // Shelving door: the free end swings out into the room (+x).
+  shelfHinge.rotation.y = THREE.MathUtils.degToRad(Number(shelfDoor.value));
+  document.getElementById('shelfDoorValue').textContent = `${shelfDoor.value}°`;
+  // Room door: positive rotation swings the free end into the room (+x).
+  roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomDoor.value));
+  // Cupboard door: the free end (towards the back) swings out into the room.
+  cupboardHinge.rotation.y = -THREE.MathUtils.degToRad(Number(cupboardDoor.value));
+  document.getElementById('roomDoorValue').textContent = `${roomDoor.value}°`;
+  document.getElementById('cupboardDoorValue').textContent = `${cupboardDoor.value}°`;
+}
+roomDoor.addEventListener('input', update);
+cupboardDoor.addEventListener('input', update);
+shelfDoor.addEventListener('input', update);
+update();
+
+let xray = false;
+document.getElementById('xray').addEventListener('click', e => {
+  xray = !xray;
+  carcassMat.transparent = xray;
+  carcassMat.opacity = xray ? 0.25 : 1;
+  carcassMat.depthWrite = !xray;
+  carcassMat.needsUpdate = true;
+  e.target.textContent = `See-through cupboard: ${xray ? 'on' : 'off'}`;
+});
+
+let walls = false;
+document.getElementById('walls').addEventListener('click', e => {
+  walls = !walls;
+  frontRight.forEach(m => { m.visible = walls; });
+  e.target.textContent = `Front & right walls: ${walls ? 'on' : 'off'}`;
+});
+
+const views = {
+  corner: { position: [4.6, 3.4, 5.4], target: [1.0, 1.0, 1.0] },
+  door:   { position: [-0.6, 1.6, 2.6], target: [0.8, 1.0, 0.6] },
+  top:    { position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },
+};
+function setView(name) {
+  const v = views[name];
+  camera.position.set(...v.position);
+  controls.target.set(...v.target);
+  controls.update();
+}
+document.querySelectorAll('[data-view]').forEach(b =>
+  b.addEventListener('click', () => setView(b.dataset.view)));
+setView('corner');
+
+function resize() {
+  const { clientWidth: w, clientHeight: h } = renderer.domElement.parentElement;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+renderer.setAnimationLoop(() => {
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

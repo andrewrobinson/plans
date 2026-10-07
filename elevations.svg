@@ -150,7 +150,7 @@
       <rect x="4514" y="2150" width="14" height="100"/>
     </g>
     <!-- Handle, on the edge away from the hinges -->
-    <rect x="5160" y="950" width="22" height="300" rx="8" fill="#333"/>
+    <rect x="5177" y="1150" width="20" height="300" rx="8" fill="#333"/>
     <text x="4900" y="1700" font-size="60" text-anchor="middle">CUPBOARD</text>
     <text x="4900" y="1770" font-size="60" text-anchor="middle">DOOR</text>
     <text x="4900" y="1850" font-size="50" text-anchor="middle">694 × 2394</text>
