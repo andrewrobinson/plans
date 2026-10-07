@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Elevations, drawn to scale: 1 SVG unit = 1 mm.
+  Ceiling height 2400. Bench height 780 from the floor.
+  The door height (2040 leaf, 2100 opening) is assumed: it was not given.
+
+  Elevation A: standing in the room, facing the back wall.
+               Left of the drawing is the left wall (plan x = 0).
+  Elevation B: standing in the room, facing the left wall.
+               Left of the drawing is the front wall (plan y = 5717),
+               right of the drawing is the back wall (plan y = 0).
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="-1300 -700 7600 7400" width="1140" height="1110"
+     font-family="Helvetica, Arial, sans-serif">
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse"
+            markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+    <marker id="arrow-small" viewBox="0 0 10 10" refX="10" refY="5"
+            markerWidth="5" markerHeight="5" orient="auto-start-reverse"
+            markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <text x="-1200" y="-550" font-size="120" font-weight="bold">Elevations</text>
+  <text x="-1200" y="-400" font-size="70" fill="#555">To scale, all dimensions in mm. Ceiling 2400, bench 780. Door height assumed (2040 leaf, 2100 opening).</text>
+
+  <!-- ===================== Elevation A: facing the back wall ===================== -->
+  <!-- Floor at y = 2400, ceiling at y = 0 -->
+  <g transform="translate(0,200)">
+    <text x="0" y="-80" font-size="95" font-weight="bold">A. Facing the back wall</text>
+
+    <!-- Back wall surface -->
+    <rect x="0" y="0" width="3838" height="2400" fill="#f4f2ee"/>
+    <!-- Ceiling, floor and side walls -->
+    <g fill="#555">
+      <rect x="-100" y="-40" width="4038" height="40"/>
+      <rect x="-100" y="2400" width="4038" height="60"/>
+      <rect x="-100" y="0" width="100" height="2400"/>
+      <rect x="3838" y="0" width="100" height="2400"/>
+    </g>
+
+    <!-- Tall cupboard front (its face at plan y = 1200), full height -->
+    <rect x="0" y="0" width="500" height="2400"
+          fill="#c9a877" stroke="#5a3f17" stroke-width="12"/>
+    <text x="250" y="1100" font-size="70" text-anchor="middle">TALL</text>
+    <text x="250" y="1180" font-size="70" text-anchor="middle">CUPBOARD</text>
+    <text x="250" y="1260" font-size="55" text-anchor="middle">front, 500 wide</text>
+
+    <!-- Back bench, top at 780 -->
+    <rect x="500" y="1620" width="3338" height="780"
+          fill="#e8d9bf" stroke="#7a5c2e" stroke-width="12"/>
+    <text x="2169" y="2040" font-size="85" text-anchor="middle">BACK BENCH</text>
+    <text x="2169" y="2130" font-size="65" text-anchor="middle">3338 long, top at 780</text>
+
+    <!-- Open door, in front of everything here (plan y 1380), shown as outline -->
+    <rect x="0" y="360" width="760" height="2040"
+          fill="none" stroke="#1f4e79" stroke-width="8" stroke-dasharray="40 25"/>
+    <text x="780" y="440" font-size="55" fill="#1f4e79">open door, 760 wide,</text>
+    <text x="780" y="510" font-size="55" fill="#1f4e79">nearer than the cupboard</text>
+
+    <!-- Dimensions -->
+    <g stroke="#333" stroke-width="6" fill="none">
+      <line x1="0" y1="2650" x2="3838" y2="2650" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="0" y1="2520" x2="500" y2="2520" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="500" y1="2520" x2="3838" y2="2520" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="-400" y1="0" x2="-400" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="4150" y1="1620" x2="4150" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="4150" y1="0" x2="4150" y2="1620" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="3938" y1="1620" x2="4230" y2="1620" stroke-width="3"/>
+      <line x1="-480" y1="0" x2="-100" y2="0" stroke-width="3"/>
+      <line x1="-480" y1="2400" x2="-100" y2="2400" stroke-width="3"/>
+    </g>
+    <g font-size="80" fill="#222" text-anchor="middle">
+      <text x="1919" y="2760">3838</text>
+      <text x="250" y="2500" font-size="65">500</text>
+      <text x="2169" y="2500" font-size="65">3338</text>
+      <text transform="translate(-430,1200) rotate(-90)">2400 ceiling</text>
+      <text x="4220" y="2040" text-anchor="start">780</text>
+      <text x="4220" y="850" text-anchor="start">1620</text>
+      <text x="4220" y="930" text-anchor="start" font-size="55" fill="#555">above bench</text>
+    </g>
+  </g>
+
+  <!-- ===================== Elevation B: facing the left wall ===================== -->
+  <!-- Drawing x = 5717 - plan y. Floor at y = 2400, ceiling at y = 0. -->
+  <g transform="translate(0,3700)">
+    <text x="0" y="-80" font-size="95" font-weight="bold">B. Facing the left wall</text>
+    <text x="0" y="-180" font-size="60" fill="#555">front wall ←                                                                            → back wall</text>
+
+    <!-- Left wall surface, with the doorway cut out -->
+    <rect x="0" y="0" width="5717" height="2400" fill="#f4f2ee"/>
+    <!-- Doorway opening: plan y 1380-2304 -> x 3413-4337, 2100 high -->
+    <rect x="3413" y="300" width="924" height="2100" fill="#ffffff" stroke="#555" stroke-width="10"/>
+    <!-- Ceiling, floor, front and back walls -->
+    <g fill="#555">
+      <rect x="-100" y="-40" width="5917" height="40"/>
+      <rect x="-100" y="2400" width="5917" height="60"/>
+      <rect x="-100" y="0" width="100" height="2400"/>
+      <rect x="5717" y="0" width="100" height="2400"/>
+    </g>
+
+    <!-- Tall cupboard side: plan y 0-1200 -> x 4517-5717, full height -->
+    <rect x="4517" y="0" width="1200" height="2400"
+          fill="#c9a877" stroke="#5a3f17" stroke-width="12"/>
+    <text x="4867" y="900" font-size="65" text-anchor="middle">TALL CUPBOARD</text>
+    <text x="4867" y="980" font-size="55" text-anchor="middle">side, 1200 deep</text>
+    <text x="4867" y="1050" font-size="55" text-anchor="middle">700 exposed</text>
+
+    <!-- Back bench end: plan y 0-500 -> x 5217-5717, 780 high, in front of the cupboard side -->
+    <rect x="5217" y="1620" width="500" height="780"
+          fill="#e8d9bf" stroke="#7a5c2e" stroke-width="12"/>
+    <text x="5467" y="2030" font-size="55" text-anchor="middle">BENCH</text>
+    <text x="5467" y="2100" font-size="50" text-anchor="middle">end</text>
+
+    <!-- Open door, seen edge-on: plan y 1380-1424 -> x 4293-4337, 2040 high -->
+    <rect x="4293" y="360" width="44" height="2040" fill="#8fb3d9" stroke="#1f4e79" stroke-width="5"/>
+    <text x="4250" y="700" font-size="55" fill="#1f4e79" text-anchor="end">open door,</text>
+    <text x="4250" y="770" font-size="55" fill="#1f4e79" text-anchor="end">edge-on (44)</text>
+    <text x="3875" y="1500" font-size="60" fill="#555" text-anchor="middle">DOORWAY</text>
+    <text x="3875" y="1580" font-size="55" fill="#555" text-anchor="middle">924 × 2100</text>
+
+    <!-- Dimensions along the bottom (from the back wall, right to left) -->
+    <g stroke="#333" stroke-width="6" fill="none">
+      <line x1="4517" y1="2550" x2="5717" y2="2550" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="4337" y1="2550" x2="4517" y2="2550" marker-start="url(#arrow-small)" marker-end="url(#arrow-small)"/>
+      <line x1="3413" y1="2550" x2="4337" y2="2550" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="0" y1="2750" x2="5717" y2="2750" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="4337" y1="2950" x2="5717" y2="2950" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <!-- Heights -->
+      <line x1="-400" y1="0" x2="-400" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="3300" y1="300" x2="3300" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="6000" y1="1620" x2="6000" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="5817" y1="1620" x2="6080" y2="1620" stroke-width="3"/>
+    </g>
+    <g font-size="75" fill="#222" text-anchor="middle">
+      <text x="5117" y="2530">1200</text>
+      <text x="4427" y="2530" font-size="55">180</text>
+      <text x="3875" y="2530">924</text>
+      <text x="2858" y="2730">5717</text>
+      <text x="5027" y="2930">1380 to hinge</text>
+      <text transform="translate(-430,1200) rotate(-90)">2400 ceiling</text>
+      <text transform="translate(3270,1350) rotate(-90)" font-size="60">2100 (assumed)</text>
+      <text x="6070" y="2040" text-anchor="start">780</text>
+    </g>
+  </g>
+</svg>
