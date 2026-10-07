@@ -14,6 +14,11 @@
             markerUnits="userSpaceOnUse">
       <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
     </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5"
+            markerWidth="60" markerHeight="60" orient="auto-start-reverse"
+            markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2e7d32"/>
+    </marker>
     <marker id="arrow-small" viewBox="0 0 10 10" refX="10" refY="5"
             markerWidth="4" markerHeight="4" orient="auto-start-reverse"
             markerUnits="userSpaceOnUse">
@@ -41,8 +46,14 @@
       <!-- Tall cupboard, full height: x 0-500, y 0-1200 -->
       <rect x="0" y="0" width="500" height="1200"
             fill="#c9a877" stroke="#5a3f17" stroke-width="12"/>
-      <line x1="0" y1="0" x2="500" y2="1200" stroke="#5a3f17" stroke-width="6"/>
-      <line x1="500" y1="0" x2="0" y2="1200" stroke="#5a3f17" stroke-width="6"/>
+      <!-- Door cupboard, y 500-1200: full height, cross marks a tall unit -->
+      <line x1="0" y1="500" x2="500" y2="1200" stroke="#5a3f17" stroke-width="6"/>
+      <line x1="500" y1="500" x2="0" y2="1200" stroke="#5a3f17" stroke-width="6"/>
+      <!-- Open shelving, y 0-500, above the bench (780-2400), open on the x = 500 side.
+           Below 780 this square is open to the door cupboard. -->
+      <rect x="0" y="0" width="500" height="500" fill="#efe6d6" stroke="#5a3f17" stroke-width="12"/>
+      <!-- Divider between the shelving and the door cupboard: above 780 only -->
+      <line x1="0" y1="500" x2="500" y2="500" stroke="#5a3f17" stroke-width="12" stroke-dasharray="40 20"/>
 
       <!-- Cupboard door on the tall cupboard's exposed side (x = 500, y 500-1200),
            700 wide, 18 thick (assumed), hinged at the front edge (500, 1200),
@@ -85,10 +96,16 @@
     <text x="2169" y="230">BACK BENCH</text>
     <text x="2169" y="340" font-size="70">3338 × 500, 780 high</text>
 
-    <text x="250" y="560" font-size="70">TALL</text>
-    <text x="250" y="640" font-size="70">CUPBOARD</text>
-    <text x="250" y="720" font-size="55">500 × 1200</text>
-    <text x="250" y="790" font-size="55">2400 high</text>
+    <text x="250" y="200" font-size="55">OPEN</text>
+    <text x="250" y="265" font-size="55">SHELVING</text>
+    <text x="250" y="330" font-size="40">780–2400</text>
+    <text x="250" y="380" font-size="36" fill="#555">below: open to</text>
+    <text x="250" y="420" font-size="36" fill="#555">door cupboard</text>
+
+    <text x="250" y="760" font-size="60">DOOR</text>
+    <text x="250" y="830" font-size="60">CUPBOARD</text>
+    <text x="250" y="900" font-size="45">500 × 700</text>
+    <text x="250" y="960" font-size="45">2400 high</text>
 
     <text x="1950" y="3600" fill="#999" font-size="110">CLEAR FLOOR</text>
 
@@ -149,6 +166,23 @@
     <line x1="0" y1="1530" x2="760" y2="1530" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
   </g>
   <text x="380" y="1640" font-size="70" text-anchor="middle" fill="#1f4e79">760</text>
+
+  <!-- Access to the corner space below the shelving: in through the open
+       cupboard door, then back towards the back wall -->
+  <g stroke="#2e7d32" stroke-width="14" fill="none" stroke-linecap="round">
+    <path d="M900,880 L560,880 Q300,880 300,700 L300,450" marker-end="url(#arrow-green)"/>
+  </g>
+  <g font-size="52" fill="#2e7d32">
+    <text x="930" y="860">reach in through the cupboard door</text>
+    <text x="930" y="925">to the corner space below 780</text>
+  </g>
+
+  <!-- Open side of the shelving, facing into the room above the bench -->
+  <g stroke="#7a5c2e" stroke-width="10" fill="none">
+    <line x1="520" y1="70" x2="520" y2="430" stroke-dasharray="25 15"/>
+  </g>
+  <text x="560" y="120" font-size="45" fill="#7a5c2e">← shelving open this side</text>
+  <text x="560" y="175" font-size="40" fill="#7a5c2e">(above the bench top)</text>
 
   <!-- Elevation markers: where each elevation is viewed from, looking along the arrow -->
   <g fill="#c0392b" stroke="none" font-size="110" font-weight="bold" text-anchor="middle">
@@ -215,7 +249,7 @@
   <!-- Key -->
   <g transform="translate(4600,4000)" font-size="60">
     <rect x="0" y="0" width="120" height="70" fill="#c9a877" stroke="#5a3f17" stroke-width="8"/>
-    <text x="170" y="55">Tall cupboard, full height</text>
+    <text x="170" y="55">Tall cupboard, full height (door cupboard and open shelving)</text>
     <rect x="0" y="120" width="120" height="70" fill="#e8d9bf" stroke="#7a5c2e" stroke-width="8"/>
     <text x="170" y="175">Back bench</text>
     <rect x="0" y="240" width="120" height="70" fill="#8fb3d9" stroke="#1f4e79" stroke-width="8"/>

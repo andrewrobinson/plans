@@ -2,7 +2,7 @@
 <!--
   Elevations, drawn to scale: 1 SVG unit = 1 mm.
   Ceiling height 2400. Bench height 780 from the floor.
-  The door height (2040 leaf, 2100 opening) is assumed: it was not given.
+  Room door leaf 760 × 2048. The frame height (2130) is assumed: 2048 plus the same ~82 frame as the sides.
 
   Elevation A: standing in the room, facing the back wall.
                Left of the drawing is the left wall (plan x = 0).
@@ -28,7 +28,7 @@
   </defs>
 
   <text x="-1200" y="-550" font-size="120" font-weight="bold">Elevations</text>
-  <text x="-1200" y="-400" font-size="70" fill="#555">To scale, all dimensions in mm. Ceiling 2400, bench 780. Door height assumed (2040 leaf, 2100 opening).</text>
+  <text x="-1200" y="-400" font-size="70" fill="#555">To scale, all dimensions in mm. Ceiling 2400, bench 780. Room door 760 × 2048; frame height assumed 2130.</text>
 
   <!-- ===================== Elevation A: facing the back wall ===================== -->
   <!-- Floor at y = 2400, ceiling at y = 0 -->
@@ -59,7 +59,7 @@
     <text x="2169" y="2130" font-size="65" text-anchor="middle">3338 long, top at 780</text>
 
     <!-- Open door, in front of everything here (plan y 1380), shown as outline -->
-    <rect x="0" y="360" width="760" height="2040"
+    <rect x="0" y="352" width="760" height="2048"
           fill="none" stroke="#1f4e79" stroke-width="8" stroke-dasharray="40 25"/>
     <text x="780" y="440" font-size="55" fill="#1f4e79">open door, 760 wide,</text>
     <text x="780" y="510" font-size="55" fill="#1f4e79">nearer than the cupboard</text>
@@ -95,8 +95,8 @@
 
     <!-- Left wall surface, with the doorway cut out -->
     <rect x="0" y="0" width="5717" height="2400" fill="#f4f2ee"/>
-    <!-- Doorway opening: plan y 1380-2304 -> x 3413-4337, 2100 high -->
-    <rect x="3413" y="300" width="924" height="2100" fill="#ffffff" stroke="#555" stroke-width="10"/>
+    <!-- Doorway opening: plan y 1380-2304 -> x 3413-4337, 2130 high (assumed) -->
+    <rect x="3413" y="270" width="924" height="2130" fill="#ffffff" stroke="#555" stroke-width="10"/>
     <!-- Ceiling, floor, front and back walls -->
     <g fill="#555">
       <rect x="-100" y="-40" width="5917" height="40"/>
@@ -108,10 +108,32 @@
     <!-- Tall cupboard side: plan y 0-1200 -> x 4517-5717, full height -->
     <rect x="4517" y="0" width="1200" height="2400"
           fill="#c9a877" stroke="#5a3f17" stroke-width="12"/>
-    <text x="5467" y="400" font-size="55" text-anchor="middle">TALL</text>
-    <text x="5467" y="470" font-size="55" text-anchor="middle">CUPBOARD</text>
-    <text x="5467" y="540" font-size="45" text-anchor="middle">side panel</text>
-    <text x="5467" y="600" font-size="45" text-anchor="middle">above bench</text>
+    <!-- Open shelving: plan y 0-500 -> x 5217-5717, from the bench top (780)
+         to the ceiling. Open on this side, so the shelves and the left wall
+         behind them are visible. Shelf heights 780 (base), 1185, 1590, 1995. -->
+    <rect x="5217" y="0" width="500" height="1620" fill="#efe6d6" stroke="#5a3f17" stroke-width="12"/>
+    <g fill="#c9a877" stroke="#5a3f17" stroke-width="5">
+      <rect x="5217" y="396" width="500" height="18"/>
+      <rect x="5217" y="801" width="500" height="18"/>
+      <rect x="5217" y="1206" width="500" height="18"/>
+      <rect x="5217" y="1602" width="500" height="18"/>
+    </g>
+    <text x="5467" y="230" font-size="55" text-anchor="middle">OPEN</text>
+    <text x="5467" y="300" font-size="55" text-anchor="middle">SHELVING</text>
+    <text x="5467" y="640" font-size="45" text-anchor="middle" fill="#555">500 wide</text>
+    <text x="5467" y="700" font-size="45" text-anchor="middle" fill="#555">500 deep</text>
+    <!-- Shelf heights from the floor -->
+    <g font-size="40" fill="#555" text-anchor="end">
+      <text x="5705" y="390">1995</text>
+      <text x="5705" y="795">1590</text>
+      <text x="5705" y="1200">1185</text>
+      <text x="5705" y="1596">780</text>
+    </g>
+
+    <!-- Corner space behind the bench end, below 780: part of the door
+         cupboard, reached through its door. Hidden here by the bench end. -->
+    <rect x="5217" y="1620" width="500" height="780" fill="none"
+          stroke="#5a3f17" stroke-width="6" stroke-dasharray="25 18"/>
 
     <!-- Cupboard door on the exposed side: plan y 500-1200 -> x 4517-5217.
          700 × 2400 opening, door 694 × 2394 with 3 mm gaps.
@@ -133,19 +155,26 @@
     <text x="4900" y="1770" font-size="60" text-anchor="middle">DOOR</text>
     <text x="4900" y="1850" font-size="50" text-anchor="middle">694 × 2394</text>
     <text x="4900" y="1920" font-size="45" text-anchor="middle">hinged front edge</text>
+    <text x="4900" y="2160" font-size="40" text-anchor="middle" fill="#5a3f17">below 780 the inside</text>
+    <text x="4900" y="2210" font-size="40" text-anchor="middle" fill="#5a3f17">runs back to the wall →</text>
 
     <!-- Back bench end: plan y 0-500 -> x 5217-5717, 780 high, in front of the cupboard side -->
     <rect x="5217" y="1620" width="500" height="780"
           fill="#e8d9bf" stroke="#7a5c2e" stroke-width="12"/>
-    <text x="5467" y="2030" font-size="55" text-anchor="middle">BENCH</text>
-    <text x="5467" y="2100" font-size="50" text-anchor="middle">end</text>
+    <text x="5467" y="1760" font-size="50" text-anchor="middle">BENCH end</text>
+    <text x="5467" y="1960" font-size="38" text-anchor="middle" fill="#5a3f17">behind: corner space,</text>
+    <text x="5467" y="2010" font-size="38" text-anchor="middle" fill="#5a3f17">open to the door</text>
+    <text x="5467" y="2060" font-size="38" text-anchor="middle" fill="#5a3f17">cupboard (dashed)</text>
+    <!-- Redraw the hidden outline on top of the bench end -->
+    <rect x="5217" y="1620" width="500" height="780" fill="none"
+          stroke="#5a3f17" stroke-width="5" stroke-dasharray="25 18"/>
 
-    <!-- Open door, seen edge-on: plan y 1380-1424 -> x 4293-4337, 2040 high -->
-    <rect x="4293" y="360" width="44" height="2040" fill="#8fb3d9" stroke="#1f4e79" stroke-width="5"/>
-    <text x="4250" y="700" font-size="55" fill="#1f4e79" text-anchor="end">open door,</text>
-    <text x="4250" y="770" font-size="55" fill="#1f4e79" text-anchor="end">edge-on (44)</text>
+    <!-- Open door, seen edge-on: plan y 1380-1424 -> x 4293-4337, 2048 high -->
+    <rect x="4293" y="352" width="44" height="2048" fill="#8fb3d9" stroke="#1f4e79" stroke-width="5"/>
+    <text x="4160" y="700" font-size="55" fill="#1f4e79" text-anchor="end">open door,</text>
+    <text x="4160" y="770" font-size="55" fill="#1f4e79" text-anchor="end">edge-on (44)</text>
     <text x="3875" y="1500" font-size="60" fill="#555" text-anchor="middle">DOORWAY</text>
-    <text x="3875" y="1580" font-size="55" fill="#555" text-anchor="middle">924 × 2100</text>
+    <text x="3875" y="1580" font-size="55" fill="#555" text-anchor="middle">924 × 2130 frame</text>
 
     <!-- Dimensions along the bottom (from the back wall, right to left) -->
     <g stroke="#333" stroke-width="6" fill="none">
@@ -158,20 +187,22 @@
       <line x1="4337" y1="2950" x2="5717" y2="2950" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
       <!-- Heights -->
       <line x1="-400" y1="0" x2="-400" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
-      <line x1="3300" y1="300" x2="3300" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="3300" y1="270" x2="3300" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <line x1="4200" y1="352" x2="4200" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
       <line x1="6000" y1="1620" x2="6000" y2="2400" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
       <line x1="5817" y1="1620" x2="6080" y2="1620" stroke-width="3"/>
     </g>
     <g font-size="75" fill="#222" text-anchor="middle">
       <text x="4867" y="2530">700 door</text>
-      <text x="5467" y="2530">500</text>
+      <text x="5467" y="2530">500 shelving</text>
       <text x="5117" y="3130">1200 cupboard</text>
       <text x="4427" y="2530" font-size="55">180</text>
       <text x="3875" y="2530">924</text>
       <text x="2858" y="2730">5717</text>
       <text x="5027" y="2930">1380 to hinge</text>
       <text transform="translate(-430,1200) rotate(-90)">2400 ceiling</text>
-      <text transform="translate(3270,1350) rotate(-90)" font-size="60">2100 (assumed)</text>
+      <text transform="translate(3270,1350) rotate(-90)" font-size="60">2130 frame (assumed)</text>
+      <text transform="translate(4170,1700) rotate(-90)" font-size="60" fill="#1f4e79">2048 door</text>
       <text x="6070" y="2040" text-anchor="start">780</text>
     </g>
   </g>
