@@ -8,15 +8,33 @@
   :root { color-scheme: light; }
   html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetica, Arial, sans-serif; }
   #view { position: fixed; inset: 0; }
+  /* The settings are a drawer that slides in from the left, opened by the
+     menu button. The model always fills the screen. */
   #panel {
-    position: fixed; top: 12px; left: 12px; width: 320px; max-height: calc(100% - 24px); overflow: auto;
-    background: rgba(255, 255, 255, 0.95); border-radius: 10px; padding: 12px 14px; box-sizing: border-box;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15); font-size: 13px; line-height: 1.45;
+    position: fixed; top: 0; left: 0; bottom: 0; width: 340px; max-width: 88vw; overflow: auto; z-index: 3;
+    background: rgba(255, 255, 255, 0.97); padding: 12px 14px 24px; box-sizing: border-box;
+    box-shadow: 2px 0 14px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45;
+    transform: translateX(-105%); transition: transform 0.25s ease;
   }
-  #panel h1 { font-size: 15px; margin: 0 0 4px; }
-  #panel .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  /* Folded: the settings shrink to their heading, on any screen */
-  body.folded #panel { max-height: 44px; overflow: hidden; }
+  body.menu-open #panel { transform: none; }
+  #panel h1 { font-size: 15px; margin: 0; }
+  #panel .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  #panel #close { font-size: 18px; line-height: 1; padding: 4px 10px; }
+  #bar {
+    position: fixed; top: 12px; left: 12px; right: 12px; z-index: 2; display: flex; align-items: center; gap: 8px;
+    pointer-events: none;
+  }
+  #menu {
+    pointer-events: auto; width: 44px; height: 44px; border-radius: 10px; border: none; font-size: 22px;
+    background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer;
+  }
+  #current {
+    background: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 6px 10px; font-size: 13px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* On phones the open drawer dims the model; tapping there closes it */
+  #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
+  @media (max-width: 900px) { body.menu-open #scrim { display: block; } }
   #panel label { display: block; margin: 8px 0 2px; font-weight: bold; }
   #panel input[type=range] { width: 100%; }
   #options { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
@@ -31,13 +49,6 @@
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
-  /* Phones: the model on top, the settings in a scrolling panel underneath,
-     which can be folded down to its heading */
-  @media (max-width: 700px) {
-    #view { bottom: 45%; }
-    #panel { top: auto; bottom: 0; left: 0; width: 100%; max-height: 45%; border-radius: 10px 10px 0 0; font-size: 12px; }
-    body.folded #view { bottom: 44px; }
-  }
 </style>
 <script type="importmap">
 { "imports": {
@@ -48,10 +59,15 @@
 </head>
 <body>
 <div id="view"></div>
+<div id="bar">
+  <button id="menu" aria-label="Settings" aria-controls="panel">☰</button>
+  <div id="current"></div>
+</div>
+<div id="scrim"></div>
 <div id="panel">
   <div class="head">
     <h1>Cupboard options</h1>
-    <button id="hide">Hide settings</button>
+    <button id="close" aria-label="Close settings">✕</button>
   </div>
   <div>Room 3838 × 5717, ceiling 2443. Sizes in mm. Keys 1–8 switch option.</div>
 
@@ -708,7 +724,10 @@ function update() {
 const buttons = OPTIONS.map((option, i) => {
   const b = document.createElement('button');
   b.textContent = option.name;
-  b.addEventListener('click', () => show(i));
+  b.addEventListener('click', () => {
+    show(i);
+    if (narrow()) setMenu(false);                      // on phones, show the result straight away
+  });
   document.getElementById('options').appendChild(b);
   return b;
 });
@@ -726,6 +745,7 @@ function show(i) {
   const aboveText = benchWall(option.clearFrom(), group);
 
   buttons.forEach((b, j) => b.classList.toggle('on', i === j));
+  document.getElementById('current').textContent = option.name;
   document.getElementById('summary').innerHTML =
     `${option.summary()}${aboveText}<div class="src">From ${option.source}</div>`;
   document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
@@ -870,13 +890,17 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 
-// Fold the settings down to their heading to see the whole model
-document.getElementById('hide').addEventListener('click', e => {
-  const folded = document.body.classList.toggle('folded');
-  e.target.textContent = folded ? 'Show settings' : 'Hide settings';
-  document.getElementById('panel').scrollTop = 0;
-  resize();
-});
+// The settings drawer: open on wide screens to start with, closed on phones
+const narrow = () => window.innerWidth <= 900;
+function setMenu(open) {
+  document.body.classList.toggle('menu-open', open);
+  document.getElementById('menu').setAttribute('aria-expanded', String(open));
+}
+setMenu(!narrow());
+document.getElementById('menu').addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+document.getElementById('close').addEventListener('click', () => setMenu(false));
+document.getElementById('scrim').addEventListener('click', () => setMenu(false));
+window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 resize();
 
 // Start on the option, sizes and what's above the bench in the address
