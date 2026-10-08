@@ -59,12 +59,8 @@
     <label><input type="radio" name="above" value="2"> TV</label>
     <label><input type="radio" name="above" value="3"> TV and shelves</label>
   </div>
-  <div id="shelfDepth" class="depth">Shelf depth:
-    <label><input type="radio" name="shelfDepth" value="200"> 200</label>
-    <label><input type="radio" name="shelfDepth" value="250" checked> 250</label>
-    <label><input type="radio" name="shelfDepth" value="300"> 300</label>
-    <label><input type="radio" name="shelfDepth" value="350"> 350</label>
-  </div>
+  <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
+  <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
   <div id="rear" class="depth">Rear wall cupboard depth:
     <label><input type="radio" name="rear" value="330"> 330</label>
     <label><input type="radio" name="rear" value="400"> 400</label>
@@ -89,12 +85,17 @@
   <input id="roomDoor" type="range" min="0" max="110" value="90">
 
   <div class="row">
+    <button id="mode">Show 2D</button>
     <button id="xray">See-through cupboards: off</button>
-    <button data-view="corner">Corner view</button>
-    <button data-view="door">From the doorway</button>
-    <button data-view="top">Top</button>
   </div>
-  <div class="hint">Drag to rotate, scroll or pinch to zoom, right-drag to pan.</div>
+  <div class="row">
+    <button data-view="corner" data-mode="3d">Corner view</button>
+    <button data-view="top" data-mode="3d">Top</button>
+    <button data-view="plan" data-mode="2d">Plan</button>
+    <button data-view="back" data-mode="2d">Back wall</button>
+    <button data-view="left" data-mode="2d">Left wall</button>
+  </div>
+  <div class="hint" id="hint"></div>
 </div>
 
 <script type="module">
@@ -116,6 +117,16 @@ document.getElementById('view').appendChild(renderer.domElement);
 const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 100);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+
+// The 2D views: a parallel projection, to scale, with panning and zooming
+// but no rotating
+const flatCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
+const flatControls = new OrbitControls(flatCamera, renderer.domElement);
+flatControls.enableRotate = false;
+flatControls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+flatControls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+flatControls.enabled = false;
+let flat = false;
 
 scene.add(new THREE.HemisphereLight(0xffffff, 0xb0a890, 0.9));
 const sun = new THREE.DirectionalLight(0xffffff, 1.6);
@@ -316,7 +327,7 @@ function roomDoorGap() {
 // the summary.
 // ---------------------------------------------------------------------------
 let above = 0;                     // 0 nothing, 1 shelves, 2 TV, 3 TV and shelves
-let shelfDepth = 250;              // 200, 250, 300 or 350
+let shelfDepth = 250;              // 150 to 400, from the slider
 const SHELF_T = 25, SHELF_TOPS = [1200, 1550, 1900];
 const TV_W = 1450, TV_H = 830, TV_BOTTOM = 1100, TV_GAP = 150;     // a 65" TV, 1100-1930
 // With the TV, the bottom shelf (top at 1000) runs under it and the top one
@@ -540,8 +551,11 @@ const buttons = OPTIONS.map((option, i) => {
   return b;
 });
 
+// Build option i. A new option starts with its second door shut; rebuilding
+// the same one (a size changed) leaves the doors as they were.
 function show(i) {
   const option = OPTIONS[i];
+  const same = i === shown && current;
   shown = i;
   if (current) scene.remove(current.group);
   const group = new THREE.Group();
@@ -555,7 +569,7 @@ function show(i) {
   document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
-  secondSlider.value = 0;
+  if (!same) secondSlider.value = 0;
   try { location.hash = `${i + 1}-${T}-${R}-${F}-${above}-${shelfDepth}`; } catch (e) { /* not important */ }
   update();
 }
@@ -573,10 +587,12 @@ document.querySelectorAll('input[name=rear]').forEach(r => r.addEventListener('c
   R = Number(r.value);
   show(shown);
 }));
-document.querySelectorAll('input[name=shelfDepth]').forEach(r => r.addEventListener('change', () => {
-  shelfDepth = Number(r.value);
+const shelfSlider = document.getElementById('shelfDepth');
+shelfSlider.addEventListener('input', () => {
+  shelfDepth = Number(shelfSlider.value);
+  document.getElementById('shelfDepthValue').textContent = shelfDepth;
   show(shown);
-}));
+});
 document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => {
   above = Number(r.value);
   show(shown);
@@ -596,18 +612,43 @@ document.getElementById('xray').addEventListener('click', e => {
   e.target.textContent = `See-through cupboards: ${xray ? 'on' : 'off'}`;
 });
 
+// 3D views place the perspective camera. 2D views place the flat one and
+// give the width and height (m) to fit on screen.
 const views = {
   corner: { position: [4.6, 3.4, 5.4], target: [1.0, 1.0, 1.0] },
-  door:   { position: [-0.6, 1.6, 2.6], target: [0.8, 1.0, 0.6] },
   top:    { position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },
+  plan:   { position: [1.92, 20, 2.861], target: [1.92, 0, 2.86], fit: [4.4, 6.3] },   // back wall at the top
+  back:   { position: [1.92, 1.2, 30], target: [1.92, 1.2, 0], fit: [4.4, 2.8] },     // facing the back wall
+  left:   { position: [30, 1.2, 1.25], target: [0, 1.2, 1.25], fit: [3.3, 2.8] },     // facing the left wall, back wall on the right
 };
+let flatFit = views.plan.fit;
+
 function setView(name) {
   const v = views[name];
-  camera.position.set(...v.position);
-  controls.target.set(...v.target);
-  controls.update();
+  setFlat(Boolean(v.fit));
+  const [cam, ctl] = flat ? [flatCamera, flatControls] : [camera, controls];
+  cam.position.set(...v.position);
+  ctl.target.set(...v.target);
+  if (flat) {
+    flatFit = v.fit;
+    flatCamera.zoom = 1;
+    resize();
+  }
+  ctl.update();
+}
+
+function setFlat(on) {
+  flat = on;
+  controls.enabled = !on;
+  flatControls.enabled = on;
+  document.getElementById('mode').textContent = on ? 'Show 3D' : 'Show 2D';
+  document.querySelectorAll('[data-mode]').forEach(b => { b.style.display = b.dataset.mode === (on ? '2d' : '3d') ? '' : 'none'; });
+  document.getElementById('hint').textContent = on
+    ? 'Drag to pan, scroll or pinch to zoom.'
+    : 'Drag to rotate, scroll or pinch to zoom, right-drag to pan.';
 }
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+document.getElementById('mode').addEventListener('click', () => setView(flat ? 'corner' : 'plan'));
 setView('corner');
 
 function resize() {
@@ -615,6 +656,11 @@ function resize() {
   renderer.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  // Fit flatFit on screen, whichever way round is tighter
+  const [fw, fh] = flatFit;
+  const halfH = Math.max(fh, fw * h / w) / 2, halfW = halfH * w / h;
+  Object.assign(flatCamera, { left: -halfW, right: halfW, top: halfH, bottom: -halfH });
+  flatCamera.updateProjectionMatrix();
 }
 window.addEventListener('resize', resize);
 resize();
@@ -623,10 +669,10 @@ resize();
 // (#option-left-rear-front-above-shelf, e.g. #8-700-600-1329-3-250), or
 // option 1 at 500, 500 and 1200 with nothing above the bench
 const [start, depth, rear, front, aboveIn, shelfIn] = location.hash.slice(1).split('-').map(Number);
-const shelfRadio = document.querySelector(`input[name=shelfDepth][value="${shelfIn}"]`);
-if (shelfRadio) {
+if (shelfIn >= 150 && shelfIn <= 400) {
   shelfDepth = shelfIn;
-  shelfRadio.checked = true;
+  shelfSlider.value = shelfIn;
+  document.getElementById('shelfDepthValue').textContent = shelfIn;
 }
 const aboveRadio = document.querySelector(`input[name=above][value="${aboveIn}"]`);
 if (aboveRadio) {
@@ -649,7 +695,10 @@ if (rearRadio) {
   rearRadio.checked = true;
 }
 show(start >= 1 && start <= OPTIONS.length ? start - 1 : 0);
-renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+renderer.setAnimationLoop(() => {
+  (flat ? flatControls : controls).update();
+  renderer.render(scene, flat ? flatCamera : camera);
+});
 </script>
 </body>
 </html>
