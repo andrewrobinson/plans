@@ -15,7 +15,8 @@
   }
   #panel h1 { font-size: 15px; margin: 0 0 4px; }
   #panel .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  #hide { display: none; }
+  /* Folded: the settings shrink to their heading, on any screen */
+  body.folded #panel { max-height: 44px; overflow: hidden; }
   #panel label { display: block; margin: 8px 0 2px; font-weight: bold; }
   #panel input[type=range] { width: 100%; }
   #options { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
@@ -35,9 +36,7 @@
   @media (max-width: 700px) {
     #view { bottom: 45%; }
     #panel { top: auto; bottom: 0; left: 0; width: 100%; max-height: 45%; border-radius: 10px 10px 0 0; font-size: 12px; }
-    #hide { display: inline-block; }
-    body.folded #view { bottom: 48px; }
-    body.folded #panel { max-height: 48px; overflow: hidden; }
+    body.folded #view { bottom: 44px; }
   }
 </style>
 <script type="importmap">
@@ -871,7 +870,7 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 
-// On phones, fold the settings down to their heading to see the whole model
+// Fold the settings down to their heading to see the whole model
 document.getElementById('hide').addEventListener('click', e => {
   const folded = document.body.classList.toggle('folded');
   e.target.textContent = folded ? 'Show settings' : 'Hide settings';
