@@ -908,10 +908,13 @@ document.getElementById('scrim').addEventListener('click', () => setMenu(false))
 window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 
 // Share a link to exactly what's on show: the address holds the option and
-// every setting. Phones get their own share sheet; elsewhere it's copied.
+// every setting. Phones get their own share sheet; elsewhere it's copied. The
+// link is always to the published page, so it works for others even when
+// this copy was opened from a file or a local server.
+const PUBLIC_URL = 'https://andrewrobinson.github.io/plans/room_3d.html';
 document.getElementById('share').addEventListener('click', async e => {
   const button = e.currentTarget;
-  const url = location.origin + location.pathname + location.hash;
+  const url = PUBLIC_URL + location.hash;
   const said = text => {
     button.textContent = text;
     setTimeout(() => { button.textContent = 'Share'; }, 2000);
