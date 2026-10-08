@@ -61,6 +61,18 @@
     <label><input type="radio" name="above" value="2"> TV</label>
     <label><input type="radio" name="above" value="3"> TV and shelves</label>
   </div>
+  <div id="upperBlock">
+    <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
+    <input id="upper" type="range" min="400" max="1200" step="50" value="700">
+  </div>
+  <div id="legBlock">
+    <label for="leg">Back-wall leg width: <span id="legValue">700</span></label>
+    <input id="leg" type="range" min="400" max="1200" step="50" value="700">
+  </div>
+  <div id="extraBlock">
+    <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
+    <input id="extra" type="range" min="300" max="900" step="50" value="500">
+  </div>
   <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
   <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
   <div id="bench" class="depth">Bench height:
@@ -241,6 +253,18 @@ let R = 500;
 // frame. Its inside leg along the left wall is F - R.
 let F = 1200;
 
+// Option 4's upper cupboard width along the back wall, from the slider: 400
+// to 1200. Options 3 and 5 are built on it. Its door is UPPER - 24 wide.
+let UPPER = 700;
+
+// Option 7's back-wall leg, inside along the back wall, from the slider: 400
+// to 1200. Its door is LEG - 24 wide. Options 6 and 8 keep 700.
+let LEG = 700;
+
+// Option 5's second bay, beyond option 4's upper cupboard: its width from the slider,
+// 300 to 900. Its door is EXTRA - 6 wide.
+let EXTRA = 500;
+
 // ---------------------------------------------------------------------------
 // Parts shared by options 1-5
 // ---------------------------------------------------------------------------
@@ -283,17 +307,17 @@ function cornerShelves(g, to) {
 // 2013 with the bench at 780
 const upperTops = () => [BENCH + 423, BENCH + 828, BENCH + 1233];
 
-// The upper unit on the bench, x T to T + 700, from the bench top to the ceiling
+// The upper unit on the bench, x T to T + UPPER, from the bench top to the ceiling
 function upperUnit(g) {
-  box(T + 682, 0, BENCH, T + 700, R, H - 18, carcassMat, g);  // end panel
-  box(T, 0, H - 18, T + 700, R, H, carcassMat, g);            // top
+  box(T + UPPER - 18, 0, BENCH, T + UPPER, R, H - 18, carcassMat, g); // end panel
+  box(T, 0, H - 18, T + UPPER, R, H, carcassMat, g);          // top
 }
 
-// The full-height L: legs inside 700 along the back wall (x 0 to T + 700)
-// and F - R along the left wall (y 0-F), one space round the corner, bench from
-// x = T + 700. Returns the back-wall leg door's hinge.
+// The full-height L of option 7: legs inside LEG along the back wall (x 0 to
+// T + LEG) and F - R along the left wall (y 0-F), one space round the corner,
+// bench from x = T + LEG. Returns the back-wall leg door's hinge.
 function fullHeightL(g) {
-  const E = T + 700;
+  const E = T + LEG;
   box(E, 0, 0, W, R, BENCH, benchMat, g);
   box(0, F - 18, 0, T, F, H, carcassMat, g);                // left-wall leg front end
   box(E - 18, 0, 0, E, R, H, carcassMat, g);               // back-wall leg end
@@ -378,6 +402,12 @@ function benchWallItems(x0, span, g) {
     shelves(x0, W, g);
     return ` Above the bench: three ${shelfDepth}-deep shelves, ${span} long, at ${SHELF_TOPS.join(', ')}.`;
   }
+  if (span < TV_W + 20) {                                         // the TV doesn't fit beside the cupboards
+    const none = ` Above the bench: no room for the ${TV_W} TV, only ${span} of clear wall.`;
+    if (above === 2) return none;
+    shelves(x0, W, g, TV_SHELF_TOPS);
+    return none + ` ${shelfDepth}-deep shelves right across, ${span} long, at ${TV_SHELF_TOPS[0]} and ${TV_SHELF_TOPS[1]}.`;
+  }
   const tx = x0 + (span - TV_W) / 2;                               // centred on the clear wall
   box(tx, 0, TV_BOTTOM, tx + TV_W, 50, TV_BOTTOM + TV_H, tvMat, g);
   box(tx + 15, 50, TV_BOTTOM + 15, tx + TV_W - 15, 52, TV_BOTTOM + TV_H - 15, screenMat, g, false);
@@ -427,53 +457,54 @@ const OPTIONS = [
   {
     name: '3. Upper open shelves on the bench',
     source: 'plan2/room_3d_open.html',
-    clearFrom: () => T + 700,
+    clearFrom: () => T + UPPER,
     benchFrom: () => T,
-    summary: () => `As option 4 with no door: the shelves on the bench (x ${T}-${T + 700}) are open, facing down the room. Bench ${W - T}, ${R} deep.`,
+    summary: () => `As option 4 with no door: the shelves on the bench (x ${T}-${T + UPPER}) are open, facing down the room. Bench ${W - T}, ${R} deep.`,
     build(g) {
       box(T, 0, 0, W, R, BENCH, benchMat, g);
       upperUnit(g);
-      cornerShelves(g, T + 682);
+      cornerShelves(g, T + UPPER - 18);
       return { tall: tallCupboard(g) };
     },
   },
   {
     name: '4. Upper cupboard on the bench, with door',
     source: 'plan2/room_3d.html',
-    clearFrom: () => T + 700,
+    clearFrom: () => T + UPPER,
     benchFrom: () => T,
-    summary: () => `An upper cupboard on the bench (x ${T}-${T + 700}, ${BENCH} to ceiling) makes an L with the tall cupboard: inside legs 700 along the back wall, ${F - R} along the left wall. Its 676 door faces down the room. Bench ${W - T}, from x = ${T}, ${R} deep; the upper cupboard stands on its first 700.`,
+    summary: () => `An upper cupboard on the bench (x ${T}-${T + UPPER}, ${BENCH} to ceiling) makes an L with the tall cupboard: inside legs ${UPPER} along the back wall, ${F - R} along the left wall. Its ${UPPER - 24} door faces down the room. Bench ${W - T}, from x = ${T}, ${R} deep; the upper cupboard stands on its first ${UPPER}.`,
     second: 'Upper cupboard door',
     build(g) {
       box(T, 0, 0, W, R, BENCH, benchMat, g);
       upperUnit(g);
-      cornerShelves(g, T + 682);
-      const second = hinge(T + 700, R + 18, g);
-      box(-679, -18, BENCH + 3, -3, 0, H - 3, doorMat, second);
-      box(-662, 0, BENCH + 170, -642, 22, BENCH + 470, handleMat, second, false);
+      cornerShelves(g, T + UPPER - 18);
+      const second = hinge(T + UPPER, R + 18, g);
+      box(21 - UPPER, -18, BENCH + 3, -3, 0, H - 3, doorMat, second);
+      box(38 - UPPER, 0, BENCH + 170, 58 - UPPER, 22, BENCH + 470, handleMat, second, false);
       return { tall: tallCupboard(g), second };
     },
   },
   {
     name: '5. Longer upper cupboard, two doors',
     source: 'option 4 (new)',
-    clearFrom: () => T + 1200,
+    clearFrom: () => T + UPPER + EXTRA,
     benchFrom: () => T,
-    summary: () => `As option 4, but the upper cupboard runs on to x = ${T + 1200} (1200 inside leg), in two bays: the 676 door as before, then a 494 door, both hinged on their right. Bench ${W - T}, from x = ${T}, ${R} deep.`,
+    summary: () => `As option 4, but the upper cupboard runs on to x = ${T + UPPER + EXTRA} (${UPPER + EXTRA} inside leg), in two bays: the ${UPPER - 24} door as before, then a ${EXTRA - 6} door in a ${EXTRA} bay, both hinged on their right. Bench ${W - T}, from x = ${T}, ${R} deep.`,
     second: 'Upper cupboard doors',
     build(g) {
       box(T, 0, 0, W, R, BENCH, benchMat, g);
       upperUnit(g);                                              // its end panel is now the middle divider
-      box(T + 1182, 0, BENCH, T + 1200, R, H - 18, carcassMat, g); // end panel
-      box(T + 700, 0, H - 18, T + 1200, R, H, carcassMat, g);  // top
-      cornerShelves(g, T + 682);
-      for (const top of upperTops()) box(T + 700, 0, top - 18, T + 1182, R, top, shelfMat, g);
-      const first = hinge(T + 700, R + 18, g);
-      box(-679, -18, BENCH + 3, -3, 0, H - 3, doorMat, first);
-      box(-662, 0, BENCH + 170, -642, 22, BENCH + 470, handleMat, first, false);
-      const next = hinge(T + 1200, R + 18, g);
-      box(-497, -18, BENCH + 3, -3, 0, H - 3, doorMat, next);
-      box(-480, 0, BENCH + 170, -460, 22, BENCH + 470, handleMat, next, false);
+      const end = T + UPPER + EXTRA;                               // the second bay is EXTRA wide
+      box(end - 18, 0, BENCH, end, R, H - 18, carcassMat, g);    // end panel
+      box(T + UPPER, 0, H - 18, end, R, H, carcassMat, g);         // top
+      cornerShelves(g, T + UPPER - 18);
+      for (const top of upperTops()) box(T + UPPER, 0, top - 18, end - 18, R, top, shelfMat, g);
+      const first = hinge(T + UPPER, R + 18, g);
+      box(21 - UPPER, -18, BENCH + 3, -3, 0, H - 3, doorMat, first);
+      box(38 - UPPER, 0, BENCH + 170, 58 - UPPER, 22, BENCH + 470, handleMat, first, false);
+      const next = hinge(end, R + 18, g);
+      box(3 - EXTRA, -18, BENCH + 3, -3, 0, H - 3, doorMat, next);
+      box(20 - EXTRA, 0, BENCH + 170, 40 - EXTRA, 22, BENCH + 470, handleMat, next, false);
       return { tall: tallCupboard(g), second: [first, next] };
     },
   },
@@ -507,9 +538,9 @@ const OPTIONS = [
   {
     name: '7. Full-height L, bench from the L',
     source: 'plan3/room_3d.html',
-    clearFrom: () => T + 700,
-    benchFrom: () => T + 700,
-    summary: () => `Both legs of the L run floor to ceiling, 700 inside along the back wall and ${F - R} along the left wall, one space round the corner. 676 door on the back-wall leg. Bench shortened to ${W - T - 700}, from x = ${T + 700}, ${R} deep.`,
+    clearFrom: () => T + LEG,
+    benchFrom: () => T + LEG,
+    summary: () => `Both legs of the L run floor to ceiling, ${LEG} inside along the back wall and ${F - R} along the left wall, one space round the corner. ${LEG - 24} door on the back-wall leg. Bench shortened to ${W - T - LEG}, from x = ${T + LEG}, ${R} deep.`,
     second: 'Back-wall leg door',
     build(g) {
       return { tall: tallDoor(g), second: fullHeightL(g) };
@@ -686,11 +717,14 @@ function show(i) {
   document.getElementById('summary').innerHTML =
     `${option.summary()}${aboveText}<div class="src">From ${option.source}</div>`;
   document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
+  document.getElementById('upperBlock').style.display = i >= 2 && i <= 4 ? '' : 'none';
+  document.getElementById('extraBlock').style.display = i === 4 ? '' : 'none';
+  document.getElementById('legBlock').style.display = i === 6 ? '' : 'none';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
   if (!same) secondSlider.value = 0;
   updateDims();
-  try { location.hash = `${i + 1}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}`; } catch (e) { /* not important */ }
+  try { location.hash = `${i + 1}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}`; } catch (e) { /* not important */ }
   update();
 }
 
@@ -719,6 +753,24 @@ about.addEventListener('toggle', () => {
   try { localStorage.setItem('aboutOpen', about.open ? '1' : '0'); } catch (e) { /* not important */ }
 });
 
+const upperSlider = document.getElementById('upper');
+upperSlider.addEventListener('input', () => {
+  UPPER = Number(upperSlider.value);
+  document.getElementById('upperValue').textContent = UPPER;
+  show(shown);
+});
+const legSlider = document.getElementById('leg');
+legSlider.addEventListener('input', () => {
+  LEG = Number(legSlider.value);
+  document.getElementById('legValue').textContent = LEG;
+  show(shown);
+});
+const extraSlider = document.getElementById('extra');
+extraSlider.addEventListener('input', () => {
+  EXTRA = Number(extraSlider.value);
+  document.getElementById('extraValue').textContent = EXTRA;
+  show(shown);
+});
 const shelfSlider = document.getElementById('shelfDepth');
 shelfSlider.addEventListener('input', () => {
   shelfDepth = Number(shelfSlider.value);
@@ -805,9 +857,25 @@ window.addEventListener('resize', resize);
 resize();
 
 // Start on the option, sizes and what's above the bench in the address
-// (#option-left-rear-front-above-shelf-bench, e.g. #8-700-600-1329-3-250-780),
-// or option 1 at 500, 500 and 1200 with nothing above the bench
-const [start, depth, rear, front, aboveIn, shelfIn, benchIn] = location.hash.slice(1).split('-').map(Number);
+// (#option-left-rear-front-above-shelf-bench-extra-upper-leg, e.g.
+// #8-700-600-1329-3-250-780-500-700-700), or option 1 at 500, 500 and 1200
+// with nothing above the bench
+const [start, depth, rear, front, aboveIn, shelfIn, benchIn, extraIn, upperIn, legIn] = location.hash.slice(1).split('-').map(Number);
+if (legIn >= 400 && legIn <= 1200) {
+  LEG = legIn;
+  legSlider.value = legIn;
+  document.getElementById('legValue').textContent = legIn;
+}
+if (upperIn >= 400 && upperIn <= 1200) {
+  UPPER = upperIn;
+  upperSlider.value = upperIn;
+  document.getElementById('upperValue').textContent = upperIn;
+}
+if (extraIn >= 300 && extraIn <= 900) {
+  EXTRA = extraIn;
+  extraSlider.value = extraIn;
+  document.getElementById('extraValue').textContent = extraIn;
+}
 const benchRadio = document.querySelector(`input[name=bench][value="${benchIn}"]`);
 if (benchRadio) {
   BENCH = benchIn;

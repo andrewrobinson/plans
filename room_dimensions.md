@@ -44,6 +44,9 @@ Opened to 90°, the door lies along x 0 to 760, at y 1400 to 1444.
 | Left-wall cupboard depth | `T` | 400, 500, 600, 700, 800 | 500 | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 330, 400, 500, 600, 700, 800 | 500 | How deep the bench and the back-wall cupboards are, from the back wall |
+| Upper cupboard width | `UPPER` | 400 to 1200, in 50s | 700 | Width along the back wall of option 4's upper cupboard, and of options 3 and 5, which are built on it. Its door is UPPER − 24 wide. Shown on options 3–5 |
+| Back-wall leg width | `LEG` | 400 to 1200, in 50s | 700 | Option 7 only: inside leg of the full-height L along the back wall. Its door is LEG − 24 wide, and the bench starts at x = T + LEG |
+| Option 5 second bay | `EXTRA` | 300 to 900, in 50s | 500 | Width of option 5's second upper cupboard bay, beyond the upper cupboard. Its door is EXTRA − 6 wide. Only shown on option 5 |
 | Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Upper cupboards, corner shelves and everything above the bench move with it |
 | Above the bench | `above` | Nothing, Shelves, TV, TV and shelves | Nothing | What's on the back wall over the bench |
 | Shelf depth | `shelfDepth` | 150 to 400, in 10s | 250 | Depth of the shelves above the bench |
@@ -51,7 +54,7 @@ Opened to 90°, the door lies along x 0 to 760, at y 1400 to 1444.
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
 | Room door | slider | 0°–110° | 90° | How far it's opened |
 
-The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH`, for example `#8-700-500-1200-3-250-780`.
+The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG`, for example `#7-500-500-1200-3-250-780-500-700-900`.
 
 ### Sizes that follow from the parameters
 
@@ -60,10 +63,11 @@ The page address records the option and settings as `#option-T-R-F-above-shelfDe
 | Left-wall cupboard door width | F − R − 6 |
 | Inside leg along the left wall | F − R |
 | Bench, options 1–5 | from x = T, length 3838 − T, depth R |
-| Bench, options 6–8 | from x = T + 700, length 3138 − T, depth R |
+| Bench, options 6 and 8 | from x = T + 700, length 3138 − T, depth R |
+| Bench, option 7 | from x = T + LEG, length 3838 − T − LEG, depth R |
 | Corner above the bench (options 1–2) | T × R |
 | Door over the corner shelves (option 2) | (R − 6) × (H − 6 − BENCH) |
-| Upper cupboard doors (options 4, 5) | 676 or 494 wide, from BENCH + 3 to H − 3 |
+| Upper cupboard doors (options 4, 5) | UPPER − 24 wide, and in option 5 a second one EXTRA − 6 wide; from BENCH + 3 to H − 3 |
 | Option 6 lower door | 676 × (BENCH − 24) |
 | Option 8 diagonal front | from (T, F) to (T + 700, R), length √(700² + (F − R)²), two doors each (length − 9) / 2 |
 
@@ -92,8 +96,7 @@ The page address records the option and settings as `#option-T-R-F-above-shelfDe
 | --- | --- | --- |
 | — | 18 | Panel thickness: carcass sides, tops, bottoms, shelves inside cupboards, doors |
 | — | 3 | Gap round each cupboard door (doors stop 3 short of floor, ceiling and neighbours, so full-height doors are H − 6 = 2437 high) |
-| — | 700 | Inside leg of the upper cupboard and L along the back wall (x T to T + 700) |
-| — | 1200 | Inside leg of option 5's longer upper cupboard (x T to T + 1200) |
+| — | 700 | Inside leg of the full-height L along the back wall, options 6 and 8 (x T to T + 700) |
 | — | 1203, 1803 | Shelf tops inside the left-wall cupboard |
 | `upperTops()` | BENCH, BENCH + 423, + 828, + 1233 | Shelf tops in the corner and upper units above the bench (780, 1203, 1608, 2013 at the default bench) |
 | — | 600, 1200, 1800 | Shelf tops inside the full-height L and option 8 |
