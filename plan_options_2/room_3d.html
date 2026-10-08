@@ -21,6 +21,8 @@
   #panel button { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid #999; background: #fff; cursor: pointer; }
   #panel button.on { background: #1f4e79; color: #fff; border-color: #1f4e79; }
   #panel .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  #depth { margin: 0 0 8px; }
+  #depth label { display: inline; margin: 0 0 0 10px; font-weight: normal; }
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
@@ -40,6 +42,12 @@
   <div>Room 3838 × 5717, ceiling 2400, bench 780 high. Sizes in mm. Keys 1–8 switch option.</div>
 
   <div id="options"></div>
+  <div id="depth">Left-wall cupboard depth:
+    <label><input type="radio" name="depth" value="500" checked> 500</label>
+    <label><input type="radio" name="depth" value="600"> 600</label>
+    <label><input type="radio" name="depth" value="700"> 700</label>
+    <label><input type="radio" name="depth" value="800"> 800</label>
+  </div>
   <div id="summary"></div>
 
   <div id="tallBlock">
@@ -160,92 +168,105 @@ box(-44, 0, 0, 0, 760, 2048, material(0x8fb3d9), roomHinge);
 box(0, 600, 1000, 60, 720, 1020, handleMat, roomHinge, false);
 
 // ---------------------------------------------------------------------------
-// Parts shared by options 1-4
+// The left-wall cupboard's depth from the wall, T: 500, 600, 700 or 800. Everything
+// along the back wall starts from it, so it is set before an option is built.
+// ---------------------------------------------------------------------------
+let T = 500;
+
+// ---------------------------------------------------------------------------
+// Parts shared by options 1-5
 // ---------------------------------------------------------------------------
 
-// The tall cupboard on the left wall, x 0-500, y 0-1200, full height. Its
-// door is on the exposed side (x = 500, y 500-1200), hinged at the front
+// The tall cupboard on the left wall, x 0-T, y 0-1200, full height. Its
+// door is on the exposed side (x = T, y 500-1200), hinged at the front
 // (y = 1200). Below the bench top, its inside runs back to the back wall,
 // behind the bench end. Returns the door's hinge.
 function tallCupboard(g) {
-  box(0, 1182, 0, 500, 1200, H, carcassMat, g);                 // front end
-  box(0, 0, H - 18, 500, 1200, H, carcassMat, g);               // top
-  box(0, 0, 0, 500, 1200, 18, carcassMat, g);                   // bottom
-  box(0, 500, BENCH, 500, 518, H - 18, carcassMat, g);          // divider, above the bench top only
-  box(482, 0, 18, 500, 500, BENCH - 18, carcassMat, g);         // side behind the bench end
-  for (const top of [1203, 1803]) box(0, 518, top - 18, 482, 1182, top, carcassMat, g);
+  box(0, 1182, 0, T, 1200, H, carcassMat, g);                   // front end
+  box(0, 0, H - 18, T, 1200, H, carcassMat, g);                 // top
+  box(0, 0, 0, T, 1200, 18, carcassMat, g);                     // bottom
+  box(0, 500, BENCH, T, 518, H - 18, carcassMat, g);            // divider, above the bench top only
+  box(T - 18, 0, 18, T, 500, BENCH - 18, carcassMat, g);        // side behind the bench end
+  for (const top of [1203, 1803]) box(0, 518, top - 18, T - 18, 1182, top, carcassMat, g);
   return tallDoor(g);
 }
 
-// Left-wall cupboard door: 694 x 2394 on x 500-518, y 503-1197, hinged at y = 1200
+// Left-wall cupboard door: 694 x 2394 on x T to T + 18, y 503-1197, hinged at y = 1200
 function tallDoor(g) {
-  const h = hinge(500, 1200, g);
+  const h = hinge(T, 1200, g);
   box(0, -697, 3, 18, -3, 2397, doorMat, h);
   box(18, -680, 950, 40, -660, 1250, handleMat, h, false);      // handle: y 520-540, 950-1250
   return h;
 }
 
-// The corner above the bench (x 0-500, y 0-500): backing panel against the
+// The corner above the bench (x 0-T, y 0-500): backing panel against the
 // left wall, and shelves at 780 (base), 1185, 1590, 1995. `to` is where the
-// upper shelves end: 500 for the corner alone, 1182 when they run on into
+// upper shelves end: T for the corner alone, further when they run on into
 // an upper cupboard on the bench.
 function cornerShelves(g, to) {
   box(0, 0, BENCH, 18, 500, H - 18, carcassMat, g);             // backing
-  box(18, 0, BENCH - 18, 500, 500, BENCH, shelfMat, g);         // base, level with the bench top
+  box(18, 0, BENCH - 18, T, 500, BENCH, shelfMat, g);           // base, level with the bench top
   for (const top of [1203, 1608, 2013]) box(18, 0, top - 18, to, 500, top, shelfMat, g);
 }
 
-// The upper unit on the bench, x 500-1200, from the bench top to the ceiling
+// The upper unit on the bench, x T to T + 700, from the bench top to the ceiling
 function upperUnit(g) {
-  box(1182, 0, BENCH, 1200, 500, H - 18, carcassMat, g);        // end panel
-  box(500, 0, H - 18, 1200, 500, H, carcassMat, g);             // top
+  box(T + 682, 0, BENCH, T + 700, 500, H - 18, carcassMat, g);  // end panel
+  box(T, 0, H - 18, T + 700, 500, H, carcassMat, g);            // top
 }
 
-// The full-height L: legs 700 inside along the back wall (x 0-1200) and the
-// left wall (y 0-1200), one space round the corner, bench from x = 1200.
-// Returns the back-wall leg door's hinge.
+// The full-height L: legs 700 inside along the back wall (x 0 to T + 700)
+// and the left wall (y 0-1200), one space round the corner, bench from
+// x = T + 700. Returns the back-wall leg door's hinge.
 function fullHeightL(g) {
-  const E = 1200;
+  const E = T + 700;
   box(E, 0, 0, W, 500, BENCH, benchMat, g);
-  box(0, 1182, 0, 500, 1200, H, carcassMat, g);              // left-wall leg front end
+  box(0, 1182, 0, T, 1200, H, carcassMat, g);                // left-wall leg front end
   box(E - 18, 0, 0, E, 500, H, carcassMat, g);               // back-wall leg end
   box(0, 0, H - 18, E, 500, H, carcassMat, g);               // tops
-  box(0, 500, H - 18, 500, 1182, H, carcassMat, g);
+  box(0, 500, H - 18, T, 1182, H, carcassMat, g);
   box(0, 0, 0, E - 18, 500, 18, carcassMat, g);              // bottoms
-  box(0, 500, 0, 500, 1182, 18, carcassMat, g);
+  box(0, 500, 0, T, 1182, 18, carcassMat, g);
   for (const top of [600, 1200, 1800]) {
     box(0, 0, top - 18, E - 18, 482, top, carcassMat, g);
-    box(0, 482, top - 18, 482, 1182, top, carcassMat, g);
+    box(0, 482, top - 18, T - 18, 1182, top, carcassMat, g);
   }
   const second = hinge(E, 518, g);
-  box(521 - E, -18, 3, -3, 0, 2397, doorMat, second);
-  box(538 - E, 0, 950, 558 - E, 22, 1250, handleMat, second, false);
+  box(T + 21 - E, -18, 3, -3, 0, 2397, doorMat, second);
+  box(T + 38 - E, 0, 950, T + 58 - E, 22, 1250, handleMat, second, false);
   return second;
 }
 
+// Option 8's left door, opened to 90°, points out from (T, 1200) at 45°. Its
+// nearest corner to the open room door (y 1380-1424, x 0-760) is at about
+// x = T + 155, so this is the gap between them; below 0 they clash.
+function roomDoorGap() {
+  return T + 155 - 760;
+}
+
 // ---------------------------------------------------------------------------
-// The options
+// The options. Summaries are functions of T, as their sizes depend on it.
 // ---------------------------------------------------------------------------
 const OPTIONS = [
   {
     name: '1. Open shelves in the corner',
     source: 'plans/room_3d.html',
-    summary: 'Tall cupboard on the left wall with a full-height door. Above the bench, the corner (500 × 500) is open shelving facing into the room. Bench 3338, from x = 500.',
+    summary: () => `Tall cupboard on the left wall with a full-height door. Above the bench, the corner (${T} × 500) is open shelving facing into the room. Bench ${W - T}, from x = ${T}.`,
     build(g) {
-      box(500, 0, 0, W, 500, BENCH, benchMat, g);
-      cornerShelves(g, 500);
+      box(T, 0, 0, W, 500, BENCH, benchMat, g);
+      cornerShelves(g, T);
       return { tall: tallCupboard(g) };
     },
   },
   {
     name: '2. Door over the corner shelves',
     source: 'plans/room_3d_shelf_door.html',
-    summary: 'As option 1, with a 494 × 1614 door covering the corner shelves, hinged at the back-wall side. Bench 3338, from x = 500.',
+    summary: () => `As option 1, with a 494 × 1614 door covering the corner shelves, hinged at the back-wall side. Bench ${W - T}, from x = ${T}.`,
     second: 'Shelving door',
     build(g) {
-      box(500, 0, 0, W, 500, BENCH, benchMat, g);
-      cornerShelves(g, 500);
-      const second = hinge(518, 0, g);
+      box(T, 0, 0, W, 500, BENCH, benchMat, g);
+      cornerShelves(g, T);
+      const second = hinge(T + 18, 0, g);
       box(-18, 3, 783, 0, 497, 2397, doorMat, second);
       box(0, 460, 950, 22, 480, 1250, handleMat, second, false);
       return { tall: tallCupboard(g), second };
@@ -254,24 +275,24 @@ const OPTIONS = [
   {
     name: '3. Upper open shelves on the bench',
     source: 'plan2/room_3d_open.html',
-    summary: 'As option 4 with no door: the shelves on the bench (x 500-1200) are open, facing down the room. Bench 3338.',
+    summary: () => `As option 4 with no door: the shelves on the bench (x ${T}-${T + 700}) are open, facing down the room. Bench ${W - T}.`,
     build(g) {
-      box(500, 0, 0, W, 500, BENCH, benchMat, g);
+      box(T, 0, 0, W, 500, BENCH, benchMat, g);
       upperUnit(g);
-      cornerShelves(g, 1182);
+      cornerShelves(g, T + 682);
       return { tall: tallCupboard(g) };
     },
   },
   {
     name: '4. Upper cupboard on the bench, with door',
     source: 'plan2/room_3d.html',
-    summary: 'An upper cupboard on the bench (x 500-1200, 780 to ceiling) makes an L with the tall cupboard, 700 inside legs. Its 676 door faces down the room. Bench 3338, from x = 500; the upper cupboard stands on its first 700.',
+    summary: () => `An upper cupboard on the bench (x ${T}-${T + 700}, 780 to ceiling) makes an L with the tall cupboard, 700 inside legs. Its 676 door faces down the room. Bench ${W - T}, from x = ${T}; the upper cupboard stands on its first 700.`,
     second: 'Upper cupboard door',
     build(g) {
-      box(500, 0, 0, W, 500, BENCH, benchMat, g);
+      box(T, 0, 0, W, 500, BENCH, benchMat, g);
       upperUnit(g);
-      cornerShelves(g, 1182);
-      const second = hinge(1200, 518, g);
+      cornerShelves(g, T + 682);
+      const second = hinge(T + 700, 518, g);
       box(-679, -18, 783, -3, 0, 2397, doorMat, second);
       box(-662, 0, 950, -642, 22, 1250, handleMat, second, false);
       return { tall: tallCupboard(g), second };
@@ -280,19 +301,19 @@ const OPTIONS = [
   {
     name: '5. Longer upper cupboard, two doors',
     source: 'option 4 (new)',
-    summary: 'As option 4, but the upper cupboard runs on to x = 1700 (1200 inside leg), in two bays: the 676 door as before, then a 494 door, both hinged on their right. Bench 3338, from x = 500.',
+    summary: () => `As option 4, but the upper cupboard runs on to x = ${T + 1200} (1200 inside leg), in two bays: the 676 door as before, then a 494 door, both hinged on their right. Bench ${W - T}, from x = ${T}.`,
     second: 'Upper cupboard doors',
     build(g) {
-      box(500, 0, 0, W, 500, BENCH, benchMat, g);
+      box(T, 0, 0, W, 500, BENCH, benchMat, g);
       upperUnit(g);                                              // its end panel is now the middle divider
-      box(1682, 0, BENCH, 1700, 500, H - 18, carcassMat, g);     // end panel
-      box(1200, 0, H - 18, 1700, 500, H, carcassMat, g);         // top
-      cornerShelves(g, 1182);
-      for (const top of [1203, 1608, 2013]) box(1200, 0, top - 18, 1682, 500, top, shelfMat, g);
-      const first = hinge(1200, 518, g);
+      box(T + 1182, 0, BENCH, T + 1200, 500, H - 18, carcassMat, g); // end panel
+      box(T + 700, 0, H - 18, T + 1200, 500, H, carcassMat, g);  // top
+      cornerShelves(g, T + 682);
+      for (const top of [1203, 1608, 2013]) box(T + 700, 0, top - 18, T + 1182, 500, top, shelfMat, g);
+      const first = hinge(T + 700, 518, g);
       box(-679, -18, 783, -3, 0, 2397, doorMat, first);
       box(-662, 0, 950, -642, 22, 1250, handleMat, first, false);
-      const next = hinge(1700, 518, g);
+      const next = hinge(T + 1200, 518, g);
       box(-497, -18, 783, -3, 0, 2397, doorMat, next);
       box(-480, 0, 950, -460, 22, 1250, handleMat, next, false);
       return { tall: tallCupboard(g), second: [first, next] };
@@ -301,32 +322,32 @@ const OPTIONS = [
   {
     name: '6. Full-height L, open shelves above the bench',
     source: 'option 7 (new)',
-    summary: 'As option 7, but the back-wall leg is open shelving from 780 up, level with the bench top, with a 676 × 756 cupboard door below. A panel at y = 500 separates the left-wall leg, so the corner belongs to the back-wall leg. Bench 2638, from x = 1200.',
+    summary: () => `As option 7, but the back-wall leg is open shelving from 780 up, level with the bench top, with a 676 × 756 cupboard door below. A panel at y = 500 separates the left-wall leg, so the corner belongs to the back-wall leg. Bench ${W - T - 700}, from x = ${T + 700}.`,
     second: 'Lower door',
     build(g) {
-      const E = 1200;
+      const E = T + 700;
       box(E, 0, 0, W, 500, BENCH, benchMat, g);
-      box(0, 1182, 0, 500, 1200, H, carcassMat, g);              // left-wall leg front end
+      box(0, 1182, 0, T, 1200, H, carcassMat, g);                // left-wall leg front end
       box(E - 18, 0, 0, E, 500, H, carcassMat, g);               // back-wall leg end
       box(0, 0, H - 18, E, 500, H, carcassMat, g);               // tops
-      box(0, 500, H - 18, 500, 1182, H, carcassMat, g);
+      box(0, 500, H - 18, T, 1182, H, carcassMat, g);
       box(0, 0, 0, E - 18, 500, 18, carcassMat, g);              // bottoms
-      box(0, 500, 0, 500, 1182, 18, carcassMat, g);
-      box(0, 500, 18, 500, 518, H - 18, carcassMat, g);          // divider between the legs
-      for (const top of [600, 1200, 1800]) box(0, 518, top - 18, 482, 1182, top, carcassMat, g);
+      box(0, 500, 0, T, 1182, 18, carcassMat, g);
+      box(0, 500, 18, T, 518, H - 18, carcassMat, g);            // divider between the legs
+      for (const top of [600, 1200, 1800]) box(0, 518, top - 18, T - 18, 1182, top, carcassMat, g);
       box(0, 0, 372, E - 18, 482, 390, carcassMat, g);           // shelf inside the lower cupboard
       box(0, 0, BENCH - 18, E - 18, 500, BENCH, shelfMat, g);    // fixed shelf, level with the bench
       for (const top of [1203, 1608, 2013]) box(0, 0, top - 18, E - 18, 500, top, shelfMat, g);
       const second = hinge(E, 518, g);
-      box(521 - E, -18, 3, -3, 0, 759, doorMat, second);
-      box(538 - E, 0, 480, 558 - E, 22, 700, handleMat, second, false);
+      box(T + 21 - E, -18, 3, -3, 0, 759, doorMat, second);
+      box(T + 38 - E, 0, 480, T + 58 - E, 22, 700, handleMat, second, false);
       return { tall: tallDoor(g), second };
     },
   },
   {
-    name: '7. Full-height L, bench from 1200',
+    name: '7. Full-height L, bench from the L',
     source: 'plan3/room_3d.html',
-    summary: 'Both legs of the L run floor to ceiling, 700 inside each, one space round the corner. 676 door on the back-wall leg. Bench shortened to 2638, from x = 1200.',
+    summary: () => `Both legs of the L run floor to ceiling, 700 inside each, one space round the corner. 676 door on the back-wall leg. Bench shortened to ${W - T - 700}, from x = ${T + 700}.`,
     second: 'Back-wall leg door',
     build(g) {
       return { tall: tallDoor(g), second: fullHeightL(g) };
@@ -335,21 +356,21 @@ const OPTIONS = [
   {
     name: '8. Full-height corner unit, diagonal double doors',
     source: 'option 7 (new)',
-    summary: 'As option 7, but the front runs straight across from where its two doors hinge (x 500, y 1200 to x 1200, y 500), about 990 wide, with a pair of 490 doors. Behind them it is one cupboard. Opened to 90°, the left door crosses the room door\'s path: open one at a time. Bench 2638, from x = 1200.',
+    summary: () => `As option 7, but the front runs straight across from where its two doors hinge (x ${T}, y 1200 to x ${T + 700}, y 500), about 990 wide, with a pair of 490 doors. Behind them it is one cupboard. ${roomDoorGap() < 0 ? `Opened to 90°, the left door crosses the open room door's path by about ${-roomDoorGap()}: open one at a time. ` : `Opened to 90°, the left door clears the open room door by about ${roomDoorGap()}. `}Bench ${W - T - 700}, from x = ${T + 700}.`,
     second: 'Double doors',
     build(g) {
-      const E = 1200;
+      const E = T + 700;
       box(E, 0, 0, W, 500, BENCH, benchMat, g);
-      box(0, 1182, 0, 500, 1200, H, carcassMat, g);              // left-wall end
+      box(0, 1182, 0, T, 1200, H, carcassMat, g);                // left-wall end
       box(E - 18, 0, 0, E, 500, H, carcassMat, g);               // back-wall end
-      const outline = [[0, 0], [E, 0], [E, 500], [500, 1200], [0, 1200]];
+      const outline = [[0, 0], [E, 0], [E, 500], [T, 1200], [0, 1200]];
       slab(outline, H - 18, H, carcassMat, g);                   // top
       slab(outline, 0, 18, carcassMat, g);                       // bottom
-      const inside = [[0, 0], [E - 18, 0], [E - 18, 493], [493, E - 18], [0, E - 18]];
+      const inside = [[0, 0], [E - 18, 0], [E - 18, 493], [T - 7, 1182], [0, 1182]];
       for (const top of [600, 1200, 1800]) slab(inside, top - 18, top, shelfMat, g);
-      // The front is 700√2 ≈ 990 along x + y = 1700. Each door is 490 with 3
-      // gaps; the left one is hinged at (500, 1200), the right at (1200, 500).
-      const left = skewHinge(500, 1200, 45, -1, g);
+      // The front is 700√2 ≈ 990 along x + y = T + 1200. Each door is 490
+      // with 3 gaps; the left one is hinged at (T, 1200), the right at (E, 500).
+      const left = skewHinge(T, 1200, 45, -1, g);
       box(3, 0, 3, 493, 18, 2397, doorMat, left);
       box(450, 18, 950, 470, 40, 1250, handleMat, left, false);
       const right = skewHinge(E, 500, -135, 1, g);
@@ -367,6 +388,7 @@ const tallSlider = document.getElementById('tallDoor');
 const secondSlider = document.getElementById('secondDoor');
 const roomSlider = document.getElementById('roomDoor');
 let current = null;          // { group, tall, second }
+let shown = 0;               // index of the option on show
 
 function update() {
   if (current) {
@@ -390,6 +412,7 @@ const buttons = OPTIONS.map((option, i) => {
 
 function show(i) {
   const option = OPTIONS[i];
+  shown = i;
   if (current) scene.remove(current.group);
   const group = new THREE.Group();
   scene.add(group);
@@ -397,12 +420,12 @@ function show(i) {
 
   buttons.forEach((b, j) => b.classList.toggle('on', i === j));
   document.getElementById('summary').innerHTML =
-    `${option.summary}<div class="src">From ${option.source}</div>`;
+    `${option.summary()}<div class="src">From ${option.source}</div>`;
   document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
   secondSlider.value = 0;
-  try { location.hash = String(i + 1); } catch (e) { /* not important */ }
+  try { location.hash = `${i + 1}-${T}`; } catch (e) { /* not important */ }
   update();
 }
 
@@ -410,6 +433,11 @@ window.addEventListener('keydown', e => {
   const n = Number(e.key);
   if (n >= 1 && n <= OPTIONS.length) show(n - 1);
 });
+
+document.querySelectorAll('input[name=depth]').forEach(r => r.addEventListener('change', () => {
+  T = Number(r.value);
+  show(shown);
+}));
 
 let xray = false;
 document.getElementById('xray').addEventListener('click', e => {
@@ -444,8 +472,13 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Start on the option in the address (#1-#8), or option 1
-const start = Number(location.hash.slice(1));
+// Start on the option and depth in the address (#1-500 to #8-800), or option 1 at 500
+const [start, depth] = location.hash.slice(1).split('-').map(Number);
+const depthRadio = document.querySelector(`input[name=depth][value="${depth}"]`);
+if (depthRadio) {
+  T = depth;
+  depthRadio.checked = true;
+}
 show(start >= 1 && start <= OPTIONS.length ? start - 1 : 0);
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 </script>
