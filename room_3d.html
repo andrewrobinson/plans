@@ -23,7 +23,9 @@
   #panel .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
   .depth { margin: 0 0 8px; }
   #panel .depth label { display: inline; margin: 0 0 0 10px; font-weight: normal; }
-  #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; }
+  #about { margin: 0 0 4px; }
+  #about > summary { cursor: pointer; font-weight: bold; padding: 2px 0; }
+  #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
   @media (max-width: 600px) { #panel { width: calc(100% - 56px); font-size: 12px; } }
@@ -75,7 +77,10 @@
     <label><input type="radio" name="rear" value="700"> 700</label>
     <label><input type="radio" name="rear" value="800"> 800</label>
   </div>
-  <div id="summary"></div>
+  <details id="about">
+    <summary>Description</summary>
+    <div id="summary"></div>
+  </details>
 
   <div id="tallBlock">
     <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
@@ -707,6 +712,13 @@ document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('
   benchHeights();
   show(shown);
 }));
+// The description starts folded away; remember if the viewer opens it
+const about = document.getElementById('about');
+try { about.open = localStorage.getItem('aboutOpen') === '1'; } catch (e) { /* not important */ }
+about.addEventListener('toggle', () => {
+  try { localStorage.setItem('aboutOpen', about.open ? '1' : '0'); } catch (e) { /* not important */ }
+});
+
 const shelfSlider = document.getElementById('shelfDepth');
 shelfSlider.addEventListener('input', () => {
   shelfDepth = Number(shelfSlider.value);
