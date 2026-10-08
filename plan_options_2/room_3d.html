@@ -37,13 +37,15 @@
 <div id="view"></div>
 <div id="panel">
   <h1>Cupboard options</h1>
-  <div>Room 3838 × 5717, ceiling 2400, bench 780 high. Sizes in mm. Keys 1–7 switch option.</div>
+  <div>Room 3838 × 5717, ceiling 2400, bench 780 high. Sizes in mm. Keys 1–8 switch option.</div>
 
   <div id="options"></div>
   <div id="summary"></div>
 
-  <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
-  <input id="tallDoor" type="range" min="0" max="110" value="0">
+  <div id="tallBlock">
+    <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
+    <input id="tallDoor" type="range" min="0" max="110" value="0">
+  </div>
 
   <div id="secondBlock">
     <label for="secondDoor"><span id="secondLabel"></span>: <span id="secondDoorValue">0°</span></label>
@@ -109,6 +111,19 @@ function box(x0, y0, z0, x1, y1, z1, mat, parent, edges = true) {
   return m;
 }
 
+// A flat slab from z0 to z1 whose plan is the polygon `points` ([x, y] in mm)
+function slab(points, z0, z1, mat, parent) {
+  const shape = new THREE.Shape(points.map(([x, y]) => new THREE.Vector2(x * MM, y * MM)));
+  const g = new THREE.ExtrudeGeometry(shape, { depth: (z1 - z0) * MM, bevelEnabled: false });
+  g.rotateX(Math.PI / 2);                                       // plan (x, y) -> scene (x, z), extruded downwards
+  const m = new THREE.Mesh(g, mat);
+  m.position.y = z1 * MM;
+  m.castShadow = m.receiveShadow = true;
+  m.add(new THREE.LineSegments(new THREE.EdgesGeometry(g), edgeMaterial));
+  parent.add(m);
+  return m;
+}
+
 // A door that turns about a vertical hinge at room (hx, hy). The door's
 // boxes are given in mm relative to the hinge.
 function hinge(hx, hy, parent) {
@@ -116,6 +131,17 @@ function hinge(hx, hy, parent) {
   g.position.set(hx * MM, 0, hy * MM);
   parent.add(g);
   return g;
+}
+
+// As hinge(), but the door's own x axis runs at `degrees` from the room's x
+// axis, turning from +x towards -y. `dir` sets which way the slider opens it.
+function skewHinge(hx, hy, degrees, dir, parent) {
+  const outer = hinge(hx, hy, parent);
+  outer.rotation.y = THREE.MathUtils.degToRad(degrees);
+  const inner = new THREE.Group();
+  inner.userData.dir = dir;
+  outer.add(inner);
+  return inner;
 }
 
 // ---------------------------------------------------------------------------
@@ -173,6 +199,28 @@ function cornerShelves(g, to) {
 function upperUnit(g) {
   box(1182, 0, BENCH, 1200, 500, H - 18, carcassMat, g);        // end panel
   box(500, 0, H - 18, 1200, 500, H, carcassMat, g);             // top
+}
+
+// The full-height L: legs 700 inside along the back wall (x 0-1200) and the
+// left wall (y 0-1200), one space round the corner, bench from x = 1200.
+// Returns the back-wall leg door's hinge.
+function fullHeightL(g) {
+  const E = 1200;
+  box(E, 0, 0, W, 500, BENCH, benchMat, g);
+  box(0, 1182, 0, 500, 1200, H, carcassMat, g);              // left-wall leg front end
+  box(E - 18, 0, 0, E, 500, H, carcassMat, g);               // back-wall leg end
+  box(0, 0, H - 18, E, 500, H, carcassMat, g);               // tops
+  box(0, 500, H - 18, 500, 1182, H, carcassMat, g);
+  box(0, 0, 0, E - 18, 500, 18, carcassMat, g);              // bottoms
+  box(0, 500, 0, 500, 1182, 18, carcassMat, g);
+  for (const top of [600, 1200, 1800]) {
+    box(0, 0, top - 18, E - 18, 482, top, carcassMat, g);
+    box(0, 482, top - 18, 482, 1182, top, carcassMat, g);
+  }
+  const second = hinge(E, 518, g);
+  box(521 - E, -18, 3, -3, 0, 2397, doorMat, second);
+  box(538 - E, 0, 950, 558 - E, 22, 1250, handleMat, second, false);
+  return second;
 }
 
 // ---------------------------------------------------------------------------
@@ -281,22 +329,33 @@ const OPTIONS = [
     summary: 'Both legs of the L run floor to ceiling, 700 inside each, one space round the corner. 676 door on the back-wall leg. Bench shortened to 2638, from x = 1200.',
     second: 'Back-wall leg door',
     build(g) {
+      return { tall: tallDoor(g), second: fullHeightL(g) };
+    },
+  },
+  {
+    name: '8. Full-height corner unit, diagonal double doors',
+    source: 'option 7 (new)',
+    summary: 'As option 7, but the front runs straight across from where its two doors hinge (x 500, y 1200 to x 1200, y 500), about 990 wide, with a pair of 490 doors. Behind them it is one cupboard. Opened to 90°, the left door crosses the room door\'s path: open one at a time. Bench 2638, from x = 1200.',
+    second: 'Double doors',
+    build(g) {
       const E = 1200;
       box(E, 0, 0, W, 500, BENCH, benchMat, g);
-      box(0, 1182, 0, 500, 1200, H, carcassMat, g);              // left-wall leg front end
-      box(E - 18, 0, 0, E, 500, H, carcassMat, g);               // back-wall leg end
-      box(0, 0, H - 18, E, 500, H, carcassMat, g);               // tops
-      box(0, 500, H - 18, 500, 1182, H, carcassMat, g);
-      box(0, 0, 0, E - 18, 500, 18, carcassMat, g);              // bottoms
-      box(0, 500, 0, 500, 1182, 18, carcassMat, g);
-      for (const top of [600, 1200, 1800]) {
-        box(0, 0, top - 18, E - 18, 482, top, carcassMat, g);
-        box(0, 482, top - 18, 482, 1182, top, carcassMat, g);
-      }
-      const second = hinge(E, 518, g);
-      box(521 - E, -18, 3, -3, 0, 2397, doorMat, second);
-      box(538 - E, 0, 950, 558 - E, 22, 1250, handleMat, second, false);
-      return { tall: tallDoor(g), second };
+      box(0, 1182, 0, 500, 1200, H, carcassMat, g);              // left-wall end
+      box(E - 18, 0, 0, E, 500, H, carcassMat, g);               // back-wall end
+      const outline = [[0, 0], [E, 0], [E, 500], [500, 1200], [0, 1200]];
+      slab(outline, H - 18, H, carcassMat, g);                   // top
+      slab(outline, 0, 18, carcassMat, g);                       // bottom
+      const inside = [[0, 0], [E - 18, 0], [E - 18, 493], [493, E - 18], [0, E - 18]];
+      for (const top of [600, 1200, 1800]) slab(inside, top - 18, top, shelfMat, g);
+      // The front is 700√2 ≈ 990 along x + y = 1700. Each door is 490 with 3
+      // gaps; the left one is hinged at (500, 1200), the right at (1200, 500).
+      const left = skewHinge(500, 1200, 45, -1, g);
+      box(3, 0, 3, 493, 18, 2397, doorMat, left);
+      box(450, 18, 950, 470, 40, 1250, handleMat, left, false);
+      const right = skewHinge(E, 500, -135, 1, g);
+      box(3, -18, 3, 493, 0, 2397, doorMat, right);
+      box(450, -40, 950, 470, -18, 1250, handleMat, right, false);
+      return { second: [left, right] };
     },
   },
 ];
@@ -311,8 +370,8 @@ let current = null;          // { group, tall, second }
 
 function update() {
   if (current) {
-    current.tall.rotation.y = -THREE.MathUtils.degToRad(Number(tallSlider.value));
-    for (const s of [].concat(current.second ?? [])) s.rotation.y = THREE.MathUtils.degToRad(Number(secondSlider.value));
+    if (current.tall) current.tall.rotation.y = -THREE.MathUtils.degToRad(Number(tallSlider.value));
+    for (const s of [].concat(current.second ?? [])) s.rotation.y = (s.userData.dir ?? 1) * THREE.MathUtils.degToRad(Number(secondSlider.value));
   }
   roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomSlider.value));
   document.getElementById('tallDoorValue').textContent = `${tallSlider.value}°`;
@@ -339,6 +398,7 @@ function show(i) {
   buttons.forEach((b, j) => b.classList.toggle('on', i === j));
   document.getElementById('summary').innerHTML =
     `${option.summary}<div class="src">From ${option.source}</div>`;
+  document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
   secondSlider.value = 0;
@@ -384,7 +444,7 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Start on the option in the address (#1-#7), or option 1
+// Start on the option in the address (#1-#8), or option 1
 const start = Number(location.hash.slice(1));
 show(start >= 1 && start <= OPTIONS.length ? start - 1 : 0);
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
