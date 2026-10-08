@@ -53,7 +53,20 @@
     <label><input type="radio" name="front" value="1200" checked> 1200</label>
     <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
   </div>
+  <div id="above" class="depth">Above the bench:
+    <label><input type="radio" name="above" value="0" checked> Nothing</label>
+    <label><input type="radio" name="above" value="1"> Shelves</label>
+    <label><input type="radio" name="above" value="2"> TV</label>
+    <label><input type="radio" name="above" value="3"> TV and shelves</label>
+  </div>
+  <div id="shelfDepth" class="depth">Shelf depth:
+    <label><input type="radio" name="shelfDepth" value="200"> 200</label>
+    <label><input type="radio" name="shelfDepth" value="250" checked> 250</label>
+    <label><input type="radio" name="shelfDepth" value="300"> 300</label>
+    <label><input type="radio" name="shelfDepth" value="350"> 350</label>
+  </div>
   <div id="rear" class="depth">Rear wall cupboard depth:
+    <label><input type="radio" name="rear" value="330"> 330</label>
     <label><input type="radio" name="rear" value="400"> 400</label>
     <label><input type="radio" name="rear" value="500" checked> 500</label>
     <label><input type="radio" name="rear" value="600"> 600</label>
@@ -196,8 +209,8 @@ box(0, 600, 1000, 60, 720, 1020, handleMat, roomHinge, false);
 // ---------------------------------------------------------------------------
 let T = 500;
 
-// The rear-wall cupboards' and bench's depth from the back wall, R: 400 to 800
-// in 100s.
+// The rear-wall cupboards' and bench's depth from the back wall, R: 330, or 400
+// to 800 in 100s.
 let R = 500;
 
 // The left-wall cupboard's front, F: 1200, or 1329 right up to the door
@@ -297,12 +310,59 @@ function roomDoorGap() {
 }
 
 // ---------------------------------------------------------------------------
+// Above the bench, on the clear back wall from x0 to W: nothing, three
+// shelves, a TV, or a TV with shelves either side. Each option's clearFrom()
+// gives x0, where its cupboards above the bench end. Returns a sentence for
+// the summary.
+// ---------------------------------------------------------------------------
+let above = 0;                     // 0 nothing, 1 shelves, 2 TV, 3 TV and shelves
+let shelfDepth = 250;              // 200, 250, 300 or 350
+const SHELF_T = 25, SHELF_TOPS = [1200, 1550, 1900];
+const TV_W = 1450, TV_H = 830, TV_BOTTOM = 1100, TV_GAP = 150;     // a 65" TV, 1100-1930
+// With the TV, the bottom shelf (top at 1000) runs under it and the top one
+// (top at 2080) over it, both right across; only the middle one stops beside it.
+const TV_SHELF_TOPS = [1000, 2080], TV_MIDDLE_SHELF = 1550;
+const tvMat = material(0x1a1a1a);
+const screenMat = new THREE.MeshStandardMaterial({ color: 0x0c1824, roughness: 0.3, metalness: 0.2 });
+
+function shelves(x0, x1, g, tops = SHELF_TOPS) {
+  for (const top of tops) box(x0, 0, top - SHELF_T, x1, shelfDepth, top, shelfMat, g);
+}
+
+function benchWall(x0, g) {
+  const span = W - x0;
+  if (above === 0) return '';
+  return benchWallItems(x0, span, g) +
+    (shelfDepth > R && above !== 2 ? ` The shelves stand ${shelfDepth - R} proud of the ${R}-deep bench.` : '');
+}
+
+function benchWallItems(x0, span, g) {
+  if (above === 1) {
+    shelves(x0, W, g);
+    return ` Above the bench: three ${shelfDepth}-deep shelves, ${span} long, at ${SHELF_TOPS.join(', ')}.`;
+  }
+  const tx = x0 + (span - TV_W) / 2;                               // centred on the clear wall
+  box(tx, 0, TV_BOTTOM, tx + TV_W, 50, TV_BOTTOM + TV_H, tvMat, g);
+  box(tx + 15, 50, TV_BOTTOM + 15, tx + TV_W - 15, 52, TV_BOTTOM + TV_H - 15, screenMat, g, false);
+  const tvText = ` Above the bench: a 65" TV (${TV_W} × ${TV_H}), centred on the ${span} of clear wall, from ${TV_BOTTOM} to ${TV_BOTTOM + TV_H}.`;
+  if (above === 2) return tvText;
+  shelves(x0, W, g, TV_SHELF_TOPS);
+  const shelfText = ` ${shelfDepth}-deep shelves right across, ${span} long, below it at ${TV_SHELF_TOPS[0]} and above it at ${TV_SHELF_TOPS[1]}.`;
+  const side = Math.floor((span - TV_W) / 2 - TV_GAP);
+  if (side < 200) return tvText + shelfText + ` No room for a middle shelf beside it: only ${Math.max(side, 0)} each side.`;
+  shelves(x0, x0 + side, g, [TV_MIDDLE_SHELF]);
+  shelves(W - side, W, g, [TV_MIDDLE_SHELF]);
+  return tvText + shelfText + ` A middle shelf at ${TV_MIDDLE_SHELF} either side, ${side} long, ${TV_GAP} clear of the TV.`;
+}
+
+// ---------------------------------------------------------------------------
 // The options. Summaries are functions of T, as their sizes depend on it.
 // ---------------------------------------------------------------------------
 const OPTIONS = [
   {
     name: '1. Open shelves in the corner',
     source: 'plans/room_3d.html',
+    clearFrom: () => T,
     summary: () => `Tall cupboard on the left wall with a ${F - 6 - R} full-height door. Above the bench, the corner (${T} × ${R}) is open shelving facing into the room. Bench ${W - T}, from x = ${T}, ${R} deep.`,
     build(g) {
       box(T, 0, 0, W, R, BENCH, benchMat, g);
@@ -313,6 +373,7 @@ const OPTIONS = [
   {
     name: '2. Door over the corner shelves',
     source: 'plans/room_3d_shelf_door.html',
+    clearFrom: () => T,
     summary: () => `As option 1, with a ${R - 6} × 1614 door covering the corner shelves, hinged at the back-wall side. Bench ${W - T}, from x = ${T}, ${R} deep.`,
     second: 'Shelving door',
     build(g) {
@@ -327,6 +388,7 @@ const OPTIONS = [
   {
     name: '3. Upper open shelves on the bench',
     source: 'plan2/room_3d_open.html',
+    clearFrom: () => T + 700,
     summary: () => `As option 4 with no door: the shelves on the bench (x ${T}-${T + 700}) are open, facing down the room. Bench ${W - T}, ${R} deep.`,
     build(g) {
       box(T, 0, 0, W, R, BENCH, benchMat, g);
@@ -338,6 +400,7 @@ const OPTIONS = [
   {
     name: '4. Upper cupboard on the bench, with door',
     source: 'plan2/room_3d.html',
+    clearFrom: () => T + 700,
     summary: () => `An upper cupboard on the bench (x ${T}-${T + 700}, 780 to ceiling) makes an L with the tall cupboard: inside legs 700 along the back wall, ${F - R} along the left wall. Its 676 door faces down the room. Bench ${W - T}, from x = ${T}, ${R} deep; the upper cupboard stands on its first 700.`,
     second: 'Upper cupboard door',
     build(g) {
@@ -353,6 +416,7 @@ const OPTIONS = [
   {
     name: '5. Longer upper cupboard, two doors',
     source: 'option 4 (new)',
+    clearFrom: () => T + 1200,
     summary: () => `As option 4, but the upper cupboard runs on to x = ${T + 1200} (1200 inside leg), in two bays: the 676 door as before, then a 494 door, both hinged on their right. Bench ${W - T}, from x = ${T}, ${R} deep.`,
     second: 'Upper cupboard doors',
     build(g) {
@@ -374,6 +438,7 @@ const OPTIONS = [
   {
     name: '6. Full-height L, open shelves above the bench',
     source: 'option 7 (new)',
+    clearFrom: () => T + 700,
     summary: () => `As option 7, but the back-wall leg is open shelving from 780 up, level with the bench top, with a 676 × 756 cupboard door below. A panel at y = ${R} separates the left-wall leg, so the corner belongs to the back-wall leg. Bench ${W - T - 700}, from x = ${T + 700}, ${R} deep.`,
     second: 'Lower door',
     build(g) {
@@ -399,6 +464,7 @@ const OPTIONS = [
   {
     name: '7. Full-height L, bench from the L',
     source: 'plan3/room_3d.html',
+    clearFrom: () => T + 700,
     summary: () => `Both legs of the L run floor to ceiling, 700 inside along the back wall and ${F - R} along the left wall, one space round the corner. 676 door on the back-wall leg. Bench shortened to ${W - T - 700}, from x = ${T + 700}, ${R} deep.`,
     second: 'Back-wall leg door',
     build(g) {
@@ -408,6 +474,7 @@ const OPTIONS = [
   {
     name: '8. Full-height corner unit, diagonal double doors',
     source: 'option 7 (new)',
+    clearFrom: () => T + 700,
     summary: () => {
       const { length, door } = diagonal();
       const gap = roomDoorGap();
@@ -480,15 +547,16 @@ function show(i) {
   const group = new THREE.Group();
   scene.add(group);
   current = { group, ...option.build(group) };
+  const aboveText = benchWall(option.clearFrom(), group);
 
   buttons.forEach((b, j) => b.classList.toggle('on', i === j));
   document.getElementById('summary').innerHTML =
-    `${option.summary()}<div class="src">From ${option.source}</div>`;
+    `${option.summary()}${aboveText}<div class="src">From ${option.source}</div>`;
   document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
   secondSlider.value = 0;
-  try { location.hash = `${i + 1}-${T}-${R}-${F}`; } catch (e) { /* not important */ }
+  try { location.hash = `${i + 1}-${T}-${R}-${F}-${above}-${shelfDepth}`; } catch (e) { /* not important */ }
   update();
 }
 
@@ -503,6 +571,14 @@ document.querySelectorAll('input[name=depth]').forEach(r => r.addEventListener('
 }));
 document.querySelectorAll('input[name=rear]').forEach(r => r.addEventListener('change', () => {
   R = Number(r.value);
+  show(shown);
+}));
+document.querySelectorAll('input[name=shelfDepth]').forEach(r => r.addEventListener('change', () => {
+  shelfDepth = Number(r.value);
+  show(shown);
+}));
+document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => {
+  above = Number(r.value);
   show(shown);
 }));
 document.querySelectorAll('input[name=front]').forEach(r => r.addEventListener('change', () => {
@@ -543,9 +619,20 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Start on the option and sizes in the address (#option-left-rear-front,
-// e.g. #8-700-600-1329), or option 1 at 500, 500 and 1200
-const [start, depth, rear, front] = location.hash.slice(1).split('-').map(Number);
+// Start on the option, sizes and what's above the bench in the address
+// (#option-left-rear-front-above-shelf, e.g. #8-700-600-1329-3-250), or
+// option 1 at 500, 500 and 1200 with nothing above the bench
+const [start, depth, rear, front, aboveIn, shelfIn] = location.hash.slice(1).split('-').map(Number);
+const shelfRadio = document.querySelector(`input[name=shelfDepth][value="${shelfIn}"]`);
+if (shelfRadio) {
+  shelfDepth = shelfIn;
+  shelfRadio.checked = true;
+}
+const aboveRadio = document.querySelector(`input[name=above][value="${aboveIn}"]`);
+if (aboveRadio) {
+  above = aboveIn;
+  aboveRadio.checked = true;
+}
 const frontRadio = document.querySelector(`input[name=front][value="${front}"]`);
 if (frontRadio) {
   F = front;
