@@ -28,6 +28,10 @@
     pointer-events: auto; width: 44px; height: 44px; border-radius: 10px; border: none; font-size: 22px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer;
   }
+  #share {
+    pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
+    background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer; flex: none;
+  }
   #current {
     background: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 6px 10px; font-size: 13px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -61,6 +65,7 @@
 <div id="view"></div>
 <div id="bar">
   <button id="menu" aria-label="Settings" aria-controls="panel">☰</button>
+  <button id="share">Share</button>
   <div id="current"></div>
 </div>
 <div id="scrim"></div>
@@ -901,6 +906,27 @@ document.getElementById('menu').addEventListener('click', () => setMenu(!documen
 document.getElementById('close').addEventListener('click', () => setMenu(false));
 document.getElementById('scrim').addEventListener('click', () => setMenu(false));
 window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+
+// Share a link to exactly what's on show: the address holds the option and
+// every setting. Phones get their own share sheet; elsewhere it's copied.
+document.getElementById('share').addEventListener('click', async e => {
+  const button = e.currentTarget;
+  const url = location.origin + location.pathname + location.hash;
+  const said = text => {
+    button.textContent = text;
+    setTimeout(() => { button.textContent = 'Share'; }, 2000);
+  };
+  if (navigator.share && narrow()) {
+    try { await navigator.share({ title: document.title, text: OPTIONS[shown].name, url }); } catch (err) { /* closed without sharing */ }
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    said('Link copied');
+  } catch (err) {
+    window.prompt('Copy this link:', url);
+  }
+});
 resize();
 
 // Start on the option, sizes and what's above the bench in the address
