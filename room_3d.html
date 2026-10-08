@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cupboard options in 3D</title>
+<!-- Installable as an app on phones: Add to Home Screen -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f4e79">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cupboards">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
   :root { color-scheme: light; }
   html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetica, Arial, sans-serif; }
@@ -931,6 +939,11 @@ document.getElementById('share').addEventListener('click', async e => {
   }
 });
 resize();
+
+// Work offline once installed (not when opened as a file)
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js').catch(() => { /* the page still works without it */ });
+}
 
 // Start on the option, sizes and what's above the bench in the address
 // (#option-left-rear-front-above-shelf-bench-extra-upper-leg, e.g.
