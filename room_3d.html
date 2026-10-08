@@ -14,6 +14,8 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15); font-size: 13px; line-height: 1.45;
   }
   #panel h1 { font-size: 15px; margin: 0 0 4px; }
+  #panel .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  #hide { display: none; }
   #panel label { display: block; margin: 8px 0 2px; font-weight: bold; }
   #panel input[type=range] { width: 100%; }
   #options { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
@@ -28,7 +30,15 @@
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
-  @media (max-width: 600px) { #panel { width: calc(100% - 56px); font-size: 12px; } }
+  /* Phones: the model on top, the settings in a scrolling panel underneath,
+     which can be folded down to its heading */
+  @media (max-width: 700px) {
+    #view { bottom: 45%; }
+    #panel { top: auto; bottom: 0; left: 0; width: 100%; max-height: 45%; border-radius: 10px 10px 0 0; font-size: 12px; }
+    #hide { display: inline-block; }
+    body.folded #view { bottom: 48px; }
+    body.folded #panel { max-height: 48px; overflow: hidden; }
+  }
 </style>
 <script type="importmap">
 { "imports": {
@@ -40,7 +50,10 @@
 <body>
 <div id="view"></div>
 <div id="panel">
-  <h1>Cupboard options</h1>
+  <div class="head">
+    <h1>Cupboard options</h1>
+    <button id="hide">Hide settings</button>
+  </div>
   <div>Room 3838 × 5717, ceiling 2443. Sizes in mm. Keys 1–8 switch option.</div>
 
   <div id="options"></div>
@@ -846,6 +859,9 @@ function resize() {
   const { clientWidth: w, clientHeight: h } = renderer.domElement.parentElement;
   renderer.setSize(w, h);
   camera.aspect = w / h;
+  // On narrow screens, keep about 55° across rather than 45° up and down, so
+  // the room isn't cropped at the sides
+  camera.fov = w / h < 1.4 ? THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(27.5)) * h / w)) : 45;
   camera.updateProjectionMatrix();
   // Fit flatFit on screen, whichever way round is tighter
   const [fw, fh] = flatFit;
@@ -854,6 +870,14 @@ function resize() {
   flatCamera.updateProjectionMatrix();
 }
 window.addEventListener('resize', resize);
+
+// On phones, fold the settings down to their heading to see the whole model
+document.getElementById('hide').addEventListener('click', e => {
+  const folded = document.body.classList.toggle('folded');
+  e.target.textContent = folded ? 'Show settings' : 'Hide settings';
+  document.getElementById('panel').scrollTop = 0;
+  resize();
+});
 resize();
 
 // Start on the option, sizes and what's above the bench in the address
