@@ -294,12 +294,16 @@ The model is good enough to show the dresser, so these are parked. Measured (Oct
 - From the sink, along the left wall towards the room door: the counter comes 610 (the corner), then 215 more of counter, then 630 of fridge cabinet, to the wall with the light switch.
 - "The counter extends 105 cm left of the base."
 
-How these might fit:
+How these might fit, now that the counter stands at the back of the 372-deep sink recess (y = 5751), with its front-wall leg's front at 5141:
 
-- The front-wall leg's 1190 inner edge already matches the model: the counter ends at x = 805, within 5 of the 800 drawn.
-- If "2125" is a typo for 215, the left-wall leg's inner edge is 215 and the light-switch (return) wall is 610 + 215 + 630 = 1455 from the front wall, at y = 3924. The model has it at y = 2251, just past the door frame, which was assumed. That would mean about 1.7 m of plain wall between the door frame and the light-switch wall, a kitchen recess only 1455 long, and a fridge cabinet 630 wide (590 is drawn, estimated).
-- If 2125 is right, the counter's left leg would start at y = 2644, leaving only 393 for the fridge cabinet against the return wall at 2251.
+- The front-wall leg's 1190 inner edge matches the model: the counter ends at x = 805, within 5 of the 800 drawn.
+- **Likely, waiting to be confirmed:** 2125 is right, and the "215 more of counter" is a typo for 2125. Then both descriptions agree: from the back of the sink recess, 610 (the corner) + 2125 (the left leg's inner edge, to y = 3016) + 630 (the fridge cabinet) = 3365, putting the light-switch (return) wall at y = 2386, 155 past the door frame (2231). The model still has it at 2251 (assumed) and the fridge cabinet 590 wide (estimated).
+- If 215 were right instead, the light-switch wall would be at 4296, with about 2 m of plain wall after the door frame: unlikely.
 - What the 105 cm is measured from isn't known yet: perhaps how far the counter carries on past the base units under it.
+
+To do when confirmed: move the return wall to y = 2386 (the kitchen recess 135 shorter), draw the fridge cabinet 630 wide, and run the counter's left leg from 3016 to the sink recess.
+
+Also to check: the sink recess's left edge (taken as the kitchen recess's back wall, x = −995, so the L of units turns into it) and its top (about 1990) are estimates.
 
 ### Other open points
 
