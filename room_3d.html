@@ -83,7 +83,7 @@
     <h1>Cupboard options</h1>
     <button id="close" aria-label="Close settings">✕</button>
   </div>
-  <div>Room 3838 × 5717, ceiling 2443. Sizes in mm. Keys 1–8 switch option.</div>
+  <div>Room 3838 × 5717, ceiling 2443. Sizes in mm. Keys 1–9 switch option.</div>
 
   <div id="options"></div>
   <div id="depth" class="depth">Left-wall cupboard depth:
@@ -103,10 +103,19 @@
     <label><input type="radio" name="above" value="1"> Shelves</label>
     <label><input type="radio" name="above" value="2"> TV</label>
     <label><input type="radio" name="above" value="3"> TV and shelves</label>
+    <label><input type="radio" name="above" value="4"> TV and top shelf</label>
   </div>
   <div id="upperBlock">
     <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
     <input id="upper" type="range" min="400" max="1200" step="50" value="700">
+  </div>
+  <div id="wardBlock">
+    <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
+    <input id="ward" type="range" min="600" max="1400" step="50" value="900">
+    <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
+    <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
+    <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
+    <input id="tower" type="range" min="0" max="600" step="50" value="400">
   </div>
   <div id="legBlock">
     <label for="leg">Back-wall leg width: <span id="legValue">700</span></label>
@@ -310,6 +319,15 @@ let LEG = 700;
 // 300 to 900. Its door is EXTRA - 6 wide.
 let EXTRA = 500;
 
+const baseDoorCount = () => Math.max(1, Math.round((W - T - WARD - TOWER) / 450));
+
+// Option 9: the full-height double-door cupboard on the back wall, WARD wide
+// (600 to 1400), then an open shelving tower TOWER wide (0 to 600; 0 for none)
+let WARD = 900, TOWER = 400;
+// ...and the double-door cupboard's own depth from the back wall (330 to
+// 1000), so it can stand deeper than the bench and tower, which stay R deep
+let WARD_D = 600;
+
 // ---------------------------------------------------------------------------
 // Parts shared by options 1-5
 // ---------------------------------------------------------------------------
@@ -331,10 +349,10 @@ function tallCupboard(g) {
 
 // Left-wall cupboard door: (F - 6 - R) x (H - 6) on x T to T + 18, y R + 3 to
 // F - 3, hinged at y = F
-function tallDoor(g) {
+function tallDoor(g, back = R) {                                // back: where the door's run starts, normally R
   if (T === 0) return null;
   const h = hinge(T, F, g);
-  const w = F - 6 - R;
+  const w = F - 6 - back;
   box(0, -w - 3, 3, 18, -3, H - 3, doorMat, h);
   box(18, -w + 17, 950, 40, -w + 37, 1250, handleMat, h, false); // handle near the free edge, 950-1250
   return h;
@@ -416,7 +434,7 @@ function roomDoorGap() {
 // bench itself starts). Returns a sentence for
 // the summary.
 // ---------------------------------------------------------------------------
-let above = 0;                     // 0 nothing, 1 shelves, 2 TV, 3 TV and shelves
+let above = 0;                     // 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
 let shelfDepth = 250;              // 150 to 400, from the slider
 const SHELF_T = 25, TV_W = 1450, TV_H = 830, TV_GAP = 150;         // a 65" TV
 // Heights above the bench, set from BENCH by benchHeights(). With the bench
@@ -453,14 +471,19 @@ function benchWallItems(x0, span, g) {
   if (span < TV_W + 20) {                                         // the TV doesn't fit beside the cupboards
     const none = ` Above the bench: no room for the ${TV_W} TV, only ${span} of clear wall.`;
     if (above === 2) return none;
-    shelves(x0, W, g, TV_SHELF_TOPS);
-    return none + ` ${shelfDepth}-deep shelves right across, ${span} long, at ${TV_SHELF_TOPS[0]} and ${TV_SHELF_TOPS[1]}.`;
+    const tops = above === 4 ? [TV_SHELF_TOPS[1]] : TV_SHELF_TOPS;
+    shelves(x0, W, g, tops);
+    return none + ` ${shelfDepth}-deep shelves right across, ${span} long, at ${tops.join(' and ')}.`;
   }
   const tx = x0 + (span - TV_W) / 2;                               // centred on the clear wall
   box(tx, 0, TV_BOTTOM, tx + TV_W, 50, TV_BOTTOM + TV_H, tvMat, g);
   box(tx + 15, 50, TV_BOTTOM + 15, tx + TV_W - 15, 52, TV_BOTTOM + TV_H - 15, screenMat, g, false);
   const tvText = ` Above the bench: a 65" TV (${TV_W} × ${TV_H}), centred on the ${span} of clear wall, from ${TV_BOTTOM} to ${TV_BOTTOM + TV_H}.`;
   if (above === 2) return tvText;
+  if (above === 4) {
+    shelves(x0, W, g, [TV_SHELF_TOPS[1]]);
+    return tvText + ` A ${shelfDepth}-deep shelf right across above it, ${span} long, at ${TV_SHELF_TOPS[1]}.`;
+  }
   shelves(x0, W, g, TV_SHELF_TOPS);
   const shelfText = ` ${shelfDepth}-deep shelves right across, ${span} long, below it at ${TV_SHELF_TOPS[0]} and above it at ${TV_SHELF_TOPS[1]}.`;
   const side = Math.floor((span - TV_W) / 2 - TV_GAP);
@@ -468,6 +491,47 @@ function benchWallItems(x0, span, g) {
   shelves(x0, x0 + side, g, [TV_MIDDLE_SHELF]);
   shelves(W - side, W, g, [TV_MIDDLE_SHELF]);
   return tvText + shelfText + ` A middle shelf at ${TV_MIDDLE_SHELF} either side, ${side} long, ${TV_GAP} clear of the TV.`;
+}
+
+// ---------------------------------------------------------------------------
+// Parts for option 9
+// ---------------------------------------------------------------------------
+const glowMat = new THREE.MeshStandardMaterial({ color: 0xfff1d0, emissive: 0xffd28a, emissiveIntensity: 1.2 });
+const oakMat = material(0xc8a26b);
+const PLINTH = 100, TOP_T = 30;                                  // kick plinth height, bench top thickness
+
+// Base cupboards along the bench, x0 to W: a recessed plinth, doors about 450
+// wide hinged in pairs, and an oak top at BENCH. Returns how many doors.
+function baseCupboards(x0, g) {
+  box(x0, 0, PLINTH, W, R - 18, BENCH - TOP_T, carcassMat, g);   // carcass behind the doors
+  box(x0, 0, 0, W, R - 60, PLINTH, carcassMat, g);              // plinth, set back 60
+  box(x0, 0, BENCH - TOP_T, W, R, BENCH, oakMat, g);            // top
+  const span = W - x0;
+  const n = Math.max(1, Math.round(span / 450));
+  const w = (span - 3 * (n + 1)) / n;
+  for (let k = 0; k < n; k++) {
+    const d0 = x0 + 3 + k * (w + 3);
+    box(d0, R - 18, PLINTH + 3, d0 + w, R, BENCH - TOP_T - 3, doorMat, g);
+    // Doors open in pairs, so handles sit by the edges that meet
+    const hx = k % 2 === 0 ? d0 + w - 40 : d0 + 20;
+    box(hx, R, BENCH - TOP_T - 180, hx + 20, R + 22, BENCH - TOP_T - 40, handleMat, g, false);
+  }
+  return n;
+}
+
+// The open shelving tower, x0 to x1, full height, with a light strip under
+// the front of each shelf
+function shelvingTower(x0, x1, g) {
+  if (x1 - x0 < 100) return;
+  box(x1 - 18, 0, 0, x1, R, H, carcassMat, g);                 // side
+  box(x0, 0, H - 18, x1 - 18, R, H, carcassMat, g);             // top
+  box(x0, 0, 0, x1 - 18, R, PLINTH, carcassMat, g);             // base
+  const step = (H - 18 - PLINTH) / 6;
+  for (let k = 1; k <= 5; k++) {
+    const top = Math.round(PLINTH + k * step);
+    box(x0, 0, top - 25, x1 - 18, R, top, oakMat, g);
+    box(x0 + 20, R - 40, top - 32, x1 - 38, R - 30, top - 25, glowMat, g, false);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -641,6 +705,46 @@ const OPTIONS = [
       return { second: [left, right] };
     },
   },
+  {
+    name: '9. Double-door cupboard, shelving tower, base cupboards',
+    source: 'option 7 and the photo (new)',
+    clearFrom: () => T + WARD + TOWER,
+    benchFrom: () => T + WARD + TOWER,
+    marks: () => [T + WARD],
+    summary: () => `${T ? `Option 7's left-wall leg (${F - WARD_D} inside, with its door), joined to a` : 'No left-wall cupboard. A'} full-height cupboard on the back wall (x ${T}-${T + WARD}, ${WARD_D} deep) with a pair of ${Math.round((WARD - 27) / 2)} doors` +
+      (TOWER >= 100 ? `, then a ${TOWER}-wide, ${R}-deep open shelving tower (to x ${T + WARD + TOWER}), floor to ceiling, with five lit shelves` : '') +
+      `. Base cupboards with ${baseDoorCount()} doors under an oak top run on to the right-hand wall: ${W - T - WARD - TOWER} long, ${BENCH} high, ${R} deep.`,
+    second: 'Cupboard doors',
+    build(g) {
+      const E = T + WARD, S = E + TOWER, Dw = WARD_D;            // Dw: the double-door cupboard's depth
+      baseCupboards(S, g);
+      // The left-wall leg, as in option 7, behind the deeper cupboard; with no
+      // left-wall cupboard these draw nothing
+      box(0, F - 18, 0, T, F, H, carcassMat, g);
+      box(0, Dw, H - 18, T, F - 18, H, carcassMat, g);
+      box(0, Dw, 0, T, F - 18, 18, carcassMat, g);
+      // The double-door cupboard on the back wall
+      box(E - 18, 0, 0, E, Dw, H, carcassMat, g);                // end
+      box(0, 0, H - 18, E, Dw, H, carcassMat, g);                // top
+      box(0, 0, 0, E - 18, Dw, 18, carcassMat, g);               // bottom
+      for (const top of [600, 1200, 1800]) {
+        box(0, 0, top - 18, E - 18, Dw - 18, top, carcassMat, g);
+        box(0, Dw - 18, top - 18, T - 18, F - 18, top, carcassMat, g);
+      }
+      shelvingTower(E, S, g);
+      // A pair of doors across T + 21 to E - 3, meeting in the middle
+      const w = (WARD - 27) / 2;
+      const left = hinge(T + 21, Dw + 18, g);
+      left.userData.dir = -1;
+      box(0, -18, 3, w, 0, H - 3, doorMat, left);
+      box(w - 40, 0, 950, w - 20, 22, 1250, handleMat, left, false);
+      const right = hinge(E - 3, Dw + 18, g);
+      box(-w, -18, 3, 0, 0, H - 3, doorMat, right);
+      box(20 - w, 0, 950, 40 - w, 22, 1250, handleMat, right, false);
+      return { tall: tallDoor(g, Dw), second: [left, right] };
+    },
+  },
+
 ];
 
 // ---------------------------------------------------------------------------
@@ -697,6 +801,7 @@ function aboveHeights(x0) {
   const tv = [TV_BOTTOM, TV_BOTTOM + TV_H];
   if (above === 1) return SHELF_TOPS;
   if (above === 2) return tv;
+  if (above === 4) return [...tv, TV_SHELF_TOPS[1]];
   if (above === 3) {
     const side = Math.floor((W - x0 - TV_W) / 2 - TV_GAP);
     return [...TV_SHELF_TOPS, ...tv, ...(side >= 200 ? [TV_MIDDLE_SHELF] : [])];
@@ -711,13 +816,13 @@ function updateDims() {
   dims = new THREE.Group();
   scene.add(dims);
   const option = OPTIONS[shown];
-  const alongBack = [0, T, option.benchFrom(), option.clearFrom(), W];
+  const alongBack = [0, T, ...(option.marks ? option.marks() : []), option.benchFrom(), option.clearFrom(), W];
   const alongLeft = [0, R, ...(T ? [F] : []), FRAME, HINGE, HINGE + ROOM_DOOR, FRAME_END];
   if (flatView === 'plan') {
     chain(alongBack, (v, off) => P(v, -250 - off, H), dims);
     chain([...alongLeft, D], (v, off) => P(-300 - off, v, H), dims);
     chain([0, W], (v, off) => P(v, D + 250 + off, H), dims);
-    chain([0, R, ...(above === 1 || above === 3 ? [shelfDepth] : []), D], (v, off) => P(W + 250 + off, v, H), dims);
+    chain([0, R, ...(above === 1 || above >= 3 ? [shelfDepth] : []), D], (v, off) => P(W + 250 + off, v, H), dims);
   } else if (flatView === 'back') {
     chain(alongBack, (v, off) => P(v, D, -200 - off), dims);
     chain([0, BENCH, ...aboveHeights(option.clearFrom()), H], (v, off) => P(W + 250 + off, D, v), dims);
@@ -784,11 +889,12 @@ function show(i) {
   document.getElementById('upperBlock').style.display = i >= 2 && i <= 4 ? '' : 'none';
   document.getElementById('extraBlock').style.display = i === 4 ? '' : 'none';
   document.getElementById('legBlock').style.display = i === 6 ? '' : 'none';
+  document.getElementById('wardBlock').style.display = i === 8 ? '' : 'none';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
   if (!same) secondSlider.value = 0;
   updateDims();
-  try { location.hash = `${i + 1}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}`; } catch (e) { /* not important */ }
+  try { location.hash = `${i + 1}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}`; } catch (e) { /* not important */ }
   update();
 }
 
@@ -823,6 +929,14 @@ upperSlider.addEventListener('input', () => {
   document.getElementById('upperValue').textContent = UPPER;
   show(shown);
 });
+for (const [id, set] of [['ward', v => { WARD = v; }], ['wardD', v => { WARD_D = v; }], ['tower', v => { TOWER = v; }]]) {
+  const slider = document.getElementById(id);
+  slider.addEventListener('input', () => {
+    set(Number(slider.value));
+    document.getElementById(`${id}Value`).textContent = slider.value;
+    show(shown);
+  });
+}
 const legSlider = document.getElementById('leg');
 legSlider.addEventListener('input', () => {
   LEG = Number(legSlider.value);
@@ -968,7 +1082,14 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 // (#option-left-rear-front-above-shelf-bench-extra-upper-leg, e.g.
 // #8-700-600-1329-3-250-780-500-700-700), or option 1 at 500, 500 and 1200
 // with nothing above the bench
-const [start, depth, rear, front, aboveIn, shelfIn, benchIn, extraIn, upperIn, legIn] = location.hash.slice(1).split('-').map(Number);
+const [start, depth, rear, front, aboveIn, shelfIn, benchIn, extraIn, upperIn, legIn, wardIn, towerIn, wardDIn] = location.hash.slice(1).split('-').map(Number);
+for (const [id, value, lo, hi, set] of [['ward', wardIn, 600, 1400, v => { WARD = v; }], ['tower', towerIn, 0, 600, v => { TOWER = v; }], ['wardD', wardDIn, 330, 1000, v => { WARD_D = v; }]]) {
+  if (value >= lo && value <= hi) {
+    set(value);
+    document.getElementById(id).value = value;
+    document.getElementById(`${id}Value`).textContent = value;
+  }
+}
 if (legIn >= 400 && legIn <= 1200) {
   LEG = legIn;
   legSlider.value = legIn;

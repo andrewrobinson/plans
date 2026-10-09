@@ -40,21 +40,24 @@ Opened to 90°, the door lies along x 0 to 760, at y 1400 to 1444.
 
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
-| Option | `shown` | 1–8 | 1 | Which cupboard layout |
+| Option | `shown` | 1–9 | 1 | Which cupboard layout |
 | Left-wall cupboard depth | `T` | 0 (none), 400, 500, 600, 700, 800 | 500 | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 330, 400, 500, 600, 700, 800 | 500 | How deep the bench and the back-wall cupboards are, from the back wall |
 | Upper cupboard width | `UPPER` | 400 to 1200, in 50s | 700 | Width along the back wall of option 4's upper cupboard, and of options 3 and 5, which are built on it. Its door is UPPER − 24 wide. Shown on options 3–5 |
 | Back-wall leg width | `LEG` | 400 to 1200, in 50s | 700 | Option 7 only: inside leg of the full-height L along the back wall. Its door is LEG − 24 wide, and the bench starts at x = T + LEG |
+| Double-door cupboard width | `WARD` | 600 to 1400, in 50s | 900 | Option 9: width of the full-height double-door cupboard on the back wall. Each door is (WARD − 27) / 2 |
+| Double-door cupboard depth | `WARD_D` | 330 to 1000, in 10s | 600 | Option 9: its depth from the back wall, independent of the bench |
+| Shelving tower width | `TOWER` | 0 to 600, in 50s | 400 | Option 9: the open shelving tower beside it, R deep (0 for none) |
 | Option 5 second bay | `EXTRA` | 300 to 900, in 50s | 500 | Width of option 5's second upper cupboard bay, beyond the upper cupboard. Its door is EXTRA − 6 wide. Only shown on option 5 |
 | Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Upper cupboards, corner shelves and everything above the bench move with it |
-| Above the bench | `above` | Nothing, Shelves, TV, TV and shelves | Nothing | What's on the back wall over the bench |
+| Above the bench | `above` | Nothing, Shelves, TV, TV and shelves, TV and top shelf | Nothing | What's on the back wall over the bench |
 | Shelf depth | `shelfDepth` | 150 to 400, in 10s | 250 | Depth of the shelves above the bench |
 | Left-wall cupboard door | slider | 0°–110° | 0° | How far it's opened |
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
 | Room door | slider | 0°–110° | 90° | How far it's opened |
 
-The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG`, for example `#7-500-500-1200-3-250-780-500-700-900`.
+The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600`.
 
 ### Sizes that follow from the parameters
 
