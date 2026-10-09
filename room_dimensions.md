@@ -14,7 +14,7 @@ The room, door, door frame and ceiling as modelled in [room_3d.html](room_3d.htm
 | What | Size | Notes |
 | --- | --- | --- |
 | Width, along the back wall | 3838 | |
-| Depth, back wall to front wall | 5379 | Measured. 5751 into the alcove above the sink |
+| Depth, back wall to front wall | 5379 | Measured. 5751 into the sink recess and the desk recess |
 | Ceiling height | 2443 | Measured between 2441 and 2446 across the room (the floor is uneven); 2443 is used everywhere. Near the door frame it measured 2434 |
 
 The model draws the walls 100 thick. That's only for the picture; it's not a measurement.
@@ -50,14 +50,14 @@ Past the door frame, the left wall steps back: a short return wall faces the fro
 | Worktop height | 894 | Measured, to the top |
 | Tall fridge unit | 590 wide along the wall, 2400 high | Width and height estimated |
 | Wall cupboards | 1450 to 2400 | Estimated |
-| Front-wall run | from the recess wall to x = 800: the alcove's edge (725), then 75 across the wall between the alcove and the desk recess | The 725 from the measurements below; the 75 measured |
-| Alcove above the sink | 372 deep into the front wall (5751 − 5379, measured); x −595 to 725, from the worktop (894) to about 1990 | Depth and right edge from measurements; left edge and top estimated. Tiled inside |
-| Wall between the alcove and the desk recess | 1490 | Measured |
+| Front-wall run | 590 units and a 610 worktop against the back of the sink recess (y = 5751), so the worktop's front is at 5141, 238 out from the front wall. From the recess wall to x = 800: the sink recess's edge (725), then 75 in front of the wall between it and the desk recess | The 725 from the measurements below; the 75 measured |
+| Sink recess | 372 deep into the front wall (5751 − 5379, measured), as deep as the desk recess; from the floor to about 1990; x −995 (the kitchen recess's back wall, so the L of units turns into it, and the left-wall run carries on to 5751) to 725. The floor runs into it | Depth and right edge from measurements; left edge and top estimated. Tiled above the worktop |
+| Wall between the sink recess and the desk recess | 1490 | Measured |
 | Desk recess | 1623 across, 372 deep, full height, x 2215 to the right-hand wall | Measured, assuming it runs to the right-hand wall |
 | Desk | white, 1600 wide (filling the recess), 802 deep from the recess back (so 430 out into the room), 830 high | Measured |
 | Monitors | 2 screens, 610 wide × 360 high, tops 550 above the desk, spaced evenly across it, on a black riser 1080 wide × 230 deep × 100 high, centred, 80 from the back of the recess | Measured, except the riser being centred |
 | Office chair | seat at 590, headrest top at 1400, 600 wide across the armrests | Measured; position and other sizes estimated |
-| Sink | stainless, x −250 to 550, below the alcove | Estimated |
+| Sink | stainless, x −250 to 550, in the worktop in the sink recess | Estimated |
 | Wall cupboards | over the drawers, and from the washing machine on to the front corner | The extractor is between |
 | Island (loose) | Top 770 wide × 1260 long, 900 high, long side along the room; long edge 1010 from the door wall, short end 2941 from the back wall (so x 1010–1780, y 2941–4201); the top overhangs the base by 10 all round | Measured |
 
@@ -208,7 +208,7 @@ The screen colours each part is drawn in, as set in [room_3d.html](room_3d.html)
 | Kitchen units | `#F5F4EF`, high gloss | Clerkenwell Gloss White |
 | Kitchen worktop | `#CFC3B0` | Light stone laminate (estimated) |
 | Sink | `#C4C8CC`, metallic | Stainless steel |
-| Alcove tiles | `#EEEEEA` | |
+| Sink recess tiles | `#EEEEEA` | |
 | Island | `#EDE6D5`, oak top `#D6A562` | |
 | Desk | `#F2F1EE` | |
 | Chair, monitors, riser | `#222222` | |

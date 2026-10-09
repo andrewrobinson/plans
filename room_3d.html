@@ -388,9 +388,13 @@ const RECESS_X = -(KITCHEN_SETBACK + KITCHEN_DEPTH);
 // (372, measured). Between it and the sink alcove is 1490 of wall (measured).
 const DESK_RECESS = { x0: W - 1623, depth: 372 };
 const WALL_BETWEEN_RECESSES = 1490;
+// The recess over the sink, also from the floor: from the kitchen recess's
+// back wall (so the L of units turns into it) to 1490 short of the desk
+// recess, 372 deep (5751 - 5379, both measured), up to about 1990 (estimated)
+const SINK_RECESS = { x0: RECESS_X, x1: DESK_RECESS.x0 - WALL_BETWEEN_RECESSES, depth: 372, top: 1990 };
 const DESK_TOP = 830;                                                // the desk in the recess, measured
 slab([[0, 0], [W, 0], [W, D + DESK_RECESS.depth], [DESK_RECESS.x0, D + DESK_RECESS.depth], [DESK_RECESS.x0, D],
-  [RECESS_X, D], [RECESS_X, RECESS_FROM], [0, RECESS_FROM]], -20, 0, floorMat, scene);
+  [SINK_RECESS.x1, D], [SINK_RECESS.x1, D + SINK_RECESS.depth], [RECESS_X, D + SINK_RECESS.depth], [RECESS_X, RECESS_FROM], [0, RECESS_FROM]], -20, 0, floorMat, scene);
 box(-WALL, -WALL, 0, W + WALL, 0, H, wallMat, scene, false);         // back wall
 // The doorway: the frame starts 1329 from the back wall, the furthest a
 // cupboard on the left wall can come. The door hinges at 1400, so the frame
@@ -403,7 +407,7 @@ const frameMat = material(0xffffff);
 box(-WALL, 0, 0, 0, FRAME, H, wallMat, scene, false);                // left wall, behind the doorway
 box(-WALL, FRAME_END, 0, 0, RECESS_FROM, H, wallMat, scene, false);  // left wall, past the doorway to the return
 box(RECESS_X - WALL, RECESS_FROM - WALL, 0, 0, RECESS_FROM, H, wallMat, scene, false); // the return wall, facing the front
-box(RECESS_X - WALL, RECESS_FROM, 0, RECESS_X, D, H, wallMat, scene, false);           // the recess's back wall
+box(RECESS_X - WALL, RECESS_FROM, 0, RECESS_X, D + SINK_RECESS.depth, H, wallMat, scene, false);   // the recess's back wall, on into the sink recess
 box(-WALL, FRAME, FRAME_H, 0, FRAME_END, H, wallMat, scene, false);     // over the doorway
 box(-WALL, FRAME, 0, 0, HINGE, FRAME_H, frameMat, scene);               // frame, hinge side
 box(-WALL, FRAME_END - JAMB, 0, 0, FRAME_END, FRAME_H, frameMat, scene); // frame, far side
@@ -493,11 +497,10 @@ const KITCHEN = {
   depth: KITCHEN_DEPTH, tall: 2400, wallUnits: [1450, 2400],
   worktop: 894,                  // to the top of the worktop, measured
   wallDepth: 400,                // wall units, measured
-  frontRunTo: DESK_RECESS.x0 - WALL_BETWEEN_RECESSES,   // the alcove's edge, past the sink
-  counterPast: 75,               // the front-wall run (base units and worktop) carries on 75 past it
-  // The alcove in the front wall above the sink: 372 deep (5751 - 5379, both
-  // measured), from the worktop up; its width and top are estimated
-  alcove: { x: [-595, DESK_RECESS.x0 - WALL_BETWEEN_RECESSES], top: 1990, depth: 372 },   // its right edge from the measurements; its left edge and top estimated
+  frontRunTo: SINK_RECESS.x1,    // the sink recess's edge
+  counterPast: 75,               // the front-wall run (base units and worktop) carries on 75 past it, in front of the wall
+  // The front-wall run stands at the back of the sink recess (SINK_RECESS)
+  alcove: { x: [SINK_RECESS.x0, SINK_RECESS.x1], top: SINK_RECESS.top, depth: SINK_RECESS.depth },
   sink: { x: [-250, 550] },      // a stainless sink below the alcove (estimated)
   // The loose island: its top 770 wide x 1260 long, 900 high, its long edge
   // 1010 from the door wall and its short end 2941 from the back wall; the top
@@ -514,14 +517,17 @@ const islandTopMat = material(0xd6a562);                                        
   const run = from + depth;                                        // the base run starts after the tall unit
   const X = RECESS_X, F = X + depth;                                // the recess wall, and the units' fronts
   box(X, from, 0, F, run, tall, kitchenMat, scene);                 // tall fridge unit
-  box(X, run, 0, F, D, worktop - 40, kitchenMat, scene);            // base units along the left wall
-  box(X, run, worktop - 40, F + 20, D, worktop, worktopMat, scene);
+  const back = D + KITCHEN.alcove.depth, edge = KITCHEN.alcove.x[1];  // the sink recess's back wall, and its right edge
+  box(X, run, 0, F, back, worktop - 40, kitchenMat, scene);         // base units along the left wall, on into the sink recess
+  box(X, run, worktop - 40, F + 20, back, worktop, worktopMat, scene);
   box(X, run, wallUnits[0], X + wallDepth, run + 600, wallUnits[1], kitchenMat, scene);         // wall units
   box(X, run + 1200, wallUnits[0], X + wallDepth, D, wallUnits[1], kitchenMat, scene);          // (the extractor sits between), on to the corner
-  box(F, D - depth, 0, runEnd, D, worktop - 40, kitchenMat, scene);                             // base units along the front wall
-  box(F + 20, D - depth - 20, worktop - 40, runEnd, D, worktop, worktopMat, scene);
+  box(F, back - depth, 0, edge, back, worktop - 40, kitchenMat, scene);                          // base units along the front wall, in the sink recess
+  box(edge, back - depth, 0, runEnd, D, worktop - 40, kitchenMat, scene);                         // and the 75 past it, in front of the wall
+  box(F + 20, back - depth - 20, worktop - 40, edge, back, worktop, worktopMat, scene);
+  box(edge, back - depth - 20, worktop - 40, runEnd, D, worktop, worktopMat, scene);
   const sinkMat = new THREE.MeshStandardMaterial({ color: 0xc4c8cc, roughness: 0.3, metalness: 0.6 });
-  box(KITCHEN.sink.x[0], D - 520, worktop - 6, KITCHEN.sink.x[1], D - 90, worktop + 2, sinkMat, scene);  // sink, set into the worktop
+  box(KITCHEN.sink.x[0], back - 520, worktop - 6, KITCHEN.sink.x[1], back - 90, worktop + 2, sinkMat, scene);  // sink, set into the worktop
 
   // The front wall, seen only from inside (like the ceiling), so the views from
   // outside still see in. It has the alcove above the sink.
@@ -536,7 +542,6 @@ const islandTopMat = material(0xd6a562);                                        
   };
   const intoRoom = [0, Math.PI];                                   // a face looking back into the room
   const [a0, a1] = alcove.x, aTop = alcove.top, aBack = D + alcove.depth;
-  face(a0 - X, H, wallMat, (X + a0) / 2, H / 2, D, intoRoom);                          // left of the alcove
   const d0 = DESK_RECESS.x0, dBack = D + DESK_RECESS.depth;
   face(d0 - a1, H, wallMat, (a1 + d0) / 2, H / 2, D, intoRoom);                        // right of it, to the desk recess
   face(W - d0, H, wallMat, (d0 + W) / 2, H / 2, dBack, intoRoom);                      // the desk recess's back
@@ -585,13 +590,12 @@ const islandTopMat = material(0xd6a562);                                        
   box(cx - 25, cy - 25, 80, cx + 25, cy + 25, SEAT - 70, blackMat, deskChair);                         // column
   box(cx - 320, cy - 25, 40, cx + 320, cy + 25, 80, blackMat, deskChair);                              // base
   box(cx - 25, cy - 320, 40, cx + 25, cy + 320, 80, blackMat, deskChair);
-  face(a1 - a0, worktop, wallMat, (a0 + a1) / 2, worktop / 2, D, intoRoom);            // below it, behind the worktop
   face(a1 - a0, H - aTop, wallMat, (a0 + a1) / 2, (aTop + H) / 2, D, intoRoom);        // above it
   face(a1 - a0, aTop - worktop, tileMat, (a0 + a1) / 2, (worktop + aTop) / 2, aBack, intoRoom);   // the alcove's tiled back
-  face(alcove.depth, aTop - worktop, tileMat, a0, (worktop + aTop) / 2, D + alcove.depth / 2, [0, Math.PI / 2]);   // its sides
-  face(alcove.depth, aTop - worktop, tileMat, a1, (worktop + aTop) / 2, D + alcove.depth / 2, [0, -Math.PI / 2]);
+  face(a1 - a0, worktop, wallMat, (a0 + a1) / 2, worktop / 2, aBack, intoRoom);                     // behind the units
+  face(alcove.depth, aTop - worktop, tileMat, a1, (worktop + aTop) / 2, D + alcove.depth / 2, [0, -Math.PI / 2]);   // its right side (the left is the kitchen recess's wall)
+  face(alcove.depth, worktop, wallMat, a1, worktop / 2, D + alcove.depth / 2, [0, -Math.PI / 2]);
   face(a1 - a0, alcove.depth, tileMat, (a0 + a1) / 2, aTop, D + alcove.depth / 2, [Math.PI / 2, 0]);    // its top, facing down
-  face(a1 - a0, alcove.depth, worktopMat, (a0 + a1) / 2, worktop, D + alcove.depth / 2, [-Math.PI / 2, 0]); // its sill, facing up
   const { x: ix, y: iy, width, length, top, overhang } = island;
   box(ix + overhang, iy + overhang, 0, ix + width - overhang, iy + length - overhang, top - 40, islandMat, scene);   // the base, under the top
   box(ix, iy, top - 40, ix + width, iy + length, top, islandTopMat, scene);                        // the oak top
@@ -1605,7 +1609,7 @@ function updateDims() {
   } else if (flatView === 'front') {
     const { alcove, worktop } = KITCHEN;
     const withDresser = shown !== OPTIONS.length - 1;
-    chain([RECESS_X, ...alcove.x, KITCHEN.frontRunTo + KITCHEN.counterPast, ...(withDresser ? [DRESSER.x0, DRESSER.x1] : []), DESK_RECESS.x0, W], (v, off) => P(v, D, -200 - off), dims);
+    chain([RECESS_X, alcove.x[1], KITCHEN.frontRunTo + KITCHEN.counterPast, ...(withDresser ? [DRESSER.x0, DRESSER.x1] : []), DESK_RECESS.x0, W], (v, off) => P(v, D, -200 - off), dims);
     if (withDresser) chain([0, DRESSER.baseH, DRESSER.h], (v, off) => P(DRESSER.x0 + 200 + off, D, v), dims);   // on the dresser's face
     chain([0, worktop, alcove.top, H], (v, off) => P(RECESS_X - 250 - off, D, v), dims);   // the kitchen side
     chain([0, DESK_TOP, DESK_TOP + 550, H], (v, off) => P(W + 250 + off, D, v), dims);     // the desk and monitor tops
