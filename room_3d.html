@@ -48,10 +48,11 @@
   .seg input { position: absolute; opacity: 0; pointer-events: none; }
   .seg label:has(input:checked) { background: #1f4e79; color: #fff; }
   .seg label:has(input:focus-visible) { outline: 2px solid #1f4e79; outline-offset: -2px; }
-  @media (max-width: 600px) { #bar { flex-wrap: wrap; } #current { display: none; } }
+  @media (max-width: 600px) { #bar { flex-wrap: wrap; } #current { flex: 1 1 100%; } }
+  /* The option on show, as a dropdown to switch options without the menu */
   #current {
-    background: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 6px 10px; font-size: 13px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    pointer-events: auto; height: 44px; min-width: 0; max-width: 100%; border: none; border-radius: 10px; padding: 0 10px;
+    background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font: inherit; font-size: 14px; cursor: pointer;
   }
   /* On phones the open drawer dims the model; tapping there closes it */
   #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
@@ -97,7 +98,7 @@
     <label title="Standing, island on my left"><input type="radio" name="startView" value="standing">Island</label>
     <label title="Standing in the kitchen"><input type="radio" name="startView" value="kitchen">Kitchen</label>
   </div>
-  <div id="current"></div>
+  <select id="current" aria-label="Cupboard option"></select>
 </div>
 <div id="scrim"></div>
 <div id="panel">
@@ -1315,6 +1316,11 @@ function update() {
 }
 [tallSlider, secondSlider, roomSlider].forEach(s => s.addEventListener('input', update));
 
+// The top bar's dropdown of options, kept in step by show()
+const currentSelect = document.getElementById('current');
+currentSelect.innerHTML = OPTIONS.map((o, i) => `<option value="${i}">${o.name}</option>`).join('');
+currentSelect.addEventListener('change', () => show(Number(currentSelect.value)));
+
 const buttons = OPTIONS.map((option, i) => {
   const b = document.createElement('button');
   b.textContent = option.name;
@@ -1343,7 +1349,8 @@ function show(i) {
     b.classList.toggle('on', i === j);
     b.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft);
   });
-  document.getElementById('current').textContent = option.name;
+  [...currentSelect.options].forEach((o, j) => { o.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft); });
+  currentSelect.value = String(i);
   document.getElementById('summary').innerHTML =
     `${(T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary)()}${aboveText}<div class="src">From ${option.source}</div>`;
   document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
