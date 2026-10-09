@@ -124,6 +124,8 @@
   <div>Room 3838 × 5379, ceiling 2443. Sizes in mm. Keys 1–9 switch option.</div>
 
   <div id="options"></div>
+  <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
+  <input id="depth" type="range" min="290" max="800" step="10" value="290">
   <label for="rear">Rear wall cupboard depth: <span id="rearValue">500</span></label>
   <input id="rear" type="range" min="300" max="800" step="10" value="500">
   <div id="wardBlock">
@@ -164,14 +166,6 @@
 
   <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
   <input id="roomDoor" type="range" min="0" max="110" value="90">
-  <div id="depth" class="depth">Left-wall cupboard depth:
-    <label><input type="radio" name="depth" value="0" checked> 0 (none)</label>
-    <label><input type="radio" name="depth" value="400"> 400</label>
-    <label><input type="radio" name="depth" value="500"> 500</label>
-    <label><input type="radio" name="depth" value="600"> 600</label>
-    <label><input type="radio" name="depth" value="700"> 700</label>
-    <label><input type="radio" name="depth" value="800"> 800</label>
-  </div>
   <div id="front" class="depth">Left-wall cupboard front:
     <label><input type="radio" name="front" value="1200" checked> 1200</label>
     <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
@@ -586,8 +580,8 @@ box(-44, 0, 0, 0, ROOM_DOOR, ROOM_DOOR_H, roomDoorMat, roomHinge);
 box(0, 600, 1000, 60, 720, 1020, handleMat, roomHinge, false);
 
 // ---------------------------------------------------------------------------
-// The left-wall cupboard's depth from the wall, T: 0 (none), or 400 to 800
-// in 100s. Options 2 and 8 need it, so they're unavailable at 0. Everything
+// The left-wall cupboard's depth from the wall, T: 0 (none), or 300 to 800
+// in 10s, from the slider. Options 2 and 8 need it, so they're unavailable at 0. Everything
 // along the back wall starts from it, so it is set before an option is built.
 // ---------------------------------------------------------------------------
 let T = 0;                         // starts with no left-wall cupboard
@@ -1553,6 +1547,7 @@ function readStoredAddress(text) {
 document.getElementById('storedToggle').addEventListener('click', () => {
   showStored = !showStored;
   drawStored();
+  updatePalette();
   writeAddress();
 });
 document.getElementById('storedPack').addEventListener('click', () => {
@@ -1729,10 +1724,19 @@ window.addEventListener('keydown', e => {
   if (n >= 1 && n <= OPTIONS.length) show(n - 1);
 });
 
-document.querySelectorAll('input[name=depth]').forEach(r => r.addEventListener('change', () => {
-  T = Number(r.value);
+// The left-wall cupboard's depth: none at the far left (290 on the slider),
+// then 300 to 800
+const depthSlider = document.getElementById('depth');
+function setDepth(t) {
+  T = t;
+  depthSlider.value = String(t || 290);
+  document.getElementById('depthValue').textContent = t ? t : 'none';
+}
+depthSlider.addEventListener('input', () => {
+  const v = Number(depthSlider.value);
+  setDepth(v < 300 ? 0 : v);
   show(shown);
-}));
+});
 const rearSlider = document.getElementById('rear');
 rearSlider.addEventListener('input', () => {
   R = Number(rearSlider.value);
@@ -1894,6 +1898,7 @@ function updatePalette() {
     ['Chair, monitors and riser', '#222222'],
     ['Window panes (blinds)', '#CFE3EF', 'See-through: shows as about #B8C0BF'],
     ['Radiators', '#F6F6F4'],
+    ...(showStored ? STORED.map((t, k) => [t.name, hex(storedMats[k]), 'to store']) : []),
   ];
   document.getElementById('paletteList').innerHTML = rows.map(([what, value, name]) =>
     `<div class="colrow"><span class="swatch" style="background:${value}"></span>` +
@@ -2184,11 +2189,7 @@ if (frontRadio) {
   F = front;
   frontRadio.checked = true;
 }
-const depthRadio = document.querySelector(`input[name=depth][value="${depth}"]`);
-if (depthRadio) {
-  T = depth;
-  depthRadio.checked = true;
-}
+if (depth === 0 || (depth >= 300 && depth <= 800)) setDepth(depth);
 if (rear >= 300 && rear <= 800) {
   R = rear;
   rearSlider.value = rear;

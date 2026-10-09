@@ -88,7 +88,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Wi
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
 | Option | `shown` | 1–10 (10 is the current room, with nothing built; the Current room button picks it) | 10 | Which cupboard layout |
-| Left-wall cupboard depth | `T` | 0 (none), 400, 500, 600, 700, 800 | 0 | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
+| Left-wall cupboard depth | `T` | none, or 300 to 800 in 10s (slider; none is at its far left) | none (0) | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 300 to 800, in 10s (slider) | 500 | How deep the bench and the back-wall cupboards are, from the back wall |
 | Upper cupboard width | `UPPER` | 400 to 1200, in 50s | 700 | Width along the back wall of option 4's upper cupboard, and of options 3 and 5, which are built on it. Its door is UPPER − 24 wide. Shown on options 3–5 |
@@ -114,14 +114,14 @@ The page address records the option and settings as `#option-T-R-F-above-shelfDe
 
 Bulky things that the corner cupboard must eventually hold, drawn standing on the floor as plain blocks (the tub as a cylinder). In the 2D plan view each can be dragged, and double-clicked or double-tapped to turn it round. A blue outline round them all, labelled with its size, is the floor area they need. **Pack them again** puts them back as below.
 
-| Thing | Footprint (along x × along y, as packed) | Height | Notes |
-| --- | --- | --- | --- |
-| Drying racks, 2 | 300 × 800 (turned) | 700 | Each 800 wide × 700 high × 100 thick; they can't stack, so they're one block 300 thick |
-| Folding ladder | 380 × 220 | 1200 | |
-| Long ladder | 100 × 520 (turned) | 1620 | The tallest thing |
-| Mop | 400 × 320 | 1200 | |
-| Dustpan and hoover | 320 × 280 | 1000 | |
-| Yellow tub | 550 across (550 × 550) | 450 | |
+| Thing | Footprint (along x × along y, as packed) | Height | Colour | Notes |
+| --- | --- | --- | --- | --- |
+| Drying racks, 2 | 300 × 800 (turned) | 700 | `#D9DDE2`, light grey | Each 800 wide × 700 high × 100 thick; they can't stack, so they're one block 300 thick |
+| Folding ladder | 380 × 220 | 1200 | `#AAB0B6`, aluminium | |
+| Long ladder | 100 × 520 (turned) | 1620 | `#8A9199`, darker aluminium | The tallest thing |
+| Mop | 400 × 320 | 1200 | `#4F86B8`, blue | |
+| Dustpan and hoover | 320 × 280 | 1000 | `#B8473A`, red | |
+| Yellow tub | 550 across (550 × 550) | 450 | `#F2C230`, yellow | |
 
 Packed as tightly as they go (found by trying every order and turn), they need **850 × 1090** of floor, 0.93 m² for 0.90 m² of footprints. They start like this, loose on the floor right of the island, opposite the middle window (x 2000 to 2850, y 2362 to 3452). Other close packings: 860 × 1080 (0.93 m²); 700 × 1370 (0.96 m²) if one side can be no more than 700; 580 × 1770 (1.03 m²) if one side can be no more than 600. Inside, the corner cupboard needs at least one of these floor areas, and 1620 of height for the long ladder.
 
@@ -173,6 +173,7 @@ The screen colours each part is drawn in, as set in [room_3d.html](room_3d.html)
 | Background | `#EEF0F2` | |
 | Outlines | `#3B2A12` | Edges of the boxes |
 | Dimensions (2D views) | `#9B1C1C` | |
+| Things to store | See [Things to store](#things-to-store) | Their outline and plan labels are `#1F4E79` |
 
 ### Sizes that follow from the parameters
 
