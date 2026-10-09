@@ -1445,13 +1445,13 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 
-// The settings drawer: open on wide screens to start with, closed on phones
+// The settings drawer starts closed on every screen; ☰ opens it
 const narrow = () => window.innerWidth <= 900;
 function setMenu(open) {
   document.body.classList.toggle('menu-open', open);
   document.getElementById('menu').setAttribute('aria-expanded', String(open));
 }
-setMenu(!narrow());
+setMenu(false);
 document.getElementById('menu').addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
 document.getElementById('close').addEventListener('click', () => setMenu(false));
 document.getElementById('scrim').addEventListener('click', () => setMenu(false));
