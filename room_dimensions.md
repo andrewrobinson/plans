@@ -53,11 +53,23 @@ Opened to 90°, the door lies along x 0 to 760, at y 1400 to 1444.
 | Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Upper cupboards, corner shelves and everything above the bench move with it |
 | Above the bench | `above` | Nothing, Shelves, TV, TV and shelves, TV and top shelf | Nothing | What's on the back wall over the bench |
 | Shelf depth | `shelfDepth` | 150 to 400, in 10s | 250 | Depth of the shelves above the bench |
+| Floor, cupboard, woodwork and wall colours | `ralChosen` | RAL Classic codes (about 100 common ones), the room's finishes by name, or empty | Empty: as the room is now (oak floor, Gallery White walls, Brilliant White woodwork); cupboards and bench the same colour as the woodwork | Cupboards covers carcasses, doors and the bench; woodwork is the door frame and room door. Oak shelves and the oak top keep their colour. Screen colours are approximate |
 | Left-wall cupboard door | slider | 0°–110° | 0° | How far it's opened |
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
 | Room door | slider | 0°–110° | 90° | How far it's opened |
 
-The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600`.
+The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2`. A code of 0 means the default (the room as it is now); 1, 2 and 3 are the room's finishes below.
+
+## The room's finishes
+
+| Where | Finish | Code in the address | Screen colour (approx.) | Nearest RAL |
+| --- | --- | --- | --- | --- |
+| Walls | Crown Gallery White (K9710C), matt emulsion | 1 | `#DCDEDB` | 7035 Light grey / 9018 Papyrus white |
+| Woodwork | Dulux Pure Brilliant White, gloss | 2 | `#F8F8F6`, a clean white (one paint database gives `#EDECE7`) | 9003 Signal white / 9016 Traffic white |
+| Ceilings | Dulux Pure Brilliant White, matt | — | `#EDECE7` | 9003 / 9016. Drawn with six downlights, seen only from inside the room |
+| Floor | Howdens Oak 3 Strip Engineered Flooring (SDH3220): oak, 2200 × 207 × 14 boards of three 69 strips, click fit, 3.18 m² packs | 3 | About `#D29A50` in daylight photos of the room; drawn as oak boards | 1002 Sand yellow (darker strips near 1011 Brown beige) |
+
+The wall spec mentions "Indulgence", but Crown's Indulgence is a blue (CRAFTED by Crown), so check the tin.
 
 ### Sizes that follow from the parameters
 
