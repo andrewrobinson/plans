@@ -108,13 +108,26 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Wi
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
 | Room door | slider | 0°–110° | 90° | How far it's opened |
 
-The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-TV_INCHES-dresser~stored`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2-3-65-6~1_2550.2642.1_2100.2362.0_2000.2362.1_2100.2582.0_2500.2362.0_2000.2902.0`. After the `~` are the things to store: 1 shown or 0 hidden, then `x.y.turned` for each, in the order of the table below. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours.
+The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-TV_INCHES-dresser~stored`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2-3-65-6~1.0.0_2550.2642.1_2100.2362.0_2000.2362.1_2100.2582.0_2500.2362.0_2000.2902.0`. After the `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, which are used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours.
 
 ## Things to store
 
-Bulky things that the corner cupboard must eventually hold, drawn standing on the floor as plain blocks (the tub as a cylinder). In the 2D plan view each can be dragged, and double-clicked or double-tapped to turn it round. A blue outline round them all, labelled with its size, is the floor area they need. **Pack them again** puts them back as below.
+Bulky things that the corner cupboard must eventually hold, drawn standing on the floor as plain blocks (the tub as a cylinder). In the 2D plan view each can be dragged, and double-clicked or double-tapped to turn it round. A blue outline round them all, labelled with its size, is the floor area they need.
 
-| Thing | Footprint (along x × along y, as packed) | Height | Colour | Notes |
+In the menu, **Packing** picks one of the four packings below, and **Where** puts it **By the middle window** (loose on the floor right of the island) or **In the corner cupboard** of the option on show. In the cupboard it's pushed into whichever inside corner, and whichever way round, fits the most; it moves again whenever the option or its sizes change. Anything partly in the cupboard that doesn't fit, because it sticks out or is too tall there, turns red, the outline turns red, and the menu says how many fit and why the others don't. **Pack them again** puts them back after moving them by hand.
+
+The corner cupboard's inside, for each option (shelves inside are taken to be removable; bench tops, dividers and panels count):
+
+| Options | Inside |
+| --- | --- |
+| 1–5 | The left-wall cupboard: full height (2407) from y = R + 18 to F − 18, and under the bench (BENCH − 36) behind that, x 0 to T |
+| 6 | The back-wall leg's lower cupboard (BENCH − 36 high), and the left-wall leg at full height |
+| 7 | Both legs of the L at full height |
+| 8 | The corner unit at full height, to 25 behind its diagonal doors |
+| 9 | The double-door cupboard (x 0 to T + WARD − 18, WARD_D deep) and the left-wall leg, at full height |
+| 10 | None: they stay by the window |
+
+| Thing | Footprint (along x × along y, in the 850 × 1090 packing) | Height | Colour | Notes |
 | --- | --- | --- | --- | --- |
 | Drying racks, 2 | 300 × 800 (turned) | 700 | `#D9DDE2`, light grey | Each 800 wide × 700 high × 100 thick; they can't stack, so they're one block 300 thick |
 | Folding ladder | 380 × 220 | 1200 | `#AAB0B6`, aluminium | |
@@ -123,7 +136,7 @@ Bulky things that the corner cupboard must eventually hold, drawn standing on th
 | Dustpan and hoover | 320 × 280 | 1000 | `#B8473A`, red | |
 | Yellow tub | 550 across (550 × 550) | 450 | `#F2C230`, yellow | |
 
-Packed as tightly as they go (found by trying every order and turn), they need **850 × 1090** of floor, 0.93 m² for 0.90 m² of footprints. They start like this, loose on the floor right of the island, opposite the middle window (x 2000 to 2850, y 2362 to 3452). Other close packings: 860 × 1080 (0.93 m²); 700 × 1370 (0.96 m²) if one side can be no more than 700; 580 × 1770 (1.03 m²) if one side can be no more than 600. Inside, the corner cupboard needs at least one of these floor areas, and 1620 of height for the long ladder.
+Packed as tightly as they go (found by trying every order and turn), they need **850 × 1090** of floor, 0.93 m² for 0.90 m² of footprints. They start like this, loose on the floor right of the island, opposite the middle window (x 2000 to 2850, y 2362 to 3452). The other packings to choose from: 860 × 1080 (0.93 m²); 700 × 1370 (0.96 m²) if one side can be no more than 700; 580 × 1770 (1.03 m²) if one side can be no more than 600. Inside, the corner cupboard needs at least one of these floor areas, and 1620 of height for the long ladder.
 
 ## The room's finishes
 
