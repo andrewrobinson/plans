@@ -54,13 +54,24 @@ Past the door frame, the left wall steps back: a short return wall faces the fro
 | Alcove above the sink | 372 deep into the front wall (5751 − 5379, measured); x −595 to 725, from the worktop (894) to about 1990 | Depth and right edge from measurements; left edge and top estimated. Tiled inside |
 | Wall between the alcove and the desk recess | 1490 | Measured |
 | Desk recess | 1623 across, 372 deep, full height, x 2215 to the right-hand wall | Measured, assuming it runs to the right-hand wall |
-| Desk | white, 1600 wide (filling the recess), 802 deep from the recess back (so 430 out into the room), 830 high | Measured. Monitor estimated |
+| Desk | white, 1600 wide (filling the recess), 802 deep from the recess back (so 430 out into the room), 830 high | Measured |
+| Monitors | 2 screens, 610 wide × 360 high, tops 550 above the desk, spaced evenly across it, on a riser 1080 wide × 230 deep × 10 high, centred, 80 from the back of the recess | Measured, except the riser being centred |
 | Office chair | seat at 590, headrest top at 1400, 600 wide across the armrests | Measured; position and other sizes estimated |
 | Sink | stainless, x −250 to 550, below the alcove | Estimated |
 | Wall cupboards | over the drawers, and from the washing machine on to the front corner | The extractor is between |
 | Island (loose) | Top 770 wide × 1260 long, 900 high, long side along the room; long edge 1010 from the door wall, short end 2941 from the back wall (so x 1010–1780, y 2941–4201); the top overhangs the base by 10 all round | Measured |
 
 The kitchen and island are rough blocks in their real colours: units in Clerkenwell Gloss White, a light stone laminate worktop (`#CFC3B0`, estimated), the island in a warmer painted white (`#EDE6D5`) with a honey oak top (`#D6A562`).
+
+## Outer wall: windows and radiators
+
+The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Windows** view faces it.
+
+| What | Size or position | Notes |
+| --- | --- | --- |
+| Windows | 3 recesses, each 923 wide × 1390 high × 207 deep, sills at 912, so tops at 2302 (measured), with a white sill. They start 734, 2446 and 4137 from the back wall | Measured |
+| Outer wall, outside face | 300 out from the inside face, brick-coloured; only visible from outside | Thickness and colour are placeholders |
+| Radiators | 600 wide × 600 high × 100 thick, 240 off the floor (top at 840), fronts 132 out from the wall; centred under each window | Measured, except the position under the windows |
 
 ## Parameters you can change on the page
 
