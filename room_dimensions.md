@@ -42,13 +42,13 @@ Past the door frame, the left wall steps back: a short return wall faces the fro
 
 | What | Size or position | Notes |
 | --- | --- | --- |
-| Return wall | y = 2251 | Just past the door frame (2231). **Assumed** 20 past it |
+| Return wall | y = 2386 | 155 past the door frame (2231): from the back of the sink recess (5751), 610 (the corner) + 2125 (the counter's inner edge) + 630 (the fridge cabinet), all measured |
 | Kitchen fronts behind the door wall | 405 | Measured: the fridge front is 405 behind the door frame's wall |
 | Fridge unit depth | 590 | Measured |
 | Recess back wall | x = −995 | 405 + 590 behind the door wall |
 | Wall cupboards depth | 400 | Measured |
 | Worktop height | 894 | Measured, to the top |
-| Tall fridge unit | 590 wide along the wall, 2400 high | Width and height estimated |
+| Tall fridge unit | 630 wide along the wall, 2400 high | Width measured, height estimated |
 | Wall cupboards | 1450 to 2400 | Estimated |
 | Front-wall run | 590 units and a 610 worktop against the back of the sink recess (y = 5751), so the worktop's front is at 5141, 238 out from the front wall. From the recess wall to x = 800: the sink recess's edge (725), then 75 in front of the wall between it and the desk recess | The 725 from the measurements below; the 75 measured |
 | Sink recess | 372 deep into the front wall (5751 − 5379, measured), as deep as the desk recess; from the floor to about 1990; x −995 (the kitchen recess's back wall, so the L of units turns into it, and the left-wall run carries on to 5751) to 725. The floor runs into it | Depth and right edge from measurements; left edge and top estimated. Tiled above the worktop |
@@ -294,16 +294,12 @@ The model is good enough to show the dresser, so these are parked. Measured (Oct
 - From the sink, along the left wall towards the room door: the counter comes 610 (the corner), then 215 more of counter, then 630 of fridge cabinet, to the wall with the light switch.
 - "The counter extends 105 cm left of the base."
 
-How these might fit, now that the counter stands at the back of the 372-deep sink recess (y = 5751), with its front-wall leg's front at 5141:
+How these fit, with the counter at the back of the 372-deep sink recess (y = 5751) and its front-wall leg's front at 5141:
 
 - The front-wall leg's 1190 inner edge matches the model: the counter ends at x = 805, within 5 of the 800 drawn.
-- **Likely, waiting to be confirmed:** 2125 is right, and the "215 more of counter" is a typo for 2125. Then both descriptions agree: from the back of the sink recess, 610 (the corner) + 2125 (the left leg's inner edge, to y = 3016) + 630 (the fridge cabinet) = 3365, putting the light-switch (return) wall at y = 2386, 155 past the door frame (2231). The model still has it at 2251 (assumed) and the fridge cabinet 590 wide (estimated).
-- If 215 were right instead, the light-switch wall would be at 4296, with about 2 m of plain wall after the door frame: unlikely.
+- Confirmed: 2125 of counter (its inner edge) then 630 of fridge cabinet, so the "215" was 2125. The left leg's inner edge runs from y = 3016 to 5141 and the light-switch wall is at 2386; both now drawn.
 - What the 105 cm is measured from isn't known yet: perhaps how far the counter carries on past the base units under it.
-
-To do when confirmed: move the return wall to y = 2386 (the kitchen recess 135 shorter), draw the fridge cabinet 630 wide, and run the counter's left leg from 3016 to the sink recess.
-
-Also to check: the sink recess's left edge (taken as the kitchen recess's back wall, x = −995, so the L of units turns into it) and its top (about 1990) are estimates.
+- The sink recess's left edge (taken as the kitchen recess's back wall, x = −995, so the L of units turns into it) and its top (about 1990) are estimates.
 
 ### Other open points
 

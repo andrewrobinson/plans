@@ -378,7 +378,11 @@ const floorMat = material(0xd9d3c5);
 // light switch on it) and a recess for the kitchen. The kitchen's fronts are
 // 405 behind the door wall and the fridge unit is 590 deep (both measured), so
 // the recess's back wall is at x = -(405 + 590).
-const RECESS_FROM = 2231 + 20;                                       // the return wall, just past the door frame
+// The return wall: from the back of the sink recess (D + 372) along the left
+// wall come the corner (the 610 worktop), the counter's 2125 inner edge and
+// the 630 fridge cabinet (all measured), so it's at 2386, 155 past the door frame
+const FRIDGE_W = 630;
+const RECESS_FROM = D + 372 - 610 - 2125 - FRIDGE_W;
 const KITCHEN_SETBACK = 405, KITCHEN_DEPTH = 590;
 const RECESS_X = -(KITCHEN_SETBACK + KITCHEN_DEPTH);
 // The floor: L-shaped, the room plus the recess. Its texture is laid by
@@ -514,7 +518,7 @@ const islandTopMat = material(0xd6a562);                                        
 {
   const { from, depth, worktop, tall, wallUnits, wallDepth, frontRunTo, counterPast, island } = KITCHEN;
   const runEnd = frontRunTo + counterPast;                         // where the front-wall run ends
-  const run = from + depth;                                        // the base run starts after the tall unit
+  const run = from + FRIDGE_W;                                     // the base run starts after the tall unit
   const X = RECESS_X, F = X + depth;                                // the recess wall, and the units' fronts
   box(X, from, 0, F, run, tall, kitchenMat, scene);                 // tall fridge unit
   const back = D + KITCHEN.alcove.depth, edge = KITCHEN.alcove.x[1];  // the sink recess's back wall, and its right edge
