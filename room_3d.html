@@ -153,6 +153,18 @@
   </div>
   <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
   <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+  <div id="dresserBlock">
+    <label for="dresserW">Dresser width: <span id="dresserWValue">1320</span></label>
+    <input id="dresserW" type="range" min="900" max="1490" step="10" value="1320">
+    <label for="dresserH">Dresser height: <span id="dresserHValue">2100</span></label>
+    <input id="dresserH" type="range" min="1500" max="2400" step="10" value="2100">
+    <label for="dresserBaseD">Dresser base depth: <span id="dresserBaseDValue">400</span></label>
+    <input id="dresserBaseD" type="range" min="300" max="600" step="10" value="400">
+    <label for="dresserBaseH">Dresser base height: <span id="dresserBaseHValue">900</span></label>
+    <input id="dresserBaseH" type="range" min="700" max="1000" step="10" value="900">
+    <label for="dresserUpperD">Dresser upper depth: <span id="dresserUpperDValue">290</span></label>
+    <input id="dresserUpperD" type="range" min="150" max="400" step="10" value="290">
+  </div>
   <div id="tvBlock">
     <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
     <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
@@ -1053,13 +1065,23 @@ function baseCupboards(x0, g) {
 // the Cotswold Company's Chester dresser: 1320 wide, centred on the 1490 of
 // wall between the alcove and the desk recess, 2100 high. Up to 900 it's 400
 // deep: two drawers over two doors, under a wooden top. Above, it's 290 deep,
-// with three open shelves and a top that overhangs a little. Painted parts
+// with three open shelves and a top that overhangs a little. These are the
+// starting sizes; its sliders change them. Painted parts
 // are in the dresser colour (the cupboards' unless chosen), the top and
 // shelves in the shelf colour.
 // Drawn in every option but the current room.
 const DRESSER = { w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290, drawer: 160 };
-DRESSER.x0 = KITCHEN.frontRunTo + (WALL_BETWEEN_RECESSES - DRESSER.w) / 2;
-DRESSER.x1 = DRESSER.x0 + DRESSER.w;
+// The dresser's sizes can be changed from its sliders: [key, slider id, lowest,
+// highest, step]. It stays centred on the wall, and its upper part is never
+// deeper than its base.
+const DRESSER_SLIDERS = [['w', 'dresserW', 900, 1490, 10], ['h', 'dresserH', 1500, 2400, 10],
+  ['baseD', 'dresserBaseD', 300, 600, 10], ['baseH', 'dresserBaseH', 700, 1000, 10], ['upperD', 'dresserUpperD', 150, 400, 10]];
+function placeDresser() {
+  DRESSER.upperD = Math.min(DRESSER.upperD, DRESSER.baseD);
+  DRESSER.x0 = KITCHEN.frontRunTo + (WALL_BETWEEN_RECESSES - DRESSER.w) / 2;
+  DRESSER.x1 = DRESSER.x0 + DRESSER.w;
+}
+placeDresser();
 function dresser(g) {
   const { x0, x1, w, h, baseD, baseH, upperD, drawer } = DRESSER;
   const yb = D - baseD, yu = D - upperD;                         // the fronts of the base and the upper part
@@ -1080,7 +1102,8 @@ function dresser(g) {
   box(x1 - 18, yu, baseH, x1, D, h - 40, dresserMat, g);
   box(x0 + 18, D - 12, baseH, x1 - 18, D, h - 40, dresserMat, g);   // back
   box(x0 - 20, yu - 20, h - 40, x1 + 20, D, h, dresserMat, g);   // top, 20 proud
-  for (const top of [1250, 1550, 1850]) box(x0 + 18, yu, top - 22, x1 - 18, D - 12, top, shelfMat, g);
+  const shelfTops = [1, 2, 3].map(k => Math.round(baseH + k * (h - 40 - baseH) / 4));   // evenly up the upper part
+  for (const top of shelfTops) box(x0 + 18, yu, top - 22, x1 - 18, D - 12, top, shelfMat, g);
   return ` A dresser on the front wall between the sink and the desk (x ${x0}-${x1}): ${w} wide, ${h} high, ${baseD} deep up to ${baseH} ` +
     `(two drawers over two doors, under a wooden top), then ${upperD} deep with three open shelves.`;
 }
@@ -1909,6 +1932,7 @@ function show(i) {
   document.getElementById('depthBlock').style.display = option.fixedWidth ? 'none' : '';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
+  document.getElementById('dresserBlock').style.display = i === CURRENT ? 'none' : '';
   document.getElementById('secondLabel').textContent = option.second || '';
   if (!same) secondSlider.value = 0;
   updateDims();
@@ -1922,7 +1946,7 @@ function show(i) {
 // The address holds the option, every setting and, after "~", where the
 // things to store are
 function writeAddress() {
-  try { location.hash = `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}~${storedAddress()}`; } catch (e) { /* not important */ }
+  try { location.hash = `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}~${storedAddress()}`; } catch (e) { /* not important */ }
 }
 
 window.addEventListener('keydown', e => {
@@ -2131,6 +2155,21 @@ function setTvSize(k) {
   document.getElementById('tvSizeValue').textContent = `${TV_INCHES}" (${TV_W} × ${TV_H})`;
   benchHeights();                                               // the top shelf may move with it
 }
+// The dresser's sliders
+function setDresser(key, v) {
+  DRESSER[key] = v;
+  placeDresser();
+  for (const [k, id] of DRESSER_SLIDERS) {                       // the upper depth may have been held to the base's
+    document.getElementById(id).value = String(DRESSER[k]);
+    document.getElementById(`${id}Value`).textContent = DRESSER[k];
+  }
+}
+for (const [key, id] of DRESSER_SLIDERS) {
+  document.getElementById(id).addEventListener('input', e => {
+    setDresser(key, Number(e.target.value));
+    show(shown);
+  });
+}
 tvSlider.addEventListener('input', () => {
   setTvSize(Number(tvSlider.value));
   show(shown);
@@ -2194,9 +2233,9 @@ const views = {
   // left of the desk recess
   plan:   { position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9] },    // back wall at the top
   back:   { position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1] },        // facing the back wall
-  left:   { position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 800, 1] },         // facing the left wall, back wall on the right
+  left:   { position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 700, 1] },         // facing the left wall, back wall on the right
   front:  { position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
-  right:  { position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 2200, -1] },   // facing the right wall, back wall on the left
+  right:  { position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 2220, -1] },   // facing the right wall, back wall on the left
 };
 let flatFit = views.plan.fit;
 let flatPerM = null;               // the 2D views' scale, pixels per metre at zoom 1
@@ -2351,6 +2390,12 @@ if (tvIndex >= 0) setTvSize(tvIndex);
 // A link's cupboard colour wins, even 0 (same as the woodwork)
 if (ralCupboard !== undefined && !Number.isNaN(ralCupboard) && setRal('cupboard', ralCupboard) !== null) refreshColours();
 if (Number.isFinite(ralDresser) && setRal('dresser', ralDresser) !== null) refreshColours();
+// The dresser's sizes, as w.h.baseD.baseH.upperD (a number, so read from the text)
+const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
+if (dresserText) dresserText.split('.').map(Number).forEach((v, k) => {
+  const [key, , lo, hi] = DRESSER_SLIDERS[k] || [];
+  if (key && v >= lo && v <= hi) setDresser(key, v);
+});
 for (const [id, value, lo, hi, set] of [['ward', wardIn, 600, 1400, v => { WARD = v; }], ['tower', towerIn, 0, 600, v => { TOWER = v; }], ['wardD', wardDIn, 330, 1000, v => { WARD_D = v; }]]) {
   if (value >= lo && value <= hi) {
     set(value);

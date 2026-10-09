@@ -65,13 +65,13 @@ The kitchen and island are rough blocks in their real colours: units in Clerkenw
 
 ## Dresser (idea)
 
-On the front wall between the sink and the desk, a bit like the Cotswold Company's Chester Dove Grey large dresser. Drawn in options 1 to 9, not in the current room. Painted parts are in the dresser colour, which is the cupboards' unless you choose another; the top and shelves are in the shelf colour.
+Its sizes below are where its sliders start. On the front wall between the sink and the desk, a bit like the Cotswold Company's Chester Dove Grey large dresser. Drawn in options 1 to 9, not in the current room. Painted parts are in the dresser colour, which is the cupboards' unless you choose another; the top and shelves are in the shelf colour.
 
 | What | Size or position | Notes |
 | --- | --- | --- |
 | Dresser | 1320 wide × 2100 high, x 810 to 2130 | Centred on the 1490 of wall between the alcove and the desk recess, leaving 85 each side |
 | Base | 400 deep, up to 900 | Two drawers (160 high) over two doors, on a set-back 100 plinth, under a 30 wooden top that's 15 proud |
-| Upper part | 290 deep, from 900 to 2100 | Open, with shelf tops at 1250, 1550 and 1850, and a 40 top that's 20 proud |
+| Upper part | 290 deep, from 900 to 2100 | Open, with shelf tops at 1250, 1550 and 1850 (spread evenly as the sizes change), and a 40 top that's 20 proud |
 
 ## Outer wall: windows and radiators
 
@@ -103,12 +103,13 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Wi
 | TV size | `TV_INCHES` (slider) | 32, 40, 42, 43, 48, 50, 55, 60, 65, 70, 75, 77, 83, 85, 86 inches | 75 | The TV's overall width and height, `TV_W` × `TV_H`, from LG UK's size guide: 720 × 440 at 32" up to 1930 × 1110 at 86" (75" is 1680 × 960). Shown when there's a TV above the bench |
 | Cupboard colour | `ralChosen.cupboard` | Named colours to compare (◀ ▶ flip between them): Clerkenwell Gloss White, AI Olive, Bella Brittany, Blinds as drawn, Kitchen worktop, Kitchen island, Kitchen island top, same colour as the door (Pure Brilliant White), same colour as the walls (Crown Gallery White). Or "Other colours…", which opens a second dropdown of 23 popular cupboard colours and all 99 RAL Classic colours by family | AI Olive | Covers carcasses, doors and the bench. Floor, walls and woodwork are fixed as the room is. Screen colours are approximate |
 | Dresser colour | `ralChosen.dresser` | The same named colours and "Other colours…" as the cupboards, plus Same as the cupboards (0), Same colour as the door (2) and Same colour as the walls (1) | Same as the cupboards | The dresser's painted body, doors and drawers. Its top and shelves follow the shelf colour |
+| Dresser sizes | `DRESSER` (sliders) | Width 900 to 1490, height 1500 to 2400, base depth 300 to 600, base height 700 to 1000, upper depth 150 to 400 (no deeper than the base), all in 10s | 1320, 2100, 400, 900, 290 | The dresser stays centred on the wall between the alcove and the desk recess; its three shelves spread evenly up the upper part. Hidden for the current room |
 | Shelf colour | `shelfWood` | 0 As drawn (pale oak `#D6BC8F`, option 9's oak `#C8A26B`), 1 Honey oak (as the island top, `#D6A562`), 2 Dark oak (`#8A5A33`), 3 Walnut (`#5C3D26`) | 0 | All the wooden shelves (above the bench, corner and upper units, option 9's tower) and option 9's oak bench top |
 | Left-wall cupboard door | slider | 0°–110° | 0° | How far it's opened |
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
 | Room door | slider | 0°–110° | 90° | How far it's opened |
 
-The page address records the option (by a code that never changes, so old links keep working: 1 to 9 for options 1 to 9, 10 for the current room, 11 and 12 for options 10 and 11) and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-TV_INCHES-dresser~stored`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2-3-65-6~1.0.0_2550.2642.1_2100.2362.0_2000.2362.1_2100.2582.0_2500.2362.0_2000.2902.0`. After the `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, which are used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours.
+The page address records the option (by a code that never changes, so old links keep working: 1 to 9 for options 1 to 9, 10 for the current room, 11 and 12 for options 10 and 11) and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-TV_INCHES-dresser-dresserSizes~stored` (dresserSizes is `w.h.baseD.baseH.upperD`), for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2-3-65-6-1320.2100.400.900.290~1.0.0_2550.2642.1_2100.2362.0_2000.2362.1_2100.2582.0_2500.2362.0_2000.2902.0`. After the `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, which are used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours.
 
 ## Things to store
 
