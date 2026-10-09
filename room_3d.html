@@ -155,7 +155,7 @@
   <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
   <div id="dresserBlock">
     <label for="dresserW">Dresser width: <span id="dresserWValue">1320</span></label>
-    <input id="dresserW" type="range" min="900" max="1490" step="10" value="1320">
+    <input id="dresserW" type="range" min="900" max="1415" step="5" value="1320">
     <label for="dresserH">Dresser height: <span id="dresserHValue">2100</span></label>
     <input id="dresserH" type="range" min="1500" max="2400" step="10" value="2100">
     <label for="dresserBaseD">Dresser base depth: <span id="dresserBaseDValue">400</span></label>
@@ -491,7 +491,8 @@ const KITCHEN = {
   depth: KITCHEN_DEPTH, tall: 2400, wallUnits: [1450, 2400],
   worktop: 894,                  // to the top of the worktop, measured
   wallDepth: 400,                // wall units, measured
-  frontRunTo: DESK_RECESS.x0 - WALL_BETWEEN_RECESSES,   // the front-wall run ends at the alcove's edge
+  frontRunTo: DESK_RECESS.x0 - WALL_BETWEEN_RECESSES,   // the alcove's edge, past the sink
+  counterPast: 75,               // the front-wall run (base units and worktop) carries on 75 past it
   // The alcove in the front wall above the sink: 372 deep (5751 - 5379, both
   // measured), from the worktop up; its width and top are estimated
   alcove: { x: [-595, DESK_RECESS.x0 - WALL_BETWEEN_RECESSES], top: 1990, depth: 372 },   // its right edge from the measurements; its left edge and top estimated
@@ -506,7 +507,8 @@ const worktopMat = material(0xcfc3b0);                                          
 const islandMat = material(0xede6d5);                                                      // the island's painted white, warmer than the kitchen
 const islandTopMat = material(0xd6a562);                                                   // the island's oak top
 {
-  const { from, depth, worktop, tall, wallUnits, wallDepth, frontRunTo, island } = KITCHEN;
+  const { from, depth, worktop, tall, wallUnits, wallDepth, frontRunTo, counterPast, island } = KITCHEN;
+  const runEnd = frontRunTo + counterPast;                         // where the front-wall run ends
   const run = from + depth;                                        // the base run starts after the tall unit
   const X = RECESS_X, F = X + depth;                                // the recess wall, and the units' fronts
   box(X, from, 0, F, run, tall, kitchenMat, scene);                 // tall fridge unit
@@ -514,8 +516,8 @@ const islandTopMat = material(0xd6a562);                                        
   box(X, run, worktop - 40, F + 20, D, worktop, worktopMat, scene);
   box(X, run, wallUnits[0], X + wallDepth, run + 600, wallUnits[1], kitchenMat, scene);         // wall units
   box(X, run + 1200, wallUnits[0], X + wallDepth, D, wallUnits[1], kitchenMat, scene);          // (the extractor sits between), on to the corner
-  box(F, D - depth, 0, frontRunTo, D, worktop - 40, kitchenMat, scene);                         // base units along the front wall
-  box(F + 20, D - depth - 20, worktop - 40, frontRunTo, D, worktop, worktopMat, scene);
+  box(F, D - depth, 0, runEnd, D, worktop - 40, kitchenMat, scene);                             // base units along the front wall
+  box(F + 20, D - depth - 20, worktop - 40, runEnd, D, worktop, worktopMat, scene);
   const sinkMat = new THREE.MeshStandardMaterial({ color: 0xc4c8cc, roughness: 0.3, metalness: 0.6 });
   box(KITCHEN.sink.x[0], D - 520, worktop - 6, KITCHEN.sink.x[1], D - 90, worktop + 2, sinkMat, scene);  // sink, set into the worktop
 
@@ -1062,8 +1064,10 @@ function baseCupboards(x0, g) {
 }
 
 // The dresser on the front wall between the sink and the desk, a bit like
-// the Cotswold Company's Chester dresser: 1320 wide, centred on the 1490 of
-// wall between the alcove and the desk recess, 2100 high. Up to 900 it's 400
+// the Cotswold Company's Chester dresser: 1320 wide overall (the top
+// overhangs its body by 20 each side), centred in the 1415
+// between the end of the kitchen counter (75 past the alcove) and the desk
+// recess, 2100 high. Up to 900 it's 400
 // deep: two drawers over two doors, under a wooden top. Above, it's 290 deep,
 // with three open shelves and a top that overhangs a little. These are the
 // starting sizes; its sliders change them. Painted parts
@@ -1074,16 +1078,18 @@ const DRESSER = { w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290, drawer:
 // The dresser's sizes can be changed from its sliders: [key, slider id, lowest,
 // highest, step]. It stays centred on the wall, and its upper part is never
 // deeper than its base.
-const DRESSER_SLIDERS = [['w', 'dresserW', 900, 1490, 10], ['h', 'dresserH', 1500, 2400, 10],
+const DRESSER_SLIDERS = [['w', 'dresserW', 900, 1415, 5], ['h', 'dresserH', 1500, 2400, 10],
   ['baseD', 'dresserBaseD', 300, 600, 10], ['baseH', 'dresserBaseH', 700, 1000, 10], ['upperD', 'dresserUpperD', 150, 400, 10]];
 function placeDresser() {
   DRESSER.upperD = Math.min(DRESSER.upperD, DRESSER.baseD);
-  DRESSER.x0 = KITCHEN.frontRunTo + (WALL_BETWEEN_RECESSES - DRESSER.w) / 2;
+  const from = KITCHEN.frontRunTo + KITCHEN.counterPast, gap = DESK_RECESS.x0 - from;   // 1415 clear
+  DRESSER.x0 = Math.round(from + (gap - DRESSER.w) / 2);
   DRESSER.x1 = DRESSER.x0 + DRESSER.w;
 }
 placeDresser();
 function dresser(g) {
-  const { x0, x1, w, h, baseD, baseH, upperD, drawer } = DRESSER;
+  // Its width is overall, with the top's 20 overhang each side, so the body is 40 narrower
+  const { h, baseD, baseH, upperD, drawer } = DRESSER, x0 = DRESSER.x0 + 20, x1 = DRESSER.x1 - 20, w = DRESSER.w - 40;
   const yb = D - baseD, yu = D - upperD;                         // the fronts of the base and the upper part
   const doorTop = baseH - TOP_T - drawer - 3;                    // the doors stop under the drawers
   box(x0, yb + 18, 0, x1, D, baseH - TOP_T, dresserMat, g);      // base, behind its fronts
@@ -1104,7 +1110,7 @@ function dresser(g) {
   box(x0 - 20, yu - 20, h - 40, x1 + 20, D, h, dresserMat, g);   // top, 20 proud
   const shelfTops = [1, 2, 3].map(k => Math.round(baseH + k * (h - 40 - baseH) / 4));   // evenly up the upper part
   for (const top of shelfTops) box(x0 + 18, yu, top - 22, x1 - 18, D - 12, top, shelfMat, g);
-  return ` A dresser on the front wall between the sink and the desk (x ${x0}-${x1}): ${w} wide, ${h} high, ${baseD} deep up to ${baseH} ` +
+  return ` A dresser on the front wall between the sink and the desk (x ${DRESSER.x0}-${DRESSER.x1}): ${DRESSER.w} wide overall (its body ${w}), ${h} high, ${baseD} deep up to ${baseH} ` +
     `(two drawers over two doors, under a wooden top), then ${upperD} deep with three open shelves.`;
 }
 
@@ -1510,7 +1516,7 @@ function updateDims() {
   } else if (flatView === 'front') {
     const { alcove, worktop } = KITCHEN;
     const withDresser = shown !== OPTIONS.length - 1;
-    chain([RECESS_X, ...alcove.x, ...(withDresser ? [DRESSER.x0, DRESSER.x1] : []), DESK_RECESS.x0, W], (v, off) => P(v, D, -200 - off), dims);
+    chain([RECESS_X, ...alcove.x, KITCHEN.frontRunTo + KITCHEN.counterPast, ...(withDresser ? [DRESSER.x0, DRESSER.x1] : []), DESK_RECESS.x0, W], (v, off) => P(v, D, -200 - off), dims);
     if (withDresser) chain([0, DRESSER.baseH, DRESSER.h], (v, off) => P(DRESSER.x0 + 200 + off, D, v), dims);   // on the dresser's face
     chain([0, worktop, alcove.top, H], (v, off) => P(RECESS_X - 250 - off, D, v), dims);   // the kitchen side
     chain([0, DESK_TOP, DESK_TOP + 550, H], (v, off) => P(W + 250 + off, D, v), dims);     // the desk and monitor tops

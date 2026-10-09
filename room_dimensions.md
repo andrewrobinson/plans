@@ -50,7 +50,7 @@ Past the door frame, the left wall steps back: a short return wall faces the fro
 | Worktop height | 894 | Measured, to the top |
 | Tall fridge unit | 590 wide along the wall, 2400 high | Width and height estimated |
 | Wall cupboards | 1450 to 2400 | Estimated |
-| Front-wall run | from the recess wall to x = 725, ending at the alcove's edge | From the measurements below |
+| Front-wall run | from the recess wall to x = 800: the alcove's edge (725), then 75 across the wall between the alcove and the desk recess | The 725 from the measurements below; the 75 measured |
 | Alcove above the sink | 372 deep into the front wall (5751 − 5379, measured); x −595 to 725, from the worktop (894) to about 1990 | Depth and right edge from measurements; left edge and top estimated. Tiled inside |
 | Wall between the alcove and the desk recess | 1490 | Measured |
 | Desk recess | 1623 across, 372 deep, full height, x 2215 to the right-hand wall | Measured, assuming it runs to the right-hand wall |
@@ -69,7 +69,7 @@ Its sizes below are where its sliders start. On the front wall between the sink 
 
 | What | Size or position | Notes |
 | --- | --- | --- |
-| Dresser | 1320 wide × 2100 high, x 810 to 2130 | Centred on the 1490 of wall between the alcove and the desk recess, leaving 85 each side |
+| Dresser | 1320 wide overall × 2100 high, x 848 to 2168 (its body 1280, with the top overhanging 20 each side) | Centred in the 1415 between the end of the kitchen counter (x 800) and the desk recess (x 2215), leaving about 48 each side; 1415 at most |
 | Base | 400 deep, up to 900 | Two drawers (160 high) over two doors, on a set-back 100 plinth, under a 30 wooden top that's 15 proud |
 | Upper part | 290 deep, from 900 to 2100 | Open, with shelf tops at 1250, 1550 and 1850 (spread evenly as the sizes change), and a 40 top that's 20 proud |
 
@@ -103,7 +103,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Wi
 | TV size | `TV_INCHES` (slider) | 32, 40, 42, 43, 48, 50, 55, 60, 65, 70, 75, 77, 83, 85, 86 inches | 75 | The TV's overall width and height, `TV_W` × `TV_H`, from LG UK's size guide: 720 × 440 at 32" up to 1930 × 1110 at 86" (75" is 1680 × 960). Shown when there's a TV above the bench |
 | Cupboard colour | `ralChosen.cupboard` | Named colours to compare (◀ ▶ flip between them): Clerkenwell Gloss White, AI Olive, Bella Brittany, Blinds as drawn, Kitchen worktop, Kitchen island, Kitchen island top, same colour as the door (Pure Brilliant White), same colour as the walls (Crown Gallery White). Or "Other colours…", which opens a second dropdown of 23 popular cupboard colours and all 99 RAL Classic colours by family | AI Olive | Covers carcasses, doors and the bench. Floor, walls and woodwork are fixed as the room is. Screen colours are approximate |
 | Dresser colour | `ralChosen.dresser` | The same named colours and "Other colours…" as the cupboards, plus Same as the cupboards (0), Same colour as the door (2) and Same colour as the walls (1) | Same as the cupboards | The dresser's painted body, doors and drawers. Its top and shelves follow the shelf colour |
-| Dresser sizes | `DRESSER` (sliders) | Width 900 to 1490, height 1500 to 2400, base depth 300 to 600, base height 700 to 1000, upper depth 150 to 400 (no deeper than the base), all in 10s | 1320, 2100, 400, 900, 290 | The dresser stays centred on the wall between the alcove and the desk recess; its three shelves spread evenly up the upper part. Hidden for the current room |
+| Dresser sizes | `DRESSER` (sliders) | Width 900 to 1415 in 5s, height 1500 to 2400, base depth 300 to 600, base height 700 to 1000, upper depth 150 to 400 (no deeper than the base), all in 10s | 1320, 2100, 400, 900, 290 | The dresser stays centred between the end of the kitchen counter and the desk recess; its three shelves spread evenly up the upper part. Hidden for the current room |
 | Shelf colour | `shelfWood` | 0 As drawn (pale oak `#D6BC8F`, option 9's oak `#C8A26B`), 1 Honey oak (as the island top, `#D6A562`), 2 Dark oak (`#8A5A33`), 3 Walnut (`#5C3D26`) | 0 | All the wooden shelves (above the bench, corner and upper units, option 9's tower) and option 9's oak bench top |
 | Left-wall cupboard door | slider | 0°–110° | 0° | How far it's opened |
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
