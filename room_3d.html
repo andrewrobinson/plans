@@ -128,8 +128,8 @@
     <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
     <input id="depth" type="range" min="290" max="800" step="10" value="290">
   </div>
-  <label for="rear">Rear wall cupboard depth: <span id="rearValue">500</span></label>
-  <input id="rear" type="range" min="300" max="800" step="10" value="500">
+  <label for="rear">Rear wall cupboard depth: <span id="rearValue">330</span></label>
+  <input id="rear" type="range" min="300" max="800" step="10" value="330">
   <div id="wardBlock">
     <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
     <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
@@ -153,8 +153,8 @@
   <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
   <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
   <div id="tvBlock">
-    <label for="tvSize">TV size: <span id="tvSizeValue">65" (1450 × 830)</span></label>
-    <input id="tvSize" type="range" min="0" max="14" step="1" value="8">
+    <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
+    <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
   </div>
   <div id="tallBlock">
     <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
@@ -590,7 +590,7 @@ let T = 0;                         // starts with no left-wall cupboard
 
 // The rear-wall cupboards' and bench's depth from the back wall, R: 300 to
 // 800, from the slider.
-let R = 500;
+let R = 330;
 
 // The left-wall cupboard's front, F: 1200, or 1329 right up to the door
 // frame. Its inside leg along the left wall is F - R.
@@ -728,11 +728,11 @@ let shelfDepth = 250;              // 150 to 400, from the slider
 const SHELF_T = 25, TV_GAP = 150;
 // Standard TV sizes in inches, with each TV's overall width and height in mm,
 // from LG UK's size guide (lg.com/uk, "How to measure and read TV sizes").
-// The slider steps through them; 65" (1450 x 830) to start with.
+// The slider steps through them; 75" (1680 x 960) to start with.
 const TV_SIZES = [[32, 720, 440], [40, 900, 500], [42, 930, 540], [43, 970, 570], [48, 1070, 620],
   [50, 1120, 650], [55, 1230, 710], [60, 1340, 770], [65, 1450, 830], [70, 1570, 910], [75, 1680, 960],
   [77, 1710, 980], [83, 1840, 1050], [85, 1890, 1080], [86, 1930, 1110]];
-let TV_INCHES = 65, TV_W = 1450, TV_H = 830;
+let TV_INCHES = 75, TV_W = 1680, TV_H = 960;
 // Heights above the bench, set from BENCH and the TV by benchHeights(). With
 // the bench at 780 and a 65" TV: shelves at 1200, 1550, 1900; the TV from 1100
 // to 1930; with the TV, a bottom shelf at 1000 under it and a top one at 2080
@@ -1530,7 +1530,7 @@ const STORED = [
   { name: 'Yellow tub', label: 'Tub', w: 550, d: 550, h: 450, colour: 0xf2c230, at: [2000, 2902, false], round: true },   // 550 across
 ];
 const storedState = STORED.map(({ at: [x, y, turned] }) => ({ x, y, turned }));
-let showStored = true;
+let showStored = false;          // hidden until shown from the menu
 const storedGroup = new THREE.Group();
 scene.add(storedGroup);
 const storedMats = STORED.map(s => new THREE.MeshStandardMaterial({ color: s.colour, roughness: 0.7 }));
@@ -2214,9 +2214,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 }
 
 // Start on the option and settings in the address (see room_dimensions.md
-// for the order), or with no address: the current room (option 10). Other
-// options start with no left-wall cupboard, TV and shelves above the bench,
-// and AI Olive cupboards.
+// for the order), or with no address: option 9. Options start with no
+// left-wall cupboard, TV and shelves above the bench, and AI Olive cupboards.
 const [start, depth, rear, front, aboveIn, shelfIn, benchIn, extraIn, upperIn, legIn, wardIn, towerIn, wardDIn, ralFloor, ralCupboard, ralWall, ralWoodwork, shelfWoodIn, tvIn, ralDresser] = location.hash.slice(1).split('~')[0].split('-').map(Number);
 if (SHELF_WOODS[shelfWoodIn]) setShelfWood(shelfWoodIn);
 readStoredAddress(location.hash.split('~')[1]);
@@ -2275,7 +2274,7 @@ if (rear >= 300 && rear <= 800) {
   rearSlider.value = rear;
   document.getElementById('rearValue').textContent = rear;
 }
-show(optionIndex(start));                                       // the current room with no address
+show(start ? optionIndex(start) : 8);                           // option 9 with no address
 renderer.setAnimationLoop(() => {
   (flat ? flatControls : controls).update();
   renderer.render(scene, flat ? flatCamera : camera);

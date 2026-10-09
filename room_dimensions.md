@@ -87,10 +87,10 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Wi
 
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
-| Option | `shown` | 1–12 (12 is the current room, with nothing built; the Current room button picks it) | 12 | Which cupboard layout. Options 10 and 11 are a full-height cupboard in the corner, 800 along the back wall and F out along the left wall, with the bench from it to the right-hand wall: 10 has a pair of doors on its end facing the kitchen, 11 a pair on its side facing the windows, where it's clear of the bench (y R to F). The left-wall cupboard depth doesn't apply to them |
+| Option | `shown` | 1–12 (12 is the current room, with nothing built; the Current room button picks it) | 9 | Which cupboard layout. Options 10 and 11 are a full-height cupboard in the corner, 800 along the back wall and F out along the left wall, with the bench from it to the right-hand wall: 10 has a pair of doors on its end facing the kitchen, 11 a pair on its side facing the windows, where it's clear of the bench (y R to F). The left-wall cupboard depth doesn't apply to them |
 | Left-wall cupboard depth | `T` | none, or 300 to 800 in 10s (slider; none is at its far left) | none (0) | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
-| Rear wall cupboard depth | `R` | 300 to 800, in 10s (slider) | 500 | How deep the bench and the back-wall cupboards are, from the back wall |
+| Rear wall cupboard depth | `R` | 300 to 800, in 10s (slider) | 330 | How deep the bench and the back-wall cupboards are, from the back wall |
 | Upper cupboard width | `UPPER` | 400 to 1200, in 50s | 700 | Width along the back wall of option 4's upper cupboard, and of options 3 and 5, which are built on it. Its door is UPPER − 24 wide. Shown on options 3–5 |
 | Back-wall leg width | `LEG` | 400 to 1200, in 50s | 700 | Option 7 only: inside leg of the full-height L along the back wall. Its door is LEG − 24 wide, and the bench starts at x = T + LEG |
 | Double-door cupboard width | `WARD` | 600 to 1400, in 50s | 900 | Option 9: width of the full-height double-door cupboard on the back wall. Each door is (WARD − 27) / 2 |
@@ -100,7 +100,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Wi
 | Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Upper cupboards, corner shelves and everything above the bench move with it |
 | Above the bench | `above` | Nothing, Shelves, TV, TV and shelves, TV and top shelf | TV and shelves | What's on the back wall over the bench |
 | Shelf depth | `shelfDepth` | 150 to 400, in 10s | 250 | Depth of the shelves above the bench |
-| TV size | `TV_INCHES` (slider) | 32, 40, 42, 43, 48, 50, 55, 60, 65, 70, 75, 77, 83, 85, 86 inches | 65 | The TV's overall width and height, `TV_W` × `TV_H`, from LG UK's size guide: 720 × 440 at 32" up to 1930 × 1110 at 86" (65" is 1450 × 830). Shown when there's a TV above the bench |
+| TV size | `TV_INCHES` (slider) | 32, 40, 42, 43, 48, 50, 55, 60, 65, 70, 75, 77, 83, 85, 86 inches | 75 | The TV's overall width and height, `TV_W` × `TV_H`, from LG UK's size guide: 720 × 440 at 32" up to 1930 × 1110 at 86" (75" is 1680 × 960). Shown when there's a TV above the bench |
 | Cupboard colour | `ralChosen.cupboard` | Named colours to compare (◀ ▶ flip between them): Clerkenwell Gloss White, AI Olive, Bella Brittany, Blinds as drawn, Kitchen worktop, Kitchen island, Kitchen island top, same colour as the door (Pure Brilliant White), same colour as the walls (Crown Gallery White). Or "Other colours…", which opens a second dropdown of 23 popular cupboard colours and all 99 RAL Classic colours by family | AI Olive | Covers carcasses, doors and the bench. Floor, walls and woodwork are fixed as the room is. Screen colours are approximate |
 | Dresser colour | `ralChosen.dresser` | The same named colours and "Other colours…" as the cupboards, plus Same as the cupboards (0), Same colour as the door (2) and Same colour as the walls (1) | Same as the cupboards | The dresser's painted body, doors and drawers. Its top and shelves follow the shelf colour |
 | Shelf colour | `shelfWood` | 0 As drawn (pale oak `#D6BC8F`, option 9's oak `#C8A26B`), 1 Honey oak (as the island top, `#D6A562`), 2 Dark oak (`#8A5A33`), 3 Walnut (`#5C3D26`) | 0 | All the wooden shelves (above the bench, corner and upper units, option 9's tower) and option 9's oak bench top |
@@ -112,7 +112,7 @@ The page address records the option (by a code that never changes, so old links 
 
 ## Things to store
 
-Bulky things that the corner cupboard must eventually hold, drawn standing on the floor as plain blocks (the tub as a cylinder). In the 2D plan view each can be dragged, and double-clicked or double-tapped to turn it round. A blue outline round them all, labelled with its size, is the floor area they need. **Pack them again** puts them back as below.
+Bulky things that the corner cupboard must eventually hold, drawn standing on the floor as plain blocks (the tub as a cylinder). They're hidden to start with; **Stored things** in the menu shows them. In the 2D plan view each can be dragged, and double-clicked or double-tapped to turn it round. A blue outline round them all, labelled with its size, is the floor area they need. **Pack them again** puts them back as below.
 
 | Thing | Footprint (along x × along y, as packed) | Height | Colour | Notes |
 | --- | --- | --- | --- | --- |
@@ -231,7 +231,7 @@ Heights here are set from the bench height; the value at the default bench of 78
 | --- | --- | --- |
 | `SHELF_T` | 25 | Shelf thickness |
 | `SHELF_TOPS` | BENCH + 420, + 770, + 1120 (1200, 1550, 1900) | Shelf tops, "Shelves" |
-| `TV_W` × `TV_H` | 1450 × 830 at 65" | TV size, from the TV size slider (`TV_SIZES`) |
+| `TV_W` × `TV_H` | 1680 × 960 at 75" | TV size, from the TV size slider (`TV_SIZES`) |
 | `TV_BOTTOM` | BENCH + 320 (1100) | TV bottom edge; top is 830 higher (1930) |
 | — | 50 | TV depth off the wall |
 | `TV_GAP` | 150 | Clear space between the TV and the shelves beside it |
