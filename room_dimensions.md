@@ -117,7 +117,38 @@ Bulky things that the corner cupboard must eventually hold, drawn standing on th
 
 In the menu, **Packing** picks one of the four packings below, and **Where** puts it **By the middle window** (loose on the floor right of the island) or **In the corner cupboard** of the option on show. In the cupboard it's pushed into whichever inside corner, and whichever way round, fits the most; it moves again whenever the option or its sizes change. Anything partly in the cupboard that doesn't fit, because it sticks out or is too tall there, turns red, the outline turns red, and the menu says how many fit and why the others don't. **Pack them again** puts them back after moving them by hand.
 
-The corner cupboard's inside, for each option (shelves inside are taken to be removable; bench tops, dividers and panels count):
+In the plan view the cupboard's inside is outlined (a rectangle, or an L of two), green when everything in it fits and red when something doesn't, with its size on the back wall. Over anything that sticks out, the part outside the inside is shaded red and labelled with how far it goes past the inside's edges (or the size of the part outside, when it's in the notch of an L).
+
+**Packing** (in the top bar, and the menu's 3D views) stands you 750 in front of the corner cupboard's door, eyes 1.6 m up, looking in, with that door open to 90°: the left-wall cupboard's in options 1–5 (and 6 with one), else the option's own doors. Any other cupboard door is shut, as it could swing open in front of you, and in option 10 the room door is too. It follows the option as you change it. With no corner cupboard it's the corner view.
+
+### The shelfless bay
+
+While the things are shown, each shelf inside the corner cupboard is cut back across its short way wherever something stands under it that comes within 50 of its underside (things stand on the cupboard's 18 bottom; 50 is room to lift them in), with 10 spare either side. What's left of a shelf under 100 long is left out. It follows them as they're dragged, and shelves above the bay stay. The menu lists which shelves are cut, over what, and the shelf left over the bay. Hidden, the cupboard has all its shelves.
+
+A shelf can stay over a thing when its top is at least the thing's height + 18 + 50 + 18:
+
+| Thing | Height | Lowest shelf top over it |
+| --- | --- | --- |
+| Long ladder | 1620 | 1706 |
+| Folding ladder, mop | 1200 | 1286 |
+| Dustpan and hoover | 1000 | 1086 |
+| Drying racks | 700 | 786 |
+| Yellow tub | 450 | 536 |
+
+So in every option the top shelf (1800, or 1803 in the left-wall cupboard) stays right across, 1764 (1767) clear of the cupboard floor, 144 (147) over the long ladder. The 1200 (1203) shelf is cut over the ladders and the mop but can stay over the hoover, the racks and the tub; the 600 shelf is cut over everything but the tub. With the tightest packing (850 × 1090) and a 600-deep left-wall cupboard (T = 600, R = 330, F = 1200, other sliders as they start):
+
+| Options | Shelves | Cut back for the bay | Fit |
+| --- | --- | --- | --- |
+| 1–5 | 1203, 1803 in the left-wall cupboard | 1203 over y 348–858 (folding ladder, long ladder, mop) | 4 of 6: the racks and tub stick out |
+| 6 | 600, 1200, 1800 in the left-wall leg; 390 in the lower cupboard | 600 over y 348–1182, 1200 over y 348–858 | 4 of 6: the racks and tub stick out |
+| 7 | 600, 1200, 1800 in both legs | 600 over x 0–860 and y 312–1090; 1200 over x 0–510 and y 312–550 | 5 of 6: the racks stick out |
+| 8 | 600, 1200, 1800 | 600 over x 0–860, 1200 over x 0–510 | 5 of 6: the racks stick out |
+| 9 | 600, 1200, 1800 in the double-door cupboard and the leg | 600 over x 0–860 and y 582–1090; 1200 over x 0–510 | 5 of 6: the racks stick out (the 580 × 1770 packing leaves only the tub out) |
+| 10, 11 | 600, 1200, 1800 | 600 over y 0–1090, 1200 over y 0–550 | 4 of 6: the racks and hoover stick out |
+
+Without a left-wall cupboard (T = 0), options 1–5 have no corner cupboard, option 6 fits none (its lower cupboard is only 744 high), and option 7 fits 1 of 6.
+
+The corner cupboard's inside, for each option (shelves are cut back as above; bench tops, dividers and panels count):
 
 | Options | Inside |
 | --- | --- |
@@ -273,7 +304,8 @@ How these might fit:
 ### Other open points
 
 - Option 11's doors are only on the part of its side clear of the bench; doors along the whole side would need the bench to stop short of it.
-- The fit check for the things to store treats shelves inside cupboards as removable, and in options 1 to 5 counts the space behind the bench line as only bench height.
+- The fit check for the things to store counts the space behind the bench line in options 1 to 5 as only bench height.
+- The shelfless bay cuts shelves straight across; a real one would want an upright panel at each cut to carry the shelf ends.
 - The Window viewpoint faces the sink with the front wall to its left; not confirmed that's what was meant.
 - With a small TV, the middle shelves either side sit level with its top edge, not halfway up it.
 - A thin brick-coloured strip shows at one edge of the back and front wall views (a window's outer reveal, seen through the wall's thickness).

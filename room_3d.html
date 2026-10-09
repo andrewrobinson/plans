@@ -112,6 +112,7 @@
     <label title="Back to the middle window, looking at the sink and the wall to its left"><input type="radio" name="startView" value="window">Window</label>
     <label title="Looking down from above the windows"><input type="radio" name="startView" value="birdseye">Bird's eye</label>
     <label title="Looking in from the entrance door, towards my desk"><input type="radio" name="startView" value="door">Door</label>
+    <label title="Within arm's reach of the corner cupboard, its doors open"><input type="radio" name="startView" value="packing">Packing</label>
   </div>
   <select id="current" aria-label="Cupboard option"></select>
 </div>
@@ -258,6 +259,7 @@
     <button data-view="photo" data-mode="3d">Photo view</button>
     <button data-view="windows" data-mode="3d">Windows</button>
     <button data-view="corner" data-mode="3d">Corner view</button>
+    <button data-view="packing" data-mode="3d">Packing</button>
     <button data-view="top" data-mode="3d">Top</button>
     <button data-view="plan" data-mode="2d">Plan</button>
     <button data-view="back" data-mode="2d">Back wall</button>
@@ -638,6 +640,93 @@ let WARD = 900, TOWER = 400;
 let WARD_D = 600;
 
 // ---------------------------------------------------------------------------
+// Shelves inside the corner cupboard. Options record them with cupShelf() as
+// they're built; drawCupShelves() draws them, and when the things to store
+// are shown, cuts each one back where something stands under it that needs
+// more height than it leaves: a shelfless bay up to where shelves are fine.
+// ---------------------------------------------------------------------------
+const LIFT = 50;                   // clear above a stored thing, to lift it in over the cupboard's 18 bottom
+let cupShelves = [];               // { poly, top, mat }: plan outline and top, 18 thick
+let cupCuts = [];                  // what drawCupShelves() last cut: { top, from, to, axis, things }
+const cupShelfGroup = new THREE.Group();
+const spanOf = (poly, axis) => [Math.min(...poly.map(p => p[axis])), Math.max(...poly.map(p => p[axis]))];
+const rectPoly = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+function cupShelf(poly, top, mat) {
+  const [x0, x1] = spanOf(poly, 0), [y0, y1] = spanOf(poly, 1);
+  if (x1 > x0 && y1 > y0) cupShelves.push({ poly, top, mat });  // none with no left-wall cupboard
+}
+
+// The part of polygon `poly` with its x (axis 0) or y (axis 1) on one side
+// of `at`: below it when `below`, else above it
+function clipPoly(poly, axis, at, below) {
+  const inside = p => below ? p[axis] <= at : p[axis] >= at;
+  const out = [];
+  poly.forEach((p, i) => {
+    const q = poly[(i + 1) % poly.length];
+    if (inside(p)) out.push(p);
+    if (inside(p) !== inside(q)) {
+      const t = (at - p[axis]) / (q[axis] - p[axis]);
+      out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]);
+    }
+  });
+  return out;
+}
+
+// Draw the recorded shelves. A shelf is cut across its short way, over the
+// things standing under it that are within LIFT of its underside (a 10 gap
+// either side); what's left under 100 long is left out.
+function drawCupShelves() {
+  cupShelfGroup.traverse(o => o.geometry?.dispose());
+  cupShelfGroup.clear();
+  cupCuts = [];
+  for (const { poly, top, mat } of cupShelves) {
+    const [sx0, sx1] = spanOf(poly, 0), [sy0, sy1] = spanOf(poly, 1);
+    const clash = !showStored ? [] : STORED.map((s, k) => k).filter(k => {
+      const { x, y } = storedState[k], [w, d] = storedSize(k);
+      return 18 + STORED[k].h + LIFT > top - 18 && x < sx1 && x + w > sx0 && y < sy1 && y + d > sy0;
+    });
+    if (!clash.length) {
+      slab(poly, top - 18, top, mat, cupShelfGroup);
+      continue;
+    }
+    const axis = sx1 - sx0 >= sy1 - sy0 ? 0 : 1;                // along the shelf's long way
+    const from = Math.min(...clash.map(k => storedState[k][axis ? 'y' : 'x'])) - 10;
+    const to = Math.max(...clash.map(k => storedState[k][axis ? 'y' : 'x'] + storedSize(k)[axis])) + 10;
+    cupCuts.push({ top, axis, from: Math.max(from, axis ? sy0 : sx0), to: Math.min(to, axis ? sy1 : sx1), things: clash });
+    for (const piece of [clipPoly(poly, axis, from, true), clipPoly(poly, axis, to, false)]) {
+      if (piece.length < 3) continue;
+      const [a, b] = spanOf(piece, axis);
+      if (b - a >= 100) slab(piece, top - 18, top, mat, cupShelfGroup);
+    }
+  }
+}
+
+// What the cuts come to, for the menu: which shelves are cut back, over
+// what, and the lowest shelf left over the bay
+function cupCutText() {
+  if (!cupCuts.length) return '';
+  const lower = name => name.charAt(0).toLowerCase() + name.slice(1).replace(/ \(\d\)$/, '');
+  const tops = [...new Set(cupCuts.map(c => c.top))].sort((a, b) => a - b);
+  const parts = tops.map(top => {
+    const cuts = cupCuts.filter(c => c.top === top);
+    const where = cuts.map(c => `${c.axis ? 'y' : 'x'} ${Math.round(c.from)}-${Math.round(c.to)}`).join(' and ');
+    const over = [...new Set(cuts.flatMap(c => c.things))].map(k => lower(STORED[k].name));
+    return `at ${top} over ${where} (for the ${over.join(', ')})`;
+  });
+  // The lowest uncut shelf over the tallest thing in the bay
+  const tallest = Math.max(...cupCuts.flatMap(c => c.things.map(k => STORED[k].h)));
+  const bay = [...new Set(cupCuts.flatMap(c => c.things))].map(k => [storedState[k], storedSize(k)]);
+  const overBay = ({ poly }) => {
+    const [x0, x1] = spanOf(poly, 0), [y0, y1] = spanOf(poly, 1);
+    return bay.some(([{ x, y }, [w, d]]) => x < x1 && x + w > x0 && y < y1 && y + d > y0);
+  };
+  const kept = cupShelves.filter(s => s.top > Math.max(...tops) && overBay(s)).map(s => s.top).sort((a, b) => a - b)[0];
+  return ` Shelves cut back for a shelfless bay: ${parts.join('; ')}.` +
+    (kept ? ` Above the bay the ${kept} shelf stays: ${kept - 36} clear from the cupboard floor, ${kept - 36 - tallest} over the ${tallest}-high ${lower(STORED[STORED.findIndex(s => s.h === tallest)].name)}.`
+          : '');
+}
+
+// ---------------------------------------------------------------------------
 // Parts shared by options 1-5
 // ---------------------------------------------------------------------------
 
@@ -652,7 +741,7 @@ function tallCupboard(g) {
   box(0, 0, 0, T, F, 18, carcassMat, g);                     // bottom
   box(0, R, BENCH, T, R + 18, H - 18, carcassMat, g);            // divider, above the bench top only
   box(T - 18, 0, 18, T, R, BENCH - 18, carcassMat, g);        // side behind the bench end
-  for (const top of [1203, 1803]) box(0, R + 18, top - 18, T - 18, F - 18, top, carcassMat, g);
+  for (const top of [1203, 1803]) cupShelf(rectPoly(0, R + 18, T - 18, F - 18), top, carcassMat);
   return tallDoor(g);
 }
 
@@ -701,8 +790,8 @@ function fullHeightL(g) {
   box(0, 0, 0, E - 18, R, 18, carcassMat, g);              // bottoms
   box(0, R, 0, T, F - 18, 18, carcassMat, g);
   for (const top of [600, 1200, 1800]) {
-    box(0, 0, top - 18, E - 18, R - 18, top, carcassMat, g);
-    box(0, R - 18, top - 18, T - 18, F - 18, top, carcassMat, g);
+    cupShelf(rectPoly(0, 0, E - 18, R - 18), top, carcassMat);
+    cupShelf(rectPoly(0, R - 18, T - 18, F - 18), top, carcassMat);
   }
   const second = hinge(E, R + 18, g);
   box(T + 21 - E, -18, 3, -3, 0, H - 3, doorMat, second);
@@ -1140,7 +1229,7 @@ function cornerCupboard(g, facing) {
   box(X, 0, 0, W, R, BENCH, benchMat, g);                        // bench, to the right-hand wall
   box(0, 0, H - 18, E, F - 18, H, carcassMat, g);                // top
   box(0, 0, 0, E, F - 18, 18, carcassMat, g);                    // bottom
-  for (const top of [600, 1200, 1800]) box(0, 0, top - 18, E, F - 18, top, shelfMat, g);
+  for (const top of [600, 1200, 1800]) cupShelf(rectPoly(0, 0, E, F - 18), top, shelfMat);
   if (facing === 'kitchen') {
     box(E, 0, 0, X, F, H, carcassMat, g);                        // side, facing the windows
     const w = (E - 9) / 2;                                       // a pair, 3 from the wall, each other and the side
@@ -1275,8 +1364,8 @@ const OPTIONS = [
       box(0, 0, 0, E - 18, R, 18, carcassMat, g);              // bottoms
       box(0, R, 0, T, F - 18, 18, carcassMat, g);
       box(0, R, 18, T, R + 18, H - 18, carcassMat, g);            // divider between the legs
-      for (const top of [600, 1200, 1800]) box(0, R + 18, top - 18, T - 18, F - 18, top, carcassMat, g);
-      box(0, 0, 372, E - 18, R - 18, 390, carcassMat, g);           // shelf inside the lower cupboard
+      for (const top of [600, 1200, 1800]) cupShelf(rectPoly(0, R + 18, T - 18, F - 18), top, carcassMat);
+      cupShelf(rectPoly(0, 0, E - 18, R - 18), 390, carcassMat);    // shelf inside the lower cupboard
       box(0, 0, BENCH - 18, E - 18, R, BENCH, shelfMat, g);    // fixed shelf, level with the bench
       for (const top of upperTops()) box(0, 0, top - 18, E - 18, R, top, shelfMat, g);
       const second = hinge(E, R + 18, g);
@@ -1325,7 +1414,7 @@ const OPTIONS = [
       const nx = uy, ny = -ux;                                   // unit normal, pointing into the cupboard
       const c = T * nx + F * ny + 25;                         // the line n · p = c
       const inside = [[0, 0], [E - 18, 0], [E - 18, (c - (E - 18) * nx) / ny], [(c - (F - 18) * ny) / nx, F - 18], [0, F - 18]];
-      for (const top of [600, 1200, 1800]) slab(inside, top - 18, top, shelfMat, g);
+      for (const top of [600, 1200, 1800]) cupShelf(inside, top, shelfMat);
       // Each door is (length - 9) / 2 with 3 gaps; the left one is hinged at
       // (T, F), the right at (E, R).
       const left = skewHinge(T, F, angle, -1, g);
@@ -1360,8 +1449,8 @@ const OPTIONS = [
       box(0, 0, H - 18, E, Dw, H, carcassMat, g);                // top
       box(0, 0, 0, E - 18, Dw, 18, carcassMat, g);               // bottom
       for (const top of [600, 1200, 1800]) {
-        box(0, 0, top - 18, E - 18, Dw - 18, top, carcassMat, g);
-        box(0, Dw - 18, top - 18, T - 18, F - 18, top, carcassMat, g);
+        cupShelf(rectPoly(0, 0, E - 18, Dw - 18), top, carcassMat);
+        cupShelf(rectPoly(0, Dw - 18, T - 18, F - 18), top, carcassMat);
       }
       shelvingTower(E, S, g);
       // A pair of doors across T + 21 to E - 3, meeting in the middle
@@ -1684,6 +1773,56 @@ function placeStored() {
   spots.forEach((spot, k) => Object.assign(storedState[k], spot));
 }
 
+// In the plan: the cupboard's inside (a rectangle, or an L of two), outlined
+// green when everything in it fits and red when something doesn't, and
+// over each thing that sticks out, the part outside it shaded red, with how
+// far it sticks out past the inside's edges
+const planFitMat = new THREE.MeshBasicMaterial({ color: 0xd32f2f, transparent: true, opacity: 0.55, depthTest: false, side: THREE.DoubleSide });
+const planFitLine = { good: new THREE.LineBasicMaterial({ color: 0x2e7d32, depthTest: false }), bad: new THREE.LineBasicMaterial({ color: 0xb3261e, depthTest: false }) };
+function planFit(spaces, fits) {
+  const bad = fits.some(f => f === 'tall' || f === 'sticks');
+  const lineMat = planFitLine[bad ? 'bad' : 'good'];
+  for (const { poly } of spaces) {
+    const line = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(poly.map(([x, y]) => P(x, y, H + 50))), lineMat);
+    line.renderOrder = 8;
+    storedGroup.add(line);
+  }
+  const [ix0, ix1] = spanOf(spaces.flatMap(s => s.poly), 0), [iy0, iy1] = spanOf(spaces.flatMap(s => s.poly), 1);
+  dimLabel(`Cupboard inside ${Math.round(ix1 - ix0)} × ${Math.round(iy1 - iy0)}${spaces.length > 1 ? ' (an L)' : ''}`,
+    P((ix0 + ix1) / 2, iy0 - 60, H + 100), storedGroup, bad ? '#b3261e' : '#2e7d32', 0.07);
+  // The part of each thing outside, as 20 squares merged into one mesh
+  const cells = [];
+  STORED.forEach((s, k) => {
+    if (fits[k] !== 'sticks') return;
+    const { x, y } = storedState[k], [w, d] = storedSize(k);
+    let ox0 = Infinity, oy0 = Infinity, ox1 = -Infinity, oy1 = -Infinity;
+    for (let cx = x; cx < x + w; cx += 20) for (let cy = y; cy < y + d; cy += 20) {
+      const c = [cx + 10, cy + 10];
+      if (s.round && Math.hypot(c[0] - x - w / 2, c[1] - y - d / 2) > w / 2) continue;
+      if (spaces.some(sp => inPoly(c, sp.poly))) continue;
+      cells.push([cx, cy, Math.min(cx + 20, x + w), Math.min(cy + 20, y + d)]);
+      [ox0, oy0, ox1, oy1] = [Math.min(ox0, cx), Math.min(oy0, cy), Math.max(ox1, Math.min(cx + 20, x + w)), Math.max(oy1, Math.min(cy + 20, y + d))];
+    }
+    if (ox0 === Infinity) return;
+    // How far past the inside it reaches, on whichever sides it does
+    const over = [x < ix0 && `${Math.round(ix0 - x)} left`, x + w > ix1 && `${Math.round(x + w - ix1)} right`,
+      y < iy0 && `${Math.round(iy0 - y)} back`, y + d > iy1 && `${Math.round(y + d - iy1)} front`].filter(Boolean);
+    dimLabel(over.length ? `out ${over.join(', ')}` : `out ${Math.round(ox1 - ox0)} × ${Math.round(oy1 - oy0)}`,
+      P((ox0 + ox1) / 2, (oy0 + oy1) / 2, H + 120), storedGroup, '#b3261e', 0.055);
+  });
+  if (!cells.length) return;
+  const pos = [];
+  for (const [a, b, c, d] of cells) {
+    const q = [P(a, b, H + 40), P(c, b, H + 40), P(c, d, H + 40), P(a, d, H + 40)];
+    for (const i of [0, 1, 2, 0, 2, 3]) pos.push(q[i].x, q[i].y, q[i].z);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  const m = new THREE.Mesh(geo, planFitMat);
+  m.renderOrder = 9;
+  storedGroup.add(m);
+}
+
 function drawStored() {
   storedGroup.traverse(o => {
     o.geometry?.dispose();
@@ -1694,9 +1833,11 @@ function drawStored() {
   });
   storedGroup.clear();
   storedGroup.visible = showStored;
+  drawCupShelves();                                             // cut back round where they now stand
   document.getElementById('storedToggle').textContent = `Stored things: ${showStored ? 'shown' : 'hidden'}`;
   const plan = flat && flatView === 'plan';
   const spaces = cupboardSpaces(), fits = STORED.map((s, k) => fitOf(k, storedState[k], spaces));
+  if (plan && spaces.length) planFit(spaces, fits);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   STORED.forEach((s, k) => {
     const { x, y } = storedState[k], [w, d] = storedSize(k);
@@ -1734,7 +1875,7 @@ function drawStored() {
     ? (storedWhere === 1 ? ' This option has no corner cupboard, so they stay by the middle window.' : '')
     : storedWhere === 1 || inCupboard
       ? ` In option ${shown + 1}'s corner cupboard: ${fits.filter(f => f === 'fits').length} of ${STORED.length} fit` +
-        (misfits.length ? `; not ${misfits.join(', ')}.` : '.') + ' Shelves inside are taken out.'
+        (misfits.length ? `; not ${misfits.join(', ')}.` : '.') + (cupCutText() || ' No shelves need cutting back.')
       : '';
   document.getElementById('storedInfo').textContent =
     `Standing on the floor they take ${area} (${((x1 - x0) * (y1 - y0) / 1e6).toFixed(2)} m², for ` +
@@ -1919,7 +2060,9 @@ function show(i) {
   if (current) scene.remove(current.group);
   const group = new THREE.Group();
   scene.add(group);
+  cupShelves = [];                                              // the option records its cupboard shelves as it's built
   current = { group, ...option.build(group) };
+  group.add(cupShelfGroup);                                     // drawn by drawStored(), round the things to store
   const aboveText = benchWall(option.clearFrom(), group) + (i === OPTIONS.length - 1 ? '' : dresser(group));
 
   buttons.forEach((b, j) => {
@@ -1941,6 +2084,7 @@ function show(i) {
   document.getElementById('dresserBlock').style.display = i === CURRENT ? 'none' : '';
   document.getElementById('secondLabel').textContent = option.second || '';
   if (!same) secondSlider.value = 0;
+  if (!same && packing) setView('packing');                     // to the new option's cupboard, doors open
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2243,12 +2387,54 @@ const views = {
   front:  { position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
   right:  { position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 2220, -1] },   // facing the right wall, back wall on the left
 };
+// Packing: standing within arm's reach (750) of the corner cupboard's door,
+// eyes 1.6 m up, looking in and down a little, with its doors open to 90°.
+// Where that is depends on the option, so it's worked out when chosen.
+// Returns the middle of the door opening, the way out of it, and which
+// door it is ('tall' the left-wall cupboard's, else the option's second).
+function packingSpot() {
+  const mid = (x, y, nx, ny, door = 'second') => ({ x, y, nx, ny, door });
+  switch (shown) {
+    case 0: case 1: case 2: case 3: case 4:                      // the left-wall cupboard's door, facing the windows
+      return T ? mid(T, (R + F) / 2, 1, 0, 'tall') : null;
+    case 5:                                                      // the left-wall leg's door, else the lower door
+      return T ? mid(T, (R + F) / 2, 1, 0, 'tall') : mid(350, R, 0, 1);
+    case 6:                                                      // the back-wall leg's door
+      return mid(T + LEG / 2, R, 0, 1);
+    case 7: {                                                    // the diagonal doors
+      const { ux, uy } = diagonal();
+      return mid(T + 350, (F + R) / 2, -uy, ux);
+    }
+    case 8:                                                      // the double doors
+      return mid(T + WARD / 2, WARD_D, 0, 1);
+    case 9:                                                      // doors on its end, facing the kitchen
+      return mid(CORNER_W / 2, F, 0, 1);
+    case 10:                                                     // doors on its side, facing the windows
+      return mid(CORNER_W, (R + F) / 2, 1, 0);
+    default:
+      return null;
+  }
+}
+function packingView() {
+  const at = packingSpot();
+  if (!at) return views.corner;                                  // no corner cupboard: the corner view
+  // Open its door, and shut the other, which might swing open in front of you
+  (at.door === 'tall' ? tallSlider : secondSlider).value = 90;
+  (at.door === 'tall' ? secondSlider : tallSlider).value = 0;
+  if (at.y + 750 * at.ny > HINGE) roomSlider.value = 0;          // standing past the room door's hinge: shut it, as it would hide the cupboard
+  update();
+  const { x, y, nx, ny } = at, m = v => v / 1000;
+  return { position: [m(x + 750 * nx), 1.6, m(y + 750 * ny)], target: [m(x - 300 * nx), 0.9, m(y - 300 * ny)], hfov: 95 };
+}
+let packing = false;               // in the packing view: it follows the option as it changes
+
 let flatFit = views.plan.fit;
 let flatPerM = null;               // the 2D views' scale, pixels per metre at zoom 1
 
 let viewHfov = null;               // a view's own angle across, in degrees, if it sets one
 function setView(name) {
-  const v = views[name];
+  packing = name === 'packing';
+  const v = packing ? packingView() : views[name];
   viewHfov = v.hfov || null;
   setFlat(Boolean(v.fit));
   const [cam, ctl] = flat ? [flatCamera, flatControls] : [camera, controls];
