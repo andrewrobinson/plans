@@ -124,8 +124,10 @@
   <div>Room 3838 × 5379, ceiling 2443. Sizes in mm. Keys 1–9 switch option.</div>
 
   <div id="options"></div>
-  <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
-  <input id="depth" type="range" min="290" max="800" step="10" value="290">
+  <div id="depthBlock">
+    <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
+    <input id="depth" type="range" min="290" max="800" step="10" value="290">
+  </div>
   <label for="rear">Rear wall cupboard depth: <span id="rearValue">500</span></label>
   <input id="rear" type="range" min="300" max="800" step="10" value="500">
   <div id="wardBlock">
@@ -1092,6 +1094,43 @@ function shelvingTower(x0, x1, g) {
   }
 }
 
+// Options 10 and 11: a full-height cupboard in the corner, CORNER_W along the
+// back wall and F out along the left wall, with the bench from it to the
+// right-hand wall. Its pair of doors face the kitchen (on its end, at y = F)
+// or the windows (on its side, where it's clear of the bench, y R to F).
+// Returns the doors' hinges.
+const CORNER_W = 800;
+function cornerCupboard(g, facing) {
+  const X = CORNER_W, E = X - 18;
+  box(X, 0, 0, W, R, BENCH, benchMat, g);                        // bench, to the right-hand wall
+  box(0, 0, H - 18, E, F - 18, H, carcassMat, g);                // top
+  box(0, 0, 0, E, F - 18, 18, carcassMat, g);                    // bottom
+  for (const top of [600, 1200, 1800]) box(0, 0, top - 18, E, F - 18, top, shelfMat, g);
+  if (facing === 'kitchen') {
+    box(E, 0, 0, X, F, H, carcassMat, g);                        // side, facing the windows
+    const w = (E - 9) / 2;                                       // a pair, 3 from the wall, each other and the side
+    const left = hinge(3, F, g);
+    left.userData.dir = -1;
+    box(0, -18, 3, w, 0, H - 3, doorMat, left);
+    box(w - 40, 0, 950, w - 20, 22, 1250, handleMat, left, false);
+    const right = hinge(E - 3, F, g);
+    box(-w, -18, 3, 0, 0, H - 3, doorMat, right);
+    box(20 - w, 0, 950, 40 - w, 22, 1250, handleMat, right, false);
+    return [left, right];
+  }
+  box(0, F - 18, 0, X, F, H, carcassMat, g);                     // end, facing the kitchen
+  box(E, 0, 0, X, R, H, carcassMat, g);                          // side, by the bench
+  const w = (F - R - 27) / 2;                                    // a pair on the side beyond the bench
+  const back = hinge(E, R + 3, g);                               // hinged at the bench end
+  box(0, 0, 3, 18, w, H - 3, doorMat, back);
+  box(18, w - 40, 950, 40, w - 20, 1250, handleMat, back, false);
+  const front = hinge(E, F - 21, g);                             // hinged at the kitchen end
+  front.userData.dir = -1;
+  box(0, -w, 3, 18, 0, H - 3, doorMat, front);
+  box(18, 20 - w, 950, 40, 40 - w, 1250, handleMat, front, false);
+  return [back, front];
+}
+
 // ---------------------------------------------------------------------------
 // The options. Summaries are functions of T, as their sizes depend on it.
 // ---------------------------------------------------------------------------
@@ -1304,7 +1343,41 @@ const OPTIONS = [
   },
 
   {
-    name: '10. Current room, no cupboards yet',
+    name: '10. 800 × 1200 with doors facing the kitchen',
+    source: 'option 10 (new)',
+    fixedWidth: CORNER_W,
+    clearFrom: () => CORNER_W,
+    benchFrom: () => CORNER_W,
+    summary: () => {
+      const w = Math.round((CORNER_W - 18 - 9) / 2), reach = F + w;
+      return `A full-height cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
+        `${F === FRAME ? ', right up to the door frame' : ''}, with a pair of ${w} doors on its end, facing the kitchen. ` +
+        (reach > HINGE ? `Opened to 90°, they reach ${reach} from the back wall, past the room door's hinge at ${HINGE}: they can't open fully while the room door is open. ` : '') +
+        `Bench ${W - CORNER_W}, from x = ${CORNER_W}, ${R} deep.`;
+    },
+    second: 'Cupboard doors',
+    build(g) {
+      return { second: cornerCupboard(g, 'kitchen') };
+    },
+  },
+  {
+    name: '11. 800 × 1200 with doors facing the windows',
+    source: 'option 11 (new)',
+    fixedWidth: CORNER_W,
+    clearFrom: () => CORNER_W,
+    benchFrom: () => CORNER_W,
+    summary: () => `A full-height cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
+      `${F === FRAME ? ', right up to the door frame' : ''}, with a pair of ${Math.round((F - R - 27) / 2)} doors on its side, facing the windows, ` +
+      `where it's clear of the ${R}-deep bench (y ${R}-${F}). Behind the doors it runs back to the back wall, behind the bench end. ` +
+      `Bench ${W - CORNER_W}, from x = ${CORNER_W}, ${R} deep.`,
+    second: 'Cupboard doors',
+    build(g) {
+      return { second: cornerCupboard(g, 'windows') };
+    },
+  },
+
+  {
+    name: '12. Current room, no cupboards yet',
     source: 'the room as it is now',
     clearFrom: () => 0,                                           // what's above the bench goes on the bare back wall
     benchFrom: () => W,
@@ -1314,6 +1387,12 @@ const OPTIONS = [
     },
   },
 ];
+// In the address each option keeps the code it was first given, so links made
+// before options 10 and 11 still work: 1 to 9 as numbered, 10 for the current
+// room (it was option 10), then 11 and 12 for options 10 and 11
+const CURRENT = OPTIONS.length - 1;
+const optionCode = i => i < 9 ? i + 1 : i === CURRENT ? 10 : i + 2;
+const optionIndex = code => code >= 1 && code <= 9 ? code - 1 : code === 11 || code === 12 ? code - 2 : CURRENT;
 
 // ---------------------------------------------------------------------------
 // Dimensions for the 2D views, drawn from the current option and settings
@@ -1384,8 +1463,8 @@ function updateDims() {
   dims = new THREE.Group();
   scene.add(dims);
   const option = OPTIONS[shown];
-  const alongBack = [0, T, ...(option.marks ? option.marks() : []), option.benchFrom(), option.clearFrom(), W];
-  const alongLeft = [0, R, ...(T ? [F] : []), FRAME, HINGE, HINGE + ROOM_DOOR, FRAME_END];
+  const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks() : []), option.benchFrom(), option.clearFrom(), W];
+  const alongLeft = [0, R, ...(T || option.fixedWidth ? [F] : []), FRAME, HINGE, HINGE + ROOM_DOOR, FRAME_END];
   if (flatView === 'plan') {
     chain(alongBack, (v, off) => P(v, -250 - off, H), dims);
     chain([...alongLeft, RECESS_FROM, D], (v, off) => P(RECESS_X - 300 - off, v, H), dims);
@@ -1703,6 +1782,7 @@ function show(i) {
   document.getElementById('extraBlock').style.display = i === 4 ? '' : 'none';
   document.getElementById('legBlock').style.display = i === 6 ? '' : 'none';
   document.getElementById('wardBlock').style.display = i === 8 ? '' : 'none';
+  document.getElementById('depthBlock').style.display = option.fixedWidth ? 'none' : '';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
@@ -1716,7 +1796,7 @@ function show(i) {
 // The address holds the option, every setting and, after "~", where the
 // things to store are
 function writeAddress() {
-  try { location.hash = `${shown + 1}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}~${storedAddress()}`; } catch (e) { /* not important */ }
+  try { location.hash = `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}~${storedAddress()}`; } catch (e) { /* not important */ }
 }
 
 window.addEventListener('keydown', e => {
@@ -2195,7 +2275,7 @@ if (rear >= 300 && rear <= 800) {
   rearSlider.value = rear;
   document.getElementById('rearValue').textContent = rear;
 }
-show(start >= 1 && start <= OPTIONS.length ? start - 1 : OPTIONS.length - 1);   // the current room to start with
+show(optionIndex(start));                                       // the current room with no address
 renderer.setAnimationLoop(() => {
   (flat ? flatControls : controls).update();
   renderer.render(scene, flat ? flatCamera : camera);

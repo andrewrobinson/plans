@@ -87,7 +87,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Wi
 
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
-| Option | `shown` | 1–10 (10 is the current room, with nothing built; the Current room button picks it) | 10 | Which cupboard layout |
+| Option | `shown` | 1–12 (12 is the current room, with nothing built; the Current room button picks it) | 12 | Which cupboard layout. Options 10 and 11 are a full-height cupboard in the corner, 800 along the back wall and F out along the left wall, with the bench from it to the right-hand wall: 10 has a pair of doors on its end facing the kitchen, 11 a pair on its side facing the windows, where it's clear of the bench (y R to F). The left-wall cupboard depth doesn't apply to them |
 | Left-wall cupboard depth | `T` | none, or 300 to 800 in 10s (slider; none is at its far left) | none (0) | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 300 to 800, in 10s (slider) | 500 | How deep the bench and the back-wall cupboards are, from the back wall |
@@ -108,7 +108,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Wi
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
 | Room door | slider | 0°–110° | 90° | How far it's opened |
 
-The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-TV_INCHES-dresser~stored`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2-3-65-6~1_2550.2642.1_2100.2362.0_2000.2362.1_2100.2582.0_2500.2362.0_2000.2902.0`. After the `~` are the things to store: 1 shown or 0 hidden, then `x.y.turned` for each, in the order of the table below. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours.
+The page address records the option (by a code that never changes, so old links keep working: 1 to 9 for options 1 to 9, 10 for the current room, 11 and 12 for options 10 and 11) and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-TV_INCHES-dresser~stored`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2-3-65-6~1_2550.2642.1_2100.2362.0_2000.2362.1_2100.2582.0_2500.2362.0_2000.2902.0`. After the `~` are the things to store: 1 shown or 0 hidden, then `x.y.turned` for each, in the order of the table below. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours.
 
 ## Things to store
 
