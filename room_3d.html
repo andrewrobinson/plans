@@ -91,9 +91,17 @@
     <h1>Cupboard options</h1>
     <button id="close" aria-label="Close settings">✕</button>
   </div>
-  <div>Room 3838 × 5717, ceiling 2443. Sizes in mm. Keys 1–9 switch option.</div>
+  <div>Room 3838 × 5379, ceiling 2443. Sizes in mm. Keys 1–9 switch option.</div>
 
   <div id="options"></div>
+  <div id="rear" class="depth">Rear wall cupboard depth:
+    <label><input type="radio" name="rear" value="330"> 330</label>
+    <label><input type="radio" name="rear" value="400"> 400</label>
+    <label><input type="radio" name="rear" value="500" checked> 500</label>
+    <label><input type="radio" name="rear" value="600"> 600</label>
+    <label><input type="radio" name="rear" value="700"> 700</label>
+    <label><input type="radio" name="rear" value="800"> 800</label>
+  </div>
   <div id="depth" class="depth">Left-wall cupboard depth:
     <label><input type="radio" name="depth" value="0" checked> 0 (none)</label>
     <label><input type="radio" name="depth" value="400"> 400</label>
@@ -154,14 +162,6 @@
     <label><input type="radio" name="bench" value="800"> 800</label>
     <label><input type="radio" name="bench" value="900"> 900</label>
   </div>
-  <div id="rear" class="depth">Rear wall cupboard depth:
-    <label><input type="radio" name="rear" value="330"> 330</label>
-    <label><input type="radio" name="rear" value="400"> 400</label>
-    <label><input type="radio" name="rear" value="500" checked> 500</label>
-    <label><input type="radio" name="rear" value="600"> 600</label>
-    <label><input type="radio" name="rear" value="700"> 700</label>
-    <label><input type="radio" name="rear" value="800"> 800</label>
-  </div>
   <details id="about">
     <summary>Description</summary>
     <div id="summary"></div>
@@ -205,7 +205,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 // the back wall towards the front, z up. The scene is y-up in metres:
 // room (x, y, z) -> scene (x, z, y).
 const MM = 0.001;
-const W = 3838, D = 5717, H = 2443, WALL = 100;   // H: ceiling, measured 2441-2446 across the room
+const W = 3838, D = 5379, H = 2443, WALL = 100;   // D: back wall to front wall, measured; H: ceiling, measured 2441-2446
 let BENCH = 780;                   // bench height: 700, 780, 800 or 900, from the radio buttons
 
 const scene = new THREE.Scene();
@@ -300,7 +300,16 @@ function skewHinge(hx, hy, degrees, dir, parent) {
 // ---------------------------------------------------------------------------
 const wallMat = material(0xf2efe9);
 const floorMat = material(0xd9d3c5);
-box(0, 0, -20, W, D, 0, floorMat, scene, false);                   // floor
+// Past the door frame the left wall steps back: a short return wall (with the
+// light switch on it) and a recess for the kitchen. The kitchen's fronts are
+// 405 behind the door wall and the fridge unit is 590 deep (both measured), so
+// the recess's back wall is at x = -(405 + 590).
+const RECESS_FROM = 2231 + 20;                                       // the return wall, just past the door frame
+const KITCHEN_SETBACK = 405, KITCHEN_DEPTH = 590;
+const RECESS_X = -(KITCHEN_SETBACK + KITCHEN_DEPTH);
+// The floor: L-shaped, the room plus the recess. Its texture is laid by
+// position, in metres, so the oak boards keep their size everywhere.
+slab([[0, 0], [W, 0], [W, D], [RECESS_X, D], [RECESS_X, RECESS_FROM], [0, RECESS_FROM]], -20, 0, floorMat, scene);
 box(-WALL, -WALL, 0, W + WALL, 0, H, wallMat, scene, false);         // back wall
 // The doorway: the frame starts 1329 from the back wall, the furthest a
 // cupboard on the left wall can come. The door hinges at 1400, so the frame
@@ -311,7 +320,9 @@ const FRAME_H = 2050, ROOM_DOOR_H = 1978;
 const FRAME_END = HINGE + ROOM_DOOR + JAMB;                          // 2231
 const frameMat = material(0xffffff);
 box(-WALL, 0, 0, 0, FRAME, H, wallMat, scene, false);                // left wall, behind the doorway
-box(-WALL, FRAME_END, 0, 0, D, H, wallMat, scene, false);            // left wall, in front of it
+box(-WALL, FRAME_END, 0, 0, RECESS_FROM, H, wallMat, scene, false);  // left wall, past the doorway to the return
+box(RECESS_X - WALL, RECESS_FROM - WALL, 0, 0, RECESS_FROM, H, wallMat, scene, false); // the return wall, facing the front
+box(RECESS_X - WALL, RECESS_FROM, 0, RECESS_X, D, H, wallMat, scene, false);           // the recess's back wall
 box(-WALL, FRAME, FRAME_H, 0, FRAME_END, H, wallMat, scene, false);     // over the doorway
 box(-WALL, FRAME, 0, 0, HINGE, FRAME_H, frameMat, scene);               // frame, hinge side
 box(-WALL, FRAME_END - JAMB, 0, 0, FRAME_END, FRAME_H, frameMat, scene); // frame, far side
@@ -320,9 +331,9 @@ box(-WALL, HINGE, ROOM_DOOR_H, 0, FRAME_END - JAMB, FRAME_H, frameMat, scene); /
 // The ceiling, white, with six downlights. It faces down only, so from above
 // (the corner and top views) it can't be seen and the room stays open.
 const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xedece7, roughness: 0.9, side: THREE.FrontSide });
-const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(W * MM, D * MM), ceilingMat);
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry((W - RECESS_X) * MM, D * MM), ceilingMat);
 ceiling.rotation.x = Math.PI / 2;                                   // facing down
-ceiling.position.set(W / 2 * MM, H * MM, D / 2 * MM);
+ceiling.position.set((W + RECESS_X) / 2 * MM, H * MM, D / 2 * MM);
 scene.add(ceiling);
 const downlightMat = new THREE.MeshBasicMaterial({ color: 0xfff6e0, side: THREE.FrontSide });
 for (const x of [960, 1920, 2880]) {
@@ -332,6 +343,71 @@ for (const x of [960, 1920, 2880]) {
     light.position.set(x * MM, H * MM - 0.002, y * MM);
     scene.add(light);
   }
+}
+
+// The kitchen and island as they are, as rough blocks in their real colours
+// for comparing with the cupboard options. Sizes are estimates from photos,
+// to be replaced with measurements: an L of 600-deep units along the left
+// wall (from just past the door frame to the front wall) and the front wall,
+// wall units above, and the island with its oak top.
+const KITCHEN = {
+  from: RECESS_FROM,             // the left-wall run starts at the return wall, in the recess
+  depth: KITCHEN_DEPTH, tall: 2400, wallUnits: [1450, 2400],
+  worktop: 894,                  // to the top of the worktop, measured
+  wallDepth: 400,                // wall units, measured
+  frontRunTo: 700,               // the front-wall run ends here, at the left edge of the alcove (estimated)
+  // The alcove in the front wall above the sink: 372 deep (5751 - 5379, both
+  // measured), from the worktop up; its width and top are estimated
+  alcove: { x: [-595, 700], top: 1990, depth: 372 },
+  sink: { x: [-250, 550] },      // a stainless sink below the alcove (estimated)
+  // The loose island: its top 770 wide x 1260 long, 900 high, its long edge
+  // 1010 from the door wall and its short end 2941 from the back wall; the top
+  // overhangs the base by 10 all round (all measured)
+  island: { x: 1010, y: 2941, width: 770, length: 1260, top: 900, overhang: 10 },
+};
+const kitchenMat = new THREE.MeshStandardMaterial({ color: 0xf5f4ef, roughness: 0.18 });   // Clerkenwell Gloss White
+const worktopMat = material(0xcfc3b0);                                                     // light stone laminate
+const islandMat = material(0xede6d5);                                                      // the island's painted white, warmer than the kitchen
+const islandTopMat = material(0xd6a562);                                                   // the island's oak top
+{
+  const { from, depth, worktop, tall, wallUnits, wallDepth, frontRunTo, island } = KITCHEN;
+  const run = from + depth;                                        // the base run starts after the tall unit
+  const X = RECESS_X, F = X + depth;                                // the recess wall, and the units' fronts
+  box(X, from, 0, F, run, tall, kitchenMat, scene);                 // tall fridge unit
+  box(X, run, 0, F, D, worktop - 40, kitchenMat, scene);            // base units along the left wall
+  box(X, run, worktop - 40, F + 20, D, worktop, worktopMat, scene);
+  box(X, run, wallUnits[0], X + wallDepth, run + 600, wallUnits[1], kitchenMat, scene);         // wall units
+  box(X, run + 1200, wallUnits[0], X + wallDepth, D, wallUnits[1], kitchenMat, scene);          // (the extractor sits between), on to the corner
+  box(F, D - depth, 0, frontRunTo, D, worktop - 40, kitchenMat, scene);                         // base units along the front wall
+  box(F + 20, D - depth - 20, worktop - 40, frontRunTo, D, worktop, worktopMat, scene);
+  const sinkMat = new THREE.MeshStandardMaterial({ color: 0xc4c8cc, roughness: 0.3, metalness: 0.6 });
+  box(KITCHEN.sink.x[0], D - 520, worktop - 6, KITCHEN.sink.x[1], D - 90, worktop + 2, sinkMat, scene);  // sink, set into the worktop
+
+  // The front wall, seen only from inside (like the ceiling), so the views from
+  // outside still see in. It has the alcove above the sink.
+  const { alcove } = KITCHEN;
+  const tileMat = new THREE.MeshStandardMaterial({ color: 0xeeeeea, roughness: 0.4 });
+  const face = (w, h, mat, x, z, y, turn) => {                    // a one-sided wall face, w x h mm, centred at (x, y, z)
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w * MM, h * MM), mat);
+    m.position.set(x * MM, z * MM, y * MM);
+    m.rotation.set(turn[0], turn[1], 0);
+    m.receiveShadow = true;
+    scene.add(m);
+  };
+  const intoRoom = [0, Math.PI];                                   // a face looking back into the room
+  const [a0, a1] = alcove.x, aTop = alcove.top, aBack = D + alcove.depth;
+  face(a0 - X, H, wallMat, (X + a0) / 2, H / 2, D, intoRoom);                          // left of the alcove
+  face(W - a1, H, wallMat, (a1 + W) / 2, H / 2, D, intoRoom);                          // right of it
+  face(a1 - a0, worktop, wallMat, (a0 + a1) / 2, worktop / 2, D, intoRoom);            // below it, behind the worktop
+  face(a1 - a0, H - aTop, wallMat, (a0 + a1) / 2, (aTop + H) / 2, D, intoRoom);        // above it
+  face(a1 - a0, aTop - worktop, tileMat, (a0 + a1) / 2, (worktop + aTop) / 2, aBack, intoRoom);   // the alcove's tiled back
+  face(alcove.depth, aTop - worktop, tileMat, a0, (worktop + aTop) / 2, D + alcove.depth / 2, [0, Math.PI / 2]);   // its sides
+  face(alcove.depth, aTop - worktop, tileMat, a1, (worktop + aTop) / 2, D + alcove.depth / 2, [0, -Math.PI / 2]);
+  face(a1 - a0, alcove.depth, tileMat, (a0 + a1) / 2, aTop, D + alcove.depth / 2, [Math.PI / 2, 0]);    // its top, facing down
+  face(a1 - a0, alcove.depth, worktopMat, (a0 + a1) / 2, worktop, D + alcove.depth / 2, [-Math.PI / 2, 0]); // its sill, facing up
+  const { x: ix, y: iy, width, length, top, overhang } = island;
+  box(ix + overhang, iy + overhang, 0, ix + width - overhang, iy + length - overhang, top - 40, islandMat, scene);   // the base, under the top
+  box(ix, iy, top - 40, ix + width, iy + length, top, islandTopMat, scene);                        // the oak top
 }
 
 // Room door: 760 x 44 x 1978, hinged at (0, 1400), opens into the room
@@ -506,7 +582,7 @@ function shelves(x0, x1, g, tops = SHELF_TOPS) {
 
 function benchWall(x0, g) {
   const span = W - x0;
-  if (above === 0) return '';
+  if (above === 0 || span <= 0) return '';                         // nothing, or no bench (the current room)
   return benchWallItems(x0, span, g) +
     (shelfDepth > R && above !== 2 ? ` The shelves stand ${shelfDepth - R} proud of the ${R}-deep bench.` : '');
 }
@@ -711,7 +787,7 @@ function oakBoards() {
   oakTexture = new THREE.CanvasTexture(canvas);
   oakTexture.colorSpace = THREE.SRGBColorSpace;
   oakTexture.wrapS = oakTexture.wrapT = THREE.RepeatWrapping;
-  oakTexture.repeat.set(W / 1104, D / 1104);
+  oakTexture.repeat.set(1 / 1.104, 1 / 1.104);                    // the floor's texture runs in metres: a tile every 1104 mm
   oakTexture.anisotropy = 8;
   return oakTexture;
 }
@@ -1084,7 +1160,8 @@ function updateDims() {
   const alongLeft = [0, R, ...(T ? [F] : []), FRAME, HINGE, HINGE + ROOM_DOOR, FRAME_END];
   if (flatView === 'plan') {
     chain(alongBack, (v, off) => P(v, -250 - off, H), dims);
-    chain([...alongLeft, D], (v, off) => P(-300 - off, v, H), dims);
+    chain([...alongLeft, RECESS_FROM, D], (v, off) => P(RECESS_X - 300 - off, v, H), dims);
+    chain([RECESS_X, RECESS_X + KITCHEN_DEPTH, 0], (v, off) => P(v, D + 250 + off, H), dims); // the recess and kitchen depth
     chain([0, W], (v, off) => P(v, D + 250 + off, H), dims);
     chain([0, R, ...(above === 1 || above >= 3 ? [shelfDepth] : []), D], (v, off) => P(W + 250 + off, v, H), dims);
   } else if (flatView === 'back') {
@@ -1301,11 +1378,12 @@ const views = {
   // fall in it: about 1.45 m from the left wall, 4.2 m from the back wall,
   // 1.3 m up, tilted 6° down, seeing 69° across like an iPhone's main camera
   photo:  { position: [1.45, 1.3, 4.2], target: [1.45, 0.86, 0], hfov: 69 },
-  // From the desk chair, worked back from a photo taken sitting there: about
-  // 2.5 m from the left wall, 4.5 m from the back wall, eyes 1.5 m up, turned
-  // 16° left towards the door and tilted 8° down
-  desk:   { position: [2.54, 1.5, 4.5], target: [1.44, 0.94, 0.66], hfov: 79 },   // 69° in the photo, opened out a little
-  plan:   { position: [1.9, 20, 2.861], target: [1.9, 0, 2.86], fit: [5.0, 6.9] },    // back wall at the top
+  // From the desk chair, worked back from a photo taken sitting there (the
+  // room's corners, the door frame and the island's far corner): about 2.9 m
+  // from the door wall, 4.4 m from the back wall, eyes 1.6 m up, turned 20°
+  // left towards the door and tilted 8° down
+  desk:   { position: [2.884, 1.6, 4.389], target: [1.496, 1.016, 0.637], hfov: 79 },   // 69° in the photo, opened out a little
+  plan:   { position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9] },    // back wall at the top
   back:   { position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2] },       // facing the back wall
   left:   { position: [30, 1.0, 1.1], target: [0, 1.0, 1.1], fit: [3.6, 3.2] },       // facing the left wall, back wall on the right
 };
@@ -1429,8 +1507,9 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 }
 
 // Start on the option and settings in the address (see room_dimensions.md
-// for the order), or with no address: option 9, no left-wall cupboard, TV and
-// shelves above the bench, and AI Olive cupboards
+// for the order), or with no address: the current room (option 10). Other
+// options start with no left-wall cupboard, TV and shelves above the bench,
+// and AI Olive cupboards.
 const [start, depth, rear, front, aboveIn, shelfIn, benchIn, extraIn, upperIn, legIn, wardIn, towerIn, wardDIn, ralFloor, ralCupboard, ralWall, ralWoodwork] = location.hash.slice(1).split('-').map(Number);
 // Only the cupboard colour can be changed now; the others stay as the room is
 // A link's cupboard colour wins, even 0 (same as the woodwork)
@@ -1488,7 +1567,7 @@ if (rearRadio) {
   R = rear;
   rearRadio.checked = true;
 }
-show(start >= 1 && start <= OPTIONS.length ? start - 1 : 8);       // option 9 to start with
+show(start >= 1 && start <= OPTIONS.length ? start - 1 : OPTIONS.length - 1);   // the current room to start with
 renderer.setAnimationLoop(() => {
   (flat ? flatControls : controls).update();
   renderer.render(scene, flat ? flatCamera : camera);

@@ -5,7 +5,7 @@ The room, door, door frame and ceiling as modelled in [room_3d.html](room_3d.htm
 ## How positions are given
 
 - **x** runs along the back wall, from the left wall (x = 0) to the right wall (x = 3838).
-- **y** runs from the back wall (y = 0) towards the front of the room (y = 5717).
+- **y** runs from the back wall (y = 0) towards the front of the room (y = 5379, the front wall).
 - **z** is height from the floor.
 - "Left wall" is the wall at x = 0, as you face the back wall. The doorway is in it.
 
@@ -14,7 +14,7 @@ The room, door, door frame and ceiling as modelled in [room_3d.html](room_3d.htm
 | What | Size | Notes |
 | --- | --- | --- |
 | Width, along the back wall | 3838 | |
-| Depth, back wall to front wall | 5717 | |
+| Depth, back wall to front wall | 5379 | Measured. 5751 into the alcove above the sink |
 | Ceiling height | 2443 | Measured between 2441 and 2446 across the room (the floor is uneven); 2443 is used everywhere. Near the door frame it measured 2434 |
 
 The model draws the walls 100 thick. That's only for the picture; it's not a measurement.
@@ -36,11 +36,33 @@ The doorway is in the left wall, near the back of the room. The door opens into 
 
 Opened to 90°, the door lies along x 0 to 760, at y 1400 to 1444.
 
+## Kitchen recess and kitchen
+
+Past the door frame, the left wall steps back: a short return wall faces the front of the room (the light switch is on it), and the kitchen sits in a recess behind it.
+
+| What | Size or position | Notes |
+| --- | --- | --- |
+| Return wall | y = 2251 | Just past the door frame (2231). **Assumed** 20 past it |
+| Kitchen fronts behind the door wall | 405 | Measured: the fridge front is 405 behind the door frame's wall |
+| Fridge unit depth | 590 | Measured |
+| Recess back wall | x = −995 | 405 + 590 behind the door wall |
+| Wall cupboards depth | 400 | Measured |
+| Worktop height | 894 | Measured, to the top |
+| Tall fridge unit | 590 wide along the wall, 2400 high | Width and height estimated |
+| Wall cupboards | 1450 to 2400 | Estimated |
+| Front-wall run | from the recess wall to x = 700, ending at the alcove's edge | Estimated |
+| Alcove above the sink | 372 deep into the front wall (5751 − 5379, measured); x −595 to 700, from the worktop (894) to about 1990 | Depth measured; width and top estimated. Tiled inside |
+| Sink | stainless, x −250 to 550, below the alcove | Estimated |
+| Wall cupboards | over the drawers, and from the washing machine on to the front corner | The extractor is between |
+| Island (loose) | Top 770 wide × 1260 long, 900 high, long side along the room; long edge 1010 from the door wall, short end 2941 from the back wall (so x 1010–1780, y 2941–4201); the top overhangs the base by 10 all round | Measured |
+
+The kitchen and island are rough blocks in their real colours: units in Clerkenwell Gloss White, a light stone laminate worktop (`#CFC3B0`, estimated), the island in a warmer painted white (`#EDE6D5`) with a honey oak top (`#D6A562`).
+
 ## Parameters you can change on the page
 
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
-| Option | `shown` | 1–10 (10 is the current room, with nothing built; the Current room button picks it) | 9 | Which cupboard layout |
+| Option | `shown` | 1–10 (10 is the current room, with nothing built; the Current room button picks it) | 10 | Which cupboard layout |
 | Left-wall cupboard depth | `T` | 0 (none), 400, 500, 600, 700, 800 | 0 | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 330, 400, 500, 600, 700, 800 | 500 | How deep the bench and the back-wall cupboards are, from the back wall |
@@ -96,7 +118,7 @@ The wall spec mentions "Indulgence", but Crown's Indulgence is a blue (CRAFTED b
 | Name in code | Value | What |
 | --- | --- | --- |
 | `W` | 3838 | Room width |
-| `D` | 5717 | Room depth |
+| `D` | 5379 | Room depth, back wall to front wall (measured) |
 | `H` | 2443 | Ceiling height, measured 2441 to 2446 across the room |
 | `WALL` | 100 | Wall thickness, drawing only |
 | `FRAME` | 1329 | Door frame start, from the back wall |
