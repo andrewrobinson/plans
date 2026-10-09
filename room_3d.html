@@ -36,7 +36,7 @@
     pointer-events: auto; width: 44px; height: 44px; border-radius: 10px; border: none; font-size: 22px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer;
   }
-  #share {
+  #share, #reset, #currentRoom {
     pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer; flex: none;
   }
@@ -62,10 +62,9 @@
   #colours { margin: 10px 0 4px; }
   #colours .colhead { font-weight: bold; }
   #colours .colrow { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
-  #panel #colours .colrow label { margin: 0; width: 72px; flex: none; }
-  #colours input { width: 120px; font: inherit; padding: 3px 5px; border: 1px solid #999; border-radius: 5px; }
+  #colours [hidden] { display: none; }
+  #colours select { flex: 1; min-width: 0; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
   #colours .swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #999; flex: none; background: transparent; }
-  #colours .ralname { color: #555; font-size: 12px; }
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
@@ -82,6 +81,8 @@
 <div id="bar">
   <button id="menu" aria-label="Settings" aria-controls="panel">☰</button>
   <button id="share">Share</button>
+  <button id="reset">Reset</button>
+  <button id="currentRoom">Current room</button>
   <div id="current"></div>
 </div>
 <div id="scrim"></div>
@@ -94,9 +95,9 @@
 
   <div id="options"></div>
   <div id="depth" class="depth">Left-wall cupboard depth:
-    <label><input type="radio" name="depth" value="0"> 0 (none)</label>
+    <label><input type="radio" name="depth" value="0" checked> 0 (none)</label>
     <label><input type="radio" name="depth" value="400"> 400</label>
-    <label><input type="radio" name="depth" value="500" checked> 500</label>
+    <label><input type="radio" name="depth" value="500"> 500</label>
     <label><input type="radio" name="depth" value="600"> 600</label>
     <label><input type="radio" name="depth" value="700"> 700</label>
     <label><input type="radio" name="depth" value="800"> 800</label>
@@ -106,10 +107,10 @@
     <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
   </div>
   <div id="above" class="depth">Above the bench:
-    <label><input type="radio" name="above" value="0" checked> Nothing</label>
+    <label><input type="radio" name="above" value="0"> Nothing</label>
     <label><input type="radio" name="above" value="1"> Shelves</label>
     <label><input type="radio" name="above" value="2"> TV</label>
-    <label><input type="radio" name="above" value="3"> TV and shelves</label>
+    <label><input type="radio" name="above" value="3" checked> TV and shelves</label>
     <label><input type="radio" name="above" value="4"> TV and top shelf</label>
   </div>
   <div id="upperBlock">
@@ -133,13 +134,17 @@
     <input id="extra" type="range" min="300" max="900" step="50" value="500">
   </div>
   <div id="colours">
-    <div class="colhead">Colours (RAL)</div>
-    <div class="colrow"><label for="ral-floor">Floor</label><input id="ral-floor" data-target="floor" list="ral-list" placeholder="Howdens oak (now)"><span class="swatch"></span><span class="ralname"></span></div>
-    <div class="colrow"><label for="ral-cupboard">Cupboards</label><input id="ral-cupboard" data-target="cupboard" list="ral-list" placeholder="as woodwork"><span class="swatch"></span><span class="ralname"></span></div>
-    <div class="colrow"><label for="ral-woodwork">Woodwork</label><input id="ral-woodwork" data-target="woodwork" list="ral-list" placeholder="Brilliant White (now)"><span class="swatch"></span><span class="ralname"></span></div>
-    <div class="colrow"><label for="ral-wall">Walls</label><input id="ral-wall" data-target="wall" list="ral-list" placeholder="Gallery White (now)"><span class="swatch"></span><span class="ralname"></span></div>
-    <datalist id="ral-list"></datalist>
-    <div class="hint">Type a RAL Classic code or pick a paint or floor by name. Empty means as the room is now. Screen colours are approximate.</div>
+    <div class="colhead">Cupboard colour</div>
+    <div class="colrow">
+      <button id="colPrev" aria-label="Previous of the four colours">◀</button>
+      <select id="ral-cupboard" aria-label="Cupboard colour"></select>
+      <button id="colNext" aria-label="Next of the four colours">▶</button>
+      <span class="swatch"></span>
+    </div>
+    <div class="colrow" id="otherRow" hidden>
+      <select id="ral-other" aria-label="Other cupboard colour"></select>
+    </div>
+    <div class="hint">◀ ▶ flip between the four named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
   </div>
   <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
   <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
@@ -340,7 +345,7 @@ box(0, 600, 1000, 60, 720, 1020, handleMat, roomHinge, false);
 // in 100s. Options 2 and 8 need it, so they're unavailable at 0. Everything
 // along the back wall starts from it, so it is set before an option is built.
 // ---------------------------------------------------------------------------
-let T = 500;
+let T = 0;                         // starts with no left-wall cupboard
 
 // The rear-wall cupboards' and bench's depth from the back wall, R: 330, or 400
 // to 800 in 100s.
@@ -477,7 +482,7 @@ function roomDoorGap() {
 // bench itself starts). Returns a sentence for
 // the summary.
 // ---------------------------------------------------------------------------
-let above = 0;                     // 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
+let above = 3;                     // starts with TV and shelves. 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
 let shelfDepth = 250;              // 150 to 400, from the slider
 const SHELF_T = 25, TV_W = 1450, TV_H = 830, TV_GAP = 150;         // a 65" TV
 // Heights above the bench, set from BENCH by benchHeights(). With the bench
@@ -649,6 +654,12 @@ const FINISHES = {
   1: { name: 'Crown Gallery White', hex: '#DCDEDB' },              // Crown K9710C
   2: { name: 'Dulux Pure Brilliant White', hex: '#F8F8F6' },       // shown as a clean white, as it looks in the room
   3: { name: 'Howdens oak 3-strip', hex: '#D29A50', oak: true },    // SDH3220, as in the room photos; nearest RAL 1002
+  // From the cupboards in an AI-generated picture of the room, corrected for
+  // its dim, warm light; nearest RAL 7032 Pebble grey
+  4: { name: 'AI Olive', hex: '#B8B0A4' },
+  // Howdens Clerkenwell Gloss White (FRK24), as on the kitchen units: a crisp,
+  // neutral high-gloss white, a hair warmer than the woodwork in the room photo
+  5: { name: 'Clerkenwell Gloss White', hex: '#F5F4EF', gloss: true },
 };
 const colourOf = code => RAL[code] ? { name: RAL[code][0], hex: RAL[code][1] } : FINISHES[code];
 
@@ -723,6 +734,8 @@ function setRal(target, code) {
     const oak = colour && colour.oak && target === 'floor';
     m.map = oak ? oakBoards() : null;
     m.color.set(oak ? 0xffffff : colour ? colour.hex : plain[k]);
+    // High-gloss finishes shine; the bench top stays matt
+    m.roughness = colour && colour.gloss && m !== benchMat ? 0.18 : 0.8;
     m.needsUpdate = true;
   });
   // Anything that follows this target, and is on its default, follows it now
@@ -732,6 +745,7 @@ function setRal(target, code) {
   return code ? colour.name : '';
 }
 for (const target of Object.keys(COLOUR_TARGETS)) setRal(target, 0);  // start as the room is now
+setRal('cupboard', 4);                                          // ...with AI Olive cupboards
 
 // ---------------------------------------------------------------------------
 // Parts for option 9
@@ -985,6 +999,16 @@ const OPTIONS = [
     },
   },
 
+  {
+    name: '10. Current room, no cupboards yet',
+    source: 'the room as it is now',
+    clearFrom: () => W,
+    benchFrom: () => W,
+    summary: () => 'The room as it is now: no cupboards, bench or shelves. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling.',
+    build() {
+      return {};
+    },
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -1189,33 +1213,59 @@ extraSlider.addEventListener('input', () => {
   document.getElementById('extraValue').textContent = EXTRA;
   show(shown);
 });
-// The RAL colour boxes
-document.getElementById('ral-list').innerHTML =
-  Object.values(FINISHES).map(f => `<option value="${f.name}"></option>`).join('') +
-  Object.entries(RAL).map(([code, [name]]) => `<option value="${code}">${name}</option>`).join('');
-function showRal(input) {
-  const row = input.parentElement;
-  const code = shownCode(input.dataset.target);
-  const colour = code ? colourOf(code) : null;
-  row.querySelector('.swatch').style.background = colour ? colour.hex : 'transparent';
-  row.querySelector('.ralname').textContent = colour && RAL[code] ? colour.name : '';
+// The cupboard colour: four named colours to compare, or "Other colours…",
+// which shows a second dropdown of popular cupboard colours and every RAL
+// colour by family. ◀ and ▶ step between the four.
+const POPULAR = [9010, 9001, 1013, 9016, 7035, 7044, 7038, 7030, 7004, 7016, 7021, 5014, 5008, 5011,
+  6021, 6011, 6003, 6009, 1019, 1015, 8025, 3012, 9005];
+const FAMILIES = [
+  ['Whites and blacks', '9'], ['Greys', '7'], ['Beiges and yellows', '1'], ['Greens', '6'],
+  ['Blues', '5'], ['Browns', '8'], ['Reds and pinks', '3'],
+];
+const ralLabel = code => `RAL ${code} ${RAL[code][0]}`;
+const COMPARE = [5, 4, 0, 1];
+const OTHER = 'other';
+const cupboardSelect = document.getElementById('ral-cupboard');
+const otherSelect = document.getElementById('ral-other');
+cupboardSelect.innerHTML =
+  `<option value="5">Clerkenwell Gloss White (as the kitchen)</option>` +
+  `<option value="4">AI Olive (from the AI picture)</option>` +
+  `<option value="0">Same colour as the door</option>` +
+  `<option value="1">Same colour as the walls</option>` +
+  `<option value="${OTHER}">Other colours…</option>`;
+otherSelect.innerHTML =
+  `<optgroup label="Popular for cupboards">${POPULAR.map(c => `<option value="${c}">${ralLabel(c)}</option>`).join('')}</optgroup>` +
+  FAMILIES.map(([label, first]) => `<optgroup label="RAL ${label.toLowerCase()}">` +
+    Object.keys(RAL).filter(c => c.startsWith(first)).map(c => `<option value="${c}">${ralLabel(c)}</option>`).join('') +
+    '</optgroup>').join('');
+function showCupboard() {
+  const code = ralChosen.cupboard;
+  const named = COMPARE.includes(code);
+  cupboardSelect.value = named ? String(code) : OTHER;
+  document.getElementById('otherRow').hidden = named;
+  // The same colour can appear twice (popular and its family); keep whichever is selected
+  if (!named && Number(otherSelect.value) !== code) otherSelect.value = String(code);
+  const colour = colourOf(shownCode('cupboard'));
+  document.querySelector('#colours .swatch').style.background = colour ? colour.hex : 'transparent';
 }
-// What's typed in a box: a finish by name, or a 4-digit RAL code
-function codeFrom(text) {
-  const finish = Object.entries(FINISHES).find(([, f]) => f.name.toLowerCase() === text.toLowerCase());
-  if (finish) return Number(finish[0]);
-  return Number((text.match(/\d{4}/) || [0])[0]);
+function pickCupboard(code) {
+  setRal('cupboard', code);
+  showCupboard();
+  show(shown);                                                  // keeps the address up to date
 }
-document.querySelectorAll('#colours input').forEach(input => input.addEventListener('input', () => {
-  const text = input.value.trim();
-  const code = codeFrom(text);
-  const name = setRal(input.dataset.target, text ? code : 0);
-  document.querySelectorAll('#colours input').forEach(showRal);
-  if (name === null) input.parentElement.querySelector('.ralname').textContent = text.length >= 4 ? 'Not in the list' : '';
-  else show(shown);                                             // keeps the address up to date
-}));
-
-document.querySelectorAll('#colours input').forEach(showRal);
+cupboardSelect.addEventListener('change', () => {
+  // "Other colours…" starts on the other dropdown's current choice
+  pickCupboard(cupboardSelect.value === OTHER ? Number(otherSelect.value) : Number(cupboardSelect.value));
+});
+otherSelect.addEventListener('change', () => pickCupboard(Number(otherSelect.value)));
+for (const [id, step] of [['colPrev', -1], ['colNext', 1]]) {
+  document.getElementById(id).addEventListener('click', () => {
+    // From one of the four, go to the next; from another colour, back to the first
+    const k = COMPARE.indexOf(ralChosen.cupboard);
+    pickCupboard(COMPARE[k < 0 ? 0 : (k + step + COMPARE.length) % COMPARE.length]);
+  });
+}
+showCupboard();
 
 const shelfSlider = document.getElementById('shelfDepth');
 shelfSlider.addEventListener('input', () => {
@@ -1329,6 +1379,25 @@ document.getElementById('close').addEventListener('click', () => setMenu(false))
 document.getElementById('scrim').addEventListener('click', () => setMenu(false));
 window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 
+// Reset: load the page again with no settings in the address, so everything
+// is back to its default
+document.getElementById('reset').addEventListener('click', () => {
+  if (!window.confirm('Reset all settings?')) return;
+  history.replaceState(null, '', location.pathname);
+  location.reload();
+});
+
+// Current room: the room as it is now, as seen from the desk chair, with the
+// door open as in the photo taken there
+document.getElementById('currentRoom').addEventListener('click', () => {
+  above = 0;
+  document.querySelector('input[name=above][value="0"]').checked = true;
+  roomSlider.value = 100;
+  setView('desk');
+  show(OPTIONS.length - 1);
+  if (narrow()) setMenu(false);
+});
+
 // Share a link to exactly what's on show: the address holds the option and
 // every setting. Phones get their own share sheet; elsewhere it's copied. The
 // link is always to the published page, so it works for others even when
@@ -1359,18 +1428,13 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => { /* the page still works without it */ });
 }
 
-// Start on the option, sizes and what's above the bench in the address
-// (#option-left-rear-front-above-shelf-bench-extra-upper-leg, e.g.
-// #8-700-600-1329-3-250-780-500-700-700), or option 1 at 500, 500 and 1200
-// with nothing above the bench
+// Start on the option and settings in the address (see room_dimensions.md
+// for the order), or with no address: option 9, no left-wall cupboard, TV and
+// shelves above the bench, and AI Olive cupboards
 const [start, depth, rear, front, aboveIn, shelfIn, benchIn, extraIn, upperIn, legIn, wardIn, towerIn, wardDIn, ralFloor, ralCupboard, ralWall, ralWoodwork] = location.hash.slice(1).split('-').map(Number);
-for (const [target, code] of [['floor', ralFloor], ['cupboard', ralCupboard], ['wall', ralWall], ['woodwork', ralWoodwork]]) {
-  if (code && setRal(target, code) !== null) {
-    const input = document.getElementById(`ral-${target}`);
-    input.value = FINISHES[code] ? FINISHES[code].name : String(code);
-    showRal(input);
-  }
-}
+// Only the cupboard colour can be changed now; the others stay as the room is
+// A link's cupboard colour wins, even 0 (same as the woodwork)
+if (ralCupboard !== undefined && !Number.isNaN(ralCupboard) && setRal('cupboard', ralCupboard) !== null) showCupboard();
 for (const [id, value, lo, hi, set] of [['ward', wardIn, 600, 1400, v => { WARD = v; }], ['tower', towerIn, 0, 600, v => { TOWER = v; }], ['wardD', wardDIn, 330, 1000, v => { WARD_D = v; }]]) {
   if (value >= lo && value <= hi) {
     set(value);
@@ -1424,7 +1488,7 @@ if (rearRadio) {
   R = rear;
   rearRadio.checked = true;
 }
-show(start >= 1 && start <= OPTIONS.length ? start - 1 : 0);
+show(start >= 1 && start <= OPTIONS.length ? start - 1 : 8);       // option 9 to start with
 renderer.setAnimationLoop(() => {
   (flat ? flatControls : controls).update();
   renderer.render(scene, flat ? flatCamera : camera);

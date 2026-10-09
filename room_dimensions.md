@@ -40,8 +40,8 @@ Opened to 90°, the door lies along x 0 to 760, at y 1400 to 1444.
 
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
-| Option | `shown` | 1–9 | 1 | Which cupboard layout |
-| Left-wall cupboard depth | `T` | 0 (none), 400, 500, 600, 700, 800 | 500 | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
+| Option | `shown` | 1–10 (10 is the current room, with nothing built; the Current room button picks it) | 9 | Which cupboard layout |
+| Left-wall cupboard depth | `T` | 0 (none), 400, 500, 600, 700, 800 | 0 | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 330, 400, 500, 600, 700, 800 | 500 | How deep the bench and the back-wall cupboards are, from the back wall |
 | Upper cupboard width | `UPPER` | 400 to 1200, in 50s | 700 | Width along the back wall of option 4's upper cupboard, and of options 3 and 5, which are built on it. Its door is UPPER − 24 wide. Shown on options 3–5 |
@@ -51,9 +51,9 @@ Opened to 90°, the door lies along x 0 to 760, at y 1400 to 1444.
 | Shelving tower width | `TOWER` | 0 to 600, in 50s | 400 | Option 9: the open shelving tower beside it, R deep (0 for none) |
 | Option 5 second bay | `EXTRA` | 300 to 900, in 50s | 500 | Width of option 5's second upper cupboard bay, beyond the upper cupboard. Its door is EXTRA − 6 wide. Only shown on option 5 |
 | Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Upper cupboards, corner shelves and everything above the bench move with it |
-| Above the bench | `above` | Nothing, Shelves, TV, TV and shelves, TV and top shelf | Nothing | What's on the back wall over the bench |
+| Above the bench | `above` | Nothing, Shelves, TV, TV and shelves, TV and top shelf | TV and shelves | What's on the back wall over the bench |
 | Shelf depth | `shelfDepth` | 150 to 400, in 10s | 250 | Depth of the shelves above the bench |
-| Floor, cupboard, woodwork and wall colours | `ralChosen` | RAL Classic codes (about 100 common ones), the room's finishes by name, or empty | Empty: as the room is now (oak floor, Gallery White walls, Brilliant White woodwork); cupboards and bench the same colour as the woodwork | Cupboards covers carcasses, doors and the bench; woodwork is the door frame and room door. Oak shelves and the oak top keep their colour. Screen colours are approximate |
+| Cupboard colour | `ralChosen.cupboard` | Four to compare (◀ ▶ flip between them): Clerkenwell Gloss White, AI Olive, same colour as the door (Pure Brilliant White), same colour as the walls (Crown Gallery White). Or "Other colours…", which opens a second dropdown of 23 popular cupboard colours and all 99 RAL Classic colours by family | AI Olive | Covers carcasses, doors and the bench. Floor, walls and woodwork are fixed as the room is. Screen colours are approximate |
 | Left-wall cupboard door | slider | 0°–110° | 0° | How far it's opened |
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
 | Room door | slider | 0°–110° | 90° | How far it's opened |
@@ -68,6 +68,9 @@ The page address records the option and settings as `#option-T-R-F-above-shelfDe
 | Woodwork | Dulux Pure Brilliant White, gloss | 2 | `#F8F8F6`, a clean white (one paint database gives `#EDECE7`) | 9003 Signal white / 9016 Traffic white |
 | Ceilings | Dulux Pure Brilliant White, matt | — | `#EDECE7` | 9003 / 9016. Drawn with six downlights, seen only from inside the room |
 | Floor | Howdens Oak 3 Strip Engineered Flooring (SDH3220): oak, 2200 × 207 × 14 boards of three 69 strips, click fit, 3.18 m² packs | 3 | About `#D29A50` in daylight photos of the room; drawn as oak boards | 1002 Sand yellow (darker strips near 1011 Brown beige) |
+
+| Cupboards (idea) | **Clerkenwell Gloss White**: Howdens kitchen units (FRK24), as on the kitchen in the room. Howdens call it a crisp, neutral white (their warmer one is Clerkenwell Gloss Porcelain). Drawn as high gloss | 5 | `#F5F4EF`, a hair warmer than the woodwork and clearly whiter than the walls in a photo of the kitchen | 9010 Pure white / 9016 Traffic white |
+| Cupboards (idea) | **AI Olive**: taken from the cupboards in an AI-generated picture of the room, corrected for its dim, warm light | 4 | `#B8B0A4`, a light olive-grey greige | 7032 Pebble grey (7038 Agate grey close) |
 
 The wall spec mentions "Indulgence", but Crown's Indulgence is a blue (CRAFTED by Crown), so check the tin.
 
