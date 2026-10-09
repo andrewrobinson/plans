@@ -63,6 +63,16 @@ Past the door frame, the left wall steps back: a short return wall faces the fro
 
 The kitchen and island are rough blocks in their real colours: units in Clerkenwell Gloss White, a light stone laminate worktop (`#CFC3B0`, estimated), the island in a warmer painted white (`#EDE6D5`) with a honey oak top (`#D6A562`).
 
+## Dresser (idea)
+
+On the front wall between the sink and the desk, a bit like the Cotswold Company's Chester Dove Grey large dresser. Drawn in options 1 to 9, not in the current room. Painted parts are in the dresser colour, which is the cupboards' unless you choose another; the top and shelves are in the shelf colour.
+
+| What | Size or position | Notes |
+| --- | --- | --- |
+| Dresser | 1320 wide × 2100 high, x 810 to 2130 | Centred on the 1490 of wall between the alcove and the desk recess, leaving 85 each side |
+| Base | 400 deep, up to 900 | Two drawers (160 high) over two doors, on a set-back 100 plinth, under a 30 wooden top that's 15 proud |
+| Upper part | 290 deep, from 900 to 2100 | Open, with shelf tops at 1250, 1550 and 1850, and a 40 top that's 20 proud |
+
 ## Outer wall: windows and radiators
 
 The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Windows** view faces it.
@@ -90,12 +100,30 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Wi
 | Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Upper cupboards, corner shelves and everything above the bench move with it |
 | Above the bench | `above` | Nothing, Shelves, TV, TV and shelves, TV and top shelf | TV and shelves | What's on the back wall over the bench |
 | Shelf depth | `shelfDepth` | 150 to 400, in 10s | 250 | Depth of the shelves above the bench |
-| Cupboard colour | `ralChosen.cupboard` | Four to compare (◀ ▶ flip between them): Clerkenwell Gloss White, AI Olive, same colour as the door (Pure Brilliant White), same colour as the walls (Crown Gallery White). Or "Other colours…", which opens a second dropdown of 23 popular cupboard colours and all 99 RAL Classic colours by family | AI Olive | Covers carcasses, doors and the bench. Floor, walls and woodwork are fixed as the room is. Screen colours are approximate |
+| TV size | `TV_INCHES` (slider) | 32, 40, 42, 43, 48, 50, 55, 60, 65, 70, 75, 77, 83, 85, 86 inches | 65 | The TV's overall width and height, `TV_W` × `TV_H`, from LG UK's size guide: 720 × 440 at 32" up to 1930 × 1110 at 86" (65" is 1450 × 830). Shown when there's a TV above the bench |
+| Cupboard colour | `ralChosen.cupboard` | Named colours to compare (◀ ▶ flip between them): Clerkenwell Gloss White, AI Olive, Bella Brittany, Blinds as drawn, Kitchen worktop, Kitchen island, Kitchen island top, same colour as the door (Pure Brilliant White), same colour as the walls (Crown Gallery White). Or "Other colours…", which opens a second dropdown of 23 popular cupboard colours and all 99 RAL Classic colours by family | AI Olive | Covers carcasses, doors and the bench. Floor, walls and woodwork are fixed as the room is. Screen colours are approximate |
+| Dresser colour | `ralChosen.dresser` | The same named colours and "Other colours…" as the cupboards, plus Same as the cupboards (0), Same colour as the door (2) and Same colour as the walls (1) | Same as the cupboards | The dresser's painted body, doors and drawers. Its top and shelves follow the shelf colour |
+| Shelf colour | `shelfWood` | 0 As drawn (pale oak `#D6BC8F`, option 9's oak `#C8A26B`), 1 Honey oak (as the island top, `#D6A562`), 2 Dark oak (`#8A5A33`), 3 Walnut (`#5C3D26`) | 0 | All the wooden shelves (above the bench, corner and upper units, option 9's tower) and option 9's oak bench top |
 | Left-wall cupboard door | slider | 0°–110° | 0° | How far it's opened |
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
 | Room door | slider | 0°–110° | 90° | How far it's opened |
 
-The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2`. A code of 0 means the default (the room as it is now); 1, 2 and 3 are the room's finishes below.
+The page address records the option and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-TV_INCHES-dresser~stored`, for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2-3-65-6~1_2550.2642.1_2100.2362.0_2000.2362.1_2100.2582.0_2500.2362.0_2000.2902.0`. After the `~` are the things to store: 1 shown or 0 hidden, then `x.y.turned` for each, in the order of the table below. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours.
+
+## Things to store
+
+Bulky things that the corner cupboard must eventually hold, drawn standing on the floor as plain blocks (the tub as a cylinder). In the 2D plan view each can be dragged, and double-clicked or double-tapped to turn it round. A blue outline round them all, labelled with its size, is the floor area they need. **Pack them again** puts them back as below.
+
+| Thing | Footprint (along x × along y, as packed) | Height | Notes |
+| --- | --- | --- | --- |
+| Drying racks, 2 | 300 × 800 (turned) | 700 | Each 800 wide × 700 high × 100 thick; they can't stack, so they're one block 300 thick |
+| Folding ladder | 380 × 220 | 1200 | |
+| Long ladder | 100 × 520 (turned) | 1620 | The tallest thing |
+| Mop | 400 × 320 | 1200 | |
+| Dustpan and hoover | 320 × 280 | 1000 | |
+| Yellow tub | 550 across (550 × 550) | 450 | |
+
+Packed as tightly as they go (found by trying every order and turn), they need **850 × 1090** of floor, 0.93 m² for 0.90 m² of footprints. They start like this, loose on the floor right of the island, opposite the middle window (x 2000 to 2850, y 2362 to 3452). Other close packings: 860 × 1080 (0.93 m²); 700 × 1370 (0.96 m²) if one side can be no more than 700; 580 × 1770 (1.03 m²) if one side can be no more than 600. Inside, the corner cupboard needs at least one of these floor areas, and 1620 of height for the long ladder.
 
 ## The room's finishes
 
@@ -107,8 +135,44 @@ The page address records the option and settings as `#option-T-R-F-above-shelfDe
 | Floor | Howdens Oak 3 Strip Engineered Flooring (SDH3220): oak, 2200 × 207 × 14 boards of three 69 strips, click fit, 3.18 m² packs | 3 | About `#D29A50` in daylight photos of the room; drawn as oak boards | 1002 Sand yellow (darker strips near 1011 Brown beige) |
 | Cupboards (idea) | **Clerkenwell Gloss White**: Howdens kitchen units (FRK24), as on the kitchen in the room. Howdens call it a crisp, neutral white (their warmer one is Clerkenwell Gloss Porcelain). Drawn as high gloss | 5 | `#F5F4EF`, a hair warmer than the woodwork and clearly whiter than the walls in a photo of the kitchen | 9010 Pure white / 9016 Traffic white |
 | Cupboards (idea) | **AI Olive**: taken from the cupboards in an AI-generated picture of the room, corrected for its dim, warm light | 4 | `#B8B0A4`, a light olive-grey greige | 7032 Pebble grey (7038 Agate grey close) |
+| Cupboards (idea) | **Bella Brittany**: the blinds' fabric, a blockout roller blind fabric from The Fabric Box's Bella range | 6 | `#85A3B4`, a dusty blue, averaged from the maker's swatch photo | 7040 Window grey / 7001 Silver grey (no close RAL blue) |
+| Cupboards (idea) | **Blinds as drawn**: the window panes as the model shows them (`#CFE3EF`, see-through), as a solid colour that shows the same on screen (`#B8C0BF` in the island view) | 7 | `#BECEDB`, a pale blue-grey | 7047 Telegrey 4 / 7035 Light grey |
+| Cupboards (idea) | **Kitchen worktop**: the kitchen's light stone laminate worktop, as drawn | 8 | `#CFC3B0` (estimated) | 7044 Silk grey |
+| Cupboards (idea) | **Kitchen island**: the island's painted white, warmer than the kitchen units, as drawn | 9 | `#EDE6D5` | 9002 Grey white / 1013 Oyster white |
+| Cupboards (idea) | **Kitchen island top**: the island's honey oak top, as a plain colour (the oak's grain isn't drawn) | 10 | `#D6A562` | 1002 Sand yellow / 1001 Beige |
 
 The wall spec mentions "Indulgence", but Crown's Indulgence is a blue (CRAFTED by Crown), so check the tin.
+
+### Every colour in the model
+
+The screen colours each part is drawn in, as set in [room_3d.html](room_3d.html). The room's light is slightly warm, so on screen they show a little darker and warmer than these values.
+
+| Part | Colour | Notes |
+| --- | --- | --- |
+| Walls | `#DCDEDB` | Crown Gallery White (finish 1) |
+| Door, door frame, window sills | `#F8F8F6` | Dulux Pure Brilliant White (finish 2) |
+| Ceiling | `#EDECE7` | Pure Brilliant White, matt |
+| Floor | oak boards averaging `#D29A50` | Howdens oak (finish 3), drawn as a texture |
+| Cupboards: carcasses, doors and bench | the cupboard colour | AI Olive `#B8B0A4` by default; see the named colours above |
+| Shelves | `#D6BC8F` | Or the shelf colour chosen |
+| Option 9's tower shelves and oak top | `#C8A26B` | Or the shelf colour chosen |
+| Option 9's shelf lights | `#FFF1D0`, glowing `#FFD28A` | |
+| Handles | `#333333` | |
+| TV | `#1A1A1A`, screen `#0C1824` | |
+| Kitchen units | `#F5F4EF`, high gloss | Clerkenwell Gloss White |
+| Kitchen worktop | `#CFC3B0` | Light stone laminate (estimated) |
+| Sink | `#C4C8CC`, metallic | Stainless steel |
+| Alcove tiles | `#EEEEEA` | |
+| Island | `#EDE6D5`, oak top `#D6A562` | |
+| Desk | `#F2F1EE` | |
+| Chair, monitors, riser | `#222222` | |
+| Window panes (the blinds) | `#CFE3EF`, 60% see-through | Shows as about `#B8C0BF` |
+| Radiators | `#F6F6F4` | |
+| Outer wall, outside | `#A0614A` | Brick colour, a placeholder |
+| Downlights | `#FFF6E0` | |
+| Background | `#EEF0F2` | |
+| Outlines | `#3B2A12` | Edges of the boxes |
+| Dimensions (2D views) | `#9B1C1C` | |
 
 ### Sizes that follow from the parameters
 
@@ -166,9 +230,9 @@ Heights here are set from the bench height; the value at the default bench of 78
 | --- | --- | --- |
 | `SHELF_T` | 25 | Shelf thickness |
 | `SHELF_TOPS` | BENCH + 420, + 770, + 1120 (1200, 1550, 1900) | Shelf tops, "Shelves" |
-| `TV_W` × `TV_H` | 1450 × 830 | TV size (65") |
+| `TV_W` × `TV_H` | 1450 × 830 at 65" | TV size, from the TV size slider (`TV_SIZES`) |
 | `TV_BOTTOM` | BENCH + 320 (1100) | TV bottom edge; top is 830 higher (1930) |
 | — | 50 | TV depth off the wall |
 | `TV_GAP` | 150 | Clear space between the TV and the shelves beside it |
-| `TV_SHELF_TOPS` | BENCH + 220, + 1300 (1000, 2080) | Full-width shelf tops below and above the TV, "TV and shelves" |
+| `TV_SHELF_TOPS` | BENCH + 220, + 1300 (1000, 2080) | Full-width shelf tops below and above the TV, "TV and shelves". A TV over 65" raises the top shelf to stay 150 clear of it; if that brings it within 60 of the ceiling, there's no top shelf |
 | `TV_MIDDLE_SHELF` | BENCH + 770 (1550) | Shelf top either side of the TV, "TV and shelves" (left out when there's under 200 each side) |

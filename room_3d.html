@@ -75,6 +75,17 @@
   #colours [hidden] { display: none; }
   #colours select { flex: 1; min-width: 0; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
   #colours .swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #999; flex: none; background: transparent; }
+  #palette { margin-top: 8px; }
+  #palette > summary { cursor: pointer; font-weight: bold; padding: 2px 0; }
+  #paletteList .colrow { margin: 3px 0; }
+  #paletteList .what { flex: 1; min-width: 0; }
+  #paletteList code { color: #666; font-size: 11px; }
+  /* The name and size of a thing to store, by the pointer */
+  #tip { position: fixed; z-index: 4; display: none; pointer-events: none; white-space: nowrap; font-size: 12px;
+    padding: 4px 7px; border-radius: 5px; background: rgba(31, 78, 121, 0.95); color: #fff; }
+  #storedBlock { margin: 10px 0 4px; }
+  #storedBlock .colhead { font-weight: bold; }
+  #storedInfo { margin-top: 4px; }
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
@@ -104,6 +115,7 @@
   <select id="current" aria-label="Cupboard option"></select>
 </div>
 <div id="scrim"></div>
+<div id="tip"></div>
 <div id="panel">
   <div class="head">
     <h1>Cupboard options</h1>
@@ -136,6 +148,10 @@
   </div>
   <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
   <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+  <div id="tvBlock">
+    <label for="tvSize">TV size: <span id="tvSizeValue">65" (1450 × 830)</span></label>
+    <input id="tvSize" type="range" min="0" max="14" step="1" value="8">
+  </div>
   <div id="tallBlock">
     <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
     <input id="tallDoor" type="range" min="0" max="110" value="0">
@@ -170,21 +186,48 @@
   <div id="colours">
     <div class="colhead">Cupboard colour</div>
     <div class="colrow">
-      <button id="colPrev" aria-label="Previous of the four colours">◀</button>
+      <button id="colPrev" aria-label="Previous named colour">◀</button>
       <select id="ral-cupboard" aria-label="Cupboard colour"></select>
-      <button id="colNext" aria-label="Next of the four colours">▶</button>
-      <span class="swatch"></span>
+      <button id="colNext" aria-label="Next named colour">▶</button>
+      <span class="swatch" id="cupboardSwatch"></span>
     </div>
     <div class="colrow" id="otherRow" hidden>
       <select id="ral-other" aria-label="Other cupboard colour"></select>
     </div>
-    <div class="hint">◀ ▶ flip between the four named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
+    <div class="colhead" style="margin-top: 8px">Dresser colour</div>
+    <div class="colrow">
+      <button id="dresserPrev" aria-label="Previous named dresser colour">◀</button>
+      <select id="ral-dresser" aria-label="Dresser colour"></select>
+      <button id="dresserNext" aria-label="Next named dresser colour">▶</button>
+      <span class="swatch" id="dresserSwatch"></span>
+    </div>
+    <div class="colrow" id="dresserOtherRow" hidden>
+      <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
+    </div>
+    <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
+    <div class="colhead" style="margin-top: 8px">Shelf colour</div>
+    <div class="colrow">
+      <select id="shelfWood" aria-label="Shelf colour"></select>
+      <span class="swatch" id="shelfSwatch"></span>
+    </div>
+    <details id="palette">
+      <summary>Colours in this view</summary>
+      <div id="paletteList"></div>
+    </details>
   </div>
   <div id="bench" class="depth">Bench height:
     <label><input type="radio" name="bench" value="700"> 700</label>
     <label><input type="radio" name="bench" value="780" checked> 780</label>
     <label><input type="radio" name="bench" value="800"> 800</label>
     <label><input type="radio" name="bench" value="900"> 900</label>
+  </div>
+  <div id="storedBlock">
+    <div class="colhead">Things to store</div>
+    <div id="storedInfo"></div>
+    <div class="row">
+      <button id="storedToggle">Shown</button>
+      <button id="storedPack">Pack them again</button>
+    </div>
   </div>
   <details id="about">
     <summary>Description</summary>
@@ -686,16 +729,26 @@ function roomDoorGap() {
 // ---------------------------------------------------------------------------
 let above = 3;                     // starts with TV and shelves. 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
 let shelfDepth = 250;              // 150 to 400, from the slider
-const SHELF_T = 25, TV_W = 1450, TV_H = 830, TV_GAP = 150;         // a 65" TV
-// Heights above the bench, set from BENCH by benchHeights(). With the bench
-// at 780: shelves at 1200, 1550, 1900; the TV from 1100 to 1930; with the TV,
-// a bottom shelf at 1000 under it and a top one at 2080 over it, both right
-// across, and a middle one at 1550 beside it.
+const SHELF_T = 25, TV_GAP = 150;
+// Standard TV sizes in inches, with each TV's overall width and height in mm,
+// from LG UK's size guide (lg.com/uk, "How to measure and read TV sizes").
+// The slider steps through them; 65" (1450 x 830) to start with.
+const TV_SIZES = [[32, 720, 440], [40, 900, 500], [42, 930, 540], [43, 970, 570], [48, 1070, 620],
+  [50, 1120, 650], [55, 1230, 710], [60, 1340, 770], [65, 1450, 830], [70, 1570, 910], [75, 1680, 960],
+  [77, 1710, 980], [83, 1840, 1050], [85, 1890, 1080], [86, 1930, 1110]];
+let TV_INCHES = 65, TV_W = 1450, TV_H = 830;
+// Heights above the bench, set from BENCH and the TV by benchHeights(). With
+// the bench at 780 and a 65" TV: shelves at 1200, 1550, 1900; the TV from 1100
+// to 1930; with the TV, a bottom shelf at 1000 under it and a top one at 2080
+// over it, both right across, and a middle one at 1550 beside it. A TV over
+// 65" pushes the top shelf up to keep it 150 clear, and if that leaves under
+// 60 below the ceiling there's no top shelf.
 let SHELF_TOPS, TV_BOTTOM, TV_SHELF_TOPS, TV_MIDDLE_SHELF;
 function benchHeights() {
   SHELF_TOPS = [BENCH + 420, BENCH + 770, BENCH + 1120];
   TV_BOTTOM = BENCH + 320;
-  TV_SHELF_TOPS = [BENCH + 220, BENCH + 1300];
+  const top = Math.max(BENCH + 1300, TV_BOTTOM + TV_H + TV_GAP);
+  TV_SHELF_TOPS = [BENCH + 220, ...(top <= H - 60 ? [top] : [])];
   TV_MIDDLE_SHELF = BENCH + 770;
 }
 benchHeights();
@@ -719,23 +772,29 @@ function benchWallItems(x0, span, g) {
     return ` Above the bench: three ${shelfDepth}-deep shelves, ${span} long, at ${SHELF_TOPS.join(', ')}.`;
   }
   if (span < TV_W + 20) {                                         // the TV doesn't fit beside the cupboards
-    const none = ` Above the bench: no room for the ${TV_W} TV, only ${span} of clear wall.`;
+    const none = ` Above the bench: no room for the ${TV_INCHES}" TV, ${TV_W} wide, only ${span} of clear wall.`;
     if (above === 2) return none;
-    const tops = above === 4 ? [TV_SHELF_TOPS[1]] : TV_SHELF_TOPS;
+    const tops = above === 4 ? TV_SHELF_TOPS.slice(1) : TV_SHELF_TOPS;
+    if (!tops.length) return none;
     shelves(x0, W, g, tops);
     return none + ` ${shelfDepth}-deep shelves right across, ${span} long, at ${tops.join(' and ')}.`;
   }
   const tx = x0 + (span - TV_W) / 2;                               // centred on the clear wall
   box(tx, 0, TV_BOTTOM, tx + TV_W, 50, TV_BOTTOM + TV_H, tvMat, g);
   box(tx + 15, 50, TV_BOTTOM + 15, tx + TV_W - 15, 52, TV_BOTTOM + TV_H - 15, screenMat, g, false);
-  const tvText = ` Above the bench: a 65" TV (${TV_W} × ${TV_H}), centred on the ${span} of clear wall, from ${TV_BOTTOM} to ${TV_BOTTOM + TV_H}.`;
+  const tvText = ` Above the bench: ${String(TV_INCHES).startsWith('8') ? 'an' : 'a'} ${TV_INCHES}" TV (${TV_W} × ${TV_H}), centred on the ${span} of clear wall, from ${TV_BOTTOM} to ${TV_BOTTOM + TV_H}.`;
+  const [below, over] = TV_SHELF_TOPS;
+  const noTop = ` No room for a shelf above it: it would be within 60 of the ceiling.`;
   if (above === 2) return tvText;
   if (above === 4) {
-    shelves(x0, W, g, [TV_SHELF_TOPS[1]]);
-    return tvText + ` A ${shelfDepth}-deep shelf right across above it, ${span} long, at ${TV_SHELF_TOPS[1]}.`;
+    if (!over) return tvText + noTop;
+    shelves(x0, W, g, [over]);
+    return tvText + ` A ${shelfDepth}-deep shelf right across above it, ${span} long, at ${over}.`;
   }
   shelves(x0, W, g, TV_SHELF_TOPS);
-  const shelfText = ` ${shelfDepth}-deep shelves right across, ${span} long, below it at ${TV_SHELF_TOPS[0]} and above it at ${TV_SHELF_TOPS[1]}.`;
+  const shelfText = over
+    ? ` ${shelfDepth}-deep shelves right across, ${span} long, below it at ${below} and above it at ${over}.`
+    : ` A ${shelfDepth}-deep shelf right across below it, ${span} long, at ${below}.` + noTop;
   const side = Math.floor((span - TV_W) / 2 - TV_GAP);
   if (side < 200) return tvText + shelfText + ` No room for a middle shelf beside it: only ${Math.max(side, 0)} each side.`;
   shelves(x0, x0 + side, g, [TV_MIDDLE_SHELF]);
@@ -862,18 +921,31 @@ const FINISHES = {
   // Howdens Clerkenwell Gloss White (FRK24), as on the kitchen units: a crisp,
   // neutral high-gloss white, a hair warmer than the woodwork in the room photo
   5: { name: 'Clerkenwell Gloss White', hex: '#F5F4EF', gloss: true },
+  // The blinds' fabric, Bella Brittany (blockout, The Fabric Box): a dusty
+  // blue, averaged from the maker's swatch photo; nearest RAL 7040 / 7001
+  6: { name: 'Bella Brittany', hex: '#85A3B4' },
+  // The window panes as they show on screen (#B8C0BF in the island view), as
+  // a solid colour that shows the same under the room's light
+  7: { name: 'Blinds as drawn', hex: '#BECEDB' },
+  // The kitchen's own colours, as drawn: its light stone laminate worktop,
+  // and the island's warmer painted white
+  8: { name: 'Kitchen worktop', hex: '#CFC3B0' },
+  9: { name: 'Kitchen island', hex: '#EDE6D5' },
+  10: { name: 'Kitchen island top', hex: '#D6A562' },                // the island's honey oak top, as a plain colour
 };
 const colourOf = code => RAL[code] ? { name: RAL[code][0], hex: RAL[code][1] } : FINISHES[code];
 
 // Each box's default (`room`) is the room as it is now: its own finishes. The
 // cupboards (and the bench with them) default to whatever the woodwork is.
+const dresserMat = material(0xc9a877), dresserDoorMat = material(0xd8bd92);   // set by setRal() below
 const COLOUR_TARGETS = {
   floor: { mats: [floorMat], room: 3 },
   cupboard: { mats: [carcassMat, doorMat, benchMat], follows: 'woodwork' },
   wall: { mats: [wallMat], room: 1 },
   woodwork: { mats: [frameMat, roomDoorMat], room: 2 },
+  dresser: { mats: [dresserMat, dresserDoorMat], follows: 'cupboard' },
 };
-const ralChosen = { floor: 0, cupboard: 0, wall: 0, woodwork: 0 }; // 0: the default above
+const ralChosen = { floor: 0, cupboard: 0, wall: 0, woodwork: 0, dresser: 0 }; // 0: the default above
 
 // Oak boards for the floor, drawn once: rows of 69 mm strips (three to a
 // 207 mm board) of varied lengths and tones, as a texture tiling every 1104 mm
@@ -973,6 +1045,42 @@ function baseCupboards(x0, g) {
     box(hx, R, BENCH - TOP_T - 180, hx + 20, R + 22, BENCH - TOP_T - 40, handleMat, g, false);
   }
   return n;
+}
+
+// The dresser on the front wall between the sink and the desk, a bit like
+// the Cotswold Company's Chester dresser: 1320 wide, centred on the 1490 of
+// wall between the alcove and the desk recess, 2100 high. Up to 900 it's 400
+// deep: two drawers over two doors, under a wooden top. Above, it's 290 deep,
+// with three open shelves and a top that overhangs a little. Painted parts
+// are in the dresser colour (the cupboards' unless chosen), the top and
+// shelves in the shelf colour.
+// Drawn in every option but the current room.
+const DRESSER = { w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290, drawer: 160 };
+DRESSER.x0 = KITCHEN.frontRunTo + (WALL_BETWEEN_RECESSES - DRESSER.w) / 2;
+DRESSER.x1 = DRESSER.x0 + DRESSER.w;
+function dresser(g) {
+  const { x0, x1, w, h, baseD, baseH, upperD, drawer } = DRESSER;
+  const yb = D - baseD, yu = D - upperD;                         // the fronts of the base and the upper part
+  const doorTop = baseH - TOP_T - drawer - 3;                    // the doors stop under the drawers
+  box(x0, yb + 18, 0, x1, D, baseH - TOP_T, dresserMat, g);      // base, behind its fronts
+  box(x0 - 15, yb - 15, baseH - TOP_T, x1 + 15, D, baseH, shelfMat, g);   // wooden top, 15 proud
+  const half = (w - 9) / 2;                                      // two drawers and two doors, 3 apart
+  for (const k of [0, 1]) {
+    const f0 = x0 + 3 + k * (half + 3), f1 = f0 + half, mid = (f0 + f1) / 2;
+    box(f0, yb, doorTop + 3, f1, yb + 18, baseH - TOP_T - 3, dresserDoorMat, g);   // drawer front
+    box(mid - 50, yb - 20, doorTop + drawer / 2 - 8, mid + 50, yb, doorTop + drawer / 2 + 8, handleMat, g, false);
+    box(f0, yb, PLINTH, f1, yb + 18, doorTop, dresserDoorMat, g);       // door, over a plinth
+    const hx = k === 0 ? f1 - 50 : f0 + 30;                      // knobs by the edges that meet
+    box(hx, yb - 20, doorTop - 160, hx + 20, yb, doorTop - 140, handleMat, g, false);
+  }
+  box(x0 + 30, yb + 40, 0, x1 - 30, yb + 58, PLINTH, dresserMat, g);   // plinth, set back
+  box(x0, yu, baseH, x0 + 18, D, h - 40, dresserMat, g);         // upper sides
+  box(x1 - 18, yu, baseH, x1, D, h - 40, dresserMat, g);
+  box(x0 + 18, D - 12, baseH, x1 - 18, D, h - 40, dresserMat, g);   // back
+  box(x0 - 20, yu - 20, h - 40, x1 + 20, D, h, dresserMat, g);   // top, 20 proud
+  for (const top of [1250, 1550, 1850]) box(x0 + 18, yu, top - 22, x1 - 18, D - 12, top, shelfMat, g);
+  return ` A dresser on the front wall between the sink and the desk (x ${x0}-${x1}): ${w} wide, ${h} high, ${baseD} deep up to ${baseH} ` +
+    `(two drawers over two doors, under a wooden top), then ${upperD} deep with three open shelves.`;
 }
 
 // The open shelving tower, x0 to x1, full height, with a light strip under
@@ -1230,7 +1338,7 @@ function dimLine(points, g) {
   g.add(l);
 }
 
-function dimLabel(text, at, g) {
+function dimLabel(text, at, g, colour = '#9b1c1c', size = 0.13) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   ctx.font = 'bold 40px Helvetica, Arial, sans-serif';
@@ -1239,11 +1347,11 @@ function dimLabel(text, at, g) {
   ctx.font = 'bold 40px Helvetica, Arial, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#9b1c1c';
+  ctx.fillStyle = colour;
   ctx.textBaseline = 'middle';
   ctx.fillText(text, 6, 25);
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), depthTest: false }));
-  sprite.scale.set(0.13 * canvas.width / canvas.height, 0.13, 1);
+  sprite.scale.set(size * canvas.width / canvas.height, size, 1);
   sprite.position.copy(at);
   sprite.renderOrder = 11;
   g.add(sprite);
@@ -1267,7 +1375,7 @@ function aboveHeights(x0) {
   const tv = [TV_BOTTOM, TV_BOTTOM + TV_H];
   if (above === 1) return SHELF_TOPS;
   if (above === 2) return tv;
-  if (above === 4) return [...tv, TV_SHELF_TOPS[1]];
+  if (above === 4) return [...tv, ...TV_SHELF_TOPS.slice(1)];
   if (above === 3) {
     const side = Math.floor((W - x0 - TV_W) / 2 - TV_GAP);
     return [...TV_SHELF_TOPS, ...tv, ...(side >= 200 ? [TV_MIDDLE_SHELF] : [])];
@@ -1299,7 +1407,9 @@ function updateDims() {
     chain([0, BENCH, H], (v, off) => P(W, -250 - off, v), dims);
   } else if (flatView === 'front') {
     const { alcove, worktop } = KITCHEN;
-    chain([RECESS_X, ...alcove.x, DESK_RECESS.x0, W], (v, off) => P(v, D, -200 - off), dims);
+    const withDresser = shown !== OPTIONS.length - 1;
+    chain([RECESS_X, ...alcove.x, ...(withDresser ? [DRESSER.x0, DRESSER.x1] : []), DESK_RECESS.x0, W], (v, off) => P(v, D, -200 - off), dims);
+    if (withDresser) chain([0, DRESSER.baseH, DRESSER.h], (v, off) => P(DRESSER.x0 + 200 + off, D, v), dims);   // on the dresser's face
     chain([0, worktop, alcove.top, H], (v, off) => P(RECESS_X - 250 - off, D, v), dims);   // the kitchen side
     chain([0, DESK_TOP, DESK_TOP + 550, H], (v, off) => P(W + 250 + off, D, v), dims);     // the desk and monitor tops
   } else if (flatView === 'right') {
@@ -1326,6 +1436,212 @@ function applyCut() {
     const k = axis === 'x' ? 'x' : 'z';                            // room y is the scene's z
     o.visible = side > 0 ? b.min[k] / MM <= at : b.max[k] / MM >= at;
   });
+}
+
+// ---------------------------------------------------------------------------
+// Things to store, eventually in the corner cupboard: bulky things standing
+// on the floor, as plain blocks (the tub as a cylinder). Each footprint is w
+// along x by d along y; turned swaps them. They start packed as tightly as
+// they go, 850 x 1090 (0.93 m² for 0.90 m² of footprints, found by trying
+// every order and turn), loose on the floor right of the island, opposite the
+// middle window. In the plan view each can be dragged, and double-clicked or
+// double-tapped to turn it round; the outline round them all is the floor
+// area they need. Where they are is saved in the address after "~".
+// ---------------------------------------------------------------------------
+const STORED = [
+  { name: 'Drying racks (2)', label: 'Racks', w: 800, d: 300, h: 700, colour: 0xd9dde2, at: [2550, 2642, true] },   // 2 of 800 x 100, side by side
+  { name: 'Folding ladder', label: 'Ladder', w: 380, d: 220, h: 1200, colour: 0xaab0b6, at: [2100, 2362, false] },
+  { name: 'Long ladder', label: 'Long ladder', w: 520, d: 100, h: 1620, colour: 0x8a9199, at: [2000, 2362, true] },
+  { name: 'Mop', label: 'Mop', w: 400, d: 320, h: 1200, colour: 0x4f86b8, at: [2100, 2582, false] },
+  { name: 'Dustpan and hoover', label: 'Hoover', w: 320, d: 280, h: 1000, colour: 0xb8473a, at: [2500, 2362, false] },
+  { name: 'Yellow tub', label: 'Tub', w: 550, d: 550, h: 450, colour: 0xf2c230, at: [2000, 2902, false], round: true },   // 550 across
+];
+const storedState = STORED.map(({ at: [x, y, turned] }) => ({ x, y, turned }));
+let showStored = true;
+const storedGroup = new THREE.Group();
+scene.add(storedGroup);
+const storedMats = STORED.map(s => new THREE.MeshStandardMaterial({ color: s.colour, roughness: 0.7 }));
+const storedLineMat = new THREE.LineBasicMaterial({ color: 0x1f4e79, depthTest: false });
+const storedSize = k => storedState[k].turned ? [STORED[k].d, STORED[k].w] : [STORED[k].w, STORED[k].d];
+
+// A thing's short name printed flat on its top face, along its longer side,
+// reading the right way up when facing the back wall
+function faceLabel(text, x, y, w, d, z, g) {
+  const along = Math.max(w, d), across = Math.min(w, d);
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = Math.max(48, Math.round(512 * across / along));
+  const ctx = canvas.getContext('2d');
+  ctx.font = 'bold 100px Helvetica, Arial, sans-serif';
+  const size = Math.min(canvas.height * 0.6, 100 * canvas.width * 0.9 / ctx.measureText(text).width);
+  ctx.font = `bold ${size}px Helvetica, Arial, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth = size / 6;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+  ctx.fillStyle = '#1b2a38';
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+  const map = new THREE.CanvasTexture(canvas);
+  map.colorSpace = THREE.SRGBColorSpace;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(along * MM, across * MM), new THREE.MeshBasicMaterial({ map, transparent: true }));
+  m.rotation.x = -Math.PI / 2;                                   // face up, text's top towards the back wall
+  if (d > w) m.rotation.z = Math.PI / 2;                         // along y when that's the longer side
+  m.position.copy(P(x + w / 2, y + d / 2, z + 2));
+  g.add(m);
+}
+
+function drawStored() {
+  storedGroup.traverse(o => {
+    o.geometry?.dispose();
+    if (o.isSprite || o.material?.map) {                        // labels have their own materials
+      o.material.map?.dispose();
+      o.material.dispose();
+    }
+  });
+  storedGroup.clear();
+  storedGroup.visible = showStored;
+  document.getElementById('storedToggle').textContent = `Stored things: ${showStored ? 'shown' : 'hidden'}`;
+  const plan = flat && flatView === 'plan';
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  STORED.forEach((s, k) => {
+    const { x, y } = storedState[k], [w, d] = storedSize(k);
+    storedMats[k].depthTest = !plan;                             // in the plan they show through cupboard tops
+    let m;
+    if (s.round) {
+      m = new THREE.Mesh(new THREE.CylinderGeometry(w / 2 * MM, w / 2 * MM, s.h * MM, 40), storedMats[k]);
+      m.position.copy(P(x + w / 2, y + d / 2, s.h / 2));
+      m.castShadow = m.receiveShadow = true;
+      storedGroup.add(m);
+    } else {
+      m = box(x, y, 0, x + w, y + d, s.h, storedMats[k], storedGroup);
+    }
+    m.userData.stored = k;
+    m.renderOrder = plan ? 6 : 0;
+    if (plan) dimLabel(s.label, P(x + w / 2, y + d / 2, H + 100), storedGroup, '#1f4e79', 0.06);
+    else faceLabel(s.label, x, y, w, d, s.h, storedGroup);
+    [x0, y0, x1, y1] = [Math.min(x0, x), Math.min(y0, y), Math.max(x1, x + w), Math.max(y1, y + d)];
+  });
+  // The floor area they take, outlined just above the floor
+  const outline = [[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]].map(([x, y]) => P(x, y, 5));
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(outline), storedLineMat);
+  line.renderOrder = 7;
+  storedGroup.add(line);
+  const area = `${x1 - x0} × ${y1 - y0}`;
+  if (plan) dimLabel(`Storage area ${area}`, P((x0 + x1) / 2, y1 + 110, H + 100), storedGroup, '#1f4e79', 0.08);
+  const footprints = STORED.reduce((sum, s) => sum + s.w * s.d, 0);
+  document.getElementById('storedInfo').textContent =
+    `${STORED.map(s => s.name).join(', ')}. Standing on the floor they take ${area} ` +
+    `(${((x1 - x0) * (y1 - y0) / 1e6).toFixed(2)} m², for ${(footprints / 1e6).toFixed(2)} m² of footprints), ` +
+    `up to ${Math.max(...STORED.map(s => s.h))} high (the long ladder). In the plan view, drag them to move them; ` +
+    'double-click or double-tap one to turn it round.';
+}
+drawStored();
+
+// In the address: shown or not, then x.y.turned for each
+const storedAddress = () => `${showStored ? 1 : 0}_` + storedState.map(({ x, y, turned }) => `${x}.${y}.${turned ? 1 : 0}`).join('_');
+function readStoredAddress(text) {
+  if (!text) return;
+  const [on, ...spots] = text.split('_');
+  showStored = on !== '0';
+  spots.forEach((spot, k) => {
+    const [x, y, turned] = spot.split('.').map(Number);
+    if (storedState[k] && Number.isFinite(x) && Number.isFinite(y)) Object.assign(storedState[k], { x, y, turned: turned === 1 });
+  });
+  drawStored();
+}
+document.getElementById('storedToggle').addEventListener('click', () => {
+  showStored = !showStored;
+  drawStored();
+  writeAddress();
+});
+document.getElementById('storedPack').addEventListener('click', () => {
+  STORED.forEach(({ at: [x, y, turned] }, k) => Object.assign(storedState[k], { x, y, turned }));
+  drawStored();
+  writeAddress();
+});
+
+// Dragging in the plan view. These listeners run before the view's own
+// panning, and stop it when a stored thing is under the pointer.
+const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
+let storedDrag = null, lastTap = { k: -1, t: 0 };
+function storedUnder(e, cam = flatCamera) {
+  const r = renderer.domElement.getBoundingClientRect();
+  pointer.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  cam.updateMatrixWorld();                                      // as they are now, even before the next frame
+  storedGroup.updateMatrixWorld();
+  raycaster.setFromCamera(pointer, cam);
+  const hit = raycaster.intersectObjects(storedGroup.children, false).find(h => h.object.userData.stored !== undefined);
+  return { k: hit ? hit.object.userData.stored : -1, x: raycaster.ray.origin.x / MM, y: raycaster.ray.origin.z / MM };
+}
+const canDrag = () => showStored && flat && flatView === 'plan';
+renderer.domElement.addEventListener('pointerdown', e => {
+  if (!canDrag()) return;
+  const { k, x, y } = storedUnder(e);
+  if (k < 0) return;
+  e.stopImmediatePropagation();
+  const now = performance.now();
+  if (lastTap.k === k && now - lastTap.t < 350) {                // a double-click or double-tap turns it round
+    storedState[k].turned = !storedState[k].turned;
+    lastTap = { k: -1, t: 0 };
+    drawStored();
+    writeAddress();
+    return;
+  }
+  lastTap = { k, t: now };
+  storedDrag = { k, dx: x - storedState[k].x, dy: y - storedState[k].y };
+  renderer.domElement.setPointerCapture(e.pointerId);
+}, { capture: true });
+renderer.domElement.addEventListener('pointermove', e => {
+  if (!canDrag()) return;
+  const { k, x, y } = storedUnder(e);
+  if (!storedDrag) {
+    renderer.domElement.style.cursor = k >= 0 ? 'grab' : '';
+    return;
+  }
+  e.stopImmediatePropagation();
+  renderer.domElement.style.cursor = 'grabbing';
+  const spot = storedState[storedDrag.k];
+  spot.x = Math.round((x - storedDrag.dx) / 10) * 10;           // to the nearest 10
+  spot.y = Math.round((y - storedDrag.dy) / 10) * 10;
+  drawStored();
+}, { capture: true });
+// The name and size of the thing under the pointer, in any view: on hover
+// with a mouse, and for a moment after a tap on a touch screen
+const tip = document.getElementById('tip');
+let tipTimer = null;
+function showTip(e) {
+  const { k } = showStored && !storedDrag ? storedUnder(e, flat ? flatCamera : camera) : { k: -1 };
+  if (k < 0) {
+    tip.style.display = 'none';
+    return;
+  }
+  const s = STORED[k], [w, d] = storedSize(k);
+  tip.textContent = `${s.name}: ${s.round ? `${w} across` : `${w} × ${d} on the floor`}, ${s.h} high`;
+  tip.style.display = 'block';
+  const left = e.clientX + 14 + tip.offsetWidth > window.innerWidth ? e.clientX - 14 - tip.offsetWidth : e.clientX + 14;
+  tip.style.left = `${left}px`;
+  tip.style.top = `${e.clientY + 14}px`;
+}
+renderer.domElement.addEventListener('pointermove', e => {
+  if (e.pointerType === 'mouse' && !e.buttons) showTip(e);
+  else if (e.pointerType === 'mouse') tip.style.display = 'none';   // not while rotating or panning
+});
+renderer.domElement.addEventListener('pointerleave', () => { tip.style.display = 'none'; });
+renderer.domElement.addEventListener('pointerup', e => {
+  if (e.pointerType === 'mouse') return;
+  showTip(e);
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(() => { tip.style.display = 'none'; }, 2500);
+});
+for (const type of ['pointerup', 'pointercancel']) {
+  renderer.domElement.addEventListener(type, e => {
+    if (!storedDrag) return;
+    e.stopImmediatePropagation();
+    storedDrag = null;
+    renderer.domElement.style.cursor = '';
+    writeAddress();
+  }, { capture: true });
 }
 
 // ---------------------------------------------------------------------------
@@ -1377,7 +1693,7 @@ function show(i) {
   const group = new THREE.Group();
   scene.add(group);
   current = { group, ...option.build(group) };
-  const aboveText = benchWall(option.clearFrom(), group);
+  const aboveText = benchWall(option.clearFrom(), group) + (i === OPTIONS.length - 1 ? '' : dresser(group));
 
   buttons.forEach((b, j) => {
     b.classList.toggle('on', i === j);
@@ -1393,11 +1709,19 @@ function show(i) {
   document.getElementById('legBlock').style.display = i === 6 ? '' : 'none';
   document.getElementById('wardBlock').style.display = i === 8 ? '' : 'none';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
+  document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
   if (!same) secondSlider.value = 0;
   updateDims();
-  try { location.hash = `${i + 1}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}`; } catch (e) { /* not important */ }
+  updatePalette();
+  writeAddress();
   update();
+}
+
+// The address holds the option, every setting and, after "~", where the
+// things to store are
+function writeAddress() {
+  try { location.hash = `${shown + 1}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}~${storedAddress()}`; } catch (e) { /* not important */ }
 }
 
 window.addEventListener('keydown', e => {
@@ -1453,9 +1777,9 @@ extraSlider.addEventListener('input', () => {
   document.getElementById('extraValue').textContent = EXTRA;
   show(shown);
 });
-// The cupboard colour: four named colours to compare, or "Other colours…",
-// which shows a second dropdown of popular cupboard colours and every RAL
-// colour by family. ◀ and ▶ step between the four.
+// The cupboard and dresser colours: named colours to compare, or "Other
+// colours…", which shows a second dropdown of popular cupboard colours and
+// every RAL colour by family. ◀ and ▶ step between the named ones.
 const POPULAR = [9010, 9001, 1013, 9016, 7035, 7044, 7038, 7030, 7004, 7016, 7021, 5014, 5008, 5011,
   6021, 6011, 6003, 6009, 1019, 1015, 8025, 3012, 9005];
 const FAMILIES = [
@@ -1463,54 +1787,141 @@ const FAMILIES = [
   ['Blues', '5'], ['Browns', '8'], ['Reds and pinks', '3'],
 ];
 const ralLabel = code => `RAL ${code} ${RAL[code][0]}`;
-const COMPARE = [5, 4, 0, 1];
+// The named colours both pickers offer, then each picker's own extras
+const NAMED = [
+  [5, 'Clerkenwell Gloss White (as the kitchen)'], [4, 'AI Olive (from the AI picture)'],
+  [6, "Bella Brittany (the blinds' fabric)"], [7, 'Blinds as drawn (the window colour)'],
+  [8, 'Kitchen worktop (light stone)'], [9, 'Kitchen island (painted white)'], [10, 'Kitchen island top (honey oak)'],
+];
 const OTHER = 'other';
-const cupboardSelect = document.getElementById('ral-cupboard');
-const otherSelect = document.getElementById('ral-other');
-cupboardSelect.innerHTML =
-  `<option value="5">Clerkenwell Gloss White (as the kitchen)</option>` +
-  `<option value="4">AI Olive (from the AI picture)</option>` +
-  `<option value="0">Same colour as the door</option>` +
-  `<option value="1">Same colour as the walls</option>` +
-  `<option value="${OTHER}">Other colours…</option>`;
-otherSelect.innerHTML =
+const OTHER_OPTIONS =
   `<optgroup label="Popular for cupboards">${POPULAR.map(c => `<option value="${c}">${ralLabel(c)}</option>`).join('')}</optgroup>` +
   FAMILIES.map(([label, first]) => `<optgroup label="RAL ${label.toLowerCase()}">` +
     Object.keys(RAL).filter(c => c.startsWith(first)).map(c => `<option value="${c}">${ralLabel(c)}</option>`).join('') +
     '</optgroup>').join('');
-function showCupboard() {
-  const code = ralChosen.cupboard;
-  const named = COMPARE.includes(code);
-  cupboardSelect.value = named ? String(code) : OTHER;
-  document.getElementById('otherRow').hidden = named;
-  // The same colour can appear twice (popular and its family); keep whichever is selected
-  if (!named && Number(otherSelect.value) !== code) otherSelect.value = String(code);
-  const colour = colourOf(shownCode('cupboard'));
-  document.querySelector('#colours .swatch').style.background = colour ? colour.hex : 'transparent';
-}
-function pickCupboard(code) {
-  setRal('cupboard', code);
-  showCupboard();
-  show(shown);                                                  // keeps the address up to date
-}
-cupboardSelect.addEventListener('change', () => {
-  // "Other colours…" starts on the other dropdown's current choice
-  pickCupboard(cupboardSelect.value === OTHER ? Number(otherSelect.value) : Number(cupboardSelect.value));
-});
-otherSelect.addEventListener('change', () => pickCupboard(Number(otherSelect.value)));
-for (const [id, step] of [['colPrev', -1], ['colNext', 1]]) {
-  document.getElementById(id).addEventListener('click', () => {
-    // From one of the four, go to the next; from another colour, back to the first
-    const k = COMPARE.indexOf(ralChosen.cupboard);
-    pickCupboard(COMPARE[k < 0 ? 0 : (k + step + COMPARE.length) % COMPARE.length]);
+const colourRefreshers = [];
+const refreshColours = () => colourRefreshers.forEach(f => f());
+// A colour picker for one target: a dropdown of the named colours and the
+// extras, ◀ ▶ to step between them, and "Other colours…" for any RAL colour
+function colourPicker(target, [selectId, otherId, otherRowId, prevId, nextId, swatchId], extras) {
+  const select = document.getElementById(selectId), other = document.getElementById(otherId);
+  const choices = [...NAMED, ...extras], compare = choices.map(([code]) => code);
+  select.innerHTML = choices.map(([code, label]) => `<option value="${code}">${label}</option>`).join('') +
+    `<option value="${OTHER}">Other colours…</option>`;
+  other.innerHTML = OTHER_OPTIONS;
+  colourRefreshers.push(() => {
+    const code = ralChosen[target];
+    const named = compare.includes(code);
+    select.value = named ? String(code) : OTHER;
+    document.getElementById(otherRowId).hidden = named;
+    // The same colour can appear twice (popular and its family); keep whichever is selected
+    if (!named && Number(other.value) !== code) other.value = String(code);
+    const colour = colourOf(shownCode(target));
+    document.getElementById(swatchId).style.background = colour ? colour.hex : 'transparent';
   });
+  const pick = code => {
+    setRal(target, code);
+    refreshColours();                                           // anything following it changes too
+    show(shown);                                                // keeps the address up to date
+  };
+  // "Other colours…" starts on the other dropdown's current choice
+  select.addEventListener('change', () => pick(select.value === OTHER ? Number(other.value) : Number(select.value)));
+  other.addEventListener('change', () => pick(Number(other.value)));
+  for (const [id, step] of [[prevId, -1], [nextId, 1]]) {
+    document.getElementById(id).addEventListener('click', () => {
+      // From a named colour, go to the next; from another colour, back to the first
+      const k = compare.indexOf(ralChosen[target]);
+      pick(compare[k < 0 ? 0 : (k + step + compare.length) % compare.length]);
+    });
+  }
 }
-showCupboard();
+colourPicker('cupboard', ['ral-cupboard', 'ral-other', 'otherRow', 'colPrev', 'colNext', 'cupboardSwatch'],
+  [[0, 'Same colour as the door'], [1, 'Same colour as the walls']]);
+colourPicker('dresser', ['ral-dresser', 'ral-dresser-other', 'dresserOtherRow', 'dresserPrev', 'dresserNext', 'dresserSwatch'],
+  [[0, 'Same as the cupboards'], [2, 'Same colour as the door'], [1, 'Same colour as the walls']]);
+refreshColours();
+
+// The shelf colour: the wooden shelves everywhere (above the bench, in the
+// corner and upper units, option 9's tower) and option 9's oak top. As drawn,
+// the shelves are a pale oak and option 9's oak is a little deeper; the
+// others make them all one wood. Screen colours are approximate.
+const SHELF_WOODS = [
+  { name: 'As drawn (pale oak)', hex: ['#D6BC8F', '#C8A26B'] },
+  { name: 'Honey oak (as the island top)', hex: '#D6A562' },
+  { name: 'Dark oak', hex: '#8A5A33' },
+  { name: 'Walnut', hex: '#5C3D26' },
+];
+let shelfWood = 0;
+const shelfSelect = document.getElementById('shelfWood');
+shelfSelect.innerHTML = SHELF_WOODS.map((w, i) => `<option value="${i}">${w.name}</option>`).join('');
+function setShelfWood(i) {
+  shelfWood = i;
+  const [shelves, oak = shelves] = [].concat(SHELF_WOODS[i].hex);   // one colour, or the shelves' and option 9's oak
+  shelfMat.color.set(shelves);
+  oakMat.color.set(oak);
+  shelfSelect.value = String(i);
+  document.getElementById('shelfSwatch').style.background = shelves;
+}
+setShelfWood(0);
+shelfSelect.addEventListener('change', () => {
+  setShelfWood(Number(shelfSelect.value));
+  show(shown);                                                  // keeps the address up to date
+});
+
+// "Colours in this view" in the menu: a colour square for each part on show,
+// read from the model's own materials so it follows the choices above. Parts
+// whose materials are local to their drawing code are listed by value.
+function updatePalette() {
+  const current = shown === OPTIONS.length - 1;                 // the room as it is, no cupboards
+  const hex = m => `#${m.color.getHexString().toUpperCase()}`;
+  const rows = [
+    ...(current ? [] : [['Cupboards and bench', hex(carcassMat), colourOf(shownCode('cupboard')).name], ['Handles', hex(handleMat)]]),
+    ...(current ? [] : [['Dresser', hex(dresserMat), colourOf(shownCode('dresser')).name]]),
+    ['Shelves', hex(shelfMat), SHELF_WOODS[shelfWood].name],
+    ...(shown === 8 ? [['Tower shelves and oak top', hex(oakMat), SHELF_WOODS[shelfWood].name]] : []),
+    ...(above >= 2 ? [['TV', hex(tvMat)], ['TV screen', hex(screenMat)]] : []),
+    ['Walls', hex(wallMat), colourOf(shownCode('wall')).name],
+    ['Door, frame and sills', hex(frameMat), colourOf(shownCode('woodwork')).name],
+    ['Ceiling', hex(ceilingMat), 'Pure Brilliant White, matt'],
+    ['Floor', FINISHES[3].hex, 'Howdens oak 3-strip, on average'],
+    ['Kitchen units', hex(kitchenMat), 'Clerkenwell Gloss White'],
+    ['Kitchen worktop', hex(worktopMat), 'Light stone laminate'],
+    ['Sink', '#C4C8CC', 'Stainless steel'],
+    ['Alcove tiles', '#EEEEEA'],
+    ['Island', hex(islandMat), 'Painted white'],
+    ['Island top', hex(islandTopMat), 'Oak'],
+    ['Desk', '#F2F1EE'],
+    ['Chair, monitors and riser', '#222222'],
+    ['Window panes (blinds)', '#CFE3EF', 'See-through: shows as about #B8C0BF'],
+    ['Radiators', '#F6F6F4'],
+  ];
+  document.getElementById('paletteList').innerHTML = rows.map(([what, value, name]) =>
+    `<div class="colrow"><span class="swatch" style="background:${value}"></span>` +
+    `<span class="what">${what}${name ? ` · ${name}` : ''}</span><code>${value}</code></div>`).join('');
+}
+// The palette starts folded away; remember if the viewer opens it
+const palette = document.getElementById('palette');
+try { palette.open = localStorage.getItem('paletteOpen') === '1'; } catch (e) { /* not important */ }
+palette.addEventListener('toggle', () => {
+  try { localStorage.setItem('paletteOpen', palette.open ? '1' : '0'); } catch (e) { /* not important */ }
+});
 
 const shelfSlider = document.getElementById('shelfDepth');
 shelfSlider.addEventListener('input', () => {
   shelfDepth = Number(shelfSlider.value);
   document.getElementById('shelfDepthValue').textContent = shelfDepth;
+  show(shown);
+});
+// The TV size, one of TV_SIZES by its place in the list
+const tvSlider = document.getElementById('tvSize');
+function setTvSize(k) {
+  [TV_INCHES, TV_W, TV_H] = TV_SIZES[k];
+  tvSlider.value = String(k);
+  document.getElementById('tvSizeValue').textContent = `${TV_INCHES}" (${TV_W} × ${TV_H})`;
+  benchHeights();                                               // the top shelf may move with it
+}
+tvSlider.addEventListener('input', () => {
+  setTvSize(Number(tvSlider.value));
   show(shown);
 });
 document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => {
@@ -1567,13 +1978,14 @@ const views = {
   desk:   { position: [3.026, 1.4, 4.449], target: [1.658, 1.050, 0.690], hfov: 79 },   // 69° in the photo, opened out a little
   // The wall views leave out what's on the camera's side of their cut (see
   // applyCut): the back wall view everything past the return wall, the left
-  // wall view the island and beyond, the front wall view everything short of
-  // the island's far end, the right wall view the island and everything left of it
+  // wall view the island, the dresser and beyond, the front wall view
+  // everything short of the island's far end, the right wall view everything
+  // left of the desk recess
   plan:   { position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9] },    // back wall at the top
   back:   { position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1] },        // facing the back wall
-  left:   { position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 1000, 1] },        // facing the left wall, back wall on the right
+  left:   { position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 800, 1] },         // facing the left wall, back wall on the right
   front:  { position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
-  right:  { position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 1800, -1] },   // facing the right wall, back wall on the left
+  right:  { position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 2200, -1] },   // facing the right wall, back wall on the left
 };
 let flatFit = views.plan.fit;
 let flatPerM = null;               // the 2D views' scale, pixels per metre at zoom 1
@@ -1589,6 +2001,7 @@ function setView(name) {
   flatView = flat ? name : null;
   updateDims();
   applyCut();
+  drawStored();
   if (flat) {
     flatFit = v.fit;
     flatCamera.zoom = 1;
@@ -1604,7 +2017,7 @@ function setFlat(on) {
   document.getElementById('mode').textContent = on ? 'Show 3D' : 'Show 2D';
   document.querySelectorAll('[data-mode]').forEach(b => { b.style.display = b.dataset.mode === (on ? '2d' : '3d') ? '' : 'none'; });
   document.getElementById('hint').textContent = on
-    ? 'Drag to pan, scroll or pinch to zoom.'
+    ? 'Drag to pan, scroll or pinch to zoom. In the plan, drag the things to store to move them, and double-click or double-tap one to turn it round.'
     : 'Drag to rotate, scroll or pinch to zoom, right-drag to pan.';
 }
 document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
@@ -1719,10 +2132,15 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 // for the order), or with no address: the current room (option 10). Other
 // options start with no left-wall cupboard, TV and shelves above the bench,
 // and AI Olive cupboards.
-const [start, depth, rear, front, aboveIn, shelfIn, benchIn, extraIn, upperIn, legIn, wardIn, towerIn, wardDIn, ralFloor, ralCupboard, ralWall, ralWoodwork] = location.hash.slice(1).split('-').map(Number);
+const [start, depth, rear, front, aboveIn, shelfIn, benchIn, extraIn, upperIn, legIn, wardIn, towerIn, wardDIn, ralFloor, ralCupboard, ralWall, ralWoodwork, shelfWoodIn, tvIn, ralDresser] = location.hash.slice(1).split('~')[0].split('-').map(Number);
+if (SHELF_WOODS[shelfWoodIn]) setShelfWood(shelfWoodIn);
+readStoredAddress(location.hash.split('~')[1]);
+const tvIndex = TV_SIZES.findIndex(([inches]) => inches === tvIn);
+if (tvIndex >= 0) setTvSize(tvIndex);
 // Only the cupboard colour can be changed now; the others stay as the room is
 // A link's cupboard colour wins, even 0 (same as the woodwork)
-if (ralCupboard !== undefined && !Number.isNaN(ralCupboard) && setRal('cupboard', ralCupboard) !== null) showCupboard();
+if (ralCupboard !== undefined && !Number.isNaN(ralCupboard) && setRal('cupboard', ralCupboard) !== null) refreshColours();
+if (Number.isFinite(ralDresser) && setRal('dresser', ralDresser) !== null) refreshColours();
 for (const [id, value, lo, hi, set] of [['ward', wardIn, 600, 1400, v => { WARD = v; }], ['tower', towerIn, 0, 600, v => { TOWER = v; }], ['wardD', wardDIn, 330, 1000, v => { WARD_D = v; }]]) {
   if (value >= lo && value <= hi) {
     set(value);
