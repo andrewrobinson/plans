@@ -40,6 +40,15 @@
     pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer; flex: none;
   }
+  /* Where you are: a three-way switch in the top bar */
+  .seg { pointer-events: auto; display: flex; flex: none; height: 44px; border-radius: 10px; overflow: hidden;
+    background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-size: 14px; }
+  .seg label { display: flex; align-items: center; padding: 0 12px; cursor: pointer; }
+  .seg label + label { border-left: 1px solid #ddd; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg label:has(input:checked) { background: #1f4e79; color: #fff; }
+  .seg label:has(input:focus-visible) { outline: 2px solid #1f4e79; outline-offset: -2px; }
+  @media (max-width: 600px) { #bar { flex-wrap: wrap; } #current { display: none; } }
   #current {
     background: rgba(255, 255, 255, 0.9); border-radius: 8px; padding: 6px 10px; font-size: 13px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -83,6 +92,11 @@
   <button id="share">Share</button>
   <button id="reset">Reset</button>
   <button id="currentRoom">Current room</button>
+  <div id="startView" class="seg" role="radiogroup" aria-label="Where you are">
+    <label title="Seated at my desk, facing the TV"><input type="radio" name="startView" value="desk" checked>Seated</label>
+    <label title="Standing, island on my left"><input type="radio" name="startView" value="standing">Island</label>
+    <label title="Standing in the kitchen"><input type="radio" name="startView" value="kitchen">Kitchen</label>
+  </div>
   <div id="current"></div>
 </div>
 <div id="scrim"></div>
@@ -1486,6 +1500,12 @@ document.getElementById('xray').addEventListener('click', e => {
 const views = {
   corner: { position: [4.6, 3.4, 5.4], target: [1.0, 1.0, 1.0] },
   top:    { position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },
+  // Standing on the room side of the island (so it's on your left), eyes
+  // about 1.75 m up, facing the TV wall
+  standing: { position: [2.35, 1.75, 4.6], target: [2.35, 1.2, 0], hfov: 79 },
+  // Standing in the kitchen, in front of the sink run, eyes about 1.75 m up,
+  // looking out across the room towards the TV wall
+  kitchen: { position: [-0.003, 1.75, 5.294], target: [1.597, 1.15, 1.094], hfov: 79 },   // as far back as the front wall allows
   // Facing the outer wall and its windows from the door side of the room
   windows: { position: [0.4, 1.5, 3.0], target: [3.838, 1.35, 3.0], hfov: 79 },
   // Where the room photo was taken, worked back from where the room's corners
@@ -1536,9 +1556,21 @@ document.getElementById('dims').addEventListener('click', e => {
   e.target.textContent = `Dimensions: ${showDims ? 'on' : 'off'}`;
   updateDims();
 });
-// The 3D view starts from the desk chair
-document.getElementById('mode').addEventListener('click', () => setView(flat ? 'desk' : 'plan'));
-setView('desk');
+// The 3D view starts from the chosen start view (remembered on this device):
+// seated at the desk, standing by the island, or standing in the kitchen
+let startView = 'desk';
+try {
+  const saved = localStorage.getItem('startView');
+  if (saved === 'standing' || saved === 'kitchen') startView = saved;
+} catch (e) { /* not important */ }
+document.querySelector(`input[name=startView][value="${startView}"]`).checked = true;
+document.querySelectorAll('input[name=startView]').forEach(r => r.addEventListener('change', () => {
+  startView = r.value;
+  try { localStorage.setItem('startView', startView); } catch (e) { /* not important */ }
+  setView(startView);
+}));
+document.getElementById('mode').addEventListener('click', () => setView(flat ? startView : 'plan'));
+setView(startView);
 
 function resize() {
   const { clientWidth: w, clientHeight: h } = renderer.domElement.parentElement;
