@@ -41,7 +41,7 @@ Opened to 90°, the door lies along x 0 to 760, at y 1400 to 1444.
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
 | Option | `shown` | 1–8 | 1 | Which cupboard layout |
-| Left-wall cupboard depth | `T` | 400, 500, 600, 700, 800 | 500 | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T |
+| Left-wall cupboard depth | `T` | 0 (none), 400, 500, 600, 700, 800 | 500 | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 330, 400, 500, 600, 700, 800 | 500 | How deep the bench and the back-wall cupboards are, from the back wall |
 | Upper cupboard width | `UPPER` | 400 to 1200, in 50s | 700 | Width along the back wall of option 4's upper cupboard, and of options 3 and 5, which are built on it. Its door is UPPER − 24 wide. Shown on options 3–5 |

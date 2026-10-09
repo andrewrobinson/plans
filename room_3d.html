@@ -52,6 +52,7 @@
   #options { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
   #options button { text-align: left; }
   #panel button { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid #999; background: #fff; cursor: pointer; }
+  #panel button:disabled { opacity: 0.4; cursor: default; }
   #panel button.on { background: #1f4e79; color: #fff; border-color: #1f4e79; }
   #panel .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
   .depth { margin: 0 0 8px; }
@@ -86,6 +87,7 @@
 
   <div id="options"></div>
   <div id="depth" class="depth">Left-wall cupboard depth:
+    <label><input type="radio" name="depth" value="0"> 0 (none)</label>
     <label><input type="radio" name="depth" value="400"> 400</label>
     <label><input type="radio" name="depth" value="500" checked> 500</label>
     <label><input type="radio" name="depth" value="600"> 600</label>
@@ -212,6 +214,7 @@ const benchMat = material(0xe8d9bf);
 
 // A box from room corner (x0, y0, z0) to (x1, y1, z1), in mm.
 function box(x0, y0, z0, x1, y1, z1, mat, parent, edges = true) {
+  if (x1 <= x0 || y1 <= y0 || z1 <= z0) return null;          // nothing to draw, e.g. with no left-wall cupboard
   const g = new THREE.BoxGeometry((x1 - x0) * MM, (z1 - z0) * MM, (y1 - y0) * MM);
   const m = new THREE.Mesh(g, mat);
   m.position.set((x0 + x1) / 2 * MM, (z0 + z1) / 2 * MM, (y0 + y1) / 2 * MM);
@@ -281,7 +284,8 @@ box(-44, 0, 0, 0, ROOM_DOOR, ROOM_DOOR_H, material(0x8fb3d9), roomHinge);
 box(0, 600, 1000, 60, 720, 1020, handleMat, roomHinge, false);
 
 // ---------------------------------------------------------------------------
-// The left-wall cupboard's depth from the wall, T: 400 to 800 in 100s. Everything
+// The left-wall cupboard's depth from the wall, T: 0 (none), or 400 to 800
+// in 100s. Options 2 and 8 need it, so they're unavailable at 0. Everything
 // along the back wall starts from it, so it is set before an option is built.
 // ---------------------------------------------------------------------------
 let T = 500;
@@ -315,6 +319,7 @@ let EXTRA = 500;
 // (y = F). Below the bench top, its inside runs back to the back wall,
 // behind the bench end. Returns the door's hinge.
 function tallCupboard(g) {
+  if (T === 0) return null;                                     // no left-wall cupboard
   box(0, F - 18, 0, T, F, H, carcassMat, g);                   // front end
   box(0, 0, H - 18, T, F, H, carcassMat, g);                 // top
   box(0, 0, 0, T, F, 18, carcassMat, g);                     // bottom
@@ -327,6 +332,7 @@ function tallCupboard(g) {
 // Left-wall cupboard door: (F - 6 - R) x (H - 6) on x T to T + 18, y R + 3 to
 // F - 3, hinged at y = F
 function tallDoor(g) {
+  if (T === 0) return null;
   const h = hinge(T, F, g);
   const w = F - 6 - R;
   box(0, -w - 3, 3, 18, -3, H - 3, doorMat, h);
@@ -339,6 +345,7 @@ function tallDoor(g) {
 // upper shelves end: T for the corner alone, further when they run on into
 // an upper cupboard on the bench.
 function cornerShelves(g, to) {
+  if (to <= 18) return;                                         // no corner, and nothing running on from it
   box(0, 0, BENCH, 18, R, H - 18, carcassMat, g);             // backing
   box(18, 0, BENCH - 18, T, R, BENCH, shelfMat, g);           // base, level with the bench top
   for (const top of upperTops()) box(18, 0, top - 18, to, R, top, shelfMat, g);
@@ -472,6 +479,7 @@ const OPTIONS = [
     source: 'plans/room_3d.html',
     clearFrom: () => T,
     benchFrom: () => T,
+    summaryNoLeft: () => `No left-wall cupboard: just the bench, along the whole back wall. Bench ${W}, ${R} deep.`,
     summary: () => `Tall cupboard on the left wall with a ${F - 6 - R} full-height door. Above the bench, the corner (${T} × ${R}) is open shelving facing into the room. Bench ${W - T}, from x = ${T}, ${R} deep.`,
     build(g) {
       box(T, 0, 0, W, R, BENCH, benchMat, g);
@@ -481,6 +489,7 @@ const OPTIONS = [
   },
   {
     name: '2. Door over the corner shelves',
+    needsLeft: true,                                   // not available without a left-wall cupboard
     source: 'plans/room_3d_shelf_door.html',
     clearFrom: () => T,
     benchFrom: () => T,
@@ -500,6 +509,7 @@ const OPTIONS = [
     source: 'plan2/room_3d_open.html',
     clearFrom: () => T + UPPER,
     benchFrom: () => T,
+    summaryNoLeft: () => `No left-wall cupboard: open shelves on the bench against the left wall (x 0-${UPPER}), facing down the room. Bench ${W}, ${R} deep.`,
     summary: () => `As option 4 with no door: the shelves on the bench (x ${T}-${T + UPPER}) are open, facing down the room. Bench ${W - T}, ${R} deep.`,
     build(g) {
       box(T, 0, 0, W, R, BENCH, benchMat, g);
@@ -513,6 +523,7 @@ const OPTIONS = [
     source: 'plan2/room_3d.html',
     clearFrom: () => T + UPPER,
     benchFrom: () => T,
+    summaryNoLeft: () => `No left-wall cupboard: an upper cupboard on the bench against the left wall (x 0-${UPPER}, ${BENCH} to ceiling), with a ${UPPER - 24} door. Bench ${W}, ${R} deep.`,
     summary: () => `An upper cupboard on the bench (x ${T}-${T + UPPER}, ${BENCH} to ceiling) makes an L with the tall cupboard: inside legs ${UPPER} along the back wall, ${F - R} along the left wall. Its ${UPPER - 24} door faces down the room. Bench ${W - T}, from x = ${T}, ${R} deep; the upper cupboard stands on its first ${UPPER}.`,
     second: 'Upper cupboard door',
     build(g) {
@@ -530,6 +541,7 @@ const OPTIONS = [
     source: 'option 4 (new)',
     clearFrom: () => T + UPPER + EXTRA,
     benchFrom: () => T,
+    summaryNoLeft: () => `No left-wall cupboard: an upper cupboard on the bench against the left wall, to x = ${UPPER + EXTRA}, in two bays with ${UPPER - 24} and ${EXTRA - 6} doors. Bench ${W}, ${R} deep.`,
     summary: () => `As option 4, but the upper cupboard runs on to x = ${T + UPPER + EXTRA} (${UPPER + EXTRA} inside leg), in two bays: the ${UPPER - 24} door as before, then a ${EXTRA - 6} door in a ${EXTRA} bay, both hinged on their right. Bench ${W - T}, from x = ${T}, ${R} deep.`,
     second: 'Upper cupboard doors',
     build(g) {
@@ -554,6 +566,7 @@ const OPTIONS = [
     source: 'option 7 (new)',
     clearFrom: () => T + 700,
     benchFrom: () => T + 700,
+    summaryNoLeft: () => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-700), open shelving from ${BENCH} up and a 676 × ${BENCH - 24} door below. Bench ${W - 700}, from x = 700, ${R} deep.`,
     summary: () => `As option 7, but the back-wall leg is open shelving from ${BENCH} up, level with the bench top, with a 676 × ${BENCH - 24} cupboard door below. A panel at y = ${R} separates the left-wall leg, so the corner belongs to the back-wall leg. Bench ${W - T - 700}, from x = ${T + 700}, ${R} deep.`,
     second: 'Lower door',
     build(g) {
@@ -581,6 +594,7 @@ const OPTIONS = [
     source: 'plan3/room_3d.html',
     clearFrom: () => T + LEG,
     benchFrom: () => T + LEG,
+    summaryNoLeft: () => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-${LEG}), with a ${LEG - 24} door. Bench ${W - LEG}, from x = ${LEG}, ${R} deep.`,
     summary: () => `Both legs of the L run floor to ceiling, ${LEG} inside along the back wall and ${F - R} along the left wall, one space round the corner. ${LEG - 24} door on the back-wall leg. Bench shortened to ${W - T - LEG}, from x = ${T + LEG}, ${R} deep.`,
     second: 'Back-wall leg door',
     build(g) {
@@ -589,6 +603,7 @@ const OPTIONS = [
   },
   {
     name: '8. Full-height corner unit, diagonal double doors',
+    needsLeft: true,                                   // not available without a left-wall cupboard
     source: 'option 7 (new)',
     clearFrom: () => T + 700,
     benchFrom: () => T + 700,
@@ -697,7 +712,7 @@ function updateDims() {
   scene.add(dims);
   const option = OPTIONS[shown];
   const alongBack = [0, T, option.benchFrom(), option.clearFrom(), W];
-  const alongLeft = [0, R, F, FRAME, HINGE, HINGE + ROOM_DOOR, FRAME_END];
+  const alongLeft = [0, R, ...(T ? [F] : []), FRAME, HINGE, HINGE + ROOM_DOOR, FRAME_END];
   if (flatView === 'plan') {
     chain(alongBack, (v, off) => P(v, -250 - off, H), dims);
     chain([...alongLeft, D], (v, off) => P(-300 - off, v, H), dims);
@@ -748,6 +763,7 @@ const buttons = OPTIONS.map((option, i) => {
 // Build option i. A new option starts with its second door shut; rebuilding
 // the same one (a size changed) leaves the doors as they were.
 function show(i) {
+  if (T === 0 && OPTIONS[i].needsLeft) i = i === 1 ? 0 : 6;     // 2 falls back to 1, 8 to 7
   const option = OPTIONS[i];
   const same = i === shown && current;
   shown = i;
@@ -757,10 +773,13 @@ function show(i) {
   current = { group, ...option.build(group) };
   const aboveText = benchWall(option.clearFrom(), group);
 
-  buttons.forEach((b, j) => b.classList.toggle('on', i === j));
+  buttons.forEach((b, j) => {
+    b.classList.toggle('on', i === j);
+    b.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft);
+  });
   document.getElementById('current').textContent = option.name;
   document.getElementById('summary').innerHTML =
-    `${option.summary()}${aboveText}<div class="src">From ${option.source}</div>`;
+    `${(T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary)()}${aboveText}<div class="src">From ${option.source}</div>`;
   document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
   document.getElementById('upperBlock').style.display = i >= 2 && i <= 4 ? '' : 'none';
   document.getElementById('extraBlock').style.display = i === 4 ? '' : 'none';
