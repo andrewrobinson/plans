@@ -55,7 +55,7 @@ Past the door frame, the left wall steps back: a short return wall faces the fro
 | Wall between the alcove and the desk recess | 1490 | Measured |
 | Desk recess | 1623 across, 372 deep, full height, x 2215 to the right-hand wall | Measured, assuming it runs to the right-hand wall |
 | Desk | white, 1600 wide (filling the recess), 802 deep from the recess back (so 430 out into the room), 830 high | Measured |
-| Monitors | 2 screens, 610 wide × 360 high, tops 550 above the desk, spaced evenly across it, on a riser 1080 wide × 230 deep × 10 high, centred, 80 from the back of the recess | Measured, except the riser being centred |
+| Monitors | 2 screens, 610 wide × 360 high, tops 550 above the desk, spaced evenly across it, on a black riser 1080 wide × 230 deep × 100 high, centred, 80 from the back of the recess | Measured, except the riser being centred |
 | Office chair | seat at 590, headrest top at 1400, 600 wide across the armrests | Measured; position and other sizes estimated |
 | Sink | stainless, x −250 to 550, below the alcove | Estimated |
 | Wall cupboards | over the drawers, and from the washing machine on to the front corner | The extractor is between |
@@ -105,7 +105,6 @@ The page address records the option and settings as `#option-T-R-F-above-shelfDe
 | Woodwork | Dulux Pure Brilliant White, gloss | 2 | `#F8F8F6`, a clean white (one paint database gives `#EDECE7`) | 9003 Signal white / 9016 Traffic white |
 | Ceilings | Dulux Pure Brilliant White, matt | — | `#EDECE7` | 9003 / 9016. Drawn with six downlights, seen only from inside the room |
 | Floor | Howdens Oak 3 Strip Engineered Flooring (SDH3220): oak, 2200 × 207 × 14 boards of three 69 strips, click fit, 3.18 m² packs | 3 | About `#D29A50` in daylight photos of the room; drawn as oak boards | 1002 Sand yellow (darker strips near 1011 Brown beige) |
-
 | Cupboards (idea) | **Clerkenwell Gloss White**: Howdens kitchen units (FRK24), as on the kitchen in the room. Howdens call it a crisp, neutral white (their warmer one is Clerkenwell Gloss Porcelain). Drawn as high gloss | 5 | `#F5F4EF`, a hair warmer than the woodwork and clearly whiter than the walls in a photo of the kitchen | 9010 Pure white / 9016 Traffic white |
 | Cupboards (idea) | **AI Olive**: taken from the cupboards in an AI-generated picture of the room, corrected for its dim, warm light | 4 | `#B8B0A4`, a light olive-grey greige | 7032 Pebble grey (7038 Agate grey close) |
 

@@ -48,7 +48,7 @@
   .seg input { position: absolute; opacity: 0; pointer-events: none; }
   .seg label:has(input:checked) { background: #1f4e79; color: #fff; }
   .seg label:has(input:focus-visible) { outline: 2px solid #1f4e79; outline-offset: -2px; }
-  @media (max-width: 600px) { #bar { flex-wrap: wrap; } #current { flex: 1 1 100%; } }
+  @media (max-width: 600px) { #bar { flex-wrap: wrap; } #current { flex: 1 1 100%; } .seg label { padding: 0 7px; } }
   /* The option on show, as a dropdown to switch options without the menu */
   #current {
     pointer-events: auto; height: 44px; min-width: 0; max-width: 100%; border: none; border-radius: 10px; padding: 0 10px;
@@ -97,6 +97,9 @@
     <label title="Seated at my desk, facing the TV"><input type="radio" name="startView" value="desk" checked>Seated</label>
     <label title="Standing, island on my left"><input type="radio" name="startView" value="standing">Island</label>
     <label title="Standing in the kitchen"><input type="radio" name="startView" value="kitchen">Kitchen</label>
+    <label title="Back to the middle window, looking at the sink and the wall to its left"><input type="radio" name="startView" value="window">Window</label>
+    <label title="Looking down from above the windows"><input type="radio" name="startView" value="birdseye">Bird's eye</label>
+    <label title="Looking in from the entrance door, towards my desk"><input type="radio" name="startView" value="door">Door</label>
   </div>
   <select id="current" aria-label="Cupboard option"></select>
 </div>
@@ -202,6 +205,8 @@
     <button data-view="plan" data-mode="2d">Plan</button>
     <button data-view="back" data-mode="2d">Back wall</button>
     <button data-view="left" data-mode="2d">Left wall</button>
+    <button data-view="front" data-mode="2d">Front wall</button>
+    <button data-view="right" data-mode="2d">Right wall</button>
     <button id="dims" data-mode="2d">Dimensions: on</button>
   </div>
   <div class="hint" id="hint"></div>
@@ -324,6 +329,7 @@ const RECESS_X = -(KITCHEN_SETBACK + KITCHEN_DEPTH);
 // (372, measured). Between it and the sink alcove is 1490 of wall (measured).
 const DESK_RECESS = { x0: W - 1623, depth: 372 };
 const WALL_BETWEEN_RECESSES = 1490;
+const DESK_TOP = 830;                                                // the desk in the recess, measured
 slab([[0, 0], [W, 0], [W, D + DESK_RECESS.depth], [DESK_RECESS.x0, D + DESK_RECESS.depth], [DESK_RECESS.x0, D],
   [RECESS_X, D], [RECESS_X, RECESS_FROM], [0, RECESS_FROM]], -20, 0, floorMat, scene);
 box(-WALL, -WALL, 0, W + WALL, 0, H, wallMat, scene, false);         // back wall
@@ -361,18 +367,12 @@ for (const x of [960, 1920, 2880]) {
   }
 }
 
-// The kitchen and island as they are, as rough blocks in their real colours
-// for comparing with the cupboard options. Sizes are estimates from photos,
-// to be replaced with measurements: an L of 600-deep units along the left
-// wall (from just past the door frame to the front wall) and the front wall,
-// wall units above, and the island with its oak top.
 // The outer (right-hand) wall, seen only from inside like the front wall, with
-// three windows and a radiator under each. Estimated from a photo of the wall,
-// to be replaced with measurements where noted. Window recesses (measured):
-// 923 wide, 1390 high, 207 deep, sills at 912, starting 734, 2446 and 4137
-// from the back wall. Radiators (measured): 600 wide, 600 high,
-// 100 thick, 240 off the floor, their fronts 132 out from the wall; centred
-// under the windows.
+// three windows and a radiator under each. Window recesses (measured): 923
+// wide, 1390 high, 207 deep, sills at 912, starting 734, 2446 and 4137 from
+// the back wall. Radiators (measured): 600 wide, 600 high, 100 thick, 240 off
+// the floor, their fronts 132 out from the wall; centred under the windows
+// (assumed).
 const OUTER = {
   end: D + 372,                                  // the wall runs on past the desk recess
   windows: [734, 2446, 4137].map(y => ({ y: [y, y + 923] })),   // where each recess starts
@@ -425,6 +425,10 @@ const OUTER = {
 }
 
 let deskChair = null;            // the office chair
+// The kitchen and island as they are, as rough blocks in their real colours
+// for comparing with the cupboard options: an L of 590-deep units in the
+// recess, along its back wall and the front wall, wall units above, and the
+// loose island with its oak top. Mostly measured; estimates are noted below.
 const KITCHEN = {
   from: RECESS_FROM,             // the left-wall run starts at the return wall, in the recess
   depth: KITCHEN_DEPTH, tall: 2400, wallUnits: [1450, 2400],
@@ -482,7 +486,7 @@ const islandTopMat = material(0xd6a562);                                        
   // (filling the 1623 recess), 802 deep from the recess back and 830 high (all
   // measured), a monitor, and a black office chair in front (estimated)
   const deskMat = material(0xf2f1ee), blackMat = material(0x222222);
-  const DESK_TOP = 830, DESK_W = 1600, deskFront = dBack - 802;
+  const DESK_W = 1600, deskFront = dBack - 802;
   const dx0 = d0 + (W - d0 - DESK_W) / 2, dx1 = dx0 + DESK_W;
   box(dx0, deskFront, DESK_TOP - 25, dx1, dBack, DESK_TOP, deskMat, scene);                         // top
   for (const x of [dx0 + 50, dx1 - 90]) box(x, deskFront + 80, 0, x + 40, dBack - 80, DESK_TOP - 25, deskMat, scene);  // legs
@@ -490,10 +494,11 @@ const islandTopMat = material(0xd6a562);                                        
   // desk, spaced evenly across it
   const MON_W = 610, MON_H = 360, monTop = DESK_TOP + 550, gap = (DESK_W - 2 * MON_W) / 3;
   // They stand on a riser (measured): 1080 wide (centred on the desk), 230
-  // deep, 10 high, starting 80 from the back of the recess
-  const RISER = { w: 1080, d: 230, h: 10, back: 80 };
+  // deep, 100 high, black, starting 80 from the back of the recess. The screens
+  // stay at their measured height, so the stands are shorter
+  const RISER = { w: 1080, d: 230, h: 100, back: 80 };
   const rx0 = dx0 + (DESK_W - RISER.w) / 2, ry1 = dBack - RISER.back, ry0 = ry1 - RISER.d, onRiser = DESK_TOP + RISER.h;
-  box(rx0, ry0, DESK_TOP, rx0 + RISER.w, ry1, onRiser, deskMat, scene);                            // riser
+  box(rx0, ry0, DESK_TOP, rx0 + RISER.w, ry1, onRiser, blackMat, scene);                           // riser
   for (const k of [0, 1]) {
     const m0 = dx0 + gap + k * (MON_W + gap), mid = m0 + MON_W / 2;
     box(m0, ry0 + 30, monTop - MON_H, m0 + MON_W, ry0 + 60, monTop, blackMat, scene);               // screen
@@ -922,17 +927,17 @@ function shownCode(target) {
 }
 
 function setRal(target, code) {
-  const { mats, plain } = COLOUR_TARGETS[target];
+  const { mats } = COLOUR_TARGETS[target];
   if (code && !colourOf(code)) return null;
   ralChosen[target] = code || 0;
-  const use = shownCode(target);
-  const colour = use ? colourOf(use) : null;
-  mats.forEach((m, k) => {
-    const oak = colour && colour.oak && target === 'floor';
+  // Every target resolves to a colour: its own, its room finish, or the one it follows
+  const colour = colourOf(shownCode(target));
+  mats.forEach(m => {
+    const oak = colour.oak && target === 'floor';
     m.map = oak ? oakBoards() : null;
-    m.color.set(oak ? 0xffffff : colour ? colour.hex : plain[k]);
+    m.color.set(oak ? 0xffffff : colour.hex);
     // High-gloss finishes shine; the bench top stays matt
-    m.roughness = colour && colour.gloss && m !== benchMat ? 0.18 : 0.8;
+    m.roughness = colour.gloss && m !== benchMat ? 0.18 : 0.8;
     m.needsUpdate = true;
   });
   // Anything that follows this target, and is on its default, follows it now
@@ -1289,10 +1294,38 @@ function updateDims() {
     chain(alongBack, (v, off) => P(v, D, -200 - off), dims);
     chain([0, BENCH, ...aboveHeights(option.clearFrom()), H], (v, off) => P(W + 250 + off, D, v), dims);
   } else if (flatView === 'left') {
-    chain(alongLeft, (v, off) => P(W, v, -200 - off), dims);
+    chain([...alongLeft, RECESS_FROM, D], (v, off) => P(W, v, -200 - off), dims);
     chain([0, ROOM_DOOR_H, FRAME_H, H], (v, off) => P(W, FRAME_END + 300 + off, v), dims);
     chain([0, BENCH, H], (v, off) => P(W, -250 - off, v), dims);
+  } else if (flatView === 'front') {
+    const { alcove, worktop } = KITCHEN;
+    chain([RECESS_X, ...alcove.x, DESK_RECESS.x0, W], (v, off) => P(v, D, -200 - off), dims);
+    chain([0, worktop, alcove.top, H], (v, off) => P(RECESS_X - 250 - off, D, v), dims);   // the kitchen side
+    chain([0, DESK_TOP, DESK_TOP + 550, H], (v, off) => P(W + 250 + off, D, v), dims);     // the desk and monitor tops
+  } else if (flatView === 'right') {
+    const { windows, sill, top, radiator, end } = OUTER;
+    chain([0, ...windows.flatMap(w => w.y), D, end], (v, off) => P(W, v, -200 - off), dims);
+    chain([0, radiator.bottom, radiator.top, sill, top, H], (v, off) => P(W, -250 - off, v), dims);
   }
+}
+
+// In the wall views, anything wholly on the camera's side of the view's cut
+// is left out, so the wall and what stands against it aren't hidden behind
+// the island, the desk or the outside of the outer wall. A cut is [axis,
+// where in mm, which side the camera is: 1 for the higher side, -1 the lower].
+function applyCut() {
+  const cut = flat && flatView ? views[flatView].cut : null;
+  scene.updateMatrixWorld(true);
+  const b = new THREE.Box3();
+  scene.traverse(o => {
+    if (!o.isMesh) return;
+    o.visible = true;
+    if (!cut) return;
+    const [axis, at, side] = cut;
+    b.setFromObject(o);
+    const k = axis === 'x' ? 'x' : 'z';                            // room y is the scene's z
+    o.visible = side > 0 ? b.min[k] / MM <= at : b.max[k] / MM >= at;
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -1310,6 +1343,7 @@ function update() {
     for (const s of [].concat(current.second ?? [])) s.rotation.y = (s.userData.dir ?? 1) * THREE.MathUtils.degToRad(Number(secondSlider.value));
   }
   roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomSlider.value));
+  applyCut();                                                   // the doors may have moved across a cut
   document.getElementById('tallDoorValue').textContent = `${tallSlider.value}°`;
   document.getElementById('secondDoorValue').textContent = `${secondSlider.value}°`;
   document.getElementById('roomDoorValue').textContent = `${roomSlider.value}°`;
@@ -1509,6 +1543,18 @@ const views = {
   // Standing in the kitchen, in front of the sink run, eyes about 1.75 m up,
   // looking out across the room towards the TV wall
   kitchen: { position: [-0.003, 1.75, 5.294], target: [1.597, 1.15, 1.094], hfov: 79 },   // as far back as the front wall allows
+  // Standing with your back to the middle window (centred on it, just clear
+  // of the radiator), eyes about 1.7 m up, looking over the island at the
+  // sink and, to its left, the front wall along to the desk recess
+  window: { position: [3.5, 1.7, 2.907], target: [1.0, 1.1, 5.379], hfov: 79 },
+  // Bird's eye: high above the windows, looking down across the room towards
+  // the door and the kitchen. The outer wall and ceiling only show from
+  // inside, so the room is open from here; any further out and the outer
+  // wall's brick face would hide the floor along it
+  birdseye: { position: [4.5, 7.5, 2.75], target: [1.2, 0, 2.75], hfov: 66 },
+  // Standing just inside the entrance door, eyes about 1.7 m up, looking
+  // across the room (over the island) to the desk
+  door:   { position: [0.15, 1.7, 1.78], target: [3.026, 1.0, 5.35], hfov: 79 },
   // Facing the outer wall and its windows from the door side of the room
   windows: { position: [0.4, 1.5, 3.0], target: [3.838, 1.35, 3.0], hfov: 79 },
   // Where the room photo was taken, worked back from where the room's corners
@@ -1519,11 +1565,18 @@ const views = {
   // front), eyes 1400 up (measured), swivelled round to face the room, 20°
   // towards the door and tilted 5° down, as in the photo taken there
   desk:   { position: [3.026, 1.4, 4.449], target: [1.658, 1.050, 0.690], hfov: 79 },   // 69° in the photo, opened out a little
+  // The wall views leave out what's on the camera's side of their cut (see
+  // applyCut): the back wall view everything past the return wall, the left
+  // wall view the island and beyond, the front wall view everything short of
+  // the island's far end, the right wall view the island and everything left of it
   plan:   { position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9] },    // back wall at the top
-  back:   { position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2] },       // facing the back wall
-  left:   { position: [30, 1.0, 1.1], target: [0, 1.0, 1.1], fit: [3.6, 3.2] },       // facing the left wall, back wall on the right
+  back:   { position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1] },        // facing the back wall
+  left:   { position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 1000, 1] },        // facing the left wall, back wall on the right
+  front:  { position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
+  right:  { position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 1800, -1] },   // facing the right wall, back wall on the left
 };
 let flatFit = views.plan.fit;
+let flatPerM = null;               // the 2D views' scale, pixels per metre at zoom 1
 
 let viewHfov = null;               // a view's own angle across, in degrees, if it sets one
 function setView(name) {
@@ -1535,6 +1588,7 @@ function setView(name) {
   ctl.target.set(...v.target);
   flatView = flat ? name : null;
   updateDims();
+  applyCut();
   if (flat) {
     flatFit = v.fit;
     flatCamera.zoom = 1;
@@ -1560,11 +1614,12 @@ document.getElementById('dims').addEventListener('click', e => {
   updateDims();
 });
 // The 3D view starts from the chosen start view (remembered on this device):
-// seated at the desk, standing by the island, or standing in the kitchen
+// seated at the desk, standing by the island, standing in the kitchen, back
+// to the middle window, from above the windows, or from the entrance door
 let startView = 'desk';
 try {
   const saved = localStorage.getItem('startView');
-  if (saved === 'standing' || saved === 'kitchen') startView = saved;
+  if (document.querySelector(`input[name=startView][value="${saved}"]`)) startView = saved;
 } catch (e) { /* not important */ }
 document.querySelector(`input[name=startView][value="${startView}"]`).checked = true;
 document.querySelectorAll('input[name=startView]').forEach(r => r.addEventListener('change', () => {
@@ -1575,7 +1630,9 @@ document.querySelectorAll('input[name=startView]').forEach(r => r.addEventListen
 document.getElementById('mode').addEventListener('click', () => setView(flat ? startView : 'plan'));
 setView(startView);
 
-function resize() {
+// keepScale: the drawer opened or closed, so slide the drawing clear of it
+// but keep its size, and any zooming, as it was
+function resize(keepScale = false) {
   const { clientWidth: w, clientHeight: h } = renderer.domElement.parentElement;
   renderer.setSize(w, h);
   camera.aspect = w / h;
@@ -1585,22 +1642,28 @@ function resize() {
   // Up and down, capped so a tall phone screen doesn't stretch the view
   camera.fov = across ? Math.min(80, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(across / 2)) * h / w))) : 45;
   camera.updateProjectionMatrix();
-  // Fit flatFit on screen, whichever way round is tighter
+  // Fit flatFit on screen, whichever way round is tighter, in the part the
+  // settings drawer leaves clear: on wide screens it stays open over the model
   const [fw, fh] = flatFit;
-  const halfH = Math.max(fh, fw * h / w) / 2, halfW = halfH * w / h;
-  Object.assign(flatCamera, { left: -halfW, right: halfW, top: halfH, bottom: -halfH });
+  const covered = menuOpen() && !narrow() ? document.getElementById('panel').offsetWidth : 0;
+  const clear = w - covered;
+  if (!keepScale || !flatPerM) flatPerM = Math.min(clear / fw, h / fh);
+  const perM = flatPerM, halfH = h / 2 / perM;
+  Object.assign(flatCamera, { left: -(covered + clear / 2) / perM, right: clear / 2 / perM, top: halfH, bottom: -halfH });
   flatCamera.updateProjectionMatrix();
 }
-window.addEventListener('resize', resize);
+window.addEventListener('resize', () => resize());
 
 // The settings drawer starts closed on every screen; ☰ opens it
-const narrow = () => window.innerWidth <= 900;
+function narrow() { return window.innerWidth <= 900; }
+function menuOpen() { return document.body.classList.contains('menu-open'); }
 function setMenu(open) {
   document.body.classList.toggle('menu-open', open);
   document.getElementById('menu').setAttribute('aria-expanded', String(open));
+  resize(true);                                                 // the 2D views move clear of the drawer
 }
 setMenu(false);
-document.getElementById('menu').addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+document.getElementById('menu').addEventListener('click', () => setMenu(!menuOpen()));
 document.getElementById('close').addEventListener('click', () => setMenu(false));
 document.getElementById('scrim').addEventListener('click', () => setMenu(false));
 window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
