@@ -86,6 +86,7 @@
   #storedBlock { margin: 10px 0 4px; }
   #storedBlock .colhead { font-weight: bold; }
   #storedInfo { margin-top: 4px; }
+  #storedBlock select { width: 100%; margin-top: 4px; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
@@ -219,6 +220,11 @@
   </div>
   <div id="storedBlock">
     <div class="colhead">Things to store</div>
+    <select id="storedPacking" aria-label="Packing"></select>
+    <div class="depth">
+      <label><input type="radio" name="storedWhere" value="0" checked> By the middle window</label>
+      <label><input type="radio" name="storedWhere" value="1"> In the corner cupboard</label>
+    </div>
     <div id="storedInfo"></div>
     <div class="row">
       <button id="storedToggle">Shown</button>
@@ -1514,28 +1520,41 @@ function applyCut() {
 // ---------------------------------------------------------------------------
 // Things to store, eventually in the corner cupboard: bulky things standing
 // on the floor, as plain blocks (the tub as a cylinder). Each footprint is w
-// along x by d along y; turned swaps them. They start packed as tightly as
-// they go, 850 x 1090 (0.93 m² for 0.90 m² of footprints, found by trying
-// every order and turn), loose on the floor right of the island, opposite the
-// middle window. In the plan view each can be dragged, and double-clicked or
-// double-tapped to turn it round; the outline round them all is the floor
-// area they need. Where they are is saved in the address after "~".
+// along x by d along y; turned swaps them. They're packed in one of PACKINGS,
+// either loose on the floor right of the island, opposite the middle window,
+// or pushed into the current option's corner cupboard, where anything that
+// doesn't fit turns red. In the plan view each can be dragged, and
+// double-clicked or double-tapped to turn it round; the outline round them
+// all is the floor area they need. Where they are is saved in the address
+// after "~".
 // ---------------------------------------------------------------------------
 const STORED = [
-  { name: 'Drying racks (2)', label: 'Racks', w: 800, d: 300, h: 700, colour: 0xd9dde2, at: [2550, 2642, true] },   // 2 of 800 x 100, side by side
-  { name: 'Folding ladder', label: 'Ladder', w: 380, d: 220, h: 1200, colour: 0xaab0b6, at: [2100, 2362, false] },
-  { name: 'Long ladder', label: 'Long ladder', w: 520, d: 100, h: 1620, colour: 0x8a9199, at: [2000, 2362, true] },
-  { name: 'Mop', label: 'Mop', w: 400, d: 320, h: 1200, colour: 0x4f86b8, at: [2100, 2582, false] },
-  { name: 'Dustpan and hoover', label: 'Hoover', w: 320, d: 280, h: 1000, colour: 0xb8473a, at: [2500, 2362, false] },
-  { name: 'Yellow tub', label: 'Tub', w: 550, d: 550, h: 450, colour: 0xf2c230, at: [2000, 2902, false], round: true },   // 550 across
+  { name: 'Drying racks (2)', label: 'Racks', w: 800, d: 300, h: 700, colour: 0xd9dde2 },   // 2 of 800 x 100, side by side
+  { name: 'Folding ladder', label: 'Ladder', w: 380, d: 220, h: 1200, colour: 0xaab0b6 },
+  { name: 'Long ladder', label: 'Long ladder', w: 520, d: 100, h: 1620, colour: 0x8a9199 },
+  { name: 'Mop', label: 'Mop', w: 400, d: 320, h: 1200, colour: 0x4f86b8 },
+  { name: 'Dustpan and hoover', label: 'Hoover', w: 320, d: 280, h: 1000, colour: 0xb8473a },
+  { name: 'Yellow tub', label: 'Tub', w: 550, d: 550, h: 450, colour: 0xf2c230, round: true },   // 550 across
 ];
-const storedState = STORED.map(({ at: [x, y, turned] }) => ({ x, y, turned }));
-let showStored = false;          // hidden until shown from the menu
+// The tightest packings, found by trying every order and turn: [x, y, turned]
+// for each thing in STORED's order, from the packing's back left corner. The
+// footprints come to 0.90 m².
+const PACKINGS = [
+  { name: '850 × 1090, the tightest', at: [[550, 280, 1], [100, 0, 0], [0, 0, 1], [100, 220, 0], [500, 0, 0], [0, 540, 0]] },
+  { name: '860 × 1080', at: [[550, 280, 1], [0, 0, 1], [0, 400, 0], [220, 0, 1], [540, 0, 0], [0, 500, 0]] },
+  { name: '700 × 1370, no side over 700', at: [[0, 0, 1], [300, 0, 0], [0, 800, 1], [300, 220, 0], [300, 540, 0], [100, 820, 0]] },
+  { name: '580 × 1770, no side over 600', at: [[0, 0, 1], [300, 0, 1], [0, 800, 0], [0, 900, 0], [300, 380, 1], [0, 1220, 0]] },
+];
+const sizeOf = (k, turned) => turned ? [STORED[k].d, STORED[k].w] : [STORED[k].w, STORED[k].d];
+const storedState = STORED.map(() => ({ x: 0, y: 0, turned: false }));
+let showStored = false;            // hidden until shown from the menu
+let storedPacking = 0;             // which of PACKINGS
+let storedWhere = 0;               // 0 by the middle window, 1 in the corner cupboard, 2 moved by hand
 const storedGroup = new THREE.Group();
 scene.add(storedGroup);
 const storedMats = STORED.map(s => new THREE.MeshStandardMaterial({ color: s.colour, roughness: 0.7 }));
 const storedLineMat = new THREE.LineBasicMaterial({ color: 0x1f4e79, depthTest: false });
-const storedSize = k => storedState[k].turned ? [STORED[k].d, STORED[k].w] : [STORED[k].w, STORED[k].d];
+const storedSize = k => sizeOf(k, storedState[k].turned);
 
 // A thing's short name printed flat on its top face, along its longer side,
 // reading the right way up when facing the back wall
@@ -1564,6 +1583,78 @@ function faceLabel(text, x, y, w, d, z, g) {
   g.add(m);
 }
 
+// The inside of the current option's corner cupboard, as floor shapes with
+// the clear height above each, in mm. Shelves inside are taken to be
+// removable; bench tops, dividers and the cupboard's own panels count.
+function cupboardSpaces() {
+  const rect = (x0, y0, x1, y1, h) => ({ poly: [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], h });
+  const full = H - 36, under = BENCH - 36;                       // inside a full-height cupboard, and under the bench
+  const leftLeg = from => T ? [rect(0, from, T - 18, F - 18, full)] : [];
+  switch (shown) {
+    case 0: case 1: case 2: case 3: case 4:                      // the left-wall cupboard, running under the bench at the back
+      return T ? [rect(0, R + 18, T, F - 18, full), rect(0, 0, T - 18, R + 18, under)] : [];
+    case 5:                                                      // the L: a lower cupboard on the back wall, full height on the left
+      return [rect(0, 0, T + 700 - 18, R - 18, under), ...leftLeg(R + 18)];
+    case 6:                                                      // the full-height L, one space round the corner
+      return [rect(0, 0, T + LEG - 18, R - 18, full), ...leftLeg(R - 18)];
+    case 7: {                                                    // the corner unit, to 25 behind its diagonal front
+      const E = T + 700, { ux, uy } = diagonal(), nx = uy, ny = -ux, c = T * nx + F * ny + 25;
+      return [{ poly: [[0, 0], [E - 18, 0], [E - 18, (c - (E - 18) * nx) / ny], [(c - (F - 18) * ny) / nx, F - 18], [0, F - 18]], h: full }];
+    }
+    case 8:                                                      // the double-door cupboard and the left-wall leg
+      return [rect(0, 0, T + WARD - 18, WARD_D, full), ...leftLeg(WARD_D)];
+    case 9: case 10:                                             // the 800-wide corner cupboard, back to the wall behind the bench
+      return [rect(0, 0, CORNER_W - 18, F - 18, full)];
+    default:
+      return [];
+  }
+}
+function inPoly([px, py], poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+// Whether thing k at spot {x, y, turned} is inside the cupboard: 'fits',
+// 'out' (not in it at all), 'tall' (in it, but too tall there) or 'sticks'
+// (partly outside it). Points across its footprint are tested.
+function fitOf(k, { x, y, turned }, spaces) {
+  const [w, d] = sizeOf(k, turned), { h, round } = STORED[k];
+  const steps = n => Array.from({ length: Math.ceil((n - 2) / 20) + 1 }, (_, i) => Math.min(1 + i * 20, n - 1));
+  let any = 0, roomy = 0, all = 0;
+  for (const dx of steps(w)) for (const dy of steps(d)) {
+    if (round && Math.hypot(dx - w / 2, dy - d / 2) > w / 2 - 1) continue;
+    const point = [x + dx, y + dy], inside = spaces.filter(sp => inPoly(point, sp.poly));
+    all++;
+    if (inside.length) any++;
+    if (inside.some(sp => sp.h >= h)) roomy++;
+  }
+  return roomy === all ? 'fits' : !any ? 'out' : any === all ? 'tall' : 'sticks';
+}
+// Put the things where storedWhere says, in storedPacking
+function placeStored() {
+  if (storedWhere === 2) return;                                 // moved by hand: leave them
+  const pack = PACKINGS[storedPacking].at;
+  // flip: the packing turned to run the other way (its x and y swapped)
+  const lay = (ox, oy, flip) => pack.map(([x, y, t]) => flip ? { x: ox + y, y: oy + x, turned: !t } : { x: ox + x, y: oy + y, turned: Boolean(t) });
+  const depth = Math.max(...pack.map(([, y, t], k) => y + sizeOf(k, t)[1]));
+  let spots = lay(2000, Math.round((2907 - depth / 2) / 10) * 10, false);   // centred on the middle window
+  const spaces = cupboardSpaces();
+  if (storedWhere === 1 && spaces.length) {
+    // Into a corner of the cupboard, whichever corner and way round fits most
+    let best = -1;
+    const corners = [[0, 0], ...spaces.map(sp => [Math.min(...sp.poly.map(p => p[0])), Math.min(...sp.poly.map(p => p[1]))])];
+    for (const [cx, cy] of corners) for (const flip of [false, true]) {
+      const tryThis = lay(Math.round(cx), Math.round(cy), flip);
+      const fit = tryThis.filter((spot, k) => fitOf(k, spot, spaces) === 'fits').length;
+      if (fit > best) [best, spots] = [fit, tryThis];
+    }
+  }
+  spots.forEach((spot, k) => Object.assign(storedState[k], spot));
+}
+
 function drawStored() {
   storedGroup.traverse(o => {
     o.geometry?.dispose();
@@ -1576,10 +1667,12 @@ function drawStored() {
   storedGroup.visible = showStored;
   document.getElementById('storedToggle').textContent = `Stored things: ${showStored ? 'shown' : 'hidden'}`;
   const plan = flat && flatView === 'plan';
+  const spaces = cupboardSpaces(), fits = STORED.map((s, k) => fitOf(k, storedState[k], spaces));
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   STORED.forEach((s, k) => {
     const { x, y } = storedState[k], [w, d] = storedSize(k);
     storedMats[k].depthTest = !plan;                             // in the plan they show through cupboard tops
+    storedMats[k].emissive.set(fits[k] === 'tall' || fits[k] === 'sticks' ? 0x8a0f0f : 0x000000);   // red: in the cupboard but not fitting
     let m;
     if (s.round) {
       m = new THREE.Mesh(new THREE.CylinderGeometry(w / 2 * MM, w / 2 * MM, s.h * MM, 40), storedMats[k]);
@@ -1596,6 +1689,7 @@ function drawStored() {
     [x0, y0, x1, y1] = [Math.min(x0, x), Math.min(y0, y), Math.max(x1, x + w), Math.max(y1, y + d)];
   });
   // The floor area they take, outlined just above the floor
+  storedLineMat.color.set(fits.some(f => f === 'tall' || f === 'sticks') ? 0xb3261e : 0x1f4e79);   // red when something doesn't fit
   const outline = [[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]].map(([x, y]) => P(x, y, 5));
   const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(outline), storedLineMat);
   line.renderOrder = 7;
@@ -1603,25 +1697,39 @@ function drawStored() {
   const area = `${x1 - x0} × ${y1 - y0}`;
   if (plan) dimLabel(`Storage area ${area}`, P((x0 + x1) / 2, y1 + 110, H + 100), storedGroup, '#1f4e79', 0.08);
   const footprints = STORED.reduce((sum, s) => sum + s.w * s.d, 0);
+  const lower = name => name.charAt(0).toLowerCase() + name.slice(1).replace(/ \(\d\)$/, '');   // 'drying racks', not 'Drying racks (2)'
+  const why = { out: 'no room for it', tall: 'too tall there', sticks: 'sticks out' };
+  const misfits = STORED.map((s, k) => fits[k] !== 'fits' ? `the ${lower(s.name)} (${why[fits[k]]})` : '').filter(Boolean);
+  const inCupboard = fits.filter(f => f !== 'out').length;
+  const where = !spaces.length
+    ? (storedWhere === 1 ? ' This option has no corner cupboard, so they stay by the middle window.' : '')
+    : storedWhere === 1 || inCupboard
+      ? ` In option ${shown + 1}'s corner cupboard: ${fits.filter(f => f === 'fits').length} of ${STORED.length} fit` +
+        (misfits.length ? `; not ${misfits.join(', ')}.` : '.') + ' Shelves inside are taken out.'
+      : '';
   document.getElementById('storedInfo').textContent =
-    `${STORED.map(s => s.name).join(', ')}. Standing on the floor they take ${area} ` +
-    `(${((x1 - x0) * (y1 - y0) / 1e6).toFixed(2)} m², for ${(footprints / 1e6).toFixed(2)} m² of footprints), ` +
-    `up to ${Math.max(...STORED.map(s => s.h))} high (the long ladder). In the plan view, drag them to move them; ` +
-    'double-click or double-tap one to turn it round.';
+    `Standing on the floor they take ${area} (${((x1 - x0) * (y1 - y0) / 1e6).toFixed(2)} m², for ` +
+    `${(footprints / 1e6).toFixed(2)} m² of footprints), up to ${Math.max(...STORED.map(s => s.h))} high.` + where +
+    ' In the plan view, drag them to move them; double-click or double-tap one to turn it round.';
+  document.getElementById('storedPacking').value = String(storedPacking);
+  document.querySelectorAll('input[name=storedWhere]').forEach(r => { r.checked = Number(r.value) === storedWhere; });
 }
-drawStored();
 
-// In the address: shown or not, then x.y.turned for each
-const storedAddress = () => `${showStored ? 1 : 0}_` + storedState.map(({ x, y, turned }) => `${x}.${y}.${turned ? 1 : 0}`).join('_');
+// In the address: shown.packing.where, then x.y.turned for each (used when
+// they've been moved by hand). Older links have only shown, and positions.
+const storedAddress = () => `${showStored ? 1 : 0}.${storedPacking}.${storedWhere}_` +
+  storedState.map(({ x, y, turned }) => `${x}.${y}.${turned ? 1 : 0}`).join('_');
 function readStoredAddress(text) {
   if (!text) return;
-  const [on, ...spots] = text.split('_');
-  showStored = on !== '0';
-  spots.forEach((spot, k) => {
+  const [head, ...spots] = text.split('_');
+  const [on, packing, where = 2] = head.split('.').map(Number);
+  showStored = on !== 0;
+  if (PACKINGS[packing]) storedPacking = packing;
+  if ([0, 1, 2].includes(where)) storedWhere = where;
+  if (storedWhere === 2) spots.forEach((spot, k) => {
     const [x, y, turned] = spot.split('.').map(Number);
     if (storedState[k] && Number.isFinite(x) && Number.isFinite(y)) Object.assign(storedState[k], { x, y, turned: turned === 1 });
   });
-  drawStored();
 }
 document.getElementById('storedToggle').addEventListener('click', () => {
   showStored = !showStored;
@@ -1629,11 +1737,25 @@ document.getElementById('storedToggle').addEventListener('click', () => {
   updatePalette();
   writeAddress();
 });
-document.getElementById('storedPack').addEventListener('click', () => {
-  STORED.forEach(({ at: [x, y, turned] }, k) => Object.assign(storedState[k], { x, y, turned }));
+function restow() {
+  placeStored();
   drawStored();
   writeAddress();
+}
+document.getElementById('storedPack').addEventListener('click', () => {
+  if (storedWhere === 2) storedWhere = 0;                        // back to the window from wherever they were moved
+  restow();
 });
+document.getElementById('storedPacking').innerHTML = PACKINGS.map((p, i) => `<option value="${i}">${p.name}</option>`).join('');
+document.getElementById('storedPacking').addEventListener('change', e => {
+  storedPacking = Number(e.target.value);
+  if (storedWhere === 2) storedWhere = 0;
+  restow();
+});
+document.querySelectorAll('input[name=storedWhere]').forEach(r => r.addEventListener('change', () => {
+  storedWhere = Number(r.value);
+  restow();
+}));
 
 // Dragging in the plan view. These listeners run before the view's own
 // panning, and stop it when a stored thing is under the pointer.
@@ -1657,6 +1779,7 @@ renderer.domElement.addEventListener('pointerdown', e => {
   const now = performance.now();
   if (lastTap.k === k && now - lastTap.t < 350) {                // a double-click or double-tap turns it round
     storedState[k].turned = !storedState[k].turned;
+    storedWhere = 2;
     lastTap = { k: -1, t: 0 };
     drawStored();
     writeAddress();
@@ -1678,6 +1801,7 @@ renderer.domElement.addEventListener('pointermove', e => {
   const spot = storedState[storedDrag.k];
   spot.x = Math.round((x - storedDrag.dx) / 10) * 10;           // to the nearest 10
   spot.y = Math.round((y - storedDrag.dy) / 10) * 10;
+  storedWhere = 2;
   drawStored();
 }, { capture: true });
 // The name and size of the thing under the pointer, in any view: on hover
@@ -1789,6 +1913,8 @@ function show(i) {
   if (!same) secondSlider.value = 0;
   updateDims();
   updatePalette();
+  placeStored();                                                // the cupboard they go in may have changed
+  drawStored();
   writeAddress();
   update();
 }
