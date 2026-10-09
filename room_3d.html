@@ -108,14 +108,42 @@
   <div>Room 3838 × 5379, ceiling 2443. Sizes in mm. Keys 1–9 switch option.</div>
 
   <div id="options"></div>
-  <div id="rear" class="depth">Rear wall cupboard depth:
-    <label><input type="radio" name="rear" value="330"> 330</label>
-    <label><input type="radio" name="rear" value="400"> 400</label>
-    <label><input type="radio" name="rear" value="500" checked> 500</label>
-    <label><input type="radio" name="rear" value="600"> 600</label>
-    <label><input type="radio" name="rear" value="700"> 700</label>
-    <label><input type="radio" name="rear" value="800"> 800</label>
+  <label for="rear">Rear wall cupboard depth: <span id="rearValue">500</span></label>
+  <input id="rear" type="range" min="300" max="800" step="10" value="500">
+  <div id="wardBlock">
+    <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
+    <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
+    <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
+    <input id="ward" type="range" min="600" max="1400" step="50" value="900">
+    <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
+    <input id="tower" type="range" min="0" max="600" step="50" value="400">
   </div>
+  <div id="upperBlock">
+    <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
+    <input id="upper" type="range" min="400" max="1200" step="50" value="700">
+  </div>
+  <div id="legBlock">
+    <label for="leg">Back-wall leg width: <span id="legValue">700</span></label>
+    <input id="leg" type="range" min="400" max="1200" step="50" value="700">
+  </div>
+  <div id="extraBlock">
+    <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
+    <input id="extra" type="range" min="300" max="900" step="50" value="500">
+  </div>
+  <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
+  <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+  <div id="tallBlock">
+    <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
+    <input id="tallDoor" type="range" min="0" max="110" value="0">
+  </div>
+
+  <div id="secondBlock">
+    <label for="secondDoor"><span id="secondLabel"></span>: <span id="secondDoorValue">0°</span></label>
+    <input id="secondDoor" type="range" min="0" max="110" value="0">
+  </div>
+
+  <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
+  <input id="roomDoor" type="range" min="0" max="110" value="90">
   <div id="depth" class="depth">Left-wall cupboard depth:
     <label><input type="radio" name="depth" value="0" checked> 0 (none)</label>
     <label><input type="radio" name="depth" value="400"> 400</label>
@@ -135,26 +163,6 @@
     <label><input type="radio" name="above" value="3" checked> TV and shelves</label>
     <label><input type="radio" name="above" value="4"> TV and top shelf</label>
   </div>
-  <div id="upperBlock">
-    <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
-    <input id="upper" type="range" min="400" max="1200" step="50" value="700">
-  </div>
-  <div id="wardBlock">
-    <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
-    <input id="ward" type="range" min="600" max="1400" step="50" value="900">
-    <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
-    <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
-    <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
-    <input id="tower" type="range" min="0" max="600" step="50" value="400">
-  </div>
-  <div id="legBlock">
-    <label for="leg">Back-wall leg width: <span id="legValue">700</span></label>
-    <input id="leg" type="range" min="400" max="1200" step="50" value="700">
-  </div>
-  <div id="extraBlock">
-    <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
-    <input id="extra" type="range" min="300" max="900" step="50" value="500">
-  </div>
   <div id="colours">
     <div class="colhead">Cupboard colour</div>
     <div class="colrow">
@@ -168,8 +176,6 @@
     </div>
     <div class="hint">◀ ▶ flip between the four named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
   </div>
-  <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
-  <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
   <div id="bench" class="depth">Bench height:
     <label><input type="radio" name="bench" value="700"> 700</label>
     <label><input type="radio" name="bench" value="780" checked> 780</label>
@@ -181,18 +187,6 @@
     <div id="summary"></div>
   </details>
 
-  <div id="tallBlock">
-    <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
-    <input id="tallDoor" type="range" min="0" max="110" value="0">
-  </div>
-
-  <div id="secondBlock">
-    <label for="secondDoor"><span id="secondLabel"></span>: <span id="secondDoorValue">0°</span></label>
-    <input id="secondDoor" type="range" min="0" max="110" value="0">
-  </div>
-
-  <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
-  <input id="roomDoor" type="range" min="0" max="110" value="90">
 
   <div class="row">
     <button id="mode">Show 2D</button>
@@ -549,8 +543,8 @@ box(0, 600, 1000, 60, 720, 1020, handleMat, roomHinge, false);
 // ---------------------------------------------------------------------------
 let T = 0;                         // starts with no left-wall cupboard
 
-// The rear-wall cupboards' and bench's depth from the back wall, R: 330, or 400
-// to 800 in 100s.
+// The rear-wall cupboards' and bench's depth from the back wall, R: 300 to
+// 800, from the slider.
 let R = 500;
 
 // The left-wall cupboard's front, F: 1200, or 1329 right up to the door
@@ -1374,10 +1368,12 @@ document.querySelectorAll('input[name=depth]').forEach(r => r.addEventListener('
   T = Number(r.value);
   show(shown);
 }));
-document.querySelectorAll('input[name=rear]').forEach(r => r.addEventListener('change', () => {
-  R = Number(r.value);
+const rearSlider = document.getElementById('rear');
+rearSlider.addEventListener('input', () => {
+  R = Number(rearSlider.value);
+  document.getElementById('rearValue').textContent = R;
   show(shown);
-}));
+});
 document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => {
   BENCH = Number(r.value);
   benchHeights();
@@ -1705,10 +1701,10 @@ if (depthRadio) {
   T = depth;
   depthRadio.checked = true;
 }
-const rearRadio = document.querySelector(`input[name=rear][value="${rear}"]`);
-if (rearRadio) {
+if (rear >= 300 && rear <= 800) {
   R = rear;
-  rearRadio.checked = true;
+  rearSlider.value = rear;
+  document.getElementById('rearValue').textContent = rear;
 }
 show(start >= 1 && start <= OPTIONS.length ? start - 1 : OPTIONS.length - 1);   // the current room to start with
 renderer.setAnimationLoop(() => {
