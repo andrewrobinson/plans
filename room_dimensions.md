@@ -252,3 +252,30 @@ Heights here are set from the bench height; the value at the default bench of 78
 | `TV_GAP` | 150 | Clear space between the TV and the shelves beside it |
 | `TV_SHELF_TOPS` | BENCH + 220, + 1300 (1000, 2080) | Full-width shelf tops below and above the TV, "TV and shelves". A TV over 65" raises the top shelf to stay 150 clear of it; if that brings it within 60 of the ceiling, there's no top shelf |
 | `TV_MIDDLE_SHELF` | BENCH + 770 (1550) | Shelf top either side of the TV, "TV and shelves" (left out when there's under 200 each side) |
+
+## TODO
+
+### Kitchen measurements, not yet in the model
+
+The model is good enough to show the dresser, so these are parked. Measured (October 2026):
+
+- The counter is an L, 610 wide on both legs. Its inner edges (closest to someone standing at it) were given as 1190 and 2125.
+- From the sink, along the left wall towards the room door: the counter comes 610 (the corner), then 215 more of counter, then 630 of fridge cabinet, to the wall with the light switch.
+- "The counter extends 105 cm left of the base."
+
+How these might fit:
+
+- The front-wall leg's 1190 inner edge already matches the model: the counter ends at x = 805, within 5 of the 800 drawn.
+- If "2125" is a typo for 215, the left-wall leg's inner edge is 215 and the light-switch (return) wall is 610 + 215 + 630 = 1455 from the front wall, at y = 3924. The model has it at y = 2251, just past the door frame, which was assumed. That would mean about 1.7 m of plain wall between the door frame and the light-switch wall, a kitchen recess only 1455 long, and a fridge cabinet 630 wide (590 is drawn, estimated).
+- If 2125 is right, the counter's left leg would start at y = 2644, leaving only 393 for the fridge cabinet against the return wall at 2251.
+- What the 105 cm is measured from isn't known yet: perhaps how far the counter carries on past the base units under it.
+
+### Other open points
+
+- Option 11's doors are only on the part of its side clear of the bench; doors along the whole side would need the bench to stop short of it.
+- The fit check for the things to store treats shelves inside cupboards as removable, and in options 1 to 5 counts the space behind the bench line as only bench height.
+- The Window viewpoint faces the sink with the front wall to its left; not confirmed that's what was meant.
+- With a small TV, the middle shelves either side sit level with its top edge, not halfway up it.
+- A thin brick-coloured strip shows at one edge of the back and front wall views (a window's outer reveal, seen through the wall's thickness).
+- Ideas: automated checks (text snapshots of the description, screenshots of the 2D views) and a guided tour through chosen options.
+- Tidying: a `.gitignore` for `.DS_Store`, and deleting branches already merged.
