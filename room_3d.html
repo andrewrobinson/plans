@@ -3049,10 +3049,12 @@ const PACK_BACK = 1250;             // mm out from the cupboard's door: arm's re
 function packingView() {
   const at = packingSpot();
   if (!at) return builtInViews.corner;                                  // no corner cupboard: the corner view
-  // Open its door, and shut the other, which might swing open in front of you
-  (at.door === 'tall' ? tallSlider : secondSlider).value = 90;
-  (at.door === 'tall' ? secondSlider : tallSlider).value = 0;
-  if (at.y + PACK_BACK * at.ny > HINGE) roomSlider.value = 0;          // standing past the room door's hinge: shut it, as it would hide the cupboard
+  // Its doors open wide, all of them, folded back out of the way (at 90° one
+  // can stand across the front of the other; an option with only one has
+  // the other slider unused)
+  tallSlider.value = 170;
+  secondSlider.value = 170;
+  roomSlider.value = 0;                                          // the room door shut, as it can hide the cupboard
   update();
   const { x, y, nx, ny } = at, m = v => v / 1000;
   return { posture: 'stand', position: [m(x + PACK_BACK * nx), 1.6, m(y + PACK_BACK * ny)], target: [m(x - 300 * nx), 0.9, m(y - 300 * ny)], hfov: 95 };
