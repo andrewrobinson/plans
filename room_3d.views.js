@@ -92,5 +92,12 @@ window.ROOM_VIEWS = {
                 position: [150, 1780, 1700], target: [3026, 5350, 1000], hfov: 79 },
     packing:  { label: 'Packing', title: "Within arm's reach of the corner cupboard, its doors open", posture: 'stand', compute: 'packing' },
   },
+  // Looks (the Look menu's list): a Where, Looking at and eye height by
+  // name, the same on every device, alongside those saved with its Save. A
+  // look aims at its thing wherever it is now. For example
+  //   deskDresser: { label: 'From the desk, the dresser', place: 'desk', thing: 'dresser', eye: 'sit-tall' },
+  // (eye can be left out, to keep whatever eye height is chosen).
+  looks: {
+  },
   startView: 'birdseye',           // the view a page opens on, unless its address has one (it can be a built-in view)
 };

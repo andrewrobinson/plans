@@ -33,7 +33,7 @@
   // options:
   //   THREE, camera, controls (OrbitControls), canvas: the 3D view
   //   room: a name for this room, to keep its saved views apart
-  //   config: the room's data (eyes, places, things, views, startView, look)
+  //   config: the room's data (eyes, places, things, views, looks, startView, look)
   //   builtIn: { id: view } the room's own views, in scene metres; those
   //     with `fit` are 2D, for the room's code to place (see hooks.place)
   //   anchors: { name: () => [x, y, height] } things that move, in mm (or
@@ -43,7 +43,8 @@
   //   chair: { object, rest, eyes } a swivel chair: the object to turn, its
   //     turn when no one's in it (radians), and how far your eyes are in
   //     front of its middle (mm)
-  //   el: { where, lookAt, eye, views, save, remove, hint } the controls
+  //   el: { where, lookAt, eye, views, save, remove, hint } the controls, and
+  //     optionally { looks, saveLook, removeLook } for saved looks
   //   hints: { flat, orbit, person } what the hint says in each case
   //   hooks: {
   //     place(view, id)   put the cameras at the view (2D or 3D), then resize and update
@@ -259,6 +260,70 @@
       lookThing = el.lookAt.value;
       lookFromPicks();
     });
+    // Looks: a Where, Looking at and eye height by name, from the room's data
+    // (config.looks: { id: { label, place, thing, eye } }) or saved here
+    // ([{ name, place, thing, eye }]). Unlike a saved view (a camera's spot
+    // and direction), a look aims at its thing wherever it is now. In the
+    // list their ids are 'user:<id>' and 'saved:<name>'.
+    const userLooks = config.looks ?? {};
+    function savedLooks() {
+      try { return JSON.parse(localStorage.getItem(key('savedLooks'))) || []; } catch (e) { return []; }
+    }
+    function storeSavedLooks(list) {
+      try { localStorage.setItem(key('savedLooks'), JSON.stringify(list)); return true; } catch (e) { return false; }
+    }
+    const findLook = id => id.startsWith('saved:') ? savedLooks().find(l => l.name === id.slice(6))
+      : Object.hasOwn(userLooks, id.slice(5)) ? userLooks[id.slice(5)] : null;
+    const lookUnset = unset('');
+    function fillLooks() {
+      if (!el.looks) return;
+      el.looks.replaceChildren(lookUnset);
+      const group = (label, choices) => {
+        if (!choices.length) return;
+        const g = document.createElement('optgroup');
+        g.label = label;
+        g.append(...choices);
+        el.looks.append(g);
+      };
+      group('User-defined', Object.entries(userLooks).map(([id, l]) => choice(`user:${id}`, l.label)));
+      group('Saved on this device', savedLooks().map(l => choice(`saved:${l.name}`, l.name)));
+    }
+    fillLooks();
+    if (el.looks) {
+      el.looks.addEventListener('change', () => {
+        const l = findLook(el.looks.value);
+        if (!l || !is3dView(`look:${l.place}:${l.thing}`)) return;
+        const withEye = Object.hasOwn(EYES, l.eye ?? '');
+        if (withEye) remember('eye', eye = l.eye);
+        setView(`look:${l.place}:${l.thing}`, withEye);
+        remember('startView', startView = viewId);
+      });
+      el.saveLook.addEventListener('click', () => {
+        if (!viewId.startsWith('look:')) return;
+        const [place, thing] = lookParts(viewId), list = savedLooks(), on = el.looks.value;
+        const name = window.prompt('Name this look', on.startsWith('saved:') ? on.slice(6) : `${PLACES[place].label}, looking at ${THINGS[thing].label}`)?.trim();
+        if (!name) return;
+        const at = list.findIndex(l => l.name === name);
+        if (at >= 0 && !window.confirm(`Replace the saved look "${name}"?`)) return;
+        const look = { name, place, thing, eye };
+        if (at >= 0) list[at] = look;
+        else list.push(look);
+        if (!storeSavedLooks(list)) {
+          window.alert("This browser isn't letting the page save looks (a private window, perhaps).");
+          return;
+        }
+        fillLooks();
+        showChoices(true);
+      });
+      el.removeLook.addEventListener('click', () => {
+        const name = el.looks.value.slice('saved:'.length);
+        if (!window.confirm(`Delete the saved look "${name}"?`)) return;
+        storeSavedLooks(savedLooks().filter(l => l.name !== name));
+        fillLooks();
+        showChoices(true);
+      });
+    }
+
     // Show the view chosen (none once moved by hand), and the eye height when
     // you're in it as a person
     function showChoices(postured) {
@@ -272,6 +337,17 @@
       if (postured || asPerson) el.eye.value = eye;
       else if (viewId) el.eye.value = '';
       el.remove.hidden = !viewId.startsWith('saved:');
+      // The look on screen, if it's one in the list (a saved one first);
+      // only a look can be saved as one, not anywhere moved to by hand
+      if (el.looks) {
+        const fits = l => l.place === lookPlace && l.thing === lookThing && (!l.eye || l.eye === eye);
+        const saved = looking && savedLooks().find(fits), user = looking && Object.entries(userLooks).find(([, l]) => fits(l));
+        const id = saved ? `saved:${saved.name}` : user ? `user:${user[0]}` : '';
+        lookUnset.textContent = looking && !id ? 'This look (not saved)' : 'Looks';
+        el.looks.value = id;
+        el.saveLook.disabled = !looking;
+        el.removeLook.hidden = !id.startsWith('saved:');
+      }
     }
 
     // The last 3D view chosen here, to go back to from the 2D views
