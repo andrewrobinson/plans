@@ -101,7 +101,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
-| Option | `shown` | 1–16 (16 is the current room, with nothing built) | 9 | Which cupboard layout. Options 10 and 11 are a full-height cupboard in the corner, 800 along the back wall and F out along the left wall, with the bench from it to the right-hand wall: 10 has a pair of doors on its end facing the kitchen, 11 a pair on its side facing the windows, where it's clear of the bench (y R to F). The left-wall cupboard depth doesn't apply to them |
+| Option | `shown` | 1–16 (16 is the current room, with no cupboards: a bench along the whole back wall, with the Bench switch on) | 9 | Which cupboard layout. Options 10 and 11 are a full-height cupboard in the corner, 800 along the back wall and F out along the left wall, with the bench from it to the right-hand wall: 10 has a pair of doors on its end facing the kitchen, 11 a pair on its side facing the windows, where it's clear of the bench (y R to F). The left-wall cupboard depth doesn't apply to them |
 | Left-wall cupboard depth | `T` | none, or 300 to 800 in 10s (slider; none is at its far left) | none (0) | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 300 to 800, in 10s (slider) | 330 | How deep the bench and the back-wall cupboards are, from the back wall |

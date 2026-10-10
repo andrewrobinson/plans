@@ -1713,7 +1713,7 @@ const OPTIONS = [
     },
   },
   {
-    name: '6. Full-height L, open shelves above the bench',
+    name: '6. Full-height L-shaped cupboard with shelves',
     source: 'option 7 (new)',
     clearFrom: () => T + 700,
     benchFrom: () => T + 700,
@@ -1793,7 +1793,7 @@ const OPTIONS = [
     },
   },
   {
-    name: '9. Double-door cupboard, shelving tower, base cupboards',
+    name: '9. Double-door cupboard and shelves',
     source: 'option 7 and the photo (new)',
     clearFrom: () => T + WARD + TOWER,
     benchFrom: () => T + WARD + TOWER,
@@ -1874,9 +1874,10 @@ const OPTIONS = [
     name: '16. Current room, no cupboards yet',
     source: 'the room as it is now',
     clearFrom: () => 0,                                           // what's above the bench goes on the bare back wall
-    benchFrom: () => W,
-    summary: () => 'The room as it is now: no cupboards or bench. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk.',
-    build() {
+    benchFrom: () => 0,
+    summary: () => `The room as it is now, with no cupboards. Bench ${W}, the whole back wall, ${R} deep. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk.`,
+    build(g) {
+      box(0, 0, 0, W, R, BENCH, benchMat, g);                    // bench, the whole back wall (left out with the bench off)
       return {};
     },
   },
