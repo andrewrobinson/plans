@@ -108,6 +108,10 @@
   #storedBlock { margin: 10px 0 4px; }
   #storedBlock .colhead { font-weight: bold; }
   #storedInfo { margin-top: 4px; }
+  #panel input.shelves { width: 100%; box-sizing: border-box; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; }
+  #storedLifts { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; margin-top: 6px; }
+  #panel #storedLifts label { display: block; margin: 0; }
+  #storedLifts input { width: 70px; font: inherit; padding: 2px 4px; }
   #current, #dresserPick, #larderPick, #sofaPick, #storedBlock select { width: 100%; margin-top: 4px; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
@@ -289,6 +293,10 @@
       <input id="leg" type="range" min="400" max="1200" step="1" value="600">
       <label for="legD">Single-door cupboard depth: <span id="legDValue">600</span></label>
       <input id="legD" type="range" min="330" max="1000" step="1" value="600">
+      <label for="shelvesBack">Shelves in the back-wall leg and corner (tops, mm)</label>
+      <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
+      <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
+      <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
     </div>
     <div id="extraBlock">
       <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
@@ -352,6 +360,7 @@
         <label><input type="radio" name="storedWhere" value="1"> In the corner cupboard</label>
       </div>
       <div id="storedInfo"></div>
+      <div id="storedLifts"></div>
       <div class="row">
         <button id="storedToggle">Shown</button>
         <button id="storedPack">Pack them again</button>
@@ -744,6 +753,9 @@ let LEG = 600;
 // ...and its own depth from the back wall (330 to 1000), so it can stand
 // deeper than the bench, which stays R deep, as option 9's cupboard does
 let LEG_D = 600;
+// ...and its shelves: the tops, in mm, in the back-wall leg (with the inside
+// corner) and in the left-wall leg, each list from the menu
+let L_SHELVES = { back: [600, 1200, 1800], left: [600, 1200, 1800] };
 let legDAddress = null;            // from the address: a depth, 'back' for links from before it, or null for none
 
 // Option 5's second bay, beyond option 4's upper cupboard: its width from the slider,
@@ -801,9 +813,10 @@ function drawCupShelves() {
   cupCuts = [];
   for (const { poly, top, mat } of cupShelves) {
     const [sx0, sx1] = spanOf(poly, 0), [sy0, sy1] = spanOf(poly, 1);
+    // Things up through it (not those resting on it, or above it)
     const clash = !showStored ? [] : STORED.map((s, k) => k).filter(k => {
-      const { x, y } = storedState[k], [w, d] = storedSize(k);
-      return 18 + STORED[k].h + LIFT > top - 18 && x < sx1 && x + w > sx0 && y < sy1 && y + d > sy0;
+      const { x, y, z } = storedState[k], [w, d] = storedSize(k);
+      return z < top - 18 && Math.max(z, 18) + STORED[k].h + LIFT > top - 18 && x < sx1 && x + w > sx0 && y < sy1 && y + d > sy0;
     });
     if (!clash.length) {
       slab(poly, top - 18, top, mat, cupShelfGroup);
@@ -910,10 +923,8 @@ function fullHeightL(g) {
   box(0, Dl, H - 18, T, F - 18, H, carcassMat, g);
   box(0, 0, 0, E - 18, Dl, 18, carcassMat, g);             // bottoms
   box(0, Dl, 0, T, F - 18, 18, carcassMat, g);
-  for (const top of [600, 1200, 1800]) {
-    cupShelf(rectPoly(0, 0, E - 18, Dl - 18), top, carcassMat);
-    cupShelf(rectPoly(0, Dl - 18, T - 18, F - 18), top, carcassMat);
-  }
+  for (const top of L_SHELVES.back) cupShelf(rectPoly(0, 0, E - 18, Dl - 18), top, carcassMat);
+  for (const top of L_SHELVES.left) cupShelf(rectPoly(0, Dl - 18, T - 18, F - 18), top, carcassMat);
   const second = hinge(E, Dl + 18, g);
   box(T + 21 - E, -18, 3, -3, 0, H - 3, doorMat, second);
   box(T + 38 - E, 0, 950, T + 58 - E, 22, 1250, handleMat, second, false);
@@ -2139,7 +2150,8 @@ const PACKINGS = [
   { name: '580 × 1770, no side over 600', at: [[0, 0, 1], [300, 0, 1], [0, 800, 0], [0, 900, 0], [300, 380, 1], [0, 1220, 0], [150, 0, 1]] },
 ];
 const sizeOf = (k, turned) => turned ? [STORED[k].d, STORED[k].w] : [STORED[k].w, STORED[k].d];
-const storedState = STORED.map(() => ({ x: 0, y: 0, turned: false }));
+const storedState = STORED.map(() => ({ x: 0, y: 0, turned: false, z: 0 }));   // z: how high it stands, as on a shelf
+let liftInputs = [];               // the menu's inputs for each thing's height off the floor (see below)
 let showStored = false;            // hidden until shown from the menu
 let storedPacking = 0;             // which of PACKINGS
 let storedWhere = 0;               // 0 by the middle window, 1 in the corner cupboard, 2 moved by hand
@@ -2213,8 +2225,8 @@ function inPoly([px, py], poly) {
 // Whether thing k at spot {x, y, turned} is inside the cupboard: 'fits',
 // 'out' (not in it at all), 'tall' (in it, but too tall there) or 'sticks'
 // (partly outside it). Points across its footprint are tested.
-function fitOf(k, { x, y, turned }, spaces) {
-  const [w, d] = sizeOf(k, turned), { h, round } = STORED[k];
+function fitOf(k, { x, y, turned, z = 0 }, spaces) {
+  const [w, d] = sizeOf(k, turned), { round } = STORED[k], h = STORED[k].h + z;   // up to its top, from the floor
   const steps = n => Array.from({ length: Math.ceil((n - 2) / 20) + 1 }, (_, i) => Math.min(1 + i * 20, n - 1));
   let any = 0, roomy = 0, all = 0;
   for (const dx of steps(w)) for (const dy of steps(d)) {
@@ -2308,6 +2320,7 @@ function drawStored() {
   });
   storedGroup.clear();
   storedGroup.visible = showStored;
+  showLifts();
   drawCupShelves();                                             // cut back round where they now stand
   document.getElementById('storedToggle').textContent = `Stored things: ${showStored ? 'shown' : 'hidden'}`;
   const plan = flat && flatView === 'plan';
@@ -2315,22 +2328,22 @@ function drawStored() {
   if (plan && spaces.length) planFit(spaces, fits);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   STORED.forEach((s, k) => {
-    const { x, y } = storedState[k], [w, d] = storedSize(k);
+    const { x, y, z } = storedState[k], [w, d] = storedSize(k);
     storedMats[k].depthTest = !plan;                             // in the plan they show through cupboard tops
     storedMats[k].emissive.set(fits[k] === 'tall' || fits[k] === 'sticks' ? 0x8a0f0f : 0x000000);   // red: in the cupboard but not fitting
     let m;
     if (s.round) {
       m = new THREE.Mesh(new THREE.CylinderGeometry(w / 2 * MM, w / 2 * MM, s.h * MM, 40), storedMats[k]);
-      m.position.copy(P(x + w / 2, y + d / 2, s.h / 2));
+      m.position.copy(P(x + w / 2, y + d / 2, z + s.h / 2));
       m.castShadow = m.receiveShadow = true;
       storedGroup.add(m);
     } else {
-      m = box(x, y, 0, x + w, y + d, s.h, storedMats[k], storedGroup);
+      m = box(x, y, z, x + w, y + d, z + s.h, storedMats[k], storedGroup);
     }
     m.userData.stored = k;
     m.renderOrder = plan ? 6 : 0;
     if (plan) dimLabel(s.label, P(x + w / 2, y + d / 2, H + 100), storedGroup, '#1f4e79', 0.06);
-    else faceLabel(s.label, x, y, w, d, s.h, storedGroup);
+    else faceLabel(s.label, x, y, w, d, z + s.h, storedGroup);
     [x0, y0, x1, y1] = [Math.min(x0, x), Math.min(y0, y), Math.max(x1, x + w), Math.max(y1, y + d)];
   });
   // The floor area they take, outlined just above the floor
@@ -2361,9 +2374,10 @@ function drawStored() {
 }
 
 // In the address: shown.packing.where, then x.y.turned for each (used when
-// they've been moved by hand). Older links have only shown, and positions.
+// they've been moved by hand), and .z when it stands off the floor. Older
+// links have only shown, and positions.
 const storedAddress = () => `${showStored ? 1 : 0}.${storedPacking}.${storedWhere}_` +
-  storedState.map(({ x, y, turned }) => `${x}.${y}.${turned ? 1 : 0}`).join('_');
+  storedState.map(({ x, y, turned, z }) => `${x}.${y}.${turned ? 1 : 0}${z ? `.${z}` : ''}`).join('_');
 function readStoredAddress(text) {
   if (!text) return;
   const [head, ...spots] = text.split('_');
@@ -2372,8 +2386,8 @@ function readStoredAddress(text) {
   if (PACKINGS[packing]) storedPacking = packing;
   if ([0, 1, 2].includes(where)) storedWhere = where;
   if (storedWhere === 2) spots.forEach((spot, k) => {
-    const [x, y, turned] = spot.split('.').map(Number);
-    if (storedState[k] && Number.isFinite(x) && Number.isFinite(y)) Object.assign(storedState[k], { x, y, turned: turned === 1 });
+    const [x, y, turned, z = 0] = spot.split('.').map(Number);
+    if (storedState[k] && Number.isFinite(x) && Number.isFinite(y)) Object.assign(storedState[k], { x, y, turned: turned === 1, z: z >= 0 && z <= H ? z : 0 });
   });
   // From when the two racks were one 800 × 300 block: rack 2 stands beside
   // rack 1, 150 on, within it
@@ -2382,6 +2396,26 @@ function readStoredAddress(text) {
     Object.assign(storedState[STORED.length - 1], { x: r.x + (r.turned ? 150 : 0), y: r.y + (r.turned ? 0 : 150), turned: r.turned });
   }
 }
+// Each thing's height off the floor, as on a shelf: 0 on the floor
+const storedLifts = document.getElementById('storedLifts');
+storedLifts.append(Object.assign(document.createElement('div'), { textContent: 'Off the floor (mm)', className: 'colhead' }), document.createElement('div'));
+liftInputs = STORED.map((s, k) => {
+  const input = Object.assign(document.createElement('input'), { type: 'number', min: 0, max: H, step: 10, value: 0 });
+  input.setAttribute('aria-label', `${s.name}: off the floor`);
+  input.addEventListener('change', () => {
+    storedState[k].z = Math.min(H, Math.max(0, Number(input.value) || 0));
+    input.value = storedState[k].z;
+    if (storedWhere !== 2) {                                    // as placed by hand, now
+      storedWhere = 2;
+      document.querySelectorAll('input[name=storedWhere]').forEach(r => { r.checked = false; });
+    }
+    drawStored();
+    writeAddress();
+  });
+  storedLifts.append(Object.assign(document.createElement('label'), { textContent: s.name }), input);
+  return input;
+});
+function showLifts() { liftInputs.forEach((input, k) => { input.value = storedState[k].z; }); }
 document.getElementById('storedToggle').addEventListener('click', () => {
   showStored = !showStored;
   drawStored();
@@ -2607,7 +2641,7 @@ function show(i) {
 // looking round
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
-  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}-${sofaSize.w}.${sofaSize.d}.${sofaSize.h}-${benchOn ? 1 : 0}-${LEG_D}~${storedAddress()}`;
+  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}-${sofaSize.w}.${sofaSize.d}.${sofaSize.h}-${benchOn ? 1 : 0}-${LEG_D}-${L_SHELVES.back.join('.') || 0}-${L_SHELVES.left.join('.') || 0}~${storedAddress()}`;
 }
 let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
 function writeAddress(replace = false) {
@@ -2923,6 +2957,18 @@ benchSwitch.addEventListener('change', () => {
   benchOn = benchSwitch.checked;
   show(shown);
   viewKit.refresh();
+});
+// Option 7's shelves: a list of tops for each leg, 100 up to just under the
+// ceiling (none is fine)
+const shelfInputs = { back: document.getElementById('shelvesBack'), left: document.getElementById('shelvesLeft') };
+const readShelves = text => [...new Set(String(text).split(/[^0-9]+/).map(Number).filter(v => v >= 100 && v <= H - 36))].sort((a, b) => a - b);
+function showShelves() {
+  for (const k of ['back', 'left']) shelfInputs[k].value = L_SHELVES[k].join(', ');
+}
+for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => {
+  L_SHELVES[k] = readShelves(shelfInputs[k].value);
+  showShelves();
+  show(shown);
 });
 // The island: where it is, or against the front wall
 document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListener('change', () => {
@@ -3287,7 +3333,10 @@ const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
 // larder, and where the island is (0 where it is, 1 and 2 against the front
 // wall, short or long side out, 3 none)
 {
-  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn, benchIn, legDIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn, benchIn, legDIn, shelvesBackIn, shelvesLeftIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  if (shelvesBackIn !== undefined) L_SHELVES.back = readShelves(shelvesBackIn);   // option 7's shelves (links from before keep 600, 1200, 1800)
+  if (shelvesLeftIn !== undefined) L_SHELVES.left = readShelves(shelvesLeftIn);
+  showShelves();
   if (benchIn === '0') benchSwitch.checked = benchOn = false;   // the bench off (links from before have it)
   legDAddress = start ? (Number(legDIn) >= 330 && Number(legDIn) <= 1000 ? Number(legDIn) : 'back') : null;
   if (sofaIn === 'none' || Object.hasOwn(SOFAS, sofaIn ?? '')) sofaKey = sofaIn === 'none' ? '' : sofaIn;   // the sofa, if any, and its front from the TV wall
