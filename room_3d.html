@@ -222,6 +222,12 @@
       <div id="sofaFrontBlock">
         <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
         <input id="sofaFront" type="range" min="1000" max="3500" step="50" value="1900">
+        <label for="sofaW">Sofa width: <span id="sofaWValue">1690</span></label>
+        <input id="sofaW" type="range" min="1200" max="2600" step="10" value="1690">
+        <label for="sofaD">Sofa depth: <span id="sofaDValue">1000</span></label>
+        <input id="sofaD" type="range" min="700" max="1200" step="10" value="1000">
+        <label for="sofaH">Sofa height: <span id="sofaHValue">920</span></label>
+        <input id="sofaH" type="range" min="700" max="1100" step="10" value="920">
       </div>
     </div>
   </details>
@@ -1446,9 +1452,25 @@ function placeIsland() {
 const SOFAS = window.ROOM_SOFAS?.list ?? {};
 let sofaKey = Object.hasOwn(SOFAS, window.ROOM_SOFAS?.start ?? '') ? ROOM_SOFAS.start : '';
 let sofaFront = window.ROOM_SOFAS?.front ?? 1900;
+// The sofa's sizes can be changed from its sliders: [key, slider id,
+// lowest, highest]. Choosing a sofa sets them to its own.
+const SOFA_SLIDERS = [['w', 'sofaW', 1200, 2600], ['d', 'sofaD', 700, 1200], ['h', 'sofaH', 700, 1100]];
+const sofaOwnSize = S => ({ w: S.w, d: S.d, h: S.h });
+let sofaSize = SOFAS[sofaKey] ? sofaOwnSize(SOFAS[sofaKey]) : { w: 1690, d: 1000, h: 920 };
+// The sofa chosen, at the sliders' sizes: the seat keeps its depth (the back
+// gets thinner) unless that leaves less than 150 for the back, and the arms
+// stay as they are, under the top of the back
+function currentSofa() {
+  const S = SOFAS[sofaKey];
+  if (!S) return null;
+  const { w, d, h } = sofaSize, own = sofaOwnSize(S);
+  const resized = own.w !== w || own.d !== d || own.h !== h;
+  return { ...S, label: resized ? `${S.label}, resized` : S.label, w, d, h,
+    seatD: Math.min(S.seatD, d - 150), armH: Math.min(S.armH, h - 50) };
+}
 const sofaMat = material(0x9da3a6);
 function sofaSpot() {
-  const S = SOFAS[sofaKey], cx = (tvAt ?? [W / 2])[0];
+  const S = currentSofa(), cx = (tvAt ?? [W / 2])[0];
   const x0 = Math.round(cx - S.w / 2);
   return { S, x0, x1: x0 + S.w, y0: sofaFront, y1: sofaFront + S.d };
 }
@@ -2427,7 +2449,7 @@ function show(i) {
 // looking round
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
-  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}~${storedAddress()}`;
+  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}-${sofaSize.w}.${sofaSize.d}.${sofaSize.h}~${storedAddress()}`;
 }
 let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
 function writeAddress(replace = false) {
@@ -2689,15 +2711,37 @@ dresserPick.addEventListener('change', () => {
 const sofaPick = document.getElementById('sofaPick'), sofaSlider = document.getElementById('sofaFront');
 sofaPick.append(Object.assign(document.createElement('option'), { value: '', textContent: 'None' }),
   ...Object.entries(SOFAS).map(([id, S]) => Object.assign(document.createElement('option'), { value: id, textContent: `${S.label} (${S.w} × ${S.d})` })));
+// The dropdown shows Custom when the sliders have changed its sizes
+const sofaCustom = Object.assign(document.createElement('option'), { value: 'custom', disabled: true });
+sofaPick.insertBefore(sofaCustom, sofaPick.options[1] ?? null);
 function showSofa() {
-  sofaPick.value = sofaKey;
+  const own = SOFAS[sofaKey] && sofaOwnSize(SOFAS[sofaKey]);
+  sofaCustom.textContent = `Custom: the ${SOFAS[sofaKey]?.label ?? 'sofa'}, resized`;
+  sofaPick.value = !sofaKey ? '' : SOFA_SLIDERS.every(([k]) => own[k] === sofaSize[k]) ? sofaKey : 'custom';
   sofaSlider.value = sofaFront;
   document.getElementById('sofaFrontValue').textContent = sofaFront;
+  for (const [k, id] of SOFA_SLIDERS) {
+    document.getElementById(id).value = String(sofaSize[k]);
+    document.getElementById(`${id}Value`).textContent = sofaSize[k];
+  }
   document.getElementById('sofaFrontBlock').style.display = sofaKey ? '' : 'none';
 }
+// sizes: { key: mm } for any of the slider keys, each held to its slider's range
+function setSofaSize(sizes) {
+  for (const [k, , lo, hi] of SOFA_SLIDERS) if (Number.isFinite(sizes[k])) sofaSize[k] = Math.min(hi, Math.max(lo, sizes[k]));
+  showSofa();
+}
 showSofa();
+for (const [key, id] of SOFA_SLIDERS) {
+  document.getElementById(id).addEventListener('input', e => {
+    setSofaSize({ [key]: Number(e.target.value) });
+    show(shown);
+    viewKit.refresh();
+  });
+}
 sofaPick.addEventListener('change', () => {
   sofaKey = sofaPick.value;
+  if (SOFAS[sofaKey]) sofaSize = sofaOwnSize(SOFAS[sofaKey]);
   showSofa();
   show(shown);
   viewKit.refresh();
@@ -3063,10 +3107,13 @@ const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
 // larder, and where the island is (0 where it is, 1 and 2 against the front
 // wall, short or long side out, 3 none)
 {
-  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
   if (sofaIn === 'none' || Object.hasOwn(SOFAS, sofaIn ?? '')) sofaKey = sofaIn === 'none' ? '' : sofaIn;   // the sofa, if any, and its front from the TV wall
   if (Number(sofaFrontIn) >= 1000 && Number(sofaFrontIn) <= 3500) sofaFront = Number(sofaFrontIn);
-  showSofa();
+  if (SOFAS[sofaKey]) sofaSize = sofaOwnSize(SOFAS[sofaKey]);
+  // The sofa's sizes, as w.d.h; links from before them keep the sofa's own
+  const [sw, sd, sh] = (sofaSizeIn ?? '').split('.').map(v => (v ? Number(v) : NaN));
+  setSofaSize({ w: sw, d: sd, h: sh });
   if (ISLAND_AT[Number(islandIn)]) islandAt = ISLAND_AT[Number(islandIn)];
   document.querySelector(`input[name=islandAt][value="${islandAt}"]`).checked = true;
   placeIsland();

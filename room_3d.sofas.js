@@ -8,6 +8,10 @@
 //   from the front to the back cushions
 // - armH, armW: the arms' height and width; legH: the legs' height
 // - colour: the fabric, as a screen colour
+//
+// The menu's sliders resize the sofa chosen (width 1200 to 2600, depth 700 to
+// 1200, height 700 to 1100): the seat keeps its depth and height, the back
+// gets thinner or taller, and the arms stay under the top of the back.
 window.ROOM_SOFAS = {
   start: '',                       // the sofa to start with: '' for none (a link keeps its own)
   front: 1900,                     // its front from the TV wall, to start with (1000 to 3500)
