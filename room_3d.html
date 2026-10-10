@@ -178,7 +178,6 @@
   <div>Room 3838 × 5379, ceiling 2443. Sizes in mm. Keys 1–9 switch option; the option itself is in the brown ☰ at the bottom right.</div>
   <div class="row">
     <button id="mode">Show 2D</button>
-    <button id="xray">See-through cupboards: off</button>
   </div>
   <div class="row">
     <button data-view="plan" data-mode="2d">Plan</button>
@@ -256,6 +255,9 @@
   </details>
   <details class="sec" id="secCupboard" open>
     <summary>The corner cupboard</summary>
+    <div class="row">
+      <button id="xray">See-through cupboards: off</button>
+    </div>
     <div id="depthBlock">
       <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
       <input id="depth" type="range" min="290" max="800" step="10" value="290">
