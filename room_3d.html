@@ -1652,6 +1652,7 @@ const OPTIONS = [
   },
   {
     name: '3. Upper open shelves on the bench',
+    needsBench: true,                                  // stands on the bench: not available without it
     source: 'plan2/room_3d_open.html',
     clearFrom: () => T + UPPER,
     benchFrom: () => T,
@@ -1666,6 +1667,7 @@ const OPTIONS = [
   },
   {
     name: '4. Upper cupboard on the bench, with door',
+    needsBench: true,                                  // stands on the bench: not available without it
     source: 'plan2/room_3d.html',
     clearFrom: () => T + UPPER,
     benchFrom: () => T,
@@ -1684,6 +1686,7 @@ const OPTIONS = [
   },
   {
     name: '5. Longer upper cupboard, two doors',
+    needsBench: true,                                  // stands on the bench: not available without it
     source: 'option 4 (new)',
     clearFrom: () => T + UPPER + EXTRA,
     benchFrom: () => T,
@@ -2424,6 +2427,7 @@ function withoutBench(text) {
 // the same one (a size changed) leaves the doors as they were.
 function show(i) {
   if (T === 0 && OPTIONS[i].needsLeft) i = 6;                  // 8 falls back to 7
+  if (!benchOn && OPTIONS[i].needsBench) i = 0;                 // 3 to 5 fall back to 1
   if (T === 0 && OPTIONS[i].leftDepth) setDepth(OPTIONS[i].leftDepth);   // an option that needs the left-wall cupboard gets one
   const option = OPTIONS[i];
   const same = i === shown && current;
@@ -2446,7 +2450,7 @@ function show(i) {
   }
   const aboveText = (benchOn ? benchWall(option.clearFrom(), group) : '') + frontWall(group, option, i) + sofa(group);
 
-  [...currentSelect.options].forEach((o, j) => { o.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft); });
+  [...currentSelect.options].forEach((o, j) => { o.disabled = (T === 0 && Boolean(OPTIONS[j].needsLeft)) || (!benchOn && Boolean(OPTIONS[j].needsBench)); });
   currentSelect.value = String(i);
   document.getElementById('summary').innerHTML =
     `${withoutBench((T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary)())}${aboveText}<div class="src">From ${option.source}</div>`;
