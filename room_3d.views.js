@@ -30,7 +30,10 @@ window.ROOM_VIEWS = {
   //   in room_3d.html).
   places: {
     desk:   { label: 'Seated at the desk', at: [3026, 4599], posture: 'sit', chair: true },
-    window: { label: 'Back to the middle window', at: [3500, 2907], posture: 'stand', cannotSee: ['window2'] },
+    // Back to each window, centred on it and just clear of its radiator
+    window1: { label: 'Back to window 1 (TV end)', at: [3500, 1196], posture: 'stand', cannotSee: ['window1'] },
+    window2: { label: 'Back to window 2 (middle)', at: [3500, 2907], posture: 'stand', cannotSee: ['window2'] },
+    window3: { label: 'Back to window 3 (desk end)', at: [3500, 4598], posture: 'stand', cannotSee: ['window3'] },
     island: { label: 'Beside the island', at: [2150, 3571], posture: 'stand' },      // halfway along its room side, 370 clear of it
     // The door's shut behind you, as open it stands in the room in front of you
     door:   { label: 'In the doorway, walking in', at: [150, 1780], posture: 'stand', cannotSee: ['door'], arrive: 'shutRoomDoor' },

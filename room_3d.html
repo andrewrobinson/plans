@@ -82,7 +82,7 @@
   #storedBlock { margin: 10px 0 4px; }
   #storedBlock .colhead { font-weight: bold; }
   #storedInfo { margin-top: 4px; }
-  #storedBlock select { width: 100%; margin-top: 4px; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
+  #dresserPick, #storedBlock select { width: 100%; margin-top: 4px; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
@@ -148,6 +148,8 @@
   <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
   <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
   <div id="dresserBlock">
+    <label for="dresserPick">Dresser</label>
+    <select id="dresserPick"></select>
     <label for="dresserW">Dresser width: <span id="dresserWValue">1320</span></label>
     <input id="dresserW" type="range" min="900" max="1415" step="5" value="1320">
     <label for="dresserH">Dresser height: <span id="dresserHValue">2100</span></label>
@@ -157,7 +159,7 @@
     <label for="dresserBaseH">Dresser base height: <span id="dresserBaseHValue">900</span></label>
     <input id="dresserBaseH" type="range" min="700" max="1000" step="10" value="900">
     <label for="dresserUpperD">Dresser upper depth: <span id="dresserUpperDValue">290</span></label>
-    <input id="dresserUpperD" type="range" min="150" max="400" step="10" value="290">
+    <input id="dresserUpperD" type="range" min="150" max="600" step="10" value="290">
   </div>
   <div id="tvBlock">
     <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
@@ -258,8 +260,9 @@
   <div class="hint" id="hint"></div>
 </div>
 
-<!-- The room's views, for editing, and the kit that shows them -->
+<!-- The room's views and dressers, for editing, and the kit that shows the views -->
 <script src="room_3d.views.js"></script>
+<script src="room_3d.dressers.js"></script>
 <script src="view_kit.js"></script>
 <script type="module">
 import * as THREE from 'three';
@@ -1170,7 +1173,10 @@ const DRESSER = { w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290, drawer:
 // highest, step]. It stays centred on the wall, and its upper part is never
 // deeper than its base.
 const DRESSER_SLIDERS = [['w', 'dresserW', 900, 1415, 5], ['h', 'dresserH', 1500, 2400, 10],
-  ['baseD', 'dresserBaseD', 300, 600, 10], ['baseH', 'dresserBaseH', 700, 1000, 10], ['upperD', 'dresserUpperD', 150, 400, 10]];
+  ['baseD', 'dresserBaseD', 300, 600, 10], ['baseH', 'dresserBaseH', 700, 1000, 10], ['upperD', 'dresserUpperD', 150, 600, 10]];
+// Start with the dresser chosen in room_3d.dressers.js (a link keeps its own)
+const DRESSERS = window.ROOM_DRESSERS?.list ?? {};
+for (const [k] of DRESSER_SLIDERS) DRESSER[k] = DRESSERS[window.ROOM_DRESSERS?.start]?.[k] ?? DRESSER[k];
 function placeDresser() {
   DRESSER.upperD = Math.min(DRESSER.upperD, DRESSER.baseD);
   const from = KITCHEN.frontRunTo + KITCHEN.counterPast, gap = DESK_RECESS.x0 - from;   // 1415 clear
@@ -2314,20 +2320,38 @@ function setTvSize(k) {
   benchHeights();                                               // the top shelf may move with it
 }
 // The dresser's sliders
-function setDresser(key, v) {
-  DRESSER[key] = v;
+// sizes: { key: mm } for any of the slider keys, each held to its slider's range
+function setDresser(sizes) {
+  for (const [k, , lo, hi] of DRESSER_SLIDERS) if (Number.isFinite(sizes[k])) DRESSER[k] = Math.min(hi, Math.max(lo, sizes[k]));
   placeDresser();
   for (const [k, id] of DRESSER_SLIDERS) {                       // the upper depth may have been held to the base's
     document.getElementById(id).value = String(DRESSER[k]);
     document.getElementById(`${id}Value`).textContent = DRESSER[k];
   }
+  showDresserPick();
 }
 for (const [key, id] of DRESSER_SLIDERS) {
   document.getElementById(id).addEventListener('input', e => {
-    setDresser(key, Number(e.target.value));
+    setDresser({ [key]: Number(e.target.value) });
     show(shown);
   });
 }
+// The Dresser dropdown: the dressers in room_3d.dressers.js, or Custom when
+// the sliders match none of them
+const dresserPick = document.getElementById('dresserPick');
+const dresserCustom = Object.assign(document.createElement('option'), { value: '', textContent: 'Custom (the sliders below)', disabled: true });
+dresserPick.append(dresserCustom, ...Object.entries(DRESSERS).map(([id, d]) =>
+  Object.assign(document.createElement('option'), { value: id, textContent: `${d.label} (${d.w} × ${d.h})` })));
+function showDresserPick() {
+  const match = Object.entries(DRESSERS).find(([, d]) => DRESSER_SLIDERS.every(([k]) => d[k] === DRESSER[k]));
+  dresserPick.value = match ? match[0] : '';
+}
+setDresser(DRESSER);                                            // the sliders to the starting dresser
+dresserPick.addEventListener('change', () => {
+  setDresser(DRESSERS[dresserPick.value]);
+  show(shown);
+  viewKit.refresh();                                            // looking at the dresser: at it as it is now
+});
 tvSlider.addEventListener('input', () => {
   setTvSize(Number(tvSlider.value));
   show(shown);
@@ -2600,7 +2624,7 @@ if (Number.isFinite(ralDresser) && setRal('dresser', ralDresser) !== null) refre
 const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
 if (dresserText) dresserText.split('.').map(Number).forEach((v, k) => {
   const [key, , lo, hi] = DRESSER_SLIDERS[k] || [];
-  if (key && v >= lo && v <= hi) setDresser(key, v);
+  if (key && v >= lo && v <= hi) setDresser({ [key]: v });
 });
 for (const [id, value, lo, hi, set] of [['ward', wardIn, 600, 1400, v => { WARD = v; }], ['tower', towerIn, 0, 600, v => { TOWER = v; }], ['wardD', wardDIn, 330, 1000, v => { WARD_D = v; }]]) {
   if (value >= lo && value <= hi) {
