@@ -2119,7 +2119,7 @@ function cupboardDims(g) {
 // after "~".
 // ---------------------------------------------------------------------------
 const STORED = [
-  { name: 'Drying racks (2)', label: 'Racks', w: 800, d: 300, h: 700, colour: 0xd9dde2 },   // 2 of 800 x 100, side by side
+  { name: 'Drying racks (2)', label: 'Racks', w: 800, d: 300, h: 700, colour: 0x7b5ea7 },   // 2 of 800 x 100, side by side; purple, to stand out from the cupboard
   { name: 'Folding ladder', label: 'Ladder', w: 380, d: 220, h: 1200, colour: 0xaab0b6 },
   { name: 'Long ladder', label: 'Long ladder', w: 520, d: 100, h: 1620, colour: 0x8a9199 },
   { name: 'Mop', label: 'Mop', w: 400, d: 320, h: 1200, colour: 0x4f86b8 },
@@ -3021,19 +3021,22 @@ const builtInViews = {
 // cupboard's, else the option's second).
 function packingSpot() {
   const mid = (x, y, nx, ny, door = 'second') => ({ x, y, nx, ny, door });
+  // An L (back-wall leg Dl deep, left-wall leg T deep): standing diagonally
+  // in front of its inside corner, looking into it, to see into both legs
+  const lCorner = Dl => mid(T, Dl, Math.SQRT1_2, Math.SQRT1_2);
   switch (shown) {
     case 0: case 1: case 2: case 3: case 4:                      // the left-wall cupboard's door, facing the windows
       return T ? mid(T, (R + F) / 2, 1, 0, 'tall') : null;
     case 5:                                                      // the left-wall leg's door, else the lower door
       return T ? mid(T, (R + F) / 2, 1, 0, 'tall') : mid(350, R, 0, 1);
-    case 6:                                                      // the L's inside corner, to see into both legs; else the back-wall leg's door
-      return T ? mid(T, LEG_D, Math.SQRT1_2, Math.SQRT1_2) : mid(T + LEG / 2, LEG_D, 0, 1);
+    case 6:                                                      // an L: in front of its inside corner; else the back-wall leg's door
+      return T ? lCorner(LEG_D) : mid(T + LEG / 2, LEG_D, 0, 1);
     case 7: {                                                    // the diagonal doors
       const { ux, uy } = diagonal();
       return mid(T + 350, (F + R) / 2, -uy, ux);
     }
-    case 8:                                                      // likewise the L's inside corner, else the double doors
-      return T ? mid(T, WARD_D, Math.SQRT1_2, Math.SQRT1_2) : mid(T + WARD / 2, WARD_D, 0, 1);
+    case 8:                                                      // likewise an L, else the double doors
+      return T ? lCorner(WARD_D) : mid(T + WARD / 2, WARD_D, 0, 1);
     case 9:                                                      // doors on its end, facing the kitchen
       return mid(CORNER_W / 2, F, 0, 1);
     case 10:                                                     // doors on its side, facing the windows
