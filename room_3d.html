@@ -32,9 +32,9 @@
     position: fixed; top: 12px; left: 12px; right: 12px; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
     pointer-events: none;
   }
-  /* Look (where you are and what you look at), the option and the scenes:
-     menu buttons at the bottom right, in that order down, each opening its
-     group above it; and the views list at the top right, opening below */
+  /* The views list and look (where you are and what you look at): menu
+     buttons at the top right, each opening its group below it; the option
+     and the scenes: menu buttons at the bottom right, each opening above */
   #corner { position: fixed; right: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
   .pop { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
   .pop > .group { display: none; background: rgba(255, 255, 255, 0.92); }
@@ -45,7 +45,8 @@
   }
   .popToggle { color: var(--tint); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 2px var(--tint); }
   #viewMenu { --tint: #1f4e79; }
-  #viewsMenu { --tint: #6a3d9a; position: fixed; top: 12px; right: 12px; z-index: 2; }
+  #viewsMenu { --tint: #6a3d9a; }
+  #topRight { position: fixed; top: 12px; right: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
   #optionMenu { --tint: #8a5a14; }
   #sceneMenu { --tint: #2e7d4f; }
   #share, #reset, #saveView, #deleteView, #saveLook, #deleteLook, #saveScene, #deleteScene {
@@ -123,20 +124,20 @@
   <button id="share">Share</button>
   <button id="reset">Reset</button>
 </div>
-<!-- The views list: a menu of its own at the top right, opening below it -->
-<div id="viewsMenu" class="pop">
-  <button class="popToggle" aria-label="Views" title="Views: preset, saved and built-in" aria-controls="viewsGroup" aria-expanded="false">☰</button>
-  <div id="viewsGroup" class="group" role="group" aria-label="Views">
-    <span class="tag">Views</span>
-    <select id="viewPick" class="pick" aria-label="Views"></select>
-    <button id="saveView" title="Keep where you've moved to, as a named view">Save</button>
-    <button id="deleteView" title="Delete this saved view" hidden>Delete</button>
+<!-- The views list and where you are and what you look at: menus of their
+     own at the top right, opening below them -->
+<div id="topRight">
+  <div id="viewsMenu" class="pop">
+    <button class="popToggle" aria-label="Views" title="Views: preset, saved and built-in" aria-controls="viewsGroup" aria-expanded="false">☰</button>
+    <div id="viewsGroup" class="group" role="group" aria-label="Views">
+      <span class="tag">Views</span>
+      <select id="viewPick" class="pick" aria-label="Views"></select>
+      <button id="saveView" title="Keep where you've moved to, as a named view">Save</button>
+      <button id="deleteView" title="Delete this saved view" hidden>Delete</button>
+    </div>
   </div>
-</div>
-<!-- Where you are and what you're looking at, the option on show and the
-     scenes: menus of their own at the bottom right -->
-<div id="corner">
   <div id="viewMenu" class="pop">
+    <button class="popToggle" aria-label="Look" title="Look: where you are, what you're looking at, your eye height" aria-controls="viewGroup" aria-expanded="false">☰</button>
     <div id="viewGroup" class="group" role="group" aria-label="Look">
       <span class="tag">Look</span>
       <select id="where" class="pick" aria-label="Where you are"></select>
@@ -146,8 +147,10 @@
       <button id="saveLook" title="Keep this Where, Looking at and eye height, by name: it aims at the thing wherever it is">Save</button>
       <button id="deleteLook" title="Delete this saved look" hidden>Delete</button>
     </div>
-    <button class="popToggle" aria-label="Look" title="Look: where you are, what you're looking at, your eye height" aria-controls="viewGroup" aria-expanded="false">☰</button>
   </div>
+</div>
+<!-- The option on show and the scenes: menus of their own at the bottom right -->
+<div id="corner">
   <div id="optionMenu" class="pop">
     <div id="optionGroup" class="group" role="group" aria-label="Option">
       <span class="tag">Option</span>
@@ -2893,8 +2896,8 @@ const viewKit = ViewKit.create({
 DOORS.forEach(d => d.addEventListener('input', viewKit.writeView));
 // Scenes: everything on show bar the view, from room_3d.scenes.js or saved
 // here. Showing one loads the page again with its settings, keeping the view.
-// The pop-up menus (the views list at the top right; look, the option and
-// the scenes at the bottom right): a button opens its menu and closes the others; Escape or a click on anything else but
+// The pop-up menus (the views list and look at the top right; the option
+// and the scenes at the bottom right): a button opens its menu and closes the others; Escape or a click on anything else but
 // the 3D view closes them (they stay open while you move about, to save a
 // view, say)
 const pops = [...document.querySelectorAll('.pop')];
