@@ -66,7 +66,7 @@ window.ROOM_VIEWS = {
   look: { place: 'desk', thing: 'dresser' },   // Where and Looking at, until chosen
   hfov: 79,                        // the angle across, in degrees, looking from a place
 
-  // User-defined views (the views list): the camera at `position`, looking
+  // Config-defined views (the views list): the camera at `position`, looking
   // at `target`, both [x, y, height]. hfov: the angle across, in degrees.
   // posture: you're in the view as a person, sitting or standing, so it's
   // drawn at the chosen eye height (looking at the same angle) rather than

@@ -4,7 +4,7 @@
 // settings it's showing (get) and how to show a scene's (apply). Where you're
 // looking from isn't part of a scene; that's a view (see view_kit.js).
 //
-// Scenes come from the room's data (user-defined, the same on every device;
+// Scenes come from the room's data (config-defined, the same on every device;
 // see room_3d.scenes.js for one) and from Save scene (kept in the browser,
 // so on one device only), in one list. The list shows the scene on screen,
 // or "Your scene (not saved)" once anything's changed.
@@ -30,7 +30,7 @@
     function storeSavedScenes(list) {
       try { localStorage.setItem(key, JSON.stringify(list)); return true; } catch (e) { return false; }
     }
-    // Ids in the list: a user-defined scene's own, or 'saved:<name>'
+    // Ids in the list: a config-defined scene's own, or 'saved:<name>'
     function addressOf(id) {
       if (id.startsWith('saved:')) return savedScenes().find(s => s.name === id.slice(6))?.address ?? null;
       return Object.hasOwn(userScenes, id) ? userScenes[id].address : null;
@@ -47,7 +47,7 @@
         g.append(...choices);
         el.scenes.append(g);
       };
-      group('User-defined', Object.entries(userScenes).map(([id, s]) => choice(id, s.label, s.title)));
+      group('Config-defined', Object.entries(userScenes).map(([id, s]) => choice(id, s.label, s.title)));
       group('Saved on this device', savedScenes().map(s => choice(`saved:${s.name}`, s.name)));
     }
     // The scene on screen, if it's one in the list: a saved one first, as

@@ -2,7 +2,7 @@
 // at. Reusable for any room: the room supplies its own data (see
 // room_3d.views.js for one) and a few hooks, and the kit does the rest:
 //
-// - Views from the room's data (user-defined), views saved in the page
+// - Views from the room's data (config-defined), views saved in the page
 //   (kept in the browser, so on one device), and the room's own built-in
 //   views, in one list.
 // - Places you can be and things you can look at, chosen apart: the camera
@@ -79,7 +79,7 @@
     // The same person, sitting or standing
     const eyeFor = p => EYES[`${p}-${person(eye)}`] ? `${p}-${person(eye)}` : Object.keys(EYES).find(k => posture(k) === p) ?? eye;
 
-    // View ids: a user-defined or built-in view's own, 'saved:<name>', or
+    // View ids: a config-defined or built-in view's own, 'saved:<name>', or
     // 'look:<place>:<thing>'
     const lookParts = id => id.split(':').slice(1);
     const thingAt = id => THINGS[id].anchor ? anchors[THINGS[id].anchor]() : THINGS[id].at;
@@ -235,7 +235,7 @@
         g.append(...choices);
         el.views.append(g);
       };
-      group('User-defined', Object.entries(userViews).map(([id, v]) => choice(id, v.label, v.title)));
+      group('Config-defined', Object.entries(userViews).map(([id, v]) => choice(id, v.label, v.title)));
       group('Saved on this device', savedViews().map(v => choice(`saved:${v.name}`, v.name)));
       group('Built-in', Object.entries(builtIn).map(([id, v]) => choice(id, v.label, v.title)));
     }
@@ -285,7 +285,7 @@
         g.append(...choices);
         el.looks.append(g);
       };
-      group('User-defined', Object.entries(userLooks).map(([id, l]) => choice(`user:${id}`, l.label)));
+      group('Config-defined', Object.entries(userLooks).map(([id, l]) => choice(`user:${id}`, l.label)));
       group('Saved on this device', savedLooks().map(l => choice(`saved:${l.name}`, l.name)));
     }
     fillLooks();
