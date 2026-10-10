@@ -36,11 +36,11 @@
     pointer-events: auto; width: 44px; height: 44px; border-radius: 10px; border: none; font-size: 22px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer;
   }
-  #share, #reset, #currentRoom, #saveView, #deleteView {
+  #share, #reset, #saveView, #deleteView, #saveScene, #deleteScene {
     pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer; flex: none;
   }
-  #deleteView[hidden] { display: none; }
+  #deleteView[hidden], #deleteScene[hidden] { display: none; }
   #saveView:disabled { opacity: 0.5; cursor: default; }
   @media (max-width: 600px) { #bar { flex-wrap: wrap; } #current { flex: 1 1 100%; } }
   /* The dropdowns in the top bar: where you are, your eye height, and the
@@ -49,7 +49,7 @@
     pointer-events: auto; height: 44px; min-width: 0; max-width: 100%; border: none; border-radius: 10px; padding: 0 10px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font: inherit; font-size: 14px; cursor: pointer;
   }
-  #where, #lookAt, #eye, #viewPick { flex: none; }             /* the option's name gives way instead */
+  #where, #lookAt, #eye, #viewPick, #scenePick { flex: none; }             /* the option's name gives way instead */
   /* On phones the open drawer dims the model; tapping there closes it */
   #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
   @media (max-width: 900px) { body.menu-open #scrim { display: block; } }
@@ -100,13 +100,15 @@
   <button id="menu" aria-label="Settings" aria-controls="panel">☰</button>
   <button id="share">Share</button>
   <button id="reset">Reset</button>
-  <button id="currentRoom">Current room</button>
   <select id="where" class="pick" aria-label="Where you are"></select>
   <select id="lookAt" class="pick" aria-label="Looking at"></select>
   <select id="eye" class="pick" aria-label="Eye height"></select>
   <select id="viewPick" class="pick" aria-label="Views"></select>
   <button id="saveView" title="Keep where you've moved to, as a named view">Save view</button>
   <button id="deleteView" hidden>Delete view</button>
+  <select id="scenePick" class="pick" aria-label="Scenes"></select>
+  <button id="saveScene" title="Keep everything on show (not where you're looking from), as a named scene">Save scene</button>
+  <button id="deleteScene" hidden>Delete scene</button>
   <select id="current" class="pick" aria-label="Cupboard option"></select>
 </div>
 <div id="scrim"></div>
@@ -283,12 +285,14 @@
   <div class="hint" id="hint"></div>
 </div>
 
-<!-- The room's views, dressers, larders and sofas, for editing, and the kit that shows the views -->
+<!-- The room's views, dressers, larders, sofas and scenes, for editing, and the kits that show the views and scenes -->
 <script src="room_3d.views.js"></script>
 <script src="room_3d.dressers.js"></script>
 <script src="room_3d.larders.js"></script>
 <script src="room_3d.sofas.js"></script>
+<script src="room_3d.scenes.js"></script>
 <script src="view_kit.js"></script>
+<script src="scene_kit.js"></script>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -2348,8 +2352,14 @@ function show(i) {
 // things to store are
 // replace: change the address without adding to the history, as when
 // looking round
+// The settings: everything on show bar the view, as text (a scene's address)
+function settingsAddress() {
+  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}~${storedAddress()}`;
+}
+let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
 function writeAddress(replace = false) {
-  const hash = `#${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}~${storedAddress()}~${viewKit.address()}`;
+  const hash = `#${settingsAddress()}~${viewKit.address()}`;
+  sceneKit?.refresh();
   try {
     if (replace) history.replaceState(null, '', hash);
     else location.hash = hash;
@@ -2814,6 +2824,18 @@ const viewKit = ViewKit.create({
   },
 });
 DOORS.forEach(d => d.addEventListener('input', viewKit.writeView));
+// Scenes: everything on show bar the view, from room_3d.scenes.js or saved
+// here. Showing one loads the page again with its settings, keeping the view.
+sceneKit = SceneKit.create({
+  room: 'room_3d',
+  config: window.ROOM_SCENES,
+  el: { scenes: document.getElementById('scenePick'), save: document.getElementById('saveScene'), remove: document.getElementById('deleteScene') },
+  get: settingsAddress,
+  apply(address) {
+    history.replaceState(null, '', `#${address}~${viewKit.address()}`);
+    location.reload();
+  },
+});
 
 function setFlat(on) {
   flat = on;
@@ -2874,18 +2896,6 @@ document.getElementById('reset').addEventListener('click', () => {
   if (!window.confirm('Reset all settings?')) return;
   history.replaceState(null, '', location.pathname);
   location.reload();
-});
-
-// Current room: the room as it is now, as seen from the desk chair, with the
-// door open as in the photo taken there, and the island where it is
-document.getElementById('currentRoom').addEventListener('click', () => {
-  roomSlider.value = 100;
-  islandAt = 'room';
-  document.querySelector('input[name=islandAt][value="room"]').checked = true;
-  placeIsland();
-  viewKit.setView('desk');
-  show(OPTIONS.length - 1);
-  if (narrow()) setMenu(false);
 });
 
 // Share a link to exactly what's on show: the address holds the option and
