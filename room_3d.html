@@ -3013,7 +3013,7 @@ const builtInViews = {
   right:  { label: 'Right wall (2D)', position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 2220, -1] },   // facing the right wall, back wall on the left
 };
 
-// Packing: standing within arm's reach (750) of the corner cupboard's door,
+// Packing: standing back from the corner cupboard's door (PACK_BACK, below),
 // eyes at standing height, looking in and down a little, with its doors open to 90°.
 // Where that is depends on the option, so it's worked out when chosen.
 // Returns the middle of the door opening, the way out of it, and which
@@ -3045,16 +3045,17 @@ function packingSpot() {
     }
   }
 }
+const PACK_BACK = 1250;             // mm out from the cupboard's door: arm's reach (750) and half a metre
 function packingView() {
   const at = packingSpot();
   if (!at) return builtInViews.corner;                                  // no corner cupboard: the corner view
   // Open its door, and shut the other, which might swing open in front of you
   (at.door === 'tall' ? tallSlider : secondSlider).value = 90;
   (at.door === 'tall' ? secondSlider : tallSlider).value = 0;
-  if (at.y + 750 * at.ny > HINGE) roomSlider.value = 0;          // standing past the room door's hinge: shut it, as it would hide the cupboard
+  if (at.y + PACK_BACK * at.ny > HINGE) roomSlider.value = 0;          // standing past the room door's hinge: shut it, as it would hide the cupboard
   update();
   const { x, y, nx, ny } = at, m = v => v / 1000;
-  return { posture: 'stand', position: [m(x + 750 * nx), 1.6, m(y + 750 * ny)], target: [m(x - 300 * nx), 0.9, m(y - 300 * ny)], hfov: 95 };
+  return { posture: 'stand', position: [m(x + PACK_BACK * nx), 1.6, m(y + PACK_BACK * ny)], target: [m(x - 300 * nx), 0.9, m(y - 300 * ny)], hfov: 95 };
 }
 let flatFit = builtInViews.plan.fit;
 let flatPerM = null;               // the 2D views' scale, pixels per metre at zoom 1

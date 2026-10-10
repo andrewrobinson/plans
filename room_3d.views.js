@@ -90,7 +90,7 @@ window.ROOM_VIEWS = {
     // island) to the desk
     door:     { label: 'Door', title: 'Looking in from the entrance door, towards my desk', posture: 'stand',
                 position: [150, 1780, 1700], target: [3026, 5350, 1000], hfov: 79 },
-    packing:  { label: 'Packing', title: "Within arm's reach of the corner cupboard, its doors open", posture: 'stand', compute: 'packing' },
+    packing:  { label: 'Packing', title: 'In front of the corner cupboard, its doors open', posture: 'stand', compute: 'packing' },
   },
   // Looks (the Look menu's list): a Where, Looking at and eye height by
   // name, the same on every device, alongside those saved with its Save. A
