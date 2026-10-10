@@ -286,6 +286,8 @@
     <div id="legBlock">
       <label for="leg">Back-wall leg width: <span id="legValue">700</span></label>
       <input id="leg" type="range" min="400" max="1200" step="50" value="700">
+      <label for="legD">Single-door cupboard depth: <span id="legDValue">600</span></label>
+      <input id="legD" type="range" min="330" max="1000" step="10" value="600">
     </div>
     <div id="extraBlock">
       <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
@@ -737,6 +739,10 @@ let UPPER = 700;
 // Option 7's back-wall leg, inside along the back wall, from the slider: 400
 // to 1200. Its door is LEG - 24 wide. Options 6 and 8 keep 700.
 let LEG = 700;
+// ...and its own depth from the back wall (330 to 1000), so it can stand
+// deeper than the bench, which stays R deep, as option 9's cupboard does
+let LEG_D = 600;
+let legDAddress = null;            // from the address: a depth, 'back' for links from before it, or null for none
 
 // Option 5's second bay, beyond option 4's upper cupboard: its width from the slider,
 // 300 to 900. Its door is EXTRA - 6 wide.
@@ -890,22 +896,23 @@ function upperUnit(g) {
 }
 
 // The full-height L of option 7: legs inside LEG along the back wall (x 0 to
-// T + LEG) and F - R along the left wall (y 0-F), one space round the corner,
-// bench from x = T + LEG. Returns the back-wall leg door's hinge.
+// T + LEG, LEG_D deep) and F - LEG_D along the left wall (y LEG_D to F), one
+// space round the corner, bench from x = T + LEG, R deep. Returns the
+// back-wall leg door's hinge.
 function fullHeightL(g) {
-  const E = T + LEG;
+  const E = T + LEG, Dl = LEG_D;                                 // Dl: the back-wall leg's depth
   box(E, 0, 0, W, R, BENCH, benchMat, g);
   box(0, F - 18, 0, T, F, H, carcassMat, g);                // left-wall leg front end
-  box(E - 18, 0, 0, E, R, H, carcassMat, g);               // back-wall leg end
-  box(0, 0, H - 18, E, R, H, carcassMat, g);               // tops
-  box(0, R, H - 18, T, F - 18, H, carcassMat, g);
-  box(0, 0, 0, E - 18, R, 18, carcassMat, g);              // bottoms
-  box(0, R, 0, T, F - 18, 18, carcassMat, g);
+  box(E - 18, 0, 0, E, Dl, H, carcassMat, g);              // back-wall leg end
+  box(0, 0, H - 18, E, Dl, H, carcassMat, g);              // tops
+  box(0, Dl, H - 18, T, F - 18, H, carcassMat, g);
+  box(0, 0, 0, E - 18, Dl, 18, carcassMat, g);             // bottoms
+  box(0, Dl, 0, T, F - 18, 18, carcassMat, g);
   for (const top of [600, 1200, 1800]) {
-    cupShelf(rectPoly(0, 0, E - 18, R - 18), top, carcassMat);
-    cupShelf(rectPoly(0, R - 18, T - 18, F - 18), top, carcassMat);
+    cupShelf(rectPoly(0, 0, E - 18, Dl - 18), top, carcassMat);
+    cupShelf(rectPoly(0, Dl - 18, T - 18, F - 18), top, carcassMat);
   }
-  const second = hinge(E, R + 18, g);
+  const second = hinge(E, Dl + 18, g);
   box(T + 21 - E, -18, 3, -3, 0, H - 3, doorMat, second);
   box(T + 38 - E, 0, 950, T + 58 - E, 22, 1250, handleMat, second, false);
   return second;
@@ -1745,11 +1752,11 @@ const OPTIONS = [
     source: 'plan3/room_3d.html',
     clearFrom: () => T + LEG,
     benchFrom: () => T + LEG,
-    summaryNoLeft: () => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-${LEG}), with a ${LEG - 24} door. Bench ${W - LEG}, from x = ${LEG}, ${R} deep.`,
-    summary: () => `Both legs of the L run floor to ceiling, ${LEG} inside along the back wall and ${F - R} along the left wall, one space round the corner. ${LEG - 24} door on the back-wall leg. Bench shortened to ${W - T - LEG}, from x = ${T + LEG}, ${R} deep.`,
+    summaryNoLeft: () => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-${LEG}, ${LEG_D} deep), with a ${LEG - 24} door. Bench ${W - LEG}, from x = ${LEG}, ${R} deep.`,
+    summary: () => `Both legs of the L run floor to ceiling, ${LEG} inside along the back wall (${LEG_D} deep) and ${F - LEG_D} along the left wall, one space round the corner. ${LEG - 24} door on the back-wall leg. Bench shortened to ${W - T - LEG}, from x = ${T + LEG}, ${R} deep.`,
     second: 'Back-wall leg door',
     build(g) {
-      return { tall: tallDoor(g), second: fullHeightL(g) };
+      return { tall: tallDoor(g, LEG_D), second: fullHeightL(g) };
     },
   },
   {
@@ -2085,7 +2092,7 @@ function cupboardSpaces() {
     case 5:                                                      // the L: a lower cupboard on the back wall, full height on the left
       return [rect(0, 0, T + 700 - 18, R - 18, under), ...leftLeg(R + 18)];
     case 6:                                                      // the full-height L, one space round the corner
-      return [rect(0, 0, T + LEG - 18, R - 18, full), ...leftLeg(R - 18)];
+      return [rect(0, 0, T + LEG - 18, LEG_D - 18, full), ...leftLeg(LEG_D - 18)];
     case 7: {                                                    // the corner unit, to 25 behind its diagonal front
       const E = T + 700, { ux, uy } = diagonal(), nx = uy, ny = -ux, c = T * nx + F * ny + 25;
       return [{ poly: [[0, 0], [E - 18, 0], [E - 18, (c - (E - 18) * nx) / ny], [(c - (F - 18) * ny) / nx, F - 18], [0, F - 18]], h: full }];
@@ -2488,7 +2495,7 @@ function show(i) {
 // looking round
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
-  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}-${sofaSize.w}.${sofaSize.d}.${sofaSize.h}-${benchOn ? 1 : 0}~${storedAddress()}`;
+  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}-${sofaSize.w}.${sofaSize.d}.${sofaSize.h}-${benchOn ? 1 : 0}-${LEG_D}~${storedAddress()}`;
 }
 let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
 function writeAddress(replace = false) {
@@ -2549,7 +2556,7 @@ upperSlider.addEventListener('input', () => {
   document.getElementById('upperValue').textContent = UPPER;
   show(shown);
 });
-for (const [id, set] of [['ward', v => { WARD = v; }], ['wardD', v => { WARD_D = v; }], ['tower', v => { TOWER = v; }]]) {
+for (const [id, set] of [['ward', v => { WARD = v; }], ['wardD', v => { WARD_D = v; }], ['tower', v => { TOWER = v; }], ['legD', v => { LEG_D = v; }]]) {
   const slider = document.getElementById(id);
   slider.addEventListener('input', () => {
     set(Number(slider.value));
@@ -2909,7 +2916,7 @@ function packingSpot() {
     case 5:                                                      // the left-wall leg's door, else the lower door
       return T ? mid(T, (R + F) / 2, 1, 0, 'tall') : mid(350, R, 0, 1);
     case 6:                                                      // the back-wall leg's door
-      return mid(T + LEG / 2, R, 0, 1);
+      return mid(T + LEG / 2, LEG_D, 0, 1);
     case 7: {                                                    // the diagonal doors
       const { ux, uy } = diagonal();
       return mid(T + 350, (F + R) / 2, -uy, ux);
@@ -3153,8 +3160,9 @@ const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
 // larder, and where the island is (0 where it is, 1 and 2 against the front
 // wall, short or long side out, 3 none)
 {
-  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn, benchIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn, benchIn, legDIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
   if (benchIn === '0') benchSwitch.checked = benchOn = false;   // the bench off (links from before have it)
+  legDAddress = start ? (Number(legDIn) >= 330 && Number(legDIn) <= 1000 ? Number(legDIn) : 'back') : null;
   if (sofaIn === 'none' || Object.hasOwn(SOFAS, sofaIn ?? '')) sofaKey = sofaIn === 'none' ? '' : sofaIn;   // the sofa, if any, and its front from the TV wall
   if (Number(sofaFrontIn) >= 1000 && Number(sofaFrontIn) <= 3500) sofaFront = Number(sofaFrontIn);
   if (SOFAS[sofaKey]) sofaSize = sofaOwnSize(SOFAS[sofaKey]);
@@ -3226,6 +3234,13 @@ if (rear >= 300 && rear <= 800) {
   R = rear;
   rearSlider.value = rear;
   document.getElementById('rearValue').textContent = rear;
+}
+// Option 7's back-wall leg depth: the link's, or for links from before it
+// had its own, the back-wall depth it was drawn at then
+if (legDAddress !== null) {
+  LEG_D = legDAddress === 'back' ? Math.max(330, R) : legDAddress;
+  document.getElementById('legD').value = LEG_D;
+  document.getElementById('legDValue').textContent = LEG_D;
 }
 show(start ? optionIndex(start) : 8);                           // option 9 with no address
 // The view: the address's, else the last chosen here. After show(), as
