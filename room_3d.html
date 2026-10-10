@@ -206,6 +206,12 @@
     <div id="larderBlock">
       <label for="larderPick">Larder</label>
       <select id="larderPick"></select>
+      <label for="larderW">Larder width: <span id="larderWValue">1100</span></label>
+      <input id="larderW" type="range" min="400" max="1500" step="10" value="1100">
+      <label for="larderH">Larder height: <span id="larderHValue">1950</span></label>
+      <input id="larderH" type="range" min="1500" max="2400" step="10" value="1950">
+      <label for="larderD">Larder depth: <span id="larderDValue">510</span></label>
+      <input id="larderD" type="range" min="300" max="700" step="10" value="510">
     </div>
   </details>
   <details class="sec" id="secSofa" open>
@@ -1314,9 +1320,29 @@ function dresser(g, where = `on the front wall between the sink and the desk (x 
 // (hinges, for an option's door slider) and a description.
 const LARDERS = window.ROOM_LARDERS?.list ?? {};
 let larderKey = Object.hasOwn(LARDERS, window.ROOM_LARDERS?.start ?? '') ? ROOM_LARDERS.start : Object.keys(LARDERS)[0];
+// The larder's sizes can be changed from its sliders: [key, slider id,
+// lowest, highest]. Choosing a larder sets them to its own.
 const partHeight = p => p.legs ?? p.plinth ?? p.top ?? p.cornice ?? p.h ?? 0;
 const larderHeight = L => L.parts.reduce((t, p) => t + partHeight(p), 0);
 const larderDepth = L => Math.max(L.d, ...L.parts.map(p => p.d ?? 0));
+const LARDER_SLIDERS = [['w', 'larderW', 400, 1500], ['h', 'larderH', 1500, 2400], ['d', 'larderD', 300, 700]];
+const larderOwnSize = L => ({ w: L.w, h: larderHeight(L), d: L.d });
+let larderSize = LARDERS[larderKey] ? larderOwnSize(LARDERS[larderKey]) : { w: 1100, h: 1950, d: 510 };
+// The larder chosen, at the sliders' sizes: a change of height goes on (or
+// comes off) its tallest doors, and parts set back from its front (a
+// shallower top section) stay set back as much
+function currentLarder() {
+  const L = LARDERS[larderKey];
+  if (!L) return null;
+  const { w, h, d } = larderSize;
+  const parts = L.parts.map(p => (p.d ? { ...p, d: p.d + d - L.d } : p));
+  let tallest = -1;
+  parts.forEach((p, k) => { if (p.doors && (tallest < 0 || p.h > parts[tallest].h)) tallest = k; });
+  if (tallest >= 0) parts[tallest] = { ...parts[tallest], h: Math.max(200, parts[tallest].h + h - larderHeight(L)) };
+  const own = larderOwnSize(L);
+  const resized = own.w !== w || own.h !== h || own.d !== d;
+  return { ...L, label: resized ? `${L.label}, resized` : L.label, w, d, parts };
+}
 function larder(g, L, x0) {
   const x1 = x0 + L.w, doors = [];
   let z = 0;
@@ -1450,7 +1476,7 @@ function frontWall(g, option, i) {
   }
   if (i === CURRENT || option.corner) return '';
   if (frontPiece === 'dresser') return dresser(pieces.dresser = placePiece(g, 'front'));
-  const L = LARDERS[larderKey];
+  const L = currentLarder();
   if (frontPiece !== 'larder' || !L) return '';
   const x0 = larderFrontX0(L);
   const { text } = larder(pieces.larder = placePiece(g, 'front'), L, x0);
@@ -1465,7 +1491,7 @@ function frontSpan() {
   }
   if (shown === CURRENT || OPTIONS[shown].corner) return null;
   if (frontPiece === 'dresser') return { x0: DRESSER.x0, x1: DRESSER.x1, heights: [0, DRESSER.baseH, DRESSER.h] };
-  const L = LARDERS[larderKey];
+  const L = currentLarder();
   if (frontPiece !== 'larder' || !L) return null;
   return { x0: larderFrontX0(L), x1: larderFrontX0(L) + L.w, heights: [0, larderHeight(L)] };
 }
@@ -1473,7 +1499,7 @@ function frontSpan() {
 // from it, with what stands proud (the dresser's top, a larder's cornice)
 function pieceSize(kind) {
   if (kind === 'dresser') return { w: DRESSER.w, d: Math.max(DRESSER.baseD + 15, DRESSER.upperD + 20) };
-  const L = LARDERS[larderKey];
+  const L = currentLarder();
   return L ? { w: L.w + 20, d: larderDepth(L) + 20 } : { w: 0, d: 0 };
 }
 // Options 12 to 15: the dresser or a larder as the corner cupboard, against
@@ -1499,7 +1525,7 @@ function cornerPieceOption(n, kind, where) {
       if (kind === 'dresser') {
         text = dresser(pieces.dresser = placePiece(g, where, DRESSER.x0, DRESSER.w), `in the corner, against ${wall}`).trim();
       } else {
-        const L = LARDERS[larderKey];
+        const L = currentLarder();
         if (!L) return { text: 'No larders listed in room_3d.larders.js.' };
         const x0 = larderFrontX0(L), made = larder(pieces.larder = placePiece(g, where, x0, L.w), L, x0);
         doors = made.doors;
@@ -2401,7 +2427,7 @@ function show(i) {
 // looking round
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
-  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}~${storedAddress()}`;
+  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}~${storedAddress()}`;
 }
 let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
 function writeAddress(replace = false) {
@@ -2695,15 +2721,41 @@ document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListe
   show(shown);
   viewKit.refresh();
 }));
+// The Larder dropdown: the larders in room_3d.larders.js, or Custom when the
+// sliders have changed its sizes (it keeps that larder's front)
 const larderPick = document.getElementById('larderPick');
-larderPick.append(...Object.entries(LARDERS).map(([id, L]) =>
+const larderCustom = Object.assign(document.createElement('option'), { value: '', disabled: true });
+larderPick.append(larderCustom, ...Object.entries(LARDERS).map(([id, L]) =>
   Object.assign(document.createElement('option'), { value: id, textContent: `${L.label} (${L.w} × ${larderHeight(L)})` })));
-larderPick.value = larderKey;
+// sizes: { key: mm } for any of the slider keys, each held to its slider's range
+function setLarderSize(sizes) {
+  for (const [k, , lo, hi] of LARDER_SLIDERS) if (Number.isFinite(sizes[k])) larderSize[k] = Math.min(hi, Math.max(lo, sizes[k]));
+  showLarder();
+}
+function showLarder() {
+  for (const [k, id] of LARDER_SLIDERS) {
+    document.getElementById(id).value = String(larderSize[k]);
+    document.getElementById(`${id}Value`).textContent = larderSize[k];
+  }
+  const L = LARDERS[larderKey], own = L && larderOwnSize(L);
+  larderCustom.textContent = `Custom: the ${L?.label ?? 'larder'}, resized`;
+  larderPick.value = own && LARDER_SLIDERS.every(([k]) => own[k] === larderSize[k]) ? larderKey : '';
+}
+showLarder();
 larderPick.addEventListener('change', () => {
   larderKey = larderPick.value;
+  larderSize = larderOwnSize(LARDERS[larderKey]);
+  showLarder();
   show(shown);
   viewKit.refresh();
 });
+for (const [key, id] of LARDER_SLIDERS) {
+  document.getElementById(id).addEventListener('input', e => {
+    setLarderSize({ [key]: Number(e.target.value) });
+    show(shown);
+    viewKit.refresh();
+  });
+}
 tvSlider.addEventListener('input', () => {
   setTvSize(Number(tvSlider.value));
   show(shown);
@@ -3011,7 +3063,7 @@ const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
 // larder, and where the island is (0 where it is, 1 and 2 against the front
 // wall, short or long side out, 3 none)
 {
-  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
   if (sofaIn === 'none' || Object.hasOwn(SOFAS, sofaIn ?? '')) sofaKey = sofaIn === 'none' ? '' : sofaIn;   // the sofa, if any, and its front from the TV wall
   if (Number(sofaFrontIn) >= 1000 && Number(sofaFrontIn) <= 3500) sofaFront = Number(sofaFrontIn);
   showSofa();
@@ -3019,9 +3071,14 @@ const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
   document.querySelector(`input[name=islandAt][value="${islandAt}"]`).checked = true;
   placeIsland();
   if (FRONT_PIECES[Number(frontIn)]) frontPiece = FRONT_PIECES[Number(frontIn)];
-  if (Object.hasOwn(LARDERS, larderIn ?? '')) larderKey = larderIn;
+  if (Object.hasOwn(LARDERS, larderIn ?? '')) {
+    larderKey = larderIn;
+    larderSize = larderOwnSize(LARDERS[larderKey]);
+  }
+  // The larder's sizes, as w.h.d; links from before them keep the larder's own
+  const [lw, lh, ld] = (larderSizeIn ?? '').split('.').map(v => (v ? Number(v) : NaN));
+  setLarderSize({ w: lw, h: lh, d: ld });
   document.querySelector(`input[name=frontPiece][value="${frontPiece}"]`).checked = true;
-  larderPick.value = larderKey;
 }
 if (dresserText) dresserText.split('.').map(Number).forEach((v, k) => {
   const [key, , lo, hi] = DRESSER_SLIDERS[k] || [];

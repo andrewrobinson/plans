@@ -15,6 +15,10 @@
 // - { cornice: h }    the top moulding, a little proud
 // Any part can have its own d, as when the top section is shallower than
 // the base.
+//
+// The menu's sliders resize the larder chosen (width 400 to 1500, height 1500
+// to 2400, depth 300 to 700), keeping its front: a change of height goes on
+// its tallest doors, and parts set back stay set back as much.
 window.ROOM_LARDERS = {
   start: 'chester',                // the larder the dropdown starts with (a link keeps its own)
   list: {
