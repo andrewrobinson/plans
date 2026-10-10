@@ -29,31 +29,27 @@
   #panel .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
   #panel #close { font-size: 18px; line-height: 1; padding: 4px 10px; }
   #bar {
-    position: fixed; top: 12px; left: 12px; right: 12px; z-index: 2; display: flex; align-items: center; gap: 8px;
+    position: fixed; top: 12px; left: 12px; right: 12px; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
     pointer-events: none;
   }
   #menu {
     pointer-events: auto; width: 44px; height: 44px; border-radius: 10px; border: none; font-size: 22px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer;
   }
-  #share, #reset, #currentRoom {
+  #share, #reset, #currentRoom, #saveView, #deleteView {
     pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer; flex: none;
   }
-  /* Where you are: a three-way switch in the top bar */
-  .seg { pointer-events: auto; display: flex; flex: none; height: 44px; border-radius: 10px; overflow: hidden;
-    background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-size: 14px; }
-  .seg label { display: flex; align-items: center; padding: 0 12px; cursor: pointer; }
-  .seg label + label { border-left: 1px solid #ddd; }
-  .seg input { position: absolute; opacity: 0; pointer-events: none; }
-  .seg label:has(input:checked) { background: #1f4e79; color: #fff; }
-  .seg label:has(input:focus-visible) { outline: 2px solid #1f4e79; outline-offset: -2px; }
-  @media (max-width: 600px) { #bar { flex-wrap: wrap; } #current { flex: 1 1 100%; } .seg label { padding: 0 7px; } }
-  /* The option on show, as a dropdown to switch options without the menu */
-  #current {
+  #deleteView[hidden] { display: none; }
+  #saveView:disabled { opacity: 0.5; cursor: default; }
+  @media (max-width: 600px) { #bar { flex-wrap: wrap; } #current { flex: 1 1 100%; } }
+  /* The dropdowns in the top bar: where you are, your eye height, and the
+     option on show (to switch options without the menu) */
+  .pick {
     pointer-events: auto; height: 44px; min-width: 0; max-width: 100%; border: none; border-radius: 10px; padding: 0 10px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font: inherit; font-size: 14px; cursor: pointer;
   }
+  #where, #lookAt, #eye, #viewPick { flex: none; }             /* the option's name gives way instead */
   /* On phones the open drawer dims the model; tapping there closes it */
   #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
   @media (max-width: 900px) { body.menu-open #scrim { display: block; } }
@@ -105,16 +101,13 @@
   <button id="share">Share</button>
   <button id="reset">Reset</button>
   <button id="currentRoom">Current room</button>
-  <div id="startView" class="seg" role="radiogroup" aria-label="Where you are">
-    <label title="Seated at my desk, facing the TV"><input type="radio" name="startView" value="desk" checked>Seated</label>
-    <label title="Standing, island on my left"><input type="radio" name="startView" value="standing">Island</label>
-    <label title="Standing in the kitchen"><input type="radio" name="startView" value="kitchen">Kitchen</label>
-    <label title="Back to the middle window, looking at the sink and the wall to its left"><input type="radio" name="startView" value="window">Window</label>
-    <label title="Looking down from above the windows"><input type="radio" name="startView" value="birdseye">Bird's eye</label>
-    <label title="Looking in from the entrance door, towards my desk"><input type="radio" name="startView" value="door">Door</label>
-    <label title="Within arm's reach of the corner cupboard, its doors open"><input type="radio" name="startView" value="packing">Packing</label>
-  </div>
-  <select id="current" aria-label="Cupboard option"></select>
+  <select id="where" class="pick" aria-label="Where you are"></select>
+  <select id="lookAt" class="pick" aria-label="Looking at"></select>
+  <select id="eye" class="pick" aria-label="Eye height"></select>
+  <select id="viewPick" class="pick" aria-label="Views"></select>
+  <button id="saveView" title="Keep where you've moved to, as a named view">Save view</button>
+  <button id="deleteView" hidden>Delete view</button>
+  <select id="current" class="pick" aria-label="Cupboard option"></select>
 </div>
 <div id="scrim"></div>
 <div id="tip"></div>
@@ -255,12 +248,6 @@
     <button id="xray">See-through cupboards: off</button>
   </div>
   <div class="row">
-    <button data-view="desk" data-mode="3d">Desk chair</button>
-    <button data-view="photo" data-mode="3d">Photo view</button>
-    <button data-view="windows" data-mode="3d">Windows</button>
-    <button data-view="corner" data-mode="3d">Corner view</button>
-    <button data-view="packing" data-mode="3d">Packing</button>
-    <button data-view="top" data-mode="3d">Top</button>
     <button data-view="plan" data-mode="2d">Plan</button>
     <button data-view="back" data-mode="2d">Back wall</button>
     <button data-view="left" data-mode="2d">Left wall</button>
@@ -271,6 +258,9 @@
   <div class="hint" id="hint"></div>
 </div>
 
+<!-- The room's views, for editing, and the kit that shows them -->
+<script src="room_3d.views.js"></script>
+<script src="view_kit.js"></script>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -492,6 +482,7 @@ const OUTER = {
 }
 
 let deskChair = null;            // the office chair
+const CHAIR_TURN = THREE.MathUtils.degToRad(-160);   // as it stands: facing back into the room, 20° towards the door
 // The kitchen and island as they are, as rough blocks in their real colours
 // for comparing with the cupboard options: an L of 590-deep units in the
 // recess, along its back wall and the front wall, wall units above, and the
@@ -579,7 +570,7 @@ const islandTopMat = material(0xd6a562);                                        
   // desk-chair photo, with you (the desk-chair view) sitting in it
   deskChair = new THREE.Group();
   deskChair.position.set((dx0 + DESK_W / 2) * MM, 0, (deskFront - 350) * MM);   // centred on the desk, 350 out from it
-  deskChair.rotation.y = THREE.MathUtils.degToRad(-160);         // facing back into the room, 20° towards the door
+  deskChair.rotation.y = CHAIR_TURN;
   scene.add(deskChair);
   const cx = 0, cy = 0;                                          // the chair's own centre
   // Seat at 590 and headrest top at 1400 (measured); the rest estimated
@@ -872,8 +863,10 @@ function shelves(x0, x1, g, tops = SHELF_TOPS) {
   for (const top of tops) box(x0, 0, top - SHELF_T, x1, shelfDepth, top, shelfMat, g);
 }
 
+let tvAt = null;                   // the TV's middle, room [x, y, height], or where it would be
 function benchWall(x0, g) {
   const span = W - x0;
+  tvAt = [(x0 + W) / 2, 0, TV_BOTTOM + TV_H / 2];
   if (above === 0 || span <= 0) return '';                         // nothing, or no bench (the current room)
   return benchWallItems(x0, span, g) +
     (shelfDepth > R && above !== 2 ? ` The shelves stand ${shelfDepth - R} proud of the ${R}-deep bench.` : '');
@@ -893,6 +886,7 @@ function benchWallItems(x0, span, g) {
     return none + ` ${shelfDepth}-deep shelves right across, ${span} long, at ${tops.join(' and ')}.`;
   }
   const tx = x0 + (span - TV_W) / 2;                               // centred on the clear wall
+  tvAt = [tx + TV_W / 2, 0, TV_BOTTOM + TV_H / 2];
   box(tx, 0, TV_BOTTOM, tx + TV_W, 50, TV_BOTTOM + TV_H, tvMat, g);
   box(tx + 15, 50, TV_BOTTOM + 15, tx + TV_W - 15, 52, TV_BOTTOM + TV_H - 15, screenMat, g, false);
   const tvText = ` Above the bench: ${String(TV_INCHES).startsWith('8') ? 'an' : 'a'} ${TV_INCHES}" TV (${TV_W} × ${TV_H}), centred on the ${span} of clear wall, from ${TV_BOTTOM} to ${TV_BOTTOM + TV_H}.`;
@@ -1629,7 +1623,7 @@ function updateDims() {
 // the island, the desk or the outside of the outer wall. A cut is [axis,
 // where in mm, which side the camera is: 1 for the higher side, -1 the lower].
 function applyCut() {
-  const cut = flat && flatView ? views[flatView].cut : null;
+  const cut = flat && flatView ? builtInViews[flatView].cut : null;
   scene.updateMatrixWorld(true);
   const b = new THREE.Box3();
   scene.traverse(o => {
@@ -2092,7 +2086,7 @@ function show(i) {
   document.getElementById('dresserBlock').style.display = i === CURRENT ? 'none' : '';
   document.getElementById('secondLabel').textContent = option.second || '';
   if (!same) secondSlider.value = 0;
-  if (!same && packing) setView('packing');                     // to the new option's cupboard, doors open
+  if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2103,8 +2097,14 @@ function show(i) {
 
 // The address holds the option, every setting and, after "~", where the
 // things to store are
-function writeAddress() {
-  try { location.hash = `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}~${storedAddress()}`; } catch (e) { /* not important */ }
+// replace: change the address without adding to the history, as when
+// looking round
+function writeAddress(replace = false) {
+  const hash = `#${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}~${storedAddress()}~${viewKit.address()}`;
+  try {
+    if (replace) history.replaceState(null, '', hash);
+    else location.hash = hash;
+  } catch (e) { /* not important */ }
 }
 
 window.addEventListener('keydown', e => {
@@ -2351,52 +2351,30 @@ document.getElementById('xray').addEventListener('click', e => {
   e.target.textContent = `See-through cupboards: ${xray ? 'on' : 'off'}`;
 });
 
-// 3D views place the perspective camera. 2D views place the flat one and
-// give the width and height (m) to fit on screen.
-const views = {
-  corner: { position: [4.6, 3.4, 5.4], target: [1.0, 1.0, 1.0] },
-  top:    { position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },
-  // Standing on the room side of the island (so it's on your left), eyes
-  // about 1.75 m up, facing the TV wall
-  standing: { position: [2.35, 1.75, 4.6], target: [2.35, 1.2, 0], hfov: 79 },
-  // Standing in the kitchen, in front of the sink run, eyes about 1.75 m up,
-  // looking out across the room towards the TV wall
-  kitchen: { position: [-0.003, 1.75, 5.294], target: [1.597, 1.15, 1.094], hfov: 79 },   // as far back as the front wall allows
-  // Standing with your back to the middle window (centred on it, just clear
-  // of the radiator), eyes about 1.7 m up, looking over the island at the
-  // sink and, to its left, the front wall along to the desk recess
-  window: { position: [3.5, 1.7, 2.907], target: [1.0, 1.1, 5.379], hfov: 79 },
-  // Bird's eye: high above the windows, looking down across the room towards
-  // the door and the kitchen. The outer wall and ceiling only show from
-  // inside, so the room is open from here; any further out and the outer
-  // wall's brick face would hide the floor along it
-  birdseye: { position: [4.5, 7.5, 2.75], target: [1.2, 0, 2.75], hfov: 66 },
-  // Standing just inside the entrance door, eyes about 1.7 m up, looking
-  // across the room (over the island) to the desk
-  door:   { position: [0.15, 1.7, 1.78], target: [3.026, 1.0, 5.35], hfov: 79 },
-  // Facing the outer wall and its windows from the door side of the room
-  windows: { position: [0.4, 1.5, 3.0], target: [3.838, 1.35, 3.0], hfov: 79 },
-  // Where the room photo was taken, worked back from where the room's corners
-  // fall in it: about 1.45 m from the left wall, 4.2 m from the back wall,
-  // 1.3 m up, tilted 6° down, seeing 69° across like an iPhone's main camera
-  photo:  { position: [1.45, 1.3, 4.2], target: [1.45, 0.86, 0], hfov: 69 },
-  // Sitting in the office chair at the desk (centred on it, 350 out from its
-  // front), eyes 1400 up (measured), swivelled round to face the room, 20°
-  // towards the door and tilted 5° down, as in the photo taken there
-  desk:   { position: [3.026, 1.4, 4.449], target: [1.658, 1.050, 0.690], hfov: 79 },   // 69° in the photo, opened out a little
+// The room's own views, in scene metres: [x, height, y], so room (x, y, z)
+// in mm / 1000 as (x, z, y). 3D views place the perspective camera at
+// `position`, looking at `target`, and may set hfov, the angle across in
+// degrees; 2D views place the flat one and give the width and height (m) to
+// fit on screen. The user-defined views, the places you can be and the
+// things you can look at are in room_3d.views.js, for editing; view_kit.js
+// does the choosing (see viewKit below).
+const builtInViews = {
+  top:    { label: 'Top', title: 'Straight down from above', position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },
+  corner: { label: 'Corner', title: 'From high in the corner by the desk', position: [4.6, 3.4, 5.4], target: [1.0, 1.0, 1.0] },
   // The wall views leave out what's on the camera's side of their cut (see
   // applyCut): the back wall view everything past the return wall, the left
   // wall view the island, the dresser and beyond, the front wall view
   // everything short of the island's far end, the right wall view everything
   // left of the desk recess
-  plan:   { position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9] },    // back wall at the top
-  back:   { position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1] },        // facing the back wall
-  left:   { position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 700, 1] },         // facing the left wall, back wall on the right
-  front:  { position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
-  right:  { position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 2220, -1] },   // facing the right wall, back wall on the left
+  plan:   { label: 'Plan (2D)', position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9] },    // back wall at the top
+  back:   { label: 'Back wall (2D)', position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1] },        // facing the back wall
+  left:   { label: 'Left wall (2D)', position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 700, 1] },         // facing the left wall, back wall on the right
+  front:  { label: 'Front wall (2D)', position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
+  right:  { label: 'Right wall (2D)', position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 2220, -1] },   // facing the right wall, back wall on the left
 };
+
 // Packing: standing within arm's reach (750) of the corner cupboard's door,
-// eyes 1.6 m up, looking in and down a little, with its doors open to 90°.
+// eyes at standing height, looking in and down a little, with its doors open to 90°.
 // Where that is depends on the option, so it's worked out when chosen.
 // Returns the middle of the door opening, the way out of it, and which
 // door it is ('tall' the left-wall cupboard's, else the option's second).
@@ -2425,40 +2403,86 @@ function packingSpot() {
 }
 function packingView() {
   const at = packingSpot();
-  if (!at) return views.corner;                                  // no corner cupboard: the corner view
+  if (!at) return builtInViews.corner;                                  // no corner cupboard: the corner view
   // Open its door, and shut the other, which might swing open in front of you
   (at.door === 'tall' ? tallSlider : secondSlider).value = 90;
   (at.door === 'tall' ? secondSlider : tallSlider).value = 0;
   if (at.y + 750 * at.ny > HINGE) roomSlider.value = 0;          // standing past the room door's hinge: shut it, as it would hide the cupboard
   update();
   const { x, y, nx, ny } = at, m = v => v / 1000;
-  return { position: [m(x + 750 * nx), 1.6, m(y + 750 * ny)], target: [m(x - 300 * nx), 0.9, m(y - 300 * ny)], hfov: 95 };
+  return { posture: 'stand', position: [m(x + 750 * nx), 1.6, m(y + 750 * ny)], target: [m(x - 300 * nx), 0.9, m(y - 300 * ny)], hfov: 95 };
 }
-let packing = false;               // in the packing view: it follows the option as it changes
-
-let flatFit = views.plan.fit;
+let flatFit = builtInViews.plan.fit;
 let flatPerM = null;               // the 2D views' scale, pixels per metre at zoom 1
 
-let viewHfov = null;               // a view's own angle across, in degrees, if it sets one
-function setView(name) {
-  packing = name === 'packing';
-  const v = packing ? packingView() : views[name];
-  viewHfov = v.hfov || null;
-  setFlat(Boolean(v.fit));
-  const [cam, ctl] = flat ? [flatCamera, flatControls] : [camera, controls];
-  cam.position.set(...v.position);
-  ctl.target.set(...v.target);
-  flatView = flat ? name : null;
-  updateDims();
-  applyCut();
-  drawStored();
-  if (flat) {
-    flatFit = v.fit;
-    flatCamera.zoom = 1;
-  }
-  resize();                                                     // applies the view's fit or field of view
-  ctl.update();
-}
+// Things to look at that move with the option or the sliders: where to aim,
+// room [x, y, height] in mm
+const anchors = {
+  dresser: () => [(DRESSER.x0 + DRESSER.x1) / 2, D - DRESSER.baseD / 2, DRESSER.h / 2],
+  cupboard: () => {                                             // the middle of its door, else the corner
+    const at = packingSpot();
+    return at ? [at.x, at.y, 1200] : [400, 400, 1200];
+  },
+  tv: () => tvAt ?? [W / 2, 0, 1400],
+};
+const DOORS = [roomSlider, tallSlider, secondSlider];
+const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
+const viewKit = ViewKit.create({
+  THREE, camera, controls, canvas: renderer.domElement,
+  room: 'room_3d',
+  config: ROOM_VIEWS,
+  builtIn: builtInViews,
+  anchors,
+  computed: { packing: packingView },
+  actions: {
+    shutRoomDoor() {
+      roomSlider.value = 0;
+      update();
+    },
+  },
+  chair: { object: deskChair, rest: CHAIR_TURN, eyes: 150 },
+  el: {
+    where: document.getElementById('where'), lookAt: document.getElementById('lookAt'), eye: document.getElementById('eye'),
+    views: document.getElementById('viewPick'), save: document.getElementById('saveView'), remove: document.getElementById('deleteView'),
+    hint: document.getElementById('hint'),
+  },
+  hints: {
+    flat: 'Drag to pan, scroll or pinch to zoom. In the plan, drag the things to store to move them, and double-click or double-tap one to turn it round.',
+    orbit: 'Drag to swing round the room, scroll or pinch to move in and out, right-drag or shift-drag to slide. Save view keeps where you\'ve moved to, in the views list on this device.',
+    person: 'Drag to look round where you are (in the desk chair, it swivels). Right-drag or shift-drag, or the arrow keys or WASD, to walk; scroll to zoom. Save view keeps where you\'ve moved to, in the views list on this device.',
+  },
+  hooks: {
+    place(v, id) {
+      setFlat(Boolean(v.fit));
+      const [cam, ctl] = flat ? [flatCamera, flatControls] : [camera, controls];
+      cam.position.set(...v.position);
+      ctl.target.set(...v.target);
+      flatView = flat ? id : null;
+      updateDims();
+      applyCut();
+      drawStored();
+      if (flat) {
+        flatFit = v.fit;
+        flatCamera.zoom = 1;
+      }
+      resize();                                                 // applies the view's fit or field of view
+      ctl.update();
+    },
+    isFlat: () => flat,
+    resize: () => resize(),
+    writeAddress: () => writeAddress(true),
+    // The doors' angles: the room door's, the left-wall cupboard's and the
+    // option's own, as some views open or shut them
+    sceneState: {
+      get: () => DOORS.map(d => d.value).join('-'),
+      set(text) {
+        text.split('-').map(Number).forEach((a, k) => { if (DOORS[k] && a >= 0 && a <= 110) DOORS[k].value = a; });
+        update();
+      },
+    },
+  },
+});
+DOORS.forEach(d => d.addEventListener('input', viewKit.writeView));
 
 function setFlat(on) {
   flat = on;
@@ -2466,32 +2490,14 @@ function setFlat(on) {
   flatControls.enabled = on;
   document.getElementById('mode').textContent = on ? 'Show 3D' : 'Show 2D';
   document.querySelectorAll('[data-mode]').forEach(b => { b.style.display = b.dataset.mode === (on ? '2d' : '3d') ? '' : 'none'; });
-  document.getElementById('hint').textContent = on
-    ? 'Drag to pan, scroll or pinch to zoom. In the plan, drag the things to store to move them, and double-click or double-tap one to turn it round.'
-    : 'Drag to rotate, scroll or pinch to zoom, right-drag to pan.';
 }
-document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => viewKit.setView(b.dataset.view)));
 document.getElementById('dims').addEventListener('click', e => {
   showDims = !showDims;
   e.target.textContent = `Dimensions: ${showDims ? 'on' : 'off'}`;
   updateDims();
 });
-// The 3D view starts from the chosen start view (remembered on this device):
-// seated at the desk, standing by the island, standing in the kitchen, back
-// to the middle window, from above the windows, or from the entrance door
-let startView = 'desk';
-try {
-  const saved = localStorage.getItem('startView');
-  if (document.querySelector(`input[name=startView][value="${saved}"]`)) startView = saved;
-} catch (e) { /* not important */ }
-document.querySelector(`input[name=startView][value="${startView}"]`).checked = true;
-document.querySelectorAll('input[name=startView]').forEach(r => r.addEventListener('change', () => {
-  startView = r.value;
-  try { localStorage.setItem('startView', startView); } catch (e) { /* not important */ }
-  setView(startView);
-}));
-document.getElementById('mode').addEventListener('click', () => setView(flat ? startView : 'plan'));
-setView(startView);
+document.getElementById('mode').addEventListener('click', () => viewKit.setView(flat ? viewKit.startView : 'plan'));
 
 // keepScale: the drawer opened or closed, so slide the drawing clear of it
 // but keep its size, and any zooming, as it was
@@ -2501,7 +2507,7 @@ function resize(keepScale = false) {
   camera.aspect = w / h;
   // On narrow screens, keep about 55° across rather than 45° up and down, so
   // the room isn't cropped at the sides
-  const across = viewHfov || (w / h < 1.4 ? 55 : null);         // degrees across, when fixed
+  const across = viewKit.hfov || (w / h < 1.4 ? 55 : null);         // degrees across, when fixed
   // Up and down, capped so a tall phone screen doesn't stretch the view
   camera.fov = across ? Math.min(80, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(across / 2)) * h / w))) : 45;
   camera.updateProjectionMatrix();
@@ -2543,7 +2549,7 @@ document.getElementById('reset').addEventListener('click', () => {
 // door open as in the photo taken there
 document.getElementById('currentRoom').addEventListener('click', () => {
   roomSlider.value = 100;
-  setView('desk');
+  viewKit.setView('desk');
   show(OPTIONS.length - 1);
   if (narrow()) setMenu(false);
 });
@@ -2646,6 +2652,9 @@ if (rear >= 300 && rear <= 800) {
   document.getElementById('rearValue').textContent = rear;
 }
 show(start ? optionIndex(start) : 8);                           // option 9 with no address
+// The view: the address's, else the last chosen here. After show(), as
+// some views are worked out from the option
+viewKit.start(addressView);
 renderer.setAnimationLoop(() => {
   (flat ? flatControls : controls).update();
   renderer.render(scene, flat ? flatCamera : camera);
