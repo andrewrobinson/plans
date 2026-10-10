@@ -1749,6 +1749,7 @@ const OPTIONS = [
   },
   {
     name: '7. Full-height L-shaped cupboard',
+    defaultLeft: 600,                                  // chosen with no left-wall cupboard: one this deep (it can be taken away again)
     source: 'plan3/room_3d.html',
     clearFrom: () => T + LEG,
     benchFrom: () => T + LEG,
@@ -2415,7 +2416,13 @@ function update() {
 // The top bar's dropdown of options, kept in step by show()
 const currentSelect = document.getElementById('current');
 currentSelect.innerHTML = OPTIONS.map((o, i) => `<option value="${i}">${o.name}</option>`).join('');
-currentSelect.addEventListener('change', () => show(Number(currentSelect.value)));
+currentSelect.addEventListener('change', () => chooseOption(Number(currentSelect.value)));
+// Choosing an option (not a link to one): with no left-wall cupboard, an
+// option with a default for it gets one
+function chooseOption(i) {
+  if (T === 0 && OPTIONS[i].defaultLeft) setDepth(OPTIONS[i].defaultLeft);
+  show(i);
+}
 
 
 // An option's description, with the bench off: no bench (rather than its
@@ -2509,7 +2516,7 @@ function writeAddress(replace = false) {
 
 window.addEventListener('keydown', e => {
   const n = Number(e.key);
-  if (n >= 1 && n <= OPTIONS.length) show(n - 1);
+  if (n >= 1 && n <= OPTIONS.length) chooseOption(n - 1);
 });
 
 // The left-wall cupboard's depth: none at the far left (290 on the slider),
