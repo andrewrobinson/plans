@@ -32,39 +32,61 @@
     position: fixed; top: 12px; left: 12px; right: 12px; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
     pointer-events: none;
   }
-  #menu {
+  /* Look (where you are and what you look at), the option and the scenes:
+     menu buttons at the bottom right, in that order down, each opening its
+     group above it; and the views list at the top right, opening below */
+  #corner { position: fixed; right: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+  .pop { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+  .pop > .group { display: none; background: rgba(255, 255, 255, 0.92); }
+  .pop.open > .group { display: flex; }
+  #menu, .popToggle {
     pointer-events: auto; width: 44px; height: 44px; border-radius: 10px; border: none; font-size: 22px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer;
   }
+  .popToggle { color: var(--tint); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 2px var(--tint); }
+  #viewMenu { --tint: #1f4e79; }
+  #viewsMenu { --tint: #6a3d9a; position: fixed; top: 12px; right: 12px; z-index: 2; }
+  #optionMenu { --tint: #8a5a14; }
+  #sceneMenu { --tint: #2e7d4f; }
   #share, #reset, #saveView, #deleteView, #saveScene, #deleteScene {
     pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer; flex: none;
   }
   #deleteView[hidden], #deleteScene[hidden] { display: none; }
   #saveView:disabled { opacity: 0.5; cursor: default; }
-  @media (max-width: 600px) { #bar { flex-wrap: wrap; } #current { flex: 1 1 100%; } }
+  /* The bar's groups, each with a small heading in its own colour: View
+     (where you are and what you look at), Scene (what's on show) and Option */
+  .group { pointer-events: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 6px 4px 10px;
+    border-radius: 12px; background: rgba(255, 255, 255, 0.55); box-shadow: inset 0 0 0 2px var(--tint); }
+  .group .tag { font-size: 11px; font-weight: bold; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tint); }
+  #viewGroup { --tint: #1f4e79; }
+  #optionGroup { width: min(440px, calc(100vw - 24px)); box-sizing: border-box; flex-wrap: nowrap; }
+  #viewGroup { max-width: min(900px, calc(100vw - 24px)); box-sizing: border-box; justify-content: flex-end; }
+  #viewsGroup { flex-wrap: nowrap; }
+  #optionGroup #current { flex: 1; min-width: 0; }
   /* The dropdowns in the top bar: where you are, your eye height, and the
      option on show (to switch options without the menu) */
   .pick {
     pointer-events: auto; height: 44px; min-width: 0; max-width: 100%; border: none; border-radius: 10px; padding: 0 10px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font: inherit; font-size: 14px; cursor: pointer;
   }
-  #where, #lookAt, #eye, #viewPick, #scenePick { flex: none; }             /* the option's name gives way instead */
+  #where, #lookAt, #eye, #viewPick, #scenePick { flex: none; }
   /* On phones the open drawer dims the model; tapping there closes it */
   #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
   @media (max-width: 900px) { body.menu-open #scrim { display: block; } }
-  #panel label { display: block; margin: 8px 0 2px; font-weight: bold; }
+  #panel label { display: block; margin: 8px 0 2px; }
+  /* The drawer's sections, each opening and closing (remembered here) */
+  #panel details.sec { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; }
+  #panel details.sec > summary { cursor: pointer; font-weight: bold; font-size: 14px; color: #1f4e79; padding: 2px 0; }
   #panel input[type=range] { width: 100%; }
-  #options { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
-  #options button { text-align: left; }
   #panel button { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid #999; background: #fff; cursor: pointer; }
   #panel button:disabled { opacity: 0.4; cursor: default; }
   #panel button.on { background: #1f4e79; color: #fff; border-color: #1f4e79; }
   #panel .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
   .depth { margin: 0 0 8px; }
   #panel .depth label { display: inline; margin: 0 0 0 10px; font-weight: normal; }
-  #about { margin: 0 0 4px; }
-  #about > summary { cursor: pointer; font-weight: bold; padding: 2px 0; }
+  #panel #islandBlock label { display: block; margin: 2px 0 0 10px; }   /* long choices, one a line */
+
   #colours { margin: 10px 0 4px; }
   #colours .colhead { font-weight: bold; }
   #colours .colrow { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
@@ -100,16 +122,45 @@
   <button id="menu" aria-label="Settings" aria-controls="panel">☰</button>
   <button id="share">Share</button>
   <button id="reset">Reset</button>
-  <select id="where" class="pick" aria-label="Where you are"></select>
-  <select id="lookAt" class="pick" aria-label="Looking at"></select>
-  <select id="eye" class="pick" aria-label="Eye height"></select>
-  <select id="viewPick" class="pick" aria-label="Views"></select>
-  <button id="saveView" title="Keep where you've moved to, as a named view">Save view</button>
-  <button id="deleteView" hidden>Delete view</button>
-  <select id="scenePick" class="pick" aria-label="Scenes"></select>
-  <button id="saveScene" title="Keep everything on show (not where you're looking from), as a named scene">Save scene</button>
-  <button id="deleteScene" hidden>Delete scene</button>
-  <select id="current" class="pick" aria-label="Cupboard option"></select>
+</div>
+<!-- The views list: a menu of its own at the top right, opening below it -->
+<div id="viewsMenu" class="pop">
+  <button class="popToggle" aria-label="Views" title="Views: preset, saved and built-in" aria-controls="viewsGroup" aria-expanded="false">☰</button>
+  <div id="viewsGroup" class="group" role="group" aria-label="Views">
+    <span class="tag">Views</span>
+    <select id="viewPick" class="pick" aria-label="Views"></select>
+    <button id="saveView" title="Keep where you've moved to, as a named view">Save</button>
+    <button id="deleteView" title="Delete this saved view" hidden>Delete</button>
+  </div>
+</div>
+<!-- Where you are and what you're looking at, the option on show and the
+     scenes: menus of their own at the bottom right -->
+<div id="corner">
+  <div id="viewMenu" class="pop">
+    <div id="viewGroup" class="group" role="group" aria-label="Look">
+      <span class="tag">Look</span>
+      <select id="where" class="pick" aria-label="Where you are"></select>
+      <select id="lookAt" class="pick" aria-label="Looking at"></select>
+      <select id="eye" class="pick" aria-label="Eye height"></select>
+    </div>
+    <button class="popToggle" aria-label="Look" title="Look: where you are, what you're looking at, your eye height" aria-controls="viewGroup" aria-expanded="false">☰</button>
+  </div>
+  <div id="optionMenu" class="pop">
+    <div id="optionGroup" class="group" role="group" aria-label="Option">
+      <span class="tag">Option</span>
+      <select id="current" class="pick" aria-label="Cupboard option"></select>
+    </div>
+    <button class="popToggle" aria-label="Option" title="Option" aria-controls="optionGroup" aria-expanded="false">☰</button>
+  </div>
+  <div id="sceneMenu" class="pop">
+    <div id="sceneGroup" class="group" role="group" aria-label="Scene">
+      <span class="tag">Scene</span>
+      <select id="scenePick" class="pick" aria-label="Scenes"></select>
+      <button id="saveScene" title="Keep everything on show (not where you're looking from), as a named scene">Save</button>
+      <button id="deleteScene" title="Delete this saved scene" hidden>Delete</button>
+    </div>
+    <button class="popToggle" aria-label="Scenes" title="Scenes" aria-controls="sceneGroup" aria-expanded="false">☰</button>
+  </div>
 </div>
 <div id="scrim"></div>
 <div id="tip"></div>
@@ -118,158 +169,7 @@
     <h1>Cupboard options</h1>
     <button id="close" aria-label="Close settings">✕</button>
   </div>
-  <div>Room 3838 × 5379, ceiling 2443. Sizes in mm. Keys 1–9 switch option.</div>
-
-  <div id="options"></div>
-  <div id="depthBlock">
-    <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
-    <input id="depth" type="range" min="290" max="800" step="10" value="290">
-  </div>
-  <label for="rear">Rear wall cupboard depth: <span id="rearValue">330</span></label>
-  <input id="rear" type="range" min="300" max="800" step="10" value="330">
-  <div id="wardBlock">
-    <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
-    <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
-    <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
-    <input id="ward" type="range" min="600" max="1400" step="50" value="900">
-    <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
-    <input id="tower" type="range" min="0" max="600" step="50" value="400">
-  </div>
-  <div id="upperBlock">
-    <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
-    <input id="upper" type="range" min="400" max="1200" step="50" value="700">
-  </div>
-  <div id="legBlock">
-    <label for="leg">Back-wall leg width: <span id="legValue">700</span></label>
-    <input id="leg" type="range" min="400" max="1200" step="50" value="700">
-  </div>
-  <div id="extraBlock">
-    <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
-    <input id="extra" type="range" min="300" max="900" step="50" value="500">
-  </div>
-  <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
-  <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
-  <div id="sofaBlock">
-    <label for="sofaPick">Sofa, facing the TV</label>
-    <select id="sofaPick"></select>
-    <div id="sofaFrontBlock">
-      <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
-      <input id="sofaFront" type="range" min="1000" max="3500" step="50" value="1900">
-    </div>
-  </div>
-  <div id="islandBlock" class="depth">Kitchen island:
-    <label><input type="radio" name="islandAt" value="room" checked> Out there</label>
-    <label><input type="radio" name="islandAt" value="out"> Against the front wall, long side out</label>
-    <label><input type="radio" name="islandAt" value="along"> Against the front wall, short side out</label>
-    <label><input type="radio" name="islandAt" value="none"> None</label>
-  </div>
-  <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
-    <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
-    <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
-    <label><input type="radio" name="frontPiece" value="none"> Nothing</label>
-  </div>
-  <div id="larderBlock">
-    <label for="larderPick">Larder</label>
-    <select id="larderPick"></select>
-  </div>
-  <div id="dresserBlock">
-    <label for="dresserPick">Dresser</label>
-    <select id="dresserPick"></select>
-    <label for="dresserW">Dresser width: <span id="dresserWValue">1320</span></label>
-    <input id="dresserW" type="range" min="900" max="1415" step="5" value="1320">
-    <label for="dresserH">Dresser height: <span id="dresserHValue">2100</span></label>
-    <input id="dresserH" type="range" min="1500" max="2400" step="10" value="2100">
-    <label for="dresserBaseD">Dresser base depth: <span id="dresserBaseDValue">400</span></label>
-    <input id="dresserBaseD" type="range" min="300" max="600" step="10" value="400">
-    <label for="dresserBaseH">Dresser base height: <span id="dresserBaseHValue">900</span></label>
-    <input id="dresserBaseH" type="range" min="700" max="1000" step="10" value="900">
-    <label for="dresserUpperD">Dresser upper depth: <span id="dresserUpperDValue">290</span></label>
-    <input id="dresserUpperD" type="range" min="150" max="600" step="10" value="290">
-  </div>
-  <div id="tvBlock">
-    <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
-    <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
-  </div>
-  <div id="tallBlock">
-    <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
-    <input id="tallDoor" type="range" min="0" max="110" value="0">
-  </div>
-
-  <div id="secondBlock">
-    <label for="secondDoor"><span id="secondLabel"></span>: <span id="secondDoorValue">0°</span></label>
-    <input id="secondDoor" type="range" min="0" max="110" value="0">
-  </div>
-
-  <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
-  <input id="roomDoor" type="range" min="0" max="110" value="90">
-  <div id="front" class="depth">Left-wall cupboard front:
-    <label><input type="radio" name="front" value="1200" checked> 1200</label>
-    <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
-  </div>
-  <div id="above" class="depth">Above the bench:
-    <label><input type="radio" name="above" value="0"> Nothing</label>
-    <label><input type="radio" name="above" value="1"> Shelves</label>
-    <label><input type="radio" name="above" value="2"> TV</label>
-    <label><input type="radio" name="above" value="3" checked> TV and shelves</label>
-    <label><input type="radio" name="above" value="4"> TV and top shelf</label>
-  </div>
-  <div id="colours">
-    <div class="colhead">Cupboard colour</div>
-    <div class="colrow">
-      <button id="colPrev" aria-label="Previous named colour">◀</button>
-      <select id="ral-cupboard" aria-label="Cupboard colour"></select>
-      <button id="colNext" aria-label="Next named colour">▶</button>
-      <span class="swatch" id="cupboardSwatch"></span>
-    </div>
-    <div class="colrow" id="otherRow" hidden>
-      <select id="ral-other" aria-label="Other cupboard colour"></select>
-    </div>
-    <div class="colhead" style="margin-top: 8px">Dresser colour</div>
-    <div class="colrow">
-      <button id="dresserPrev" aria-label="Previous named dresser colour">◀</button>
-      <select id="ral-dresser" aria-label="Dresser colour"></select>
-      <button id="dresserNext" aria-label="Next named dresser colour">▶</button>
-      <span class="swatch" id="dresserSwatch"></span>
-    </div>
-    <div class="colrow" id="dresserOtherRow" hidden>
-      <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
-    </div>
-    <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
-    <div class="colhead" style="margin-top: 8px">Shelf colour</div>
-    <div class="colrow">
-      <select id="shelfWood" aria-label="Shelf colour"></select>
-      <span class="swatch" id="shelfSwatch"></span>
-    </div>
-    <details id="palette">
-      <summary>Colours in this view</summary>
-      <div id="paletteList"></div>
-    </details>
-  </div>
-  <div id="bench" class="depth">Bench height:
-    <label><input type="radio" name="bench" value="700"> 700</label>
-    <label><input type="radio" name="bench" value="780" checked> 780</label>
-    <label><input type="radio" name="bench" value="800"> 800</label>
-    <label><input type="radio" name="bench" value="900"> 900</label>
-  </div>
-  <div id="storedBlock">
-    <div class="colhead">Things to store</div>
-    <select id="storedPacking" aria-label="Packing"></select>
-    <div class="depth">
-      <label><input type="radio" name="storedWhere" value="0" checked> By the middle window</label>
-      <label><input type="radio" name="storedWhere" value="1"> In the corner cupboard</label>
-    </div>
-    <div id="storedInfo"></div>
-    <div class="row">
-      <button id="storedToggle">Shown</button>
-      <button id="storedPack">Pack them again</button>
-    </div>
-  </div>
-  <details id="about">
-    <summary>Description</summary>
-    <div id="summary"></div>
-  </details>
-
-
+  <div>Room 3838 × 5379, ceiling 2443. Sizes in mm. Keys 1–9 switch option; the option itself is in the brown ☰ at the bottom right.</div>
   <div class="row">
     <button id="mode">Show 2D</button>
     <button id="xray">See-through cupboards: off</button>
@@ -283,6 +183,171 @@
     <button id="dims" data-mode="2d">Dimensions: on</button>
   </div>
   <div class="hint" id="hint"></div>
+  <details class="sec" id="secCupboard" open>
+    <summary>The corner cupboard</summary>
+    <div id="depthBlock">
+      <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
+      <input id="depth" type="range" min="290" max="800" step="10" value="290">
+    </div>
+    <div id="front" class="depth">Left-wall cupboard front:
+      <label><input type="radio" name="front" value="1200" checked> 1200</label>
+      <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
+    </div>
+    <label for="rear">Back-wall cupboard depth: <span id="rearValue">330</span></label>
+    <input id="rear" type="range" min="300" max="800" step="10" value="330">
+    <div id="wardBlock">
+      <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
+      <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
+      <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
+      <input id="ward" type="range" min="600" max="1400" step="50" value="900">
+      <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
+      <input id="tower" type="range" min="0" max="600" step="50" value="400">
+    </div>
+    <div id="upperBlock">
+      <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
+      <input id="upper" type="range" min="400" max="1200" step="50" value="700">
+    </div>
+    <div id="legBlock">
+      <label for="leg">Back-wall leg width: <span id="legValue">700</span></label>
+      <input id="leg" type="range" min="400" max="1200" step="50" value="700">
+    </div>
+    <div id="extraBlock">
+      <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
+      <input id="extra" type="range" min="300" max="900" step="50" value="500">
+    </div>
+  </details>
+  <details class="sec" id="secBench" open>
+    <summary>The back wall: bench, TV and shelves</summary>
+    <div id="above" class="depth">Above the bench:
+      <label><input type="radio" name="above" value="0"> Nothing</label>
+      <label><input type="radio" name="above" value="1"> Shelves</label>
+      <label><input type="radio" name="above" value="2"> TV</label>
+      <label><input type="radio" name="above" value="3" checked> TV and shelves</label>
+      <label><input type="radio" name="above" value="4"> TV and top shelf</label>
+    </div>
+    <div id="tvBlock">
+      <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
+      <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
+    </div>
+    <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
+    <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+    <div id="bench" class="depth">Bench height:
+      <label><input type="radio" name="bench" value="700"> 700</label>
+      <label><input type="radio" name="bench" value="780" checked> 780</label>
+      <label><input type="radio" name="bench" value="800"> 800</label>
+      <label><input type="radio" name="bench" value="900"> 900</label>
+    </div>
+  </details>
+  <details class="sec" id="secFrontWall" open>
+    <summary>The front wall and the island</summary>
+    <div id="islandBlock" class="depth">Kitchen island:
+      <label><input type="radio" name="islandAt" value="room" checked> Out there</label>
+      <label><input type="radio" name="islandAt" value="out"> Against the front wall, long side out</label>
+      <label><input type="radio" name="islandAt" value="along"> Against the front wall, short side out</label>
+      <label><input type="radio" name="islandAt" value="none"> None</label>
+    </div>
+    <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
+      <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
+      <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
+      <label><input type="radio" name="frontPiece" value="none"> Nothing</label>
+    </div>
+    <div id="dresserBlock">
+      <label for="dresserPick">Dresser</label>
+      <select id="dresserPick"></select>
+      <label for="dresserW">Dresser width: <span id="dresserWValue">1320</span></label>
+      <input id="dresserW" type="range" min="900" max="1415" step="5" value="1320">
+      <label for="dresserH">Dresser height: <span id="dresserHValue">2100</span></label>
+      <input id="dresserH" type="range" min="1500" max="2400" step="10" value="2100">
+      <label for="dresserBaseD">Dresser base depth: <span id="dresserBaseDValue">400</span></label>
+      <input id="dresserBaseD" type="range" min="300" max="600" step="10" value="400">
+      <label for="dresserBaseH">Dresser base height: <span id="dresserBaseHValue">900</span></label>
+      <input id="dresserBaseH" type="range" min="700" max="1000" step="10" value="900">
+      <label for="dresserUpperD">Dresser upper depth: <span id="dresserUpperDValue">290</span></label>
+      <input id="dresserUpperD" type="range" min="150" max="600" step="10" value="290">
+    </div>
+    <div id="larderBlock">
+      <label for="larderPick">Larder</label>
+      <select id="larderPick"></select>
+    </div>
+  </details>
+  <details class="sec" id="secSofa" open>
+    <summary>Sofa</summary>
+    <div id="sofaBlock">
+      <label for="sofaPick">Sofa, facing the TV</label>
+      <select id="sofaPick"></select>
+      <div id="sofaFrontBlock">
+        <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
+        <input id="sofaFront" type="range" min="1000" max="3500" step="50" value="1900">
+      </div>
+    </div>
+  </details>
+  <details class="sec" id="secDoors" open>
+    <summary>Doors</summary>
+    <div id="tallBlock">
+      <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
+      <input id="tallDoor" type="range" min="0" max="110" value="0">
+    </div>
+    <div id="secondBlock">
+      <label for="secondDoor"><span id="secondLabel"></span>: <span id="secondDoorValue">0°</span></label>
+      <input id="secondDoor" type="range" min="0" max="110" value="0">
+    </div>
+    <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
+    <input id="roomDoor" type="range" min="0" max="110" value="90">
+  </details>
+  <details class="sec" id="secColours">
+    <summary>Colours</summary>
+    <div id="colours">
+      <div class="colhead">Cupboards</div>
+      <div class="colrow">
+        <button id="colPrev" aria-label="Previous named colour">◀</button>
+        <select id="ral-cupboard" aria-label="Cupboard colour"></select>
+        <button id="colNext" aria-label="Next named colour">▶</button>
+        <span class="swatch" id="cupboardSwatch"></span>
+      </div>
+      <div class="colrow" id="otherRow" hidden>
+        <select id="ral-other" aria-label="Other cupboard colour"></select>
+      </div>
+      <div class="colhead" style="margin-top: 8px">Dresser and larder</div>
+      <div class="colrow">
+        <button id="dresserPrev" aria-label="Previous named dresser colour">◀</button>
+        <select id="ral-dresser" aria-label="Dresser colour"></select>
+        <button id="dresserNext" aria-label="Next named dresser colour">▶</button>
+        <span class="swatch" id="dresserSwatch"></span>
+      </div>
+      <div class="colrow" id="dresserOtherRow" hidden>
+        <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
+      </div>
+      <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
+      <div class="colhead" style="margin-top: 8px">Shelves</div>
+      <div class="colrow">
+        <select id="shelfWood" aria-label="Shelf colour"></select>
+        <span class="swatch" id="shelfSwatch"></span>
+      </div>
+      <details id="palette">
+        <summary>Colours in this view</summary>
+        <div id="paletteList"></div>
+      </details>
+    </div>
+  </details>
+  <details class="sec" id="secStored">
+    <summary>Things to store</summary>
+    <div id="storedBlock">
+      <select id="storedPacking" aria-label="Packing"></select>
+      <div class="depth">
+        <label><input type="radio" name="storedWhere" value="0" checked> By the middle window</label>
+        <label><input type="radio" name="storedWhere" value="1"> In the corner cupboard</label>
+      </div>
+      <div id="storedInfo"></div>
+      <div class="row">
+        <button id="storedToggle">Shown</button>
+        <button id="storedPack">Pack them again</button>
+      </div>
+    </div>
+  </details>
+  <details class="sec" id="about">
+    <summary>Description</summary>
+    <div id="summary"></div>
+  </details>
 </div>
 
 <!-- The room's views, dressers, larders, sofas and scenes, for editing, and the kits that show the views and scenes -->
@@ -2290,16 +2355,6 @@ const currentSelect = document.getElementById('current');
 currentSelect.innerHTML = OPTIONS.map((o, i) => `<option value="${i}">${o.name}</option>`).join('');
 currentSelect.addEventListener('change', () => show(Number(currentSelect.value)));
 
-const buttons = OPTIONS.map((option, i) => {
-  const b = document.createElement('button');
-  b.textContent = option.name;
-  b.addEventListener('click', () => {
-    show(i);
-    if (narrow()) setMenu(false);                      // on phones, show the result straight away
-  });
-  document.getElementById('options').appendChild(b);
-  return b;
-});
 
 // Build option i. A new option starts with its second door shut; rebuilding
 // the same one (a size changed) leaves the doors as they were.
@@ -2317,10 +2372,6 @@ function show(i) {
   group.add(cupShelfGroup);                                     // drawn by drawStored(), round the things to store
   const aboveText = benchWall(option.clearFrom(), group) + frontWall(group, option, i) + sofa(group);
 
-  buttons.forEach((b, j) => {
-    b.classList.toggle('on', i === j);
-    b.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft);
-  });
   [...currentSelect.options].forEach((o, j) => { o.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft); });
   currentSelect.value = String(i);
   document.getElementById('summary').innerHTML =
@@ -2401,6 +2452,13 @@ try { about.open = localStorage.getItem('aboutOpen') === '1'; } catch (e) { /* n
 about.addEventListener('toggle', () => {
   try { localStorage.setItem('aboutOpen', about.open ? '1' : '0'); } catch (e) { /* not important */ }
 });
+// The drawer's other sections open or closed as they were left here
+for (const sec of document.querySelectorAll('#panel details.sec[id^=sec]')) {
+  try { const was = localStorage.getItem(`room_3d:${sec.id}`); if (was) sec.open = was === '1'; } catch (e) { /* not important */ }
+  sec.addEventListener('toggle', () => {
+    try { localStorage.setItem(`room_3d:${sec.id}`, sec.open ? '1' : '0'); } catch (e) { /* not important */ }
+  });
+}
 
 const upperSlider = document.getElementById('upper');
 upperSlider.addEventListener('input', () => {
@@ -2683,6 +2741,11 @@ document.getElementById('xray').addEventListener('click', e => {
 const builtInViews = {
   top:    { label: 'Top', title: 'Straight down from above', position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },
   corner: { label: 'Corner', title: 'From high in the corner by the desk', position: [4.6, 3.4, 5.4], target: [1.0, 1.0, 1.0] },
+  // High above the windows, looking down across the room towards the door
+  // and the kitchen. The outer wall and ceiling only show from inside, so
+  // the room is open from here; any further out and the outer wall's brick
+  // face would hide the floor along it
+  birdseye: { label: "Bird's eye", title: 'Looking down from above the windows', position: [4.5, 7.5, 2.75], target: [1.2, 0, 2.75], hfov: 66 },
   // The wall views leave out what's on the camera's side of their cut (see
   // applyCut): the back wall view everything past the return wall, the left
   // wall view the island, the dresser and beyond, the front wall view
@@ -2826,6 +2889,20 @@ const viewKit = ViewKit.create({
 DOORS.forEach(d => d.addEventListener('input', viewKit.writeView));
 // Scenes: everything on show bar the view, from room_3d.scenes.js or saved
 // here. Showing one loads the page again with its settings, keeping the view.
+// The pop-up menus (the views list at the top right; look, the option and
+// the scenes at the bottom right): a button opens its menu and closes the others; Escape or a click on anything else but
+// the 3D view closes them (they stay open while you move about, to save a
+// view, say)
+const pops = [...document.querySelectorAll('.pop')];
+function setPop(open) {
+  for (const p of pops) {
+    p.classList.toggle('open', p === open);
+    p.querySelector('.popToggle').setAttribute('aria-expanded', String(p === open));
+  }
+}
+for (const p of pops) p.querySelector('.popToggle').addEventListener('click', () => setPop(p.classList.contains('open') ? null : p));
+window.addEventListener('keydown', e => { if (e.key === 'Escape') setPop(null); });
+window.addEventListener('pointerdown', e => { if (e.target !== renderer.domElement && !pops.some(p => p.contains(e.target))) setPop(null); });
 sceneKit = SceneKit.create({
   room: 'room_3d',
   config: window.ROOM_SCENES,

@@ -75,7 +75,7 @@ Its sizes below are where its sliders start. The menu's **Dresser** dropdown set
 
 **A sofa** can be added in any option (the menu's **Sofa, facing the TV**), from `room_3d.sofas.js`, for editing: the Habitat x Morris & Co. **Merton 2 Seater** (1690 wide, 1000 deep, 920 high, seat 505 high and 650 deep; its arm and leg heights estimated). It's centred on the TV, facing it, its front a slider's distance from the TV wall (1000 to 3500, starting at 1900, where its back is 41 short of the island's end). **Sitting on the sofa** is in Where, and "the sofa" in Looking at.
 
-**Scenes**, to show people the options: everything on show bar where you're looking from (the option, the dresser, larder, island and sofa, what's above the bench, sizes and colours). The top bar's **Scenes** list has those in `room_3d.scenes.js` (the same on every device; it says how to add one) and those kept with **Save scene** (on that device only; **Delete scene** removes one). Choosing a scene loads the page again with its settings, keeping the view. The list shows the scene on screen, or "Your scene (not saved)" once anything's changed. `scene_kit.js` does this and is meant to serve other rooms too. On the front wall between the sink and the desk, a bit like the Cotswold Company's Chester Dove Grey large dresser. Drawn in options 1 to 9, not in the current room. Painted parts are in the dresser colour, which is the cupboards' unless you choose another; the top and shelves are in the shelf colour.
+**Scenes**, to show people the options: everything on show bar where you're looking from (the option, the dresser, larder, island and sofa, what's above the bench, sizes and colours). The **Scenes** menu (the green ☰ at the bottom right; above it, the option in the brown ☰ and where you are and what you look at in the blue ☰; the views list is in the purple ☰ at the top right, and the page opens on Bird's eye unless its address has a view) has those in `room_3d.scenes.js` (the same on every device; it says how to add one) and those kept with **Save scene** (on that device only; **Delete scene** removes one). Choosing a scene loads the page again with its settings, keeping the view. The list shows the scene on screen, or "Your scene (not saved)" once anything's changed. `scene_kit.js` does this and is meant to serve other rooms too. On the front wall between the sink and the desk, a bit like the Cotswold Company's Chester Dove Grey large dresser. Drawn in options 1 to 9, not in the current room. Painted parts are in the dresser colour, which is the cupboards' unless you choose another; the top and shelves are in the shelf colour.
 
 | What | Size or position | Notes |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ Its sizes below are where its sliders start. The menu's **Dresser** dropdown set
 
 ## Outer wall: windows and radiators
 
-The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Windows** view faces it.
+The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Right wall** 2D view faces it.
 
 | What | Size or position | Notes |
 | --- | --- | --- |

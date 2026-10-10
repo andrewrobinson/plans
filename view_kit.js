@@ -196,7 +196,7 @@
     // In the chair, you stand up first (by choosing a standing eye height).
     window.addEventListener('keydown', e => {
       if (hooks.isFlat() || !asPerson || inChair || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.target.closest('select, input, textarea')) return;  // the arrow keys work those
+      if (e.target.closest?.('select, input, textarea')) return;  // the arrow keys work those
       const steps = { ArrowUp: [0, 1], w: [0, 1], ArrowDown: [0, -1], s: [0, -1], ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0] };
       const step = steps[e.key.length === 1 ? e.key.toLowerCase() : e.key];
       if (!step) return;
@@ -274,7 +274,7 @@
       el.remove.hidden = !viewId.startsWith('saved:');
     }
 
-    // The 3D view starts from the last 3D view chosen here
+    // The last 3D view chosen here, to go back to from the 2D views
     let startView = load('startView');
     if (!startView || !is3dView(startView)) startView = firstView;
     el.views.addEventListener('change', () => {
@@ -378,9 +378,10 @@
       setView(what, true);
       return true;
     }
-    // After the room is built: the address's view, else the last chosen here
+    // After the room is built: the address's view, else the room's own
+    // starting view (config.startView)
     function start(text) {
-      if (!readAddress(text)) setView(startView);
+      if (!readAddress(text)) setView(firstView);
       ready = true;
       writeView();
     }

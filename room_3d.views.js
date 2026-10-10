@@ -78,9 +78,6 @@ window.ROOM_VIEWS = {
     // the photo, opened out a little)
     desk:     { label: 'Seated', title: 'Seated at my desk, facing the TV', posture: 'sit', chair: true,
                 position: [3026, 4449, 1400], target: [1658, 690, 1050], hfov: 79 },
-    // On the room side of the island, so it's on your left, facing the TV wall
-    standing: { label: 'Island', title: 'Standing, island on my left', posture: 'stand',
-                position: [2350, 4600, 1750], target: [2350, 0, 1200], hfov: 79 },
     // In front of the sink run, looking across the room towards the TV wall,
     // as far back as the front wall allows
     kitchen:  { label: 'Kitchen', title: 'Standing in the kitchen', posture: 'stand',
@@ -89,24 +86,11 @@ window.ROOM_VIEWS = {
     // island at the sink and, to its left, the front wall along to the desk recess
     window:   { label: 'Window', title: 'Back to the middle window, looking at the sink and the wall to its left', posture: 'stand',
                 position: [3500, 2907, 1700], target: [1000, 5379, 1100], hfov: 79 },
-    // High above the windows, looking down across the room towards the door
-    // and the kitchen. The outer wall and ceiling only show from inside, so
-    // the room is open from here; any further out and the outer wall's brick
-    // face would hide the floor along it
-    birdseye: { label: "Bird's eye", title: 'Looking down from above the windows',
-                position: [4500, 2750, 7500], target: [1200, 2750, 0], hfov: 66 },
     // Just inside the entrance door, looking across the room (over the
     // island) to the desk
     door:     { label: 'Door', title: 'Looking in from the entrance door, towards my desk', posture: 'stand',
                 position: [150, 1780, 1700], target: [3026, 5350, 1000], hfov: 79 },
     packing:  { label: 'Packing', title: "Within arm's reach of the corner cupboard, its doors open", posture: 'stand', compute: 'packing' },
-    windows:  { label: 'Windows', title: 'Facing the windows from the door side of the room', posture: 'stand',
-                position: [400, 3000, 1500], target: [3838, 3000, 1350], hfov: 79 },
-    // Where the room photo was taken, worked back from where the room's
-    // corners fall in it: tilted 6° down, seeing 69° across like an iPhone's
-    // main camera. Kept at the camera's height, to match the photo
-    photo:    { label: 'Photo', title: 'Where the room photo was taken from',
-                position: [1450, 4200, 1300], target: [1450, 0, 860], hfov: 69 },
   },
-  startView: 'desk',               // the view to start with, until one's chosen
+  startView: 'birdseye',           // the view a page opens on, unless its address has one (it can be a built-in view)
 };
