@@ -256,6 +256,7 @@
   </details>
   <details class="sec" id="secCupboard" open>
     <summary>The corner cupboard</summary>
+    <label class="switch" title="Hide the rest of the room and show the cupboard's dimensions"><input type="checkbox" id="cupboardOnly"> Cupboard only, with dimensions</label>
     <div id="depthBlock">
       <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
       <input id="depth" type="range" min="290" max="800" step="10" value="290">
@@ -453,6 +454,7 @@ function slab(points, z0, z1, mat, parent) {
 // boxes are given in mm relative to the hinge.
 function hinge(hx, hy, parent) {
   const g = new THREE.Group();
+  g.userData.hinge = true;                                       // a door's, so not the cupboard's outline
   g.position.set(hx * MM, 0, hy * MM);
   parent.add(g);
   return g;
@@ -1962,6 +1964,12 @@ function aboveHeights(x0) {
 function updateDims() {
   if (dims) scene.remove(dims);
   dims = null;
+  if (cupboardOnly && current && (!flat || showDims)) {
+    dims = new THREE.Group();
+    scene.add(dims);
+    cupboardDims(dims);
+    return;
+  }
   if (!flat || !showDims || !flatView) return;
   dims = new THREE.Group();
   scene.add(dims);
@@ -2000,7 +2008,7 @@ function updateDims() {
 // the island, the desk or the outside of the outer wall. A cut is [axis,
 // where in mm, which side the camera is: 1 for the higher side, -1 the lower].
 function applyCut() {
-  const cut = flat && flatView ? builtInViews[flatView].cut : null;
+  const cut = flat && flatView && !cupboardOnly ? builtInViews[flatView].cut : null;   // on its own, the cupboard needs no cut
   scene.updateMatrixWorld(true);
   const b = new THREE.Box3();
   scene.traverse(o => {
@@ -2012,6 +2020,91 @@ function applyCut() {
     const k = axis === 'x' ? 'x' : 'z';                            // room y is the scene's z
     o.visible = side > 0 ? b.min[k] / MM <= at : b.max[k] / MM >= at;
   });
+  if (cupboardOnly) scene.traverse(o => { if (o.isMesh && !cupboardPart(o)) o.visible = false; });
+}
+
+// Cupboard only: the corner cupboard on its own (the option's build, bar its
+// bench), with its dimensions, in the 3D and 2D views alike
+let cupboardOnly = false;
+function cupboardPart(o, withDoors = true) {
+  if (!current?.cupboard || o.material === benchMat) return false;
+  for (let p = o; p; p = p.parent) {
+    if (p.userData.bench || (!withDoors && p.userData.hinge)) return false;
+    if (p === current.cupboard) return true;
+  }
+  return false;
+}
+// In a 2D view, the cupboard on its own fills the screen, with room for its
+// dimensions round it
+function frameCupboard() {
+  if (!flat || !cupboardOnly || !current?.cupboard) return;
+  scene.updateMatrixWorld(true);
+  const b = new THREE.Box3();
+  current.cupboard.traverse(o => { if (o.isMesh && cupboardPart(o, false)) b.expandByObject(o); });
+  if (b.isEmpty()) return;
+  const c = b.getCenter(new THREE.Vector3()), size = b.getSize(new THREE.Vector3()), margin = 1.6;
+  const t = flatControls.target, shift = new THREE.Vector3();
+  if (flatView === 'plan') {
+    shift.set(c.x - t.x, 0, c.z - t.z);
+    flatFit = [size.x + margin, size.z + margin];
+  } else if (flatView === 'back' || flatView === 'front') {
+    shift.set(c.x - t.x, c.y - t.y, 0);
+    flatFit = [size.x + margin, size.y + margin];
+  } else {
+    shift.set(0, c.y - t.y, c.z - t.z);
+    flatFit = [size.z + margin, size.y + margin];
+  }
+  t.add(shift);
+  flatCamera.position.add(shift);
+  flatCamera.zoom = 1;
+  resize();
+  flatControls.update();
+}
+
+// The cupboard's dimensions, from its parts (bar its doors, which may be
+// open): along the back wall and out from it, the edges of its outline in
+// plan, and up, its height and its shelves'
+function cupboardDims(g) {
+  scene.updateMatrixWorld(true);
+  const boxes = [], shelfTops = [];
+  current.cupboard.traverse(o => {
+    if (!o.isMesh || o.material === glowMat || !cupboardPart(o, false)) return;
+    const b = new THREE.Box3().setFromObject(o);
+    boxes.push({ x0: b.min.x / MM, x1: b.max.x / MM, y0: b.min.z / MM, y1: b.max.z / MM, z0: b.min.y / MM, z1: b.max.y / MM });
+    // The cupboard's own shelves (as recorded with cupShelf()), not an open tower's beside it
+    for (let p = o.parent; p; p = p.parent) if (p === cupShelfGroup) { shelfTops.push(Math.round(b.max.y / MM)); break; }
+  });
+  if (!boxes.length) return;
+  const inside = (x, y) => boxes.some(b => x > b.x0 && x < b.x1 && y > b.y0 && y < b.y1);
+  const lo = k => Math.min(...boxes.map(b => b[k + '0'])), hi = k => Math.max(...boxes.map(b => b[k + '1']));
+  const [x0, x1, y0, y1, z1] = [lo('x'), hi('x'), lo('y'), hi('y'), hi('z')];
+  // An edge of the outline: on one side of it the plan is filled somewhere, on the other not
+  const edges = (k, from, to) => [...new Set(boxes.flatMap(b => [b[k + '0'], b[k + '1']]).map(Math.round))].filter(v => {
+    for (let t = from + 5; t < to; t += 20) {
+      const a = k === 'x' ? inside(v - 3, t) : inside(t, v - 3), b = k === 'x' ? inside(v + 3, t) : inside(t, v + 3);
+      if (a !== b) return true;
+    }
+    return false;
+  });
+  const along = edges('x', y0, y1), out = edges('y', x0, x1);
+  const heights = [0, ...shelfTops.filter(z => z > 60 && z < z1 - 40), z1];
+  // Each chain, and outside it the overall size, when it's in parts
+  const withTotal = (at, place, g) => {
+    chain(at, place, g);
+    const v = [...new Set(at.map(Math.round))];
+    if (v.length > 2) chain([Math.min(...v), Math.max(...v)], (u, off) => place(u, off + 330), g);
+  };
+  if (flatView === 'back') {
+    withTotal(along, (v, off) => P(v, y1, -200 - off), g);
+    withTotal(heights, (v, off) => P(x1 + 250 + off, y1, v), g);
+  } else if (flatView === 'left' || flatView === 'right') {
+    withTotal(out, (v, off) => P(x1, v, -200 - off), g);
+    withTotal(heights, (v, off) => P(x1, y1 + 250 + off, v), g);
+  } else {                                                      // the plan, and the 3D views
+    withTotal(along, (v, off) => P(v, y0 - 250 - off, z1), g);
+    withTotal(out, (v, off) => P(x0 - 250 - off, v, z1), g);
+    if (!flat) withTotal(heights, (v, off) => P(x1 + 250 + off, y0, v), g);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -2454,8 +2547,10 @@ function show(i) {
   scene.add(group);
   cupShelves = [];                                              // the option records its cupboard shelves as it's built
   pieces.dresser = pieces.larder = pieces.sofa = null;
-  current = { group, ...option.build(group) };
-  group.add(cupShelfGroup);                                     // drawn by drawStored(), round the things to store
+  const cupboard = new THREE.Group();                           // the option's own build: its cupboard (and bench)
+  group.add(cupboard);
+  current = { group, cupboard, ...option.build(cupboard) };
+  cupboard.add(cupShelfGroup);                                  // its shelves, drawn by drawStored(), round the things to store
   // The bench off: the options draw it (a bench top, or base cupboards), so
   // it's taken out again, with nothing above it; the TV's place is kept for
   // the sofa to face
@@ -2492,6 +2587,7 @@ function show(i) {
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
   drawStored();
+  if (cupboardOnly) updateDims();                                // its shelves are drawn now, to dimension
   writeAddress();
   update();
 }
@@ -2805,6 +2901,13 @@ sofaSlider.addEventListener('input', () => {
   show(shown);
   viewKit.refresh();
 });
+// Cupboard only: the rest of the room hidden, and the cupboard's dimensions shown
+document.getElementById('cupboardOnly').addEventListener('change', e => {
+  cupboardOnly = e.target.checked;
+  applyCut();
+  updateDims();
+  if (flat) viewKit.setView(viewKit.viewId || 'plan');          // framed for it, or for the room again
+});
 // The bench: drawn, or not (and nothing above it)
 const benchSwitch = document.getElementById('benchOn');
 benchSwitch.addEventListener('change', () => {
@@ -3018,6 +3121,7 @@ const viewKit = ViewKit.create({
       }
       resize();                                                 // applies the view's fit or field of view
       ctl.update();
+      frameCupboard();                                          // on its own, framed to fill the screen
     },
     isFlat: () => flat,
     resize: () => resize(),
