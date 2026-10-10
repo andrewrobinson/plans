@@ -1621,11 +1621,11 @@ function cornerCupboard(g, facing) {
 // ---------------------------------------------------------------------------
 const OPTIONS = [
   {
-    name: '1. Open shelves in the corner',
+    name: '1. Side cupboard with open shelves',
+    leftDepth: 360,                                    // meaningless without the left-wall cupboard: this deep, if there's none
     source: 'plans/room_3d.html',
     clearFrom: () => T,
     benchFrom: () => T,
-    summaryNoLeft: () => `No left-wall cupboard: just the bench, along the whole back wall. Bench ${W}, ${R} deep.`,
     summary: () => `Tall cupboard on the left wall with a ${F - 6 - R} full-height door. Above the bench, the corner (${T} × ${R}) is open shelving facing into the room. Bench ${W - T}, from x = ${T}, ${R} deep.`,
     build(g) {
       box(T, 0, 0, W, R, BENCH, benchMat, g);
@@ -2411,7 +2411,6 @@ currentSelect.addEventListener('change', () => show(Number(currentSelect.value))
 function withoutBench(text) {
   if (benchOn) return text;
   return text
-    .replace('just the bench, along the whole back wall.', 'nothing built.')
     .replace(/ ?Bench (shortened to )?\d+[^.;]*? deep(;[^.]*)?\./g, ' No bench, so nothing on the back wall.')
     .replace(/\. Base cupboards with \d+ doors under an oak top run on to the right-hand wall: [^.]*? deep\./, '. No base cupboards (no bench), so nothing on the back wall beyond.')
     .replace(/(upper cupboard|open shelves|shelves) on the bench/g, '$1 at bench height')
@@ -2425,6 +2424,7 @@ function withoutBench(text) {
 // the same one (a size changed) leaves the doors as they were.
 function show(i) {
   if (T === 0 && OPTIONS[i].needsLeft) i = i === 1 ? 0 : 6;     // 2 falls back to 1, 8 to 7
+  if (T === 0 && OPTIONS[i].leftDepth) setDepth(OPTIONS[i].leftDepth);   // an option that needs the left-wall cupboard gets one
   const option = OPTIONS[i];
   const same = i === shown && current;
   shown = i;
