@@ -189,61 +189,6 @@
     <button id="dims" data-mode="2d">Dimensions: on</button>
   </div>
   <div class="hint" id="hint"></div>
-  <details class="sec" id="secCupboard" open>
-    <summary>The corner cupboard</summary>
-    <div id="depthBlock">
-      <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
-      <input id="depth" type="range" min="290" max="800" step="10" value="290">
-    </div>
-    <div id="front" class="depth">Left-wall cupboard front:
-      <label><input type="radio" name="front" value="1200" checked> 1200</label>
-      <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
-    </div>
-    <label for="rear">Back-wall cupboard depth: <span id="rearValue">330</span></label>
-    <input id="rear" type="range" min="300" max="800" step="10" value="330">
-    <div id="wardBlock">
-      <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
-      <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
-      <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
-      <input id="ward" type="range" min="600" max="1400" step="50" value="900">
-      <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
-      <input id="tower" type="range" min="0" max="600" step="50" value="400">
-    </div>
-    <div id="upperBlock">
-      <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
-      <input id="upper" type="range" min="400" max="1200" step="50" value="700">
-    </div>
-    <div id="legBlock">
-      <label for="leg">Back-wall leg width: <span id="legValue">700</span></label>
-      <input id="leg" type="range" min="400" max="1200" step="50" value="700">
-    </div>
-    <div id="extraBlock">
-      <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
-      <input id="extra" type="range" min="300" max="900" step="50" value="500">
-    </div>
-  </details>
-  <details class="sec" id="secBench" open>
-    <summary>The back wall: bench, TV and shelves</summary>
-    <div id="above" class="depth">Above the bench:
-      <label><input type="radio" name="above" value="0"> Nothing</label>
-      <label><input type="radio" name="above" value="1"> Shelves</label>
-      <label><input type="radio" name="above" value="2"> TV</label>
-      <label><input type="radio" name="above" value="3" checked> TV and shelves</label>
-      <label><input type="radio" name="above" value="4"> TV and top shelf</label>
-    </div>
-    <div id="tvBlock">
-      <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
-      <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
-    </div>
-    <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
-    <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
-    <div id="bench" class="depth">Bench height:
-      <label><input type="radio" name="bench" value="700"> 700</label>
-      <label><input type="radio" name="bench" value="780" checked> 780</label>
-      <label><input type="radio" name="bench" value="800"> 800</label>
-      <label><input type="radio" name="bench" value="900"> 900</label>
-    </div>
-  </details>
   <details class="sec" id="secFrontWall" open>
     <summary>The front wall and the island</summary>
     <div id="islandBlock" class="depth">Kitchen island:
@@ -285,6 +230,61 @@
         <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
         <input id="sofaFront" type="range" min="1000" max="3500" step="50" value="1900">
       </div>
+    </div>
+  </details>
+  <details class="sec" id="secBench" open>
+    <summary>The back wall: bench, TV and shelves</summary>
+    <div id="above" class="depth">Above the bench:
+      <label><input type="radio" name="above" value="0"> Nothing</label>
+      <label><input type="radio" name="above" value="1"> Shelves</label>
+      <label><input type="radio" name="above" value="2"> TV</label>
+      <label><input type="radio" name="above" value="3" checked> TV and shelves</label>
+      <label><input type="radio" name="above" value="4"> TV and top shelf</label>
+    </div>
+    <div id="tvBlock">
+      <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
+      <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
+    </div>
+    <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
+    <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+    <div id="bench" class="depth">Bench height:
+      <label><input type="radio" name="bench" value="700"> 700</label>
+      <label><input type="radio" name="bench" value="780" checked> 780</label>
+      <label><input type="radio" name="bench" value="800"> 800</label>
+      <label><input type="radio" name="bench" value="900"> 900</label>
+    </div>
+  </details>
+  <details class="sec" id="secCupboard" open>
+    <summary>The corner cupboard</summary>
+    <div id="depthBlock">
+      <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
+      <input id="depth" type="range" min="290" max="800" step="10" value="290">
+    </div>
+    <div id="front" class="depth">Left-wall cupboard front:
+      <label><input type="radio" name="front" value="1200" checked> 1200</label>
+      <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
+    </div>
+    <label for="rear">Back-wall cupboard depth: <span id="rearValue">330</span></label>
+    <input id="rear" type="range" min="300" max="800" step="10" value="330">
+    <div id="wardBlock">
+      <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
+      <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
+      <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
+      <input id="ward" type="range" min="600" max="1400" step="50" value="900">
+      <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
+      <input id="tower" type="range" min="0" max="600" step="50" value="400">
+    </div>
+    <div id="upperBlock">
+      <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
+      <input id="upper" type="range" min="400" max="1200" step="50" value="700">
+    </div>
+    <div id="legBlock">
+      <label for="leg">Back-wall leg width: <span id="legValue">700</span></label>
+      <input id="leg" type="range" min="400" max="1200" step="50" value="700">
+    </div>
+    <div id="extraBlock">
+      <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
+      <input id="extra" type="range" min="300" max="900" step="50" value="500">
     </div>
   </details>
   <details class="sec" id="secDoors" open>
