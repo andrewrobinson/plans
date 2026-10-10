@@ -84,6 +84,12 @@
   .depth { margin: 0 0 8px; }
   #panel .depth label { display: inline; margin: 0 0 0 10px; font-weight: normal; }
   #panel #islandBlock label { display: block; margin: 2px 0 0 10px; }   /* long choices, one a line */
+  /* A switch: a checkbox drawn as a sliding toggle */
+  #panel label.switch { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; }
+  .switch input { appearance: none; margin: 0; width: 36px; height: 20px; border-radius: 10px; background: #bbb; position: relative; cursor: pointer; transition: background 0.15s; }
+  .switch input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 0.15s; }
+  .switch input:checked { background: #1f4e79; }
+  .switch input:checked::after { left: 18px; }
 
   #colours { margin: 10px 0 4px; }
   #colours .colhead { font-weight: bold; }
@@ -223,6 +229,14 @@
   </details>
   <details class="sec" id="secBench" open>
     <summary>The back wall: bench, TV and shelves</summary>
+    <label class="switch"><input type="checkbox" id="benchOn" checked> Bench</label>
+    <div id="benchDetails">
+    <div id="bench" class="depth">Bench height:
+      <label><input type="radio" name="bench" value="700"> 700</label>
+      <label><input type="radio" name="bench" value="780" checked> 780</label>
+      <label><input type="radio" name="bench" value="800"> 800</label>
+      <label><input type="radio" name="bench" value="900"> 900</label>
+    </div>
     <div id="above" class="depth">Above the bench:
       <label><input type="radio" name="above" value="0"> Nothing</label>
       <label><input type="radio" name="above" value="1"> Shelves</label>
@@ -236,11 +250,6 @@
     </div>
     <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
     <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
-    <div id="bench" class="depth">Bench height:
-      <label><input type="radio" name="bench" value="700"> 700</label>
-      <label><input type="radio" name="bench" value="780" checked> 780</label>
-      <label><input type="radio" name="bench" value="800"> 800</label>
-      <label><input type="radio" name="bench" value="900"> 900</label>
     </div>
   </details>
   <details class="sec" id="secCupboard" open>
@@ -935,6 +944,7 @@ function roomDoorGap() {
 // ---------------------------------------------------------------------------
 let above = 3;                     // starts with TV and shelves. 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
 let shelfDepth = 250;              // 150 to 400, from the slider
+let benchOn = true;                // the bench drawn, with what's above it; off, the back wall's bare
 const SHELF_T = 25, TV_GAP = 150;
 // Standard TV sizes in inches, with each TV's overall width and height in mm,
 // from LG UK's size guide (lg.com/uk, "How to measure and read TV sizes").
@@ -1239,7 +1249,10 @@ const PLINTH = 100, TOP_T = 30;                                  // kick plinth 
 
 // Base cupboards along the bench, x0 to W: a recessed plinth, doors about 450
 // wide hinged in pairs, and an oak top at BENCH. Returns how many doors.
-function baseCupboards(x0, g) {
+function baseCupboards(x0, parent) {
+  const g = new THREE.Group();                                   // the bench, to leave out when it's off
+  g.userData.bench = true;
+  parent.add(g);
   box(x0, 0, PLINTH, W, R - 18, BENCH - TOP_T, carcassMat, g);   // carcass behind the doors
   box(x0, 0, 0, W, R - 60, PLINTH, carcassMat, g);              // plinth, set back 60
   box(x0, 0, BENCH - TOP_T, W, R, BENCH, oakMat, g);            // top
@@ -2392,6 +2405,22 @@ currentSelect.innerHTML = OPTIONS.map((o, i) => `<option value="${i}">${o.name}<
 currentSelect.addEventListener('change', () => show(Number(currentSelect.value)));
 
 
+// An option's description, with the bench off: no bench (rather than its
+// length) and nothing on the back wall, and what stood on the bench at
+// bench height
+function withoutBench(text) {
+  if (benchOn) return text;
+  return text
+    .replace('just the bench, along the whole back wall.', 'nothing built.')
+    .replace(/ ?Bench (shortened to )?\d+[^.;]*? deep(;[^.]*)?\./g, ' No bench, so nothing on the back wall.')
+    .replace(/\. Base cupboards with \d+ doors under an oak top run on to the right-hand wall: [^.]*? deep\./, '. No base cupboards (no bench), so nothing on the back wall beyond.')
+    .replace(/(upper cupboard|open shelves|shelves) on the bench/g, '$1 at bench height')
+    .replace('level with the bench top', 'at bench height')
+    .replace(/, where it's clear of the \d+-deep bench (\(y [^)]*\))/, ' $1')
+    .replace(', behind the bench end.', '.')
+    .replace(/Above the bench, /g, 'Above bench height, ');
+}
+
 // Build option i. A new option starts with its second door shut; rebuilding
 // the same one (a size changed) leaves the doors as they were.
 function show(i) {
@@ -2406,12 +2435,21 @@ function show(i) {
   pieces.dresser = pieces.larder = pieces.sofa = null;
   current = { group, ...option.build(group) };
   group.add(cupShelfGroup);                                     // drawn by drawStored(), round the things to store
-  const aboveText = benchWall(option.clearFrom(), group) + frontWall(group, option, i) + sofa(group);
+  // The bench off: the options draw it (a bench top, or base cupboards), so
+  // it's taken out again, with nothing above it; the TV's place is kept for
+  // the sofa to face
+  if (!benchOn) {
+    const benches = [];
+    group.traverse(o => { if (o.userData.bench || (o.isMesh && o.material === benchMat)) benches.push(o); });
+    for (const o of benches) o.parent?.remove(o);
+    tvAt = [(option.clearFrom() + W) / 2, 0, TV_BOTTOM + TV_H / 2];
+  }
+  const aboveText = (benchOn ? benchWall(option.clearFrom(), group) : '') + frontWall(group, option, i) + sofa(group);
 
   [...currentSelect.options].forEach((o, j) => { o.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft); });
   currentSelect.value = String(i);
   document.getElementById('summary').innerHTML =
-    `${(T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary)()}${aboveText}<div class="src">From ${option.source}</div>`;
+    `${withoutBench((T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary)())}${aboveText}<div class="src">From ${option.source}</div>`;
   document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
   document.getElementById('upperBlock').style.display = i >= 2 && i <= 4 ? '' : 'none';
   document.getElementById('extraBlock').style.display = i === 4 ? '' : 'none';
@@ -2420,6 +2458,7 @@ function show(i) {
   document.getElementById('depthBlock').style.display = option.fixedWidth ? 'none' : '';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
+  document.getElementById('benchDetails').style.display = benchOn ? '' : 'none';
   const piece = option.corner ?? (i === CURRENT || islandOnWall() ? 'none' : frontPiece);   // the dresser or a larder, if either is drawn
   document.getElementById('frontBlock').style.display = i === CURRENT || option.corner || islandOnWall() ? 'none' : '';
   document.getElementById('dresserBlock').style.display = piece === 'dresser' ? '' : 'none';
@@ -2441,7 +2480,7 @@ function show(i) {
 // looking round
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
-  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}-${sofaSize.w}.${sofaSize.d}.${sofaSize.h}~${storedAddress()}`;
+  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}-${sofaSize.w}.${sofaSize.d}.${sofaSize.h}-${benchOn ? 1 : 0}~${storedAddress()}`;
 }
 let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
 function writeAddress(replace = false) {
@@ -2741,6 +2780,13 @@ sofaPick.addEventListener('change', () => {
 sofaSlider.addEventListener('input', () => {
   sofaFront = Number(sofaSlider.value);
   showSofa();
+  show(shown);
+  viewKit.refresh();
+});
+// The bench: drawn, or not (and nothing above it)
+const benchSwitch = document.getElementById('benchOn');
+benchSwitch.addEventListener('change', () => {
+  benchOn = benchSwitch.checked;
   show(shown);
   viewKit.refresh();
 });
@@ -3099,7 +3145,8 @@ const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
 // larder, and where the island is (0 where it is, 1 and 2 against the front
 // wall, short or long side out, 3 none)
 {
-  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn, benchIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  if (benchIn === '0') benchSwitch.checked = benchOn = false;   // the bench off (links from before have it)
   if (sofaIn === 'none' || Object.hasOwn(SOFAS, sofaIn ?? '')) sofaKey = sofaIn === 'none' ? '' : sofaIn;   // the sofa, if any, and its front from the TV wall
   if (Number(sofaFrontIn) >= 1000 && Number(sofaFrontIn) <= 3500) sofaFront = Number(sofaFrontIn);
   if (SOFAS[sofaKey]) sofaSize = sofaOwnSize(SOFAS[sofaKey]);
