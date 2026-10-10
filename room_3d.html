@@ -82,7 +82,7 @@
   #storedBlock { margin: 10px 0 4px; }
   #storedBlock .colhead { font-weight: bold; }
   #storedInfo { margin-top: 4px; }
-  #dresserPick, #storedBlock select { width: 100%; margin-top: 4px; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
+  #dresserPick, #larderPick, #storedBlock select { width: 100%; margin-top: 4px; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
@@ -147,6 +147,20 @@
   </div>
   <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
   <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+  <div id="islandBlock" class="depth">Kitchen island:
+    <label><input type="radio" name="islandAt" value="room" checked> Where it is</label>
+    <label><input type="radio" name="islandAt" value="long"> Against the front wall, long side out</label>
+    <label><input type="radio" name="islandAt" value="short"> Against the front wall, short side out</label>
+  </div>
+  <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
+    <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
+    <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
+    <label><input type="radio" name="frontPiece" value="none"> Nothing</label>
+  </div>
+  <div id="larderBlock">
+    <label for="larderPick">Larder</label>
+    <select id="larderPick"></select>
+  </div>
   <div id="dresserBlock">
     <label for="dresserPick">Dresser</label>
     <select id="dresserPick"></select>
@@ -260,9 +274,10 @@
   <div class="hint" id="hint"></div>
 </div>
 
-<!-- The room's views and dressers, for editing, and the kit that shows the views -->
+<!-- The room's views, dressers and larders, for editing, and the kit that shows the views -->
 <script src="room_3d.views.js"></script>
 <script src="room_3d.dressers.js"></script>
+<script src="room_3d.larders.js"></script>
 <script src="view_kit.js"></script>
 <script type="module">
 import * as THREE from 'three';
@@ -485,6 +500,7 @@ const OUTER = {
 }
 
 let deskChair = null;            // the office chair
+let islandGroup = null;          // the kitchen island
 const CHAIR_TURN = THREE.MathUtils.degToRad(-160);   // as it stands: facing back into the room, 20° towards the door
 // The kitchen and island as they are, as rough blocks in their real colours
 // for comparing with the cupboard options: an L of 590-deep units in the
@@ -594,9 +610,13 @@ const islandTopMat = material(0xd6a562);                                        
   face(alcove.depth, aTop - worktop, tileMat, a1, (worktop + aTop) / 2, D + alcove.depth / 2, [0, -Math.PI / 2]);   // its right side (the left is the kitchen recess's wall)
   face(alcove.depth, worktop, wallMat, a1, worktop / 2, D + alcove.depth / 2, [0, -Math.PI / 2]);
   face(a1 - a0, alcove.depth, tileMat, (a0 + a1) / 2, aTop, D + alcove.depth / 2, [Math.PI / 2, 0]);    // its top, facing down
-  const { x: ix, y: iy, width, length, top, overhang } = island;
-  box(ix + overhang, iy + overhang, 0, ix + width - overhang, iy + length - overhang, top - 40, islandMat, scene);   // the base, under the top
-  box(ix, iy, top - 40, ix + width, iy + length, top, islandTopMat, scene);                        // the oak top
+  // The island, in a group of its own so it can be moved (see placeIsland):
+  // drawn round its middle, its long side along y
+  const { width, length, top, overhang } = island;
+  islandGroup = new THREE.Group();
+  scene.add(islandGroup);
+  box(overhang - width / 2, overhang - length / 2, 0, width / 2 - overhang, length / 2 - overhang, top - 40, islandMat, islandGroup);   // the base, under the top
+  box(-width / 2, -length / 2, top - 40, width / 2, length / 2, top, islandTopMat, islandGroup);                                        // the oak top
 }
 
 // Room door: 760 x 44 x 1978, hinged at (0, 1400), opens into the room
@@ -1184,7 +1204,8 @@ function placeDresser() {
   DRESSER.x1 = DRESSER.x0 + DRESSER.w;
 }
 placeDresser();
-function dresser(g) {
+// where: where it stands, for the description (by default, on the front wall)
+function dresser(g, where = `on the front wall between the sink and the desk (x ${DRESSER.x0}-${DRESSER.x1})`) {
   // Its width is overall, with the top's 20 overhang each side, so the body is 40 narrower
   const { h, baseD, baseH, upperD, drawer } = DRESSER, x0 = DRESSER.x0 + 20, x1 = DRESSER.x1 - 20, w = DRESSER.w - 40;
   const yb = D - baseD, yu = D - upperD;                         // the fronts of the base and the upper part
@@ -1207,8 +1228,180 @@ function dresser(g) {
   box(x0 - 20, yu - 20, h - 40, x1 + 20, D, h, dresserMat, g);   // top, 20 proud
   const shelfTops = [1, 2, 3].map(k => Math.round(baseH + k * (h - 40 - baseH) / 4));   // evenly up the upper part
   for (const top of shelfTops) box(x0 + 18, yu, top - 22, x1 - 18, D - 12, top, shelfMat, g);
-  return ` A dresser on the front wall between the sink and the desk (x ${DRESSER.x0}-${DRESSER.x1}): ${DRESSER.w} wide overall (its body ${w}), ${h} high, ${baseD} deep up to ${baseH} ` +
+  return ` A dresser ${where}: ${DRESSER.w} wide overall (its body ${w}), ${h} high, ${baseD} deep up to ${baseH} ` +
     `(two drawers over two doors, under a wooden top), then ${upperD} deep with three open shelves.`;
+}
+
+// ---------------------------------------------------------------------------
+// Larders, from room_3d.larders.js. Drawn as the dresser is, with its back on
+// the front wall from x0, facing into the room (placePiece() turns either
+// into a corner). Its parts stack from the floor up. Returns its doors
+// (hinges, for an option's door slider) and a description.
+const LARDERS = window.ROOM_LARDERS?.list ?? {};
+let larderKey = Object.hasOwn(LARDERS, window.ROOM_LARDERS?.start ?? '') ? ROOM_LARDERS.start : Object.keys(LARDERS)[0];
+const partHeight = p => p.legs ?? p.plinth ?? p.top ?? p.cornice ?? p.h ?? 0;
+const larderHeight = L => L.parts.reduce((t, p) => t + partHeight(p), 0);
+const larderDepth = L => Math.max(L.d, ...L.parts.map(p => p.d ?? 0));
+function larder(g, L, x0) {
+  const x1 = x0 + L.w, doors = [];
+  let z = 0;
+  for (const p of L.parts) {
+    const h = partHeight(p), d = p.d ?? L.d, yf = D - d, z1 = z + h;   // yf: its front
+    if (p.legs) {
+      for (const x of [x0 + 20, x1 - 70]) for (const y of [yf + 20, D - 70]) box(x, y, z, x + 50, y + 50, z1, dresserMat, g);
+    } else if (p.plinth) {
+      box(x0 + 20, yf + 20, z, x1 - 20, D, z1, dresserMat, g);  // set back
+    } else if (p.top) {
+      box(x0 - 15, yf - 15, z, x1 + 15, D, z1, shelfMat, g);     // wooden, 15 proud
+    } else if (p.cornice) {
+      box(x0 - 20, yf - 20, z, x1 + 20, D, z1, dresserMat, g);   // 20 proud
+    } else if (p.drawers) {
+      const [rows, cols] = Array.isArray(p.drawers) ? p.drawers : [1, p.drawers];
+      box(x0, yf + 18, z, x1, D, z1, dresserMat, g);             // behind the fronts
+      const fw = (L.w - 3 * (cols + 1)) / cols, fh = (h - 3 * (rows + 1)) / rows;
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        const f0 = x0 + 3 + c * (fw + 3), b0 = z + 3 + r * (fh + 3), mx = f0 + fw / 2, mz = b0 + fh / 2;
+        box(f0, yf, b0, f0 + fw, yf + 18, b0 + fh, dresserDoorMat, g);
+        box(mx - 15, yf - 20, mz - 15, mx + 15, yf, mz + 15, handleMat, g, false);   // knob
+      }
+    } else if (p.doors) {
+      // A hollow cupboard (sides, back, bottom, top and shelves), so it
+      // shows inside with its doors open
+      box(x0, yf + 18, z, x0 + 18, D, z1, dresserMat, g);
+      box(x1 - 18, yf + 18, z, x1, D, z1, dresserMat, g);
+      box(x0 + 18, D - 12, z, x1 - 18, D, z1, dresserMat, g);
+      box(x0 + 18, yf + 18, z, x1 - 18, D - 12, z + 18, dresserMat, g);
+      box(x0 + 18, yf + 18, z1 - 18, x1 - 18, D - 12, z1, dresserMat, g);
+      const shelves = p.shelves ?? 0;
+      for (let k = 1; k <= shelves; k++) {
+        const top = Math.round(z + k * h / (shelves + 1)) + 11;
+        box(x0 + 18, yf + 40, top - 22, x1 - 18, D - 12, top, shelfMat, g);
+      }
+      // Facing it, your right is the lower x: a pair is hinged at the outer
+      // edges, a single door on the side its hinge says
+      const n = p.doors === 2 ? 2 : 1, dw = (L.w - 3 * (n + 1)) / n;
+      for (let k = 0; k < n; k++) {
+        const low = n === 2 ? k === 0 : p.hinge !== 'left';
+        const leaf = hinge(low ? x0 + 3 : x1 - 3, yf, g);
+        if (!low) leaf.userData.dir = -1;
+        box(low ? 0 : -dw, 0, z + 3, low ? dw : 0, 18, z1 - 3, dresserDoorMat, leaf);
+        const kx = low ? dw - 50 : 30 - dw, kz = n === 2 || h < 1000 ? (z + z1) / 2 : z + 150;   // knob by the free edge
+        box(kx, -20, kz - 10, kx + 20, 0, kz + 10, handleMat, leaf, false);
+        doors.push(leaf);
+      }
+    }
+    z = z1;
+  }
+  return { doors, text: `${L.label}: ${L.w} wide, ${larderHeight(L)} high, ${larderDepth(L)} deep` };
+}
+// The dresser and larders are drawn on the front wall from x0, w wide. In a
+// corner they're turned round into it: against the back wall, facing the
+// room ('back'), or against the left wall, facing the windows ('left').
+function placePiece(g, where, x0 = 0, w = 0) {
+  const sub = new THREE.Group();
+  g.add(sub);
+  if (where === 'back') {
+    sub.rotation.y = Math.PI;
+    sub.position.set((x0 + w) * MM, 0, D * MM);
+  } else if (where === 'left') {
+    sub.rotation.y = -Math.PI / 2;
+    sub.position.set(D * MM, 0, -x0 * MM);
+  }
+  return sub;
+}
+// On the front wall between the sink and the desk: the dresser, a larder or
+// nothing, in every option but the current room and those with the dresser
+// or a larder in the corner
+const FRONT_PIECES = ['dresser', 'larder', 'none'];
+let frontPiece = 'dresser';
+const pieces = { dresser: null, larder: null };   // where each is drawn now, to look at
+const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;
+const frontGap = () => DESK_RECESS.x0 - frontFrom();             // 1415
+const larderFrontX0 = L => Math.round(frontFrom() + (frontGap() - L.w) / 2);
+// Where the island stands, in any option: where it is ('room'), or against
+// the front wall between the sink and the desk, in place of the dresser or
+// larder, centred there, its long side along the wall ('long', long side
+// out) or its short side ('short', short side out)
+const ISLAND_AT = ['room', 'long', 'short'];
+let islandAt = 'room';
+function islandSpot() {
+  const { x, y, width, length } = KITCHEN.island;
+  if (islandAt === 'room') return { x0: x, x1: x + width, y0: y, y1: y + length, turned: false };
+  const along = islandAt === 'long' ? length : width, out = islandAt === 'long' ? width : length;
+  const x0 = Math.round(frontFrom() + (frontGap() - along) / 2);
+  return { x0, x1: x0 + along, y0: D - out, y1: D, turned: islandAt === 'long' };
+}
+function placeIsland() {
+  const { x0, x1, y0, y1, turned } = islandSpot();
+  islandGroup.position.set((x0 + x1) / 2 * MM, 0, (y0 + y1) / 2 * MM);
+  islandGroup.rotation.y = turned ? Math.PI / 2 : 0;
+}
+function frontWall(g, option, i) {
+  if (islandAt !== 'room') {
+    const { x0, x1, y0 } = islandSpot();
+    return ` The kitchen island against the front wall between the sink and the desk, its ${islandAt} side out (x ${x0}-${x1}), coming ${D - y0} out from the wall to y ${y0}.`;
+  }
+  if (i === CURRENT || option.corner) return '';
+  if (frontPiece === 'dresser') return dresser(pieces.dresser = placePiece(g, 'front'));
+  const L = LARDERS[larderKey];
+  if (frontPiece !== 'larder' || !L) return '';
+  const x0 = larderFrontX0(L);
+  const { text } = larder(pieces.larder = placePiece(g, 'front'), L, x0);
+  return ` A larder on the front wall between the sink and the desk (x ${x0}-${x0 + L.w}): the ${text}.` +
+    (L.w > frontGap() ? ` It's ${L.w - frontGap()} wider than the ${frontGap()} of wall there.` : '');
+}
+// The front-wall piece's span and heights, for the 2D dimensions
+function frontSpan() {
+  if (islandAt !== 'room') {
+    const { x0, x1 } = islandSpot();
+    return { x0, x1, heights: [0, KITCHEN.island.top] };
+  }
+  if (shown === CURRENT || OPTIONS[shown].corner) return null;
+  if (frontPiece === 'dresser') return { x0: DRESSER.x0, x1: DRESSER.x1, heights: [0, DRESSER.baseH, DRESSER.h] };
+  const L = LARDERS[larderKey];
+  if (frontPiece !== 'larder' || !L) return null;
+  return { x0: larderFrontX0(L), x1: larderFrontX0(L) + L.w, heights: [0, larderHeight(L)] };
+}
+// The dresser's or larder's footprint in a corner: w along the wall, d out
+// from it, with what stands proud (the dresser's top, a larder's cornice)
+function pieceSize(kind) {
+  if (kind === 'dresser') return { w: DRESSER.w, d: Math.max(DRESSER.baseD + 15, DRESSER.upperD + 20) };
+  const L = LARDERS[larderKey];
+  return L ? { w: L.w + 20, d: larderDepth(L) + 20 } : { w: 0, d: 0 };
+}
+// Options 12 to 15: the dresser or a larder as the corner cupboard, against
+// the back wall (facing the room) or the left wall (facing the windows),
+// with the bench from it to the right-hand wall, and the front wall clear
+function cornerPieceOption(n, kind, where) {
+  const wall = where === 'back' ? 'the back wall, facing the room' : 'the left wall, facing the windows';
+  const from = () => where === 'back' ? pieceSize(kind).w : pieceSize(kind).d;
+  return {
+    name: `${n}. ${kind === 'dresser' ? 'Dresser' : 'Larder'} as the corner cupboard, on the ${where} wall`,
+    source: `option ${n} (new)`,
+    corner: kind,
+    where,
+    fixedWidth: true,                                            // the left-wall cupboard's depth doesn't apply
+    clearFrom: from,
+    benchFrom: from,
+    summary: () => current?.text ?? '',
+    second: kind === 'larder' ? 'Larder doors' : undefined,
+    build(g) {
+      const x = from(), { w } = pieceSize(kind);
+      box(x, 0, 0, W, R, BENCH, benchMat, g);                    // bench, to the right-hand wall
+      let text, doors = [];
+      if (kind === 'dresser') {
+        text = dresser(pieces.dresser = placePiece(g, where, DRESSER.x0, DRESSER.w), `in the corner, against ${wall}`).trim();
+      } else {
+        const L = LARDERS[larderKey];
+        if (!L) return { text: 'No larders listed in room_3d.larders.js.' };
+        const x0 = larderFrontX0(L), made = larder(pieces.larder = placePiece(g, where, x0, L.w), L, x0);
+        doors = made.doors;
+        text = `A larder in the corner, against ${wall}: the ${made.text}.`;
+      }
+      if (where === 'left' && w > FRAME) text += ` At ${w} along the wall, it runs ${w - FRAME} past the door frame at ${FRAME}, into the doorway.`;
+      return { second: doors.length ? doors : undefined, text: `${text} Bench ${W - x}, from x = ${x}, ${R} deep.` };
+    },
+  };
 }
 
 // The open shelving tower, x0 to x1, full height, with a light strip under
@@ -1508,8 +1701,12 @@ const OPTIONS = [
     },
   },
 
+  cornerPieceOption(12, 'dresser', 'back'),
+  cornerPieceOption(13, 'dresser', 'left'),
+  cornerPieceOption(14, 'larder', 'back'),
+  cornerPieceOption(15, 'larder', 'left'),
   {
-    name: '12. Current room, no cupboards yet',
+    name: '16. Current room, no cupboards yet',
     source: 'the room as it is now',
     clearFrom: () => 0,                                           // what's above the bench goes on the bare back wall
     benchFrom: () => W,
@@ -1520,11 +1717,11 @@ const OPTIONS = [
   },
 ];
 // In the address each option keeps the code it was first given, so links made
-// before options 10 and 11 still work: 1 to 9 as numbered, 10 for the current
-// room (it was option 10), then 11 and 12 for options 10 and 11
+// before options 10 and on still work: 1 to 9 as numbered, 10 for the current
+// room (it was option 10), then 11 on for options 10 on
 const CURRENT = OPTIONS.length - 1;
 const optionCode = i => i < 9 ? i + 1 : i === CURRENT ? 10 : i + 2;
-const optionIndex = code => code >= 1 && code <= 9 ? code - 1 : code === 11 || code === 12 ? code - 2 : CURRENT;
+const optionIndex = code => code >= 1 && code <= 9 ? code - 1 : code >= 11 && code - 2 < CURRENT ? code - 2 : CURRENT;
 
 // ---------------------------------------------------------------------------
 // Dimensions for the 2D views, drawn from the current option and settings
@@ -1612,9 +1809,9 @@ function updateDims() {
     chain([0, BENCH, H], (v, off) => P(W, -250 - off, v), dims);
   } else if (flatView === 'front') {
     const { alcove, worktop } = KITCHEN;
-    const withDresser = shown !== OPTIONS.length - 1;
-    chain([RECESS_X, alcove.x[1], KITCHEN.frontRunTo + KITCHEN.counterPast, ...(withDresser ? [DRESSER.x0, DRESSER.x1] : []), DESK_RECESS.x0, W], (v, off) => P(v, D, -200 - off), dims);
-    if (withDresser) chain([0, DRESSER.baseH, DRESSER.h], (v, off) => P(DRESSER.x0 + 200 + off, D, v), dims);   // on the dresser's face
+    const piece = frontSpan();                                  // the dresser or larder on the front wall
+    chain([RECESS_X, alcove.x[1], KITCHEN.frontRunTo + KITCHEN.counterPast, ...(piece ? [piece.x0, piece.x1] : []), DESK_RECESS.x0, W], (v, off) => P(v, D, -200 - off), dims);
+    if (piece) chain(piece.heights, (v, off) => P(piece.x0 + 200 + off, D, v), dims);   // on its face
     chain([0, worktop, alcove.top, H], (v, off) => P(RECESS_X - 250 - off, D, v), dims);   // the kitchen side
     chain([0, DESK_TOP, DESK_TOP + 550, H], (v, off) => P(W + 250 + off, D, v), dims);     // the desk and monitor tops
   } else if (flatView === 'right') {
@@ -2069,9 +2266,10 @@ function show(i) {
   const group = new THREE.Group();
   scene.add(group);
   cupShelves = [];                                              // the option records its cupboard shelves as it's built
+  pieces.dresser = pieces.larder = null;
   current = { group, ...option.build(group) };
   group.add(cupShelfGroup);                                     // drawn by drawStored(), round the things to store
-  const aboveText = benchWall(option.clearFrom(), group) + (i === OPTIONS.length - 1 ? '' : dresser(group));
+  const aboveText = benchWall(option.clearFrom(), group) + frontWall(group, option, i);
 
   buttons.forEach((b, j) => {
     b.classList.toggle('on', i === j);
@@ -2089,7 +2287,10 @@ function show(i) {
   document.getElementById('depthBlock').style.display = option.fixedWidth ? 'none' : '';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
-  document.getElementById('dresserBlock').style.display = i === CURRENT ? 'none' : '';
+  const piece = option.corner ?? (i === CURRENT || islandAt !== 'room' ? 'none' : frontPiece);   // the dresser or a larder, if either is drawn
+  document.getElementById('frontBlock').style.display = i === CURRENT || option.corner || islandAt !== 'room' ? 'none' : '';
+  document.getElementById('dresserBlock').style.display = piece === 'dresser' ? '' : 'none';
+  document.getElementById('larderBlock').style.display = piece === 'larder' ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
   if (!same) secondSlider.value = 0;
   if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
@@ -2106,7 +2307,7 @@ function show(i) {
 // replace: change the address without adding to the history, as when
 // looking round
 function writeAddress(replace = false) {
-  const hash = `#${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}~${storedAddress()}~${viewKit.address()}`;
+  const hash = `#${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}~${storedAddress()}~${viewKit.address()}`;
   try {
     if (replace) history.replaceState(null, '', hash);
     else location.hash = hash;
@@ -2352,6 +2553,28 @@ dresserPick.addEventListener('change', () => {
   show(shown);
   viewKit.refresh();                                            // looking at the dresser: at it as it is now
 });
+// The island: where it is, or against the front wall
+document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListener('change', () => {
+  islandAt = r.value;
+  placeIsland();
+  show(shown);
+  viewKit.refresh();
+}));
+// On the front wall: the dresser, a larder or nothing; and which larder
+document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => {
+  frontPiece = r.value;
+  show(shown);
+  viewKit.refresh();
+}));
+const larderPick = document.getElementById('larderPick');
+larderPick.append(...Object.entries(LARDERS).map(([id, L]) =>
+  Object.assign(document.createElement('option'), { value: id, textContent: `${L.label} (${L.w} × ${larderHeight(L)})` })));
+larderPick.value = larderKey;
+larderPick.addEventListener('change', () => {
+  larderKey = larderPick.value;
+  show(shown);
+  viewKit.refresh();
+});
 tvSlider.addEventListener('input', () => {
   setTvSize(Number(tvSlider.value));
   show(shown);
@@ -2421,8 +2644,12 @@ function packingSpot() {
       return mid(CORNER_W / 2, F, 0, 1);
     case 10:                                                     // doors on its side, facing the windows
       return mid(CORNER_W, (R + F) / 2, 1, 0);
-    default:
-      return null;
+    default: {                                                   // the dresser or a larder in the corner: its front
+      const o = OPTIONS[shown];
+      if (!o?.corner) return null;
+      const { w, d } = pieceSize(o.corner);
+      return o.where === 'back' ? mid(w / 2, d, 0, 1) : mid(d, w / 2, 1, 0);
+    }
   }
 }
 function packingView() {
@@ -2441,8 +2668,16 @@ let flatPerM = null;               // the 2D views' scale, pixels per metre at z
 
 // Things to look at that move with the option or the sliders: where to aim,
 // room [x, y, height] in mm
+// The middle of what's drawn, room [x, y, height] in mm
+function middleOf(object) {
+  const c = new THREE.Box3().setFromObject(object).getCenter(new THREE.Vector3());
+  return [c.x / MM, c.z / MM, c.y / MM];
+}
 const anchors = {
-  dresser: () => [(DRESSER.x0 + DRESSER.x1) / 2, D - DRESSER.baseD / 2, DRESSER.h / 2],
+  // Wherever they are, else where they'd be on the front wall
+  dresser: () => pieces.dresser ? middleOf(pieces.dresser) : [(DRESSER.x0 + DRESSER.x1) / 2, D - DRESSER.baseD / 2, DRESSER.h / 2],
+  larder: () => pieces.larder ? middleOf(pieces.larder) : [frontFrom() + frontGap() / 2, D - 250, 1000],
+  island: () => middleOf(islandGroup),
   cupboard: () => {                                             // the middle of its door, else the corner
     const at = packingSpot();
     return at ? [at.x, at.y, 1200] : [400, 400, 1200];
@@ -2570,9 +2805,12 @@ document.getElementById('reset').addEventListener('click', () => {
 });
 
 // Current room: the room as it is now, as seen from the desk chair, with the
-// door open as in the photo taken there
+// door open as in the photo taken there, and the island where it is
 document.getElementById('currentRoom').addEventListener('click', () => {
   roomSlider.value = 100;
+  islandAt = 'room';
+  document.querySelector('input[name=islandAt][value="room"]').checked = true;
+  placeIsland();
   viewKit.setView('desk');
   show(OPTIONS.length - 1);
   if (narrow()) setMenu(false);
@@ -2622,6 +2860,19 @@ if (ralCupboard !== undefined && !Number.isNaN(ralCupboard) && setRal('cupboard'
 if (Number.isFinite(ralDresser) && setRal('dresser', ralDresser) !== null) refreshColours();
 // The dresser's sizes, as w.h.baseD.baseH.upperD (a number, so read from the text)
 const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
+// What's on the front wall (0 the dresser, 1 a larder, 2 nothing), which
+// larder, and where the island is (0 where it is, 1 and 2 against the front
+// wall, long or short side out)
+{
+  const [frontIn, larderIn, islandIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  if (ISLAND_AT[Number(islandIn)]) islandAt = ISLAND_AT[Number(islandIn)];
+  document.querySelector(`input[name=islandAt][value="${islandAt}"]`).checked = true;
+  placeIsland();
+  if (FRONT_PIECES[Number(frontIn)]) frontPiece = FRONT_PIECES[Number(frontIn)];
+  if (Object.hasOwn(LARDERS, larderIn ?? '')) larderKey = larderIn;
+  document.querySelector(`input[name=frontPiece][value="${frontPiece}"]`).checked = true;
+  larderPick.value = larderKey;
+}
 if (dresserText) dresserText.split('.').map(Number).forEach((v, k) => {
   const [key, , lo, hi] = DRESSER_SLIDERS[k] || [];
   if (key && v >= lo && v <= hi) setDresser({ [key]: v });

@@ -44,7 +44,9 @@ window.ROOM_VIEWS = {
   // have an `anchor` instead, worked out in room_3d.html.
   things: {
     monitors: { label: 'the monitors', at: [3026, 5486, 1200] },   // between the two screens
-    dresser:  { label: 'the dresser', anchor: 'dresser' },
+    dresser:  { label: 'the dresser', anchor: 'dresser' },        // on the front wall, or in the corner
+    larder:   { label: 'the larder', anchor: 'larder' },          // likewise
+    island:   { label: 'the island', anchor: 'island' },          // wherever it stands
     sink:     { label: 'the kitchen sink', at: [150, 5446, 894] },
     fridge:   { label: 'the fridge', at: [-405, 2701, 1200] },      // the middle of its front
     door:     { label: 'the door', at: [0, 1780, 989] },            // the doorway's middle
