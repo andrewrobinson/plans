@@ -67,7 +67,7 @@ The kitchen and island are rough blocks in their real colours: units in Clerkenw
 
 Its sizes below are where its sliders start. The menu's **Dresser** dropdown sets them to a listed dresser (the first estimate, the Chester Large Dresser: 1370 wide, 1940 high, base 410 deep and 830 high, upper part 340 deep, or the Inglesham Small Dresser: 1000 wide, 1930 high, 420 deep throughout, base 830 high); the list is in `room_3d.dressers.js`, for editing.
 
-**Option 1** is now the *side cupboard with open shelves* (it was *open shelves in the corner*): with no left-wall cupboard it means nothing, so choosing it (or a link to it) with none gives a 360-deep one.
+**Options 1 and 2** are now the *side cupboard with open shelves* and the *side cupboard with door above bench* (they were *open shelves in the corner* and *door over the corner shelves*): with no left-wall cupboard they mean nothing, so choosing one (or a link to one) with none gives a 360-deep one.
 
 **The bench** can be left out, in any option (the **Bench** switch, first in the menu's back wall section, then the bench height): with it off, the bench (or option 9's base cupboards) isn't drawn, and nor is anything above it (TV and shelves), whose settings hide till it's on again. The options' descriptions then say there's no bench, and what stood on it (options 3 to 5's upper cupboard or shelves) is at bench height with nothing under it.
 
