@@ -259,7 +259,7 @@
     <label class="switch" title="Hide the rest of the room and show the cupboard's dimensions"><input type="checkbox" id="cupboardOnly"> Cupboard only, with dimensions</label>
     <div id="depthBlock">
       <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
-      <input id="depth" type="range" min="290" max="800" step="10" value="290">
+      <input id="depth" type="range" min="290" max="800" step="1" value="290">
     </div>
     <div id="front" class="depth">Left-wall cupboard front:
       <label><input type="radio" name="front" value="1200" checked> 1200</label>
@@ -286,9 +286,9 @@
     </div>
     <div id="legBlock">
       <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
-      <input id="leg" type="range" min="400" max="1200" step="50" value="600">
+      <input id="leg" type="range" min="400" max="1200" step="1" value="600">
       <label for="legD">Single-door cupboard depth: <span id="legDValue">600</span></label>
-      <input id="legD" type="range" min="330" max="1000" step="10" value="600">
+      <input id="legD" type="range" min="330" max="1000" step="1" value="600">
     </div>
     <div id="extraBlock">
       <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
@@ -2119,21 +2119,24 @@ function cupboardDims(g) {
 // after "~".
 // ---------------------------------------------------------------------------
 const STORED = [
-  { name: 'Drying racks (2)', label: 'Racks', w: 800, d: 300, h: 700, colour: 0x7b5ea7 },   // 2 of 800 x 100, side by side; purple, to stand out from the cupboard
+  { name: 'Rack 1', label: 'Rack 1', w: 800, d: 100, h: 700, colour: 0x7b5ea7 },   // a drying rack; purple, to stand out from the cupboard
   { name: 'Folding ladder', label: 'Ladder', w: 380, d: 220, h: 1200, colour: 0xaab0b6 },
   { name: 'Long ladder', label: 'Long ladder', w: 520, d: 100, h: 1620, colour: 0x8a9199 },
   { name: 'Mop', label: 'Mop', w: 400, d: 320, h: 1200, colour: 0x4f86b8 },
   { name: 'Dustpan and hoover', label: 'Hoover', w: 320, d: 280, h: 1000, colour: 0xb8473a },
   { name: 'Yellow tub', label: 'Tub', w: 550, d: 550, h: 450, colour: 0xf2c230, round: true },   // 550 across
+  // Last, so addresses from when the two racks were one block (first) still read right
+  { name: 'Rack 2', label: 'Rack 2', w: 800, d: 100, h: 700, colour: 0x9b7fd0 },   // the other drying rack, a lighter purple
 ];
 // The tightest packings, found by trying every order and turn: [x, y, turned]
-// for each thing in STORED's order, from the packing's back left corner. The
-// footprints come to 0.90 m².
+// for each thing in STORED's order, from the packing's back left corner.
+// They were found with the two racks as one 800 × 300 block; the racks now
+// stand 150 apart within it.
 const PACKINGS = [
-  { name: '850 × 1090, the tightest', at: [[550, 280, 1], [100, 0, 0], [0, 0, 1], [100, 220, 0], [500, 0, 0], [0, 540, 0]] },
-  { name: '860 × 1080', at: [[550, 280, 1], [0, 0, 1], [0, 400, 0], [220, 0, 1], [540, 0, 0], [0, 500, 0]] },
-  { name: '700 × 1370, no side over 700', at: [[0, 0, 1], [300, 0, 0], [0, 800, 1], [300, 220, 0], [300, 540, 0], [100, 820, 0]] },
-  { name: '580 × 1770, no side over 600', at: [[0, 0, 1], [300, 0, 1], [0, 800, 0], [0, 900, 0], [300, 380, 1], [0, 1220, 0]] },
+  { name: '850 × 1090, the tightest', at: [[550, 280, 1], [100, 0, 0], [0, 0, 1], [100, 220, 0], [500, 0, 0], [0, 540, 0], [700, 280, 1]] },
+  { name: '860 × 1080', at: [[550, 280, 1], [0, 0, 1], [0, 400, 0], [220, 0, 1], [540, 0, 0], [0, 500, 0], [700, 280, 1]] },
+  { name: '700 × 1370, no side over 700', at: [[0, 0, 1], [300, 0, 0], [0, 800, 1], [300, 220, 0], [300, 540, 0], [100, 820, 0], [150, 0, 1]] },
+  { name: '580 × 1770, no side over 600', at: [[0, 0, 1], [300, 0, 1], [0, 800, 0], [0, 900, 0], [300, 380, 1], [0, 1220, 0], [150, 0, 1]] },
 ];
 const sizeOf = (k, turned) => turned ? [STORED[k].d, STORED[k].w] : [STORED[k].w, STORED[k].d];
 const storedState = STORED.map(() => ({ x: 0, y: 0, turned: false }));
@@ -2372,6 +2375,12 @@ function readStoredAddress(text) {
     const [x, y, turned] = spot.split('.').map(Number);
     if (storedState[k] && Number.isFinite(x) && Number.isFinite(y)) Object.assign(storedState[k], { x, y, turned: turned === 1 });
   });
+  // From when the two racks were one 800 × 300 block: rack 2 stands beside
+  // rack 1, 150 on, within it
+  if (storedWhere === 2 && spots.length < STORED.length) {
+    const r = storedState[0];
+    Object.assign(storedState[STORED.length - 1], { x: r.x + (r.turned ? 150 : 0), y: r.y + (r.turned ? 0 : 150), turned: r.turned });
+  }
 }
 document.getElementById('storedToggle').addEventListener('click', () => {
   showStored = !showStored;

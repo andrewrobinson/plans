@@ -182,7 +182,7 @@ The corner cupboard's inside, for each option (shelves are cut back as above; be
 
 | Thing | Footprint (along x × along y, in the 850 × 1090 packing) | Height | Colour | Notes |
 | --- | --- | --- | --- | --- |
-| Drying racks, 2 | 300 × 800 (turned) | 700 | `#7B5EA7`, purple (to stand out from the cupboard) | Each 800 wide × 700 high × 100 thick; they can't stack, so they're one block 300 thick |
+| Rack 1 and Rack 2 (drying racks) | 800 × 100 each | 700 | `#7B5EA7` and `#9B7FD0`, purples (to stand out from the cupboard) | Placed and turned apart; Rack 2 is last in the address, so links from when they were one 800 × 300 block put it beside Rack 1, within the block |
 | Folding ladder | 380 × 220 | 1200 | `#AAB0B6`, aluminium | |
 | Long ladder | 100 × 520 (turned) | 1620 | `#8A9199`, darker aluminium | The tallest thing |
 | Mop | 400 × 320 | 1200 | `#4F86B8`, blue | |
