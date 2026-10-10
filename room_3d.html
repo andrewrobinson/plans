@@ -3014,10 +3014,11 @@ const builtInViews = {
 };
 
 // Packing: standing back from the corner cupboard's door (PACK_BACK, below),
-// eyes at standing height, looking in and down a little, with its doors open to 90°.
+// eyes at standing height, looking in and down a little, with its doors open wide.
 // Where that is depends on the option, so it's worked out when chosen.
-// Returns the middle of the door opening, the way out of it, and which
-// door it is ('tall' the left-wall cupboard's, else the option's second).
+// Returns the middle of the door opening (or for an L, its inside corner),
+// the way out of it, and which door it is ('tall' the left-wall
+// cupboard's, else the option's second).
 function packingSpot() {
   const mid = (x, y, nx, ny, door = 'second') => ({ x, y, nx, ny, door });
   switch (shown) {
@@ -3025,14 +3026,14 @@ function packingSpot() {
       return T ? mid(T, (R + F) / 2, 1, 0, 'tall') : null;
     case 5:                                                      // the left-wall leg's door, else the lower door
       return T ? mid(T, (R + F) / 2, 1, 0, 'tall') : mid(350, R, 0, 1);
-    case 6:                                                      // the back-wall leg's door
-      return mid(T + LEG / 2, LEG_D, 0, 1);
+    case 6:                                                      // the L's inside corner, to see into both legs; else the back-wall leg's door
+      return T ? mid(T, LEG_D, Math.SQRT1_2, Math.SQRT1_2) : mid(T + LEG / 2, LEG_D, 0, 1);
     case 7: {                                                    // the diagonal doors
       const { ux, uy } = diagonal();
       return mid(T + 350, (F + R) / 2, -uy, ux);
     }
-    case 8:                                                      // the double doors
-      return mid(T + WARD / 2, WARD_D, 0, 1);
+    case 8:                                                      // likewise the L's inside corner, else the double doors
+      return T ? mid(T, WARD_D, Math.SQRT1_2, Math.SQRT1_2) : mid(T + WARD / 2, WARD_D, 0, 1);
     case 9:                                                      // doors on its end, facing the kitchen
       return mid(CORNER_W / 2, F, 0, 1);
     case 10:                                                     // doors on its side, facing the windows
