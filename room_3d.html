@@ -248,8 +248,10 @@
       <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
       <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
     </div>
-    <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
-    <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+    <div id="shelfBlock">
+      <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
+      <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+    </div>
     </div>
   </details>
   <details class="sec" id="secCupboard" open>
@@ -1739,7 +1741,7 @@ const OPTIONS = [
     },
   },
   {
-    name: '7. Full-height L, bench from the L',
+    name: '7. Full-height L-shaped cupboard',
     source: 'plan3/room_3d.html',
     clearFrom: () => T + LEG,
     benchFrom: () => T + LEG,
@@ -2462,6 +2464,7 @@ function show(i) {
   document.getElementById('depthBlock').style.display = option.fixedWidth ? 'none' : '';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
+  document.getElementById('shelfBlock').style.display = above === 1 || above >= 3 ? '' : 'none';   // only with shelves above the bench
   document.getElementById('benchDetails').style.display = benchOn ? '' : 'none';
   const piece = option.corner ?? (i === CURRENT || islandOnWall() ? 'none' : frontPiece);   // the dresser or a larder, if either is drawn
   document.getElementById('frontBlock').style.display = i === CURRENT || option.corner || islandOnWall() ? 'none' : '';
