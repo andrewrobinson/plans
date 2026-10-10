@@ -28,6 +28,7 @@ window.ROOM_VIEWS = {
   // - cannotSee: things not to offer from here.
   // - arrive: something the room does when you get here (see the actions
   //   in room_3d.html).
+  // - anchor: instead of `at`, worked out in room_3d.html, for places that move.
   places: {
     desk:   { label: 'Seated at the desk', at: [3026, 4599], posture: 'sit', chair: true },
     // Back to each window, centred on it and just clear of its radiator
@@ -35,6 +36,9 @@ window.ROOM_VIEWS = {
     window2: { label: 'Back to window 2 (middle)', at: [3500, 2907], posture: 'stand', cannotSee: ['window2'] },
     window3: { label: 'Back to window 3 (desk end)', at: [3500, 4598], posture: 'stand', cannotSee: ['window3'] },
     island: { label: 'Beside the island', at: [2150, 3571], posture: 'stand' },      // halfway along its room side, 370 clear of it
+    // On the sofa, if there is one (see room_3d.sofas.js): where it is, worked
+    // out in room_3d.html, as it moves with the TV and its slider
+    sofa:   { label: 'Sitting on the sofa', anchor: 'sofaSeat', posture: 'sit', cannotSee: ['sofa'] },
     // The door's shut behind you, as open it stands in the room in front of you
     door:   { label: 'In the doorway, walking in', at: [150, 1780], posture: 'stand', cannotSee: ['door'], arrive: 'shutRoomDoor' },
   },
@@ -47,6 +51,7 @@ window.ROOM_VIEWS = {
     dresser:  { label: 'the dresser', anchor: 'dresser' },        // on the front wall, or in the corner
     larder:   { label: 'the larder', anchor: 'larder' },          // likewise
     island:   { label: 'the island', anchor: 'island' },          // wherever it stands
+    sofa:     { label: 'the sofa', anchor: 'sofa' },              // if there is one
     sink:     { label: 'the kitchen sink', at: [150, 5446, 894] },
     fridge:   { label: 'the fridge', at: [-405, 2701, 1200] },      // the middle of its front
     door:     { label: 'the door', at: [0, 1780, 989] },            // the doorway's middle

@@ -36,7 +36,8 @@
   //   config: the room's data (eyes, places, things, views, startView, look)
   //   builtIn: { id: view } the room's own views, in scene metres; those
   //     with `fit` are 2D, for the room's code to place (see hooks.place)
-  //   anchors: { name: () => [x, y, height] } things that move, in mm
+  //   anchors: { name: () => [x, y, height] } things that move, in mm (or
+  //     [x, y] for places that move)
   //   computed: { name: () => view } views worked out when chosen, in scene metres
   //   actions: { name: () => {} } things a place does when you arrive (its `arrive`)
   //   chair: { object, rest, eyes } a swivel chair: the object to turn, its
@@ -102,7 +103,7 @@
     function lookView(placeId, thingId) {
       const place = PLACES[placeId], [tx, ty, th] = thingAt(thingId);
       if (place.arrive) actions[place.arrive]?.();
-      let [x, y] = place.at, chairTurn;
+      let [x, y] = place.anchor ? anchors[place.anchor]() : place.at, chairTurn;
       if (place.chair && chair) {
         chairTurn = Math.atan2(tx - x, ty - y);                 // the chair's front is its +y, turned by this from the room's
         x += chair.eyes * Math.sin(chairTurn);

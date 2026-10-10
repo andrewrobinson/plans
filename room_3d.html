@@ -82,7 +82,7 @@
   #storedBlock { margin: 10px 0 4px; }
   #storedBlock .colhead { font-weight: bold; }
   #storedInfo { margin-top: 4px; }
-  #dresserPick, #larderPick, #storedBlock select { width: 100%; margin-top: 4px; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
+  #dresserPick, #larderPick, #sofaPick, #storedBlock select { width: 100%; margin-top: 4px; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
   #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
   #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
   #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
@@ -147,6 +147,14 @@
   </div>
   <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
   <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+  <div id="sofaBlock">
+    <label for="sofaPick">Sofa, facing the TV</label>
+    <select id="sofaPick"></select>
+    <div id="sofaFrontBlock">
+      <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
+      <input id="sofaFront" type="range" min="1000" max="3500" step="50" value="1900">
+    </div>
+  </div>
   <div id="islandBlock" class="depth">Kitchen island:
     <label><input type="radio" name="islandAt" value="room" checked> Where it is</label>
     <label><input type="radio" name="islandAt" value="long"> Against the front wall, long side out</label>
@@ -274,10 +282,11 @@
   <div class="hint" id="hint"></div>
 </div>
 
-<!-- The room's views, dressers and larders, for editing, and the kit that shows the views -->
+<!-- The room's views, dressers, larders and sofas, for editing, and the kit that shows the views -->
 <script src="room_3d.views.js"></script>
 <script src="room_3d.dressers.js"></script>
 <script src="room_3d.larders.js"></script>
+<script src="room_3d.sofas.js"></script>
 <script src="view_kit.js"></script>
 <script type="module">
 import * as THREE from 'three';
@@ -1314,7 +1323,7 @@ function placePiece(g, where, x0 = 0, w = 0) {
 // or a larder in the corner
 const FRONT_PIECES = ['dresser', 'larder', 'none'];
 let frontPiece = 'dresser';
-const pieces = { dresser: null, larder: null };   // where each is drawn now, to look at
+const pieces = { dresser: null, larder: null, sofa: null };   // where each is drawn now, to look at
 const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;
 const frontGap = () => DESK_RECESS.x0 - frontFrom();             // 1415
 const larderFrontX0 = L => Math.round(frontFrom() + (frontGap() - L.w) / 2);
@@ -1335,6 +1344,34 @@ function placeIsland() {
   const { x0, x1, y0, y1, turned } = islandSpot();
   islandGroup.position.set((x0 + x1) / 2 * MM, 0, (y0 + y1) / 2 * MM);
   islandGroup.rotation.y = turned ? Math.PI / 2 : 0;
+}
+// A sofa from room_3d.sofas.js, in any option: facing the TV, centred on it,
+// its front sofaFront from the TV wall. Returns a description.
+const SOFAS = window.ROOM_SOFAS?.list ?? {};
+let sofaKey = Object.hasOwn(SOFAS, window.ROOM_SOFAS?.start ?? '') ? ROOM_SOFAS.start : '';
+let sofaFront = window.ROOM_SOFAS?.front ?? 1900;
+const sofaMat = material(0x9da3a6);
+function sofaSpot() {
+  const S = SOFAS[sofaKey], cx = (tvAt ?? [W / 2])[0];
+  const x0 = Math.round(cx - S.w / 2);
+  return { S, x0, x1: x0 + S.w, y0: sofaFront, y1: sofaFront + S.d };
+}
+function sofa(g) {
+  if (!SOFAS[sofaKey]) return '';
+  const { S, x0, x1, y0, y1 } = sofaSpot(), sub = new THREE.Group(), cushion = 150;
+  g.add(sub);
+  pieces.sofa = sub;
+  sofaMat.color.set(S.colour ?? '#9DA3A6');
+  for (const x of [x0 + 40, x1 - 90]) for (const y of [y0 + 40, y1 - 90]) box(x, y, 0, x + 50, y + 50, S.legH, shelfMat, sub);   // wooden legs
+  box(x0 + S.armW, y0 + 20, S.legH, x1 - S.armW, y1, S.seatH - cushion, sofaMat, sub);   // the frame under the seat
+  const inner = x1 - x0 - 2 * S.armW, half = (inner - 10) / 2;                            // two seat cushions
+  for (const k of [0, 1]) box(x0 + S.armW + k * (half + 10), y0, S.seatH - cushion, x0 + S.armW + k * (half + 10) + half, y0 + S.seatD, S.seatH, sofaMat, sub);
+  box(x0, y0, S.legH, x0 + S.armW, y1, S.armH, sofaMat, sub);    // arms
+  box(x1 - S.armW, y0, S.legH, x1, y1, S.armH, sofaMat, sub);
+  box(x0 + S.armW, y0 + S.seatD, S.seatH - cushion, x1 - S.armW, y1, S.h, sofaMat, sub);   // the back
+  const { x0: ix0, x1: ix1, y0: iy0, y1: iy1 } = islandSpot();
+  const island = x0 < ix1 && x1 > ix0 && y1 > iy0 && y0 < iy1 ? ' It runs into the island.' : x0 < ix1 && x1 > ix0 && iy0 >= y1 ? ` Behind it, ${iy0 - y1} to the island.` : '';
+  return ` A sofa facing the TV, the ${S.label}: ${S.w} wide, ${S.d} deep, ${S.h} high, its seat at ${S.seatH}. Its front is ${y0} from the TV wall (x ${x0}-${x1}, y ${y0}-${y1}).${island}`;
 }
 function frontWall(g, option, i) {
   if (islandAt !== 'room') {
@@ -2266,10 +2303,10 @@ function show(i) {
   const group = new THREE.Group();
   scene.add(group);
   cupShelves = [];                                              // the option records its cupboard shelves as it's built
-  pieces.dresser = pieces.larder = null;
+  pieces.dresser = pieces.larder = pieces.sofa = null;
   current = { group, ...option.build(group) };
   group.add(cupShelfGroup);                                     // drawn by drawStored(), round the things to store
-  const aboveText = benchWall(option.clearFrom(), group) + frontWall(group, option, i);
+  const aboveText = benchWall(option.clearFrom(), group) + frontWall(group, option, i) + sofa(group);
 
   buttons.forEach((b, j) => {
     b.classList.toggle('on', i === j);
@@ -2307,7 +2344,7 @@ function show(i) {
 // replace: change the address without adding to the history, as when
 // looking round
 function writeAddress(replace = false) {
-  const hash = `#${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}~${storedAddress()}~${viewKit.address()}`;
+  const hash = `#${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}~${storedAddress()}~${viewKit.address()}`;
   try {
     if (replace) history.replaceState(null, '', hash);
     else location.hash = hash;
@@ -2553,6 +2590,29 @@ dresserPick.addEventListener('change', () => {
   show(shown);
   viewKit.refresh();                                            // looking at the dresser: at it as it is now
 });
+// The sofa: none, or one from the list, and how far its front is from the TV wall
+const sofaPick = document.getElementById('sofaPick'), sofaSlider = document.getElementById('sofaFront');
+sofaPick.append(Object.assign(document.createElement('option'), { value: '', textContent: 'None' }),
+  ...Object.entries(SOFAS).map(([id, S]) => Object.assign(document.createElement('option'), { value: id, textContent: `${S.label} (${S.w} × ${S.d})` })));
+function showSofa() {
+  sofaPick.value = sofaKey;
+  sofaSlider.value = sofaFront;
+  document.getElementById('sofaFrontValue').textContent = sofaFront;
+  document.getElementById('sofaFrontBlock').style.display = sofaKey ? '' : 'none';
+}
+showSofa();
+sofaPick.addEventListener('change', () => {
+  sofaKey = sofaPick.value;
+  showSofa();
+  show(shown);
+  viewKit.refresh();
+});
+sofaSlider.addEventListener('input', () => {
+  sofaFront = Number(sofaSlider.value);
+  showSofa();
+  show(shown);
+  viewKit.refresh();
+});
 // The island: where it is, or against the front wall
 document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListener('change', () => {
   islandAt = r.value;
@@ -2678,6 +2738,13 @@ const anchors = {
   dresser: () => pieces.dresser ? middleOf(pieces.dresser) : [(DRESSER.x0 + DRESSER.x1) / 2, D - DRESSER.baseD / 2, DRESSER.h / 2],
   larder: () => pieces.larder ? middleOf(pieces.larder) : [frontFrom() + frontGap() / 2, D - 250, 1000],
   island: () => middleOf(islandGroup),
+  sofa: () => pieces.sofa ? middleOf(pieces.sofa) : [W / 2, 2400, 500],
+  // Sitting on it: in the middle, eyes over the back of the seat
+  sofaSeat: () => {
+    if (!SOFAS[sofaKey]) return [W / 2, 2500];
+    const { S, x0, x1, y0 } = sofaSpot();
+    return [(x0 + x1) / 2, y0 + S.seatD - 100];
+  },
   cupboard: () => {                                             // the middle of its door, else the corner
     const at = packingSpot();
     return at ? [at.x, at.y, 1200] : [400, 400, 1200];
@@ -2864,7 +2931,10 @@ const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
 // larder, and where the island is (0 where it is, 1 and 2 against the front
 // wall, long or short side out)
 {
-  const [frontIn, larderIn, islandIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  if (sofaIn === 'none' || Object.hasOwn(SOFAS, sofaIn ?? '')) sofaKey = sofaIn === 'none' ? '' : sofaIn;   // the sofa, if any, and its front from the TV wall
+  if (Number(sofaFrontIn) >= 1000 && Number(sofaFrontIn) <= 3500) sofaFront = Number(sofaFrontIn);
+  showSofa();
   if (ISLAND_AT[Number(islandIn)]) islandAt = ISLAND_AT[Number(islandIn)];
   document.querySelector(`input[name=islandAt][value="${islandAt}"]`).checked = true;
   placeIsland();
