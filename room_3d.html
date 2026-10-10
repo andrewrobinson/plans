@@ -156,9 +156,10 @@
     </div>
   </div>
   <div id="islandBlock" class="depth">Kitchen island:
-    <label><input type="radio" name="islandAt" value="room" checked> Where it is</label>
-    <label><input type="radio" name="islandAt" value="long"> Against the front wall, long side out</label>
-    <label><input type="radio" name="islandAt" value="short"> Against the front wall, short side out</label>
+    <label><input type="radio" name="islandAt" value="room" checked> Out there</label>
+    <label><input type="radio" name="islandAt" value="out"> Against the front wall, long side out</label>
+    <label><input type="radio" name="islandAt" value="along"> Against the front wall, short side out</label>
+    <label><input type="radio" name="islandAt" value="none"> None</label>
   </div>
   <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
     <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
@@ -1329,21 +1330,25 @@ const frontGap = () => DESK_RECESS.x0 - frontFrom();             // 1415
 const larderFrontX0 = L => Math.round(frontFrom() + (frontGap() - L.w) / 2);
 // Where the island stands, in any option: where it is ('room'), or against
 // the front wall between the sink and the desk, in place of the dresser or
-// larder, centred there, its long side along the wall ('long', long side
-// out) or its short side ('short', short side out)
-const ISLAND_AT = ['room', 'long', 'short'];
+// larder: its end against the wall and its long side running out into the
+// room, against the end of the kitchen counter ('out', long side out), or
+// its long side along the wall, centred there ('along', short side out); or
+// not there at all ('none'). Their order is their code in the address.
+const ISLAND_AT = ['room', 'along', 'out', 'none'];
 let islandAt = 'room';
+const islandOnWall = () => islandAt === 'along' || islandAt === 'out';   // in the dresser or larder's place
 function islandSpot() {
   const { x, y, width, length } = KITCHEN.island;
   if (islandAt === 'room') return { x0: x, x1: x + width, y0: y, y1: y + length, turned: false };
-  const along = islandAt === 'long' ? length : width, out = islandAt === 'long' ? width : length;
-  const x0 = Math.round(frontFrom() + (frontGap() - along) / 2);
-  return { x0, x1: x0 + along, y0: D - out, y1: D, turned: islandAt === 'long' };
+  const along = islandAt === 'along' ? length : width, out = islandAt === 'along' ? width : length;
+  const x0 = islandAt === 'along' ? Math.round(frontFrom() + (frontGap() - along) / 2) : frontFrom();
+  return { x0, x1: x0 + along, y0: D - out, y1: D, turned: islandAt === 'along' };
 }
 function placeIsland() {
   const { x0, x1, y0, y1, turned } = islandSpot();
   islandGroup.position.set((x0 + x1) / 2 * MM, 0, (y0 + y1) / 2 * MM);
   islandGroup.rotation.y = turned ? Math.PI / 2 : 0;
+  islandGroup.visible = islandAt !== 'none';
 }
 // A sofa from room_3d.sofas.js, in any option: facing the TV, centred on it,
 // its front sofaFront from the TV wall. Returns a description.
@@ -1369,14 +1374,14 @@ function sofa(g) {
   box(x0, y0, S.legH, x0 + S.armW, y1, S.armH, sofaMat, sub);    // arms
   box(x1 - S.armW, y0, S.legH, x1, y1, S.armH, sofaMat, sub);
   box(x0 + S.armW, y0 + S.seatD, S.seatH - cushion, x1 - S.armW, y1, S.h, sofaMat, sub);   // the back
-  const { x0: ix0, x1: ix1, y0: iy0, y1: iy1 } = islandSpot();
+  const { x0: ix0, x1: ix1, y0: iy0, y1: iy1 } = islandAt === 'none' ? { x0: 0, x1: 0, y0: 0, y1: 0 } : islandSpot();
   const island = x0 < ix1 && x1 > ix0 && y1 > iy0 && y0 < iy1 ? ' It runs into the island.' : x0 < ix1 && x1 > ix0 && iy0 >= y1 ? ` Behind it, ${iy0 - y1} to the island.` : '';
   return ` A sofa facing the TV, the ${S.label}: ${S.w} wide, ${S.d} deep, ${S.h} high, its seat at ${S.seatH}. Its front is ${y0} from the TV wall (x ${x0}-${x1}, y ${y0}-${y1}).${island}`;
 }
 function frontWall(g, option, i) {
-  if (islandAt !== 'room') {
+  if (islandOnWall()) {
     const { x0, x1, y0 } = islandSpot();
-    return ` The kitchen island against the front wall between the sink and the desk, its ${islandAt} side out (x ${x0}-${x1}), coming ${D - y0} out from the wall to y ${y0}.`;
+    return ` The kitchen island against the front wall between the sink and the desk, its ${islandAt === 'out' ? 'long' : 'short'} side out (x ${x0}-${x1}), coming ${D - y0} out from the wall to y ${y0}.`;
   }
   if (i === CURRENT || option.corner) return '';
   if (frontPiece === 'dresser') return dresser(pieces.dresser = placePiece(g, 'front'));
@@ -1389,7 +1394,7 @@ function frontWall(g, option, i) {
 }
 // The front-wall piece's span and heights, for the 2D dimensions
 function frontSpan() {
-  if (islandAt !== 'room') {
+  if (islandOnWall()) {
     const { x0, x1 } = islandSpot();
     return { x0, x1, heights: [0, KITCHEN.island.top] };
   }
@@ -2324,8 +2329,8 @@ function show(i) {
   document.getElementById('depthBlock').style.display = option.fixedWidth ? 'none' : '';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
-  const piece = option.corner ?? (i === CURRENT || islandAt !== 'room' ? 'none' : frontPiece);   // the dresser or a larder, if either is drawn
-  document.getElementById('frontBlock').style.display = i === CURRENT || option.corner || islandAt !== 'room' ? 'none' : '';
+  const piece = option.corner ?? (i === CURRENT || islandOnWall() ? 'none' : frontPiece);   // the dresser or a larder, if either is drawn
+  document.getElementById('frontBlock').style.display = i === CURRENT || option.corner || islandOnWall() ? 'none' : '';
   document.getElementById('dresserBlock').style.display = piece === 'dresser' ? '' : 'none';
   document.getElementById('larderBlock').style.display = piece === 'larder' ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
@@ -2929,7 +2934,7 @@ if (Number.isFinite(ralDresser) && setRal('dresser', ralDresser) !== null) refre
 const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
 // What's on the front wall (0 the dresser, 1 a larder, 2 nothing), which
 // larder, and where the island is (0 where it is, 1 and 2 against the front
-// wall, long or short side out)
+// wall, short or long side out, 3 none)
 {
   const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
   if (sofaIn === 'none' || Object.hasOwn(SOFAS, sofaIn ?? '')) sofaKey = sofaIn === 'none' ? '' : sofaIn;   // the sofa, if any, and its front from the TV wall
