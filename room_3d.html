@@ -299,11 +299,11 @@
     <summary>Doors</summary>
     <div id="tallBlock">
       <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
-      <input id="tallDoor" type="range" min="0" max="110" value="0">
+      <input id="tallDoor" type="range" min="0" max="180" value="0">
     </div>
     <div id="secondBlock">
       <label for="secondDoor"><span id="secondLabel"></span>: <span id="secondDoorValue">0°</span></label>
-      <input id="secondDoor" type="range" min="0" max="110" value="0">
+      <input id="secondDoor" type="range" min="0" max="180" value="0">
     </div>
     <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
     <input id="roomDoor" type="range" min="0" max="110" value="90">
@@ -3131,7 +3131,7 @@ const viewKit = ViewKit.create({
     sceneState: {
       get: () => DOORS.map(d => d.value).join('-'),
       set(text) {
-        text.split('-').map(Number).forEach((a, k) => { if (DOORS[k] && a >= 0 && a <= 110) DOORS[k].value = a; });
+        text.split('-').map(Number).forEach((a, k) => { if (DOORS[k] && a >= 0 && a <= Number(DOORS[k].max)) DOORS[k].value = a; });
         update();
       },
     },
