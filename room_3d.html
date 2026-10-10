@@ -49,7 +49,7 @@
   #topRight { position: fixed; top: 12px; right: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
   #optionMenu { --tint: #8a5a14; }
   #sceneMenu { --tint: #2e7d4f; }
-  #share, #reset, #saveView, #deleteView, #saveLook, #deleteLook, #saveScene, #deleteScene {
+  #share, #reset, #dims, #saveView, #deleteView, #saveLook, #deleteLook, #saveScene, #deleteScene {
     pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
     background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer; flex: none;
   }
@@ -134,6 +134,7 @@
       <select id="viewPick" class="pick" aria-label="Views"></select>
       <button id="saveView" title="Keep where you've moved to, as a named view">Save</button>
       <button id="deleteView" title="Delete this saved view" hidden>Delete</button>
+      <button id="dims" data-mode="2d" title="The 2D views' dimensions">Dimensions: on</button>
     </div>
   </div>
   <div id="viewMenu" class="pop">
@@ -175,19 +176,6 @@
     <h1>Cupboard options</h1>
     <button id="close" aria-label="Close settings">✕</button>
   </div>
-  <div>Room 3838 × 5379, ceiling 2443. Sizes in mm. Keys 1–9 switch option; the option itself is in the brown ☰ at the bottom right.</div>
-  <div class="row">
-    <button id="mode">Show 2D</button>
-  </div>
-  <div class="row">
-    <button data-view="plan" data-mode="2d">Plan</button>
-    <button data-view="back" data-mode="2d">Back wall</button>
-    <button data-view="left" data-mode="2d">Left wall</button>
-    <button data-view="front" data-mode="2d">Front wall</button>
-    <button data-view="right" data-mode="2d">Right wall</button>
-    <button id="dims" data-mode="2d">Dimensions: on</button>
-  </div>
-  <div class="hint" id="hint"></div>
   <details class="sec" id="secFrontWall" open>
     <summary>The front wall and the island</summary>
     <div id="islandBlock" class="depth">Kitchen island:
@@ -2857,12 +2845,6 @@ const viewKit = ViewKit.create({
     where: document.getElementById('where'), lookAt: document.getElementById('lookAt'), eye: document.getElementById('eye'),
     views: document.getElementById('viewPick'), save: document.getElementById('saveView'), remove: document.getElementById('deleteView'),
     looks: document.getElementById('lookPick'), saveLook: document.getElementById('saveLook'), removeLook: document.getElementById('deleteLook'),
-    hint: document.getElementById('hint'),
-  },
-  hints: {
-    flat: 'Drag to pan, scroll or pinch to zoom. In the plan, drag the things to store to move them, and double-click or double-tap one to turn it round.',
-    orbit: 'Drag to swing round the room, scroll or pinch to move in and out, right-drag or shift-drag to slide. Save view keeps where you\'ve moved to, in the views list on this device.',
-    person: 'Drag to look round where you are (in the desk chair, it swivels). Right-drag or shift-drag, or the arrow keys or WASD, to walk; scroll to zoom. Save view keeps where you\'ve moved to, in the views list on this device.',
   },
   hooks: {
     place(v, id) {
@@ -2927,16 +2909,13 @@ function setFlat(on) {
   flat = on;
   controls.enabled = !on;
   flatControls.enabled = on;
-  document.getElementById('mode').textContent = on ? 'Show 3D' : 'Show 2D';
   document.querySelectorAll('[data-mode]').forEach(b => { b.style.display = b.dataset.mode === (on ? '2d' : '3d') ? '' : 'none'; });
 }
-document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => viewKit.setView(b.dataset.view)));
 document.getElementById('dims').addEventListener('click', e => {
   showDims = !showDims;
   e.target.textContent = `Dimensions: ${showDims ? 'on' : 'off'}`;
   updateDims();
 });
-document.getElementById('mode').addEventListener('click', () => viewKit.setView(flat ? viewKit.startView : 'plan'));
 
 // keepScale: the drawer opened or closed, so slide the drawing clear of it
 // but keep its size, and any zooming, as it was
