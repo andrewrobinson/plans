@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Phones lay the page out at their own width, not as a zoomed-out desktop page -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menu demo</title>
+<!--
+  A cut-down copy of the UI patterns in room_3d.html, one example of each kind.
+  Where room_3d.html draws the room with three.js, this page shows the UI's
+  state as text in a full-screen text area.
+
+  The kinds, as numbered in the comments below:
+    KIND 1  Full-screen view behind everything (the canvas in room_3d.html)
+    KIND 2  Top-level buttons (Share, Reset)
+    KIND 3  Burger menu: a drawer that slides in from the left
+    KIND 4  Pop-up menu: a button at the top right that opens a group below it
+    KIND 5  Collapsible sections in the drawer (<details>, pure HTML)
+    KIND 6  Switch: a checkbox styled as a sliding toggle
+    KIND 7  Radio buttons
+    KIND 8  Slider with a live readout
+    KIND 9  Dropdown, filled by JS, that shows, hides or disables sliders
+    KIND 10 State kept in the page address (#hash), for share links and reload
+-->
+<style>
+  /* ---------------------------------------------------------------------
+     Base
+     --------------------------------------------------------------------- */
+  :root { color-scheme: light; }
+  html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetica, Arial, sans-serif; }
+
+  /* KIND 1: the view fills the window, behind everything else */
+  #view {
+    position: fixed; inset: 0; width: 100%; height: 100%; box-sizing: border-box;
+    padding: 76px 24px 24px;                 /* clear of the buttons at the top */
+    border: none; resize: none; outline: none;
+    background: #fbfbf8; color: #222; font: 13px/1.5 Menlo, Consolas, monospace;
+  }
+
+  /* ---------------------------------------------------------------------
+     KIND 2: top-level buttons
+     The bar is an invisible full-width box. pointer-events: none lets clicks
+     and drags pass through its gaps to the view below; the buttons turn them
+     back on for themselves.
+     --------------------------------------------------------------------- */
+  #bar {
+    position: fixed; top: 12px; left: 12px; right: 12px; z-index: 2;
+    display: flex; align-items: center; gap: 8px;            /* a row, 8px apart */
+    pointer-events: none;
+  }
+  .chip {                                    /* one class for every floating button */
+    pointer-events: auto; height: 44px; padding: 0 14px; border: none; border-radius: 10px;
+    font: inherit; font-size: 14px; cursor: pointer;
+    background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  .chip.icon { width: 44px; padding: 0; font-size: 22px; }
+
+  /* ---------------------------------------------------------------------
+     KIND 3: burger menu (the drawer)
+     Off-screen to the left by default. JS only adds the class "menu-open" to
+     <body>; this rule brings the drawer on screen, and the transition
+     animates the slide.
+     --------------------------------------------------------------------- */
+  #panel {
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 3;
+    width: 320px; max-width: 88vw; overflow: auto; box-sizing: border-box; padding: 12px 14px 24px;
+    background: rgba(255, 255, 255, 0.97); box-shadow: 2px 0 14px rgba(0, 0, 0, 0.2);
+    font-size: 13px; line-height: 1.45;
+    transform: translateX(-105%); transition: transform 0.25s ease;
+  }
+  body.menu-open #panel { transform: none; }
+  #panel .head { display: flex; align-items: center; justify-content: space-between; }
+  #panel h1 { font-size: 15px; margin: 0; }
+
+  /* The scrim: dims the view behind the open drawer, on narrow screens only.
+     A click on it closes the drawer. */
+  #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
+  @media (max-width: 900px) { body.menu-open #scrim { display: block; } }
+
+  /* ---------------------------------------------------------------------
+     KIND 4: pop-up menu
+     The group is hidden until JS adds "open" to its .pop. --tint is a CSS
+     variable: set once on the menu, and inherited by the button and group.
+     --------------------------------------------------------------------- */
+  #topRight { position: fixed; top: 12px; right: 12px; z-index: 2; pointer-events: none; }
+  .pop { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+  .pop > .group { display: none; }
+  .pop.open > .group { display: flex; }
+  #viewMenu { --tint: #6a3d9a; }
+  .pop .chip { color: var(--tint); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 2px var(--tint); }
+  .group {
+    align-items: center; gap: 6px; padding: 6px 6px 6px 10px; border-radius: 12px;
+    background: rgba(255, 255, 255, 0.92); box-shadow: inset 0 0 0 2px var(--tint);
+  }
+  .group .tag { font-size: 11px; font-weight: bold; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tint); }
+  .group select { pointer-events: auto; height: 36px; border: none; border-radius: 8px; padding: 0 8px; font: inherit; }
+
+  /* ---------------------------------------------------------------------
+     KIND 5: collapsible sections. <details> opens and closes by itself;
+     this only styles it.
+     --------------------------------------------------------------------- */
+  #panel details { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; }
+  #panel summary { cursor: pointer; font-weight: bold; font-size: 14px; color: #1f4e79; padding: 2px 0; }
+
+  /* Labels and inputs in the drawer: one to a line */
+  #panel label { display: block; margin: 8px 0 2px; }
+  #panel input[type=range] { width: 100%; }
+  #panel select { width: 100%; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
+
+  /* ---------------------------------------------------------------------
+     KIND 6: switch. A real checkbox with the browser's look removed
+     (appearance: none), drawn as a track. ::after draws the knob, and
+     :checked moves it and colours the track. It still behaves as a checkbox.
+     --------------------------------------------------------------------- */
+  #panel label.switch { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; }
+  .switch input {
+    appearance: none; margin: 0; width: 36px; height: 20px; border-radius: 10px;
+    background: #bbb; position: relative; cursor: pointer; transition: background 0.15s;
+  }
+  .switch input::after {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+    border-radius: 50%; background: #fff; transition: left 0.15s;
+  }
+  .switch input:checked { background: #1f4e79; }
+  .switch input:checked::after { left: 18px; }
+
+  /* KIND 7: radio buttons side by side, after their heading */
+  .radios { margin: 8px 0; }
+  #panel .radios label { display: inline; margin: 0 0 0 10px; }
+</style>
+</head>
+<body>
+
+<!-- KIND 1: the full-screen view. In room_3d.html this is the 3D canvas; here
+     it's a read-only text area that JS fills with the UI state -->
+<textarea id="view" readonly aria-label="UI state"></textarea>
+
+<!-- KIND 2: top-level buttons, plus the burger button (KIND 3) that opens the drawer -->
+<div id="bar">
+  <button id="menu" class="chip icon" aria-label="Settings" aria-controls="panel" aria-expanded="false">☰</button>
+  <button id="share" class="chip">Share</button>
+  <button id="reset" class="chip">Reset</button>
+</div>
+
+<!-- KIND 4: a pop-up menu at the top right. Its <select> starts empty; JS fills it -->
+<div id="topRight">
+  <div id="viewMenu" class="pop">
+    <button class="popToggle chip icon" aria-label="View" aria-controls="viewGroup" aria-expanded="false">☰</button>
+    <div id="viewGroup" class="group" role="group" aria-label="View">
+      <span class="tag">View</span>
+      <select id="viewPick" aria-label="Camera"></select>
+    </div>
+  </div>
+</div>
+
+<!-- KIND 3: the scrim, behind the open drawer on phones -->
+<div id="scrim"></div>
+
+<!-- KIND 3: the drawer -->
+<div id="panel">
+  <div class="head">
+    <h1>Settings</h1>
+    <button id="close" aria-label="Close settings">✕</button>
+  </div>
+
+  <!-- KIND 5: a collapsible section, starting open (the "open" attribute) -->
+  <details open>
+    <summary>Shelving</summary>
+
+    <!-- KIND 9: a dropdown, empty here; JS fills it and, on a change, shows
+         or hides the slider blocks below -->
+    <label for="style">Style</label>
+    <select id="style"></select>
+
+    <!-- KIND 6: a switch -->
+    <label class="switch"><input type="checkbox" id="lights" checked> Lights</label>
+
+    <!-- KIND 7: radio buttons. The shared name="height" makes them one group:
+         only one can be checked. Wrapping each in a <label> makes its text
+         clickable too -->
+    <div class="radios">Height:
+      <label><input type="radio" name="height" value="1800"> 1800</label>
+      <label><input type="radio" name="height" value="2100" checked> 2100</label>
+      <label><input type="radio" name="height" value="2400"> 2400</label>
+    </div>
+
+    <!-- KIND 8: sliders. Each has a <span id="<id>Value"> in its label, which
+         JS keeps up to date: a range input doesn't show its own value -->
+    <label for="width">Width: <span id="widthValue">900</span></label>
+    <input id="width" type="range" min="400" max="1600" step="50" value="900">
+
+    <!-- KIND 9: these blocks are shown or hidden by the Style dropdown -->
+    <div id="shelvesBlock">
+      <label for="shelves">Shelves: <span id="shelvesValue">4</span></label>
+      <input id="shelves" type="range" min="1" max="8" step="1" value="4">
+    </div>
+    <div id="doorBlock">
+      <label for="door">Door angle: <span id="doorValue">0°</span></label>
+      <input id="door" type="range" min="0" max="180" step="1" value="0">
+    </div>
+  </details>
+
+  <!-- KIND 5: a second section, starting closed -->
+  <details>
+    <summary>About</summary>
+    <p>Each control writes to <code>state</code>, then calls <code>render()</code>, which updates the view, the visible blocks and the address.</p>
+  </details>
+</div>
+
+<!--
+  type="module": allows import/export (not needed here, but room_3d.html uses
+  it to import three.js), keeps these variables private to the script, and
+  runs after the whole page has been parsed, so every element above exists.
+-->
+<script type="module">
+// ---------------------------------------------------------------------------
+// The state: every setting, in one place. room_3d.html keeps these as
+// separate variables (T, R, BENCH...), but the idea is the same.
+// ---------------------------------------------------------------------------
+const DEFAULTS = { style: 'open', lights: true, height: 2100, width: 900, shelves: 4, door: 0, view: 'front' };
+const state = { ...DEFAULTS };
+let lastEvent = '(none yet)';
+
+// The dropdown's choices, as data. Each style says which sliders apply to it.
+const STYLES = {
+  open:    { label: 'Open shelves',          shelves: true,  door: false },
+  doors:   { label: 'Cupboard with a door',  shelves: true,  door: true },
+  wardrobe:{ label: 'Wardrobe (hanging rail)', shelves: false, door: true },
+};
+const VIEWS = { front: 'From the front', above: 'From above', side: 'From the side' };
+
+const $ = id => document.getElementById(id);
+
+// ---------------------------------------------------------------------------
+// KIND 9: fill the dropdowns from the data. Two ways, both used in room_3d.html.
+// ---------------------------------------------------------------------------
+// 1. An HTML string
+$('style').innerHTML = Object.entries(STYLES).map(([key, s]) => `<option value="${key}">${s.label}</option>`).join('');
+// 2. createElement
+$('viewPick').append(...Object.entries(VIEWS).map(([key, label]) =>
+  Object.assign(document.createElement('option'), { value: key, textContent: label })));
+
+// ---------------------------------------------------------------------------
+// render(): the one place that turns the state into what's on screen. It
+// stands in for show() in room_3d.html, which rebuilds the 3D model.
+// ---------------------------------------------------------------------------
+function render() {
+  const style = STYLES[state.style];
+  writeAddress();                                    // KIND 10: first, so the view shows the new address
+
+  // KIND 9: show or hide the blocks that only apply to some styles. The
+  // door slider is also disabled with the lights off, to show the other way.
+  $('shelvesBlock').hidden = !style.shelves;
+  $('doorBlock').hidden = !style.door;
+  $('door').disabled = !state.lights;
+
+  // KIND 8: the sliders' readouts
+  $('widthValue').textContent = state.width;
+  $('shelvesValue').textContent = state.shelves;
+  $('doorValue').textContent = `${state.door}°`;
+
+  // KIND 1: the view. In room_3d.html this would be the three.js scene.
+  $('view').value = [
+    'UI STATE',
+    '========',
+    JSON.stringify(state, null, 2),
+    '',
+    'WHAT\'S SHOWN',
+    '============',
+    `Style:          ${style.label}`,
+    `Shelves slider: ${style.shelves ? 'shown' : 'hidden'}`,
+    `Door slider:    ${style.door ? 'shown' : 'hidden'}${state.lights ? '' : ' (disabled: lights off)'}`,
+    `Drawer:         ${document.body.classList.contains('menu-open') ? 'open' : 'closed'}`,
+    `View menu:      ${$('viewMenu').classList.contains('open') ? 'open' : 'closed'}`,
+    '',
+    'LAST EVENT',
+    '==========',
+    lastEvent,
+    '',
+    'ADDRESS',
+    '=======',
+    location.href,
+  ].join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// The controls. Each one follows the same pattern: read .value (always a
+// string, so Number() it), store it in the state, then render().
+// 'input' fires continuously while a slider is dragged; 'change' fires once
+// a choice is made.
+// ---------------------------------------------------------------------------
+
+// KIND 9: the dropdown
+$('style').addEventListener('change', e => {
+  state.style = e.target.value;
+  lastEvent = `change on #style → "${e.target.value}"`;
+  render();
+});
+
+// KIND 6: the switch, a checkbox, so read .checked rather than .value
+$('lights').addEventListener('change', e => {
+  state.lights = e.target.checked;
+  lastEvent = `change on #lights → ${e.target.checked}`;
+  render();
+});
+
+// KIND 7: radio buttons. A listener on each radio in the group; only the one
+// that becomes checked fires.
+document.querySelectorAll('input[name=height]').forEach(r => r.addEventListener('change', () => {
+  state.height = Number(r.value);
+  lastEvent = `change on input[name=height] → ${r.value}`;
+  render();
+}));
+
+// KIND 8: sliders. One loop for all three, as they work the same way.
+for (const id of ['width', 'shelves', 'door']) {
+  $(id).addEventListener('input', e => {
+    state[id] = Number(e.target.value);
+    lastEvent = `input on #${id} → ${e.target.value}`;
+    render();
+  });
+}
+
+// KIND 4: the pop-up menu's dropdown
+$('viewPick').addEventListener('change', e => {
+  state.view = e.target.value;
+  lastEvent = `change on #viewPick → "${e.target.value}"`;
+  render();
+});
+
+// ---------------------------------------------------------------------------
+// KIND 3: the burger menu. JS only toggles a class; the CSS does the rest.
+// ---------------------------------------------------------------------------
+function setMenu(open) {
+  document.body.classList.toggle('menu-open', open);
+  $('menu').setAttribute('aria-expanded', String(open));
+  lastEvent = `drawer ${open ? 'opened' : 'closed'}`;
+  render();
+}
+$('menu').addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+$('close').addEventListener('click', () => setMenu(false));
+$('scrim').addEventListener('click', () => setMenu(false));
+
+// ---------------------------------------------------------------------------
+// KIND 4: the pop-up menu. Also only toggles a class. A click anywhere
+// outside it, or Escape, closes it.
+// ---------------------------------------------------------------------------
+const pop = $('viewMenu');
+function setPop(open) {
+  pop.classList.toggle('open', open);
+  pop.querySelector('.popToggle').setAttribute('aria-expanded', String(open));
+  render();
+}
+pop.querySelector('.popToggle').addEventListener('click', () => setPop(!pop.classList.contains('open')));
+window.addEventListener('pointerdown', e => { if (pop.classList.contains('open') && !pop.contains(e.target)) setPop(false); });
+window.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (pop.classList.contains('open')) setPop(false);
+  if (document.body.classList.contains('menu-open')) setMenu(false);
+});
+
+// ---------------------------------------------------------------------------
+// KIND 2: top-level buttons
+// ---------------------------------------------------------------------------
+$('share').addEventListener('click', async e => {
+  const button = e.currentTarget;
+  try {
+    await navigator.clipboard.writeText(location.href);
+    button.textContent = 'Link copied';
+  } catch (err) {
+    window.prompt('Copy this link:', location.href);
+  }
+  setTimeout(() => { button.textContent = 'Share'; }, 2000);
+  lastEvent = 'click on #share';
+  render();
+});
+$('reset').addEventListener('click', () => {
+  if (!window.confirm('Reset all settings?')) return;
+  history.replaceState(null, '', location.pathname);   // drop the #hash
+  location.reload();                                   // start again from DEFAULTS
+});
+
+// ---------------------------------------------------------------------------
+// KIND 10: state in the address. render() writes it; startup reads it back.
+// replaceState changes the address without adding to the back-button history.
+// ---------------------------------------------------------------------------
+function writeAddress() {
+  const hash = '#' + new URLSearchParams(Object.entries(state).map(([k, v]) => [k, String(v)])).toString();
+  if (location.hash !== hash) history.replaceState(null, '', hash);
+}
+function readAddress() {
+  const params = new URLSearchParams(location.hash.slice(1));
+  for (const [k, v] of params) {
+    if (!(k in DEFAULTS)) continue;
+    state[k] = typeof DEFAULTS[k] === 'number' ? Number(v) : typeof DEFAULTS[k] === 'boolean' ? v === 'true' : v;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Startup: read the address, put every control in step with the state, then
+// render once. (The HTML's own value="..." and checked are only the defaults.)
+// ---------------------------------------------------------------------------
+readAddress();
+$('style').value = state.style;
+$('viewPick').value = state.view;
+$('lights').checked = state.lights;
+const radio = document.querySelector(`input[name=height][value="${state.height}"]`);
+if (radio) radio.checked = true;
+for (const id of ['width', 'shelves', 'door']) $(id).value = state[id];
+render();
+</script>
+</body>
+</html>
