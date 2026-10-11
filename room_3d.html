@@ -12,111 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cupboards">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<style>
-  :root { color-scheme: light; }
-  html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetica, Arial, sans-serif; }
-  #view { position: fixed; inset: 0; }
-  /* The settings are a drawer that slides in from the left, opened by the
-     menu button. The model always fills the screen. */
-  #panel {
-    position: fixed; top: 0; left: 0; bottom: 0; width: 340px; max-width: 88vw; overflow: auto; z-index: 3;
-    background: rgba(255, 255, 255, 0.97); padding: 12px 14px 24px; box-sizing: border-box;
-    box-shadow: 2px 0 14px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45;
-    transform: translateX(-105%); transition: transform 0.25s ease;
-  }
-  body.menu-open #panel { transform: none; }
-  #panel h1 { font-size: 15px; margin: 0; }
-  #panel .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
-  #panel #close { font-size: 18px; line-height: 1; padding: 4px 10px; }
-  #bar {
-    position: fixed; top: 12px; left: 12px; right: 12px; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
-    pointer-events: none;
-  }
-  /* The views list and look (where you are and what you look at): menu
-     buttons at the top right, each opening its group below it; the scenes:
-     a menu button at the bottom right, opening above */
-  #corner { position: fixed; right: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
-  .pop { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
-  .pop > .group { display: none; background: rgba(255, 255, 255, 0.92); }
-  .pop.open > .group { display: flex; }
-  #menu, .popToggle {
-    pointer-events: auto; width: 44px; height: 44px; border-radius: 10px; border: none; font-size: 22px;
-    background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer;
-  }
-  .popToggle { color: var(--tint); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 2px var(--tint); }
-  #viewMenu { --tint: #1f4e79; }
-  #viewsMenu { --tint: #6a3d9a; }
-  #topRight { position: fixed; top: 12px; right: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
-  #sceneMenu { --tint: #2e7d4f; }
-  #share, #reset, #dims, #saveView, #deleteView, #saveLook, #deleteLook, #saveScene, #deleteScene {
-    pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
-    background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer; flex: none;
-  }
-  #deleteView[hidden], #deleteLook[hidden], #deleteScene[hidden] { display: none; }
-  #saveView:disabled, #saveLook:disabled { opacity: 0.5; cursor: default; }
-  /* The bar's groups, each with a small heading in its own colour: View
-     (where you are and what you look at), Scene (what's on show) and Option */
-  .group { pointer-events: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 6px 4px 10px;
-    border-radius: 12px; background: rgba(255, 255, 255, 0.55); box-shadow: inset 0 0 0 2px var(--tint); }
-  .group .tag { font-size: 11px; font-weight: bold; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tint); }
-  #viewGroup { --tint: #1f4e79; }
-  #viewGroup { max-width: min(900px, calc(100vw - 24px)); box-sizing: border-box; justify-content: flex-end; }
-  #viewsGroup { flex-wrap: nowrap; }
-  /* The dropdowns in the top bar: where you are, your eye height, and the
-     option on show (to switch options without the menu) */
-  .pick {
-    pointer-events: auto; height: 44px; min-width: 0; max-width: 100%; border: none; border-radius: 10px; padding: 0 10px;
-    background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font: inherit; font-size: 14px; cursor: pointer;
-  }
-  #where, #lookAt, #eye, #lookPick, #viewPick, #scenePick { flex: none; }
-  /* On phones the open drawer dims the model; tapping there closes it */
-  #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
-  @media (max-width: 900px) { body.menu-open #scrim { display: block; } }
-  #panel label { display: block; margin: 8px 0 2px; }
-  /* The drawer's sections, each opening and closing (remembered here) */
-  #panel details.sec { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; }
-  #panel details.sec > summary { cursor: pointer; font-weight: bold; font-size: 14px; color: #1f4e79; padding: 2px 0; }
-  #panel input[type=range] { width: 100%; }
-  #panel button { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid #999; background: #fff; cursor: pointer; }
-  #panel button:disabled { opacity: 0.4; cursor: default; }
-  #panel button.on { background: #1f4e79; color: #fff; border-color: #1f4e79; }
-  #panel .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .depth { margin: 0 0 8px; }
-  #panel .depth label { display: inline; margin: 0 0 0 10px; font-weight: normal; }
-  #panel #islandBlock label { display: block; margin: 2px 0 0 10px; }   /* long choices, one a line */
-  /* A switch: a checkbox drawn as a sliding toggle */
-  #panel label.switch { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; }
-  .switch input { appearance: none; margin: 0; width: 36px; height: 20px; border-radius: 10px; background: #bbb; position: relative; cursor: pointer; transition: background 0.15s; }
-  .switch input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 0.15s; }
-  .switch input:checked { background: #1f4e79; }
-  .switch input:checked::after { left: 18px; }
-
-  #colours { margin: 10px 0 4px; }
-  #colours .colhead { font-weight: bold; }
-  #colours .colrow { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
-  #colours [hidden] { display: none; }
-  #colours select { flex: 1; min-width: 0; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
-  #colours .swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #999; flex: none; background: transparent; }
-  #palette { margin-top: 8px; }
-  #palette > summary { cursor: pointer; font-weight: bold; padding: 2px 0; }
-  #paletteList .colrow { margin: 3px 0; }
-  #paletteList .what { flex: 1; min-width: 0; }
-  #paletteList code { color: #666; font-size: 11px; }
-  /* The name and size of a thing to store, by the pointer */
-  #tip { position: fixed; z-index: 4; display: none; pointer-events: none; white-space: nowrap; font-size: 12px;
-    padding: 4px 7px; border-radius: 5px; background: rgba(31, 78, 121, 0.95); color: #fff; }
-  #storedBlock { margin: 10px 0 4px; }
-  #storedBlock .colhead { font-weight: bold; }
-  #storedInfo { margin-top: 4px; }
-  #panel input.shelves { width: 100%; box-sizing: border-box; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; }
-  #storedLifts { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; margin-top: 6px; }
-  #panel #storedLifts label { display: block; margin: 0; }
-  #storedLifts input { width: 70px; font: inherit; padding: 2px 4px; }
-  #current, #dresserPick, #larderPick, #sofaPick, #storedBlock select { width: 100%; margin-top: 4px; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
-  #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
-  #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
-  #panel .hint { color: #666; font-size: 12px; margin-top: 8px; }
-</style>
+<link rel="stylesheet" href="room_3d.css">
 <script type="importmap">
 { "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -128,8 +24,8 @@
 <div id="view"></div>
 <div id="bar">
   <button id="menu" aria-label="Settings" aria-controls="panel">☰</button>
-  <button id="share">Share</button>
-  <button id="reset">Reset</button>
+  <button id="share" class="chip">Share</button>
+  <button id="reset" class="chip">Reset</button>
 </div>
 <!-- The views list, and where you are and what you look at: menus of their
      own at the top right, opening below them -->
@@ -139,9 +35,9 @@
     <div id="viewsGroup" class="group" role="group" aria-label="Views">
       <span class="tag">Views</span>
       <select id="viewPick" class="pick" aria-label="Views"></select>
-      <button id="saveView" title="Keep where you've moved to, as a named view">Save</button>
-      <button id="deleteView" title="Delete this saved view" hidden>Delete</button>
-      <button id="dims" data-mode="2d" title="The 2D views' dimensions">Dimensions: on</button>
+      <button id="saveView" class="chip" title="Keep where you've moved to, as a named view">Save</button>
+      <button id="deleteView" class="chip" title="Delete this saved view" hidden>Delete</button>
+      <button id="dims" class="chip" data-mode="2d" title="The 2D views' dimensions">Dimensions: on</button>
     </div>
   </div>
   <div id="viewMenu" class="pop">
@@ -152,8 +48,8 @@
       <select id="lookAt" class="pick" aria-label="Looking at"></select>
       <select id="eye" class="pick" aria-label="Eye height"></select>
       <select id="lookPick" class="pick" aria-label="Looks"></select>
-      <button id="saveLook" title="Keep this Where, Looking at and eye height, by name: it aims at the thing wherever it is">Save</button>
-      <button id="deleteLook" title="Delete this saved look" hidden>Delete</button>
+      <button id="saveLook" class="chip" title="Keep this Where, Looking at and eye height, by name: it aims at the thing wherever it is">Save</button>
+      <button id="deleteLook" class="chip" title="Delete this saved look" hidden>Delete</button>
     </div>
   </div>
 </div>
@@ -163,8 +59,8 @@
     <div id="sceneGroup" class="group" role="group" aria-label="Scene">
       <span class="tag">Scene</span>
       <select id="scenePick" class="pick" aria-label="Scenes"></select>
-      <button id="saveScene" title="Keep everything on show (not where you're looking from), as a named scene">Save</button>
-      <button id="deleteScene" title="Delete this saved scene" hidden>Delete</button>
+      <button id="saveScene" class="chip" title="Keep everything on show (not where you're looking from), as a named scene">Save</button>
+      <button id="deleteScene" class="chip" title="Delete this saved scene" hidden>Delete</button>
     </div>
     <button class="popToggle" aria-label="Scenes" title="Scenes" aria-controls="sceneGroup" aria-expanded="false">☰</button>
   </div>
