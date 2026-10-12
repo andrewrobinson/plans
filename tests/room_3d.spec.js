@@ -1,0 +1,241 @@
+// room_3d.html: saved addresses look the same and round-trip, and the menus
+// work. See REFACTOR_PLAN.md. Every test also fails on a console error
+// (helpers.js).
+const fs = require('fs');
+const vm = require('vm');
+const path = require('path');
+const { test, expect, openRoom, settingsField } = require('./helpers');
+const { ADDRESSES, VIEW } = require('./addresses');
+
+// The scenes in room_3d.scenes.js, read the way the page reads them
+const sceneFile = fs.readFileSync(path.join(__dirname, '..', 'room_3d.scenes.js'), 'utf8');
+const sandbox = { window: {} };
+vm.runInNewContext(sceneFile, sandbox);
+const SCENES = Object.entries(sandbox.window.ROOM_SCENES.list);
+
+// The default page's address, as it writes it
+const DEFAULT = ADDRESSES.find(a => a.name === 'default').address;
+
+test.describe('saved addresses', () => {
+  for (const { name, address } of ADDRESSES) {
+    test(`${name} looks the same and round-trips`, async ({ page }) => {
+      await openRoom(page, address);
+      expect(await page.evaluate(() => location.hash)).toBe(address);
+      await expect(page).toHaveScreenshot(`${name}.png`);
+    });
+  }
+
+  for (const [id, { address }] of SCENES) {
+    test(`scene ${id} looks the same and round-trips`, async ({ page }) => {
+      await openRoom(page, `#${address}`);
+      // A scene leaves out the view, so the page adds its default one
+      expect(await page.evaluate(() => location.hash)).toBe(`#${address}~${VIEW}`);
+      await expect(page).toHaveScreenshot(`scene-${id}.png`);
+    });
+  }
+
+  test('no address gives the default page', async ({ page }) => {
+    await openRoom(page);
+    expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
+  });
+});
+
+test.describe('the settings drawer', () => {
+  test.beforeEach(async ({ page }) => { await openRoom(page); });
+
+  test('☰ opens it, ✕ and Escape close it', async ({ page }) => {
+    const panel = page.locator('#panel');
+    await expect(panel).not.toBeInViewport();
+    await page.click('#menu');
+    await expect(page.locator('body')).toHaveClass(/menu-open/);
+    await expect(page.locator('#menu')).toHaveAttribute('aria-expanded', 'true');
+    await expect(panel).toBeInViewport();
+    await page.click('#close');
+    await expect(panel).not.toBeInViewport();
+    await page.click('#menu');
+    await expect(panel).toBeInViewport();
+    await page.keyboard.press('Escape');
+    await expect(panel).not.toBeInViewport();
+  });
+
+  test('the scrim dims the model on a phone, and a tap on it closes the drawer', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'the scrim is only shown on narrow screens');
+    await page.click('#menu');
+    const scrim = page.locator('#scrim');
+    await expect(scrim).toBeVisible();
+    const { width } = page.viewportSize();
+    await scrim.click({ position: { x: width - 15, y: 400 } });   // beside the drawer
+    await expect(page.locator('#panel')).not.toBeInViewport();
+    await expect(scrim).toBeHidden();
+  });
+});
+
+test.describe('the controls', () => {
+  test.beforeEach(async ({ page }) => {
+    await openRoom(page);
+    await page.click('#menu');
+  });
+  const hash = page => page.evaluate(() => location.hash);
+
+  test('a slider updates its number and the address', async ({ page }) => {
+    await page.locator('#rear').fill('500');
+    await expect(page.locator('#rearValue')).toHaveText('500');
+    expect(settingsField(await hash(page), 2)).toBe('500');
+  });
+
+  test('the left-wall depth slider shows "none" below 300', async ({ page }) => {
+    await page.locator('#depth').fill('450');
+    await expect(page.locator('#depthValue')).toHaveText('450');
+    expect(settingsField(await hash(page), 1)).toBe('450');
+    await page.locator('#depth').fill('290');
+    await expect(page.locator('#depthValue')).toHaveText('none');
+    expect(settingsField(await hash(page), 1)).toBe('0');
+  });
+
+  test('each option shows its own slider blocks', async ({ page }) => {
+    const blocks = ['upperBlock', 'extraBlock', 'legBlock', 'wardBlock'];
+    // option index → the blocks shown (show() in room_3d.html)
+    const cases = [[0, []], [2, ['upperBlock']], [4, ['upperBlock', 'extraBlock']], [6, ['legBlock']], [8, ['wardBlock']]];
+    for (const [i, shown] of cases) {
+      await page.selectOption('#current', String(i));
+      for (const b of blocks) {
+        if (shown.includes(b)) await expect(page.locator(`#${b}`), `${b} with option index ${i}`).toBeVisible();
+        else await expect(page.locator(`#${b}`), `${b} with option index ${i}`).toBeHidden();
+      }
+    }
+  });
+
+  test('option 8 needs a left-wall cupboard', async ({ page }) => {
+    const option8 = page.locator('#current option[value="7"]');
+    await expect(option8).toBeDisabled();
+    await page.locator('#depth').fill('600');
+    await expect(option8).toBeEnabled();
+    await page.selectOption('#current', '7');
+    expect(settingsField(await hash(page), 0)).toBe('8');
+  });
+
+  test('"Above the bench" shows the TV and shelf sliders that apply', async ({ page }) => {
+    const tv = page.locator('#tvBlock'), shelf = page.locator('#shelfBlock');
+    const cases = [['0', false, false], ['1', false, true], ['2', true, false], ['3', true, true], ['4', true, true]];
+    for (const [value, tvShown, shelfShown] of cases) {
+      await page.check(`input[name=above][value="${value}"]`);
+      await expect(tv).toBeVisible({ visible: tvShown });
+      await expect(shelf).toBeVisible({ visible: shelfShown });
+      expect(settingsField(await hash(page), 4)).toBe(value);
+    }
+  });
+
+  test('the bench switch hides the bench settings', async ({ page }) => {
+    await page.locator('#benchOn').uncheck();
+    await expect(page.locator('#benchDetails')).toBeHidden();
+    expect(settingsField(await hash(page), 28)).toBe('0');
+    await page.locator('#benchOn').check();
+    await expect(page.locator('#benchDetails')).toBeVisible();
+    expect(settingsField(await hash(page), 28)).toBe('1');
+  });
+
+  test('the front-wall piece shows the dresser or larder settings', async ({ page }) => {
+    await page.check('input[name=frontPiece][value="larder"]');
+    await expect(page.locator('#larderBlock')).toBeVisible();
+    await expect(page.locator('#dresserBlock')).toBeHidden();
+    await page.check('input[name=frontPiece][value="none"]');
+    await expect(page.locator('#larderBlock')).toBeHidden();
+    await expect(page.locator('#dresserBlock')).toBeHidden();
+    await page.check('input[name=frontPiece][value="dresser"]');
+    await expect(page.locator('#dresserBlock')).toBeVisible();
+  });
+
+  test('the island can only be moved when it is out in the room', async ({ page }) => {
+    await expect(page.locator('#islandMoveBlock')).toBeVisible();
+    await page.check('input[name=islandAt][value="out"]');
+    await expect(page.locator('#islandMoveBlock')).toBeHidden();
+  });
+
+  test('a number key chooses an option', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'no keyboard on a phone');
+    await page.click('#close');
+    await page.keyboard.press('6');
+    await expect(page.locator('#current')).toHaveValue('5');
+    expect(settingsField(await hash(page), 0)).toBe('6');
+  });
+});
+
+test.describe('the pop-up menus', () => {
+  test.beforeEach(async ({ page }) => { await openRoom(page); });
+  const MENUS = ['#viewsMenu', '#viewMenu', '#sceneMenu'];
+
+  test('each opens on its button and closes the others', async ({ page }) => {
+    for (const menu of MENUS) {
+      await page.locator(`${menu} .popToggle`).click();
+      for (const other of MENUS) {
+        const open = other === menu;
+        await expect(page.locator(other)).toHaveClass(open ? /\bopen\b/ : /^(?!.*\bopen\b)/);
+        await expect(page.locator(`${other} .group`)).toBeVisible({ visible: open });
+        await expect(page.locator(`${other} .popToggle`)).toHaveAttribute('aria-expanded', String(open));
+      }
+    }
+    // Its own button again closes it
+    await page.locator('#sceneMenu .popToggle').click();
+    await expect(page.locator('#sceneMenu .group')).toBeHidden();
+  });
+
+  test('Escape closes it; moving about in the 3D view does not', async ({ page }) => {
+    await page.locator('#viewMenu .popToggle').click();
+    await page.locator('#view canvas').click({ position: { x: 200, y: 400 } });
+    await expect(page.locator('#viewGroup')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#viewGroup')).toBeHidden();
+  });
+
+  test('Views: a 2D view goes into the address, with its Dimensions button', async ({ page }) => {
+    await page.locator('#viewsMenu .popToggle').click();
+    const dims = page.locator('#dims');
+    await expect(dims).toBeHidden();                            // 3D views have no dimensions
+    await page.selectOption('#viewPick', 'plan');
+    await expect.poll(() => page.evaluate(() => location.hash.split('~')[2])).toMatch(/^plan\./);
+    await expect(dims).toHaveText('Dimensions: on');
+    await dims.click();
+    await expect(dims).toHaveText('Dimensions: off');
+  });
+
+  test('Scenes: choosing one loads its settings', async ({ page }) => {
+    const [id, { address }] = SCENES[0];
+    await page.locator('#sceneMenu .popToggle').click();
+    await page.selectOption('#scenePick', id);
+    // The page loads again with the scene's settings, keeping the view
+    await page.waitForURL(url => url.hash.startsWith(`#${address}~`));
+  });
+});
+
+test.describe('Share and Reset', () => {
+  test('Share copies the address, or opens the share sheet on a phone', async ({ page, isMobile }) => {
+    // A stand-in for the clipboard and share sheet, so the test doesn't touch
+    // the real clipboard (shared by every test running at once, and yours)
+    await page.addInitScript(() => {
+      window.sent = [];
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText: async text => { window.sent.push(text); } } });
+      Object.defineProperty(navigator, 'share', { value: async data => { window.sent.push(data.url); } });
+    });
+    await openRoom(page, ADDRESSES.find(a => a.name === 'option07').address);
+    await page.click('#share');
+    if (!isMobile) await expect(page.locator('#share')).toHaveText('Link copied');
+    // Always a link to the published page, so it works for others
+    const hash = await page.evaluate(() => location.hash);
+    await expect.poll(() => page.evaluate(() => window.sent)).toEqual([`https://andrewrobinson.github.io/plans/room_3d.html${hash}`]);
+  });
+
+  test('Reset asks first, then goes back to the default page', async ({ page }) => {
+    await openRoom(page, ADDRESSES.find(a => a.name === 'option07').address);
+    // Cancelled: nothing changes
+    page.once('dialog', d => d.dismiss());
+    await page.click('#reset');
+    expect(settingsField(await page.evaluate(() => location.hash), 0)).toBe('7');
+    // Accepted
+    page.once('dialog', d => {
+      expect(d.message()).toBe('Reset all settings?');
+      d.accept();
+    });
+    await page.click('#reset');
+    await expect.poll(() => page.evaluate(() => location.hash)).toBe(DEFAULT);
+  });
+});

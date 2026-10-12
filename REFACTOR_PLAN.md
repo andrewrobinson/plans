@@ -4,8 +4,12 @@ Step 1 is done: the CSS is in `room_3d.css`, and the floating text buttons
 share a `.chip` class (commit `8b51792`, branch `ui-guide-and-menu-demo`).
 
 The steps below change how the code is organised, not what the page does.
-After each one the page should look and behave exactly as before, and every
-old link should still open the same thing. Do one step per session, and make
+After each one the page should look and behave exactly as before.
+
+**Old links and saved storage needn't survive** (agreed 12 Oct 2026): share
+links from before a change, and views, looks, scenes and section states saved
+in the browser, may stop working. Where the notes below say to keep old
+links working, that no longer applies. Do one step per session, and make
 each step its own commit, so any one of them can be undone on its own.
 
 Line numbers are as of 11 Oct 2026. See `room_3d_ui_guide.md` for the map.
@@ -24,6 +28,12 @@ checked by running the suite.
 ---
 
 ## Before step 2: a browser test suite (Playwright)
+
+**Done** (12 Oct 2026, branch `playwright-tests`): `playwright.config.js`
+and `tests/`. Run it with `nvm use` (Node 24, from `.nvmrc`), then `npm test`;
+`npm run test:update` retakes the screenshots, `npm run report` shows the last
+run. `tests/menu_demo.spec.js` is a commented walk-through of Playwright on
+`menu_demo.html`, one group per KIND.
 
 ### Why
 
