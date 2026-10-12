@@ -3,3 +3,8 @@ AmendedPlanWithTwoSuggestedParkingAreas.pdf
 
 # macOS folder settings
 .DS_Store
+
+# Playwright (development only; the site itself has no dependencies)
+node_modules/
+test-results/
+playwright-report/

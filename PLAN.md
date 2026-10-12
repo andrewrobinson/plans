@@ -60,10 +60,11 @@ Later, `hallway.js` and the other room's file sit alongside `living_room.js`.
    a floor plan of walls, openings and rooms. Test against the living room at
    each step; nothing visible changes.
 2. **Describe the living room** in `floor.js` and `living_room.js`; rename the
-   data files as above; keep browser storage under the id `room_3d`, so saved
-   views, looks and scenes survive.
+   data files as above. (Saved views, looks and scenes in the browser needn't
+   survive, agreed 12 Oct 2026.)
 3. **Redirect** `room_3d.html` (with its `#...` address) into the floor app,
-   so shared links, scenes and the installed app keep working. Update
+   so the installed app keeps working. (Old share links needn't keep
+   working, agreed 12 Oct 2026.) Update
    `manifest.webmanifest` and `sw.js`.
 4. **Add the hallway and the other room** when their measurements are in.
 
