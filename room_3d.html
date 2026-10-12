@@ -80,6 +80,14 @@
       <label><input type="radio" name="islandAt" value="along"> Against the front wall, short side out</label>
       <label><input type="radio" name="islandAt" value="none"> None</label>
     </div>
+    <div id="islandMoveBlock">
+      <label for="islandX">Island's middle from the left wall: <span id="islandXValue">1395</span></label>
+      <input id="islandX" type="range" min="0" max="3838" step="5" value="1395">
+      <label for="islandY">Island's middle from the back wall: <span id="islandYValue">3571</span></label>
+      <input id="islandY" type="range" min="0" max="5379" step="5" value="3571">
+      <label for="islandTurn">Island turned: <span id="islandTurnValue">0°</span></label>
+      <input id="islandTurn" type="range" min="0" max="180" step="5" value="0">
+    </div>
     <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
       <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
       <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
@@ -1357,18 +1365,33 @@ const larderFrontX0 = L => Math.round(frontFrom() + (frontGap() - L.w) / 2);
 const ISLAND_AT = ['room', 'along', 'out', 'none'];
 let islandAt = 'room';
 const islandOnWall = () => islandAt === 'along' || islandAt === 'out';   // in the dresser or larder's place
+// Out there, the island can be moved and turned from its sliders: where its
+// middle is, and how far it's turned (0 to 180°). It starts where it is.
+const ISLAND_HOME = { x: KITCHEN.island.x + KITCHEN.island.width / 2, y: KITCHEN.island.y + KITCHEN.island.length / 2, turn: 0 };
+let islandMove = { ...ISLAND_HOME };
 function islandSpot() {
-  const { x, y, width, length } = KITCHEN.island;
-  if (islandAt === 'room') return { x0: x, x1: x + width, y0: y, y1: y + length, turned: false };
+  const { width, length } = KITCHEN.island;
+  if (islandAt === 'room') {
+    // The floor it covers, as a box square to the walls round it turned
+    const a = THREE.MathUtils.degToRad(islandMove.turn);
+    const hx = (Math.abs(Math.cos(a)) * width + Math.abs(Math.sin(a)) * length) / 2;
+    const hy = (Math.abs(Math.sin(a)) * width + Math.abs(Math.cos(a)) * length) / 2;
+    const { x, y } = islandMove;
+    return { x0: Math.round(x - hx), x1: Math.round(x + hx), y0: Math.round(y - hy), y1: Math.round(y + hy), angle: a };
+  }
   const along = islandAt === 'along' ? length : width, out = islandAt === 'along' ? width : length;
   const x0 = islandAt === 'along' ? Math.round(frontFrom() + (frontGap() - along) / 2) : frontFrom();
   return { x0, x1: x0 + along, y0: D - out, y1: D, turned: islandAt === 'along' };
 }
 function placeIsland() {
-  const { x0, x1, y0, y1, turned } = islandSpot();
+  const { x0, x1, y0, y1, turned, angle } = islandSpot();
   islandGroup.position.set((x0 + x1) / 2 * MM, 0, (y0 + y1) / 2 * MM);
-  islandGroup.rotation.y = turned ? Math.PI / 2 : 0;
+  islandGroup.rotation.y = angle ?? (turned ? Math.PI / 2 : 0);
   islandGroup.visible = islandAt !== 'none';
+  for (const [k, id, unit] of [['x', 'islandX', ''], ['y', 'islandY', ''], ['turn', 'islandTurn', '°']]) {
+    document.getElementById(id).value = String(islandMove[k]);
+    document.getElementById(`${id}Value`).textContent = `${islandMove[k]}${unit}`;
+  }
 }
 // A sofa from room_3d.sofas.js, in any option: facing the TV, centred on it,
 // its front sofaFront from the TV wall. Returns a description.
@@ -2517,6 +2540,7 @@ function show(i) {
   document.getElementById('benchDetails').style.display = benchOn ? '' : 'none';
   const piece = option.corner ?? (i === CURRENT || islandOnWall() ? 'none' : frontPiece);   // the dresser or a larder, if either is drawn
   document.getElementById('frontBlock').style.display = i === CURRENT || option.corner || islandOnWall() ? 'none' : '';
+  document.getElementById('islandMoveBlock').style.display = islandAt === 'room' ? '' : 'none';   // moving and turning: out there only
   document.getElementById('dresserBlock').style.display = piece === 'dresser' ? '' : 'none';
   document.getElementById('larderBlock').style.display = piece === 'larder' ? '' : 'none';
   document.getElementById('secondLabel').textContent = option.second || '';
@@ -2537,7 +2561,7 @@ function show(i) {
 // looking round
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
-  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}-${sofaSize.w}.${sofaSize.d}.${sofaSize.h}-${benchOn ? 1 : 0}-${LEG_D}-${L_SHELVES.back.join('.') || 0}-${L_SHELVES.left.join('.') || 0}~${storedAddress()}`;
+  return `${optionCode(shown)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${ralChosen.floor}-${ralChosen.cupboard}-${ralChosen.wall}-${ralChosen.woodwork}-${shelfWood}-${TV_INCHES}-${ralChosen.dresser}-${DRESSER_SLIDERS.map(([k]) => DRESSER[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larderKey}-${ISLAND_AT.indexOf(islandAt)}-${sofaKey || 'none'}-${sofaFront}-${larderSize.w}.${larderSize.h}.${larderSize.d}-${sofaSize.w}.${sofaSize.d}.${sofaSize.h}-${benchOn ? 1 : 0}-${LEG_D}-${L_SHELVES.back.join('.') || 0}-${L_SHELVES.left.join('.') || 0}-${islandMove.x}.${islandMove.y}.${islandMove.turn}~${storedAddress()}`;
 }
 let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
 function writeAddress(replace = false) {
@@ -2873,6 +2897,14 @@ document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListene
   show(shown);
   viewKit.refresh();
 }));
+// Out there: the island's middle, and how far it's turned
+for (const [k, id] of [['x', 'islandX'], ['y', 'islandY'], ['turn', 'islandTurn']]) {
+  document.getElementById(id).addEventListener('input', e => {
+    islandMove[k] = Number(e.target.value);
+    placeIsland();
+    show(shown);
+  });
+}
 // On the front wall: the dresser, a larder or nothing; and which larder
 document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => {
   frontPiece = r.value;
@@ -3229,7 +3261,7 @@ const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
 // larder, and where the island is (0 where it is, 1 and 2 against the front
 // wall, short or long side out, 3 none)
 {
-  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn, benchIn, legDIn, shelvesBackIn, shelvesLeftIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
+  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn, benchIn, legDIn, shelvesBackIn, shelvesLeftIn, islandMoveIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
   if (shelvesBackIn !== undefined) L_SHELVES.back = readShelves(shelvesBackIn);   // option 7's shelves (links from before keep 600, 1200, 1800)
   if (shelvesLeftIn !== undefined) L_SHELVES.left = readShelves(shelvesLeftIn);
   showShelves();
@@ -3242,6 +3274,11 @@ const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
   const [sw, sd, sh] = (sofaSizeIn ?? '').split('.').map(v => (v ? Number(v) : NaN));
   setSofaSize({ w: sw, d: sd, h: sh });
   if (ISLAND_AT[Number(islandIn)]) islandAt = ISLAND_AT[Number(islandIn)];
+  // Out there, where its middle is and how far it's turned, as x.y.turn; links from before keep it where it is
+  const [ix, iy, it] = (islandMoveIn ?? '').split('.').map(v => (v ? Number(v) : NaN));
+  if (ix >= 0 && ix <= W) islandMove.x = ix;
+  if (iy >= 0 && iy <= D) islandMove.y = iy;
+  if (it >= 0 && it <= 180) islandMove.turn = it;
   document.querySelector(`input[name=islandAt][value="${islandAt}"]`).checked = true;
   placeIsland();
   if (FRONT_PIECES[Number(frontIn)]) frontPiece = FRONT_PIECES[Number(frontIn)];
