@@ -3,7 +3,60 @@
 Where the cupboard planner is heading, as agreed so far. The model itself is
 described in `room_dimensions.md`.
 
-## Next: one floor plan, with rooms
+## Next: panels against the walls, for every option (agreed 12 Oct 2026)
+
+Every built option (1 to 11) is to be made from boards, each with a width, a
+height and the board thickness (`BOARD`), **including rear panels against the
+walls**: today the walls stand in for them. Outside sizes stay fixed, so the
+inside of each cupboard gets a board thinner from each wall. The rule for
+which boards are shortened, to be stated at the top of the cutting list:
+
+- **Rear panels** (against the walls) and **ends** (exposed sides) run full
+  height.
+- **Tops, bases and dividers** fit between them: a board shorter at each one
+  they meet.
+- **In a corner** the back-wall rear panel runs through; the left-wall rear
+  panel stops at it. For option 7's 1200 × 1200 L at 18: 1200 × 2443 and
+  1182 × 2443.
+- **Shelves** fit inside, set back a board from the front; **doors** cover the
+  front edges, 3 clear.
+- Exceptions, named where they occur: option 10's left-wall rear panel stops
+  behind its doors; option 11's end facing the kitchen runs across the
+  left-wall rear panel. Option 9's tower plinth (a block) and its 25-thick oak
+  shelves go under "other parts".
+
+To do, in `room_3d.html`:
+
+- A `board(name, x0, y0, z0, x1, y1, z1, g, mat)` helper that names each part
+  (`userData.part`) for the cutting list; name the doors too.
+- Rebuild `tallCupboard`, `cornerShelves`, `upperUnit` (with a divider when
+  option 5 adds a second bay), options 6, 8 and 9, `fullHeightL` (option 7),
+  `shelvingTower` and `cornerCupboard` (10 and 11) to the rule. Option 8's top
+  and base run out to the diagonal front.
+- `cupboardSpaces()` (the things to store's fit check) to the new insides.
+- The cutting list: a description column for every board, the rule above as
+  its header, and "other parts" for anything not `BOARD` thick.
+- The scene "finished7" in `room_3d.scenes.js`: Rack 1 at y 10 is inside the
+  new rear panel; move it to y 18, then check everything still fits.
+- Retake the screenshots and check them by eye; `npm test` must pass.
+
+Do it in a fresh session, on its own branch; the weekly usage limit resets
+14 Oct 2026.
+
+## Done 12 Oct 2026
+
+- **Option 7 is the default.** The **option list is always in the top bar**;
+  the corner cupboard's settings have their own drawer, **Cupboard
+  options**, and the ☰ drawer is **Other options**. One drawer is open at a
+  time, below the top bar.
+- **Door sizes** on each cupboard door in the 2D views (a Door sizes button in
+  the Views menu turns them off), and a **cutting list** (Show cutting list,
+  bottom left in the 2D views), both read from the model, so they follow the
+  boards' thickness. The descriptions' door sizes follow it too.
+- The island's slider steps in 5s, so once moved it can't return to its
+  measured 3571 exactly (only 3570); steps of 1 would fix that, if wanted.
+
+## Then: one floor plan, with rooms
 
 A second room (a bedroom, or similar) is coming, with a hallway between it
 and the living room. Rather than separate room pages placed side by side,
