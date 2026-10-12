@@ -1,9 +1,10 @@
 # room_3d.html — how the page is put together
 
-A guide to the HTML, CSS and JS in `room_3d.html` (3,327 lines) and
+A guide to the HTML, CSS and JS in `room_3d.html` (3,423 lines) and
 `room_3d.css` (105 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers are as
-of 11 Oct 2026, after the CSS moved into its own file.
+of 12 Oct 2026, after the settings moved into one `state` object and the
+address into one list (`REFACTOR_PLAN.md` steps 2 and 3).
 
 This describes the page as it is: one room. `PLAN.md` plans to turn it into
 one page for the whole flat (a second room, the hallway, and the staircase
@@ -23,7 +24,7 @@ stay the same.
 | **15** | `<link rel="stylesheet" href="room_3d.css">`: **all the CSS**, in its own file (see section 2) |
 | 16–21 | The **import map**: tells the browser that `import … from 'three'` means the three.js file on the jsDelivr CDN (see section 6) |
 
-### The `<body>` HTML (lines 23–272)
+### The `<body>` HTML (lines 23–280)
 
 The HTML only lays out the controls. It contains no logic.
 
@@ -35,53 +36,54 @@ The HTML only lays out the controls. It contains no logic.
 | 57–67 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
 | 68 | `#scrim` | A grey see-through overlay. On phones it dims the model while the drawer is open |
 | 69 | `#tip` | A tooltip that follows the pointer over things to store |
-| **70–271** | `#panel` | **The settings drawer**, which slides in from the left. It is made of `<details>` sections: |
-| 75–112 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
-| 113–129 | `#secSofa` | Sofa dropdown plus sliders |
-| 130–156 | `#secBench` | Bench switch, bench-height radios, "above the bench" radios, TV and shelf sliders |
-| 157–201 | `#secCupboard` | Cupboard-only switch, depth sliders, front radios, **Option** dropdown (`#current`), x-ray button, option-specific sliders, shelf text inputs |
-| 202–214 | `#secDoors` | Three door-angle sliders |
-| 215–249 | `#secColours` | Colour dropdowns with ◀ ▶ buttons and swatches, plus a nested `<details>` palette |
-| 250–265 | `#secStored` | Packing dropdown, where-radios, buttons |
-| 266–269 | `#about` | The description text, which JS fills in |
+| **70–280** | `#panel` | **The settings drawer**, which slides in from the left. It is made of `<details>` sections: |
+| 75–120 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
+| 121–137 | `#secSofa` | Sofa dropdown plus sliders |
+| 138–164 | `#secBench` | Bench switch, bench-height radios, "above the bench" radios, TV and shelf sliders |
+| 165–211 | `#secCupboard` | Cupboard-only switch, depth sliders, front radios, **Option** dropdown (`#current`), x-ray button, option-specific sliders, shelf text inputs |
+| 212–224 | `#secDoors` | Three door-angle sliders |
+| 225–259 | `#secColours` | Colour dropdowns with ◀ ▶ buttons and swatches, plus a nested `<details>` palette |
+| 260–275 | `#secStored` | Packing dropdown, where-radios, buttons |
+| 276–279 | `#about` | The description text, which JS fills in |
 
-### Scripts (lines 273–3325)
+### Scripts (lines 283–3421)
 
 | Lines | What |
 |---|---|
-| 273–277 | **Plain data scripts**: `room_3d.views.js`, `.dressers.js`, `.larders.js`, `.sofas.js`, `.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
-| 278–279 | **Plain helper scripts**: `view_kit.js` (sets `window.ViewKit`) and `scene_kit.js` (sets `window.SceneKit`) |
-| 280 | `<script type="module">` starts. Everything from here to line 3325 is one module |
+| 283–287 | **Plain data scripts**: `room_3d.views.js`, `.dressers.js`, `.larders.js`, `.sofas.js`, `.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
+| 288–289 | **Plain helper scripts**: `view_kit.js` (sets `window.ViewKit`) and `scene_kit.js` (sets `window.SceneKit`) |
+| 290 | `<script type="module">` starts. Everything from here to line 3421 is one module |
 
 Inside the module:
 
 | Lines | Section | Notes |
 |---|---|---|
-| 281–282 | `import` three.js and OrbitControls | |
-| 284–331 | Scene setup | Units (`MM = 0.001`), room size, `scene`, `renderer`, the 3D camera and the 2D (orthographic) camera, each with its controls, lights and materials |
-| 333–378 | Geometry helpers | `box()`, `slab()`, `hinge()`, `skewHinge()` |
-| 379–626 | The fixed room | Walls, floor, recesses, door frame, ceiling, windows, kitchen, desk, chair, island, room door |
-| 627–669 | **Setting variables** | `let T`, `R`, `F`, `UPPER`, `LEG`, `LEG_D`, `EXTRA`, `WARD`, `TOWER`, … These are the values the sliders write to |
-| 670–756 | Corner-cupboard shelves | |
-| 758–855 | Parts shared by options 1–5 | |
-| 856–941 | Bench, TV and shelves | `above`, `shelfDepth`, `benchOn`, `TV_SIZES`, `benchWall()` |
-| 942–1160 | Colours | The `RAL` table, `FINISHES`, `COLOUR_TARGETS`, `setRal()` |
-| 1161–1536 | Option 9 parts, dresser, larders, island, sofa, front wall | Includes `DRESSER_SLIDERS` (1205), `placeIsland()` (1367), `sofa()` (1400), `frontWall()` (1417) |
-| 1537–1808 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)` |
-| 1809–2016 | 2D dimensions | `updateDims()`, `applyCut()`, the cupboard-only view |
-| 2017–2425 | Things to store | Packing, drawing, and dragging in plan view |
-| **2426–2533** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
-| 2534–2556 | `settingsAddress()`, `writeAddress()` | Saves the whole state into the URL `#hash` |
-| **2557–2939** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
-| 2940–3044 | Built-in views and "anchors" (things the Look menu can aim at) | |
-| 3045–3098 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `view_kit.js` |
-| **3099–3124** | **Pop-up menus** (`setPop`) and `SceneKit.create` | |
-| 3126–3160 | `setFlat()` (2D/3D), Dimensions button, `resize()` | |
-| **3162–3174** | **Settings drawer** (`setMenu`) | |
-| 3176–3207 | Reset and Share buttons | |
-| 3209–3212 | Service worker (offline support) | |
-| 3214–3320 | **Startup** | Reads the URL hash and sets the sliders, radios and variables from it, then `show(...)` |
-| 3321–3324 | **Render loop** | `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
+| 291–292 | `import` three.js and OrbitControls | |
+| 294–341 | Scene setup | Units (`MM = 0.001`), room size, `scene`, `renderer`, the 3D camera and the 2D (orthographic) camera, each with its controls, lights and materials |
+| 342–387 | Geometry helpers | `box()`, `slab()`, `hinge()`, `skewHinge()` |
+| 389–635 | The fixed room | Walls, floor, recesses, door frame, ceiling, windows, kitchen, desk, chair, island, room door |
+| 637–685 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `UPPER`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls write to and the address saves |
+| 687–775 | Corner-cupboard shelves | |
+| 777–880 | Parts shared by options 1–5 | |
+| 882–967 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
+| 969–1184 | Colours | The `RAL` table, `FINISHES`, `COLOUR_TARGETS`, `setRal()` |
+| 1186–1577 | Option 9 parts, dresser, larders, island, sofa, front wall | Includes `DRESSER_SLIDERS` (1229), `placeIsland()` (1400), `sofa()` (1438), `frontWall()` (1455) |
+| 1579–1861 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)` |
+| 1863–2071 | 2D dimensions | `updateDims()`, `applyCut()`, the cupboard-only view |
+| 2073–2482 | Things to store | Packing, drawing, and dragging in plan view |
+| **2484–2591** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
+| 2593–2694 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | One list of the settings' fields, which writes `state` into the URL `#hash` and reads it back (section 5) |
+| **2695–3096** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
+| 3098–3205 | Built-in views and "anchors" (things the Look menu can aim at) | |
+| 3206–3257 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `view_kit.js` |
+| **3258–3283** | **Pop-up menus** (`setPop`) and `SceneKit.create` | |
+| 3285–3319 | `setFlat()` (2D/3D), Dimensions button, `resize()` | |
+| **3321–3333** | **Settings drawer** (`setMenu`) | |
+| 3335–3366 | Reset and Share buttons | |
+| 3368–3371 | Service worker (offline support) | |
+| 3373–3405 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
+| 3407–3416 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
+| 3417–3420 | **Render loop** | `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
 
 ### room_3d.css (105 lines)
 
@@ -192,7 +194,7 @@ The one exception is `<details>`, which is pure HTML.
 |---|---|
 | HTML | `<div id="panel">` (line 70), plus the ☰ button `#menu` (line 26) and ✕ `#close` (line 73) |
 | CSS | Normally `transform: translateX(-105%)`, i.e. moved off-screen to the left (css line 11). With `body.menu-open #panel { transform: none; }` (css line 13) it is back on screen. `transition: transform 0.25s` animates the slide |
-| JS | `setMenu(open)` (lines 3165–3170) runs `document.body.classList.toggle('menu-open', open)`. ☰, ✕, the scrim and Escape all call it (3171–3174) |
+| JS | `setMenu(open)` (lines 3324–3328) runs `document.body.classList.toggle('menu-open', open)`. ☰, ✕, the scrim and Escape all call it (3330–3333) |
 
 The JS doesn't move the drawer. It only switches a class on `<body>`, and the
 CSS does the movement and the animation.
@@ -203,7 +205,7 @@ CSS does the movement and the animation.
 |---|---|
 | HTML | `<div class="pop">` holding a `<button class="popToggle">` and a `<div class="group">` (lines 33–66) |
 | CSS | `.pop > .group { display: none }` hides the group. `.pop.open > .group { display: flex }` shows it (css lines 26–27) |
-| JS | `setPop(open)` (3106–3111) adds `open` to the menu clicked and removes it from the others, and sets `aria-expanded` for screen readers. Escape, or a click outside the menus that isn't on the 3D view, closes them (3113–3114) |
+| JS | `setPop(open)` (3265–3270) adds `open` to the menu clicked and removes it from the others, and sets `aria-expanded` for screen readers. Escape, or a click outside the menus that isn't on the 3D view, closes them (3272–3273) |
 
 Scenes opens upwards for a reason. In `#sceneMenu` the group comes **before** the
 button in the HTML (lines 59–65), and `#corner` stacks its children in a column
@@ -216,7 +218,7 @@ HTML element**. Clicking the summary opens or closes it with no JS or CSS. The
 `open` attribute in the HTML (e.g. `<details class="sec" id="secSofa" open>`)
 makes a section start open.
 
-The only JS involved (lines 2581–2593, 2744–2749) **remembers** each section's
+The only JS involved (lines 2730–2742, 2894–2898) **remembers** each section's
 open/closed state in `localStorage`, using the `toggle` event.
 
 ### What fills the menus' dropdowns
@@ -225,8 +227,8 @@ The `<select>` elements in the HTML are **empty** (e.g. `<select id="where"
 class="pick"></select>`). JS adds every `<option>`:
 
 - Views and Look (`#viewPick`, `#where`, `#lookAt`, `#eye`, `#lookPick`) are filled by
-  `view_kit.js`. The page passes the elements in at lines 3075–3079.
-- Scenes (`#scenePick`) is filled by `scene_kit.js` (3115–3124).
+  `view_kit.js`. The page passes the elements in at lines 3220–3224.
+- Scenes (`#scenePick`) is filled by `scene_kit.js` (3274–3283).
 - The rest are filled in the module (section 4).
 
 ---
@@ -265,23 +267,23 @@ They are not generated by JS. They are typed out in the HTML.
 - The number shown next to the label is a separate `<span id="sofaWValue">`. The
   slider doesn't display its value itself, so JS writes it into the span on every move.
 - The id naming convention is **`<id>` for the slider and `<id>Value` for its readout**.
-  Some JS relies on it, for example `` document.getElementById(`${id}Value`) `` (line 2605).
+  Some JS relies on it, for example `` document.getElementById(`${id}Value`) `` (line 2754).
 
 **Showing and hiding controls.** Many sliders are wrapped in a block such as
-`<div id="legBlock">`. `show(i)` (lines 2508–2521) sets `style.display = 'none'` or
+`<div id="legBlock">`. `show(i)` (lines 2564–2579) sets `style.display = 'none'` or
 `''` on these blocks, so only the controls that apply to the current option are visible.
 
 ### Dropdowns are filled by JS
 
 Three styles are used, which do the same thing:
 
-1. **An HTML string** (line 2450):
+1. **An HTML string** (line 2506):
    ```js
    currentSelect.innerHTML = OPTIONS.map((o, i) => `<option value="${i}">${o.name}</option>`).join('');
    ```
    The colour pickers use the same approach, with `<optgroup label="...">` for the
-   headed sub-lists (lines 2638–2642, 2650–2652).
-2. **`createElement`** (lines 2785–2787, 2800–2801, 2885–2887):
+   headed sub-lists (lines 2787–2791, 2799–2801).
+2. **`createElement`** (lines 2935–2936, 2949–2950, 3043–3044):
    ```js
    dresserPick.append(...Object.entries(DRESSERS).map(([id, d]) =>
      Object.assign(document.createElement('option'), { value: id, textContent: `${d.label} (${d.w} × ${d.h})` })));
@@ -291,7 +293,7 @@ Three styles are used, which do the same thing:
 3. **The kits** (`view_kit.js` and `scene_kit.js`) use the `createElement` style internally.
 
 The dresser, larder and sofa dropdowns also have a disabled **"Custom"** option.
-JS selects it when the sliders no longer match any preset (`showDresserPick()`, line 2788).
+JS selects it when the sliders no longer match any preset (`showDresserPick()`, line 2937).
 
 ---
 
@@ -305,52 +307,52 @@ Every control follows the same pattern:
 user moves control
   → browser fires an event ('input' or 'change')
   → listener reads element.value (always a STRING, so Number(...) it)
-  → stores it in a module variable (T, R, BENCH, WARD, sofaSize...)
+  → stores it in state (state.T, state.R, state.BENCH, state.sofa.size...)
   → updates the readout <span>
-  → calls show(shown): rebuilds the current option's 3D objects using those variables
+  → calls show(state.option): rebuilds the current option's 3D objects from state
        → which also updates the visible blocks, the description, the dimensions and the URL
-  → the render loop (line 3321) draws the new scene on the next frame
+  → the render loop (line 3417) draws the new scene on the next frame
 ```
 
-**Example: a slider** (lines 2596–2601):
+**Example: a slider** (lines 2744–2749):
 
 ```js
 const upperSlider = document.getElementById('upper');
 upperSlider.addEventListener('input', () => {
-  UPPER = Number(upperSlider.value);                          // 1. into the variable
-  document.getElementById('upperValue').textContent = UPPER;  // 2. the readout
-  show(shown);                                                // 3. rebuild the 3D
+  state.UPPER = Number(upperSlider.value);                          // 1. into state
+  document.getElementById('upperValue').textContent = state.UPPER;  // 2. the readout
+  show(state.option);                                               // 3. rebuild the 3D
 });
 ```
 
-**Example: a radio group** (lines 2576–2580). The code listens on each radio in the group:
+**Example: a radio group** (lines 2725–2729). The code listens on each radio in the group:
 
 ```js
 document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => {
-  BENCH = Number(r.value);
+  state.BENCH = Number(r.value);
   benchHeights();
-  show(shown);
+  show(state.option);
 }));
 ```
 
-**Example: a dropdown** (line 2451):
+**Example: a dropdown** (line 2507):
 
 ```js
 currentSelect.addEventListener('change', () => chooseOption(Number(currentSelect.value)));
 ```
 
-**Example: a loop over several similar sliders** (lines 2602–2609). This avoids
+**Example: a loop over several similar sliders** (lines 2750–2757). This avoids
 repeating the same block for each slider:
 
 ```js
-for (const [id, set] of [['ward', v => { WARD = v; }], ['wardD', v => { WARD_D = v; }], ...]) {
+for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ...]) {
   const slider = document.getElementById(id);
-  slider.addEventListener('input', () => { set(Number(slider.value)); ...; show(shown); });
+  slider.addEventListener('input', () => { state[key] = Number(slider.value); ...; show(state.option); });
 }
 ```
 
 The dresser, larder and sofa sliders do the same, driven by arrays such as
-`DRESSER_SLIDERS` (line 1205): `[key, sliderId, min, max, step]`.
+`DRESSER_SLIDERS` (line 1229): `[key, sliderId, min, max, step]`.
 
 ### `input` vs `change`
 
@@ -359,13 +361,13 @@ The dresser, larder and sofa sliders do the same, driven by arrays such as
 - **`change`** fires once the choice is final. It's used for radios, dropdowns,
   checkboxes and the shelf text boxes.
 
-### What `show(i)` does (lines 2477–2532)
+### What `show(i)` does (lines 2533–2590)
 
 It's the single place where settings become 3D objects:
 
 1. Removes the old option's `THREE.Group` from the scene.
 2. Creates a new group and calls `OPTIONS[i].build(group)`. That function reads the
-   variables (`T`, `R`, `UPPER`, …) to size its boxes.
+   sizes it needs from `state` (`const { T, R, UPPER } = state;`) to size its boxes.
 3. Adds the bench wall, the front-wall piece and the sofa.
 4. **Updates the UI to match**: enables or disables dropdown options, writes the
    description, and shows or hides the slider blocks.
@@ -373,12 +375,12 @@ It's the single place where settings become 3D objects:
    `writeAddress()` (saves the state into the URL), then `update()`.
 
 The approach is simple: **rebuild everything** whenever something changes. It's
-fast enough for a model of this size, and it means the 3D model always matches the
-variables.
+fast enough for a model of this size, and it means the 3D model always matches
+`state`.
 
 ### The faster path for doors
 
-The three door sliders don't rebuild. `update()` (lines 2435–2446) only rotates
+The three door sliders don't rebuild. `update()` (lines 2491–2501) only rotates
 the existing hinge objects:
 
 ```js
@@ -387,25 +389,29 @@ roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomSlider.value));
 
 ### Colours
 
-`colourPicker()` (lines 2647–2678) builds each colour dropdown and its ◀ ▶
-buttons. A choice goes through `setRal(target, code)` (line 1138), which sets
+`colourPicker()` (lines 2796–2827) builds each colour dropdown and its ◀ ▶
+buttons. A choice goes through `setRal(target, code)` (line 1163), which sets
 `.color` on the three.js **materials** shared by those objects. It then calls
-`show(shown)`.
+`show(state.option)`.
 
 ### Views and Look
 
 The Views and Look dropdowns don't change the model. They move the **camera**.
 `view_kit.js` handles the dropdowns and calls back into the page through the
-`hooks.place()` function (lines 3080–3097), which sets `camera.position` and
+`hooks.place()` function (lines 3226–3242), which sets `camera.position` and
 `controls.target`.
 
 ### The URL holds the state
 
-`settingsAddress()` (line 2539) joins every setting with `-` into the `#hash`.
-At startup (lines 3214–3320) the hash is split again, and each slider and radio is
-set from it, e.g. `rearSlider.value = rear`, or `frontRadio.checked = true` for
-radios found with `document.querySelector('input[name=front][value="1329"]')`.
-This is how Share links and Scenes work. Reset simply loads the page with no hash.
+`ADDRESS` (line 2619) lists the settings' fields in their order in the
+`#hash`, each as `[its place in state, how to write it, how to read it back]`,
+e.g. `['R', String, within(300, 800)]`. `settingsAddress()` (line 2666) writes
+every field and joins them with `-`. At startup (lines 3407–3413)
+`readAddress()` (line 2672) splits the hash again and reads each field into
+`state`, skipping any that fail their check; then `syncControls()` (line 3373)
+sets every slider and radio from `state`, e.g. the radio found with
+`document.querySelector('input[name=front][value="1329"]')`. This is how Share
+links and Scenes work. Reset simply loads the page with no hash.
 
 ---
 
@@ -416,7 +422,7 @@ A normal `<script>` and a `<script type="module">` differ as follows:
 | | `<script>` (classic) | `<script type="module">` |
 |---|---|---|
 | `import` / `export` | Not allowed | **Allowed**. This is the reason it's used here: `import * as THREE from 'three'` |
-| Variables at the top level | Become globals (on `window` for `var`/functions) | **Private to the module**. Other scripts can't see `scene`, `T`, `show()` and so on |
+| Variables at the top level | Become globals (on `window` for `var`/functions) | **Private to the module**. Other scripts can't see `scene`, `state`, `show()` and so on |
 | When it runs | As soon as the parser reaches it, blocking the page | **Deferred**: after the whole HTML has been parsed |
 | Strict mode | Opt-in (`'use strict'`) | Always on |
 | Opened from a `file://` URL | Works | An inline module works. `import`ing *local* module files usually fails because of browser security |
@@ -441,9 +447,9 @@ step. The second entry maps a whole prefix, so
 
 `view_kit.js` notes that it's "a plain script (not a module), so pages work when
 opened from a file too". The data and kit files load as classic scripts at lines
-273–279 and hand over their contents through globals (`window.ROOM_SOFAS`,
+283–289 and hand over their contents through globals (`window.ROOM_SOFAS`,
 `window.ViewKit`, …). The module then reads those globals, e.g.
-`window.ROOM_DRESSERS?.list` (line 1208).
+`window.ROOM_DRESSERS?.list` (line 1232).
 
 The order matters, and it works out as follows: the classic scripts run first, as
 they're parsed. The module is deferred, so by the time it runs the globals exist
@@ -454,13 +460,14 @@ and every HTML element above it is in the DOM.
 ## 7. Quick reference: finding things
 
 - **To add a slider**: add the `<label>`, `<span id="xValue">` and
-  `<input id="x" type="range">` inside a block in the drawer HTML. Add a
-  `let X` variable near lines 627–669. Add an `input` listener that sets `X`,
-  updates the span and calls `show(shown)`. Use `X` in a `build()`. To keep it
-  in links, add it to `settingsAddress()` and to the startup reading.
+  `<input id="x" type="range">` inside a block in the drawer HTML. Add `X`
+  to `state` (lines 637–685). Add an `input` listener that sets `state.X`,
+  updates the span and calls `show(state.option)`, and set the slider in
+  `syncControls()`. Use `X` in a `build()` (`const { X } = state;`). To keep it
+  in links, add a field to the end of `ADDRESS`.
 - **To change how something looks**: find its id or class in the HTML, then search
   `room_3d.css` for that `#id` or `.class`.
 - **To find what happens when a control is used**: search for its id in quotes,
   e.g. `'sofaW'`, or for `name=bench` for a radio group.
 - **To hide a control for some options**: add a condition in `show()` around
-  lines 2508–2521.
+  lines 2564–2579.

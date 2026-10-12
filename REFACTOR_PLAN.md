@@ -2,6 +2,8 @@
 
 Step 1 is done: the CSS is in `room_3d.css`, and the floating text buttons
 share a `.chip` class (commit `8b51792`, branch `ui-guide-and-menu-demo`).
+Steps 2 and 3 are done too (12 Oct 2026, branch `state-and-address`); step 4
+is next, and is `PLAN.md`'s steps 1 and 2.
 
 The steps below change how the code is organised, not what the page does.
 After each one the page should look and behave exactly as before.
@@ -12,15 +14,16 @@ in the browser, may stop working. Where the notes below say to keep old
 links working, that no longer applies. Do one step per session, and make
 each step its own commit, so any one of them can be undone on its own.
 
-Line numbers are as of 11 Oct 2026. See `room_3d_ui_guide.md` for the map.
+Line numbers in steps 2 and 3 are as of 11 Oct 2026, before them; in step 4
+they're as of 12 Oct 2026, after them. See `room_3d_ui_guide.md` for the map.
 
 **How this fits with `PLAN.md`:** `PLAN.md` step 1 already plans to pull the
 engine out of `room_3d.html` into `kit/floor_kit.js`, so the whole flat (the
 second room, hallway and stairs) can be one floor plan. Steps 2 and 3 here
-(one `state` object, the address from one list) should be done **as part of
-that work**, not as a separate pass. Step 4's file split is replaced by
-`PLAN.md`'s file layout. The test suite below comes first either way: it's
-`PLAN.md`'s step 0.
+(one `state` object, the address from one list) were planned as part of that
+work, but were done first, on their own, which leaves the engine work smaller.
+Step 4 below is that work, with `PLAN.md`'s file layout. The test suite below
+came first: it's `PLAN.md`'s step 0.
 
 **Do the test suite below first**, before step 2. Every step after it is
 checked by running the suite.
@@ -105,6 +108,21 @@ screenshot checks off.
 
 ## Step 2: one `state` object instead of loose variables
 
+**Done** (12 Oct 2026, branch `state-and-address`). As planned, with two
+differences from the notes below:
+
+- The cupboard sizes kept their short names in `state` (`state.T`,
+  `state.R`, `state.BOARD`, `state.BENCH`, `state.UPPER`, …), as used in the
+  code and `room_dimensions.md`, so a drawing function starts with
+  `const { T, R, BOARD } = state;` rather than renaming each one. The other
+  settings got longer names (`state.above`, `state.sofa.key`,
+  `state.stored.where`, …).
+- The options' one-line parts read state through a default parameter:
+  `clearFrom: ({ T, UPPER } = state) => T + UPPER`.
+
+The view toggles (cupboard only, dimensions, see-through) stay outside
+`state`, as the address doesn't save them.
+
 ### Why
 
 The settings are about 30 separate `let` variables spread through the module
@@ -184,6 +202,17 @@ the reference screenshots, and give back the same `location.hash` after load.
 
 ## Step 3: save and load the address from one list
 
+**Done** (12 Oct 2026, branch `state-and-address`): `ADDRESS`,
+`settingsAddress()`, `readAddress()` and `syncControls()`; startup is
+`readAddress()` → `syncControls()` → `show()`. The address format is
+unchanged. Two small changes in reading: the floor, wall and woodwork
+colours in a link are now read like the others (the page always writes 0,
+so links it made are unaffected), and links from before option 7's leg had
+its own depth no longer get the back-wall depth for it. Three addresses with
+nearly every setting changed are now in the test suite; before they went in,
+each was checked to load the same in the code before and after.
+Reset is still a page reload.
+
 ### Why
 
 Adding one setting today means editing three places:
@@ -235,81 +264,128 @@ suite's round-trip test covers this; add an old-format link or two to it.
 
 ---
 
-## Step 4: split the module into files
+## Step 4: the engine into `kit/floor_kit.js`, the room into `living_room.js`
 
-> **Superseded by `PLAN.md`'s file layout** (`kit/floor_kit.js`, `floor.js`,
-> `living_room.js`, …), which is shaped for a whole floor rather than one
-> room. The notes below on `file://`, import order and `sw.js` still apply.
+This is `PLAN.md`'s steps 1 and 2: pull the general code out of
+`room_3d.html` into an engine, and describe the living room as data and
+room code that the engine draws. It replaces the earlier plan of splitting
+the module into a dozen files by topic (`js/geometry.js`, `js/options.js`,
+…), which was shaped for one room; `PLAN.md`'s layout is shaped for a floor
+of rooms. Nothing visible changes in this step: the hallway and the other
+room come later (`PLAN.md` step 4).
 
 ### Why
 
-One 3,000-line `<script type="module">` is hard to find your way around. Each
-file should have one job, and say what it needs with `import`.
+One 3,400-line `<script type="module">` is hard to find your way around, and
+about a third of it is general (the 3D set-up, cameras, menus, the address,
+2D dimensions) while the rest is this room. A second room shouldn't copy the
+general part.
 
-### Proposed files
+### Files
+
+As in `PLAN.md`, with what moves into each from today's `room_3d.html`
+(lines as of 12 Oct 2026):
 
 ```
-room_3d.html          the page: HTML only, plus <script type="module" src="js/main.js">
-room_3d.css           (done)
-js/
-  three-setup.js      scene, renderer, cameras, controls, lights      (now lines 284–331)
-  geometry.js         box(), slab(), hinge(), skewHinge(), materials  (333–378)
-  room.js             the fixed room: walls, kitchen, desk, door       (379–626)
-  bench.js            bench, TV and shelves                           (856–941)
-  colours.js          RAL table, finishes, setRal(), oak texture      (942–1160)
-  furniture.js        dresser, larders, island, sofa, front wall      (1161–1536)
-  cupboards.js        shared parts and shelves                        (670–855)
-  options.js          OPTIONS                                         (1537–1808)
-  dims.js             2D dimensions, cut, cupboard-only               (1809–2016)
-  stored.js           things to store, packing, dragging              (2017–2425)
-  state.js            the state object and defaults                   (step 2)
-  address.js          the ADDRESS table, read and write               (step 3)
-  show.js             show(), update()                                (2426–2533)
-  controls.js         every control's listener, syncControls()        (2557–2939)
-  menus.js            drawer, pop-ups, Share, Reset                   (3099–3207)
-  views.js            built-in views, anchors, ViewKit/SceneKit setup (2940–3098)
-  main.js             startup and the render loop                     (3209–3324)
+index.html                 the page: today's HTML (lines 1–280) and the drawer's
+                           controls, then the scripts. It replaces the redirect
+                           in index.html today
+kit/floor_kit.js           the engine:
+                             3D set-up: scene, renderer, cameras, controls, lights (294–341)
+                             box(), slab(), hinge(), skewHinge() (342–387)
+                             colours: RAL, finishes, setRal(), the oak floor (969–1184)
+                             2D dimensions and cut views: dimLine(), chain(), applyCut() (1863–2071, the general part)
+                             the address loop: valueAt(), settingsAddress(), readAddress() (2593–2694), for a
+                               room's own ADDRESS list
+                             menus: setPop(), setMenu(), resize(), Share, Reset (3258–3366)
+                             startup and the render loop (3407–3420)
+kit/view_kit.js            today's view_kit.js
+kit/scene_kit.js           today's scene_kit.js
+floor.js                   the floor plan: the walls as lines with a thickness, the
+                           door and windows in them, where each room's corner is.
+                           For now only the living room's walls, door frame and
+                           windows (389–509, 630–635)
+living_room.js             the living room, in its own mm from its corner:
+                             its state and ADDRESS list (637–685, 2619–2665)
+                             its fittings: kitchen, desk, chair, island (510–629)
+                             its cupboard options and their parts (687–967, 1186–1861)
+                             its 2D dimensions (updateDims(), cupboardDims())
+                             the things to store (2073–2482)
+                             show(), update() (2484–2591)
+                             its controls' listeners and syncControls() (2695–3096, 3373–3405)
+                             its built-in views and anchors (3098–3205)
+living_room.views.js       today's room_3d.views.js
+living_room.scenes.js      today's room_3d.scenes.js
+dressers.js, larders.js,   today's room_3d.dressers.js, .larders.js, .sofas.js
+sofas.js
+room_3d.html               a redirect into index.html, with its #address (PLAN.md step 3)
 ```
 
-The data files (`room_3d.views.js`, `.dressers.js`, …) and the kits stay as
-they are.
+The things to store could later go into a kit of their own, if another room
+needs them.
 
-### A decision first: opening from a file
+### The engine and a room
 
-Today the page works when opened straight from disk (`file://`), because all
-its JS is inline or in classic scripts. **Module files loaded with
+The engine knows nothing about cupboards. A room hands it:
+
+- `state`, its settings, and `ADDRESS`, its fields in the address (both
+  exist now, from steps 2 and 3);
+- `build(group)`: draws the room's fittings and whatever its settings say,
+  i.e. today's `show()` less the menu work;
+- `syncControls()` and its controls' listeners, which call back into the
+  engine to rebuild and to write the address;
+- its views, anchors, scenes and dimensions.
+
+The engine draws the floor from `floor.js`, then each room in a group placed
+at its corner, so a room's numbers stay in its own mm. Today's address is
+the living room's; when there are more rooms, each room's part of the
+address needs a name in front of it (`PLAN.md`: old links needn't survive).
+
+### A decision first: modules or classic scripts
+
+Today the page works when opened straight from disk (`file://`), because its
+JS is inline or in classic scripts. **Module files loaded with
 `<script type="module" src>` or `import` don't work from `file://`**; the
-browser blocks them. After this step the page needs a server:
+browser blocks them. Two ways:
 
-- **GitHub Pages**, where it's published, works.
-- **Locally**: `python3 -m http.server` in the folder, then open
-  `http://localhost:8000/room_3d.html`.
-- **The installed phone app** works, as it is served from GitHub Pages.
+- **Modules** (`import` / `export` between the files): the cleanest code,
+  but the page then needs a server. GitHub Pages, where it's published, and
+  the installed phone app are fine; locally, `python3 -m http.server` in the
+  folder (the tests already do this).
+- **Classic scripts, as the kits are now**: each file sets a global
+  (`window.FloorKit`, `window.LIVING_ROOM`), and a short inline module passes
+  in three.js. This keeps `file://` working, with no build step.
 
-If opening from a file matters, the alternative is a build step, e.g. Vite or
-esbuild, that bundles the modules back into one file. That brings in npm and a
-`package.json`, which I'd avoid unless it's needed.
+A build step (Vite, esbuild) bundling modules back into one file is a third
+way, but adds tooling the site doesn't otherwise need.
 
 ### How, safely
 
-- **Move one section at a time**, from the bottom of the dependency chain up:
-  `geometry.js` first, `options.js` and `controls.js` late, `main.js` last.
-  Load the page after each move.
-- **Watch for shared variables.** In one module everything can see everything.
-  Split into files, each file has to `export` what others use and `import`
-  what it needs. A missing import shows as `ReferenceError` in the console, so
-  check the console after each move.
-- **Watch for two-way dependencies.** `show()` calls the options and the
-  options call helpers that read state. Keep `state.js` and `geometry.js` free
-  of imports from the rest, so there are no import cycles.
-- **Update the offline list.** Add every new file to `FILES` in `sw.js` and
-  bump `CACHE`, or the installed app will break offline.
+- **Work on a branch; show the result before it goes live** (`PLAN.md`).
+- **Move the general code first**, from the bottom of the dependency chain
+  up: the 3D set-up and geometry helpers, then colours, then menus, then the
+  address loop. Run the tests after each move.
+- **Then draw the room from data**: the walls and openings into `floor.js`,
+  then the fittings and options into `living_room.js`.
+- **Watch for shared variables.** In one module everything can see
+  everything. Split into files, each one has to export (or hang on its
+  global) what the others use. A missing one shows as `ReferenceError` in
+  the console, which the tests fail on.
+- **Watch for two-way dependencies.** The room calls the engine's helpers
+  (`box()`, `setRal()`), and the engine calls the room's `build()`; keep the
+  helpers free of anything room-specific so there are no cycles.
+- **Rename the data files** and move the kits into `kit/`; update the
+  `<script>` tags, and the tests that read `room_3d.scenes.js`.
+- **Update the offline list.** Every file in `FILES` in `sw.js`, and bump
+  `CACHE`, or the installed app breaks offline; and `manifest.webmanifest`'s
+  start page (`PLAN.md` step 3).
 
 ### Check
 
-The same saved addresses as steps 2 and 3, plus:
+The Playwright suite, against `index.html` focused on the living room: the
+same screenshots and addresses as now. Point `tests/helpers.js`'s
+`openRoom()` at the new page. Plus, by hand:
 
-- no errors in the console;
 - the drawer, all three pop-up menus, Share, Reset, and the 2D views with
   dimensions;
 - dragging a stored thing in the plan view;
@@ -319,7 +395,8 @@ The same saved addresses as steps 2 and 3, plus:
 
 ## After each step
 
-- Update `room_3d_ui_guide.md`: its line numbers, and after step 4 its file names.
+- Update `room_3d_ui_guide.md`: its line numbers, and after step 4 its file
+  names (the map needs redoing then, as its first section says).
 - Commit with a message in the repo's "Plans: …" style.
 
 ## Rough size
@@ -328,9 +405,9 @@ The same saved addresses as steps 2 and 3, plus:
 |---|---|---|
 | Test suite | Medium: about a session to write, then free to run | Low: it changes nothing in the site |
 | Board thickness (`PLAN.md`) | Medium: about 115 places, each checked by eye | Medium: the screenshot tests must show no change at 18 |
-| 2 | Medium: touches most of the module, mechanically | Low with option (a), as long as each group is tested |
-| 3 | Medium: replaces about 130 lines with a table and two loops | Medium: old links are easy to break, hence the round-trip test |
-| 4 | Large: moves everything | Medium: mostly missing imports, which the console shows straight away |
+| 2 | Done | |
+| 3 | Done | |
+| 4 | Large: moves everything, over several sessions (general code first, then the room) | Medium: mostly missing names, which the console shows straight away and the tests fail on |
 
 Each is roughly a session's work. On the Pro plan, do them after the weekly
 limit resets, one per session.

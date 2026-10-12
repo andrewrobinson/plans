@@ -2589,15 +2589,99 @@ function show(i) {
   update();
 }
 
-// The address holds the option, every setting and, after "~", where the
-// things to store are
-// replace: change the address without adding to the history, as when
-// looking round
+// ---------------------------------------------------------------------------
+// The address: the settings, one field each in this order, joined with "-"
+// (room_dimensions.md has them all), then "~" and where the things to store
+// are. Each field is [its place in state, how to write it, how to read it
+// back]. Reading checks the text and gives the new value, or undefined to
+// leave the setting as it was; it's given the value as it is, for fields of
+// several parts. Adding a setting means adding it to state and here.
+// ---------------------------------------------------------------------------
+const number = check => text => check(Number(text));
+const within = (lo, hi) => number(v => (v >= lo && v <= hi ? v : undefined));
+const radio = name => number(v => (document.querySelector(`input[name=${name}][value="${v}"]`) ? v : undefined));
+const colour = number(code => (code === 0 || colourOf(code) ? code : undefined));
+// Sizes as a.b.c, in their sliders' order ([key, id, lowest, highest]): each
+// held to its slider's range, or with `strict`, left as it was outside it
+const sizes = (sliders, strict = false) => [
+  s => sliders.map(([k]) => s[k]).join('.'),
+  (text, s) => {
+    const out = { ...s };
+    text.split('.').forEach((part, k) => {
+      const [key, , lo, hi] = sliders[k] ?? [], v = part ? Number(part) : NaN;
+      if (!key || !Number.isFinite(v)) return;
+      if (!strict) out[key] = Math.min(hi, Math.max(lo, v));
+      else if (v >= lo && v <= hi) out[key] = v;
+    });
+    return out;
+  },
+];
+const ADDRESS = [
+  ['option', optionCode, number(code => (code >= 1 ? optionIndex(code) : undefined))],
+  ['T', String, number(t => (t === 0 || (t >= 300 && t <= 800) ? t : undefined))],
+  ['R', String, within(300, 800)],
+  ['F', String, radio('front')],
+  ['above', String, radio('above')],
+  ['shelfDepth', String, within(150, 400)],
+  ['BENCH', String, radio('bench')],
+  ['EXTRA', String, within(300, 900)],
+  ['UPPER', String, within(400, 1200)],
+  ['LEG', String, within(400, 1200)],
+  ['WARD', String, within(600, 1400)],
+  ['TOWER', String, within(0, 600)],
+  ['WARD_D', String, within(330, 1000)],
+  ['colours.floor', String, colour],
+  ['colours.cupboard', String, colour],
+  ['colours.wall', String, colour],
+  ['colours.woodwork', String, colour],
+  ['shelfWood', String, number(i => (SHELF_WOODS[i] ? i : undefined))],
+  ['tv', String, number(t => (TV_SIZES.some(([inches]) => inches === t) ? t : undefined))],
+  ['colours.dresser', String, colour],
+  ['dresser', ...sizes(DRESSER_SLIDERS, true)],
+  ['frontPiece', p => FRONT_PIECES.indexOf(p), number(i => FRONT_PIECES[i])],
+  // A larder or sofa chosen comes at its own size, unless its sizes follow
+  ['larder', l => l.key, (key, l) => (Object.hasOwn(LARDERS, key) ? { ...l, key, size: larderOwnSize(LARDERS[key]) } : undefined)],
+  ['island.at', at => ISLAND_AT.indexOf(at), number(i => ISLAND_AT[i])],
+  ['sofa', s => s.key || 'none', (key, s) => key === 'none' ? { ...s, key: '' }
+    : Object.hasOwn(SOFAS, key) ? { ...s, key, size: sofaOwnSize(SOFAS[key]) } : undefined],
+  ['sofa.front', String, within(1000, 3500)],
+  ['larder.size', ...sizes(LARDER_SLIDERS)],
+  ['sofa.size', ...sizes(SOFA_SLIDERS)],
+  ['benchOn', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],
+  ['LEG_D', String, within(330, 1000)],
+  ['L_SHELVES.back', tops => tops.join('.') || 0, text => readShelves(text)],
+  ['L_SHELVES.left', tops => tops.join('.') || 0, text => readShelves(text)],
+  ['island.move', m => `${m.x}.${m.y}.${m.turn}`, (text, m) => {
+    const [x, y, turn] = text.split('.').map(v => (v ? Number(v) : NaN));
+    return { x: x >= 0 && x <= W ? x : m.x, y: y >= 0 && y <= D ? y : m.y, turn: turn >= 0 && turn <= 180 ? turn : m.turn };
+  }],
+  ['BOARD', String, within(12, 25)],
+];
+const valueAt = path => path.split('.').reduce((o, k) => o[k], state);
+function setValueAt(path, value) {
+  const keys = path.split('.'), last = keys.pop();
+  keys.reduce((o, k) => o[k], state)[last] = value;
+}
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
-  const { T, R, F, above, shelfDepth, BENCH, EXTRA, UPPER, LEG, WARD, TOWER, WARD_D, colours, shelfWood, tv, frontPiece, larder, island, sofa, benchOn, LEG_D, L_SHELVES, BOARD } = state;
-  return `${optionCode(state.option)}-${T}-${R}-${F}-${above}-${shelfDepth}-${BENCH}-${EXTRA}-${UPPER}-${LEG}-${WARD}-${TOWER}-${WARD_D}-${colours.floor}-${colours.cupboard}-${colours.wall}-${colours.woodwork}-${shelfWood}-${tv}-${colours.dresser}-${DRESSER_SLIDERS.map(([k]) => state.dresser[k]).join('.')}-${FRONT_PIECES.indexOf(frontPiece)}-${larder.key}-${ISLAND_AT.indexOf(island.at)}-${sofa.key || 'none'}-${sofa.front}-${larder.size.w}.${larder.size.h}.${larder.size.d}-${sofa.size.w}.${sofa.size.d}.${sofa.size.h}-${benchOn ? 1 : 0}-${LEG_D}-${L_SHELVES.back.join('.') || 0}-${L_SHELVES.left.join('.') || 0}-${island.move.x}.${island.move.y}.${island.move.turn}-${BOARD}~${storedAddress()}`;
+  return `${ADDRESS.map(([path, write]) => write(valueAt(path))).join('-')}~${storedAddress()}`;
 }
+// Read a settings address (the part of the page's address before the
+// view) into state. The boards' thickness goes first, as option 7's shelves
+// are checked against it.
+function readAddress(text) {
+  const [settings, stored] = text.split('~'), parts = settings.split('-');
+  const board = ADDRESS.findIndex(([path]) => path === 'BOARD');
+  for (const k of [board, ...[...ADDRESS.keys()].filter(k => k !== board)]) {
+    const [path, , read] = ADDRESS[k], part = parts[k];
+    if (part === undefined || part === '') continue;
+    const value = read(part, valueAt(path));
+    if (value !== undefined) setValueAt(path, value);
+  }
+  readStoredAddress(stored);
+}
+// replace: change the address without adding to the history, as when
+// looking round
 let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
 function writeAddress(replace = false) {
   const hash = `#${settingsAddress()}~${viewKit.address()}`;
@@ -2633,13 +2717,9 @@ rearSlider.addEventListener('input', () => {
   show(state.option);
 });
 const boardSlider = document.getElementById('board');
-function setBoard(t) {
-  state.BOARD = t;
-  boardSlider.value = t;
-  document.getElementById('boardValue').textContent = t;
-}
 boardSlider.addEventListener('input', () => {
-  setBoard(Number(boardSlider.value));
+  state.BOARD = Number(boardSlider.value);
+  document.getElementById('boardValue').textContent = state.BOARD;
   show(state.option);
 });
 document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => {
@@ -3290,124 +3370,47 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => { /* the page still works without it */ });
 }
 
-// From the address: option 7's back-wall leg depth, a depth, 'back' for
-// links from before it, or null for none
-let legDAddress = null;
-// Start on the option and settings in the address (see room_dimensions.md
-// for the order), or with no address: option 9. Options start with no
-// left-wall cupboard, TV and shelves above the bench, and AI Olive cupboards.
-// The boards' thickness, first, as the shelves below are checked against it;
-// links from before it keep 18
-const boardIn = Number(location.hash.slice(1).split('~')[0].split('-')[33]);
-if (boardIn >= 12 && boardIn <= 25) setBoard(boardIn);
-const [start, depth, rear, front, aboveIn, shelfIn, benchIn, extraIn, upperIn, legIn, wardIn, towerIn, wardDIn, ralFloor, ralCupboard, ralWall, ralWoodwork, shelfWoodIn, tvIn, ralDresser] = location.hash.slice(1).split('~')[0].split('-').map(Number);
-if (SHELF_WOODS[shelfWoodIn]) setShelfWood(shelfWoodIn);
-readStoredAddress(location.hash.split('~')[1]);
-const tvIndex = TV_SIZES.findIndex(([inches]) => inches === tvIn);
-if (tvIndex >= 0) setTvSize(tvIndex);
-// Only the cupboard colour can be changed now; the others stay as the room is
-// A link's cupboard colour wins, even 0 (same as the woodwork)
-if (ralCupboard !== undefined && !Number.isNaN(ralCupboard) && setRal('cupboard', ralCupboard) !== null) refreshColours();
-if (Number.isFinite(ralDresser) && setRal('dresser', ralDresser) !== null) refreshColours();
-// The dresser's sizes, as w.h.baseD.baseH.upperD (a number, so read from the text)
-const dresserText = location.hash.slice(1).split('~')[0].split('-')[20];
-// What's on the front wall (0 the dresser, 1 a larder, 2 nothing), which
-// larder, and where the island is (0 where it is, 1 and 2 against the front
-// wall, short or long side out, 3 none)
-{
-  const [frontIn, larderIn, islandIn, sofaIn, sofaFrontIn, larderSizeIn, sofaSizeIn, benchIn, legDIn, shelvesBackIn, shelvesLeftIn, islandMoveIn] = location.hash.slice(1).split('~')[0].split('-').slice(21);
-  if (shelvesBackIn !== undefined) state.L_SHELVES.back = readShelves(shelvesBackIn);   // option 7's shelves (links from before keep 600, 1200, 1800)
-  if (shelvesLeftIn !== undefined) state.L_SHELVES.left = readShelves(shelvesLeftIn);
+// Every control in step with state: the sliders, radio buttons, switches
+// and dropdowns, the reverse of their listeners above. The colours, the
+// shelves' wood, the dresser's place and the island go on the model too.
+// The option's own controls, and the things to store's, are show()'s.
+function syncControls() {
+  const { T, R, F, BOARD, BENCH, above, shelfDepth, benchOn, tv, frontPiece, island } = state;
+  const slide = (id, value, text = value) => {
+    document.getElementById(id).value = String(value);
+    document.getElementById(`${id}Value`).textContent = text;
+  };
+  const check = (name, value) => { document.querySelector(`input[name=${name}][value="${value}"]`).checked = true; };
+  slide('depth', T || 290, T || 'none');
+  slide('rear', R);
+  slide('board', BOARD);
+  for (const [id, key] of [['upper', 'UPPER'], ['extra', 'EXTRA'], ['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER']]) slide(id, state[key]);
+  check('front', F);
+  benchSwitch.checked = benchOn;
+  check('bench', BENCH);
+  check('above', above);
+  slide('shelfDepth', shelfDepth);
+  benchHeights();                                               // the TV's size, and the heights above the bench
+  slide('tvSize', TV_SIZES.findIndex(([inches]) => inches === tv), `${tv}" (${TV_W} × ${TV_H})`);
   showShelves();
-  if (benchIn === '0') benchSwitch.checked = state.benchOn = false;   // the bench off (links from before have it)
-  legDAddress = start ? (Number(legDIn) >= 330 && Number(legDIn) <= 1000 ? Number(legDIn) : 'back') : null;
-  const { sofa } = state;
-  if (sofaIn === 'none' || Object.hasOwn(SOFAS, sofaIn ?? '')) sofa.key = sofaIn === 'none' ? '' : sofaIn;   // the sofa, if any, and its front from the TV wall
-  if (Number(sofaFrontIn) >= 1000 && Number(sofaFrontIn) <= 3500) sofa.front = Number(sofaFrontIn);
-  if (SOFAS[sofa.key]) sofa.size = sofaOwnSize(SOFAS[sofa.key]);
-  // The sofa's sizes, as w.d.h; links from before them keep the sofa's own
-  const [sw, sd, sh] = (sofaSizeIn ?? '').split('.').map(v => (v ? Number(v) : NaN));
-  setSofaSize({ w: sw, d: sd, h: sh });
-  const { island, larder } = state;
-  if (ISLAND_AT[Number(islandIn)]) island.at = ISLAND_AT[Number(islandIn)];
-  // Out there, where its middle is and how far it's turned, as x.y.turn; links from before keep it where it is
-  const [ix, iy, it] = (islandMoveIn ?? '').split('.').map(v => (v ? Number(v) : NaN));
-  if (ix >= 0 && ix <= W) island.move.x = ix;
-  if (iy >= 0 && iy <= D) island.move.y = iy;
-  if (it >= 0 && it <= 180) island.move.turn = it;
-  document.querySelector(`input[name=islandAt][value="${island.at}"]`).checked = true;
+  for (const target of Object.keys(COLOUR_TARGETS)) setRal(target, state.colours[target]);
+  refreshColours();
+  setShelfWood(state.shelfWood);
+  check('frontPiece', frontPiece);
+  setDresser(state.dresser);
+  showLarder();
+  showSofa();
+  check('islandAt', island.at);
   placeIsland();
-  if (FRONT_PIECES[Number(frontIn)]) state.frontPiece = FRONT_PIECES[Number(frontIn)];
-  if (Object.hasOwn(LARDERS, larderIn ?? '')) {
-    larder.key = larderIn;
-    larder.size = larderOwnSize(LARDERS[larder.key]);
-  }
-  // The larder's sizes, as w.h.d; links from before them keep the larder's own
-  const [lw, lh, ld] = (larderSizeIn ?? '').split('.').map(v => (v ? Number(v) : NaN));
-  setLarderSize({ w: lw, h: lh, d: ld });
-  document.querySelector(`input[name=frontPiece][value="${state.frontPiece}"]`).checked = true;
 }
-if (dresserText) dresserText.split('.').map(Number).forEach((v, k) => {
-  const [key, , lo, hi] = DRESSER_SLIDERS[k] || [];
-  if (key && v >= lo && v <= hi) setDresser({ [key]: v });
-});
-for (const [id, value, lo, hi, key] of [['ward', wardIn, 600, 1400, 'WARD'], ['tower', towerIn, 0, 600, 'TOWER'], ['wardD', wardDIn, 330, 1000, 'WARD_D']]) {
-  if (value >= lo && value <= hi) {
-    state[key] = value;
-    document.getElementById(id).value = value;
-    document.getElementById(`${id}Value`).textContent = value;
-  }
-}
-if (legIn >= 400 && legIn <= 1200) {
-  state.LEG = legIn;
-  legSlider.value = legIn;
-  document.getElementById('legValue').textContent = legIn;
-}
-if (upperIn >= 400 && upperIn <= 1200) {
-  state.UPPER = upperIn;
-  upperSlider.value = upperIn;
-  document.getElementById('upperValue').textContent = upperIn;
-}
-if (extraIn >= 300 && extraIn <= 900) {
-  state.EXTRA = extraIn;
-  extraSlider.value = extraIn;
-  document.getElementById('extraValue').textContent = extraIn;
-}
-const benchRadio = document.querySelector(`input[name=bench][value="${benchIn}"]`);
-if (benchRadio) {
-  state.BENCH = benchIn;
-  benchRadio.checked = true;
-  benchHeights();
-}
-if (shelfIn >= 150 && shelfIn <= 400) {
-  state.shelfDepth = shelfIn;
-  shelfSlider.value = shelfIn;
-  document.getElementById('shelfDepthValue').textContent = shelfIn;
-}
-const aboveRadio = document.querySelector(`input[name=above][value="${aboveIn}"]`);
-if (aboveRadio) {
-  state.above = aboveIn;
-  aboveRadio.checked = true;
-}
-const frontRadio = document.querySelector(`input[name=front][value="${front}"]`);
-if (frontRadio) {
-  state.F = front;
-  frontRadio.checked = true;
-}
-if (depth === 0 || (depth >= 300 && depth <= 800)) setDepth(depth);
-if (rear >= 300 && rear <= 800) {
-  state.R = rear;
-  rearSlider.value = rear;
-  document.getElementById('rearValue').textContent = rear;
-}
-// Option 7's back-wall leg depth: the link's, or for links from before it
-// had its own, the back-wall depth it was drawn at then
-if (legDAddress !== null) {
-  state.LEG_D = legDAddress === 'back' ? Math.max(330, state.R) : legDAddress;
-  document.getElementById('legD').value = state.LEG_D;
-  document.getElementById('legDValue').textContent = state.LEG_D;
-}
-show(start ? optionIndex(start) : 8);                           // option 9 with no address
+
+// Start on the settings in the address (room_dimensions.md has their
+// order). Anything it leaves out, and everything with no address, starts as
+// in state: option 9, no left-wall cupboard, TV and shelves above the bench,
+// and AI Olive cupboards.
+readAddress(location.hash.slice(1));
+syncControls();
+show(state.option);
 // The view: the address's, else the last chosen here. After show(), as
 // some views are worked out from the option
 viewKit.start(addressView);

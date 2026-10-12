@@ -70,10 +70,10 @@ Later, `hallway.js` and the other room's file sit alongside `living_room.js`.
 
 Work on a branch; show the result before it goes live.
 
-`REFACTOR_PLAN.md` (the code tidy-up) overlaps with step 1: its one `state`
-object and the address read and written from one list belong inside the
-engine work, and its file split is replaced by the layout above. Do them as
-part of step 1, not as a separate pass.
+`REFACTOR_PLAN.md` (the code tidy-up) overlaps with step 1. Its one `state`
+object and the address read and written from one list are done (12 Oct
+2026), ahead of the engine work; its step 4 is steps 1 and 2 here, with the
+layout above, and says what moves where.
 
 ## The other room, the hallway and the stairs, from the floor plans
 
