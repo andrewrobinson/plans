@@ -290,6 +290,7 @@ test.describe('switches and buttons', () => {
     await page.locator('#viewsMenu .popToggle').click();
     await page.selectOption('#viewPick', 'plan');
     await expect(page.locator('#dims')).toHaveText('Dimensions: on');
+    await page.keyboard.press('Escape');                             // the Views menu shut: on a phone it reaches the top bar
     await page.click('#cupMenu');
     await page.locator('#cupboardOnly').uncheck();
   });
@@ -326,14 +327,16 @@ test.describe('things to store', () => {
     expect(await head(page)).toBe('1.0.0');
   });
 
-  // In the plan, with the drawer shut, the view is centred on (1400, 2860)
-  // in room mm, at a scale that fits 6.0 × 6.9 m on screen (room_3d.html's
-  // built-in plan view). Rack 1 starts at x 2550, y 2640, turned: 100 × 800.
+  // In the plan, with the drawers shut, the view is centred on (1400, 2860)
+  // in room mm, in the part of the screen below the top bar, at a scale
+  // that fits 6.0 × 6.9 m there (room_3d.html's built-in plan view, and
+  // resize()). Rack 1 starts at x 2550, y 2640, turned: 100 × 800.
   test('in the plan: named under the pointer, dragged, and turned', async ({ page }) => {
     await openRoom(page, '#9-0-330-1200-3-250-780-500-700-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18~1.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~plan.sit-tall.90-0-0');
     const { width, height } = page.viewportSize();
-    const perMm = Math.min(width / 6.0, height / 6.9) / 1000;
-    const at = (x, y) => [width / 2 + (x - 1400) * perMm, height / 2 + (y - 2860) * perMm];
+    const below = Math.min(await page.locator('#bar').evaluate(el => el.getBoundingClientRect().bottom), height / 3);
+    const perMm = Math.min(width / 6.0, (height - below) / 6.9) / 1000;
+    const at = (x, y) => [width / 2 + (x - 1400) * perMm, below + (height - below) / 2 + (y - 2860) * perMm];
     const [sx, sy] = at(2600, 3040);                                  // Rack 1's middle
     await page.mouse.move(sx, sy);
     await expect(page.locator('#tip')).toContainText('Rack 1');
@@ -442,4 +445,45 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   await page.check('input[name=frontPiece][value="dresser"]');
   await page.selectOption('#current', '6');                           // option 7
   expect(await hash(page)).toBe(start);
+});
+
+test.describe('the 2D views\' door sizes and cutting list', () => {
+  const PLAN = '#7-600-330-1200-3-250-780-500-700-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18~0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~plan.sit-tall.90-0-0';
+
+  test('the cutting list opens, follows the boards\' thickness, and closes', async ({ page }) => {
+    await openRoom(page, PLAN);
+    const list = page.locator('#cutList'), toggle = page.locator('#cutToggle');
+    await expect(list).toBeHidden();
+    await toggle.click();
+    await expect(toggle).toHaveText('Hide cutting list');
+    // Option 7 at 18: its doors are LEG - BOARD - 6 and F - LEG_D - 6 wide, H - 6 high
+    await expect(list).toContainText('boards 18 thick');
+    await expect(list).toContainText('2437 × 576');
+    await expect(list).toContainText('2437 × 594');
+    await expect(list).toContainText('14 boards');
+    await slide(page, 'board', 25);
+    await expect(list).toContainText('2437 × 569');                 // the back-wall leg's door, narrower
+    await expect(list).toContainText('2437 × 594');                 // the left-wall leg's, not
+    await toggle.click();
+    await expect(list).toBeHidden();
+    await expect(toggle).toHaveText('Show cutting list');
+  });
+
+  test('no cutting list for bought furniture in the corner', async ({ page }) => {
+    await openRoom(page, PLAN);
+    await page.click('#cutToggle');
+    await OPTION(13)(page);                                          // the dresser in the corner
+    await expect(page.locator('#cutList')).toContainText('bought furniture');
+  });
+
+  test('the door sizes button', async ({ page }) => {
+    await openRoom(page, PLAN);
+    await page.locator('#viewsMenu .popToggle').click();
+    const button = page.locator('#doorDims');
+    await expect(button).toHaveText('Door sizes: on');
+    await button.click();
+    await expect(button).toHaveText('Door sizes: off');
+    await button.click();
+    await expect(button).toHaveText('Door sizes: on');
+  });
 });

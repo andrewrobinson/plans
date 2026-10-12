@@ -36,7 +36,8 @@ body.menu-open #panel, body.cup-open #cupPanel { transform: none; }
 .popToggle { color: var(--tint); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 2px var(--tint); }
 #viewMenu { --tint: #1f4e79; }
 #viewsMenu { --tint: #6a3d9a; }
-#topRight { position: fixed; top: 12px; right: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+/* In front of the top bar: an open menu here can reach it on a phone */
+#topRight { position: fixed; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
 #sceneMenu { --tint: #2e7d4f; }
 /* The floating text buttons: Share, Reset, Dimensions, and the menus' Save and Delete */
 .chip {
@@ -110,3 +111,13 @@ body.menu-open #panel, body.cup-open #cupPanel { transform: none; }
 #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
 #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
 .drawer .hint { color: #666; font-size: 12px; margin-top: 8px; }
+/* The cutting list, at the bottom left in the 2D views */
+#cutBox { position: fixed; left: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
+#cutList { pointer-events: auto; max-height: 50vh; max-width: min(360px, calc(100vw - 92px)); overflow: auto; box-sizing: border-box; padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.95); border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45; }
+#cutList[hidden] { display: none; }
+#cutList .cutHead { font-weight: bold; margin-bottom: 4px; }
+#cutList .cutKind { font-weight: bold; color: #1f4e79; margin-top: 6px; }
+#cutList .cutRow { display: grid; grid-template-columns: 3em 9em auto; }
+#cutList .cutRow span:first-child { text-align: right; padding-right: 6px; }
+#cutList .cutTotal { margin-top: 6px; border-top: 1px solid #ddd; padding-top: 4px; }

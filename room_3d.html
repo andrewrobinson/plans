@@ -42,6 +42,7 @@
       <button id="saveView" class="chip" title="Keep where you've moved to, as a named view">Save</button>
       <button id="deleteView" class="chip" title="Delete this saved view" hidden>Delete</button>
       <button id="dims" class="chip" data-mode="2d" title="The 2D views' dimensions">Dimensions: on</button>
+      <button id="doorDims" class="chip" data-mode="2d" title="Each cupboard door's size, on the door">Door sizes: on</button>
     </div>
   </div>
   <div id="viewMenu" class="pop">
@@ -68,6 +69,11 @@
     </div>
     <button class="popToggle" aria-label="Scenes" title="Scenes" aria-controls="sceneGroup" aria-expanded="false">☰</button>
   </div>
+</div>
+<!-- The cutting list, in the 2D views: a button at the bottom left that opens it -->
+<div id="cutBox" data-mode="2d">
+  <div id="cutList" hidden></div>
+  <button id="cutToggle" class="chip" aria-controls="cutList" aria-expanded="false">Show cutting list</button>
 </div>
 <div id="scrim"></div>
 <div id="tip"></div>
@@ -662,9 +668,9 @@ const state = {
   // from, 12 to 25: the same for all of them. Cupboards' outside sizes stay
   // as set, so thicker boards take room from the inside.
   BOARD: 18,
-  UPPER: 700,                      // option 4's upper cupboard, along the back wall: 400 to 1200. Options 3 and 5 are built on it. Its door is UPPER - 24 wide
+  UPPER: 700,                      // option 4's upper cupboard, along the back wall: 400 to 1200. Options 3 and 5 are built on it. Its door is UPPER - BOARD - 6 wide
   EXTRA: 500,                      // option 5's second bay, beyond option 4's upper cupboard: 300 to 900. Its door is EXTRA - 6 wide
-  LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200. Its door is LEG - 24 wide. Options 6 and 8 keep 700
+  LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200. Its door is LEG - BOARD - 6 wide. Options 6 and 8 keep 700
   LEG_D: 600,                      // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench, which stays R deep
   L_SHELVES: { back: [600, 1200, 1800], left: [600, 1200, 1800] },   // ...and its shelf tops in the back-wall leg (with the inside corner) and the left-wall leg
   WARD: 900,                       // option 9's full-height double-door cupboard on the back wall: 600 to 1400 wide
@@ -1644,8 +1650,8 @@ const OPTIONS = [
     source: 'plan2/room_3d.html',
     clearFrom: ({ T, UPPER } = state) => T + UPPER,
     benchFrom: ({ T } = state) => T,
-    summaryNoLeft: ({ R, BENCH, UPPER } = state) => `No left-wall cupboard: an upper cupboard on the bench against the left wall (x 0-${UPPER}, ${BENCH} to ceiling), with a ${UPPER - 24} door. Bench ${W}, ${R} deep.`,
-    summary: ({ T, R, F, BENCH, UPPER } = state) => `An upper cupboard on the bench (x ${T}-${T + UPPER}, ${BENCH} to ceiling) makes an L with the tall cupboard: inside legs ${UPPER} along the back wall, ${F - R} along the left wall. Its ${UPPER - 24} door faces down the room. Bench ${W - T}, from x = ${T}, ${R} deep; the upper cupboard stands on its first ${UPPER}.`,
+    summaryNoLeft: ({ R, BOARD, BENCH, UPPER } = state) => `No left-wall cupboard: an upper cupboard on the bench against the left wall (x 0-${UPPER}, ${BENCH} to ceiling), with a ${UPPER - BOARD - 6} × ${H - BENCH - 6} door. Bench ${W}, ${R} deep.`,
+    summary: ({ T, R, F, BOARD, BENCH, UPPER } = state) => `An upper cupboard on the bench (x ${T}-${T + UPPER}, ${BENCH} to ceiling) makes an L with the tall cupboard: inside legs ${UPPER} along the back wall, ${F - R} along the left wall. Its ${UPPER - BOARD - 6} × ${H - BENCH - 6} door faces down the room. Bench ${W - T}, from x = ${T}, ${R} deep; the upper cupboard stands on its first ${UPPER}.`,
     second: 'Upper cupboard door',
     build(g) {
       const { T, R, BOARD, BENCH, UPPER } = state;
@@ -1664,8 +1670,8 @@ const OPTIONS = [
     source: 'option 4 (new)',
     clearFrom: ({ T, UPPER, EXTRA } = state) => T + UPPER + EXTRA,
     benchFrom: ({ T } = state) => T,
-    summaryNoLeft: ({ R, UPPER, EXTRA } = state) => `No left-wall cupboard: an upper cupboard on the bench against the left wall, to x = ${UPPER + EXTRA}, in two bays with ${UPPER - 24} and ${EXTRA - 6} doors. Bench ${W}, ${R} deep.`,
-    summary: ({ T, R, UPPER, EXTRA } = state) => `As option 4, but the upper cupboard runs on to x = ${T + UPPER + EXTRA} (${UPPER + EXTRA} inside leg), in two bays: the ${UPPER - 24} door as before, then a ${EXTRA - 6} door in a ${EXTRA} bay, both hinged on their right. Bench ${W - T}, from x = ${T}, ${R} deep.`,
+    summaryNoLeft: ({ R, BOARD, BENCH, UPPER, EXTRA } = state) => `No left-wall cupboard: an upper cupboard on the bench against the left wall, to x = ${UPPER + EXTRA}, in two bays with ${UPPER - BOARD - 6} and ${EXTRA - 6} doors, ${H - BENCH - 6} high. Bench ${W}, ${R} deep.`,
+    summary: ({ T, R, BOARD, BENCH, UPPER, EXTRA } = state) => `As option 4, but the upper cupboard runs on to x = ${T + UPPER + EXTRA} (${UPPER + EXTRA} inside leg), in two bays: the ${UPPER - BOARD - 6} door as before, then a ${EXTRA - 6} door in a ${EXTRA} bay, both ${H - BENCH - 6} high and hinged on their right. Bench ${W - T}, from x = ${T}, ${R} deep.`,
     second: 'Upper cupboard doors',
     build(g) {
       const { T, R, BOARD, BENCH, UPPER, EXTRA } = state;
@@ -1690,8 +1696,8 @@ const OPTIONS = [
     source: 'option 7 (new)',
     clearFrom: ({ T } = state) => T + 700,
     benchFrom: ({ T } = state) => T + 700,
-    summaryNoLeft: ({ R, BENCH } = state) => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-700), open shelving from ${BENCH} up and a 676 × ${BENCH - 24} door below. Bench ${W - 700}, from x = 700, ${R} deep.`,
-    summary: ({ T, R, BENCH } = state) => `As option 7, but the back-wall leg is open shelving from ${BENCH} up, level with the bench top, with a 676 × ${BENCH - 24} cupboard door below. A panel at y = ${R} separates the left-wall leg, so the corner belongs to the back-wall leg. Bench ${W - T - 700}, from x = ${T + 700}, ${R} deep.`,
+    summaryNoLeft: ({ R, BOARD, BENCH } = state) => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-700), open shelving from ${BENCH} up and a ${700 - BOARD - 6} × ${BENCH - BOARD - 6} door below. Bench ${W - 700}, from x = 700, ${R} deep.`,
+    summary: ({ T, R, BOARD, BENCH } = state) => `As option 7, but the back-wall leg is open shelving from ${BENCH} up, level with the bench top, with a ${700 - BOARD - 6} × ${BENCH - BOARD - 6} cupboard door below. A panel at y = ${R} separates the left-wall leg, so the corner belongs to the back-wall leg. Bench ${W - T - 700}, from x = ${T + 700}, ${R} deep.`,
     second: 'Lower door',
     build(g) {
       const { T, R, F, BOARD, BENCH } = state;
@@ -1720,8 +1726,8 @@ const OPTIONS = [
     source: 'plan3/room_3d.html',
     clearFrom: ({ T, LEG } = state) => T + LEG,
     benchFrom: ({ T, LEG } = state) => T + LEG,
-    summaryNoLeft: ({ R, LEG, LEG_D } = state) => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-${LEG}, ${LEG_D} deep), with a ${LEG - 24} door. Bench ${W - LEG}, from x = ${LEG}, ${R} deep.`,
-    summary: ({ T, R, F, LEG, LEG_D } = state) => `Both legs of the L run floor to ceiling, ${LEG} inside along the back wall (${LEG_D} deep) and ${F - LEG_D} along the left wall, one space round the corner. ${LEG - 24} door on the back-wall leg. Bench shortened to ${W - T - LEG}, from x = ${T + LEG}, ${R} deep.`,
+    summaryNoLeft: ({ R, BOARD, LEG, LEG_D } = state) => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-${LEG}, ${LEG_D} deep), with a ${LEG - BOARD - 6} × ${H - 6} door. Bench ${W - LEG}, from x = ${LEG}, ${R} deep.`,
+    summary: ({ T, R, F, BOARD, LEG, LEG_D } = state) => `Both legs of the L run floor to ceiling, ${LEG} inside along the back wall (${LEG_D} deep) and ${F - LEG_D} along the left wall, one space round the corner. Doors ${H - 6} high, ${BOARD} thick: ${LEG - BOARD - 6} wide on the back-wall leg, ${F - LEG_D - 6} wide on the left-wall leg (it covers the corner). Bench shortened to ${W - T - LEG}, from x = ${T + LEG}, ${R} deep.`,
     second: 'Back-wall leg door',
     build(g) {
       const { LEG_D } = state;
@@ -1938,6 +1944,7 @@ function updateDims() {
     dims = new THREE.Group();
     scene.add(dims);
     cupboardDims(dims);
+    doorDims(dims);
     return;
   }
   if (!flat || !showDims || !flatView) return;
@@ -1972,6 +1979,7 @@ function updateDims() {
     chain([0, ...windows.flatMap(w => w.y), D, end], (v, off) => P(W, v, -200 - off), dims);
     chain([0, radiator.bottom, radiator.top, sill, top, H], (v, off) => P(W, -250 - off, v), dims);
   }
+  doorDims(dims);
 }
 
 // In the wall views, anything wholly on the camera's side of the view's cut
@@ -2077,6 +2085,82 @@ function cupboardDims(g) {
     if (!flat) withTotal(heights, (v, off) => P(x1 + 250 + off, y0, v), g);
   }
 }
+
+// The corner cupboard's doors, each labelled with its size, width × height
+// in mm, from the door as built (so it follows the boards' thickness): in
+// the plan all of them, in a wall view those facing it, and with the
+// cupboard on its own in 3D, all of them. The bench's base cupboards are
+// left out.
+let showDoorDims = true;            // the Door sizes button
+function doorDims(g) {
+  if (!current?.cupboard || !showDoorDims) return;
+  scene.updateMatrixWorld(true);
+  const facing = { back: 'z', front: 'z', left: 'x', right: 'x' }[flatView];   // in a wall view, the scene axis a door facing it is thin along
+  current.cupboard.traverse(o => {
+    if (!o.isMesh || o.material !== doorMat) return;
+    for (let p = o; p; p = p.parent) if (p.userData.bench) return;
+    const b = new THREE.Box3().setFromObject(o), size = b.getSize(new THREE.Vector3()), at = b.getCenter(new THREE.Vector3());
+    if (flat && facing && size[facing] > size[facing === 'x' ? 'z' : 'x']) return;   // side on to this view
+    const { width, height, depth } = o.geometry.parameters;
+    if (flat && flatView === 'plan') at.y = (H + 150) * MM;          // over the cupboard
+    dimLabel(`Door ${Math.round(Math.max(width, depth) / MM)} × ${Math.round(height / MM)}`, at, g, '#1f4e79', 0.11);
+  });
+}
+
+// The cutting list: every board in the corner cupboard as it's built, by
+// kind and size, largest first, with how many of each. It's read from the
+// model, so it follows every setting, the boards' thickness included. A
+// board's size is its length × width, its two larger sides; its thickness is
+// BOARD. A shaped board (option 8's top and bottom, a shelf cut round a bay)
+// is given as the rectangle it's cut from. The bench's base cupboards, and
+// parts that aren't boards (option 9's oak shelves and plinth), are left out.
+const BOARD_KINDS = new Map([[carcassMat, 'Panels'], [doorMat, 'Doors'], [shelfMat, 'Shelves']]);
+function cuttingList() {
+  const { BOARD } = state, kinds = new Map();               // kind -> Map of 'l×w×shaped' -> { l, w, shaped, n }
+  current?.cupboard?.traverse(o => {
+    if (!o.isMesh || !BOARD_KINDS.has(o.material)) return;
+    let kind = BOARD_KINDS.get(o.material);
+    for (let p = o; p; p = p.parent) {
+      if (p.userData.bench) return;
+      if (p === cupShelfGroup) kind = 'Shelves';                // the cupboard's shelves, whatever their colour
+    }
+    o.geometry.computeBoundingBox();
+    const [t, w, l] = o.geometry.boundingBox.getSize(new THREE.Vector3()).toArray().map(v => Math.round(v / MM)).sort((a, b) => a - b);
+    if (t !== BOARD) return;
+    const shaped = o.geometry.type === 'ExtrudeGeometry' && new Set(o.geometry.parameters.shapes.getPoints().map(p => `${p.x},${p.y}`)).size !== 4;
+    if (!kinds.has(kind)) kinds.set(kind, new Map());
+    const sizes = kinds.get(kind), key = `${l}×${w}×${shaped}`;
+    if (!sizes.has(key)) sizes.set(key, { l, w, shaped, n: 0 });
+    sizes.get(key).n++;
+  });
+  return kinds;
+}
+const cutList = document.getElementById('cutList'), cutToggle = document.getElementById('cutToggle');
+function showCuttingList() {
+  const option = OPTIONS[state.option];
+  if (option.corner || state.option === CURRENT) {
+    cutList.innerHTML = `<b>No cutting list</b>: ${option.corner ? `the ${option.corner} is bought furniture, not built from boards` : 'no cupboard in this option'}.`;
+    return;
+  }
+  const kinds = cuttingList(), order = ['Panels', 'Doors', 'Shelves'];
+  let boards = 0, area = 0;
+  const rows = order.filter(k => kinds.has(k)).map(kind => {
+    const sizes = [...kinds.get(kind).values()].sort((a, b) => b.l - a.l || b.w - a.w);
+    return `<div class="cutKind">${kind}</div>` + sizes.map(({ l, w, shaped, n }) => {
+      boards += n;
+      area += n * l * w;
+      return `<div class="cutRow"><span>${n} ×</span><span>${l} × ${w}</span><span>${shaped ? 'shaped' : ''}</span></div>`;
+    }).join('');
+  }).join('');
+  cutList.innerHTML = `<div class="cutHead">${option.name}: boards ${state.BOARD} thick, length × width in mm</div>${rows}` +
+    `<div class="cutTotal">${boards} boards, ${(area / 1e6).toFixed(2)} m² in all</div>`;
+}
+cutToggle.addEventListener('click', () => {
+  cutList.hidden = !cutList.hidden;
+  cutToggle.textContent = cutList.hidden ? 'Show cutting list' : 'Hide cutting list';
+  cutToggle.setAttribute('aria-expanded', String(!cutList.hidden));
+  if (!cutList.hidden) showCuttingList();
+});
 
 // ---------------------------------------------------------------------------
 // Things to store, eventually in the corner cupboard: bulky things standing
@@ -2503,6 +2587,7 @@ function update() {
     for (const s of [].concat(current.second ?? [])) s.rotation.y = (s.userData.dir ?? 1) * THREE.MathUtils.degToRad(Number(secondSlider.value));
   }
   roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomSlider.value));
+  if (dims) updateDims();                                       // the doors' labels go with them
   applyCut();                                                   // the doors may have moved across a cut
   document.getElementById('tallDoorValue').textContent = `${tallSlider.value}°`;
   document.getElementById('secondDoorValue').textContent = `${secondSlider.value}°`;
@@ -2594,6 +2679,7 @@ function show(i) {
   placeStored();                                                // the cupboard they go in may have changed
   drawStored();
   if (cupboardOnly) updateDims();                                // its shelves are drawn now, to dimension
+  if (!cutList.hidden) showCuttingList();                       // with its shelves as drawn, round the things to store
   writeAddress();
   update();
 }
@@ -3302,6 +3388,11 @@ document.getElementById('dims').addEventListener('click', e => {
   e.target.textContent = `Dimensions: ${showDims ? 'on' : 'off'}`;
   updateDims();
 });
+document.getElementById('doorDims').addEventListener('click', e => {
+  showDoorDims = !showDoorDims;
+  e.target.textContent = `Door sizes: ${showDoorDims ? 'on' : 'off'}`;
+  updateDims();
+});
 
 // keepScale: the drawer opened or closed, so slide the drawing clear of it
 // but keep its size, and any zooming, as it was
@@ -3318,13 +3409,14 @@ function resize(keepScale = false) {
   camera.fov = across ? Math.min(80, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(across / 2)) * h / w))) : 45;
   camera.updateProjectionMatrix();
   // Fit flatFit on screen, whichever way round is tighter, in the part the
-  // settings drawer leaves clear: on wide screens it stays open over the model
+  // settings drawer leaves clear (on wide screens it stays open over the
+  // model) and below the top bar
   const [fw, fh] = flatFit;
   const covered = menuOpen() && !narrow() ? document.getElementById(openDrawer()).offsetWidth : 0;
-  const clear = w - covered;
-  if (!keepScale || !flatPerM) flatPerM = Math.min(clear / fw, h / fh);
-  const perM = flatPerM, halfH = h / 2 / perM;
-  Object.assign(flatCamera, { left: -(covered + clear / 2) / perM, right: clear / 2 / perM, top: halfH, bottom: -halfH });
+  const clear = w - covered, below = Math.min(document.getElementById('bar').getBoundingClientRect().bottom, h / 3), high = h - below;
+  if (!keepScale || !flatPerM) flatPerM = Math.min(clear / fw, high / fh);
+  const perM = flatPerM;
+  Object.assign(flatCamera, { left: -(covered + clear / 2) / perM, right: clear / 2 / perM, top: (below + high / 2) / perM, bottom: -high / 2 / perM });
   flatCamera.updateProjectionMatrix();
 }
 window.addEventListener('resize', () => resize());
