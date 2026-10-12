@@ -2,7 +2,7 @@
 // there's a connection, so updates come through, and the saved copy is used
 // when there isn't. The 3D library's files never change at a given version,
 // so they're served from the saved copy once fetched.
-const CACHE = 'cupboards-v7';
+const CACHE = 'cupboards-v8';
 const THREE = 'https://cdn.jsdelivr.net/npm/three@0.160.0/';
 const FILES = [
   './room_3d.html',
@@ -23,7 +23,7 @@ const FILES = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES.map(f => new Request(f, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', event => {
@@ -47,8 +47,11 @@ self.addEventListener('fetch', event => {
     return;
   }
   if (new URL(request.url).origin !== location.origin) return;
-  // The app's own files: fresh when online, saved copy when not
-  event.respondWith(fetch(request).then(res => {
+  // The app's own files: fresh when online, saved copy when not. 'no-cache'
+  // checks with the server every time: GitHub Pages lets the browser keep a
+  // file for 10 minutes, and a new page with an old room_3d.css loses its
+  // drawers and the cutting list.
+  event.respondWith(fetch(request.url, { cache: 'no-cache' }).then(res => {
     const copy = res.clone();
     caches.open(CACHE).then(cache => cache.put(request, copy));
     return res;

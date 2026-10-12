@@ -378,6 +378,12 @@ function slab(points, z0, z1, mat, parent) {
   return m;
 }
 
+// Names a cupboard panel, mesh `m`, for the cutting list
+function part(name, m) {
+  if (m) m.userData.part = name;
+  return m;
+}
+
 // A door that turns about a vertical hinge at room (hx, hy). The door's
 // boxes are given in mm relative to the hinge.
 function hinge(hx, hy, parent) {
@@ -799,11 +805,11 @@ function cupCutText() {
 function tallCupboard(g) {
   const { T, R, F, BOARD, BENCH } = state;
   if (T === 0) return null;                                     // no left-wall cupboard
-  box(0, F - BOARD, 0, T, F, H, carcassMat, g);                   // front end
-  box(0, 0, H - BOARD, T, F, H, carcassMat, g);                 // top
-  box(0, 0, 0, T, F, BOARD, carcassMat, g);                     // bottom
-  box(0, R, BENCH, T, R + BOARD, H - BOARD, carcassMat, g);            // divider, above the bench top only
-  box(T - BOARD, 0, BOARD, T, R, BENCH - BOARD, carcassMat, g);        // side behind the bench end
+  part('Left cupboard front end', box(0, F - BOARD, 0, T, F, H, carcassMat, g));                   // front end
+  part('Left cupboard top', box(0, 0, H - BOARD, T, F, H, carcassMat, g));                 // top
+  part('Left cupboard bottom', box(0, 0, 0, T, F, BOARD, carcassMat, g));                     // bottom
+  part('Divider above the bench', box(0, R, BENCH, T, R + BOARD, H - BOARD, carcassMat, g));            // divider, above the bench top only
+  part('Side behind the bench end', box(T - BOARD, 0, BOARD, T, R, BENCH - BOARD, carcassMat, g));        // side behind the bench end
   for (const top of [1203, 1803]) cupShelf(rectPoly(0, R + BOARD, T - BOARD, F - BOARD), top, carcassMat);
   return tallDoor(g);
 }
@@ -827,7 +833,7 @@ function tallDoor(g, back = state.R) {                          // back: where t
 function cornerShelves(g, to) {
   const { T, R, BOARD, BENCH } = state;
   if (to <= BOARD) return;                                         // no corner, and nothing running on from it
-  box(0, 0, BENCH, BOARD, R, H - BOARD, carcassMat, g);             // backing
+  part('Backing on the left wall', box(0, 0, BENCH, BOARD, R, H - BOARD, carcassMat, g));             // backing
   box(BOARD, 0, BENCH - BOARD, T, R, BENCH, shelfMat, g);           // base, level with the bench top
   for (const top of upperTops()) box(BOARD, 0, top - BOARD, to, R, top, shelfMat, g);
 }
@@ -839,8 +845,8 @@ const upperTops = ({ BENCH } = state) => [BENCH + 423, BENCH + 828, BENCH + 1233
 // The upper unit on the bench, x T to T + UPPER, from the bench top to the ceiling
 function upperUnit(g) {
   const { T, R, BOARD, BENCH, UPPER } = state;
-  box(T + UPPER - BOARD, 0, BENCH, T + UPPER, R, H - BOARD, carcassMat, g); // end panel
-  box(T, 0, H - BOARD, T + UPPER, R, H, carcassMat, g);          // top
+  part('Upper cupboard end', box(T + UPPER - BOARD, 0, BENCH, T + UPPER, R, H - BOARD, carcassMat, g)); // end panel
+  part('Upper cupboard top', box(T, 0, H - BOARD, T + UPPER, R, H, carcassMat, g));          // top
 }
 
 // The full-height L of option 7: legs inside LEG along the back wall (x 0 to
@@ -851,12 +857,12 @@ function fullHeightL(g) {
   const { T, R, F, BOARD, BENCH, LEG, LEG_D, L_SHELVES } = state;
   const E = T + LEG, Dl = LEG_D;                                 // Dl: the back-wall leg's depth
   box(E, 0, 0, W, R, BENCH, benchMat, g);
-  box(0, F - BOARD, 0, T, F, H, carcassMat, g);                // left-wall leg front end
-  box(E - BOARD, 0, 0, E, Dl, H, carcassMat, g);              // back-wall leg end
-  box(0, 0, H - BOARD, E, Dl, H, carcassMat, g);              // tops
-  box(0, Dl, H - BOARD, T, F - BOARD, H, carcassMat, g);
-  box(0, 0, 0, E - BOARD, Dl, BOARD, carcassMat, g);             // bottoms
-  box(0, Dl, 0, T, F - BOARD, BOARD, carcassMat, g);
+  part('Left-wall leg front end', box(0, F - BOARD, 0, T, F, H, carcassMat, g));                // left-wall leg front end
+  part('Back-wall leg end', box(E - BOARD, 0, 0, E, Dl, H, carcassMat, g));              // back-wall leg end
+  part('Back-wall leg top', box(0, 0, H - BOARD, E, Dl, H, carcassMat, g));              // tops
+  part('Left-wall leg top', box(0, Dl, H - BOARD, T, F - BOARD, H, carcassMat, g));
+  part('Back-wall leg bottom', box(0, 0, 0, E - BOARD, Dl, BOARD, carcassMat, g));             // bottoms
+  part('Left-wall leg bottom', box(0, Dl, 0, T, F - BOARD, BOARD, carcassMat, g));
   for (const top of L_SHELVES.back) cupShelf(rectPoly(0, 0, E - BOARD, Dl - BOARD), top, carcassMat);
   for (const top of L_SHELVES.left) cupShelf(rectPoly(0, Dl - BOARD, T - BOARD, F - BOARD), top, carcassMat);
   const second = hinge(E, Dl + BOARD, g);
@@ -1541,8 +1547,8 @@ function cornerPieceOption(n, kind, where) {
 function shelvingTower(x0, x1, g) {
   if (x1 - x0 < 100) return;
   const { R, BOARD } = state;
-  box(x1 - BOARD, 0, 0, x1, R, H, carcassMat, g);                 // side
-  box(x0, 0, H - BOARD, x1 - BOARD, R, H, carcassMat, g);             // top
+  part('Shelving tower side', box(x1 - BOARD, 0, 0, x1, R, H, carcassMat, g));                 // side
+  part('Shelving tower top', box(x0, 0, H - BOARD, x1 - BOARD, R, H, carcassMat, g));             // top
   box(x0, 0, 0, x1 - BOARD, R, PLINTH, carcassMat, g);             // base
   const step = (H - BOARD - PLINTH) / 6;
   for (let k = 1; k <= 5; k++) {
@@ -1562,11 +1568,11 @@ function cornerCupboard(g, facing) {
   const { R, F, BOARD, BENCH } = state;
   const X = CORNER_W, E = X - BOARD;
   box(X, 0, 0, W, R, BENCH, benchMat, g);                        // bench, to the right-hand wall
-  box(0, 0, H - BOARD, E, F - BOARD, H, carcassMat, g);                // top
-  box(0, 0, 0, E, F - BOARD, BOARD, carcassMat, g);                    // bottom
+  part('Top', box(0, 0, H - BOARD, E, F - BOARD, H, carcassMat, g));                // top
+  part('Bottom', box(0, 0, 0, E, F - BOARD, BOARD, carcassMat, g));                    // bottom
   for (const top of [600, 1200, 1800]) cupShelf(rectPoly(0, 0, E, F - BOARD), top, shelfMat);
   if (facing === 'kitchen') {
-    box(E, 0, 0, X, F, H, carcassMat, g);                        // side, facing the windows
+    part('Side facing the windows', box(E, 0, 0, X, F, H, carcassMat, g));                        // side, facing the windows
     const w = (E - 9) / 2;                                       // a pair, 3 from the wall, each other and the side
     const left = hinge(3, F, g);
     left.userData.dir = -1;
@@ -1577,8 +1583,8 @@ function cornerCupboard(g, facing) {
     box(20 - w, 0, 950, 40 - w, 22, 1250, handleMat, right, false);
     return [left, right];
   }
-  box(0, F - BOARD, 0, X, F, H, carcassMat, g);                     // end, facing the kitchen
-  box(E, 0, 0, X, R, H, carcassMat, g);                          // side, by the bench
+  part('End facing the kitchen', box(0, F - BOARD, 0, X, F, H, carcassMat, g));                     // end, facing the kitchen
+  part('Side by the bench', box(E, 0, 0, X, R, H, carcassMat, g));                          // side, by the bench
   const w = (F - R - BOARD - 9) / 2;                                    // a pair on the side beyond the bench
   const back = hinge(E, R + 3, g);                               // hinged at the bench end
   box(0, 0, 3, BOARD, w, H - 3, doorMat, back);
@@ -1678,8 +1684,8 @@ const OPTIONS = [
       box(T, 0, 0, W, R, BENCH, benchMat, g);
       upperUnit(g);                                              // its end panel is now the middle divider
       const end = T + UPPER + EXTRA;                               // the second bay is EXTRA wide
-      box(end - BOARD, 0, BENCH, end, R, H - BOARD, carcassMat, g);    // end panel
-      box(T + UPPER, 0, H - BOARD, end, R, H, carcassMat, g);         // top
+      part('Second bay end', box(end - BOARD, 0, BENCH, end, R, H - BOARD, carcassMat, g));    // end panel
+      part('Second bay top', box(T + UPPER, 0, H - BOARD, end, R, H, carcassMat, g));         // top
       cornerShelves(g, T + UPPER - BOARD);
       for (const top of upperTops()) box(T + UPPER, 0, top - BOARD, end - BOARD, R, top, shelfMat, g);
       const first = hinge(T + UPPER, R + BOARD, g);
@@ -1703,13 +1709,13 @@ const OPTIONS = [
       const { T, R, F, BOARD, BENCH } = state;
       const E = T + 700;
       box(E, 0, 0, W, R, BENCH, benchMat, g);
-      box(0, F - BOARD, 0, T, F, H, carcassMat, g);                // left-wall leg front end
-      box(E - BOARD, 0, 0, E, R, H, carcassMat, g);               // back-wall leg end
-      box(0, 0, H - BOARD, E, R, H, carcassMat, g);               // tops
-      box(0, R, H - BOARD, T, F - BOARD, H, carcassMat, g);
-      box(0, 0, 0, E - BOARD, R, BOARD, carcassMat, g);              // bottoms
-      box(0, R, 0, T, F - BOARD, BOARD, carcassMat, g);
-      box(0, R, BOARD, T, R + BOARD, H - BOARD, carcassMat, g);            // divider between the legs
+      part('Left-wall leg front end', box(0, F - BOARD, 0, T, F, H, carcassMat, g));                // left-wall leg front end
+      part('Back-wall leg end', box(E - BOARD, 0, 0, E, R, H, carcassMat, g));               // back-wall leg end
+      part('Back-wall leg top', box(0, 0, H - BOARD, E, R, H, carcassMat, g));               // tops
+      part('Left-wall leg top', box(0, R, H - BOARD, T, F - BOARD, H, carcassMat, g));
+      part('Back-wall leg bottom', box(0, 0, 0, E - BOARD, R, BOARD, carcassMat, g));              // bottoms
+      part('Left-wall leg bottom', box(0, R, 0, T, F - BOARD, BOARD, carcassMat, g));
+      part('Divider between the legs', box(0, R, BOARD, T, R + BOARD, H - BOARD, carcassMat, g));            // divider between the legs
       for (const top of [600, 1200, 1800]) cupShelf(rectPoly(0, R + BOARD, T - BOARD, F - BOARD), top, carcassMat);
       cupShelf(rectPoly(0, 0, E - BOARD, R - BOARD), 390, carcassMat);    // shelf inside the lower cupboard
       box(0, 0, BENCH - BOARD, E - BOARD, R, BENCH, shelfMat, g);    // fixed shelf, level with the bench
@@ -1754,11 +1760,11 @@ const OPTIONS = [
       const E = T + 700;
       const { ux, uy, door, angle } = diagonal();
       box(E, 0, 0, W, R, BENCH, benchMat, g);
-      box(0, F - BOARD, 0, T, F, H, carcassMat, g);                // left-wall end
-      box(E - BOARD, 0, 0, E, R, H, carcassMat, g);                 // back-wall end
+      part('Left-wall end', box(0, F - BOARD, 0, T, F, H, carcassMat, g));                // left-wall end
+      part('Back-wall end', box(E - BOARD, 0, 0, E, R, H, carcassMat, g));                 // back-wall end
       const outline = [[0, 0], [E, 0], [E, R], [T, F], [0, F]];
-      slab(outline, H - BOARD, H, carcassMat, g);                   // top
-      slab(outline, 0, BOARD, carcassMat, g);                       // bottom
+      part('Top', slab(outline, H - BOARD, H, carcassMat, g));                   // top
+      part('Bottom', slab(outline, 0, BOARD, carcassMat, g));                       // bottom
       // Shelves stop 25 behind the front: that line meets x = E - BOARD and y = F - BOARD
       const nx = uy, ny = -ux;                                   // unit normal, pointing into the cupboard
       const c = T * nx + F * ny + 25;                         // the line n · p = c
@@ -1791,13 +1797,13 @@ const OPTIONS = [
       baseCupboards(S, g);
       // The left-wall leg, as in option 7, behind the deeper cupboard; with no
       // left-wall cupboard these draw nothing
-      box(0, F - BOARD, 0, T, F, H, carcassMat, g);
-      box(0, Dw, H - BOARD, T, F - BOARD, H, carcassMat, g);
-      box(0, Dw, 0, T, F - BOARD, BOARD, carcassMat, g);
+      part('Left-wall leg front end', box(0, F - BOARD, 0, T, F, H, carcassMat, g));
+      part('Left-wall leg top', box(0, Dw, H - BOARD, T, F - BOARD, H, carcassMat, g));
+      part('Left-wall leg bottom', box(0, Dw, 0, T, F - BOARD, BOARD, carcassMat, g));
       // The double-door cupboard on the back wall
-      box(E - BOARD, 0, 0, E, Dw, H, carcassMat, g);                // end
-      box(0, 0, H - BOARD, E, Dw, H, carcassMat, g);                // top
-      box(0, 0, 0, E - BOARD, Dw, BOARD, carcassMat, g);               // bottom
+      part('Cupboard end', box(E - BOARD, 0, 0, E, Dw, H, carcassMat, g));                // end
+      part('Cupboard top', box(0, 0, H - BOARD, E, Dw, H, carcassMat, g));                // top
+      part('Cupboard bottom', box(0, 0, 0, E - BOARD, Dw, BOARD, carcassMat, g));               // bottom
       for (const top of [600, 1200, 1800]) {
         cupShelf(rectPoly(0, 0, E - BOARD, Dw - BOARD), top, carcassMat);
         cupShelf(rectPoly(0, Dw - BOARD, T - BOARD, F - BOARD), top, carcassMat);
@@ -2114,9 +2120,10 @@ function doorDims(g) {
 // BOARD. A shaped board (option 8's top and bottom, a shelf cut round a bay)
 // is given as the rectangle it's cut from. The bench's base cupboards, and
 // parts that aren't boards (option 9's oak shelves and plinth), are left out.
+// Each size of board lists what it's for, from the names part() gives them.
 const BOARD_KINDS = new Map([[carcassMat, 'Panels'], [doorMat, 'Doors'], [shelfMat, 'Shelves']]);
 function cuttingList() {
-  const { BOARD } = state, kinds = new Map();               // kind -> Map of 'l×w×shaped' -> { l, w, shaped, n }
+  const { BOARD } = state, kinds = new Map();               // kind -> Map of 'l×w×shaped' -> { l, w, shaped, n, parts }
   current?.cupboard?.traverse(o => {
     if (!o.isMesh || !BOARD_KINDS.has(o.material)) return;
     let kind = BOARD_KINDS.get(o.material);
@@ -2130,8 +2137,9 @@ function cuttingList() {
     const shaped = o.geometry.type === 'ExtrudeGeometry' && new Set(o.geometry.parameters.shapes.getPoints().map(p => `${p.x},${p.y}`)).size !== 4;
     if (!kinds.has(kind)) kinds.set(kind, new Map());
     const sizes = kinds.get(kind), key = `${l}×${w}×${shaped}`;
-    if (!sizes.has(key)) sizes.set(key, { l, w, shaped, n: 0 });
+    if (!sizes.has(key)) sizes.set(key, { l, w, shaped, n: 0, parts: new Set() });
     sizes.get(key).n++;
+    if (kind === 'Panels' && o.userData.part) sizes.get(key).parts.add(o.userData.part);
   });
   return kinds;
 }
@@ -2146,10 +2154,11 @@ function showCuttingList() {
   let boards = 0, area = 0;
   const rows = order.filter(k => kinds.has(k)).map(kind => {
     const sizes = [...kinds.get(kind).values()].sort((a, b) => b.l - a.l || b.w - a.w);
-    return `<div class="cutKind">${kind}</div>` + sizes.map(({ l, w, shaped, n }) => {
+    return `<div class="cutKind">${kind}</div>` + sizes.map(({ l, w, shaped, n, parts }) => {
       boards += n;
       area += n * l * w;
-      return `<div class="cutRow"><span>${n} ×</span><span>${l} × ${w}</span><span>${shaped ? 'shaped' : ''}</span></div>`;
+      const what = [[...parts].map((p, i) => i ? p[0].toLowerCase() + p.slice(1) : p).join(', '), shaped ? 'shaped' : ''].filter(Boolean).join('; ');
+      return `<div class="cutRow"><span>${n} ×</span><span>${l} × ${w}</span><span>${what}</span></div>`;
     }).join('');
   }).join('');
   cutList.innerHTML = `<div class="cutHead">${option.name}: boards ${state.BOARD} thick, length × width in mm</div>${rows}` +

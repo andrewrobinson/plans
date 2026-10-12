@@ -113,7 +113,7 @@ body.menu-open #panel, body.cup-open #cupPanel { transform: none; }
 .drawer .hint { color: #666; font-size: 12px; margin-top: 8px; }
 /* The cutting list, at the bottom left in the 2D views */
 #cutBox { position: fixed; left: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
-#cutList { pointer-events: auto; max-height: 50vh; max-width: min(360px, calc(100vw - 92px)); overflow: auto; box-sizing: border-box; padding: 8px 12px;
+#cutList { pointer-events: auto; max-height: 50vh; max-width: min(460px, calc(100vw - 92px)); overflow: auto; box-sizing: border-box; padding: 8px 12px;
   background: rgba(255, 255, 255, 0.95); border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45; }
 #cutList[hidden] { display: none; }
 #cutList .cutHead { font-weight: bold; margin-bottom: 4px; }

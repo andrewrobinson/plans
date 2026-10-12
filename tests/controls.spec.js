@@ -461,6 +461,8 @@ test.describe('the 2D views\' door sizes and cutting list', () => {
     await expect(list).toContainText('2437 × 576');
     await expect(list).toContainText('2437 × 594');
     await expect(list).toContainText('14 boards');
+    await expect(list).toContainText('Left-wall leg front end, back-wall leg end');   // what each panel is for
+    await expect(list).toContainText('Left-wall leg top, left-wall leg bottom');
     await slide(page, 'board', 25);
     await expect(list).toContainText('2437 × 569');                 // the back-wall leg's door, narrower
     await expect(list).toContainText('2437 × 594');                 // the left-wall leg's, not
