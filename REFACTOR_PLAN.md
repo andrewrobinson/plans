@@ -10,6 +10,79 @@ each step its own commit, so any one of them can be undone on its own.
 
 Line numbers are as of 11 Oct 2026. See `room_3d_ui_guide.md` for the map.
 
+**Do the test suite below first**, before step 2. Every step after it is
+checked by running the suite.
+
+---
+
+## Before step 2: a browser test suite (Playwright)
+
+### Why
+
+Steps 2–4 should change nothing visible, and "nothing changed" is exactly
+what automated browser tests check well. So far, checking has meant Claude
+driving the app's built-in browser by hand. That works for exploring, but
+it isn't repeatable, it uses Claude allowance on every run, and it only
+covers one browser. A test suite is written once and then runs for free in
+seconds, the same way every time.
+
+**Playwright** (Microsoft, 2020) is the usual choice today. It came after
+Selenium/WebDriver, Puppeteer and Cypress. It drives Chromium, Firefox and
+WebKit (Safari's engine, close to an iPhone) from one script, can mimic phone
+screen sizes, and compares screenshots pixel by pixel against saved
+reference images.
+
+### What the suite checks
+
+- **Saved addresses look the same.** For the default page, every scene in
+  `room_3d.scenes.js` and a few shared links: load it and compare a
+  screenshot with a reference image (`toHaveScreenshot`).
+- **The address round-trips.** After loading an address, `location.hash`
+  equals the one loaded. This is step 3's round-trip test.
+- **The menus work.** Open and close the drawer and each pop-up menu. Move a
+  slider and check that its number and the address update. Pick an option and
+  check the right slider blocks are shown.
+- **No console errors** on any page.
+- **Phone size.** At least one run at phone width, e.g. iPhone 13 in WebKit.
+
+An example test:
+
+```js
+test('Share link round-trips', async ({ page }) => {
+  await page.goto('http://localhost:8765/room_3d.html#9-0-330-...');
+  await expect(page).toHaveScreenshot('option9-default.png');
+  expect(await page.evaluate(() => location.hash)).toBe('#9-0-330-...');
+});
+```
+
+### Set-up
+
+- `npm init playwright@latest` adds a `package.json`, `playwright.config.js`,
+  a `tests/` folder and the test browsers (about 300 MB, outside the repo).
+- Playwright is a **development-only** dependency. The site itself stays
+  dependency-free with no build step, and GitHub Pages serves it exactly as now.
+- In `playwright.config.js`, the `webServer` setting starts
+  `python3 -m http.server 8765` for the tests, so no server needs starting by hand.
+- Add `node_modules/`, `test-results/` and `playwright-report/` to `.gitignore`.
+  Commit the reference screenshots (`tests/*-snapshots/`): they are the record
+  of how the page should look.
+- Node here is v18.12 (via nvm). Current Playwright may need a newer Node; if
+  so, `nvm install --lts` first.
+
+### Order
+
+1. Write the suite against the code **as it is now**, and take the reference
+   screenshots: `npx playwright test --update-snapshots`.
+2. Check the references by eye once, since they become the standard.
+3. Commit.
+4. From then on, after each refactor step, run `npx playwright test`. Any
+   difference fails, with a side-by-side image report
+   (`npx playwright show-report`).
+
+The 3D rendering may differ by a few pixels between runs (anti-aliasing). If
+it does, allow a small tolerance (`maxDiffPixelRatio`) rather than turning
+screenshot checks off.
+
 ---
 
 ## Step 2: one `state` object instead of loose variables
@@ -85,10 +158,9 @@ view. Constants such as `W`, `D`, `H` and `KITCHEN` aren't state either.
 
 ### Check
 
-Before starting, save a set of addresses: the default page, every scene in
-`room_3d.scenes.js`, and a few links you've shared. After the step, open each
-one and compare it with before, either by screenshot or by comparing
-`location.hash` after load. They must match exactly.
+Run `npx playwright test`. The saved addresses (the default page, every scene
+in `room_3d.scenes.js`, and a few links you've shared) must look the same as
+the reference screenshots, and give back the same `location.hash` after load.
 
 ---
 
@@ -140,9 +212,8 @@ With `syncControls()`:
 
 Use the same saved addresses as step 2. Also write a small round-trip test:
 for each saved address, read it into `state`, write it back out, and compare.
-It must come back identical, including old-format links. The test can be a
-`?test` mode in the page, or a Node script that imports the address module
-once step 4 is done.
+It must come back identical, including old-format links. The Playwright
+suite's round-trip test covers this; add an old-format link or two to it.
 
 ---
 
@@ -233,6 +304,7 @@ The same saved addresses as steps 2 and 3, plus:
 
 | Step | Size | Risk |
 |---|---|---|
+| Test suite | Medium: about a session to write, then free to run | Low: it changes nothing in the site |
 | 2 | Medium: touches most of the module, mechanically | Low with option (a), as long as each group is tested |
 | 3 | Medium: replaces about 130 lines with a table and two loops | Medium: old links are easy to break, hence the round-trip test |
 | 4 | Large: moves everything | Medium: mostly missing imports, which the console shows straight away |
