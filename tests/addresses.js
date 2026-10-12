@@ -12,7 +12,7 @@
 
 // The default settings after the option and the left-wall depth, the default
 // places of the things to store, and the default view
-const REST = '330-1200-3-250-780-500-700-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0';
+const REST = '330-1200-3-250-780-500-700-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18';
 const STORED = '0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1';
 const VIEW = 'birdseye.sit-tall.90-0-0';
 
@@ -38,6 +38,11 @@ const ADDRESSES = [
   { name: 'view-back-wall', address: `#9-0-${REST}~${STORED}~back.sit-tall.90-0-0` },
   { name: 'view-packing', address: `#9-0-${REST}~${STORED}~packing.stand-tall.0-170-170` },
   { name: 'view-desk', address: `#9-0-${REST}~${STORED}~desk.sit-tall.90-0-0` },
+
+  // Board thickness, at both ends of its slider: the cupboards' outside
+  // sizes stay put, and the boards eat into the inside
+  { name: 'board-25-option07-packing', address: `#7-600-${REST.replace(/-18$/, '-25')}~${STORED}~packing.stand-tall.0-170-170` },
+  { name: 'board-12-option09-plan', address: `#9-600-${REST.replace(/-18$/, '-12')}~${STORED}~plan.sit-tall.90-0-0` },
 ];
 
 module.exports = { ADDRESSES, VIEW };

@@ -184,8 +184,9 @@ The full checklist, with priorities and how to measure, is
 
 ## Also open
 
-- **Board thickness as a setting** (agreed 12 Oct 2026; first job after the
-  weekly usage reset). Every cupboard is built from boards (MDF or
+- **Board thickness as a setting** (agreed 12 Oct 2026). **Done** 12 Oct
+  2026, branch `board-thickness`: `BOARD` and its slider; the dresser and
+  larders keep their own 18s, as bought furniture, not boards cut to size. Every cupboard is built from boards (MDF or
   chipboard) 18 thick today, but 18 is typed straight into the cupboard code
   about 115 times, with sums of it worked out by hand (36 for two boards, 618
   for a 600 leg and its panel). Make it one value, `BOARD`, with a slider in

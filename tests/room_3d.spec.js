@@ -83,6 +83,12 @@ test.describe('the controls', () => {
     expect(settingsField(await hash(page), 2)).toBe('500');
   });
 
+  test('the board thickness slider updates its number and the address', async ({ page }) => {
+    await page.locator('#board').fill('22');
+    await expect(page.locator('#boardValue')).toHaveText('22');
+    expect(settingsField(await hash(page), 33)).toBe('22');
+  });
+
   test('the left-wall depth slider shows "none" below 300', async ({ page }) => {
     await page.locator('#depth').fill('450');
     await expect(page.locator('#depthValue')).toHaveText('450');
