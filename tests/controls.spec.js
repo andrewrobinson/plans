@@ -1,0 +1,446 @@
+// room_3d.html: every control in the drawer and the menus, used once: it
+// shows its new value, puts it in the address, and draws it without a
+// console error (every test fails on one; helpers.js). room_3d.spec.js
+// checks how saved addresses look; this checks the controls that set them.
+// It runs in one browser only (playwright.config.js).
+// The address's fields, by number, are ADDRESS in room_3d.html.
+const { test, expect, openRoom, settingsField } = require('./helpers');
+
+const hash = page => page.evaluate(() => location.hash);
+const field = async (page, k) => settingsField(await hash(page), k);
+// One part of a field made of parts, as the dresser's sizes w.h.baseD.baseH.upperD
+const fieldPart = async (page, k, j) => (await field(page, k)).split('.')[j];
+// The things to store: shown.packing.where, then x.y.turned(.z) for each
+const stored = async page => (await hash(page)).split('~')[1].split('_');
+// The view: its id, eye height, and the doors' angles (room, left-wall cupboard, option's own)
+const view = async page => (await hash(page)).split('~')[2];
+
+// The page with the drawer open and every section in it unfolded
+async function openDrawer(page, address) {
+  await openRoom(page, address);
+  await page.click('#menu');
+  await page.evaluate(() => document.querySelectorAll('#panel details').forEach(d => { d.open = true; }));
+}
+
+// What to do first, so a slider is on show
+const OPTION = n => page => page.selectOption('#current', String(n - 1));
+const LARDER = page => page.check('input[name=frontPiece][value="larder"]');
+const SOFA = page => page.selectOption('#sofaPick', 'merton');
+const LEFT_CUPBOARD = page => slide(page, 'depth', 600);
+
+// Where a slider's value goes in the address: field k (or part j of it)
+const at = (k, j = null) => async page => (j === null ? field(page, k) : fieldPart(page, k, j));
+// ...or for the doors, in the view's part: room door, left-wall cupboard's, option's own
+const door = k => async page => (await view(page)).split('.').pop().split('-')[k];
+
+// Set a slider as dragging it would, with its 'input' event, and return the
+// value it lands on (the browser holds it to its steps). Done in the page
+// rather than with Playwright's fill(), which waits on the 3D view's frames:
+// slow in headless Chrome, which draws them in software.
+const slide = (page, id, value) => page.locator(`#${id}`).evaluate((el, v) => {
+  el.value = v;
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+  return el.value;
+}, String(value));
+const readout = (page, id) => page.locator(`#${id}Value`).evaluate(el => el.textContent);
+
+// Take a slider to its lowest, then its highest, then back to where it
+// started. At each end its readout and its place in the address follow the
+// value it lands on (text(v), address(v)); back where it started, the whole
+// address must be as it was, so it changed nothing else. `back: false` for
+// a slider that can't get back exactly (see where it's used).
+async function endsAndBack(page, id, place, { text = v => v, address = v => v, back = true } = {}) {
+  const before = await hash(page);
+  const { min, max, value: start } = await page.locator(`#${id}`).evaluate(el => ({ min: el.min, max: el.max, value: el.value }));
+  for (const [end, value] of [['lowest', min], ['highest', max]]) {
+    const v = await slide(page, id, value);
+    expect(await readout(page, id), `${id} at its ${end}`).toBe(String(text(v)));
+    // (the doors write theirs a moment later)
+    await expect.poll(() => place(page), `${id} at its ${end}, in the address`).toBe(String(address(v)));
+  }
+  await slide(page, id, start);
+  if (back) await expect.poll(() => hash(page), `the address with ${id} back where it started`).toBe(before);
+}
+
+test.describe('sliders, to each end and back', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+
+  test('the corner cupboard\'s sizes', async ({ page }) => {
+    await endsAndBack(page, 'depth', at(1), { text: v => (v < 300 ? 'none' : v), address: v => (v < 300 ? 0 : v) });
+    await endsAndBack(page, 'rear', at(2));
+    await endsAndBack(page, 'board', at(33));
+  });
+
+  test('options 4, 5 and 7\'s sliders', async ({ page }) => {
+    await OPTION(4)(page);
+    await endsAndBack(page, 'upper', at(8));
+    await OPTION(5)(page);
+    await endsAndBack(page, 'extra', at(7));
+    await OPTION(7)(page);
+    await endsAndBack(page, 'leg', at(9));
+    await endsAndBack(page, 'legD', at(29));
+  });
+
+  test('option 9\'s sliders', async ({ page }) => {
+    await endsAndBack(page, 'ward', at(10));
+    await endsAndBack(page, 'wardD', at(12));
+    await endsAndBack(page, 'tower', at(11));
+  });
+
+  test('the bench', async ({ page }) => {
+    await endsAndBack(page, 'shelfDepth', at(5));
+    const TV = { 0: [32, '32" (720 × 440)'], 14: [86, '86" (1930 × 1110)'] };   // the ends of TV_SIZES
+    await endsAndBack(page, 'tvSize', at(18), { text: v => TV[v][1], address: v => TV[v][0] });
+  });
+
+  test('the dresser', async ({ page }) => {
+    await endsAndBack(page, 'dresserW', at(20, 0));
+    await endsAndBack(page, 'dresserH', at(20, 1));
+    await endsAndBack(page, 'dresserBaseH', at(20, 3));
+    // Its upper part is never deeper than its base (410)
+    await endsAndBack(page, 'dresserUpperD', at(20, 4), { text: v => Math.min(v, 410), address: v => Math.min(v, 410) });
+    // ...so a shallower base takes the upper part (340) with it, and it stays there
+    await endsAndBack(page, 'dresserBaseD', at(20, 2), { back: false });
+    expect(await fieldPart(page, 20, 4)).toBe('300');
+  });
+
+  test('the larder', async ({ page }) => {
+    await LARDER(page);
+    await endsAndBack(page, 'larderW', at(26, 0));
+    await endsAndBack(page, 'larderH', at(26, 1));
+    await endsAndBack(page, 'larderD', at(26, 2));
+  });
+
+  test('the sofa', async ({ page }) => {
+    await SOFA(page);
+    await endsAndBack(page, 'sofaFront', at(25));
+    await endsAndBack(page, 'sofaW', at(27, 0));
+    await endsAndBack(page, 'sofaD', at(27, 1));
+    await endsAndBack(page, 'sofaH', at(27, 2));
+  });
+
+  test('the island, out there', async ({ page }) => {
+    await endsAndBack(page, 'islandX', at(32, 0));
+    // It starts at 3571 (measured), between the slider's steps of 5, so the
+    // slider can't take it back there exactly
+    await endsAndBack(page, 'islandY', at(32, 1), { back: false });
+    await endsAndBack(page, 'islandTurn', at(32, 2), { text: v => `${v}°` });
+  });
+
+  // The doors turn without rebuilding
+  test('the doors', async ({ page }) => {
+    await LEFT_CUPBOARD(page);                                         // so the left-wall cupboard has a door
+    for (const [id, k] of [['roomDoor', 0], ['tallDoor', 1], ['secondDoor', 2]]) await endsAndBack(page, id, door(k), { text: v => `${v}°` });
+  });
+});
+
+test.describe('radio buttons', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+
+  test('bench height', async ({ page }) => {
+    const before = await hash(page);
+    await page.check('input[name=bench][value="900"]');
+    expect(await field(page, 6)).toBe('900');
+    await page.check('input[name=bench][value="780"]');
+    expect(await hash(page)).toBe(before);
+  });
+
+  test('the left-wall cupboard\'s front', async ({ page }) => {
+    const before = await hash(page);
+    await page.check('input[name=front][value="1329"]');
+    expect(await field(page, 3)).toBe('1329');
+    await page.check('input[name=front][value="1200"]');
+    expect(await hash(page)).toBe(before);
+  });
+
+  test('where the island is', async ({ page }) => {
+    const before = await hash(page);
+    for (const [value, code] of [['along', '1'], ['out', '2'], ['none', '3'], ['room', '0']]) {
+      await page.check(`input[name=islandAt][value="${value}"]`);
+      expect(await field(page, 23)).toBe(code);
+    }
+    expect(await hash(page)).toBe(before);
+  });
+
+  test('what\'s on the front wall', async ({ page }) => {
+    const before = await hash(page);
+    for (const [value, code] of [['larder', '1'], ['none', '2'], ['dresser', '0']]) {
+      await page.check(`input[name=frontPiece][value="${value}"]`);
+      expect(await field(page, 21)).toBe(code);
+    }
+    expect(await hash(page)).toBe(before);
+  });
+});
+
+test.describe('dropdowns', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+
+  test('the cupboard colour, ◀ ▶, and other colours', async ({ page }) => {
+    await page.selectOption('#ral-cupboard', '5');
+    expect(await field(page, 14)).toBe('5');
+    await expect(page.locator('#cupboardSwatch')).toHaveCSS('background-color', 'rgb(245, 244, 239)');   // #F5F4EF
+    // ◀ ▶ step through the named colours: from AI Olive (4) on to Bella Brittany (6)
+    await page.selectOption('#ral-cupboard', '4');
+    await page.click('#colNext');
+    expect(await field(page, 14)).toBe('6');
+    await page.click('#colPrev');
+    expect(await field(page, 14)).toBe('4');
+    // Other colours: any RAL colour, from a second dropdown
+    await expect(page.locator('#otherRow')).toBeHidden();
+    await page.selectOption('#ral-cupboard', 'other');
+    await expect(page.locator('#otherRow')).toBeVisible();
+    await page.selectOption('#ral-other', '7016');
+    expect(await field(page, 14)).toBe('7016');
+  });
+
+  test('the dresser colour, ◀ ▶, and other colours', async ({ page }) => {
+    await page.selectOption('#ral-dresser', '6');
+    expect(await field(page, 19)).toBe('6');
+    await page.click('#dresserNext');
+    expect(await field(page, 19)).toBe('7');
+    await page.click('#dresserPrev');
+    expect(await field(page, 19)).toBe('6');
+    await page.selectOption('#ral-dresser', 'other');
+    await expect(page.locator('#dresserOtherRow')).toBeVisible();
+    await page.selectOption('#ral-dresser-other', '5014');
+    expect(await field(page, 19)).toBe('5014');
+  });
+
+  test('the shelf wood', async ({ page }) => {
+    await page.selectOption('#shelfWood', '2');
+    expect(await field(page, 17)).toBe('2');
+    await expect(page.locator('#shelfSwatch')).toHaveCSS('background-color', 'rgb(138, 90, 51)');      // #8A5A33
+  });
+
+  test('the colours in this view', async ({ page }) => {
+    await page.evaluate(() => { document.getElementById('palette').open = true; });
+    await expect(page.locator('#paletteList .colrow').first()).toBeVisible();
+    await page.selectOption('#shelfWood', '3');
+    await expect(page.locator('#paletteList')).toContainText('Walnut');
+  });
+
+  test('the dresser: a listed one, then Custom once a slider moves', async ({ page }) => {
+    await page.selectOption('#dresserPick', 'inglesham');
+    expect(await field(page, 20)).toBe('1000.1930.420.830.420');
+    await expect(page.locator('#dresserWValue')).toHaveText('1000');
+    await slide(page, 'dresserW', 1100);
+    await expect(page.locator('#dresserPick')).toHaveValue('');           // Custom
+  });
+
+  test('the larder: a listed one, then Custom once a slider moves', async ({ page }) => {
+    await LARDER(page);
+    await page.selectOption('#larderPick', 'stow');
+    expect(await field(page, 22)).toBe('stow');
+    expect(await fieldPart(page, 26, 0)).toBe('670');
+    await expect(page.locator('#larderWValue')).toHaveText('670');
+    await slide(page, 'larderW', 700);
+    await expect(page.locator('#larderPick')).toHaveValue('');            // Custom
+  });
+
+  test('the sofa: one, then none', async ({ page }) => {
+    await expect(page.locator('#sofaFrontBlock')).toBeHidden();
+    await SOFA(page);
+    expect(await field(page, 24)).toBe('merton');
+    await expect(page.locator('#sofaFrontBlock')).toBeVisible();
+    await slide(page, 'sofaW', 2000);
+    await expect(page.locator('#sofaPick')).toHaveValue('custom');
+    await page.selectOption('#sofaPick', '');
+    expect(await field(page, 24)).toBe('none');
+    await expect(page.locator('#sofaFrontBlock')).toBeHidden();
+  });
+});
+
+test.describe('option 7\'s shelves', () => {
+  test.beforeEach(async ({ page }) => {
+    await openDrawer(page);
+    await OPTION(7)(page);
+  });
+
+  test('a list of shelf tops for each leg', async ({ page }) => {
+    await page.locator('#shelvesBack').fill('1000 500');
+    await page.locator('#shelvesBack').press('Tab');                    // the list is read once you leave the box
+    await expect(page.locator('#shelvesBack')).toHaveValue('500, 1000');   // sorted, and written back tidily
+    expect(await field(page, 30)).toBe('500.1000');
+    await page.locator('#shelvesLeft').fill('700');
+    await page.locator('#shelvesLeft').press('Tab');
+    expect(await field(page, 31)).toBe('700');
+  });
+
+  test('tops too low, too high or not numbers are left out', async ({ page }) => {
+    await page.locator('#shelvesBack').fill('50, shelf, 2500');
+    await page.locator('#shelvesBack').press('Tab');
+    await expect(page.locator('#shelvesBack')).toHaveValue('');
+    expect(await field(page, 30)).toBe('0');                            // no shelves
+  });
+});
+
+test.describe('switches and buttons', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+
+  test('see-through cupboards', async ({ page }) => {
+    await page.click('#xray');
+    await expect(page.locator('#xray')).toHaveText('See-through cupboards: on');
+    await page.click('#xray');
+    await expect(page.locator('#xray')).toHaveText('See-through cupboards: off');
+  });
+
+  test('cupboard only, in 3D and in the plan', async ({ page }) => {
+    await page.locator('#cupboardOnly').check();
+    await page.click('#close');
+    await page.locator('#viewsMenu .popToggle').click();
+    await page.selectOption('#viewPick', 'plan');
+    await expect(page.locator('#dims')).toHaveText('Dimensions: on');
+    await page.click('#menu');
+    await page.locator('#cupboardOnly').uncheck();
+  });
+});
+
+test.describe('things to store', () => {
+  const head = async page => (await stored(page))[0];
+
+  test('shown, packed, and where they go', async ({ page }) => {
+    await openDrawer(page);
+    await page.click('#storedToggle');
+    await expect(page.locator('#storedToggle')).toHaveText('Stored things: shown');
+    expect(await head(page)).toBe('1.0.0');
+    await expect(page.locator('#storedInfo')).toContainText('Standing on the floor they take');
+    await page.selectOption('#storedPacking', '2');
+    expect(await head(page)).toBe('1.2.0');
+    await page.check('input[name=storedWhere][value="1"]');
+    expect(await head(page)).toBe('1.2.1');
+    await expect(page.locator('#storedInfo')).toContainText("corner cupboard");
+    await page.click('#storedToggle');
+    expect(await head(page)).toBe('0.2.1');
+  });
+
+  test('off the floor, then packed again', async ({ page }) => {
+    await openDrawer(page);
+    await page.click('#storedToggle');
+    const lift = page.locator('#storedLifts input').first();             // Rack 1
+    await lift.fill('300');
+    await lift.press('Tab');
+    const [h, rack1] = await stored(page);
+    expect(h).toBe('1.0.2');                                          // as placed by hand now
+    expect(rack1.split('.')[3]).toBe('300');
+    await page.click('#storedPack');                                   // back by the window
+    expect(await head(page)).toBe('1.0.0');
+  });
+
+  // In the plan, with the drawer shut, the view is centred on (1400, 2860)
+  // in room mm, at a scale that fits 6.0 × 6.9 m on screen (room_3d.html's
+  // built-in plan view). Rack 1 starts at x 2550, y 2640, turned: 100 × 800.
+  test('in the plan: named under the pointer, dragged, and turned', async ({ page }) => {
+    await openRoom(page, '#9-0-330-1200-3-250-780-500-700-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18~1.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~plan.sit-tall.90-0-0');
+    const { width, height } = page.viewportSize();
+    const perMm = Math.min(width / 6.0, height / 6.9) / 1000;
+    const at = (x, y) => [width / 2 + (x - 1400) * perMm, height / 2 + (y - 2860) * perMm];
+    const [sx, sy] = at(2600, 3040);                                  // Rack 1's middle
+    await page.mouse.move(sx, sy);
+    await expect(page.locator('#tip')).toContainText('Rack 1');
+    // Dragged 500 to the left
+    await page.mouse.down();
+    await page.mouse.move(sx - 500 * perMm, sy, { steps: 5 });
+    await page.mouse.up();
+    let [h, rack1] = await stored(page);
+    expect(h).toBe('1.0.2');                                          // moved by hand
+    const x = Number(rack1.split('.')[0]);
+    expect(x).toBeGreaterThan(2000);
+    expect(x).toBeLessThan(2100);
+    expect(rack1.split('.')[2]).toBe('1');
+    // A double-click turns it round
+    await page.mouse.dblclick(sx - 500 * perMm, sy);
+    [, rack1] = await stored(page);
+    expect(rack1.split('.')[2]).toBe('0');
+  });
+});
+
+test.describe('the Views and Look menus', () => {
+  test.beforeEach(async ({ page }) => { await openRoom(page); });
+
+  test('a view from the list', async ({ page }) => {
+    await page.locator('#viewsMenu .popToggle').click();
+    await page.selectOption('#viewPick', 'top');
+    await expect.poll(() => view(page)).toMatch(/^top\./);
+  });
+
+  test('where you are, what you look at, and eye height', async ({ page }) => {
+    await page.locator('#viewMenu .popToggle').click();
+    await page.selectOption('#where', 'island');
+    await expect.poll(() => view(page)).toMatch(/^look:island:/);
+    await page.selectOption('#lookAt', 'tv');
+    await expect.poll(() => view(page)).toMatch(/^look:island:tv\./);
+    await page.selectOption('#eye', 'stand-short');
+    await expect.poll(() => view(page)).toMatch(/\.stand-short\./);
+  });
+
+  test('saving and deleting a view', async ({ page }) => {
+    await page.locator('#viewsMenu .popToggle').click();
+    page.once('dialog', d => d.accept('Test view'));
+    await page.click('#saveView');
+    await expect(page.locator('#viewPick option[value="saved:Test view"]')).toHaveCount(1);
+    await expect(page.locator('#deleteView')).toBeVisible();
+    page.once('dialog', d => d.accept());
+    await page.click('#deleteView');
+    await expect(page.locator('#viewPick option[value="saved:Test view"]')).toHaveCount(0);
+  });
+
+  test('saving and deleting a look', async ({ page }) => {
+    await page.locator('#viewMenu .popToggle').click();
+    await page.selectOption('#where', 'window2');
+    page.once('dialog', d => d.accept('Test look'));
+    await page.click('#saveLook');
+    await expect(page.locator('#lookPick option[value="saved:Test look"]')).toHaveCount(1);
+    page.once('dialog', d => d.accept());
+    await page.click('#deleteLook');
+    await expect(page.locator('#lookPick option[value="saved:Test look"]')).toHaveCount(0);
+  });
+});
+
+test.describe('the Scenes menu', () => {
+  test('saving and deleting a scene', async ({ page }) => {
+    await openRoom(page);
+    await page.locator('#sceneMenu .popToggle').click();
+    page.once('dialog', d => d.accept('Test scene'));
+    await page.click('#saveScene');
+    await expect(page.locator('#scenePick option[value="saved:Test scene"]')).toHaveCount(1);
+    await expect(page.locator('#scenePick')).toHaveValue('saved:Test scene');   // it's the one on screen
+    page.once('dialog', d => d.accept());
+    await page.click('#deleteScene');
+    await expect(page.locator('#scenePick option[value="saved:Test scene"]')).toHaveCount(0);
+  });
+});
+
+// A walk through the menus in one go, as someone might use them, each step
+// checked in the address; then everything back as it started, which must
+// give the default page's address exactly
+test('a walk through the menus, and back to the start', async ({ page }) => {
+  await openDrawer(page);
+  const start = await hash(page);
+  const step = async (what, k, value) => expect(await field(page, k), what).toBe(value);
+  await page.selectOption('#current', '6');                           // option 7
+  await step('option 7', 0, '7');
+  await step('option 7 brings a left-wall cupboard', 1, '600');
+  await page.check('input[name=islandAt][value="out"]');              // the island in the corner, against the counter
+  await step('the island in the corner', 23, '2');
+  await expect(page.locator('#frontBlock'), 'no dresser or larder with the island there').toBeHidden();
+  await page.check('input[name=islandAt][value="room"]');             // and out there again
+  await step('the island out there', 23, '0');
+  await expect(page.locator('#frontBlock')).toBeVisible();
+  await page.check('input[name=frontPiece][value="none"]');
+  await page.check('input[name=frontPiece][value="dresser"]');
+  await step('the dresser', 21, '0');
+  await page.check('input[name=frontPiece][value="larder"]');
+  await step('the larder', 21, '1');
+  await SOFA(page);
+  await step('the sofa', 24, 'merton');
+  await page.selectOption('#current', '8');                           // option 9
+  await step('option 9', 0, '9');
+  await expect(page.locator('#summary')).toContainText('A larder on the front wall');
+  await expect(page.locator('#summary')).toContainText('A sofa facing the TV');
+
+  // Back as it started
+  await page.selectOption('#sofaPick', '');
+  await page.check('input[name=frontPiece][value="dresser"]');
+  await slide(page, 'depth', 290);                         // no left-wall cupboard
+  expect(await hash(page)).toBe(start);
+});

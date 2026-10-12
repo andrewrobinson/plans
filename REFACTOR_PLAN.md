@@ -34,8 +34,11 @@ checked by running the suite.
 
 **Done** (12 Oct 2026, branch `playwright-tests`): `playwright.config.js`
 and `tests/`. Run it with `nvm use` (Node 24, from `.nvmrc`), then `npm test`;
+`npm run test:quick` runs it in WebKit only, in about a minute, for while
+you're working (the full run is for before merging or deploying);
 `npm run test:update` retakes the screenshots, `npm run report` shows the last
-run. `tests/menu_demo.spec.js` is a commented walk-through of Playwright on
+run. `tests/controls.spec.js` uses every control once (each slider to both
+ends and back), in WebKit only. `tests/menu_demo.spec.js` is a commented walk-through of Playwright on
 `menu_demo.html`, one group per KIND.
 
 ### Why
