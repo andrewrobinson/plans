@@ -15,10 +15,11 @@ const stored = async page => (await hash(page)).split('~')[1].split('_');
 // The view: its id, eye height, and the doors' angles (room, left-wall cupboard, option's own)
 const view = async page => (await hash(page)).split('~')[2];
 
-// The page with the drawer open and every section in it unfolded
-async function openDrawer(page, address) {
+// The page with a drawer open (Other options, or with '#cupMenu' Cupboard
+// options), and every section in it unfolded
+async function openDrawer(page, address, button = '#menu') {
   await openRoom(page, address);
-  await page.click('#menu');
+  await page.click(button);
   await page.evaluate(() => document.querySelectorAll('#panel details').forEach(d => { d.open = true; }));
 }
 
@@ -82,6 +83,7 @@ test.describe('sliders, to each end and back', () => {
   });
 
   test('option 9\'s sliders', async ({ page }) => {
+    await OPTION(9)(page);
     await endsAndBack(page, 'ward', at(10));
     await endsAndBack(page, 'wardD', at(12));
     await endsAndBack(page, 'tower', at(11));
@@ -146,6 +148,7 @@ test.describe('radio buttons', () => {
   });
 
   test('the left-wall cupboard\'s front', async ({ page }) => {
+    await page.click('#cupMenu');
     const before = await hash(page);
     await page.check('input[name=front][value="1329"]');
     expect(await field(page, 3)).toBe('1329');
@@ -251,10 +254,7 @@ test.describe('dropdowns', () => {
 });
 
 test.describe('option 7\'s shelves', () => {
-  test.beforeEach(async ({ page }) => {
-    await openDrawer(page);
-    await OPTION(7)(page);
-  });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#cupMenu'); });   // option 7 to start
 
   test('a list of shelf tops for each leg', async ({ page }) => {
     await page.locator('#shelvesBack').fill('1000 500');
@@ -275,7 +275,7 @@ test.describe('option 7\'s shelves', () => {
 });
 
 test.describe('switches and buttons', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#cupMenu'); });
 
   test('see-through cupboards', async ({ page }) => {
     await page.click('#xray');
@@ -286,11 +286,11 @@ test.describe('switches and buttons', () => {
 
   test('cupboard only, in 3D and in the plan', async ({ page }) => {
     await page.locator('#cupboardOnly').check();
-    await page.click('#close');
+    await page.click('#cupClose');
     await page.locator('#viewsMenu .popToggle').click();
     await page.selectOption('#viewPick', 'plan');
     await expect(page.locator('#dims')).toHaveText('Dimensions: on');
-    await page.click('#menu');
+    await page.click('#cupMenu');
     await page.locator('#cupboardOnly').uncheck();
   });
 });
@@ -417,9 +417,8 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   await openDrawer(page);
   const start = await hash(page);
   const step = async (what, k, value) => expect(await field(page, k), what).toBe(value);
-  await page.selectOption('#current', '6');                           // option 7
-  await step('option 7', 0, '7');
-  await step('option 7 brings a left-wall cupboard', 1, '600');
+  await step('option 7, as the page opens', 0, '7');
+  await step('...with a left-wall cupboard', 1, '600');
   await page.check('input[name=islandAt][value="out"]');              // the island in the corner, against the counter
   await step('the island in the corner', 23, '2');
   await expect(page.locator('#frontBlock'), 'no dresser or larder with the island there').toBeHidden();
@@ -441,6 +440,6 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   // Back as it started
   await page.selectOption('#sofaPick', '');
   await page.check('input[name=frontPiece][value="dresser"]');
-  await slide(page, 'depth', 290);                         // no left-wall cupboard
+  await page.selectOption('#current', '6');                           // option 7
   expect(await hash(page)).toBe(start);
 });

@@ -30,7 +30,7 @@ const OPTIONS = [
 ];
 
 const ADDRESSES = [
-  { name: 'default', address: `#9-0-${REST}~${STORED}~${VIEW}` },
+  { name: 'default', address: `#7-600-${REST}~${STORED}~${VIEW}` },        // option 7, as the page opens
   ...OPTIONS.map(([name, code, left]) => ({ name, address: `#${code}-${left}-${REST}~${STORED}~${VIEW}` })),
 
   // The views: 2D with dimensions, and from places in the room

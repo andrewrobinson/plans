@@ -40,7 +40,7 @@ test.describe('saved addresses', () => {
   });
 });
 
-test.describe('the settings drawer', () => {
+test.describe('the settings drawers', () => {
   test.beforeEach(async ({ page }) => { await openRoom(page); });
 
   test('☰ opens it, ✕ and Escape close it', async ({ page }) => {
@@ -68,6 +68,32 @@ test.describe('the settings drawer', () => {
     await expect(page.locator('#panel')).not.toBeInViewport();
     await expect(scrim).toBeHidden();
   });
+
+  // Cupboard options and Other options (☰), one open at a time; they open
+  // below the top bar, so its buttons and option list still work
+  test('Cupboard options has its own drawer, and one drawer is open at a time', async ({ page }) => {
+    const other = page.locator('#panel'), cupboard = page.locator('#cupPanel');
+    await expect(cupboard).not.toBeInViewport();
+    await page.click('#cupMenu');
+    await expect(cupboard).toBeInViewport();
+    await expect(page.locator('#cupMenu')).toHaveAttribute('aria-expanded', 'true');
+    await page.click('#menu');
+    await expect(other).toBeInViewport();
+    await expect(cupboard).not.toBeInViewport();
+    await expect(page.locator('#cupMenu')).toHaveAttribute('aria-expanded', 'false');
+    await page.click('#cupMenu');
+    await expect(cupboard).toBeInViewport();
+    await expect(other).not.toBeInViewport();
+    await page.click('#cupClose');
+    await expect(cupboard).not.toBeInViewport();
+  });
+
+  test('the option list is in the top bar, and works with a drawer open', async ({ page }) => {
+    await page.click('#cupMenu');
+    await page.selectOption('#current', '8');                   // option 9
+    await expect(page.locator('#wardBlock')).toBeVisible();        // its sliders, in the drawer
+    expect(settingsField(await page.evaluate(() => location.hash), 0)).toBe('9');
+  });
 });
 
 test.describe('the controls', () => {
@@ -78,18 +104,21 @@ test.describe('the controls', () => {
   const hash = page => page.evaluate(() => location.hash);
 
   test('a slider updates its number and the address', async ({ page }) => {
+    await page.click('#cupMenu');
     await page.locator('#rear').fill('500');
     await expect(page.locator('#rearValue')).toHaveText('500');
     expect(settingsField(await hash(page), 2)).toBe('500');
   });
 
   test('the board thickness slider updates its number and the address', async ({ page }) => {
+    await page.click('#cupMenu');
     await page.locator('#board').fill('22');
     await expect(page.locator('#boardValue')).toHaveText('22');
     expect(settingsField(await hash(page), 33)).toBe('22');
   });
 
   test('the left-wall depth slider shows "none" below 300', async ({ page }) => {
+    await page.click('#cupMenu');
     await page.locator('#depth').fill('450');
     await expect(page.locator('#depthValue')).toHaveText('450');
     expect(settingsField(await hash(page), 1)).toBe('450');
@@ -99,6 +128,7 @@ test.describe('the controls', () => {
   });
 
   test('each option shows its own slider blocks', async ({ page }) => {
+    await page.click('#cupMenu');
     const blocks = ['upperBlock', 'extraBlock', 'legBlock', 'wardBlock'];
     // option index → the blocks shown (show() in room_3d.html)
     const cases = [[0, []], [2, ['upperBlock']], [4, ['upperBlock', 'extraBlock']], [6, ['legBlock']], [8, ['wardBlock']]];
@@ -112,6 +142,8 @@ test.describe('the controls', () => {
   });
 
   test('option 8 needs a left-wall cupboard', async ({ page }) => {
+    await page.click('#cupMenu');
+    await page.locator('#depth').fill('290');                    // none
     const option8 = page.locator('#current option[value="7"]');
     await expect(option8).toBeDisabled();
     await page.locator('#depth').fill('600');

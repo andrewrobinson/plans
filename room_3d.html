@@ -22,8 +22,12 @@
 </head>
 <body>
 <div id="view"></div>
+<!-- The top bar: ☰ for Other options, the option on show (always to hand),
+     Cupboard options, Share and Reset -->
 <div id="bar">
-  <button id="menu" aria-label="Settings" aria-controls="panel">☰</button>
+  <button id="menu" aria-label="Other options" title="Other options" aria-controls="panel" aria-expanded="false">☰</button>
+  <select id="current" class="pick" aria-label="Cupboard option"></select>
+  <button id="cupMenu" class="chip" aria-controls="cupPanel" aria-expanded="false">Cupboard options</button>
   <button id="share" class="chip">Share</button>
   <button id="reset" class="chip">Reset</button>
 </div>
@@ -67,10 +71,10 @@
 </div>
 <div id="scrim"></div>
 <div id="tip"></div>
-<div id="panel">
+<div id="panel" class="drawer">
   <div class="head">
-    <h1>Cupboard options</h1>
-    <button id="close" aria-label="Close settings">✕</button>
+    <h1>Other options</h1>
+    <button id="close" class="close" aria-label="Close other options">✕</button>
   </div>
   <details class="sec" id="secFrontWall" open>
     <summary>The front wall and the island</summary>
@@ -162,53 +166,6 @@
     </div>
     </div>
   </details>
-  <details class="sec" id="secCupboard" open>
-    <summary>The corner cupboard</summary>
-    <label class="switch" title="Hide the rest of the room and show the cupboard's dimensions"><input type="checkbox" id="cupboardOnly"> Cupboard only, with dimensions</label>
-    <div id="depthBlock">
-      <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
-      <input id="depth" type="range" min="290" max="800" step="1" value="290">
-    </div>
-    <div id="front" class="depth">Left-wall cupboard front:
-      <label><input type="radio" name="front" value="1200" checked> 1200</label>
-      <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
-    </div>
-    <label for="rear">Back-wall cupboard depth: <span id="rearValue">330</span></label>
-    <input id="rear" type="range" min="300" max="800" step="10" value="330">
-    <label for="board">Board thickness: <span id="boardValue">18</span></label>
-    <input id="board" type="range" min="12" max="25" step="1" value="18">
-    <label for="current">Option</label>
-    <select id="current" aria-label="Cupboard option"></select>
-    <div class="row">
-      <button id="xray">See-through cupboards: off</button>
-    </div>
-    <div id="wardBlock">
-      <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
-      <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
-      <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
-      <input id="ward" type="range" min="600" max="1400" step="50" value="900">
-      <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
-      <input id="tower" type="range" min="0" max="600" step="50" value="400">
-    </div>
-    <div id="upperBlock">
-      <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
-      <input id="upper" type="range" min="400" max="1200" step="50" value="700">
-    </div>
-    <div id="legBlock">
-      <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
-      <input id="leg" type="range" min="400" max="1200" step="1" value="600">
-      <label for="legD">Single-door cupboard depth: <span id="legDValue">600</span></label>
-      <input id="legD" type="range" min="330" max="1000" step="1" value="600">
-      <label for="shelvesBack">Shelves in the back-wall leg and corner (tops, mm)</label>
-      <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
-      <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
-      <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
-    </div>
-    <div id="extraBlock">
-      <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
-      <input id="extra" type="range" min="300" max="900" step="50" value="500">
-    </div>
-  </details>
   <details class="sec" id="secDoors" open>
     <summary>Doors</summary>
     <div id="tallBlock">
@@ -277,6 +234,57 @@
     <summary>Description</summary>
     <div id="summary"></div>
   </details>
+</div>
+
+<!-- Cupboard options: the corner cupboard's settings, a drawer of its own
+     (the option itself is chosen in the top bar) -->
+<div id="cupPanel" class="drawer">
+  <div class="head">
+    <h1>Cupboard options</h1>
+    <button id="cupClose" class="close" aria-label="Close cupboard options">✕</button>
+  </div>
+  <label class="switch" title="Hide the rest of the room and show the cupboard's dimensions"><input type="checkbox" id="cupboardOnly"> Cupboard only, with dimensions</label>
+  <div id="depthBlock">
+    <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
+    <input id="depth" type="range" min="290" max="800" step="1" value="290">
+  </div>
+  <div id="front" class="depth">Left-wall cupboard front:
+    <label><input type="radio" name="front" value="1200" checked> 1200</label>
+    <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
+  </div>
+  <label for="rear">Back-wall cupboard depth: <span id="rearValue">330</span></label>
+  <input id="rear" type="range" min="300" max="800" step="10" value="330">
+  <label for="board">Board thickness: <span id="boardValue">18</span></label>
+  <input id="board" type="range" min="12" max="25" step="1" value="18">
+  <div class="row">
+    <button id="xray">See-through cupboards: off</button>
+  </div>
+  <div id="wardBlock">
+    <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
+    <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
+    <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
+    <input id="ward" type="range" min="600" max="1400" step="50" value="900">
+    <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
+    <input id="tower" type="range" min="0" max="600" step="50" value="400">
+  </div>
+  <div id="upperBlock">
+    <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
+    <input id="upper" type="range" min="400" max="1200" step="50" value="700">
+  </div>
+  <div id="legBlock">
+    <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
+    <input id="leg" type="range" min="400" max="1200" step="1" value="600">
+    <label for="legD">Single-door cupboard depth: <span id="legDValue">600</span></label>
+    <input id="legD" type="range" min="330" max="1000" step="1" value="600">
+    <label for="shelvesBack">Shelves in the back-wall leg and corner (tops, mm)</label>
+    <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
+    <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
+    <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
+  </div>
+  <div id="extraBlock">
+    <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
+    <input id="extra" type="range" min="300" max="900" step="50" value="500">
+  </div>
 </div>
 
 <!-- The room's views, dressers, larders, sofas and scenes, for editing, and the kits that show the views and scenes -->
@@ -642,11 +650,12 @@ box(0, 600, 1000, 60, 720, 1020, handleMat, roomHinge, false);
 // height, where the dresser stands), and nor is the view (view_kit.js).
 // ---------------------------------------------------------------------------
 const state = {
-  option: 8,                       // the option on show, its index in OPTIONS: option 9 to start
+  option: 6,                       // the option on show, its index in OPTIONS: option 7 to start
   // The left-wall cupboard's depth from the wall: 0 (none), or 300 to 800 in
   // 10s. Options 2 and 8 need it, so they're unavailable at 0. Everything
-  // along the back wall starts from it.
-  T: 0,
+  // along the back wall starts from it. 600 to start, as option 7 has when
+  // chosen.
+  T: 600,
   R: 330,                          // the rear-wall cupboards' and bench's depth from the back wall: 300 to 800
   F: 1200,                         // the left-wall cupboard's front: 1200, or 1329 right up to the door frame. Its inside leg along the left wall is F - R
   // The thickness of the boards (MDF or chipboard) every cupboard is built
@@ -3297,6 +3306,8 @@ document.getElementById('dims').addEventListener('click', e => {
 // keepScale: the drawer opened or closed, so slide the drawing clear of it
 // but keep its size, and any zooming, as it was
 function resize(keepScale = false) {
+  // The drawers open just below the top bar, however many rows it takes
+  document.documentElement.style.setProperty('--below-bar', `${Math.ceil(document.getElementById('bar').getBoundingClientRect().bottom) + 8}px`);
   const { clientWidth: w, clientHeight: h } = renderer.domElement.parentElement;
   renderer.setSize(w, h);
   camera.aspect = w / h;
@@ -3309,7 +3320,7 @@ function resize(keepScale = false) {
   // Fit flatFit on screen, whichever way round is tighter, in the part the
   // settings drawer leaves clear: on wide screens it stays open over the model
   const [fw, fh] = flatFit;
-  const covered = menuOpen() && !narrow() ? document.getElementById('panel').offsetWidth : 0;
+  const covered = menuOpen() && !narrow() ? document.getElementById(openDrawer()).offsetWidth : 0;
   const clear = w - covered;
   if (!keepScale || !flatPerM) flatPerM = Math.min(clear / fw, h / fh);
   const perM = flatPerM, halfH = h / 2 / perM;
@@ -3318,19 +3329,29 @@ function resize(keepScale = false) {
 }
 window.addEventListener('resize', () => resize());
 
-// The settings drawer starts closed on every screen; ☰ opens it
+// The settings drawers, one open at a time, both closed to start on every
+// screen: Other options, opened by ☰, and Cupboard options by its button.
+// Each: [its button, the class on <body> while it's open]
+const DRAWERS = { panel: ['menu', 'menu-open'], cupPanel: ['cupMenu', 'cup-open'] };
 function narrow() { return window.innerWidth <= 900; }
-function menuOpen() { return document.body.classList.contains('menu-open'); }
-function setMenu(open) {
-  document.body.classList.toggle('menu-open', open);
-  document.getElementById('menu').setAttribute('aria-expanded', String(open));
+// The drawer open, or null
+function openDrawer() { return Object.keys(DRAWERS).find(id => document.body.classList.contains(DRAWERS[id][1])) ?? null; }
+function menuOpen() { return openDrawer() !== null; }
+// Open drawer `id`, closing the other; null closes both
+function setMenu(id) {
+  for (const [drawer, [button, open]] of Object.entries(DRAWERS)) {
+    document.body.classList.toggle(open, drawer === id);
+    document.getElementById(button).setAttribute('aria-expanded', String(drawer === id));
+  }
   resize(true);                                                 // the 2D views move clear of the drawer
 }
-setMenu(false);
-document.getElementById('menu').addEventListener('click', () => setMenu(!menuOpen()));
-document.getElementById('close').addEventListener('click', () => setMenu(false));
-document.getElementById('scrim').addEventListener('click', () => setMenu(false));
-window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+setMenu(null);
+for (const [drawer, [button]] of Object.entries(DRAWERS)) {
+  document.getElementById(button).addEventListener('click', () => setMenu(openDrawer() === drawer ? null : drawer));
+}
+document.querySelectorAll('.drawer .close').forEach(b => b.addEventListener('click', () => setMenu(null)));
+document.getElementById('scrim').addEventListener('click', () => setMenu(null));
+window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(null); });
 
 // Reset: load the page again with no settings in the address, so everything
 // is back to its default
@@ -3406,8 +3427,8 @@ function syncControls() {
 
 // Start on the settings in the address (room_dimensions.md has their
 // order). Anything it leaves out, and everything with no address, starts as
-// in state: option 9, no left-wall cupboard, TV and shelves above the bench,
-// and AI Olive cupboards.
+// in state: option 7 with a 600 left-wall cupboard, TV and shelves above the
+// bench, and AI Olive cupboards.
 readAddress(location.hash.slice(1));
 syncControls();
 show(state.option);
