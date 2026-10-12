@@ -75,7 +75,7 @@ object and the address read and written from one list belong inside the
 engine work, and its file split is replaced by the layout above. Do them as
 part of step 1, not as a separate pass.
 
-## The other room, the hallway and the stairs, from the architect's drawing
+## The other room, the hallway and the stairs, from the floor plans
 
 **Scope:** this repo is about the top-floor (second-floor) flat only: its
 rooms, hallway and bathroom. Beyond the flat, only the **staircase and the
@@ -84,12 +84,7 @@ flat's hallway, so you can see the way in. The first-floor flat and the
 other properties are not modelled; the first floor plan is here only for
 where the staircase runs through it.
 
-Source: the architect's drawing (Architects UW, March 2025, Land Registry
-drawing 9256 LR 011, "Ground, First & Second Floor Plans and Location
-Plan"), saved here as `AmendedPlanWithTwoSuggestedParkingAreas.pdf`. It
-carries the address and the client's and architect's details, so it's kept
-out of git (`.gitignore`). The two plans that matter are cropped out of it,
-without those details, as:
+The floor plans are in `drawings/`:
 
 - `drawings/second_floor_plan.png`: this flat, outlined in red.
 - `drawings/first_floor_plan.png`: the flat below, used only for this
@@ -126,8 +121,8 @@ and up into this flat's hallway.
 
 ### The drawing against the model's measurements
 
-The drawing says "do not scale", but scaled off a high-resolution render
-(about 8.4 mm a pixel) it agrees with the measured model to within the
+The plans aren't meant to be scaled, but scaled off them (about 8.4 mm a
+pixel) they agree with the measured model to within the
 drawing's line widths:
 
 | | From the drawing | Measured (model) |
@@ -178,9 +173,8 @@ The full checklist, with priorities and how to measure, is
   rise and going, the winders at the top, the banister, the opening above,
   and the headroom.
 - The entrance: the street or rear door at ground level, the lobby at
-  first-floor level and its door into the enclosed flight. The ground floor
-  plan in the PDF shows the bottom of the route; crop it into `drawings/`
-  too when that part is modelled.
+  first-floor level and its door into the enclosed flight. Add a ground
+  floor plan to `drawings/` when that part is modelled.
 
 ## Also open
 

@@ -81,7 +81,7 @@ test('Share link round-trips', async ({ page }) => {
   dependency-free with no build step, and GitHub Pages serves it exactly as now.
 - In `playwright.config.js`, the `webServer` setting starts
   `python3 -m http.server 8765` for the tests, so no server needs starting by hand.
-- Add `node_modules/`, `test-results/` and `playwright-report/` to `.gitignore`.
+- Keep `node_modules/`, `test-results/` and `playwright-report/` out of git.
   Commit the reference screenshots (`tests/*-snapshots/`): they are the record
   of how the page should look.
 - Node here is v18.12 (via nvm). Current Playwright may need a newer Node; if

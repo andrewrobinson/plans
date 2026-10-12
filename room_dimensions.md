@@ -306,11 +306,11 @@ Heights here are set from the bench height; the value at the default bench of 78
 | `TV_SHELF_TOPS` | BENCH + 220, + 1300 (1000, 2080) | Full-width shelf tops below and above the TV, "TV and shelves". A TV over 65" raises the top shelf to stay 150 clear of it; if that brings it within 60 of the ceiling, there's no top shelf |
 | `TV_MIDDLE_SHELF` | BENCH + 770 (1550) | Shelf top either side of the TV, "TV and shelves" (left out when there's under 200 each side) |
 
-## Checked against the architect's drawing
+## Checked against the floor plan
 
-The architect's second floor plan (March 2025; see `PLAN.md`, and the crop
-in `drawings/second_floor_plan.png`) agrees with these measurements when
-scaled, though it says not to scale it:
+The second floor plan (`drawings/second_floor_plan.png`; see `PLAN.md`)
+agrees with these measurements when scaled, though it isn't meant to be
+scaled:
 
 | | Scaled from the drawing | Measured here |
 |---|---|---|
@@ -352,4 +352,4 @@ How these fit, with the counter at the back of the 372-deep sink recess (y = 575
 - With a small TV, the middle shelves either side sit level with its top edge, not halfway up it.
 - A thin brick-coloured strip shows at one edge of the back and front wall views (a window's outer reveal, seen through the wall's thickness).
 - Ideas: automated checks (text snapshots of the description, screenshots of the 2D views; now planned with Playwright, see `REFACTOR_PLAN.md`) and a guided tour through chosen options.
-- Tidying: deleting branches already merged. (`.gitignore` done: `.DS_Store` and the architect's PDF.)
+- Tidying: deleting branches already merged.

@@ -2,7 +2,7 @@
 
 What to measure in the flat so the rest of it (the other room, the hallway,
 the bathroom, the stairs and the entrance) can be modelled to scale. The
-estimates in `PLAN.md`, scaled off the architect's drawing, are only to start
+estimates in `PLAN.md`, scaled off the floor plan, are only to start
 shaping the model. Use this list to replace them.
 
 The names follow the drawing (`drawings/second_floor_plan.png`): the **living
