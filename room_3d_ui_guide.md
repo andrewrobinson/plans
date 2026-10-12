@@ -5,6 +5,12 @@ A guide to the HTML, CSS and JS in `room_3d.html` (3,327 lines) and
 they drive three.js. The room modelling is only sketched. Line numbers are as
 of 11 Oct 2026, after the CSS moved into its own file.
 
+This describes the page as it is: one room. `PLAN.md` plans to turn it into
+one page for the whole flat (a second room, the hallway, and the staircase
+and entrance), with the engine in `kit/floor_kit.js`. When that happens, the
+map below will need redoing; the HTML, CSS and control patterns it explains
+stay the same.
+
 ---
 
 ## 1. Top-to-bottom map

@@ -10,6 +10,14 @@ each step its own commit, so any one of them can be undone on its own.
 
 Line numbers are as of 11 Oct 2026. See `room_3d_ui_guide.md` for the map.
 
+**How this fits with `PLAN.md`:** `PLAN.md` step 1 already plans to pull the
+engine out of `room_3d.html` into `kit/floor_kit.js`, so the whole flat (the
+second room, hallway and stairs) can be one floor plan. Steps 2 and 3 here
+(one `state` object, the address from one list) should be done **as part of
+that work**, not as a separate pass. Step 4's file split is replaced by
+`PLAN.md`'s file layout. The test suite below comes first either way: it's
+`PLAN.md`'s step 0.
+
 **Do the test suite below first**, before step 2. Every step after it is
 checked by running the suite.
 
@@ -219,6 +227,10 @@ suite's round-trip test covers this; add an old-format link or two to it.
 
 ## Step 4: split the module into files
 
+> **Superseded by `PLAN.md`'s file layout** (`kit/floor_kit.js`, `floor.js`,
+> `living_room.js`, …), which is shaped for a whole floor rather than one
+> room. The notes below on `file://`, import order and `sw.js` still apply.
+
 ### Why
 
 One 3,000-line `<script type="module">` is hard to find your way around. Each
@@ -305,6 +317,7 @@ The same saved addresses as steps 2 and 3, plus:
 | Step | Size | Risk |
 |---|---|---|
 | Test suite | Medium: about a session to write, then free to run | Low: it changes nothing in the site |
+| Board thickness (`PLAN.md`) | Medium: about 115 places, each checked by eye | Medium: the screenshot tests must show no change at 18 |
 | 2 | Medium: touches most of the module, mechanically | Low with option (a), as long as each group is tested |
 | 3 | Medium: replaces about 130 lines with a table and two loops | Medium: old links are easy to break, hence the round-trip test |
 | 4 | Large: moves everything | Medium: mostly missing imports, which the console shows straight away |

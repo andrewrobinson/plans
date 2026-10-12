@@ -81,7 +81,7 @@ Its sizes below are where its sliders start. The menu's **Dresser** dropdown set
 
 **Options 12 to 15** put the dresser or the larder chosen in the corner instead of a built cupboard, against the back wall (facing the room) or the left wall (facing the windows), with the bench from it to the right-hand wall and the front wall left clear. Against the left wall anything over 1329 along it runs past the door frame into the doorway, as the 1370 Chester dresser does by 41; the description says so. In the larder options the door slider opens the larder's doors, and the Packing view stands you at its front with them open. The current room is now option 16 (its address code stays 10; options 12 to 15 are 13 to 16).
 
-**The island** can be moved in any option (the menu's **Kitchen island**): out there (where it is now), or against the front wall between the sink and the desk in place of the dresser or larder, either long side out, its end against the wall and against the end of the kitchen counter (770 along the wall, x 800-1570, coming 1260 out to y 4119), or short side out, its long side along the wall, centred on the 1415 there (1260 along the wall, x 878-2138, coming 770 out to y 4609), or **None**, not there at all. "The island" is in Looking at.
+**The island** can be moved in any option (the menu's **Kitchen island**): out there (where it is now), or against the front wall between the sink and the desk in place of the dresser or larder, either long side out, its end against the wall and against the end of the kitchen counter (770 along the wall, x 800-1570, coming 1260 out to y 4119), or short side out, its long side along the wall, centred on the 1415 there (1260 along the wall, x 878-2138, coming 770 out to y 4609), or **None**, not there at all. "The island" is in Looking at. Out there, three sliders move and turn it: **its middle from the left wall** (x, 0 to 3838) and **from the back wall** (y, 0 to 5379), starting where it is (x 1395, y 3571), and **how far it's turned** (0 to 180° about its middle, starting at 0). They show only while it's out there. In the address they come last before the first `~`, as `x.y.turn` (e.g. `1395.3571.0`); links from before keep the island where it is.
 
 **A sofa** can be added in any option (the menu's **Sofa, facing the TV**), from `room_3d.sofas.js`, for editing: the Habitat x Morris & Co. **Merton 2 Seater** (1690 wide, 1000 deep, 920 high, seat 505 high and 650 deep; its arm and leg heights estimated). Sliders resize it (width 1200 to 2600, depth 700 to 1200, height 700 to 1100), the seat keeping its depth and height; the dropdown then says Custom. It's centred on the TV, facing it, its front a slider's distance from the TV wall (1000 to 3500, starting at 1900, where its back is 41 short of the island's end). **Sitting on the sofa** is in Where, and "the sofa" in Looking at.
 
@@ -306,6 +306,25 @@ Heights here are set from the bench height; the value at the default bench of 78
 | `TV_SHELF_TOPS` | BENCH + 220, + 1300 (1000, 2080) | Full-width shelf tops below and above the TV, "TV and shelves". A TV over 65" raises the top shelf to stay 150 clear of it; if that brings it within 60 of the ceiling, there's no top shelf |
 | `TV_MIDDLE_SHELF` | BENCH + 770 (1550) | Shelf top either side of the TV, "TV and shelves" (left out when there's under 200 each side) |
 
+## Checked against the architect's drawing
+
+The architect's second floor plan (March 2025; see `PLAN.md`, and the crop
+in `drawings/second_floor_plan.png`) agrees with these measurements when
+scaled, though it says not to scale it:
+
+| | Scaled from the drawing | Measured here |
+|---|---|---|
+| Room door frame, from the back wall | about 1470–2270 | 1329–2231 |
+| `W`, back wall to outer wall | about 3840 | 3838 |
+| `D`, back wall to front wall | about 5380 | 5379 |
+| Kitchen recess, beyond the left wall | about 990 | 995 |
+
+On the drawing, the outer wall (three windows) is at the top, the back wall
+(bench) on the left, the front wall with the chimney breast on the right, and
+the left wall, with the room door, along the room's lower edge. The drawing's
+kitchen fittings don't match the room; its walls do. `PLAN.md` has first
+estimates for the other room, hallway and stairs, in this room's coordinates.
+
 ## TODO
 
 ### Kitchen measurements, not yet in the model
@@ -325,11 +344,12 @@ How these fit, with the counter at the back of the 372-deep sink recess (y = 575
 
 ### Other open points
 
+- **Board thickness:** every cupboard is drawn from boards 18 thick, typed into the code as `18` throughout. Planned: one setting with a slider (default 18), keeping the cupboards' **exterior** dimensions fixed; see `PLAN.md`.
 - Option 11's doors are only on the part of its side clear of the bench; doors along the whole side would need the bench to stop short of it.
 - The fit check for the things to store counts the space behind the bench line in options 1 to 5 as only bench height.
 - The shelfless bay cuts shelves straight across; a real one would want an upright panel at each cut to carry the shelf ends.
 - The Window viewpoint faces the sink with the front wall to its left; not confirmed that's what was meant.
 - With a small TV, the middle shelves either side sit level with its top edge, not halfway up it.
 - A thin brick-coloured strip shows at one edge of the back and front wall views (a window's outer reveal, seen through the wall's thickness).
-- Ideas: automated checks (text snapshots of the description, screenshots of the 2D views) and a guided tour through chosen options.
-- Tidying: a `.gitignore` for `.DS_Store`, and deleting branches already merged.
+- Ideas: automated checks (text snapshots of the description, screenshots of the 2D views; now planned with Playwright, see `REFACTOR_PLAN.md`) and a guided tour through chosen options.
+- Tidying: deleting branches already merged. (`.gitignore` done: `.DS_Store` and the architect's PDF.)
