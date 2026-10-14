@@ -23,6 +23,9 @@ const carcassMat = material(0xc9a877);
 const shelfMat = material(0xd6bc8f);
 const doorMat = material(0xd8bd92);
 const handleMat = material(0x333333);
+// The cupboard doors' handles: bars from 950 to 1250 off the floor, 20 wide
+// and standing 22 off the door, near its free edge (chosen, not measured)
+const HANDLE_BOTTOM = 950, HANDLE_TOP = 1250;
 const benchMat = material(0xe8d9bf);
 
 // A named board from room corner (x0, y0, z0) to (x1, y1, z1), in mm: a box
@@ -320,7 +323,7 @@ function tallDoor(g, back = state.R) {                          // back: where t
   const h = hinge(T, F, g);
   const w = F - 6 - back;
   part('Left-wall leg door', box({ from: [0, -w - 3, 3], to: [BOARD, -3, CEILING_HEIGHT - 3] }, doorMat, h));
-  box({ from: [BOARD, -w + 17, 950], to: [BOARD + 22, -w + 37, 1250] }, handleMat, h, false); // handle near the free edge, 950-1250
+  box({ from: [BOARD, -w + 17, HANDLE_BOTTOM], to: [BOARD + 22, -w + 37, HANDLE_TOP] }, handleMat, h, false); // handle near the free edge
   return h;
 }
 
@@ -344,7 +347,7 @@ function fullHeightL(g) {
   if (T) for (const top of L_SHELVES.left) cupShelf(rectPoly(B, Dl - B, T - B, F - B), top, carcassMat);
   const second = hinge(E, Dl + B, g);
   part('Back-wall leg door', box({ from: [T + B + 3 - E, -B, 3], to: [-3, 0, CEILING_HEIGHT - 3] }, doorMat, second));
-  box({ from: [T + B + 20 - E, 0, 950], to: [T + B + 40 - E, 22, 1250] }, handleMat, second, false);
+  box({ from: [T + B + 20 - E, 0, HANDLE_BOTTOM], to: [T + B + 40 - E, 22, HANDLE_TOP] }, handleMat, second, false);
   return second;
 }
 
@@ -858,10 +861,10 @@ function cornerCupboard(g, facing, benchFrom = state.CORNER_W) {   // benchFrom:
     const left = hinge(3, F, g);
     left.userData.dir = -1;
     part('Cupboard door', box({ from: [0, -B, 3], to: [w, 0, CEILING_HEIGHT - 3] }, doorMat, left));
-    box({ from: [w - 40, 0, 950], to: [w - 20, 22, 1250] }, handleMat, left, false);
+    box({ from: [w - 40, 0, HANDLE_BOTTOM], to: [w - 20, 22, HANDLE_TOP] }, handleMat, left, false);
     const right = hinge(E - 3, F, g);
     part('Cupboard door', box({ from: [-w, -B, 3], to: [0, 0, CEILING_HEIGHT - 3] }, doorMat, right));
-    box({ from: [20 - w, 0, 950], to: [40 - w, 22, 1250] }, handleMat, right, false);
+    box({ from: [20 - w, 0, HANDLE_BOTTOM], to: [40 - w, 22, HANDLE_TOP] }, handleMat, right, false);
     return [left, right];
   }
   board('End facing the kitchen', 0, F - B, 0, X, F, CEILING_HEIGHT, g);
@@ -869,11 +872,11 @@ function cornerCupboard(g, facing, benchFrom = state.CORNER_W) {   // benchFrom:
   const w = (F - R - B - 9) / 2;                                    // a pair on the side beyond the bench
   const back = hinge(E, R + 3, g);                               // hinged at the bench end
   part('Cupboard door', box({ from: [0, 0, 3], to: [B, w, CEILING_HEIGHT - 3] }, doorMat, back));
-  box({ from: [B, w - 40, 950], to: [B + 22, w - 20, 1250] }, handleMat, back, false);
+  box({ from: [B, w - 40, HANDLE_BOTTOM], to: [B + 22, w - 20, HANDLE_TOP] }, handleMat, back, false);
   const front = hinge(E, F - B - 3, g);                             // hinged at the kitchen end
   front.userData.dir = -1;
   part('Cupboard door', box({ from: [0, -w, 3], to: [B, 0, CEILING_HEIGHT - 3] }, doorMat, front));
-  box({ from: [B, 20 - w, 950], to: [B + 22, 40 - w, 1250] }, handleMat, front, false);
+  box({ from: [B, 20 - w, HANDLE_BOTTOM], to: [B + 22, 40 - w, HANDLE_TOP] }, handleMat, front, false);
   return [back, front];
 }
 
@@ -976,10 +979,10 @@ const OPTIONS = [
       // (T, F), the right at (E, R).
       const left = skewHinge(T, F, angle, -1, g);
       part('Diagonal door', box({ from: [3, 0, 3], to: [3 + door, B, CEILING_HEIGHT - 3] }, doorMat, left));
-      box({ from: [door - 40, B, 950], to: [door - 20, B + 22, 1250] }, handleMat, left, false);
+      box({ from: [door - 40, B, HANDLE_BOTTOM], to: [door - 20, B + 22, HANDLE_TOP] }, handleMat, left, false);
       const right = skewHinge(E, R, angle - 180, 1, g);
       part('Diagonal door', box({ from: [3, -B, 3], to: [3 + door, 0, CEILING_HEIGHT - 3] }, doorMat, right));
-      box({ from: [door - 40, -B - 22, 950], to: [door - 20, -B, 1250] }, handleMat, right, false);
+      box({ from: [door - 40, -B - 22, HANDLE_BOTTOM], to: [door - 20, -B, HANDLE_TOP] }, handleMat, right, false);
       return { second: [left, right] };
     },
   },
@@ -1020,10 +1023,10 @@ const OPTIONS = [
       const left = hinge(T + B + 3, Dw + B, g);
       left.userData.dir = -1;
       part('Cupboard door', box({ from: [0, -B, 3], to: [w, 0, CEILING_HEIGHT - 3] }, doorMat, left));
-      box({ from: [w - 40, 0, 950], to: [w - 20, 22, 1250] }, handleMat, left, false);
+      box({ from: [w - 40, 0, HANDLE_BOTTOM], to: [w - 20, 22, HANDLE_TOP] }, handleMat, left, false);
       const right = hinge(E - 3, Dw + B, g);
       part('Cupboard door', box({ from: [-w, -B, 3], to: [0, 0, CEILING_HEIGHT - 3] }, doorMat, right));
-      box({ from: [20 - w, 0, 950], to: [40 - w, 22, 1250] }, handleMat, right, false);
+      box({ from: [20 - w, 0, HANDLE_BOTTOM], to: [40 - w, 22, HANDLE_TOP] }, handleMat, right, false);
       return { tall: tallDoor(g, Dw), second: [left, right] };
     },
   },
