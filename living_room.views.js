@@ -1,4 +1,4 @@
-// Views of the room in room_3d.html, read by kit/view_kit.js. Edit freely, then
+// Views of the room in living_room.js, read by kit/view_kit.js. Edit freely, then
 // reload the page.
 //
 // Positions are in mm, as in room_dimensions.md: [x, y] across the floor, or
@@ -27,8 +27,8 @@ window.ROOM_VIEWS = {
   //   what you look at, and turns with you as you look round.
   // - cannotSee: things not to offer from here.
   // - arrive: something the room does when you get here (see the actions
-  //   in room_3d.html).
-  // - anchor: instead of `at`, worked out in room_3d.html, for places that move.
+  //   in living_room.js).
+  // - anchor: instead of `at`, worked out in living_room.js, for places that move.
   places: {
     desk:   { label: 'Seated at the desk', at: [3026, 4599], posture: 'sit', chair: true },
     // Back to each window, centred on it and just clear of its radiator
@@ -36,8 +36,8 @@ window.ROOM_VIEWS = {
     window2: { label: 'Back to window 2 (middle)', at: [3500, 2907], posture: 'stand', cannotSee: ['window2'] },
     window3: { label: 'Back to window 3 (desk end)', at: [3500, 4598], posture: 'stand', cannotSee: ['window3'] },
     island: { label: 'Beside the island', at: [2150, 3571], posture: 'stand' },      // halfway along its room side, 370 clear of it
-    // On the sofa, if there is one (see room_3d.sofas.js): where it is, worked
-    // out in room_3d.html, as it moves with the TV and its slider
+    // On the sofa, if there is one (see sofas.js): where it is, worked
+    // out in living_room.js, as it moves with the TV and its slider
     sofa:   { label: 'Sitting on the sofa', anchor: 'sofaSeat', posture: 'sit', cannotSee: ['sofa'] },
     // The door's shut behind you, as open it stands in the room in front of you
     door:   { label: 'In the doorway, walking in', at: [150, 1780], posture: 'stand', cannotSee: ['door'], arrive: 'shutRoomDoor' },
@@ -45,7 +45,7 @@ window.ROOM_VIEWS = {
 
   // What you can look at (the top bar's Looking at): the point to aim at,
   // [x, y, height]. Things that move with the option on show or the sliders
-  // have an `anchor` instead, worked out in room_3d.html.
+  // have an `anchor` instead, worked out in living_room.js.
   things: {
     monitors: { label: 'the monitors', at: [3026, 5486, 1200] },   // between the two screens
     dresser:  { label: 'the dresser', anchor: 'dresser' },        // on the front wall
@@ -71,7 +71,7 @@ window.ROOM_VIEWS = {
   // posture: you're in the view as a person, sitting or standing, so it's
   // drawn at the chosen eye height (looking at the same angle) rather than
   // the height given. chair: you're in the swivel chair. compute: worked out
-  // in room_3d.html when chosen.
+  // in living_room.js when chosen.
   views: {
     // In the office chair, swivelled round to face the room, 20° towards the
     // door and tilted 5° down, as in the photo taken there (69° across in

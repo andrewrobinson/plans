@@ -1,4 +1,4 @@
-// Dressers for the menu's Dresser dropdown in room_3d.html. Edit freely, add
+// Dressers for the menu's Dresser dropdown in living_room.js. Edit freely, add
 // more, then reload the page. Choosing one sets the dresser's sliders; moving
 // a slider shows "Custom" until the sizes match one of these again.
 //

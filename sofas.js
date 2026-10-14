@@ -1,4 +1,4 @@
-// Sofas for the menu's Sofa dropdown in room_3d.html. Edit freely, add more,
+// Sofas for the menu's Sofa dropdown in living_room.js. Edit freely, add more,
 // then reload the page. A sofa stands facing the TV, centred on it, its
 // front a set distance from the TV wall (the menu's slider).
 //

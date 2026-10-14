@@ -1,4 +1,4 @@
-// Scenes for the top bar's Scenes list in room_3d.html, to show people the
+// Scenes for the top bar's Scenes list in living_room.js, to show people the
 // options: the same on every device, unlike those saved with Save scene. Edit
 // freely, then reload the page.
 //

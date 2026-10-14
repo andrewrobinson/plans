@@ -5,7 +5,7 @@
 // looking from isn't part of a scene; that's a view (see view_kit.js).
 //
 // Scenes come from the room's data (config-defined, the same on every device;
-// see room_3d.scenes.js for one) and from Save scene (kept in the browser,
+// see living_room.scenes.js for one) and from Save scene (kept in the browser,
 // so on one device only), in one list. The list shows the scene on screen,
 // or "Your scene (not saved)" once anything's changed.
 //

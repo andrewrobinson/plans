@@ -1,4 +1,4 @@
-// Larders for the menu's Larder dropdown in room_3d.html. Edit freely, add
+// Larders for the menu's Larder dropdown in living_room.js. Edit freely, add
 // more, then reload the page. A larder stands on the front wall (between the
 // sink and the desk) when the menu's "On the front wall" says Larder. It
 // takes the dresser's colour.

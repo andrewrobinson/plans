@@ -1,6 +1,6 @@
 // View kit: where you are in a three.js room model, and what you're looking
 // at. Reusable for any room: the room supplies its own data (see
-// room_3d.views.js for one) and a few hooks, and the kit does the rest:
+// living_room.views.js for one) and a few hooks, and the kit does the rest:
 //
 // - Views from the room's data (config-defined), views saved in the page
 //   (kept in the browser, so on one device), and the room's own built-in

@@ -1,5 +1,5 @@
 // The engine for the floor plan pages: what any room needs, and nothing
-// about one room in particular. An ES module: room_3d.html imports it, so
+// about one room in particular. An ES module: living_room.js imports it, so
 // the page needs a server (GitHub Pages, the installed app, or
 // `python3 serve.py` here), as menu_demo/ does. three.js comes from the
 // page's import map.

@@ -2,7 +2,7 @@
   "name": "Cupboard options",
   "short_name": "Cupboards",
   "description": "The cupboard options for the room, in 3D, with sizes you can change.",
-  "start_url": "./room_3d.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#eef0f2",

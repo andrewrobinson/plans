@@ -1,5 +1,5 @@
 // Shared by the test files: a `test` that fails on any console error, and
-// openRoom(), which loads room_3d.html and waits until it's drawn.
+// openRoom(), which loads index.html and waits until it's drawn.
 const base = require('@playwright/test');
 
 // Every test gets this automatically (auto: true): it listens for console
@@ -16,7 +16,7 @@ const test = base.test.extend({
   }, { auto: true }],
 });
 
-// Load room_3d.html with an address (the part after #, with the #), and wait
+// Load index.html with an address (the part after #, with the #), and wait
 // until it's ready: the 3D canvas is there and the page has stopped
 // rewriting its address (it writes it once the model is built, then again
 // once the view in the address is applied, a moment later on a phone).
@@ -24,7 +24,7 @@ const test = base.test.extend({
 // part differs from the page already open.
 async function openRoom(page, hash = '') {
   await page.goto('about:blank');
-  await page.goto(`room_3d.html${hash}`);
+  await page.goto(`index.html${hash}`);
   await page.waitForFunction(() => document.querySelector('#view canvas') && location.hash.length > 1);
   await page.waitForFunction(() => new Promise(resolve => {
     let last = location.hash, still = 0;

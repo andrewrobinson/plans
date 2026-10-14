@@ -1,4 +1,4 @@
-// Browser tests for room_3d.html and menu_demo.html. See REFACTOR_PLAN.md.
+// Browser tests for index.html (the living room) and menu_demo.html. See REFACTOR_PLAN.md.
 //
 //   npm test                   run every test, in both browsers: before merging or deploying
 //   npm run test:quick         every test in WebKit only (iPhone size): quicker, while working
@@ -42,7 +42,7 @@ module.exports = defineConfig({
   ],
   webServer: {
     command: `python3 serve.py ${PORT}`,
-    url: `http://localhost:${PORT}/room_3d.html`,
+    url: `http://localhost:${PORT}/index.html`,
     reuseExistingServer: true,
     stderr: 'ignore',                        // the server's request log
   },

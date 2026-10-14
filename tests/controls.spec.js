@@ -1,9 +1,9 @@
-// room_3d.html: every control in the drawer and the menus, used once: it
+// index.html: every control in the drawer and the menus, used once: it
 // shows its new value, puts it in the address, and draws it without a
 // console error (every test fails on one; helpers.js). room_3d.spec.js
 // checks how saved addresses look; this checks the controls that set them.
 // It runs in one browser only (playwright.config.js).
-// The address's fields, by number, are ADDRESS in room_3d.html.
+// The address's fields, by number, are ADDRESS in living_room.js.
 const { test, expect, openRoom, pickOption, settingsField } = require('./helpers');
 
 const hash = page => page.evaluate(() => location.hash);
@@ -368,7 +368,7 @@ test.describe('things to store', () => {
 
   // In the plan, with the drawers shut, the view is centred on (1400, 2860)
   // in room mm, in the part of the screen below the top bar, at a scale
-  // that fits 6.0 × 6.9 m there (room_3d.html's built-in plan view, and
+  // that fits 6.0 × 6.9 m there (index.html's built-in plan view, and
   // resize()). Rack 1 starts at x 2550, y 2640, turned: 100 × 800.
   test('in the plan: named under the pointer, dragged, and turned', async ({ page }) => {
     await openRoom(page, '#9-0-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18~1.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~plan.sit-tall.90-0-0');

@@ -1,4 +1,4 @@
-// room_3d.html: saved addresses look the same and round-trip, and the menus
+// index.html: saved addresses look the same and round-trip, and the menus
 // work. See REFACTOR_PLAN.md. Every test also fails on a console error
 // (helpers.js).
 const fs = require('fs');
@@ -7,8 +7,8 @@ const path = require('path');
 const { test, expect, openRoom, pickOption, settingsField } = require('./helpers');
 const { ADDRESSES, VIEW } = require('./addresses');
 
-// The scenes in room_3d.scenes.js, read the way the page reads them
-const sceneFile = fs.readFileSync(path.join(__dirname, '..', 'room_3d.scenes.js'), 'utf8');
+// The scenes in living_room.scenes.js, read the way the page reads them
+const sceneFile = fs.readFileSync(path.join(__dirname, '..', 'living_room.scenes.js'), 'utf8');
 const sandbox = { window: {} };
 vm.runInNewContext(sceneFile, sandbox);
 const SCENES = Object.entries(sandbox.window.ROOM_SCENES.list);
@@ -131,7 +131,7 @@ test.describe('the controls', () => {
   test('each option shows its own slider blocks', async ({ page }) => {
     await page.click('#cupMenu');
     const blocks = ['legBlock', 'wardBlock', 'cornerBlock'];
-    // option number → the blocks shown (show() in room_3d.html)
+    // option number → the blocks shown (show() in index.html)
     const cases = [[7, ['legBlock']], [8, []], [9, ['wardBlock']], [10, ['cornerBlock']], [11, ['cornerBlock']], [16, []]];
     for (const [n, shown] of cases) {
       await pickOption(page, n);
@@ -261,7 +261,7 @@ test.describe('Share and Reset', () => {
     if (!isMobile) await expect(page.locator('#share')).toHaveText('Link copied');
     // Always a link to the published page, so it works for others
     const hash = await page.evaluate(() => location.hash);
-    await expect.poll(() => page.evaluate(() => window.sent)).toEqual([`https://andrewrobinson.github.io/plans/room_3d.html${hash}`]);
+    await expect.poll(() => page.evaluate(() => window.sent)).toEqual([`https://andrewrobinson.github.io/plans/index.html${hash}`]);
   });
 
   test('Reset asks first, then goes back to the default page', async ({ page }) => {
