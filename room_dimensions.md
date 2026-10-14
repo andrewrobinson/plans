@@ -272,15 +272,18 @@ The screen colours each part is drawn in, as set in [living_room.js](living_room
 
 ### Room and doorway
 
+In `floor.js`. Elsewhere in these notes the room's sizes keep their short
+names, `W`, `D` and `H`.
+
 | Name in code | Value | What |
 | --- | --- | --- |
-| `W` | 3838 | Room width |
-| `D` | 5379 | Room depth, back wall to front wall (measured) |
-| `H` | 2443 | Ceiling height, measured 2441 to 2446 across the room |
-| `WALL` | 100 | Wall thickness, drawing only |
-| `FRAME` | 1329 | Door frame start, from the back wall |
-| `HINGE` | 1400 | Door hinge, from the back wall |
-| `JAMB` | 71 | Frame width each side (HINGE − FRAME) |
+| `ROOM_WIDTH` (`W`) | 3838 | Room width, back wall to outer wall |
+| `ROOM_DEPTH` (`D`) | 5379 | Room depth, back wall to front wall (measured) |
+| `CEILING_HEIGHT` (`H`) | 2443 | Ceiling height, measured 2441 to 2446 across the room |
+| `WALL_THICKNESS` | 100 | Wall thickness, drawing only |
+| `DOOR_FRAME_STARTS_AT` | 1329 | Door frame start, from the back wall |
+| `DOOR_HINGE_AT` | 1400 | Door hinge, from the back wall |
+| `JAMB` | 71 | Frame width each side (`DOOR_HINGE_AT` − `DOOR_FRAME_STARTS_AT`) |
 | `ROOM_DOOR` | 760 | Door width |
 | `ROOM_DOOR_H` | 1978 | Door height |
 | `FRAME_H` | 2050 | Door frame height |
