@@ -5,13 +5,14 @@ described in `room_dimensions.md`.
 
 ## The order of work (suggested 14 Oct 2026)
 
-Four pieces of work are open. Suggested order, each on its own branch, one
-step per session, `npm test` passing before each merge:
+Four pieces of work were planned. Suggested order, each on its own branch,
+one step per session, `npm test` passing before each merge. Steps 1 and 2
+are done (14 Oct 2026); step 3 is next.
 
-1. **Options 10 and 11: the corner cupboard's width as a setting** (next
-   section). Small, and done in `room_3d.html` as it is.
-2. **Panels against the walls, for every option** (the section after; agreed
-   12 Oct 2026).
+1. **Done.** Options 10 and 11: the corner cupboard's width as a setting
+   (next section).
+2. **Done.** Panels against the walls, for every option (the section after;
+   agreed 12 Oct 2026; branch `wall-panels`).
 3. **Readable code**: `REFACTOR_PLAN.md` step 4 (the engine out of
    `room_3d.html` into `kit/floor_kit.js`, the room into `floor.js` and
    `living_room.js`), then its step 5 (the code made readable, in the style of
@@ -48,6 +49,10 @@ and `drawings/first_floor_plan.png`. If there are PDFs as well (sharper, or
 with dimensions), add them to `drawings/` before step 4.
 
 ## 1. Options 10 and 11: the corner cupboard's width as a setting
+
+**Done** (14 Oct 2026): the names without sizes, `CORNER_W` in `state` with
+its slider and address field, `fixedWidth: true`, and a control test. The
+notes below are kept as the record of what was planned.
 
 Today the two options are named "10. 800 × 1200 with doors facing the
 kitchen" and "11. 800 × 1200 with doors facing the windows". The two numbers
@@ -359,7 +364,9 @@ The full checklist, with priorities and how to measure, is
 - **An overlap check** between things to store: today each is checked only
   against the cupboard's walls, so two can overlap and still show green.
 - **The finished design** today: the scene "7. Finished design, 1200 × 1200,
-  ready packed" in `room_3d.scenes.js`: option 7, each leg 600 deep inside
-  (618 with its panel), the back-wall leg 582 wide, the front at 1200;
+  ready packed" in `room_3d.scenes.js`: option 7, each leg 618 deep outside,
+  the back-wall leg 582 wide, the front at 1200; inside, with the rear panels
+  against the walls (boards 18), 1164 × 582 along the back wall and 582 × 582
+  along the left wall, 2407 high, and all seven things still fit;
   shelves 790, 1300, 1850 in the back-wall leg and corner, 1710 and 2150 in
   the left-wall leg; the tub on the 790 shelf over the racks.

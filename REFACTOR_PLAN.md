@@ -1,10 +1,11 @@
-# room_3d.html: tidying the code, steps 2–4
+# room_3d.html: tidying the code, steps 2–5
 
 Step 1 is done: the CSS is in `room_3d.css`, and the floating text buttons
 share a `.chip` class (commit `8b51792`, branch `ui-guide-and-menu-demo`).
 Steps 2 and 3 are done too (12 Oct 2026, branch `state-and-address`). Step 4
 is `PLAN.md`'s steps 1 and 2, and step 5 makes the code readable. Both come
-third in `PLAN.md`'s order of work, after options 10 and 11 and the panels.
+third in `PLAN.md`'s order of work, after options 10 and 11 and the panels,
+both done (14 Oct 2026): step 4 is next.
 
 The steps below change how the code is organised, not what the page does.
 After each one the page should look and behave exactly as before.
@@ -91,8 +92,7 @@ test('Share link round-trips', async ({ page }) => {
 - Keep `node_modules/`, `test-results/` and `playwright-report/` out of git.
   Commit the reference screenshots (`tests/*-snapshots/`): they are the record
   of how the page should look.
-- Node here is v18.12 (via nvm). Current Playwright may need a newer Node; if
-  so, `nvm install --lts` first.
+- Node: `.nvmrc` asks for Node 24 (`nvm use`), which current Playwright needs.
 
 ### Order
 
@@ -352,6 +352,12 @@ JS is inline or in classic scripts. **Module files loaded with
 `<script type="module" src>` or `import` don't work from `file://`**; the
 browser blocks them. Two ways:
 
+Where things stand (checked 14 Oct 2026): `room_3d.html` still works opened
+from disk (`file://`), in Chromium and WebKit; only the install manifest and
+the offline service worker need a server. `menu_demo/` already uses modules,
+so it needs one already (`python3 serve.py`), and so do the tests, which
+start their own.
+
 - **Modules** (`import` / `export` between the files): the cleanest code,
   but the page then needs a server. GitHub Pages, where it's published, and
   the installed phone app are fine; locally, `python3 -m http.server` in the
@@ -463,7 +469,7 @@ As step 4: `npm test` after each commit, with no screenshot changes.
 | Step | Size | Risk |
 |---|---|---|
 | Test suite | Medium: about a session to write, then free to run | Low: it changes nothing in the site |
-| Board thickness (`PLAN.md`) | Medium: about 115 places, each checked by eye | Medium: the screenshot tests must show no change at 18 |
+| Board thickness (`PLAN.md`) | Done | |
 | 2 | Done | |
 | 3 | Done | |
 | 4 | Large: moves everything, over several sessions (general code first, then the room) | Medium: mostly missing names, which the console shows straight away and the tests fail on |

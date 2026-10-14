@@ -819,8 +819,8 @@ function cupCutText() {
 // Parts of options 7 to 9
 // ---------------------------------------------------------------------------
 
-// Left-wall cupboard door: (F - 6 - R) x (H - 6) on x T to T + BOARD, y R + 3 to
-// F - 3, hinged at y = F
+// Left-wall cupboard door: (F - 6 - back) x (H - 6) on x T to T + BOARD, y
+// back + 3 to F - 3, hinged at y = F
 function tallDoor(g, back = state.R) {                          // back: where the door's run starts, normally R
   const { T, F, BOARD } = state;
   if (T === 0) return null;
