@@ -1,25 +1,26 @@
-# room_3d.html — how the page is put together
+# index.html — how the page is put together
 
-A guide to the HTML, CSS and JS in `room_3d.html` (3,040 lines),
+A guide to the HTML, CSS and JS in `index.html` (311 lines), the living
+room's `living_room.js` (2,613 lines) and `floor.js` (131 lines),
 `kit/floor_kit.js` (538 lines) and `room_3d.css` (124 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers in the
 map below are as of 14 Oct 2026, after the cupboards were built from boards
-with rear panels against the walls and the engine moved into `kit/`. They go stale with
+with rear panels against the walls, the engine moved into `kit/` and the
+living room into `living_room.js` and `floor.js`. They go stale with
 every change, so the sections after the map name functions and ids instead:
 search for those.
 
-This describes the page as it is: one room, with the engine in `kit/`.
-`PLAN.md` plans to turn it into one page for the whole flat (a second room,
-the hallway, and the staircase and entrance), starting with the living room
-moving into `floor.js` and `living_room.js`. When that happens, the map
-below will need redoing; the HTML, CSS and control patterns it explains
-stay the same.
+This describes the page as it is: one room, the living room, with its walls
+in `floor.js` and the engine in `kit/`. `room_3d.html`, the old address, now
+only redirects to `index.html`. `PLAN.md` plans one page for the whole flat
+(a second room, the hallway, and the staircase and entrance); the HTML, CSS
+and control patterns this explains stay the same.
 
 ---
 
 ## 1. Top-to-bottom map
 
-### The `<head>` of room_3d.html (lines 1–22)
+### The `<head>` of index.html (lines 1–22)
 
 | Lines | What |
 |---|---|
@@ -50,43 +51,47 @@ The HTML only lays out the controls. It contains no logic.
 | 239–245 | `#about` | The description text (`#summary`), which JS fills in |
 | **247–302** | `#cupPanel` | **Cupboard options**, the other drawer: the cupboard-only switch, board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7) |
 
-### Scripts (lines 304–3038)
+### Scripts (index.html, lines 304–309)
 
 | Lines | What |
 |---|---|
-| 304–308 | **Plain data scripts**: `room_3d.views.js`, `.dressers.js`, `.larders.js`, `.sofas.js`, `.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
-| 309 | `<script type="module">` starts. Everything from here to line 3038 is one module, the room's, which imports the engine from `kit/floor_kit.js` and the view and scene kits from `kit/view_kit.js` and `kit/scene_kit.js` |
+| 304–308 | **Plain data scripts**: `living_room.views.js`, `dressers.js`, `larders.js`, `sofas.js`, `living_room.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
+| 309 | `<script type="module" src="living_room.js">`: the room's module, which imports the floor plan from `floor.js`, the engine from `kit/floor_kit.js` and the view and scene kits from `kit/view_kit.js` and `kit/scene_kit.js` |
 
-Inside the module:
+### floor.js (131 lines)
+
+The floor plan: the room's size (`W`, `D`, `H`, `WALL`), the floor, the walls with their recesses (kitchen, sink, desk), the doorway and its frame (`FRAME`, `HINGE`, `FRAME_END`, …), the ceiling and downlights, and the outer wall with its windows and radiators (`OUTER`). It draws them into `floor`, a group `living_room.js` adds to the scene, and exports the measurements and the materials the colours menu changes (`wallMat`, `frameMat`, `floorMat`, `ceilingMat`). For now only the living room's, in its mm.
+
+### living_room.js (2,613 lines)
 
 | Lines | Section | Notes |
 |---|---|---|
-| 310–316 | `import` three.js, the engine's pieces from `kit/floor_kit.js`, and the view and scene kits as `ViewKit` and `SceneKit` | |
-| 317–344 | Set-up | The room's size (`W`, `D`, `H`), `createStage()` for the scene, renderer, cameras and controls, the cupboards' materials, and `board()` (a named board, for the cutting list) |
-| 345–598 | The fixed room | Walls, floor, recesses, door frame, ceiling, windows, kitchen, desk, chair, island, room door |
-| 600–645 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls write to and the address saves |
-| 647–735 | Corner-cupboard shelves | `cupShelf()` records them; `drawCupShelves()` draws them, cut back over things stored under them |
-| 737–803 | Parts of options 7 and 8 | `tallDoor()`, `fullHeightL()` (option 7), `diagonal()` (option 8) |
-| 805–890 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
-| 892–962 | Colours | The room's `FINISHES`, `COLOUR_TARGETS`, `setRal()` (the RAL table and the oak floor are in the kit) |
-| 964–1245 | Option 9's base cupboards, dresser, larders, island, sofa, front wall | Includes `DRESSER_SLIDERS` (1007), `placeIsland()` (1165), `sofa()` (1203), `frontWall()` (1220) |
-| 1246–1345 | Option 9's shelving tower, options 10 and 11's corner cupboard, option 10's side bookshelf | `shelvingTower()`, `cornerCupboard()`, `sideBookshelf()` |
-| 1347–1526 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` and the address codes |
-| 1527–1710 | 2D dimensions | `updateDims()`, the kit's `cutViews()` giving `applyCut()`, the cupboard-only view, `cupboardDims()`, `doorDims()` (the kit draws the lines, labels and chains) |
-| 1712–1777 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards), `showCuttingList()` |
-| 1779–2207 | Things to store | Packing, `cupboardSpaces()` (each option's inside), `insideText()`, drawing, and dragging in plan view |
-| **2209–2310** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
-| 2312–2389 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | The room's list of fields; the kit's `writeFields()` and `readFields()` write `state` into the URL `#hash` and read it back (section 5) |
-| **2390–2793** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
-| 2794–2894 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | At 2856–2869 the 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()`, which gives `setFlat()`, `resize()` and `startLoop()` |
-| 2895–2948 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `kit/view_kit.js` |
-| **2949–2963** | **Pop-up menus** (the kit's `popMenus()`) and `SceneKit.create` | |
-| 2965–2974 | The Dimensions and Door sizes buttons | |
-| **2976–2982** | **The two drawers** (`DRAWERS`, the kit's `createDrawers()`) | |
-| 2984–2990 | Reset, Share and offline support (the kit's `resetButton()`, `shareButton()`, `workOffline()`) | |
-| 2996–3025 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
-| 3027–3036 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
-| 3037 | **Render loop** | The kit's `startLoop()`: `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
+| 5–11 | `import` three.js, the engine's pieces from `kit/floor_kit.js`, and the view and scene kits as `ViewKit` and `SceneKit` | |
+| 13–39 | Set-up | The room's size (`W`, `D`, `H`), `createStage()` for the scene, renderer, cameras and controls, the cupboards' materials, and `board()` (a named board, for the cutting list) |
+| 41–166 | The fixed room's fittings | Kitchen, front-wall faces, desk, chair, island, room door. The walls, floor, recesses, door frame, ceiling and windows are in `floor.js` |
+| 175–220 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls write to and the address saves |
+| 222–310 | Corner-cupboard shelves | `cupShelf()` records them; `drawCupShelves()` draws them, cut back over things stored under them |
+| 312–378 | Parts of options 7 and 8 | `tallDoor()`, `fullHeightL()` (option 7), `diagonal()` (option 8) |
+| 380–465 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
+| 467–537 | Colours | The room's `FINISHES`, `COLOUR_TARGETS`, `setRal()` (the RAL table and the oak floor are in the kit) |
+| 539–820 | Option 9's base cupboards, dresser, larders, island, sofa, front wall | Includes `DRESSER_SLIDERS` (582), `placeIsland()` (740), `sofa()` (778), `frontWall()` (795) |
+| 821–920 | Option 9's shelving tower, options 10 and 11's corner cupboard, option 10's side bookshelf | `shelvingTower()`, `cornerCupboard()`, `sideBookshelf()` |
+| 922–1101 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` and the address codes |
+| 1102–1285 | 2D dimensions | `updateDims()`, the kit's `cutViews()` giving `applyCut()`, the cupboard-only view, `cupboardDims()`, `doorDims()` (the kit draws the lines, labels and chains) |
+| 1287–1352 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards), `showCuttingList()` |
+| 1354–1782 | Things to store | Packing, `cupboardSpaces()` (each option's inside), `insideText()`, drawing, and dragging in plan view |
+| **1784–1885** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
+| 1887–1964 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | The room's list of fields; the kit's `writeFields()` and `readFields()` write `state` into the URL `#hash` and read it back (section 5) |
+| **1965–2368** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
+| 2369–2469 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | At 2431–2444 the 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()`, which gives `setFlat()`, `resize()` and `startLoop()` |
+| 2470–2523 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `kit/view_kit.js` |
+| **2524–2538** | **Pop-up menus** (the kit's `popMenus()`) and `SceneKit.create` | |
+| 2540–2549 | The Dimensions and Door sizes buttons | |
+| **2551–2557** | **The two drawers** (`DRAWERS`, the kit's `createDrawers()`) | |
+| 2559–2565 | Reset, Share and offline support (the kit's `resetButton()`, `shareButton()`, `workOffline()`) | |
+| 2571–2600 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
+| 2602–2611 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
+| 2612 | **Render loop** | The kit's `startLoop()`: `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
 
 ### kit/floor_kit.js (538 lines)
 
@@ -126,7 +131,7 @@ exporting `create()`, which the room imports as `ViewKit` and `SceneKit`.
 
 ### The link: selectors
 
-`room_3d.html` loads the stylesheet in its `<head>`. CSS rules in `room_3d.css` find
+`index.html` loads the stylesheet in its `<head>`. CSS rules in `room_3d.css` find
 HTML elements by **id** (`#panel`), **class** (`.pop`), **tag** (`label`),
 **attribute** (`input[type=range]`) or a combination of these. A few patterns:
 
@@ -318,7 +323,7 @@ Three styles are used, which do the same thing:
    dresserPick.append(...Object.entries(DRESSERS).map(([id, d]) =>
      Object.assign(document.createElement('option'), { value: id, textContent: `${d.label} (${d.w} × ${d.h})` })));
    ```
-   The list comes from the data file (`room_3d.dressers.js`). Adding a dresser
+   The list comes from the data file (`dressers.js`). Adding a dresser
    there adds it to the dropdown.
 3. **The kits** (`kit/view_kit.js` and `kit/scene_kit.js`) use the `createElement` style internally.
 

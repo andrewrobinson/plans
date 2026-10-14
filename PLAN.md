@@ -11,17 +11,16 @@ it on GitHub Pages. Two sessions testing at once need separate ports
 
 ## Next steps
 
-1. **The living room into `floor.js` and `living_room.js`**: the rest of
-   `REFACTOR_PLAN.md` step 4. The engine is already in `kit/` (ES modules;
-   the page needs a server). Nothing visible changes.
-2. **Readable code**: `REFACTOR_PLAN.md` step 5, in the style of
-   `menu_demo/`. After step 1, not during it.
-3. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1.
-   Any time before step 4, so the floor plan starts from measured numbers,
+1. **Readable code**: `REFACTOR_PLAN.md` step 5, in the style of
+   `menu_demo/`.
+2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1.
+   Any time before step 3, so the floor plan starts from measured numbers,
    not ones scaled off the drawing.
-4. **The other room, the hallway and the stairs**, drawn from
+3. **The other room, the hallway and the stairs**, drawn from
    `drawings/second_floor_plan.png` and `drawings/first_floor_plan.png`
-   (below), into the floor plan step 1 makes.
+   (below), into `floor.js`. This is when the engine takes each room's
+   `build(group)` and the address gets a room's name in front of each part
+   (`REFACTOR_PLAN.md`, "When a second room comes").
 
 Smaller pieces, any time:
 
@@ -39,13 +38,13 @@ Smaller pieces, any time:
   packing, furniture and view. Later, the L-shaped cupboard built from the
   data alone, so prototypes need no code, and a printable spec for the maker
   from the finished design.
-- **`menu_demo/`** keeps its own copy of the room; once `floor.js` exists,
-  its `room.js` can load the walls from there.
+- **`menu_demo/`** keeps its own copy of the room; its `room.js` could load
+  the walls from `floor.js`.
 
 ## The finished design today
 
 The scene "7. Finished design, 1200 × 1200, ready packed" in
-`room_3d.scenes.js`: option 7, each leg 618 deep outside, the back-wall leg
+`living_room.scenes.js`: option 7, each leg 618 deep outside, the back-wall leg
 582 wide, the front at 1200; inside, with the rear panels against the walls
 (boards 18), 1164 × 582 along the back wall and 582 × 582 along the left
 wall, 2407 high, and all seven things to store fit; shelves 790, 1300, 1850
@@ -79,14 +78,17 @@ frames (wall thicknesses, where each room's corner sits), settled once.
 
 ### Files
 
+All there since the split (14 Oct 2026) but `living_room.designs.js`, and
+the two .md files, still `room_dimensions.md`.
+
 ```
 index.html                  the floor app: one page for the whole floor
 floor.js                    the floor plan: walls, doors and windows, where each room's corner is
 living_room.js              the living room's fittings: kitchen, island, desk, its cupboard options
-living_room.views.js        its places, things to look at, looks, preset views (today's room_3d.views.js)
-living_room.scenes.js       its scenes (today's room_3d.scenes.js)
+living_room.views.js        its places, things to look at, looks, preset views
+living_room.scenes.js       its scenes
 living_room.designs.js      (later) its cupboard designs: the finished design and prototypes
-dressers.js                 furniture catalogues, for any room (today's room_3d.dressers.js, ...)
+dressers.js                 furniture catalogues, for any room
 larders.js
 sofas.js
 kit/
