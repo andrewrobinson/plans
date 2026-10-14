@@ -6,9 +6,13 @@
 //   npm run report             the last run's report, with any image differences
 //
 // Node 20 or later is needed (.nvmrc): `nvm use` first.
+//
+// The tests serve this folder on port 8765, or on PORT if set, and reuse a
+// server already there: from a worktree, while another checkout's server
+// holds 8765, run e.g. `PORT=8766 npm test`, or they test the other's files.
 const { defineConfig, devices } = require('@playwright/test');
 
-const PORT = 8765;
+const PORT = Number(process.env.PORT) || 8765;
 
 module.exports = defineConfig({
   testDir: 'tests',
