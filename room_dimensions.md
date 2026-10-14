@@ -155,21 +155,22 @@ A shelf can stay over a thing when its top is at least the thing's height + 18 +
 | Thing | Height | Lowest shelf top over it |
 | --- | --- | --- |
 | Long ladder | 1620 | 1706 |
-| Folding ladder, mop | 1200 | 1286 |
+| Folding ladder | 1200 | 1286 |
 | Dustpan and hoover | 1000 | 1086 |
-| Drying racks | 700 | 786 |
+| Drying racks | 630 | 716 |
 | Yellow tub | 450 | 536 |
+| Mop | 290 | 376 |
 
-So in every option the top shelf (1800) stays right across, 1764 clear of the cupboard floor, 144 over the long ladder. The 1200 shelf is cut over the ladders and the mop but can stay over the hoover, the racks and the tub; the 600 shelf is cut over everything but the tub. With the tightest packing (850 × 1090) and a 600-deep left-wall cupboard (T = 600, R = 330, F = 1200, other sliders as they start):
+So in every option the top shelf (1800) stays right across, 1764 clear of the cupboard floor, 144 over the long ladder. The 1200 shelf is cut over the ladders but can stay over the hoover, the racks, the tub and the mop; the 600 shelf is cut over everything but the tub and the mop. With the first packing (850 × 1090 as found, 820 × 1090 with the racks and mop at their new sizes) and a 600-deep left-wall cupboard (T = 600, R = 330, F = 1200, other sliders as they start):
 
 | Options | Shelves | Cut back for the bay | Fit |
 | --- | --- | --- | --- |
-| 7 | 600, 1200, 1800 in both legs | 600 over x 0–860 and y 312–1090; 1200 over x 0–510 and y 312–550 | 5 of 6: the racks stick out |
-| 8 | 600, 1200, 1800 | 600 over x 0–860, 1200 over x 0–510 | 5 of 6: the racks stick out |
-| 9 | 600, 1200, 1800 in the double-door cupboard and the leg | 600 over x 0–860 and y 582–1090; 1200 over x 0–510 | 5 of 6: the racks stick out (the 580 × 1770 packing leaves only the tub out) |
-| 10, 11 (at 800 × 1200) | 600, 1200, 1800 | 600 over y 0–1090, 1200 over y 0–550 | 4 of 6: the racks and hoover stick out |
+| 7 | 600, 1200, 1800 in both legs | 600 over x 0–830 and y 582–1030; 1200 over x 0–490 | 5 of 7: both racks stick out |
+| 8 | 600, 1200, 1800 | 600 over x 0–830, 1200 over x 0–490 | 6 of 7: rack 2 sticks out |
+| 9 | 600, 1200, 1800 in the double-door cupboard and the leg | 600 over x 0–830 and y 582–1030; 1200 over x 0–490 | 5 of 7: both racks stick out (the 580 × 1770 packing leaves only the tub out) |
+| 10, 11 (at 800 × 1200) | 600, 1200, 1800 | 600 over y 0–1030, 1200 over y 0–530 | 5 of 7: the hoover and rack 2 stick out |
 
-Without a left-wall cupboard (T = 0), option 7 fits 1 of 6.
+Without a left-wall cupboard (T = 0), option 7 fits 1 of 6 (as last checked, with the racks as one block).
 
 The corner cupboard's inside, for each option (shelves are cut back as above; bench tops, dividers and panels count):
 
@@ -183,14 +184,14 @@ The corner cupboard's inside, for each option (shelves are cut back as above; be
 
 | Thing | Footprint (along x × along y, in the 850 × 1090 packing) | Height | Colour | Notes |
 | --- | --- | --- | --- | --- |
-| Rack 1 and Rack 2 (drying racks) | 800 × 100 each | 700 | `#7B5EA7` and `#9B7FD0`, purples (to stand out from the cupboard) | Placed and turned apart; Rack 2 is last in the address, so links from when they were one 800 × 300 block put it beside Rack 1, within the block |
+| Rack 1 and Rack 2 (drying racks) | 740 × 100 each (740 long, 630 wide, 100 thick, stood on edge) | 630 | `#7B5EA7` and `#9B7FD0`, purples (to stand out from the cupboard) | Placed and turned apart; Rack 2 is last in the address, so links from when they were one 800 × 300 block put it beside Rack 1, within the block |
 | Folding ladder | 380 × 220 | 1200 | `#AAB0B6`, aluminium | |
 | Long ladder | 100 × 520 (turned) | 1620 | `#8A9199`, darker aluminium | The tallest thing |
-| Mop | 400 × 320 | 1200 | `#4F86B8`, blue | |
+| Mop | 380 × 310 | 290 | `#4F86B8`, blue | |
 | Dustpan and hoover | 320 × 280 | 1000 | `#B8473A`, red | |
 | Yellow tub | 550 across (550 × 550) | 450 | `#F2C230`, yellow | |
 
-Packed as tightly as they go (found by trying every order and turn), they need **850 × 1090** of floor, 0.93 m² for 0.90 m² of footprints. They start like this, loose on the floor right of the island, opposite the middle window (x 2000 to 2850, y 2362 to 3452). The other packings to choose from: 860 × 1080 (0.93 m²); 700 × 1370 (0.96 m²) if one side can be no more than 700; 580 × 1770 (1.03 m²) if one side can be no more than 600. Inside, the corner cupboard needs at least one of these floor areas, and 1620 of height for the long ladder.
+Packed as tightly as they go (found by trying every order and turn, with the racks as one 800 × 300 block and the mop at its old 400 × 320 × 1200), they needed **850 × 1090** of floor; with the racks and mop at their measured sizes the same packing takes 820 × 1090, 0.89 m² for 0.79 m² of footprints. The packings' names still give the sizes they were found at. They start like this, loose on the floor right of the island, opposite the middle window (x 2000 to 2850, y 2362 to 3452). The other packings to choose from: 860 × 1080 (0.93 m²); 700 × 1370 (0.96 m²) if one side can be no more than 700; 580 × 1770 (1.03 m²) if one side can be no more than 600. Inside, the corner cupboard needs at least one of these floor areas, and 1620 of height for the long ladder.
 
 ## The room's finishes
 

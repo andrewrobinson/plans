@@ -19,7 +19,7 @@ window.ROOM_SCENES = {
     // back-wall leg 582 wide and 618 deep, the front at 1200. Packed:
     // racks 1 and 2 at the back, against the back wall behind the main door;
     // the tub at the front there, on the 790 shelf just above them (they're
-    // 700 high, and need 50 to lift them in over the cupboard's bottom);
+    // 630 high, and need 50 to lift them in over the cupboard's bottom);
     // the ladders side by side in the left-wall leg, out through its door,
     // with the hoover right by them, in front of that door, and the mop
     // behind the hoover, in the corner. Shelves: in the back-wall leg and

@@ -2025,19 +2025,20 @@ cutToggle.addEventListener('click', () => {
 // after "~".
 // ---------------------------------------------------------------------------
 const STORED = [
-  { name: 'Rack 1', label: 'Rack 1', w: 800, d: 100, h: 700, colour: 0x7b5ea7 },   // a drying rack; purple, to stand out from the cupboard
+  { name: 'Rack 1', label: 'Rack 1', w: 740, d: 100, h: 630, colour: 0x7b5ea7 },   // a drying rack, 740 long, 630 wide and 100 thick, stood on its edge; purple, to stand out from the cupboard
   { name: 'Folding ladder', label: 'Ladder', w: 380, d: 220, h: 1200, colour: 0xaab0b6 },
   { name: 'Long ladder', label: 'Long ladder', w: 520, d: 100, h: 1620, colour: 0x8a9199 },
-  { name: 'Mop', label: 'Mop', w: 400, d: 320, h: 1200, colour: 0x4f86b8 },
+  { name: 'Mop', label: 'Mop', w: 380, d: 310, h: 290, colour: 0x4f86b8 },
   { name: 'Dustpan and hoover', label: 'Hoover', w: 320, d: 280, h: 1000, colour: 0xb8473a },
   { name: 'Yellow tub', label: 'Tub', w: 550, d: 550, h: 450, colour: 0xf2c230, round: true },   // 550 across
   // Last, so addresses from when the two racks were one block (first) still read right
-  { name: 'Rack 2', label: 'Rack 2', w: 800, d: 100, h: 700, colour: 0x9b7fd0 },   // the other drying rack, a lighter purple
+  { name: 'Rack 2', label: 'Rack 2', w: 740, d: 100, h: 630, colour: 0x9b7fd0 },   // the other drying rack, the same size, a lighter purple
 ];
 // The tightest packings, found by trying every order and turn: [x, y, turned]
 // for each thing in STORED's order, from the packing's back left corner.
-// They were found with the two racks as one 800 × 300 block; the racks now
-// stand 150 apart within it.
+// They were found with the two racks as one 800 × 300 block, and the racks
+// and mop at their old sizes (800 × 100 × 700, 400 × 320 × 1200); the racks
+// now stand 150 apart within it. Smaller since, they still fit as placed.
 const PACKINGS = [
   { name: '850 × 1090, the tightest', at: [[550, 280, 1], [100, 0, 0], [0, 0, 1], [100, 220, 0], [500, 0, 0], [0, 540, 0], [700, 280, 1]] },
   { name: '860 × 1080', at: [[550, 280, 1], [0, 0, 1], [0, 400, 0], [220, 0, 1], [540, 0, 0], [0, 500, 0], [700, 280, 1]] },
