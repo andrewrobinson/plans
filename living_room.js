@@ -1824,10 +1824,21 @@ function withoutBench(text) {
 // the same one (a size changed) leaves the doors as they were.
 function show(i) {
   if (state.T === 0 && OPTIONS[i].needsLeft) i = optionAt(7);  // 8 falls back to 7
-  const { T, benchOn, above } = state;                          // as they are now, for the option chosen
   const option = OPTIONS[i];
   const same = i === state.option && current;
   state.option = i;
+  const group = buildOption(option);
+  if (!state.benchOn) takeOutBench(group, option);
+  const aboveText = (state.benchOn ? benchWall(option.clearFrom(), group) : '') + frontWall(group, i) + sofa(group);
+  showInMenus(option, i, aboveText);
+  if (!same) secondSlider.value = 0;
+  if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
+  redrawAround();
+}
+
+// The option's own build, in a new group in place of the last: its
+// cupboard (and bench), and its cupboard shelves
+function buildOption(option) {
   if (current) scene.remove(current.group);
   const group = new THREE.Group();
   scene.add(group);
@@ -1837,42 +1848,52 @@ function show(i) {
   group.add(cupboard);
   current = { group, cupboard, ...option.build(cupboard) };
   cupboard.add(cupShelfGroup);                                  // its shelves, drawn by drawStored(), round the things to store
-  // The bench off: the options draw it (a bench top, or base cupboards), so
-  // it's taken out again, with nothing above it; the TV's place is kept for
-  // the sofa to face
-  if (!benchOn) {
-    const benches = [];
-    group.traverse(o => { if (o.userData.bench || (o.isMesh && o.material === benchMat)) benches.push(o); });
-    for (const o of benches) o.parent?.remove(o);
-    tvAt = [(option.clearFrom() + ROOM_WIDTH) / 2, 0, TV_BOTTOM + TV_H / 2];
-  }
-  const aboveText = (benchOn ? benchWall(option.clearFrom(), group) : '') + frontWall(group, i) + sofa(group);
+  return group;
+}
 
+// The bench off: the options draw it (a bench top, or base cupboards), so
+// it's taken out again, with nothing above it; the TV's place is kept for
+// the sofa to face
+function takeOutBench(group, option) {
+  const benches = [];
+  group.traverse(o => { if (o.userData.bench || (o.isMesh && o.material === benchMat)) benches.push(o); });
+  for (const o of benches) o.parent?.remove(o);
+  tvAt = [(option.clearFrom() + ROOM_WIDTH) / 2, 0, TV_BOTTOM + TV_H / 2];
+}
+
+// The menus for option i: the option list, the description, and only the
+// blocks of controls that apply to it
+function showInMenus(option, i, aboveText) {
+  const { T, benchOn, above } = state;
   [...currentSelect.options].forEach((o, j) => { o.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft); });
   currentSelect.value = String(i);
   document.getElementById('summary').innerHTML =
     `${withoutBench((T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary)())}${insideText()}${aboveText}<div class="src">From ${option.source}</div>`;
-  document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
+  const shown = (id, yes) => { document.getElementById(id).style.display = yes ? '' : 'none'; };
+  shown('tallBlock', current.tall);
   const { no } = option;
-  document.getElementById('legBlock').style.display = no === 7 ? '' : 'none';
-  document.getElementById('wardBlock').style.display = no === 9 ? '' : 'none';
-  document.getElementById('cornerBlock').style.display = no === 10 || no === 11 ? '' : 'none';
-  document.getElementById('sideShelfBlock').style.display = no === 10 ? '' : 'none';   // option 11's doors open where it would stand
-  document.getElementById('sideShelfDetails').style.display = state.SIDE_SHELF ? '' : 'none';
-  document.getElementById('front').style.display = option.front ? 'none' : '';   // options 10 and 11 have their own depth (cornerD)
-  document.getElementById('depthBlock').style.display = option.fixedWidth ? 'none' : '';
-  document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
-  document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
-  document.getElementById('shelfBlock').style.display = above === 1 || above >= 3 ? '' : 'none';   // only with shelves above the bench
-  document.getElementById('benchDetails').style.display = benchOn ? '' : 'none';
+  shown('legBlock', no === 7);
+  shown('wardBlock', no === 9);
+  shown('cornerBlock', no === 10 || no === 11);
+  shown('sideShelfBlock', no === 10);                           // option 11's doors open where it would stand
+  shown('sideShelfDetails', state.SIDE_SHELF);
+  shown('front', !option.front);                                // options 10 and 11 have their own depth (cornerD)
+  shown('depthBlock', !option.fixedWidth);
+  shown('secondBlock', option.second);
+  shown('tvBlock', above >= 2);
+  shown('shelfBlock', above === 1 || above >= 3);               // only with shelves above the bench
+  shown('benchDetails', benchOn);
   const piece = i === CURRENT || islandOnWall() ? 'none' : state.frontPiece;   // the dresser or a larder, if either is drawn
-  document.getElementById('frontBlock').style.display = i === CURRENT || islandOnWall() ? 'none' : '';
-  document.getElementById('islandMoveBlock').style.display = state.island.at === 'room' ? '' : 'none';   // moving and turning: out there only
-  document.getElementById('dresserBlock').style.display = piece === 'dresser' ? '' : 'none';
-  document.getElementById('larderBlock').style.display = piece === 'larder' ? '' : 'none';
+  shown('frontBlock', !(i === CURRENT || islandOnWall()));
+  shown('islandMoveBlock', state.island.at === 'room');         // moving and turning: out there only
+  shown('dresserBlock', piece === 'dresser');
+  shown('larderBlock', piece === 'larder');
   document.getElementById('secondLabel').textContent = option.second || '';
-  if (!same) secondSlider.value = 0;
-  if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
+}
+
+// Everything drawn round the option: dimensions, colours, the things to
+// store and the cupboard shelves round them, the cutting list, the address
+function redrawAround() {
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
