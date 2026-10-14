@@ -300,20 +300,20 @@
   </div>
 </div>
 
-<!-- The room's views, dressers, larders, sofas and scenes, for editing, and the kits that show the views and scenes -->
+<!-- The room's views, dressers, larders, sofas and scenes, for editing; the module after them imports the kits that show the views and scenes -->
 <script src="room_3d.views.js"></script>
 <script src="room_3d.dressers.js"></script>
 <script src="room_3d.larders.js"></script>
 <script src="room_3d.sofas.js"></script>
 <script src="room_3d.scenes.js"></script>
-<script src="view_kit.js"></script>
-<script src="scene_kit.js"></script>
 <script type="module">
 import * as THREE from 'three';
 import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
   number, within, radio, sizes, writeFields, readFields,
   narrow, popMenus, createDrawers, resetButton, shareButton, workOffline, flatViews,
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
+import * as ViewKit from './kit/view_kit.js';
+import * as SceneKit from './kit/scene_kit.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -595,7 +595,7 @@ box(0, 600, 1000, 60, 720, 1020, handleMat, roomHinge, false);
 // room_dimensions.md use; a function that draws reads the ones it needs at
 // its top, as `const { T, R, BOARD } = state;`. What's worked out from the
 // settings isn't kept here (the heights above the bench, the TV's width and
-// height, where the dresser stands), and nor is the view (view_kit.js).
+// height, where the dresser stands), and nor is the view (kit/view_kit.js).
 // ---------------------------------------------------------------------------
 const state = {
   option: 0,                       // the option on show, its index in OPTIONS (not its number, as the list starts at 7): option 10 to start, set below OPTIONS
@@ -2789,7 +2789,7 @@ document.getElementById('xray').addEventListener('click', e => {
 // `position`, looking at `target`, and may set hfov, the angle across in
 // degrees; 2D views place the flat one and give the width and height (m) to
 // fit on screen. The config-defined views, the places you can be and the
-// things you can look at are in room_3d.views.js, for editing; view_kit.js
+// things you can look at are in room_3d.views.js, for editing; kit/view_kit.js
 // does the choosing (see viewKit below).
 const builtInViews = {
   top:    { label: 'Top', title: 'Straight down from above', position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },

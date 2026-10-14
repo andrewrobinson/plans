@@ -291,10 +291,12 @@ a full `npm test` each:
 6. the general part of the 2D dimensions: `dimLine()`, `dimLabel()`,
    `chain()`, and `applyCut()` as `cutViews(scene, view)`, which reads the
    view's cut and what alone to show; the room keeps `updateDims()`,
-   `cupboardDims()` and `doorDims()`.
+   `cupboardDims()` and `doorDims()`;
+7. `view_kit.js` and `scene_kit.js` into `kit/` as modules, each exporting
+   `create()`; the room imports them as `ViewKit` and `SceneKit`, and
+   `sw.js` keeps them offline (`CACHE` `cupboards-v10`).
 
-Still to move: `view_kit.js` and
-`scene_kit.js` into `kit/` as modules, and the room into `floor.js` and
+The engine's part is done. Still to move: the room into `floor.js` and
 `living_room.js`.
 
 This is `PLAN.md`'s steps 1 and 2: pull the general code out of

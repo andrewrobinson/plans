@@ -1,4 +1,4 @@
-// Views of the room in room_3d.html, read by view_kit.js. Edit freely, then
+// Views of the room in room_3d.html, read by kit/view_kit.js. Edit freely, then
 // reload the page.
 //
 // Positions are in mm, as in room_dimensions.md: [x, y] across the floor, or
