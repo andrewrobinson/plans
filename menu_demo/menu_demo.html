@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Phones lay the page out at their own width, not as a zoomed-out desktop page -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Box in the room</title>
+<!--
+  A box in the living room, with sliders for its size and where it stands,
+  and a debug menu that shows what the page knows as text.
+
+  Everything for this page is in this folder, and nothing here is used by the
+  rest of the site. The room is a copy of room_3d.html's; see room.js.
+  The page's code starts in main.js.
+-->
+<link rel="stylesheet" href="menu_demo.css">
+<!-- Where to load three.js (the 3D drawing library) from, by the names the code imports -->
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+
+<!-- The 3D view, filling the window behind everything else -->
+<div id="view"></div>
+
+<!-- The top bar: a button for each menu -->
+<div id="top-bar">
+  <button id="open-box-menu" class="top-button" aria-controls="box-menu">☰ Box</button>
+  <button id="open-debug-menu" class="top-button" aria-controls="debug-menu">Debug info</button>
+</div>
+
+<!-- The box menu, sliding in from the left -->
+<aside id="box-menu" class="menu-panel from-the-left" aria-label="Box settings">
+  <header class="menu-header">
+    <h2>Box</h2>
+    <button id="close-box-menu" class="close-button" aria-label="Close the box menu">×</button>
+  </header>
+
+  <h3>Size</h3>
+  <div id="size-sliders"></div>      <!-- filled by sliders.js -->
+
+  <h3>Where it stands</h3>
+  <p class="hint">Measured to the box's back-left-bottom corner. It can't go past the walls, the floor or the ceiling.</p>
+  <div id="position-sliders"></div>  <!-- filled by sliders.js -->
+
+  <button id="reset-box" class="plain-button">Back to the starting box</button>
+</aside>
+
+<!-- The debug menu, sliding in from the right -->
+<aside id="debug-menu" class="menu-panel from-the-right" aria-label="Debug info">
+  <header class="menu-header">
+    <h2>Debug info</h2>
+    <button id="close-debug-menu" class="close-button" aria-label="Close the debug menu">×</button>
+  </header>
+  <pre id="debug-text"></pre>        <!-- filled by debug_text.js -->
+</aside>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>

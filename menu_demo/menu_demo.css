@@ -1,0 +1,146 @@
+/* The look of menu_demo.html */
+
+/* ---------------------------------------------------------------------------
+   The page and the 3D view behind everything
+   --------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+  --panel-background: rgba(255, 255, 255, 0.96);
+  --panel-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  --text-colour: #222;
+  --quiet-text-colour: #666;
+  --accent-colour: #e8893a;          /* the box's orange */
+  --menu-width: 320px;
+}
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #eef0f2;
+  color: var(--text-colour);
+  font-family: Helvetica, Arial, sans-serif;
+}
+#view {
+  position: fixed;
+  inset: 0;                          /* fill the window */
+}
+
+/* ---------------------------------------------------------------------------
+   The top bar. It's an invisible full-width strip: clicks pass through its
+   gaps to the view, and the buttons take them back for themselves.
+   --------------------------------------------------------------------------- */
+#top-bar {
+  position: fixed;
+  top: 12px; left: 12px; right: 12px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;    /* one button each end */
+  pointer-events: none;
+}
+.top-button {
+  pointer-events: auto;
+  height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 10px;
+  background: var(--panel-background);
+  box-shadow: var(--panel-shadow);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+.top-button[aria-expanded="true"] {
+  outline: 2px solid var(--accent-colour);
+}
+
+/* ---------------------------------------------------------------------------
+   The menu panels. Each sits off the edge of the window until it has the
+   class "open" (main.js adds it), then slides in below the top bar.
+   --------------------------------------------------------------------------- */
+.menu-panel {
+  position: fixed;
+  top: 68px;
+  bottom: 12px;
+  z-index: 1;
+  width: min(var(--menu-width), calc(100vw - 24px));
+  box-sizing: border-box;
+  padding: 12px 16px 16px;
+  overflow-y: auto;
+  background: var(--panel-background);
+  border-radius: 12px;
+  box-shadow: var(--panel-shadow);
+  transition: transform 0.25s ease;
+}
+.menu-panel.from-the-left  { left: 12px;  transform: translateX(calc(-100% - 24px)); }
+.menu-panel.from-the-right { right: 12px; transform: translateX(calc(100% + 24px)); }
+.menu-panel.open           { transform: none; }
+
+/* The debug text is wider, but never wider than the window */
+#debug-menu { width: min(460px, calc(100vw - 24px)); }
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.menu-header h2 { margin: 0; font-size: 18px; }
+.close-button {
+  width: 36px; height: 36px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+h3 {
+  margin: 18px 0 6px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--quiet-text-colour);
+}
+.hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--quiet-text-colour);
+}
+
+/* ---------------------------------------------------------------------------
+   One slider row: its name and value on one line, the slider underneath
+   --------------------------------------------------------------------------- */
+.slider-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 2px 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.slider-row output {
+  font-variant-numeric: tabular-nums;
+  color: var(--quiet-text-colour);
+}
+.slider-row input[type="range"] {
+  grid-column: 1 / -1;               /* the whole width of the row */
+  width: 100%;
+  margin: 0;
+  accent-color: var(--accent-colour);
+}
+
+.plain-button {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+   The debug text
+   --------------------------------------------------------------------------- */
+#debug-text {
+  margin: 8px 0 0;
+  font: 12px/1.5 Menlo, Consolas, monospace;
+  white-space: pre-wrap;             /* long lines wrap on narrow screens */
+}
