@@ -3,7 +3,95 @@
 Where the cupboard planner is heading, as agreed so far. The model itself is
 described in `room_dimensions.md`.
 
-## Next: panels against the walls, for every option (agreed 12 Oct 2026)
+## The order of work (suggested 14 Oct 2026)
+
+Four pieces of work are open. Suggested order, each on its own branch, one
+step per session, `npm test` passing before each merge:
+
+1. **Options 10 and 11: the corner cupboard's width as a setting** (next
+   section). Small, and done in `room_3d.html` as it is.
+2. **Panels against the walls, for every option** (the section after; agreed
+   12 Oct 2026).
+3. **Readable code**: `REFACTOR_PLAN.md` step 4 (the engine out of
+   `room_3d.html` into `kit/floor_kit.js`, the room into `floor.js` and
+   `living_room.js`), then its step 5 (the code made readable, in the style of
+   `menu_demo/`).
+4. **The other room, the hallway and the stairs**, drawn from
+   `drawings/second_floor_plan.png` and `drawings/first_floor_plan.png`
+   (see "The other room, the hallway and the stairs, from the floor plans"
+   below, and step 4 of "Then: one floor plan, with rooms").
+
+Why this order:
+
+- **1 first** because it's the smallest, and it's a change you can see. It also
+  gives the corner cupboard a width that can change before step 2 rebuilds the
+  cupboard, so that rebuild is checked at more than one width.
+- **2 before 3** because panels touch every option's `build()`, and step 3
+  moves all of those functions. Done first, the move carries finished code
+  once, and the screenshots retaken for the panels become step 3's
+  "nothing changed" reference. (The other way round also works, and step 2
+  would then be done in tidier code, but the panels would wait several
+  sessions for the move.)
+- **3 before 4** because a second room, a hallway and stairs need what step 3
+  builds: one floor plan with walls, doors and rooms, and an engine that draws
+  more than one room. Drawn into today's single `room_3d.html`, they'd have
+  to be pulled out again in step 3.
+- **The measurements for step 4** (`MEASUREMENTS_NEEDED.md`, priority 1)
+  can be taken any time during steps 1 to 3, so the floor plan starts from
+  measured numbers, not ones scaled off the drawing.
+- **`menu_demo/` keeps its own copy** of the room until step 3 makes
+  `floor.js`. After that its `room.js` can load the walls from `floor.js`, so
+  the room is defined in one place for both pages.
+
+The floor plans are PNG images, not PDFs: `drawings/second_floor_plan.png`
+and `drawings/first_floor_plan.png`. If there are PDFs as well (sharper, or
+with dimensions), add them to `drawings/` before step 4.
+
+## 1. Options 10 and 11: the corner cupboard's width as a setting
+
+Today the two options are named "10. 800 × 1200 with doors facing the
+kitchen" and "11. 800 × 1200 with doors facing the windows". The two numbers
+are of different kinds:
+
+- **800** is `CORNER_W`, a constant (`room_3d.html`, above
+  `cornerCupboard()`): the cupboard's width along the back wall. It isn't a
+  setting.
+- **1200** is `F`, the left-wall cupboard's front, which is a setting
+  already (1200, or 1329 right up to the door frame). The name is out of
+  date as soon as `F` is 1329.
+
+To do:
+
+- **Names without sizes:** "10. Corner cupboard, doors facing the kitchen"
+  and "11. Corner cupboard, doors facing the windows". The sizes are in each
+  option's summary already, which uses `${CORNER_W}` and `${F}`.
+- **`CORNER_W` into `state`**, default 800, with a slider in the Cupboard
+  options drawer that's shown only for options 10 and 11, like option 9's
+  width slider (`ward`). Range to decide, e.g. 500 to 1200 in 10s. For
+  option 10 the doors are `(CORNER_W - BOARD - 9) / 2` wide each, so 500 gives
+  two doors of about 236.
+- **The address:** a new field in `ADDRESS`, checked with `within(...)`,
+  read and written like `WARD`. Add it at the end so the addresses in
+  `tests/addresses.js` and `room_3d.scenes.js` keep their meaning, and
+  bring them up to date. (Old links needn't survive, agreed 12 Oct 2026.)
+- **Every place that reads it:** `cornerCupboard()`; the two options'
+  `clearFrom`, `benchFrom` and `summary`; `cupboardSpaces()` (`case 9: case
+  10:`); where the camera aims at each option's doors (`case 9:` and `case
+  10:`, near the end); `syncControls()`.
+- **Watch `fixedWidth`.** Options 10 and 11 set `fixedWidth: CORNER_W`, but
+  it's only ever tested as true or false (the dimension marks, and hiding
+  the depth sliders). Make it `fixedWidth: true`, like option 6's, so it
+  doesn't look like the width is read from it.
+- **Decide whether these stay fixed:** the shelf tops at 600, 1200 and 1800,
+  and the handles at 950 to 1250. They don't depend on the width, so leaving
+  them is fine for now.
+- **Check:** at 800 every option looks as before. Screenshots that show the
+  option list or option 10 or 11's name will change, so retake those by
+  choice and check them by eye. Add a control test that moves the new slider
+  to both ends. Update `room_dimensions.md` and `room_3d_ui_guide.md` where they
+  name the options.
+
+## 2. Panels against the walls, for every option (agreed 12 Oct 2026)
 
 Every built option (1 to 11) is to be made from boards, each with a width, a
 height and the board thickness (`BOARD`), **including rear panels against the
@@ -40,8 +128,7 @@ To do, in `room_3d.html`:
   new rear panel; move it to y 18, then check everything still fits.
 - Retake the screenshots and check them by eye; `npm test` must pass.
 
-Do it in a fresh session, on its own branch; the weekly usage limit resets
-14 Oct 2026.
+Do it in a fresh session, on its own branch, after step 1 above.
 
 ## Done 12 Oct 2026
 

@@ -2,8 +2,9 @@
 
 Step 1 is done: the CSS is in `room_3d.css`, and the floating text buttons
 share a `.chip` class (commit `8b51792`, branch `ui-guide-and-menu-demo`).
-Steps 2 and 3 are done too (12 Oct 2026, branch `state-and-address`); step 4
-is next, and is `PLAN.md`'s steps 1 and 2.
+Steps 2 and 3 are done too (12 Oct 2026, branch `state-and-address`). Step 4
+is `PLAN.md`'s steps 1 and 2, and step 5 makes the code readable. Both come
+third in `PLAN.md`'s order of work, after options 10 and 11 and the panels.
 
 The steps below change how the code is organised, not what the page does.
 After each one the page should look and behave exactly as before.
@@ -396,6 +397,61 @@ same screenshots and addresses as now. Point `tests/helpers.js`'s
 
 ---
 
+## Step 5: readable code, in the style of `menu_demo/`
+
+`menu_demo/` (14 Oct 2026) draws the same room, written from scratch to be
+read. It's far easier to follow than `room_3d.html`. Most of that is because
+it does far less, but some comes from choices `room_3d.html` can copy. This
+step applies those choices to the files step 4 makes.
+
+**Do it after step 4, not during it.** Step 4 moves code without changing
+it, so if a test fails, the cause is a missing name. If code were renamed
+while it moved, a failure could come from either the move or the rename.
+Here, one kind of change per commit, a file at a time, `npm test` after each.
+
+### What to change
+
+- **Name the box's corners.** `box(x0, y0, z0, x1, y1, z1, mat, parent,
+  edges)` has nine arguments in a row. Make it
+  `box({ from: [x0, y0, z0], to: [x1, y1, z1] }, mat, parent)`, as
+  `addSolidBox()` in `menu_demo/room.js` does. Do it as one mechanical change
+  (a script, checked by the screenshots), then add names to the corners where
+  sums are hard to read.
+- **Name the numbers.** Measurements typed straight into the code (950 and
+  1250 for handles, the 3s and 9s of door gaps, 25 and 40 for worktops)
+  become named constants next to a comment saying where they came from, as
+  `room.js` does for the room (`WINDOW_SILL_HEIGHT`, `DOOR_HINGE_AT`).
+- **Longer names for the room's own constants**: `W` →
+  `ROOM_WIDTH`, `D` → `ROOM_DEPTH`, `H` → `CEILING_HEIGHT`, `FRAME` →
+  `DOOR_FRAME_STARTS_AT`, `RECESS_X` → `KITCHEN_RECESS_BACK_WALL_X`, and so
+  on, with `room_dimensions.md` updated to match.
+- **Keep the cupboard settings' short names** (`T`, `R`, `F`, `BOARD`,
+  `BENCH`, …), as agreed in step 2: they match `room_dimensions.md` and keep the
+  geometry lines short. Instead, give `state` a comment for each, which it
+  mostly has already.
+- **Split long functions into named steps**, as `buildTheRoom()` calls
+  `addFloor()`, `addBackWall()`, `addLeftWall()`, …. Do this first for each
+  option's `build()` and for `cornerCupboard()`, `fullHeightL()` and
+  `show()`.
+- **One function changes the settings.** In `menu_demo/main.js` every
+  slider goes through `showTheBox()`, which keeps the box inside the room,
+  redraws it and updates the controls and the debug text. Step 3's
+  `syncControls()` is half of this. Look for `set…()` functions that still
+  update controls on their own, and route them through one place.
+- **Write the comments for someone new.** Each file opens with what it's for
+  and how its coordinates work, as `menu_demo/room.js` does.
+
+### Not to change
+
+- What the page does, or the address format.
+- The short cupboard names in drawing code (above).
+
+### Check
+
+As step 4: `npm test` after each commit, with no screenshot changes.
+
+---
+
 ## After each step
 
 - Update `room_3d_ui_guide.md`: its line numbers, and after step 4 its file
@@ -411,6 +467,7 @@ same screenshots and addresses as now. Point `tests/helpers.js`'s
 | 2 | Done | |
 | 3 | Done | |
 | 4 | Large: moves everything, over several sessions (general code first, then the room) | Medium: mostly missing names, which the console shows straight away and the tests fail on |
+| 5 | Medium to large: a file at a time, a session or two each for the room and the options | Low to medium: renames and splits, each checked by the screenshots |
 
 Each is roughly a session's work. On the Pro plan, do them after the weekly
 limit resets, one per session.
