@@ -311,7 +311,8 @@
 <script type="module">
 import * as THREE from 'three';
 import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
-  number, within, radio, sizes, writeFields, readFields } from './kit/floor_kit.js';
+  number, within, radio, sizes, writeFields, readFields,
+  narrow, popMenus, createDrawers, resetButton, shareButton, workOffline } from './kit/floor_kit.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -2983,20 +2984,9 @@ const viewKit = ViewKit.create({
 DOORS.forEach(d => d.addEventListener('input', viewKit.writeView));
 // Scenes: everything on show bar the view, from room_3d.scenes.js or saved
 // here. Showing one loads the page again with its settings, keeping the view.
-// The pop-up menus (the views list and look at the top right; the scenes at
-// the bottom right): a button opens its menu and closes the others; Escape or a click on anything else but
-// the 3D view closes them (they stay open while you move about, to save a
-// view, say)
-const pops = [...document.querySelectorAll('.pop')];
-function setPop(open) {
-  for (const p of pops) {
-    p.classList.toggle('open', p === open);
-    p.querySelector('.popToggle').setAttribute('aria-expanded', String(p === open));
-  }
-}
-for (const p of pops) p.querySelector('.popToggle').addEventListener('click', () => setPop(p.classList.contains('open') ? null : p));
-window.addEventListener('keydown', e => { if (e.key === 'Escape') setPop(null); });
-window.addEventListener('pointerdown', e => { if (e.target !== renderer.domElement && !pops.some(p => p.contains(e.target))) setPop(null); });
+// The pop-up menus: the views list and look at the top right, the scenes at
+// the bottom right
+popMenus(renderer.domElement);
 sceneKit = SceneKit.create({
   room: 'room_3d',
   config: window.ROOM_SCENES,
@@ -3043,7 +3033,7 @@ function resize(keepScale = false) {
   // settings drawer leaves clear (on wide screens it stays open over the
   // model) and below the top bar
   const [fw, fh] = flatFit;
-  const covered = menuOpen() && !narrow() ? document.getElementById(openDrawer()).offsetWidth : 0;
+  const covered = drawers.menuOpen() && !narrow() ? document.getElementById(drawers.openDrawer()).offsetWidth : 0;
   const clear = w - covered, below = Math.min(document.getElementById('bar').getBoundingClientRect().bottom, h / 3), high = h - below;
   if (!keepScale || !flatPerM) flatPerM = Math.min(clear / fw, high / fh);
   const perM = flatPerM;
@@ -3054,74 +3044,19 @@ window.addEventListener('resize', () => resize());
 
 // The settings drawers, one open at a time, both closed to start on every
 // screen: Other options, opened by ☰, and Cupboard options by its button.
-// Each: [its button, the class on <body> while it's open]
+// Each: [its button, the class on <body> while it's open]. The 2D views
+// move clear of the drawer as it opens and closes.
 const DRAWERS = { panel: ['menu', 'menu-open'], cupPanel: ['cupMenu', 'cup-open'] };
-function narrow() { return window.innerWidth <= 900; }
-// The drawer open, or null
-function openDrawer() { return Object.keys(DRAWERS).find(id => document.body.classList.contains(DRAWERS[id][1])) ?? null; }
-function menuOpen() { return openDrawer() !== null; }
-// Open drawer `id`, closing the other; null closes both
-function setMenu(id) {
-  for (const [drawer, [button, open]] of Object.entries(DRAWERS)) {
-    document.body.classList.toggle(open, drawer === id);
-    document.getElementById(button).setAttribute('aria-expanded', String(drawer === id));
-  }
-  resize(true);                                                 // the 2D views move clear of the drawer
-}
-setMenu(null);
-for (const [drawer, [button]] of Object.entries(DRAWERS)) {
-  document.getElementById(button).addEventListener('click', () => setMenu(openDrawer() === drawer ? null : drawer));
-}
-document.querySelectorAll('.drawer .close').forEach(b => b.addEventListener('click', () => setMenu(null)));
-document.getElementById('scrim').addEventListener('click', () => setMenu(null));
-window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(null); });
+const drawers = createDrawers(DRAWERS, () => resize(true));
+drawers.setMenu(null);
 
-// Reset: load the page again with no settings in the address, so everything
-// is back to its default
-document.getElementById('reset').addEventListener('click', () => {
-  if (!window.confirm('Reset all settings?')) return;
-  history.replaceState(null, '', location.pathname);
-  location.reload();
-});
-
-// Share a link to exactly what's on show: the address holds the option and
-// every setting. Phones get their own share sheet; elsewhere it's copied. The
-// link is always to the published page, so it works for others even when
-// this copy was opened from a file or a local server.
-const PUBLIC_URL = 'https://andrewrobinson.github.io/plans/room_3d.html';
-document.getElementById('share').addEventListener('click', async e => {
-  const button = e.currentTarget;
-  const url = PUBLIC_URL + location.hash;
-  const said = text => {
-    button.textContent = text;
-    setTimeout(() => { button.textContent = 'Share'; }, 2000);
-  };
-  if (navigator.share && narrow()) {
-    try { await navigator.share({ title: document.title, text: OPTIONS[state.option].name, url }); } catch (err) { /* closed without sharing */ }
-    return;
-  }
-  try {
-    await navigator.clipboard.writeText(url);
-    said('Link copied');
-  } catch (err) {
-    window.prompt('Copy this link:', url);
-  }
-});
+resetButton(document.getElementById('reset'));
+// Share: the link is always to the published page, so it works for others
+// even when this copy is on a local server
+shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/room_3d.html', () => OPTIONS[state.option].name);
 resize();
 
-// Work offline once installed (not when opened as a file). Not on this
-// computer (localhost) either, where its saved copies would get in the way
-// of trying out changes: there any worker installed before is removed, with
-// what it saved.
-const onThisComputer = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  if (onThisComputer) {
-    navigator.serviceWorker.getRegistrations().then(list => list.forEach(r => r.unregister())).catch(() => { /* not important */ });
-    window.caches?.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => { /* not important */ });
-  } else {
-    navigator.serviceWorker.register('sw.js').catch(() => { /* the page still works without it */ });
-  }
-}
+workOffline('sw.js');
 
 // Every control in step with state: the sliders, radio buttons, switches
 // and dropdowns, the reverse of their listeners above. The colours, the

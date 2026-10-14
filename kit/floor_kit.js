@@ -314,3 +314,100 @@ export function readFields(fields, settings, text, first = []) {
     if (value !== undefined) setValueAt(settings, path, value);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Menus and buttons
+// ---------------------------------------------------------------------------
+// Narrow screens, phones: the drawers cover the model there
+export const narrow = () => window.innerWidth <= 900;
+
+// The pop-up menus, every .pop on the page, each a .popToggle button and its
+// group: a button opens its menu and closes the others; Escape or a click on
+// anything else but `canvas` (the 3D view) closes them (they stay open while
+// you move about, to save a view, say). Returns setPop(menu), null for none.
+export function popMenus(canvas) {
+  const pops = [...document.querySelectorAll('.pop')];
+  function setPop(open) {
+    for (const p of pops) {
+      p.classList.toggle('open', p === open);
+      p.querySelector('.popToggle').setAttribute('aria-expanded', String(p === open));
+    }
+  }
+  for (const p of pops) p.querySelector('.popToggle').addEventListener('click', () => setPop(p.classList.contains('open') ? null : p));
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') setPop(null); });
+  window.addEventListener('pointerdown', e => { if (e.target !== canvas && !pops.some(p => p.contains(e.target))) setPop(null); });
+  return setPop;
+}
+
+// Drawers that slide in from the left, one open at a time: `drawers` is
+// { drawer's id: [its button's id, the class on <body> while it's open] }
+// (the CSS does the sliding). Its button opens and closes it; its ✕ (.close),
+// the scrim (#scrim) and Escape close it. moved() is called each time one
+// opens or closes.
+export function createDrawers(drawers, moved) {
+  // The drawer open, or null
+  const openDrawer = () => Object.keys(drawers).find(id => document.body.classList.contains(drawers[id][1])) ?? null;
+  // Open drawer `id`, closing the others; null closes them all
+  function setMenu(id) {
+    for (const [drawer, [button, open]] of Object.entries(drawers)) {
+      document.body.classList.toggle(open, drawer === id);
+      document.getElementById(button).setAttribute('aria-expanded', String(drawer === id));
+    }
+    moved();
+  }
+  for (const [drawer, [button]] of Object.entries(drawers)) {
+    document.getElementById(button).addEventListener('click', () => setMenu(openDrawer() === drawer ? null : drawer));
+  }
+  document.querySelectorAll('.drawer .close').forEach(b => b.addEventListener('click', () => setMenu(null)));
+  document.getElementById('scrim').addEventListener('click', () => setMenu(null));
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(null); });
+  return { setMenu, openDrawer, menuOpen: () => openDrawer() !== null };
+}
+
+// Reset: load the page again with no settings in the address, so everything
+// is back to its default
+export function resetButton(button) {
+  button.addEventListener('click', () => {
+    if (!window.confirm('Reset all settings?')) return;
+    history.replaceState(null, '', location.pathname);
+    location.reload();
+  });
+}
+
+// Share a link to exactly what's on show: the page at `publicUrl` with this
+// address, which holds every setting. Phones get their own share sheet, with
+// text() as its text; elsewhere it's copied.
+export function shareButton(button, publicUrl, text) {
+  button.addEventListener('click', async () => {
+    const url = publicUrl + location.hash;
+    const said = words => {
+      button.textContent = words;
+      setTimeout(() => { button.textContent = 'Share'; }, 2000);
+    };
+    if (navigator.share && narrow()) {
+      try { await navigator.share({ title: document.title, text: text(), url }); } catch (err) { /* closed without sharing */ }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      said('Link copied');
+    } catch (err) {
+      window.prompt('Copy this link:', url);
+    }
+  });
+}
+
+// Work offline once installed, with the service worker `worker`. Not on this
+// computer (localhost), where its saved copies would get in the way of
+// trying out changes: there any worker installed before is removed, with
+// what it saved.
+export function workOffline(worker) {
+  const onThisComputer = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  if (!('serviceWorker' in navigator) || !location.protocol.startsWith('http')) return;
+  if (onThisComputer) {
+    navigator.serviceWorker.getRegistrations().then(list => list.forEach(r => r.unregister())).catch(() => { /* not important */ });
+    window.caches?.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => { /* not important */ });
+  } else {
+    navigator.serviceWorker.register(worker).catch(() => { /* the page still works without it */ });
+  }
+}
