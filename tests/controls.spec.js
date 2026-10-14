@@ -4,7 +4,7 @@
 // checks how saved addresses look; this checks the controls that set them.
 // It runs in one browser only (playwright.config.js).
 // The address's fields, by number, are ADDRESS in room_3d.html.
-const { test, expect, openRoom, settingsField } = require('./helpers');
+const { test, expect, openRoom, pickOption, hasOption, settingsField } = require('./helpers');
 
 const hash = page => page.evaluate(() => location.hash);
 const field = async (page, k) => settingsField(await hash(page), k);
@@ -24,7 +24,7 @@ async function openDrawer(page, address, button = '#menu') {
 }
 
 // What to do first, so a slider is on show
-const OPTION = n => page => page.selectOption('#current', String(n - 1));
+const OPTION = n => page => pickOption(page, n);
 const LARDER = page => page.check('input[name=frontPiece][value="larder"]');
 const SOFA = page => page.selectOption('#sofaPick', 'merton');
 const LEFT_CUPBOARD = page => slide(page, 'depth', 600);
@@ -72,11 +72,15 @@ test.describe('sliders, to each end and back', () => {
     await endsAndBack(page, 'board', at(33));
   });
 
-  test('options 4, 5 and 7\'s sliders', async ({ page }) => {
+  test('options 4 and 5\'s sliders', async ({ page }) => {
+    test.skip(!(await hasOption(page, 4)), 'options 1 to 6 are left out of the option list for now');
     await OPTION(4)(page);
     await endsAndBack(page, 'upper', at(8));
     await OPTION(5)(page);
     await endsAndBack(page, 'extra', at(7));
+  });
+
+  test('option 7\'s sliders', async ({ page }) => {
     await OPTION(7)(page);
     await endsAndBack(page, 'leg', at(9));
     await endsAndBack(page, 'legD', at(29));
@@ -87,6 +91,13 @@ test.describe('sliders, to each end and back', () => {
     await endsAndBack(page, 'ward', at(10));
     await endsAndBack(page, 'wardD', at(12));
     await endsAndBack(page, 'tower', at(11));
+  });
+
+  test('options 10 and 11\'s corner cupboard width', async ({ page }) => {
+    for (const n of [10, 11]) {
+      await OPTION(n)(page);
+      await endsAndBack(page, 'cornerW', at(34));
+    }
   });
 
   test('the bench', async ({ page }) => {
@@ -435,7 +446,7 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   await step('the larder', 21, '1');
   await SOFA(page);
   await step('the sofa', 24, 'merton');
-  await page.selectOption('#current', '8');                           // option 9
+  await OPTION(9)(page);
   await step('option 9', 0, '9');
   await expect(page.locator('#summary')).toContainText('A larder on the front wall');
   await expect(page.locator('#summary')).toContainText('A sofa facing the TV');
@@ -443,7 +454,7 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   // Back as it started
   await page.selectOption('#sofaPick', '');
   await page.check('input[name=frontPiece][value="dresser"]');
-  await page.selectOption('#current', '6');                           // option 7
+  await OPTION(7)(page);
   expect(await hash(page)).toBe(start);
 });
 

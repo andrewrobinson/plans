@@ -81,7 +81,7 @@ Its sizes below are where its sliders start. The menu's **Dresser** dropdown set
 
 **Options 12 to 15** put the dresser or the larder chosen in the corner instead of a built cupboard, against the back wall (facing the room) or the left wall (facing the windows), with the bench from it to the right-hand wall and the front wall left clear. Against the left wall anything over 1329 along it runs past the door frame into the doorway, as the 1370 Chester dresser does by 41; the description says so. In the larder options the door slider opens the larder's doors, and the Packing view stands you at its front with them open. The current room is now option 16 (its address code stays 10; options 12 to 15 are 13 to 16).
 
-**The island** can be moved in any option (the menu's **Kitchen island**): out there (where it is now), or against the front wall between the sink and the desk in place of the dresser or larder, either long side out, its end against the wall and against the end of the kitchen counter (770 along the wall, x 800-1570, coming 1260 out to y 4119), or short side out, its long side along the wall, centred on the 1415 there (1260 along the wall, x 878-2138, coming 770 out to y 4609), or **None**, not there at all. "The island" is in Looking at. Out there, three sliders move and turn it: **its middle from the left wall** (x, 0 to 3838) and **from the back wall** (y, 0 to 5379), starting where it is (x 1395, y 3571), and **how far it's turned** (0 to 180° about its middle, starting at 0). They show only while it's out there. In the address they come after the shelves, as `x.y.turn` (e.g. `1395.3571.0`); links from before keep the island where it is. **The board thickness** (the menu's corner cupboard section, 12 to 25, 18 to start) comes last before the first `~`; links from before keep 18.
+**The island** can be moved in any option (the menu's **Kitchen island**): out there (where it is now), or against the front wall between the sink and the desk in place of the dresser or larder, either long side out, its end against the wall and against the end of the kitchen counter (770 along the wall, x 800-1570, coming 1260 out to y 4119), or short side out, its long side along the wall, centred on the 1415 there (1260 along the wall, x 878-2138, coming 770 out to y 4609), or **None**, not there at all. "The island" is in Looking at. Out there, three sliders move and turn it: **its middle from the left wall** (x, 0 to 3838) and **from the back wall** (y, 0 to 5379), starting where it is (x 1395, y 3571), and **how far it's turned** (0 to 180° about its middle, starting at 0). They show only while it's out there. In the address they come after the shelves, as `x.y.turn` (e.g. `1395.3571.0`); links from before keep the island where it is. **The board thickness** (the menu's corner cupboard section, 12 to 25, 18 to start) comes after the island; links from before keep 18. **Options 10 and 11's corner cupboard width** comes last before the first `~`.
 
 **A sofa** can be added in any option (the menu's **Sofa, facing the TV**), from `room_3d.sofas.js`, for editing: the Habitat x Morris & Co. **Merton 2 Seater** (1690 wide, 1000 deep, 920 high, seat 505 high and 650 deep; its arm and leg heights estimated). Sliders resize it (width 1200 to 2600, depth 700 to 1200, height 700 to 1100), the seat keeping its depth and height; the dropdown then says Custom. It's centred on the TV, facing it, its front a slider's distance from the TV wall (1000 to 3500, starting at 1900, where its back is 41 short of the island's end). **Sitting on the sofa** is in Where, and "the sofa" in Looking at.
 
@@ -107,7 +107,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
-| Option | `shown` | 1–16 (16 is the current room, with no cupboards: a bench along the whole back wall, with the Bench switch on) | 9 | Which cupboard layout. Options 10 and 11 are a full-height cupboard in the corner, 800 along the back wall and F out along the left wall, with the bench from it to the right-hand wall: 10 has a pair of doors on its end facing the kitchen, 11 a pair on its side facing the windows, where it's clear of the bench (y R to F). The left-wall cupboard depth doesn't apply to them |
+| Option | `shown` | 1–16 (16 is the current room, with no cupboards: a bench along the whole back wall, with the Bench switch on) | 9 | Which cupboard layout. Options 10 and 11 (*Corner cupboard, doors facing the kitchen* and *…facing the windows*) are a full-height cupboard in the corner, `CORNER_W` (800 to start) along the back wall and F out along the left wall, with the bench from it to the right-hand wall: 10 has a pair of doors on its end facing the kitchen, 11 a pair on its side facing the windows, where it's clear of the bench (y R to F). The left-wall cupboard depth doesn't apply to them |
 | Left-wall cupboard depth | `T` | none, or 300 to 800 in 10s (slider; none is at its far left) | none (0) | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 300 to 800, in 10s (slider) | 330 | How deep the bench and the back-wall cupboards are, from the back wall |
@@ -116,6 +116,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 | Double-door cupboard width | `WARD` | 600 to 1400, in 50s | 900 | Option 9: width of the full-height double-door cupboard on the back wall. Each door is (WARD − 27) / 2 |
 | Double-door cupboard depth | `WARD_D` | 330 to 1000, in 10s | 600 | Option 9: its depth from the back wall, independent of the bench |
 | Shelving tower width | `TOWER` | 0 to 600, in 50s | 400 | Option 9: the open shelving tower beside it, R deep (0 for none) |
+| Corner cupboard width | `CORNER_W` | 500 to 1200, in 10s | 800 | Options 10 and 11: the full-height corner cupboard's width along the back wall; the bench starts at it. Option 10's doors are each (CORNER_W − BOARD − 9) / 2 (391 at 800) |
 | Option 5 second bay | `EXTRA` | 300 to 900, in 50s | 500 | Width of option 5's second upper cupboard bay, beyond the upper cupboard. Its door is EXTRA − 6 wide. Only shown on option 5 |
 | Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Upper cupboards, corner shelves and everything above the bench move with it |
 | Above the bench | `above` | Nothing, Shelves, TV, TV and shelves, TV and top shelf | TV and shelves | What's on the back wall over the bench |
@@ -166,7 +167,7 @@ So in every option the top shelf (1800, or 1803 in the left-wall cupboard) stays
 | 7 | 600, 1200, 1800 in both legs | 600 over x 0–860 and y 312–1090; 1200 over x 0–510 and y 312–550 | 5 of 6: the racks stick out |
 | 8 | 600, 1200, 1800 | 600 over x 0–860, 1200 over x 0–510 | 5 of 6: the racks stick out |
 | 9 | 600, 1200, 1800 in the double-door cupboard and the leg | 600 over x 0–860 and y 582–1090; 1200 over x 0–510 | 5 of 6: the racks stick out (the 580 × 1770 packing leaves only the tub out) |
-| 10, 11 | 600, 1200, 1800 | 600 over y 0–1090, 1200 over y 0–550 | 4 of 6: the racks and hoover stick out |
+| 10, 11 (at 800 wide) | 600, 1200, 1800 | 600 over y 0–1090, 1200 over y 0–550 | 4 of 6: the racks and hoover stick out |
 
 Without a left-wall cupboard (T = 0), options 1–5 have no corner cupboard, option 6 fits none (its lower cupboard is only 744 high), and option 7 fits 1 of 6.
 
@@ -179,7 +180,7 @@ The corner cupboard's inside, for each option (shelves are cut back as above; be
 | 7 | Both legs of the L at full height |
 | 8 | The corner unit at full height, to 25 behind its diagonal doors |
 | 9 | The double-door cupboard (x 0 to T + WARD − 18, WARD_D deep) and the left-wall leg, at full height |
-| 10, 11 | The 800 × F corner cupboard at full height, x 0 to 782, y 0 to F − 18 |
+| 10, 11 | The CORNER_W × F corner cupboard at full height, x 0 to CORNER_W − 18 (782 at 800), y 0 to F − 18 |
 | 12 | None: they stay by the window |
 
 | Thing | Footprint (along x × along y, in the 850 × 1090 packing) | Height | Colour | Notes |

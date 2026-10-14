@@ -4,7 +4,7 @@
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
-const { test, expect, openRoom, settingsField } = require('./helpers');
+const { test, expect, openRoom, pickOption, hasOption, settingsField } = require('./helpers');
 const { ADDRESSES, VIEW } = require('./addresses');
 
 // The scenes in room_3d.scenes.js, read the way the page reads them
@@ -90,7 +90,7 @@ test.describe('the settings drawers', () => {
 
   test('the option list is in the top bar, and works with a drawer open', async ({ page }) => {
     await page.click('#cupMenu');
-    await page.selectOption('#current', '8');                   // option 9
+    await pickOption(page, 9);
     await expect(page.locator('#wardBlock')).toBeVisible();        // its sliders, in the drawer
     expect(settingsField(await page.evaluate(() => location.hash), 0)).toBe('9');
   });
@@ -129,14 +129,15 @@ test.describe('the controls', () => {
 
   test('each option shows its own slider blocks', async ({ page }) => {
     await page.click('#cupMenu');
-    const blocks = ['upperBlock', 'extraBlock', 'legBlock', 'wardBlock'];
-    // option index → the blocks shown (show() in room_3d.html)
-    const cases = [[0, []], [2, ['upperBlock']], [4, ['upperBlock', 'extraBlock']], [6, ['legBlock']], [8, ['wardBlock']]];
-    for (const [i, shown] of cases) {
-      await page.selectOption('#current', String(i));
+    const blocks = ['upperBlock', 'extraBlock', 'legBlock', 'wardBlock', 'cornerBlock'];
+    // option number → the blocks shown (show() in room_3d.html), for those in the list
+    const cases = [[2, []], [4, ['upperBlock']], [5, ['upperBlock', 'extraBlock']], [7, ['legBlock']], [8, []], [9, ['wardBlock']], [10, ['cornerBlock']], [11, ['cornerBlock']], [12, []]];
+    for (const [n, shown] of cases) {
+      if (!(await hasOption(page, n))) continue;
+      await pickOption(page, n);
       for (const b of blocks) {
-        if (shown.includes(b)) await expect(page.locator(`#${b}`), `${b} with option index ${i}`).toBeVisible();
-        else await expect(page.locator(`#${b}`), `${b} with option index ${i}`).toBeHidden();
+        if (shown.includes(b)) await expect(page.locator(`#${b}`), `${b} with option ${n}`).toBeVisible();
+        else await expect(page.locator(`#${b}`), `${b} with option ${n}`).toBeHidden();
       }
     }
   });
@@ -144,11 +145,11 @@ test.describe('the controls', () => {
   test('option 8 needs a left-wall cupboard', async ({ page }) => {
     await page.click('#cupMenu');
     await page.locator('#depth').fill('290');                    // none
-    const option8 = page.locator('#current option[value="7"]');
+    const option8 = page.locator('#current option', { hasText: /^8\. / });
     await expect(option8).toBeDisabled();
     await page.locator('#depth').fill('600');
     await expect(option8).toBeEnabled();
-    await page.selectOption('#current', '7');
+    await pickOption(page, 8);
     expect(settingsField(await hash(page), 0)).toBe('8');
   });
 
@@ -192,9 +193,9 @@ test.describe('the controls', () => {
   test('a number key chooses an option', async ({ page, isMobile }) => {
     test.skip(isMobile, 'no keyboard on a phone');
     await page.click('#close');
-    await page.keyboard.press('6');
-    await expect(page.locator('#current')).toHaveValue('5');
-    expect(settingsField(await hash(page), 0)).toBe('6');
+    await page.keyboard.press('9');
+    await expect(page.locator('#current option:checked')).toHaveText(/^9\. /);
+    expect(settingsField(await hash(page), 0)).toBe('9');
   });
 });
 

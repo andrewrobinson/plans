@@ -35,7 +35,17 @@ async function openRoom(page, hash = '') {
   }));
 }
 
+// Choose option n (its number, as in its name) from the option list. Its
+// place in the list isn't n - 1, as some options are left out for now.
+async function pickOption(page, n) {
+  const value = await page.locator('#current option').evaluateAll((os, n) => os.find(o => parseInt(o.textContent, 10) === n)?.value, n);
+  if (value === undefined) throw new Error(`option ${n} isn't in the option list`);
+  await page.selectOption('#current', value);
+}
+// Whether option n is in the option list
+const hasOption = (page, n) => page.locator('#current option').evaluateAll((os, n) => os.some(o => parseInt(o.textContent, 10) === n), n);
+
 // The parts of the address: settings ~ things to store ~ view
 const settingsField = (hash, k) => hash.slice(1).split('~')[0].split('-')[k];
 
-module.exports = { test, expect: base.expect, openRoom, settingsField };
+module.exports = { test, expect: base.expect, openRoom, pickOption, hasOption, settingsField };
