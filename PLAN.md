@@ -93,6 +93,15 @@ To do:
 
 ## 2. Panels against the walls, for every option (agreed 12 Oct 2026)
 
+**Done 14 Oct 2026.** Every option's cupboard is built with `board()`, rear
+panels against the back and left walls included (option 9's shelving tower
+and option 10's side bookshelf have their own). The inside
+(`cupboardSpaces()`) starts a board out from each wall, so it follows
+`BOARD`; it's given in each option's description, and the packing and its
+fit check in the plan use it. The cutting list has the rule at its head and
+names every board, doors and shelves too. Not done: "other parts" in the
+cutting list (the tower's plinth and oak shelves are still left out).
+
 Every built option (1 to 11) is to be made from boards, each with a width, a
 height and the board thickness (`BOARD`), **including rear panels against the
 walls**: today the walls stand in for them. Outside sizes stay fixed, so the
