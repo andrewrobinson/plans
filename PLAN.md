@@ -80,7 +80,7 @@ To do:
   10:`, near the end); `syncControls()`.
 - **Watch `fixedWidth`.** Options 10 and 11 set `fixedWidth: CORNER_W`, but
   it's only ever tested as true or false (the dimension marks, and hiding
-  the depth sliders). Make it `fixedWidth: true`, like option 6's, so it
+  the depth sliders). Make it `fixedWidth: true`, so it
   doesn't look like the width is read from it.
 - **Decide whether these stay fixed:** the shelf tops at 600, 1200 and 1800,
   and the handles at 950 to 1250. They don't depend on the width, so leaving
@@ -117,8 +117,7 @@ To do, in `room_3d.html`:
 
 - A `board(name, x0, y0, z0, x1, y1, z1, g, mat)` helper that names each part
   (`userData.part`) for the cutting list; name the doors too.
-- Rebuild `tallCupboard`, `cornerShelves`, `upperUnit` (with a divider when
-  option 5 adds a second bay), options 6, 8 and 9, `fullHeightL` (option 7),
+- Rebuild options 8 and 9, `tallDoor`, `fullHeightL` (option 7),
   `shelvingTower` and `cornerCupboard` (10 and 11) to the rule. Option 8's top
   and base run out to the diagonal front.
 - `cupboardSpaces()` (the things to store's fit check) to the new insides.

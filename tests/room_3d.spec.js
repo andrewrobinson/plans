@@ -4,7 +4,7 @@
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
-const { test, expect, openRoom, pickOption, hasOption, settingsField } = require('./helpers');
+const { test, expect, openRoom, pickOption, settingsField } = require('./helpers');
 const { ADDRESSES, VIEW } = require('./addresses');
 
 // The scenes in room_3d.scenes.js, read the way the page reads them
@@ -114,11 +114,12 @@ test.describe('the controls', () => {
     await page.click('#cupMenu');
     await page.locator('#board').fill('22');
     await expect(page.locator('#boardValue')).toHaveText('22');
-    expect(settingsField(await hash(page), 33)).toBe('22');
+    expect(settingsField(await hash(page), 31)).toBe('22');
   });
 
   test('the left-wall depth slider shows "none" below 300', async ({ page }) => {
     await page.click('#cupMenu');
+    await pickOption(page, 7);                                   // option 10, as the page opens, has no left-wall cupboard
     await page.locator('#depth').fill('450');
     await expect(page.locator('#depthValue')).toHaveText('450');
     expect(settingsField(await hash(page), 1)).toBe('450');
@@ -129,11 +130,10 @@ test.describe('the controls', () => {
 
   test('each option shows its own slider blocks', async ({ page }) => {
     await page.click('#cupMenu');
-    const blocks = ['upperBlock', 'extraBlock', 'legBlock', 'wardBlock', 'cornerBlock'];
-    // option number → the blocks shown (show() in room_3d.html), for those in the list
-    const cases = [[2, []], [4, ['upperBlock']], [5, ['upperBlock', 'extraBlock']], [7, ['legBlock']], [8, []], [9, ['wardBlock']], [10, ['cornerBlock']], [11, ['cornerBlock']], [12, []]];
+    const blocks = ['legBlock', 'wardBlock', 'cornerBlock'];
+    // option number → the blocks shown (show() in room_3d.html)
+    const cases = [[7, ['legBlock']], [8, []], [9, ['wardBlock']], [10, ['cornerBlock']], [11, ['cornerBlock']], [16, []]];
     for (const [n, shown] of cases) {
-      if (!(await hasOption(page, n))) continue;
       await pickOption(page, n);
       for (const b of blocks) {
         if (shown.includes(b)) await expect(page.locator(`#${b}`), `${b} with option ${n}`).toBeVisible();
@@ -144,6 +144,7 @@ test.describe('the controls', () => {
 
   test('option 8 needs a left-wall cupboard', async ({ page }) => {
     await page.click('#cupMenu');
+    await pickOption(page, 7);                                   // for the left-wall depth slider
     await page.locator('#depth').fill('290');                    // none
     const option8 = page.locator('#current option', { hasText: /^8\. / });
     await expect(option8).toBeDisabled();
@@ -167,10 +168,10 @@ test.describe('the controls', () => {
   test('the bench switch hides the bench settings', async ({ page }) => {
     await page.locator('#benchOn').uncheck();
     await expect(page.locator('#benchDetails')).toBeHidden();
-    expect(settingsField(await hash(page), 28)).toBe('0');
+    expect(settingsField(await hash(page), 26)).toBe('0');
     await page.locator('#benchOn').check();
     await expect(page.locator('#benchDetails')).toBeVisible();
-    expect(settingsField(await hash(page), 28)).toBe('1');
+    expect(settingsField(await hash(page), 26)).toBe('1');
   });
 
   test('the front-wall piece shows the dresser or larder settings', async ({ page }) => {
