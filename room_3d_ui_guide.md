@@ -1,10 +1,11 @@
 # room_3d.html — how the page is put together
 
-A guide to the HTML, CSS and JS in `room_3d.html` (3,433 lines) and
-`room_3d.css` (124 lines), focused on the UI: the menus, the controls, and how
+A guide to the HTML, CSS and JS in `room_3d.html` (3,112 lines),
+`kit/floor_kit.js` (413 lines) and `room_3d.css` (124 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers in the
 map below are as of 14 Oct 2026, after the cupboards were built from boards
-with rear panels against the walls (`PLAN.md` step 2). They go stale with
+with rear panels against the walls (`PLAN.md` step 2) and the first moves of
+`REFACTOR_PLAN.md` step 4 into `kit/floor_kit.js`. They go stale with
 every change, so the sections after the map name functions and ids instead:
 search for those.
 
@@ -49,46 +50,56 @@ The HTML only lays out the controls. It contains no logic.
 | 239–245 | `#about` | The description text (`#summary`), which JS fills in |
 | **247–302** | `#cupPanel` | **Cupboard options**, the other drawer: the cupboard-only switch, board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7) |
 
-### Scripts (lines 304–3431)
+### Scripts (lines 304–3110)
 
 | Lines | What |
 |---|---|
 | 304–308 | **Plain data scripts**: `room_3d.views.js`, `.dressers.js`, `.larders.js`, `.sofas.js`, `.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
 | 309–310 | **Plain helper scripts**: `view_kit.js` (sets `window.ViewKit`) and `scene_kit.js` (sets `window.SceneKit`) |
-| 311 | `<script type="module">` starts. Everything from here to line 3431 is one module |
+| 311 | `<script type="module">` starts. Everything from here to line 3110 is one module, the room's, which imports the engine from `kit/floor_kit.js` |
 
 Inside the module:
 
 | Lines | Section | Notes |
 |---|---|---|
-| 312–313 | `import` three.js and OrbitControls | |
-| 315–362 | Scene setup | Units (`MM = 0.001`), room size, `scene`, `renderer`, the 3D camera and the 2D (orthographic) camera, each with its controls, lights and materials |
-| 363–425 | Geometry helpers | `box()`, `slab()`, `part()` and `board()` (a named board, for the cutting list), `hinge()`, `skewHinge()` |
-| 427–673 | The fixed room | Walls, floor, recesses, door frame, ceiling, windows, kitchen, desk, chair, island, room door |
-| 675–727 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls write to and the address saves |
-| 729–817 | Corner-cupboard shelves | `cupShelf()` records them; `drawCupShelves()` draws them, cut back over things stored under them |
-| 819–885 | Parts of options 7 and 8 | `tallDoor()`, `fullHeightL()` (option 7), `diagonal()` (option 8) |
-| 887–972 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
-| 974–1189 | Colours | The `RAL` table, `FINISHES`, `COLOUR_TARGETS`, the oak floor, `setRal()` |
-| 1191–1472 | Option 9's base cupboards, dresser, larders, island, sofa, front wall | Includes `DRESSER_SLIDERS` (1234), `placeIsland()` (1392), `sofa()` (1430), `frontWall()` (1447) |
-| 1473–1572 | Option 9's shelving tower, options 10 and 11's corner cupboard, option 10's side bookshelf | `shelvingTower()`, `cornerCupboard()`, `sideBookshelf()` |
-| 1574–1753 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` and the address codes |
-| 1755–1985 | 2D dimensions | `updateDims()`, `applyCut()`, the cupboard-only view, `cupboardDims()`, `doorDims()` |
-| 1987–2052 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards), `showCuttingList()` |
-| 2054–2482 | Things to store | Packing, `cupboardSpaces()` (each option's inside), `insideText()`, drawing, and dragging in plan view |
-| **2484–2611** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
-| 2613–2689 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | One list of the settings' fields, which writes `state` into the URL `#hash` and reads it back (section 5) |
-| **2690–3093** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
-| 3094–3187 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | |
-| 3188–3245 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `view_kit.js` |
-| **3247–3265** | **Pop-up menus** (`setPop`) and `SceneKit.create` | |
-| 3267–3312 | `setFlat()` (2D/3D), Dimensions button, `resize()` | |
-| **3314–3333** | **The two drawers** (`DRAWERS`, `setMenu`) | |
-| 3335–3371 | Reset and Share buttons | |
-| 3373–3384 | Service worker (offline support) | |
-| 3386–3418 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
-| 3420–3426 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
-| 3427–3430 | **Render loop** | `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
+| 312–315 | `import` three.js, and the engine's pieces from `kit/floor_kit.js` | |
+| 316–343 | Set-up | The room's size (`W`, `D`, `H`), `createStage()` for the scene, renderer, cameras and controls, the cupboards' materials, and `board()` (a named board, for the cutting list) |
+| 344–597 | The fixed room | Walls, floor, recesses, door frame, ceiling, windows, kitchen, desk, chair, island, room door |
+| 599–644 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls write to and the address saves |
+| 646–734 | Corner-cupboard shelves | `cupShelf()` records them; `drawCupShelves()` draws them, cut back over things stored under them |
+| 736–802 | Parts of options 7 and 8 | `tallDoor()`, `fullHeightL()` (option 7), `diagonal()` (option 8) |
+| 804–889 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
+| 891–961 | Colours | The room's `FINISHES`, `COLOUR_TARGETS`, `setRal()` (the RAL table and the oak floor are in the kit) |
+| 963–1244 | Option 9's base cupboards, dresser, larders, island, sofa, front wall | Includes `DRESSER_SLIDERS` (1006), `placeIsland()` (1164), `sofa()` (1202), `frontWall()` (1219) |
+| 1245–1344 | Option 9's shelving tower, options 10 and 11's corner cupboard, option 10's side bookshelf | `shelvingTower()`, `cornerCupboard()`, `sideBookshelf()` |
+| 1346–1525 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` and the address codes |
+| 1527–1757 | 2D dimensions | `updateDims()`, `applyCut()`, the cupboard-only view, `cupboardDims()`, `doorDims()` |
+| 1759–1824 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards), `showCuttingList()` |
+| 1826–2254 | Things to store | Packing, `cupboardSpaces()` (each option's inside), `insideText()`, drawing, and dragging in plan view |
+| **2256–2357** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
+| 2359–2436 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | The room's list of fields; the kit's `writeFields()` and `readFields()` write `state` into the URL `#hash` and read it back (section 5) |
+| **2437–2840** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
+| 2841–2932 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | |
+| 2933–2986 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `view_kit.js` |
+| **2987–2999** | **Pop-up menus** (the kit's `popMenus()`) and `SceneKit.create` | |
+| 3001–3043 | `setFlat()` (2D/3D), Dimensions button, `resize()` | |
+| **3045–3051** | **The two drawers** (`DRAWERS`, the kit's `createDrawers()`) | |
+| 3053–3059 | Reset, Share and offline support (the kit's `resetButton()`, `shareButton()`, `workOffline()`) | |
+| 3065–3097 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
+| 3099–3105 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
+| 3106–3109 | **Render loop** | `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
+
+### kit/floor_kit.js (413 lines)
+
+The engine, an ES module: what any room needs, and nothing about this one.
+
+| What | Exports |
+|---|---|
+| The stage | `MM`, `createStage(container)`: the scene, renderer, 3D and 2D cameras with their controls, the lights |
+| Drawing in mm | `material()`, `box()`, `slab()`, `part()`, `hinge()`, `skewHinge()` |
+| Colours | `RAL` (the RAL Classic table), `oakBoards()` (the oak floor's texture) |
+| The address | `number()`, `within()`, `radio()`, `sizes()` (readers for a room's fields), `valueAt()`, `setValueAt()`, `writeFields()`, `readFields()` |
+| Menus and buttons | `narrow()`, `popMenus()`, `createDrawers()`, `resetButton()`, `shareButton()`, `workOffline()` |
 
 ### room_3d.css (124 lines)
 
@@ -438,7 +449,7 @@ A normal `<script>` and a `<script type="module">` differ as follows:
 | Variables at the top level | Become globals (on `window` for `var`/functions) | **Private to the module**. Other scripts can't see `scene`, `state`, `show()` and so on |
 | When it runs | As soon as the parser reaches it, blocking the page | **Deferred**: after the whole HTML has been parsed |
 | Strict mode | Opt-in (`'use strict'`) | Always on |
-| Opened from a `file://` URL | Works | An inline module works. `import`ing *local* module files usually fails because of browser security |
+| Opened from a `file://` URL | Works | Browsers block `import`ing *local* module files from `file://`. Since the room's module imports `kit/floor_kit.js`, the page needs a server: GitHub Pages, the installed app, or `python3 serve.py` here (as `menu_demo/` does) |
 
 ### The import map
 
@@ -458,9 +469,10 @@ step. The second entry maps a whole prefix, so
 
 ### Why the other files are classic scripts
 
-`view_kit.js` notes that it's "a plain script (not a module), so pages work when
-opened from a file too". The data and kit files load as classic scripts at lines
-283–289 and hand over their contents through globals (`window.ROOM_SOFAS`,
+They were written to work when the page was opened from a file, which it no
+longer can be (see above); `REFACTOR_PLAN.md` step 4 is turning the code into
+modules. For now the data files and the view and scene kits load as classic
+scripts before the module and hand over their contents through globals (`window.ROOM_SOFAS`,
 `window.ViewKit`, …). The module then reads those globals, e.g.
 `window.ROOM_DRESSERS?.list`.
 

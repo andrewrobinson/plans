@@ -7,7 +7,8 @@ described in `room_dimensions.md`.
 
 Four pieces of work were planned. Suggested order, each on its own branch,
 one step per session, `npm test` passing before each merge. Steps 1 and 2
-are done (14 Oct 2026); step 3 is next.
+are done (14 Oct 2026); step 3 is under way (`REFACTOR_PLAN.md` step 4,
+branch `engine-kit`, with ES modules).
 
 1. **Done.** Options 10 and 11: the corner cupboard's width as a setting
    (next section).
