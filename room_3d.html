@@ -310,7 +310,8 @@
 <script src="scene_kit.js"></script>
 <script type="module">
 import * as THREE from 'three';
-import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards } from './kit/floor_kit.js';
+import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
+  number, within, radio, sizes, writeFields, readFields } from './kit/floor_kit.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -2359,27 +2360,11 @@ function show(i) {
 // are. Each field is [its place in state, how to write it, how to read it
 // back]. Reading checks the text and gives the new value, or undefined to
 // leave the setting as it was; it's given the value as it is, for fields of
-// several parts. Adding a setting means adding it to state and here.
+// several parts. Adding a setting means adding it to state and here. The
+// readers (number, within, radio, sizes) and the loops that write and read
+// the fields are in kit/floor_kit.js.
 // ---------------------------------------------------------------------------
-const number = check => text => check(Number(text));
-const within = (lo, hi) => number(v => (v >= lo && v <= hi ? v : undefined));
-const radio = name => number(v => (document.querySelector(`input[name=${name}][value="${v}"]`) ? v : undefined));
 const colour = number(code => (code === 0 || colourOf(code) ? code : undefined));
-// Sizes as a.b.c, in their sliders' order ([key, id, lowest, highest]): each
-// held to its slider's range, or with `strict`, left as it was outside it
-const sizes = (sliders, strict = false) => [
-  s => sliders.map(([k]) => s[k]).join('.'),
-  (text, s) => {
-    const out = { ...s };
-    text.split('.').forEach((part, k) => {
-      const [key, , lo, hi] = sliders[k] ?? [], v = part ? Number(part) : NaN;
-      if (!key || !Number.isFinite(v)) return;
-      if (!strict) out[key] = Math.min(hi, Math.max(lo, v));
-      else if (v >= lo && v <= hi) out[key] = v;
-    });
-    return out;
-  },
-];
 const ADDRESS = [
   ['option', optionCode, number(code => (code >= 1 ? optionIndex(code) : undefined))],
   ['T', String, number(t => (t === 0 || (t >= 300 && t <= 800) ? t : undefined))],
@@ -2424,27 +2409,16 @@ const ADDRESS = [
   ['SIDE_W', String, within(200, 800)],
   ['SIDE_D', String, within(150, 800)],
 ];
-const valueAt = path => path.split('.').reduce((o, k) => o[k], state);
-function setValueAt(path, value) {
-  const keys = path.split('.'), last = keys.pop();
-  keys.reduce((o, k) => o[k], state)[last] = value;
-}
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
-  return `${ADDRESS.map(([path, write]) => write(valueAt(path))).join('-')}~${storedAddress()}`;
+  return `${writeFields(ADDRESS, state)}~${storedAddress()}`;
 }
 // Read a settings address (the part of the page's address before the
 // view) into state. The boards' thickness goes first, as option 7's shelves
 // are checked against it.
 function readAddress(text) {
-  const [settings, stored] = text.split('~'), parts = settings.split('-');
-  const board = ADDRESS.findIndex(([path]) => path === 'BOARD');
-  for (const k of [board, ...[...ADDRESS.keys()].filter(k => k !== board)]) {
-    const [path, , read] = ADDRESS[k], part = parts[k];
-    if (part === undefined || part === '') continue;
-    const value = read(part, valueAt(path));
-    if (value !== undefined) setValueAt(path, value);
-  }
+  const [settings, stored] = text.split('~');
+  readFields(ADDRESS, state, settings, ['BOARD']);
   readStoredAddress(stored);
 }
 // replace: change the address without adding to the history, as when
