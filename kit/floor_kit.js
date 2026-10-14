@@ -61,8 +61,11 @@ export function createStage(container) {
 export const material = (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.8 });
 const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x3b2a12 });
 
-// A box from room corner (x0, y0, z0) to (x1, y1, z1), in mm.
-export function box(x0, y0, z0, x1, y1, z1, mat, parent, edges = true) {
+// A box from one room corner to the opposite one, in mm:
+// box({ from: [x0, y0, z0], to: [x1, y1, z1] }, mat, parent), with `from`
+// the low corner (smallest x, y and z). `edges` false leaves out the dark
+// outline (walls have none).
+export function box({ from: [x0, y0, z0], to: [x1, y1, z1] }, mat, parent, edges = true) {
   if (x1 <= x0 || y1 <= y0 || z1 <= z0) return null;          // nothing to draw, e.g. with no left-wall cupboard
   const g = new THREE.BoxGeometry((x1 - x0) * MM, (z1 - z0) * MM, (y1 - y0) * MM);
   const m = new THREE.Mesh(g, mat);

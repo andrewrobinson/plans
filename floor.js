@@ -36,7 +36,7 @@ const SINK_RECESS = { x0: RECESS_X, x1: DESK_RECESS.x0 - WALL_BETWEEN_RECESSES, 
 const DESK_TOP = 830;                                                // the desk in the recess, measured
 slab([[0, 0], [W, 0], [W, D + DESK_RECESS.depth], [DESK_RECESS.x0, D + DESK_RECESS.depth], [DESK_RECESS.x0, D],
   [SINK_RECESS.x1, D], [SINK_RECESS.x1, D + SINK_RECESS.depth], [RECESS_X, D + SINK_RECESS.depth], [RECESS_X, RECESS_FROM], [0, RECESS_FROM]], -20, 0, floorMat, floor);
-box(-WALL, -WALL, 0, W + WALL, 0, H, wallMat, floor, false);         // back wall
+box({ from: [-WALL, -WALL, 0], to: [W + WALL, 0, H] }, wallMat, floor, false);         // back wall
 // The doorway: the frame starts 1329 from the back wall, the furthest a
 // cupboard on the left wall can come. The door hinges at 1400, so the frame
 // is 71 each side of the door; the far side is assumed to match. The frame
@@ -45,14 +45,14 @@ const FRAME = 1329, HINGE = 1400, ROOM_DOOR = 760, JAMB = HINGE - FRAME;
 const FRAME_H = 2050, ROOM_DOOR_H = 1978;
 const FRAME_END = HINGE + ROOM_DOOR + JAMB;                          // 2231
 const frameMat = material(0xffffff);
-box(-WALL, 0, 0, 0, FRAME, H, wallMat, floor, false);                // left wall, behind the doorway
-box(-WALL, FRAME_END, 0, 0, RECESS_FROM, H, wallMat, floor, false);  // left wall, past the doorway to the return
-box(RECESS_X - WALL, RECESS_FROM - WALL, 0, 0, RECESS_FROM, H, wallMat, floor, false); // the return wall, facing the front
-box(RECESS_X - WALL, RECESS_FROM, 0, RECESS_X, D + SINK_RECESS.depth, H, wallMat, floor, false);   // the recess's back wall, on into the sink recess
-box(-WALL, FRAME, FRAME_H, 0, FRAME_END, H, wallMat, floor, false);     // over the doorway
-box(-WALL, FRAME, 0, 0, HINGE, FRAME_H, frameMat, floor);               // frame, hinge side
-box(-WALL, FRAME_END - JAMB, 0, 0, FRAME_END, FRAME_H, frameMat, floor); // frame, far side
-box(-WALL, HINGE, ROOM_DOOR_H, 0, FRAME_END - JAMB, FRAME_H, frameMat, floor); // frame head, down to the door
+box({ from: [-WALL, 0, 0], to: [0, FRAME, H] }, wallMat, floor, false);                // left wall, behind the doorway
+box({ from: [-WALL, FRAME_END, 0], to: [0, RECESS_FROM, H] }, wallMat, floor, false);  // left wall, past the doorway to the return
+box({ from: [RECESS_X - WALL, RECESS_FROM - WALL, 0], to: [0, RECESS_FROM, H] }, wallMat, floor, false); // the return wall, facing the front
+box({ from: [RECESS_X - WALL, RECESS_FROM, 0], to: [RECESS_X, D + SINK_RECESS.depth, H] }, wallMat, floor, false);   // the recess's back wall, on into the sink recess
+box({ from: [-WALL, FRAME, FRAME_H], to: [0, FRAME_END, H] }, wallMat, floor, false);     // over the doorway
+box({ from: [-WALL, FRAME, 0], to: [0, HINGE, FRAME_H] }, frameMat, floor);               // frame, hinge side
+box({ from: [-WALL, FRAME_END - JAMB, 0], to: [0, FRAME_END, FRAME_H] }, frameMat, floor); // frame, far side
+box({ from: [-WALL, HINGE, ROOM_DOOR_H], to: [0, FRAME_END - JAMB, FRAME_H] }, frameMat, floor); // frame head, down to the door
 
 // The ceiling, white, with six downlights. It faces down only, so from above
 // (the corner and top views) it can't be seen and the room stays open.
@@ -123,8 +123,8 @@ const OUTER = {
     face(reveal, top - sill, wallMat, y0, (sill + top) / 2, W + reveal / 2, [0, 0]);          // reveal sides, facing into the opening
     face(reveal, top - sill, wallMat, y1, (sill + top) / 2, W + reveal / 2, [0, Math.PI]);
     face(reveal, wide, wallMat, mid, top, W + reveal / 2, [Math.PI / 2, 0]);                  // reveal top, facing down
-    box(W - 30, y0 - 30, sill - 25, W + reveal, y1 + 30, sill, frameMat, floor);               // window sill
-    box(W - radiator.out, mid - radiator.width / 2, radiator.bottom, W - radiator.out + radiator.thick, mid + radiator.width / 2, radiator.top, radMat, floor);  // radiator
+    box({ from: [W - 30, y0 - 30, sill - 25], to: [W + reveal, y1 + 30, sill] }, frameMat, floor);               // window sill
+    box({ from: [W - radiator.out, mid - radiator.width / 2, radiator.bottom], to: [W - radiator.out + radiator.thick, mid + radiator.width / 2, radiator.top] }, radMat, floor);  // radiator
   }
 }
 
