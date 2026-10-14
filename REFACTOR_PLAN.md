@@ -48,6 +48,29 @@ step applies those choices to `living_room.js`, `floor.js` and the kit.
 
 One kind of change per commit, a file at a time, `npm test` after each.
 
+### Where it's got to (14 Oct 2026)
+
+On the `refactor` branch, a commit each, and on main up to "the handles'
+heights named":
+
+- Done: `box()` takes `{ from, to }` (every call, by script); the room's
+  constants have long names (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`,
+  `DOOR_FRAME_STARTS_AT`, `DOOR_HINGE_AT`, `WALL_THICKNESS`,
+  `KITCHEN_RECESS_BACK_WALL_X`); `show()` split into `buildOption()`,
+  `takeOutBench()`, `showInMenus()` and `redrawAround()`; the handles'
+  heights named (`HANDLE_BOTTOM`, `HANDLE_TOP`).
+- Left: the other numbers (the 3s and 9s of door gaps, 25 and 40 for
+  worktops); each option's `build()` and `cornerCupboard()` in named
+  steps (`fullHeightL()` is short enough); one function for changing the
+  settings; each file's opening comment; `board()` could take
+  `{ from, to }` as `box()` now does.
+
+Scripts that rename only in code (not comments or strings) and rewrite
+calls by their arguments made the first two safe; write one again for
+any change across many lines, and let the screenshots check it.
+`tests/controls.spec.js`'s corner cupboard sizes test can time out under
+load and pass when run again.
+
 ### What to change
 
 - **Name the box's corners.** `box(x0, y0, z0, x1, y1, z1, mat, parent,

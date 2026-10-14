@@ -13,7 +13,9 @@ it on GitHub Pages. Two sessions testing at once need separate ports
 
 1. **Readable code**: `REFACTOR_PLAN.md` step 5, in the style of
    `menu_demo/`.
-2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1.
+2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
+   with `drawings/measure_sheet.html` (lettered on the plan; the values come
+   back as "A = 2240" lines, to go into `floor.md` and the model).
    Any time before step 3, so the floor plan starts from measured numbers,
    not ones scaled off the drawing.
 3. **The other room, the hallway and the stairs**, drawn from
