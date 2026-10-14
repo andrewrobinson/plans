@@ -112,3 +112,155 @@ export function skewHinge(hx, hy, degrees, dir, parent) {
   outer.add(inner);
   return inner;
 }
+
+// ---------------------------------------------------------------------------
+// Colours
+// ---------------------------------------------------------------------------
+
+// RAL Classic colours for the floor, cupboards and walls. RAL is a paint
+// standard with no exact screen equivalent: these are the usual published
+// approximations, so check against a real RAL card before buying.
+export const RAL = {
+  1000: ['Green beige', '#BEBD7F'],
+  1001: ['Beige', '#C2B078'],
+  1002: ['Sand yellow', '#C6A664'],
+  1011: ['Brown beige', '#8A6642'],
+  1013: ['Oyster white', '#EAE6CA'],
+  1014: ['Ivory', '#E1CC4F'],
+  1015: ['Light ivory', '#E6D690'],
+  1019: ['Grey beige', '#9E9764'],
+  1020: ['Olive yellow', '#999950'],
+  1024: ['Ochre yellow', '#AEA04B'],
+  3000: ['Flame red', '#AF2B1E'],
+  3004: ['Purple red', '#75151E'],
+  3005: ['Wine red', '#5E2129'],
+  3009: ['Oxide red', '#642424'],
+  3012: ['Beige red', '#C1876B'],
+  3015: ['Light pink', '#EA899A'],
+  5000: ['Violet blue', '#354D73'],
+  5003: ['Sapphire blue', '#1D1E33'],
+  5008: ['Grey blue', '#26252D'],
+  5010: ['Gentian blue', '#0E294B'],
+  5011: ['Steel blue', '#231A24'],
+  5012: ['Light blue', '#3B83BD'],
+  5013: ['Cobalt blue', '#1E213D'],
+  5014: ['Pigeon blue', '#606E8C'],
+  5015: ['Sky blue', '#2271B3'],
+  5018: ['Turquoise blue', '#3F888F'],
+  5023: ['Distant blue', '#49678D'],
+  5024: ['Pastel blue', '#5D9B9B'],
+  6000: ['Patina green', '#316650'],
+  6003: ['Olive green', '#424632'],
+  6005: ['Moss green', '#2F4538'],
+  6009: ['Fir green', '#31372B'],
+  6011: ['Reseda green', '#587246'],
+  6012: ['Black green', '#343E40'],
+  6019: ['Pastel green', '#BDECB6'],
+  6020: ['Chrome green', '#2E3A23'],
+  6021: ['Pale green', '#89AC76'],
+  7000: ['Squirrel grey', '#78858B'],
+  7001: ['Silver grey', '#8A9597'],
+  7002: ['Olive grey', '#7E7B52'],
+  7003: ['Moss grey', '#6C7059'],
+  7004: ['Signal grey', '#969992'],
+  7005: ['Mouse grey', '#646B63'],
+  7006: ['Beige grey', '#6D6552'],
+  7008: ['Khaki grey', '#6A5F31'],
+  7009: ['Green grey', '#4D5645'],
+  7010: ['Tarpaulin grey', '#4C514A'],
+  7011: ['Iron grey', '#434B4D'],
+  7012: ['Basalt grey', '#4E5754'],
+  7013: ['Brown grey', '#464531'],
+  7015: ['Slate grey', '#434750'],
+  7016: ['Anthracite grey', '#293133'],
+  7021: ['Black grey', '#23282B'],
+  7022: ['Umbra grey', '#332F2C'],
+  7023: ['Concrete grey', '#686C5E'],
+  7024: ['Graphite grey', '#474A51'],
+  7026: ['Granite grey', '#2F353B'],
+  7030: ['Stone grey', '#8B8C7A'],
+  7031: ['Blue grey', '#474B4E'],
+  7032: ['Pebble grey', '#B8B799'],
+  7033: ['Cement grey', '#7D8471'],
+  7034: ['Yellow grey', '#8F8B66'],
+  7035: ['Light grey', '#D7D7D7'],
+  7036: ['Platinum grey', '#7F7679'],
+  7037: ['Dusty grey', '#7D7F7D'],
+  7038: ['Agate grey', '#B5B8B1'],
+  7039: ['Quartz grey', '#6C6960'],
+  7040: ['Window grey', '#9DA1AA'],
+  7042: ['Traffic grey A', '#8D948D'],
+  7043: ['Traffic grey B', '#4E5452'],
+  7044: ['Silk grey', '#CAC4B0'],
+  7045: ['Telegrey 1', '#909090'],
+  7046: ['Telegrey 2', '#82898F'],
+  7047: ['Telegrey 4', '#D0D0D0'],
+  8000: ['Green brown', '#826C34'],
+  8001: ['Ochre brown', '#955F20'],
+  8003: ['Clay brown', '#734222'],
+  8007: ['Fawn brown', '#59351F'],
+  8011: ['Nut brown', '#5B3A29'],
+  8014: ['Sepia brown', '#382C1E'],
+  8016: ['Mahogany brown', '#4C2F27'],
+  8017: ['Chocolate brown', '#45322E'],
+  8019: ['Grey brown', '#403A3A'],
+  8022: ['Black brown', '#212121'],
+  8024: ['Beige brown', '#79553D'],
+  8025: ['Pale brown', '#755C48'],
+  8028: ['Terra brown', '#4E3B31'],
+  9001: ['Cream', '#FDF4E3'],
+  9002: ['Grey white', '#E7EBDA'],
+  9003: ['Signal white', '#F4F4F4'],
+  9004: ['Signal black', '#282828'],
+  9005: ['Jet black', '#0A0A0A'],
+  9006: ['White aluminium', '#A5A5A5'],
+  9007: ['Grey aluminium', '#8F8F8F'],
+  9010: ['Pure white', '#FFFFFF'],
+  9011: ['Graphite black', '#1C1C1C'],
+  9016: ['Traffic white', '#F6F6F6'],
+  9017: ['Traffic black', '#1E1E1E'],
+  9018: ['Papyrus white', '#D7D7D7'],
+};
+
+// Oak boards for the floor, drawn once: rows of 69 mm strips (three to a
+// 207 mm board) of varied lengths and tones, as a texture tiling every 1104 mm
+let oakTexture = null;
+export function oakBoards() {
+  if (oakTexture) return oakTexture;
+  const px = 1024, mmPx = px / 1104, canvas = document.createElement('canvas');
+  canvas.width = canvas.height = px;
+  const ctx = canvas.getContext('2d');
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let row = 0; row < 16; row++) {
+    const y = row * 69 * mmPx;
+    let x = -rand() * 600 * mmPx;
+    while (x < px) {
+      const len = (280 + rand() * 520) * mmPx;
+      // Tones calibrated against daylight photos of the room: a bright honey
+      // oak, averaging about #D29A50
+      const light = 50 + rand() * 14, hue = 32 + rand() * 6;
+      ctx.fillStyle = `hsl(${hue}, ${56 + rand() * 12}%, ${light}%)`;
+      ctx.fillRect(x, y, len, 69 * mmPx);
+      ctx.strokeStyle = `hsla(${hue - 4}, 45%, ${light - 14}%, 0.35)`;  // grain
+      for (let k = 0; k < 6; k++) {
+        const gy = y + rand() * 69 * mmPx;
+        ctx.beginPath();
+        ctx.moveTo(x, gy);
+        ctx.bezierCurveTo(x + len * 0.3, gy + (rand() - 0.5) * 8, x + len * 0.7, gy + (rand() - 0.5) * 8, x + len, gy + (rand() - 0.5) * 6);
+        ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(70, 45, 20, 0.45)';                          // joints
+      ctx.fillRect(x, y, 1.5, 69 * mmPx);
+      x += len;
+    }
+    ctx.fillStyle = 'rgba(70, 45, 20, 0.35)';
+    ctx.fillRect(0, y, px, 1.2);
+  }
+  oakTexture = new THREE.CanvasTexture(canvas);
+  oakTexture.colorSpace = THREE.SRGBColorSpace;
+  oakTexture.wrapS = oakTexture.wrapT = THREE.RepeatWrapping;
+  oakTexture.repeat.set(1 / 1.104, 1 / 1.104);                    // the floor's texture runs in metres: a tile every 1104 mm
+  oakTexture.anisotropy = 8;
+  return oakTexture;
+}
