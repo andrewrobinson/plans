@@ -499,10 +499,15 @@ test.describe('the 2D views\' door sizes and cutting list', () => {
     await expect(list).toContainText('boards 18 thick');
     await expect(list).toContainText('2437 × 576');
     await expect(list).toContainText('2437 × 594');
-    await expect(list).toContainText('14 boards');
+    await expect(list).toContainText('16 boards');
+    await expect(list).toContainText('Rear panels (against the walls) and ends run full height');   // the rule, at its head
+    await expect(list).toContainText('2443 × 1200');                // the back-wall rear panel runs through the corner...
+    await expect(list).toContainText('2443 × 1182');                // ...and the left-wall one stops at it
     await expect(list).toContainText('Left-wall leg front end, back-wall leg end');   // what each panel is for
     await expect(list).toContainText('Left-wall leg top, left-wall leg bottom');
+    await expect(list).toContainText('Back-wall leg door');
     await slide(page, 'board', 25);
+    await expect(list).toContainText('2443 × 1175');                // the left-wall rear panel, shorter
     await expect(list).toContainText('2437 × 569');                 // the back-wall leg's door, narrower
     await expect(list).toContainText('2437 × 594');                 // the left-wall leg's, not
     await toggle.click();
@@ -510,20 +515,22 @@ test.describe('the 2D views\' door sizes and cutting list', () => {
     await expect(toggle).toHaveText('Show cutting list');
   });
 
-  // Option 10's side bookshelf is part of its cupboard: its sides, top,
-  // bottom and five shelves are in the cutting list, sized by its sliders
+  // Option 10's side bookshelf is part of its cupboard: its rear panel,
+  // sides, top, bottom and five shelves are in the cutting list, sized by its
+  // sliders
   test('option 10\'s side bookshelf is in the cutting list', async ({ page }) => {
     await openRoom(page, `#11-0-${PLAN.slice(PLAN.indexOf('-330-') + 1, PLAN.indexOf('~'))}-800-650-1-400-330${PLAN.slice(PLAN.indexOf('~'))}`);
     const list = page.locator('#cutList');
     await page.locator('#cutToggle').click();
-    await expect(list).toContainText('2443 × 330');                 // its own side, full height
+    await expect(list).toContainText('2443 × 312');                 // its own side, full height, in front of its rear panel
     await expect(list).toContainText('Bookshelf side');
-    await expect(list).toContainText('382 × 330');                  // top, bottom and shelves: SIDE_W - BOARD long
+    await expect(list).toContainText('2443 × 400');                 // its rear panel, on from the cupboard's
+    await expect(list).toContainText('382 × 312');                  // top, bottom and shelves: SIDE_W - BOARD long
     await expect(list).toContainText('Bookshelf top, bookshelf bottom');
-    await expect(list).toContainText('16 boards');                 // the cupboard's 8, and the bookshelf's 8
+    await expect(list).toContainText('19 boards');                 // the cupboard's 10, and the bookshelf's 9
     await toggle(page, 'sideShelfOn', false);
     await expect(list).not.toContainText('Bookshelf');
-    await expect(list).toContainText('8 boards');
+    await expect(list).toContainText('10 boards');
   });
 
   test('the door sizes button', async ({ page }) => {
