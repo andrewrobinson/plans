@@ -312,7 +312,7 @@
 import * as THREE from 'three';
 import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
   number, within, radio, sizes, writeFields, readFields,
-  narrow, popMenus, createDrawers, resetButton, shareButton, workOffline } from './kit/floor_kit.js';
+  narrow, popMenus, createDrawers, resetButton, shareButton, workOffline, flatViews } from './kit/floor_kit.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -2902,6 +2902,17 @@ function packingView() {
 }
 let flatFit = builtInViews.plan.fit;
 let flatPerM = null;               // the 2D views' scale, pixels per metre at zoom 1
+// The 2D/3D switch, fitting the views to the screen, and the render loop:
+// kit/floor_kit.js's, reading the views' framing from here
+const { setFlat, resize, startLoop } = flatViews({ scene, renderer, camera, controls, flatCamera, flatControls }, {
+  get flat() { return flat; },
+  set flat(on) { flat = on; },
+  get flatFit() { return flatFit; },
+  get flatPerM() { return flatPerM; },
+  set flatPerM(perM) { flatPerM = perM; },
+  get hfov() { return viewKit.hfov; },
+  get drawers() { return drawers; },
+});
 
 // Things to look at that move with the option or the sliders: where to aim,
 // room [x, y, height] in mm
@@ -2998,12 +3009,6 @@ sceneKit = SceneKit.create({
   },
 });
 
-function setFlat(on) {
-  flat = on;
-  controls.enabled = !on;
-  flatControls.enabled = on;
-  document.querySelectorAll('[data-mode]').forEach(b => { b.style.display = b.dataset.mode === (on ? '2d' : '3d') ? '' : 'none'; });
-}
 document.getElementById('dims').addEventListener('click', e => {
   showDims = !showDims;
   e.target.textContent = `Dimensions: ${showDims ? 'on' : 'off'}`;
@@ -3014,33 +3019,6 @@ document.getElementById('doorDims').addEventListener('click', e => {
   e.target.textContent = `Door sizes: ${showDoorDims ? 'on' : 'off'}`;
   updateDims();
 });
-
-// keepScale: the drawer opened or closed, so slide the drawing clear of it
-// but keep its size, and any zooming, as it was
-function resize(keepScale = false) {
-  // The drawers open just below the top bar, however many rows it takes
-  document.documentElement.style.setProperty('--below-bar', `${Math.ceil(document.getElementById('bar').getBoundingClientRect().bottom) + 8}px`);
-  const { clientWidth: w, clientHeight: h } = renderer.domElement.parentElement;
-  renderer.setSize(w, h);
-  camera.aspect = w / h;
-  // On narrow screens, keep about 55° across rather than 45° up and down, so
-  // the room isn't cropped at the sides
-  const across = viewKit.hfov || (w / h < 1.4 ? 55 : null);         // degrees across, when fixed
-  // Up and down, capped so a tall phone screen doesn't stretch the view
-  camera.fov = across ? Math.min(80, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(across / 2)) * h / w))) : 45;
-  camera.updateProjectionMatrix();
-  // Fit flatFit on screen, whichever way round is tighter, in the part the
-  // settings drawer leaves clear (on wide screens it stays open over the
-  // model) and below the top bar
-  const [fw, fh] = flatFit;
-  const covered = drawers.menuOpen() && !narrow() ? document.getElementById(drawers.openDrawer()).offsetWidth : 0;
-  const clear = w - covered, below = Math.min(document.getElementById('bar').getBoundingClientRect().bottom, h / 3), high = h - below;
-  if (!keepScale || !flatPerM) flatPerM = Math.min(clear / fw, high / fh);
-  const perM = flatPerM;
-  Object.assign(flatCamera, { left: -(covered + clear / 2) / perM, right: clear / 2 / perM, top: (below + high / 2) / perM, bottom: -high / 2 / perM });
-  flatCamera.updateProjectionMatrix();
-}
-window.addEventListener('resize', () => resize());
 
 // The settings drawers, one open at a time, both closed to start on every
 // screen: Other options, opened by ☰, and Cupboard options by its button.
@@ -3103,10 +3081,7 @@ show(state.option);
 // The view: the address's, else the last chosen here. After show(), as
 // some views are worked out from the option
 viewKit.start(addressView);
-renderer.setAnimationLoop(() => {
-  (flat ? flatControls : controls).update();
-  renderer.render(scene, flat ? flatCamera : camera);
-});
+startLoop();
 </script>
 </body>
 </html>

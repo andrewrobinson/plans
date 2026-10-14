@@ -411,3 +411,59 @@ export function workOffline(worker) {
     navigator.serviceWorker.register(worker).catch(() => { /* the page still works without it */ });
   }
 }
+
+// ---------------------------------------------------------------------------
+// The 2D/3D switch, fitting the views to the screen, and the render loop
+// ---------------------------------------------------------------------------
+// `stage` is createStage()'s; `view` is the room's, read as needed: flat (on
+// a 2D view, read and set), flatFit ([width, height] in m to fit on screen),
+// flatPerM (the 2D views' scale, pixels per metre at zoom 1, read and set),
+// hfov (the 3D view's angle across, when it sets one) and drawers
+// (createDrawers()'s). Returns setFlat(), resize() and startLoop().
+export function flatViews(stage, view) {
+  const { scene, renderer, camera, controls, flatCamera, flatControls } = stage;
+
+  function setFlat(on) {
+    view.flat = on;
+    controls.enabled = !on;
+    flatControls.enabled = on;
+    document.querySelectorAll('[data-mode]').forEach(b => { b.style.display = b.dataset.mode === (on ? '2d' : '3d') ? '' : 'none'; });
+  }
+
+  // keepScale: the drawer opened or closed, so slide the drawing clear of it
+  // but keep its size, and any zooming, as it was
+  function resize(keepScale = false) {
+    const { drawers } = view;
+    // The drawers open just below the top bar, however many rows it takes
+    document.documentElement.style.setProperty('--below-bar', `${Math.ceil(document.getElementById('bar').getBoundingClientRect().bottom) + 8}px`);
+    const { clientWidth: w, clientHeight: h } = renderer.domElement.parentElement;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    // On narrow screens, keep about 55° across rather than 45° up and down, so
+    // the room isn't cropped at the sides
+    const across = view.hfov || (w / h < 1.4 ? 55 : null);         // degrees across, when fixed
+    // Up and down, capped so a tall phone screen doesn't stretch the view
+    camera.fov = across ? Math.min(80, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(across / 2)) * h / w))) : 45;
+    camera.updateProjectionMatrix();
+    // Fit flatFit on screen, whichever way round is tighter, in the part the
+    // settings drawer leaves clear (on wide screens it stays open over the
+    // model) and below the top bar
+    const [fw, fh] = view.flatFit;
+    const covered = drawers.menuOpen() && !narrow() ? document.getElementById(drawers.openDrawer()).offsetWidth : 0;
+    const clear = w - covered, below = Math.min(document.getElementById('bar').getBoundingClientRect().bottom, h / 3), high = h - below;
+    if (!keepScale || !view.flatPerM) view.flatPerM = Math.min(clear / fw, high / fh);
+    const perM = view.flatPerM;
+    Object.assign(flatCamera, { left: -(covered + clear / 2) / perM, right: clear / 2 / perM, top: (below + high / 2) / perM, bottom: -high / 2 / perM });
+    flatCamera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', () => resize());
+
+  function startLoop() {
+    renderer.setAnimationLoop(() => {
+      (view.flat ? flatControls : controls).update();
+      renderer.render(scene, view.flat ? flatCamera : camera);
+    });
+  }
+
+  return { setFlat, resize, startLoop };
+}

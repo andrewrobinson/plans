@@ -283,11 +283,13 @@ a full `npm test` each:
    loops (`writeFields()`, `readFields()`); the room keeps `ADDRESS`;
 4. the pop-up menus, the drawers, Share, Reset and offline support
    (`popMenus()`, `createDrawers()`, `resetButton()`, `shareButton()`,
-   `workOffline()`).
+   `workOffline()`);
+5. `resize()` and the 2D/3D switch (`setFlat()`, the render loop), as
+   `flatViews(stage, view)`; the room hands it the 2D views' framing
+   (`flat`, `flatFit`, `flatPerM`), the view kit's `hfov` and the drawers
+   as getters, and keeps those variables.
 
-Still to move into the engine: `resize()` and the 2D/3D switch (`setFlat()`,
-the render loop), which read the 2D views' framing (`flatFit`, `flatPerM`)
-and the view kit; and the general part of the 2D dimensions (`dimLine()`,
+Still to move into the engine: the general part of the 2D dimensions (`dimLine()`,
 `dimLabel()`, `chain()`, `applyCut()`). Then `view_kit.js` and
 `scene_kit.js` into `kit/` as modules, and the room into `floor.js` and
 `living_room.js`.
