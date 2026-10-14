@@ -1,10 +1,11 @@
-# room_3d.html: tidying the code, steps 2–4
+# room_3d.html: tidying the code, steps 2–5
 
 Step 1 is done: the CSS is in `room_3d.css`, and the floating text buttons
 share a `.chip` class (commit `8b51792`, branch `ui-guide-and-menu-demo`).
 Steps 2 and 3 are done too (12 Oct 2026, branch `state-and-address`). Step 4
 is `PLAN.md`'s steps 1 and 2, and step 5 makes the code readable. Both come
-third in `PLAN.md`'s order of work, after options 10 and 11 and the panels.
+third in `PLAN.md`'s order of work, after options 10 and 11 and the panels,
+both done (14 Oct 2026): step 4 is next.
 
 The steps below change how the code is organised, not what the page does.
 After each one the page should look and behave exactly as before.
@@ -91,8 +92,7 @@ test('Share link round-trips', async ({ page }) => {
 - Keep `node_modules/`, `test-results/` and `playwright-report/` out of git.
   Commit the reference screenshots (`tests/*-snapshots/`): they are the record
   of how the page should look.
-- Node here is v18.12 (via nvm). Current Playwright may need a newer Node; if
-  so, `nvm install --lts` first.
+- Node: `.nvmrc` asks for Node 24 (`nvm use`), which current Playwright needs.
 
 ### Order
 
@@ -270,6 +270,28 @@ suite's round-trip test covers this; add an old-format link or two to it.
 
 ## Step 4: the engine into `kit/floor_kit.js`, the room into `living_room.js`
 
+**Under way** (14 Oct 2026, branch `engine-kit`). Decided: **ES modules**.
+Moved so far, unchanged bar what each now takes as arguments, a commit and
+a full `npm test` each:
+
+1. the stage (`createStage()`: scene, renderer, cameras, controls, lights)
+   and the helpers that draw in mm (`material()`, `box()`, `slab()`,
+   `part()`, `hinge()`, `skewHinge()`);
+2. the `RAL` table and the oak floor's texture (`oakBoards()`); the room
+   keeps its finishes and `setRal()`;
+3. the address's readers (`number()`, `within()`, `radio()`, `sizes()`) and
+   loops (`writeFields()`, `readFields()`); the room keeps `ADDRESS`;
+4. the pop-up menus, the drawers, Share, Reset and offline support
+   (`popMenus()`, `createDrawers()`, `resetButton()`, `shareButton()`,
+   `workOffline()`).
+
+Still to move into the engine: `resize()` and the 2D/3D switch (`setFlat()`,
+the render loop), which read the 2D views' framing (`flatFit`, `flatPerM`)
+and the view kit; and the general part of the 2D dimensions (`dimLine()`,
+`dimLabel()`, `chain()`, `applyCut()`). Then `view_kit.js` and
+`scene_kit.js` into `kit/` as modules, and the room into `floor.js` and
+`living_room.js`.
+
 This is `PLAN.md`'s steps 1 and 2: pull the general code out of
 `room_3d.html` into an engine, and describe the living room as data and
 room code that the engine draws. It replaces the earlier plan of splitting
@@ -351,6 +373,11 @@ Today the page works when opened straight from disk (`file://`), because its
 JS is inline or in classic scripts. **Module files loaded with
 `<script type="module" src>` or `import` don't work from `file://`**; the
 browser blocks them. Two ways:
+
+Decided (14 Oct 2026): **modules**. Until then `room_3d.html` still worked
+opened from disk (`file://`); now it needs a server, as `menu_demo/` already
+did (`python3 serve.py`), and as the tests, the installed app and GitHub
+Pages always had.
 
 - **Modules** (`import` / `export` between the files): the cleanest code,
   but the page then needs a server. GitHub Pages, where it's published, and
@@ -463,7 +490,7 @@ As step 4: `npm test` after each commit, with no screenshot changes.
 | Step | Size | Risk |
 |---|---|---|
 | Test suite | Medium: about a session to write, then free to run | Low: it changes nothing in the site |
-| Board thickness (`PLAN.md`) | Medium: about 115 places, each checked by eye | Medium: the screenshot tests must show no change at 18 |
+| Board thickness (`PLAN.md`) | Done | |
 | 2 | Done | |
 | 3 | Done | |
 | 4 | Large: moves everything, over several sessions (general code first, then the room) | Medium: mostly missing names, which the console shows straight away and the tests fail on |

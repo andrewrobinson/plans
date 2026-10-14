@@ -1,10 +1,13 @@
 # room_3d.html — how the page is put together
 
-A guide to the HTML, CSS and JS in `room_3d.html` (3,423 lines) and
-`room_3d.css` (105 lines), focused on the UI: the menus, the controls, and how
-they drive three.js. The room modelling is only sketched. Line numbers are as
-of 12 Oct 2026, after the settings moved into one `state` object and the
-address into one list (`REFACTOR_PLAN.md` steps 2 and 3).
+A guide to the HTML, CSS and JS in `room_3d.html` (3,112 lines),
+`kit/floor_kit.js` (413 lines) and `room_3d.css` (124 lines), focused on the UI: the menus, the controls, and how
+they drive three.js. The room modelling is only sketched. Line numbers in the
+map below are as of 14 Oct 2026, after the cupboards were built from boards
+with rear panels against the walls (`PLAN.md` step 2) and the first moves of
+`REFACTOR_PLAN.md` step 4 into `kit/floor_kit.js`. They go stale with
+every change, so the sections after the map name functions and ids instead:
+search for those.
 
 This describes the page as it is: one room. `PLAN.md` plans to turn it into
 one page for the whole flat (a second room, the hallway, and the staircase
@@ -24,79 +27,92 @@ stay the same.
 | **15** | `<link rel="stylesheet" href="room_3d.css">`: **all the CSS**, in its own file (see section 2) |
 | 16–21 | The **import map**: tells the browser that `import … from 'three'` means the three.js file on the jsDelivr CDN (see section 6) |
 
-### The `<body>` HTML (lines 23–280)
+### The `<body>` HTML (lines 23–302)
 
 The HTML only lays out the controls. It contains no logic.
 
 | Lines | Element | What it is on screen |
 |---|---|---|
 | 24 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
-| 25–29 | `#bar` | Top-left buttons: ☰ (opens the settings drawer), Share, Reset |
-| 32–55 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
-| 57–67 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
-| 68 | `#scrim` | A grey see-through overlay. On phones it dims the model while the drawer is open |
-| 69 | `#tip` | A tooltip that follows the pointer over things to store |
-| **70–280** | `#panel` | **The settings drawer**, which slides in from the left. It is made of `<details>` sections: |
-| 75–120 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
-| 121–137 | `#secSofa` | Sofa dropdown plus sliders |
-| 138–164 | `#secBench` | Bench switch, bench-height radios, "above the bench" radios, TV and shelf sliders |
-| 165–211 | `#secCupboard` | Cupboard-only switch, depth sliders, front radios, **Option** dropdown (`#current`), x-ray button, option-specific sliders, shelf text inputs |
-| 212–224 | `#secDoors` | Three door-angle sliders |
-| 225–259 | `#secColours` | Colour dropdowns with ◀ ▶ buttons and swatches, plus a nested `<details>` palette |
-| 260–275 | `#secStored` | Packing dropdown, where-radios, buttons |
-| 276–279 | `#about` | The description text, which JS fills in |
+| 27–33 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), the **option list** (`#current`), **Cupboard options** (`#cupMenu`, opens its drawer), Share and Reset |
+| 36–60 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
+| 62–72 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
+| 74–77 | `#cutBox` | The **cutting list** (`#cutList`) and its Show/Hide button (`#cutToggle`), bottom left, in the 2D views only |
+| 78 | `#scrim` | A grey see-through overlay. On phones it dims the model while a drawer is open |
+| 79 | `#tip` | A tooltip that follows the pointer over things to store |
+| **80–246** | `#panel` | **Other options**, a drawer that slides in from the left. It is made of `<details>` sections: |
+| 85–130 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
+| 131–147 | `#secSofa` | Sofa dropdown plus sliders |
+| 148–174 | `#secBench` | Bench switch, bench-height radios, "above the bench" radios, TV and shelf sliders |
+| 175–187 | `#secDoors` | Three door-angle sliders |
+| 188–222 | `#secColours` | Colour dropdowns with ◀ ▶ buttons and swatches, plus a nested `<details>` palette |
+| 223–238 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
+| 239–245 | `#about` | The description text (`#summary`), which JS fills in |
+| **247–302** | `#cupPanel` | **Cupboard options**, the other drawer: the cupboard-only switch, board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7) |
 
-### Scripts (lines 283–3421)
+### Scripts (lines 304–3110)
 
 | Lines | What |
 |---|---|
-| 283–287 | **Plain data scripts**: `room_3d.views.js`, `.dressers.js`, `.larders.js`, `.sofas.js`, `.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
-| 288–289 | **Plain helper scripts**: `view_kit.js` (sets `window.ViewKit`) and `scene_kit.js` (sets `window.SceneKit`) |
-| 290 | `<script type="module">` starts. Everything from here to line 3421 is one module |
+| 304–308 | **Plain data scripts**: `room_3d.views.js`, `.dressers.js`, `.larders.js`, `.sofas.js`, `.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
+| 309–310 | **Plain helper scripts**: `view_kit.js` (sets `window.ViewKit`) and `scene_kit.js` (sets `window.SceneKit`) |
+| 311 | `<script type="module">` starts. Everything from here to line 3110 is one module, the room's, which imports the engine from `kit/floor_kit.js` |
 
 Inside the module:
 
 | Lines | Section | Notes |
 |---|---|---|
-| 291–292 | `import` three.js and OrbitControls | |
-| 294–341 | Scene setup | Units (`MM = 0.001`), room size, `scene`, `renderer`, the 3D camera and the 2D (orthographic) camera, each with its controls, lights and materials |
-| 342–387 | Geometry helpers | `box()`, `slab()`, `hinge()`, `skewHinge()` |
-| 389–635 | The fixed room | Walls, floor, recesses, door frame, ceiling, windows, kitchen, desk, chair, island, room door |
-| 637–685 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls write to and the address saves |
-| 687–775 | Corner-cupboard shelves | |
-| 777–880 | Parts of options 7 to 9 | `tallDoor()`, `fullHeightL()` (option 7), `diagonal()` (option 8) |
-| 882–967 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
-| 969–1184 | Colours | The `RAL` table, `FINISHES`, `COLOUR_TARGETS`, `setRal()` |
-| 1186–1577 | Option 9 parts, dresser, larders, island, sofa, front wall | Includes `DRESSER_SLIDERS` (1229), `placeIsland()` (1400), `sofa()` (1438), `frontWall()` (1455) |
-| 1579–1861 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)` |
-| 1863–2071 | 2D dimensions | `updateDims()`, `applyCut()`, the cupboard-only view |
-| 2073–2482 | Things to store | Packing, drawing, and dragging in plan view |
-| **2484–2591** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
-| 2593–2694 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | One list of the settings' fields, which writes `state` into the URL `#hash` and reads it back (section 5) |
-| **2695–3096** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
-| 3098–3205 | Built-in views and "anchors" (things the Look menu can aim at) | |
-| 3206–3257 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `view_kit.js` |
-| **3258–3283** | **Pop-up menus** (`setPop`) and `SceneKit.create` | |
-| 3285–3319 | `setFlat()` (2D/3D), Dimensions button, `resize()` | |
-| **3321–3333** | **Settings drawer** (`setMenu`) | |
-| 3335–3366 | Reset and Share buttons | |
-| 3368–3371 | Service worker (offline support) | |
-| 3373–3405 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
-| 3407–3416 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
-| 3417–3420 | **Render loop** | `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
+| 312–315 | `import` three.js, and the engine's pieces from `kit/floor_kit.js` | |
+| 316–343 | Set-up | The room's size (`W`, `D`, `H`), `createStage()` for the scene, renderer, cameras and controls, the cupboards' materials, and `board()` (a named board, for the cutting list) |
+| 344–597 | The fixed room | Walls, floor, recesses, door frame, ceiling, windows, kitchen, desk, chair, island, room door |
+| 599–644 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls write to and the address saves |
+| 646–734 | Corner-cupboard shelves | `cupShelf()` records them; `drawCupShelves()` draws them, cut back over things stored under them |
+| 736–802 | Parts of options 7 and 8 | `tallDoor()`, `fullHeightL()` (option 7), `diagonal()` (option 8) |
+| 804–889 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
+| 891–961 | Colours | The room's `FINISHES`, `COLOUR_TARGETS`, `setRal()` (the RAL table and the oak floor are in the kit) |
+| 963–1244 | Option 9's base cupboards, dresser, larders, island, sofa, front wall | Includes `DRESSER_SLIDERS` (1006), `placeIsland()` (1164), `sofa()` (1202), `frontWall()` (1219) |
+| 1245–1344 | Option 9's shelving tower, options 10 and 11's corner cupboard, option 10's side bookshelf | `shelvingTower()`, `cornerCupboard()`, `sideBookshelf()` |
+| 1346–1525 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` and the address codes |
+| 1527–1757 | 2D dimensions | `updateDims()`, `applyCut()`, the cupboard-only view, `cupboardDims()`, `doorDims()` |
+| 1759–1824 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards), `showCuttingList()` |
+| 1826–2254 | Things to store | Packing, `cupboardSpaces()` (each option's inside), `insideText()`, drawing, and dragging in plan view |
+| **2256–2357** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
+| 2359–2436 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | The room's list of fields; the kit's `writeFields()` and `readFields()` write `state` into the URL `#hash` and read it back (section 5) |
+| **2437–2840** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
+| 2841–2932 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | |
+| 2933–2986 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `view_kit.js` |
+| **2987–2999** | **Pop-up menus** (the kit's `popMenus()`) and `SceneKit.create` | |
+| 3001–3043 | `setFlat()` (2D/3D), Dimensions button, `resize()` | |
+| **3045–3051** | **The two drawers** (`DRAWERS`, the kit's `createDrawers()`) | |
+| 3053–3059 | Reset, Share and offline support (the kit's `resetButton()`, `shareButton()`, `workOffline()`) | |
+| 3065–3097 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
+| 3099–3105 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
+| 3106–3109 | **Render loop** | `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
 
-### room_3d.css (105 lines)
+### kit/floor_kit.js (413 lines)
+
+The engine, an ES module: what any room needs, and nothing about this one.
+
+| What | Exports |
+|---|---|
+| The stage | `MM`, `createStage(container)`: the scene, renderer, 3D and 2D cameras with their controls, the lights |
+| Drawing in mm | `material()`, `box()`, `slab()`, `part()`, `hinge()`, `skewHinge()` |
+| Colours | `RAL` (the RAL Classic table), `oakBoards()` (the oak floor's texture) |
+| The address | `number()`, `within()`, `radio()`, `sizes()` (readers for a room's fields), `valueAt()`, `setValueAt()`, `writeFields()`, `readFields()` |
+| Menus and buttons | `narrow()`, `popMenus()`, `createDrawers()`, `resetButton()`, `shareButton()`, `workOffline()` |
+
+### room_3d.css (124 lines)
 
 | Lines | What |
 |---|---|
 | 1–4 | Base: colour scheme, page background and font, `#view` filling the window |
-| 5–14 | The settings drawer (`#panel`) and its open state |
-| 15–27 | `#bar`, `#corner` and the pop-up menus (`.pop`, `.group`) |
-| 28–43 | Menu buttons (`#menu`, `.popToggle`), each menu's `--tint`, and the floating text buttons (`.chip`) |
-| 44–58 | The menus' groups, tags and dropdowns (`.group`, `.pick`) |
-| 59–61 | The scrim, and the phone-only rule for it |
-| 62–79 | The drawer's sections, labels, sliders, buttons, radio rows and switch |
-| 80–105 | Colours, palette, tooltip, things to store, description |
+| 5–19 | The two drawers (`.drawer`, `#panel`, `#cupPanel`) and their open states |
+| 20–48 | `#bar`, `#corner` and the pop-up menus (`.pop`, `.group`, `.popToggle`, each menu's `--tint`), and the floating text buttons (`.chip`) |
+| 49–66 | The menus' groups, tags and dropdowns (`.group`, `.pick`), and the option list in the top bar |
+| 67–69 | The scrim, and the phone-only rule for it |
+| 71–99 | The drawers' sections, labels, sliders, buttons, radio rows and switch |
+| 100–113 | Tooltip, things to store, description |
+| 114–124 | The cutting list |
 
 ---
 
@@ -104,12 +120,12 @@ Inside the module:
 
 ### The link: selectors
 
-`room_3d.html` loads the stylesheet at line 15. CSS rules in `room_3d.css` find
+`room_3d.html` loads the stylesheet in its `<head>`. CSS rules in `room_3d.css` find
 HTML elements by **id** (`#panel`), **class** (`.pop`), **tag** (`label`),
 **attribute** (`input[type=range]`) or a combination of these. A few patterns:
 
 ```css
-#panel label { display: block; }             /* any <label> inside #panel */
+.drawer label { display: block; }            /* any <label> inside a drawer */
 .pop > .group { display: none; }             /* a .group that is a DIRECT child of a .pop */
 .pop.open > .group { display: flex; }        /* ...but shown when the .pop also has class "open" */
 body.menu-open #panel { transform: none; }   /* #panel when <body> has class "menu-open" */
@@ -121,16 +137,16 @@ the state** by adding or removing a class. Most of the menu behaviour works this
 
 ### Layout: everything floats over a full-screen canvas
 
-- `#view` is `position: fixed; inset: 0` (css line 4), so it fills the window.
+- `#view` is `position: fixed; inset: 0`, so it fills the window.
   The 3D canvas lives inside it.
-- `#bar`, `#topRight`, `#corner`, `#panel`, `#scrim` and `#tip` are all
+- `#bar`, `#topRight`, `#corner`, `#cutBox`, the two drawers, `#scrim` and `#tip` are all
   `position: fixed`. They sit on top of the canvas at the screen edges, set by
   `top`/`left`/`right`/`bottom`.
 - `z-index` sets which layer is on top: canvas (0) < bars and menus (2) < scrim (2,
   later in the HTML) < drawer (3) < tooltip (4).
 - **`pointer-events: none`** on the containers (`#bar`, `#topRight`, `.pop`,
   `.group`), with `pointer-events: auto` on the buttons and dropdowns themselves
-  (css lines 19, 24–29, 39, 55). A container is an invisible box, and without
+ . A container is an invisible box, and without
   this it would block mouse drags meant for the 3D model. With it, clicks pass
   through the gaps to the canvas and only the visible controls catch them.
 
@@ -139,12 +155,12 @@ the state** by adding or removing a class. Most of the menu behaviour works this
 `display: flex` lays a container's children out in a row (or in a column with
 `flex-direction: column`). `gap` sets the spacing, `align-items` the alignment,
 and `flex-wrap: wrap` lets the children wrap onto new lines. Every menu group and
-colour row uses it (css lines 17–18, 24, 25, 46, 83).
+colour row uses it.
 
 ### CSS variables give each menu its colour
 
 ```css
-#viewMenu  { --tint: #1f4e79; }   /* css line 33 */
+#viewMenu  { --tint: #1f4e79; }
 #viewsMenu { --tint: #6a3d9a; }
 #sceneMenu { --tint: #2e7d4f; }
 .popToggle { color: var(--tint); box-shadow: ... inset 0 0 0 2px var(--tint); }
@@ -156,28 +172,28 @@ rule therefore gives each menu button its own colour.
 
 ### One class for many buttons
 
-The nine floating text buttons (Share, Reset, Dimensions, and the menus' Save
-and Delete) all have `class="chip"` in the HTML, and one `.chip` rule (css line
-38) styles them. To give a new button the same look, add `class="chip"` to it.
+The floating text buttons (Cupboard options, Share, Reset, Dimensions, Show
+cutting list, and the menus' Save and Delete) all have `class="chip"` in the
+HTML, and one `.chip` rule styles them. To give a new button the same look, add `class="chip"` to it.
 
 ### Hand-styled controls
 
-- **The sliding switch** (css lines 74–79): a real checkbox with its look removed
+- **The sliding switch**: a real checkbox with its look removed
   (`appearance: none`), resized into a pill shape. `::after` draws the white knob,
   and `:checked` moves it (`left: 18px`) and colours the track. This is pure CSS:
   the checkbox still behaves as a normal checkbox.
-- **Range sliders** are only resized to `width: 100%` (css line 66). Otherwise
+- **Range sliders** are only resized to `width: 100%`. Otherwise
   they are the browser's own.
-- **`.depth` radio groups** (css lines 71–72): the labels are set to
+- **`.depth` radio groups**: the labels are set to
   `display: inline` so the radios sit side by side. The island group overrides
-  this to one per line (css line 73).
+  this to one per line.
 
 ### Responsive (phone) behaviour
 
-- `max-width: 88vw` on the drawer (css line 8) means it never takes more than
+- `max-width: 88vw` on the drawer means it never takes more than
   88% of the screen width.
 - `@media (max-width: 900px) { body.menu-open #scrim { display: block; } }`
-  (css line 61): the scrim only appears on narrow screens. On a wide screen the
+ : the scrim only appears on narrow screens. On a wide screen the
   drawer sits over the model and the model stays usable.
 
 ---
@@ -188,27 +204,27 @@ There are three kinds of menu. **All of them are HTML + CSS + a little JS.** The
 JS adds or removes a class or sets an attribute, and the CSS reacts to that.
 The one exception is `<details>`, which is pure HTML.
 
-### a) The settings drawer (`#panel`)
+### a) The two drawers (`#panel` and `#cupPanel`)
 
 | Part | Where |
 |---|---|
-| HTML | `<div id="panel">` (line 70), plus the ☰ button `#menu` (line 26) and ✕ `#close` (line 73) |
-| CSS | Normally `transform: translateX(-105%)`, i.e. moved off-screen to the left (css line 11). With `body.menu-open #panel { transform: none; }` (css line 13) it is back on screen. `transition: transform 0.25s` animates the slide |
-| JS | `setMenu(open)` (lines 3324–3328) runs `document.body.classList.toggle('menu-open', open)`. ☰, ✕, the scrim and Escape all call it (3330–3333) |
+| HTML | `<div id="panel" class="drawer">` (**Other options**, opened by ☰ `#menu`) and `<div id="cupPanel" class="drawer">` (**Cupboard options**, opened by `#cupMenu` in the top bar), each with a ✕ (`.close`) |
+| CSS | Normally moved off-screen to the left with `transform`. With `body.menu-open #panel` or `body.cup-open #cupPanel` it is back on screen. A `transition` on `transform` animates the slide |
+| JS | `DRAWERS` maps each drawer to its button and its class on `<body>`. `setMenu(id)` opens drawer `id` and closes the other (`setMenu(null)` closes both), so one is open at a time. Its button toggles it; ✕, the scrim and Escape close it |
 
-The JS doesn't move the drawer. It only switches a class on `<body>`, and the
+The JS doesn't move the drawers. It only switches a class on `<body>`, and the
 CSS does the movement and the animation.
 
 ### b) The three pop-up menus (Views, Look, Scenes)
 
 | Part | Where |
 |---|---|
-| HTML | `<div class="pop">` holding a `<button class="popToggle">` and a `<div class="group">` (lines 33–66) |
-| CSS | `.pop > .group { display: none }` hides the group. `.pop.open > .group { display: flex }` shows it (css lines 26–27) |
-| JS | `setPop(open)` (3265–3270) adds `open` to the menu clicked and removes it from the others, and sets `aria-expanded` for screen readers. Escape, or a click outside the menus that isn't on the 3D view, closes them (3272–3273) |
+| HTML | `<div class="pop">` holding a `<button class="popToggle">` and a `<div class="group">` |
+| CSS | `.pop > .group { display: none }` hides the group. `.pop.open > .group { display: flex }` shows it |
+| JS | `setPop(open)` adds `open` to the menu clicked and removes it from the others, and sets `aria-expanded` for screen readers. Escape, or a click outside the menus that isn't on the 3D view, closes them |
 
 Scenes opens upwards for a reason. In `#sceneMenu` the group comes **before** the
-button in the HTML (lines 59–65), and `#corner` stacks its children in a column
+button in the HTML, and `#corner` stacks its children in a column
 from the bottom of the screen.
 
 ### c) The collapsible sections in the drawer
@@ -218,7 +234,7 @@ HTML element**. Clicking the summary opens or closes it with no JS or CSS. The
 `open` attribute in the HTML (e.g. `<details class="sec" id="secSofa" open>`)
 makes a section start open.
 
-The only JS involved (lines 2730–2742, 2894–2898) **remembers** each section's
+The only JS involved **remembers** each section's
 open/closed state in `localStorage`, using the `toggle` event.
 
 ### What fills the menus' dropdowns
@@ -227,8 +243,8 @@ The `<select>` elements in the HTML are **empty** (e.g. `<select id="where"
 class="pick"></select>`). JS adds every `<option>`:
 
 - Views and Look (`#viewPick`, `#where`, `#lookAt`, `#eye`, `#lookPick`) are filled by
-  `view_kit.js`. The page passes the elements in at lines 3220–3224.
-- Scenes (`#scenePick`) is filled by `scene_kit.js` (3274–3283).
+  `view_kit.js`. The page passes the elements in to `ViewKit.create()`.
+- Scenes (`#scenePick`) is filled by `scene_kit.js`, through `SceneKit.create()`.
 - The rest are filled in the module (section 4).
 
 ---
@@ -267,10 +283,10 @@ They are not generated by JS. They are typed out in the HTML.
 - The number shown next to the label is a separate `<span id="sofaWValue">`. The
   slider doesn't display its value itself, so JS writes it into the span on every move.
 - The id naming convention is **`<id>` for the slider and `<id>Value` for its readout**.
-  Some JS relies on it, for example `` document.getElementById(`${id}Value`) `` (line 2754).
+  Some JS relies on it, for example `` document.getElementById(`${id}Value`) ``.
 
 **Showing and hiding controls.** Many sliders are wrapped in a block such as
-`<div id="legBlock">`. `show(i)` (lines 2564–2579) sets `style.display = 'none'` or
+`<div id="legBlock">`. `show(i)` sets `style.display = 'none'` or
 `''` on these blocks, so only the controls that apply to the current option are visible.
 It finds the option by its number (`option.no`, read from the start of its
 name), not by its place in `OPTIONS`, as the list starts at option 7 (options 1 to 6
@@ -285,13 +301,13 @@ Option 10 alone shows `sideShelfBlock` in it, the Show side bookshelf switch
 
 Three styles are used, which do the same thing:
 
-1. **An HTML string** (line 2506):
+1. **An HTML string**, here for the option list in the top bar (`#current`):
    ```js
    currentSelect.innerHTML = OPTIONS.map((o, i) => `<option value="${i}">${o.name}</option>`).join('');
    ```
    The colour pickers use the same approach, with `<optgroup label="...">` for the
-   headed sub-lists (lines 2787–2791, 2799–2801).
-2. **`createElement`** (lines 2935–2936, 2949–2950, 3043–3044):
+   headed sub-lists.
+2. **`createElement`**:
    ```js
    dresserPick.append(...Object.entries(DRESSERS).map(([id, d]) =>
      Object.assign(document.createElement('option'), { value: id, textContent: `${d.label} (${d.w} × ${d.h})` })));
@@ -301,7 +317,7 @@ Three styles are used, which do the same thing:
 3. **The kits** (`view_kit.js` and `scene_kit.js`) use the `createElement` style internally.
 
 The dresser, larder and sofa dropdowns also have a disabled **"Custom"** option.
-JS selects it when the sliders no longer match any preset (`showDresserPick()`, line 2937).
+JS selects it when the sliders no longer match any preset (`showDresserPick()`).
 
 ---
 
@@ -319,10 +335,10 @@ user moves control
   → updates the readout <span>
   → calls show(state.option): rebuilds the current option's 3D objects from state
        → which also updates the visible blocks, the description, the dimensions and the URL
-  → the render loop (line 3417) draws the new scene on the next frame
+  → the render loop draws the new scene on the next frame
 ```
 
-**Example: a slider** (lines 2706–2711):
+**Example: a slider**:
 
 ```js
 const legSlider = document.getElementById('leg');
@@ -333,7 +349,7 @@ legSlider.addEventListener('input', () => {
 });
 ```
 
-**Example: a radio group** (lines 2725–2729). The code listens on each radio in the group:
+**Example: a radio group**. The code listens on each radio in the group:
 
 ```js
 document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => {
@@ -343,13 +359,13 @@ document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('
 }));
 ```
 
-**Example: a dropdown** (line 2507):
+**Example: a dropdown**:
 
 ```js
 currentSelect.addEventListener('change', () => chooseOption(Number(currentSelect.value)));
 ```
 
-**Example: a loop over several similar sliders** (lines 2750–2757). This avoids
+**Example: a loop over several similar sliders**. This avoids
 repeating the same block for each slider:
 
 ```js
@@ -360,7 +376,7 @@ for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ...]) {
 ```
 
 The dresser, larder and sofa sliders do the same, driven by arrays such as
-`DRESSER_SLIDERS` (line 1229): `[key, sliderId, min, max, step]`.
+`DRESSER_SLIDERS`: `[key, sliderId, min, max, step]`.
 
 ### `input` vs `change`
 
@@ -369,7 +385,7 @@ The dresser, larder and sofa sliders do the same, driven by arrays such as
 - **`change`** fires once the choice is final. It's used for radios, dropdowns,
   checkboxes and the shelf text boxes.
 
-### What `show(i)` does (lines 2533–2590)
+### What `show(i)` does
 
 It's the single place where settings become 3D objects:
 
@@ -388,7 +404,7 @@ fast enough for a model of this size, and it means the 3D model always matches
 
 ### The faster path for doors
 
-The three door sliders don't rebuild. `update()` (lines 2491–2501) only rotates
+The three door sliders don't rebuild. `update()` only rotates
 the existing hinge objects:
 
 ```js
@@ -397,8 +413,8 @@ roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomSlider.value));
 
 ### Colours
 
-`colourPicker()` (lines 2796–2827) builds each colour dropdown and its ◀ ▶
-buttons. A choice goes through `setRal(target, code)` (line 1163), which sets
+`colourPicker()` builds each colour dropdown and its ◀ ▶
+buttons. A choice goes through `setRal(target, code)`, which sets
 `.color` on the three.js **materials** shared by those objects. It then calls
 `show(state.option)`.
 
@@ -406,17 +422,17 @@ buttons. A choice goes through `setRal(target, code)` (line 1163), which sets
 
 The Views and Look dropdowns don't change the model. They move the **camera**.
 `view_kit.js` handles the dropdowns and calls back into the page through the
-`hooks.place()` function (lines 3226–3242), which sets `camera.position` and
+`hooks.place()` function, which sets `camera.position` and
 `controls.target`.
 
 ### The URL holds the state
 
-`ADDRESS` (line 2619) lists the settings' fields in their order in the
+`ADDRESS` lists the settings' fields in their order in the
 `#hash`, each as `[its place in state, how to write it, how to read it back]`,
-e.g. `['R', String, within(300, 800)]`. `settingsAddress()` (line 2666) writes
-every field and joins them with `-`. At startup (lines 3407–3413)
-`readAddress()` (line 2672) splits the hash again and reads each field into
-`state`, skipping any that fail their check; then `syncControls()` (line 3373)
+e.g. `['R', String, within(300, 800)]`. `settingsAddress()` writes
+every field and joins them with `-`. At startup
+`readAddress()` splits the hash again and reads each field into
+`state`, skipping any that fail their check; then `syncControls()`
 sets every slider and radio from `state`, e.g. the radio found with
 `document.querySelector('input[name=front][value="1329"]')`. This is how Share
 links and Scenes work. Reset simply loads the page with no hash.
@@ -433,9 +449,9 @@ A normal `<script>` and a `<script type="module">` differ as follows:
 | Variables at the top level | Become globals (on `window` for `var`/functions) | **Private to the module**. Other scripts can't see `scene`, `state`, `show()` and so on |
 | When it runs | As soon as the parser reaches it, blocking the page | **Deferred**: after the whole HTML has been parsed |
 | Strict mode | Opt-in (`'use strict'`) | Always on |
-| Opened from a `file://` URL | Works | An inline module works. `import`ing *local* module files usually fails because of browser security |
+| Opened from a `file://` URL | Works | Browsers block `import`ing *local* module files from `file://`. Since the room's module imports `kit/floor_kit.js`, the page needs a server: GitHub Pages, the installed app, or `python3 serve.py` here (as `menu_demo/` does) |
 
-### The import map (lines 16–21)
+### The import map
 
 `import 'three'` is a "bare name", not a URL, so the browser needs to be told
 where it lives. The import map does that:
@@ -453,11 +469,12 @@ step. The second entry maps a whole prefix, so
 
 ### Why the other files are classic scripts
 
-`view_kit.js` notes that it's "a plain script (not a module), so pages work when
-opened from a file too". The data and kit files load as classic scripts at lines
-283–289 and hand over their contents through globals (`window.ROOM_SOFAS`,
+They were written to work when the page was opened from a file, which it no
+longer can be (see above); `REFACTOR_PLAN.md` step 4 is turning the code into
+modules. For now the data files and the view and scene kits load as classic
+scripts before the module and hand over their contents through globals (`window.ROOM_SOFAS`,
 `window.ViewKit`, …). The module then reads those globals, e.g.
-`window.ROOM_DRESSERS?.list` (line 1232).
+`window.ROOM_DRESSERS?.list`.
 
 The order matters, and it works out as follows: the classic scripts run first, as
 they're parsed. The module is deferred, so by the time it runs the globals exist
@@ -468,8 +485,8 @@ and every HTML element above it is in the DOM.
 ## 7. Quick reference: finding things
 
 - **To add a slider**: add the `<label>`, `<span id="xValue">` and
-  `<input id="x" type="range">` inside a block in the drawer HTML. Add `X`
-  to `state` (lines 637–685). Add an `input` listener that sets `state.X`,
+  `<input id="x" type="range">` inside a block in a drawer's HTML (`#cupPanel` for a cupboard size). Add `X`
+  to `state`. Add an `input` listener that sets `state.X`,
   updates the span and calls `show(state.option)`, and set the slider in
   `syncControls()`. Use `X` in a `build()` (`const { X } = state;`). To keep it
   in links, add a field to the end of `ADDRESS`.
@@ -477,5 +494,8 @@ and every HTML element above it is in the DOM.
   `room_3d.css` for that `#id` or `.class`.
 - **To find what happens when a control is used**: search for its id in quotes,
   e.g. `'sofaW'`, or for `name=bench` for a radio group.
-- **To hide a control for some options**: add a condition in `show()` around
-  lines 2564–2579.
+- **To hide a control for some options**: add a condition in `show()`, where it
+  sets the blocks' `style.display`.
+- **To add a board to a cupboard**: draw it with `board(name, x0, y0, z0, x1, y1, z1, g)`
+  in the option's `build()`. Its name is what the cutting list shows; boards
+  `BOARD` thick are listed, anything else is left out.
