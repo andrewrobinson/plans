@@ -278,6 +278,15 @@
     <input id="cornerW" type="range" min="500" max="1200" step="10" value="800">
     <label for="cornerD">Corner cupboard depth (out along the left wall): <span id="cornerDValue">650</span></label>
     <input id="cornerD" type="range" min="0" max="1329" step="1" value="650">
+    <div id="sideShelfBlock">
+      <label class="switch"><input type="checkbox" id="sideShelfOn"> Show side bookshelf</label>
+      <div id="sideShelfDetails">
+        <label for="sideW">Side bookshelf width: <span id="sideWValue">400</span></label>
+        <input id="sideW" type="range" min="200" max="800" step="10" value="400">
+        <label for="sideD">Side bookshelf depth: <span id="sideDValue">330</span></label>
+        <input id="sideD" type="range" min="150" max="800" step="10" value="330">
+      </div>
+    </div>
   </div>
   <div id="legBlock">
     <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
@@ -680,6 +689,9 @@ const state = {
   TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)
   CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200. Option 10's doors are (CORNER_W - BOARD - 9) / 2 wide each
   CORNER_D: 650,                   // ...and out along the left wall, in place of F: 0 to 1329 (the door frame). Too shallow (cornerTooShallow()), it isn't built
+  SIDE_SHELF: false,               // option 10's full-height side bookshelf, between the corner cupboard and the TV: drawn or not
+  SIDE_W: 400,                     // ...its width along the back wall, 200 to 800, the cupboard's side included (it shares it)
+  SIDE_D: 330,                     // ...and its depth from the back wall, 150 to 800
   benchOn: true,                   // the bench drawn, with what's above it; off, the back wall's bare
   BENCH: 780,                      // the bench's height: 700, 780, 800 or 900
   above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
@@ -1466,10 +1478,10 @@ function shelvingTower(x0, x1, g) {
 // from it to the right-hand wall. Its pair of doors face the kitchen (on its
 // end, at y = F) or the windows (on its side, where it's clear of the bench,
 // y R to F). Returns the doors' hinges, none if it's too shallow to build.
-function cornerCupboard(g, facing) {
+function cornerCupboard(g, facing, benchFrom = state.CORNER_W) {   // benchFrom: past option 10's side bookshelf
   const { R, CORNER_D: F, BOARD, BENCH, CORNER_W } = state;
   const X = CORNER_W, E = X - BOARD;
-  box(X, 0, 0, W, R, BENCH, benchMat, g);                        // bench, to the right-hand wall
+  box(benchFrom, 0, 0, W, R, BENCH, benchMat, g);                // bench, to the right-hand wall
   if (cornerTooShallow(facing)) return [];
   part('Top', box(0, 0, H - BOARD, E, F - BOARD, H, carcassMat, g));                // top
   part('Bottom', box(0, 0, 0, E, F - BOARD, BOARD, carcassMat, g));                    // bottom
@@ -1498,6 +1510,35 @@ function cornerCupboard(g, facing) {
   box(BOARD, 20 - w, 950, BOARD + 22, 40 - w, 1250, handleMat, front, false);
   return [back, front];
 }
+
+// Option 10's side bookshelf: full height, open, from the corner cupboard
+// (x CORNER_W - BOARD, sharing its side) to CORNER_W + SIDE_W, SIDE_D deep,
+// with five shelves evenly up it and a light strip under the front of each,
+// as option 9's tower. Where it's deeper than the cupboard (or there's no
+// cupboard), it has a side of its own there. Its boards are part of the
+// cupboard, so they're in its cutting list.
+const sideShelfOn = () => state.SIDE_SHELF && OPTIONS[state.option].no === 10;
+const sideShelfW = () => (sideShelfOn() ? state.SIDE_W : 0);   // how far it takes the bench along
+const SIDE_SHELVES = 5;
+const sideShelfTops = () => [...Array(SIDE_SHELVES).keys()].map(k => Math.round(state.BOARD + (k + 1) * (H - 2 * state.BOARD) / (SIDE_SHELVES + 1)));
+function sideBookshelf(g) {
+  const { CORNER_W: X, CORNER_D, BOARD, SIDE_W, SIDE_D: d } = state;
+  const x1 = X + SIDE_W, shared = cornerTooShallow('kitchen') ? 0 : Math.min(CORNER_D, d);   // y the cupboard's side covers
+  part('Bookshelf side', box(x1 - BOARD, 0, 0, x1, d, H, carcassMat, g));
+  part('Bookshelf side, past the cupboard', box(X - BOARD, shared, 0, X, d, H, carcassMat, g));
+  part('Bookshelf top', box(X, 0, H - BOARD, x1 - BOARD, d, H, carcassMat, g));
+  part('Bookshelf bottom', box(X, 0, 0, x1 - BOARD, d, BOARD, carcassMat, g));
+  for (const top of sideShelfTops()) {
+    box(X, 0, top - BOARD, x1 - BOARD, d, top, shelfMat, g);
+    box(X + 20, d - 40, top - BOARD - 7, x1 - BOARD - 20, d - 30, top - BOARD, glowMat, g, false);
+  }
+}
+const sideShelfText = () => {
+  if (!sideShelfOn()) return '';
+  const { CORNER_W: X, SIDE_W, SIDE_D, BOARD } = state;
+  return `Beside it, a ${SIDE_W}-wide, ${SIDE_D}-deep open bookshelf (x ${X}-${X + SIDE_W}), floor to ceiling, sharing the cupboard's side, ` +
+    `with ${SIDE_SHELVES} lit shelves ${SIDE_W - BOARD} long, their tops at ${sideShelfTops().join(', ')}. `;
+};
 
 // The least depth (CORNER_D) options 10 and 11's cupboard can be built at, as
 // the slider goes down to 0: room inside for its top and bottom, and for
@@ -1615,19 +1656,23 @@ const OPTIONS = [
     source: 'option 10 (new)',
     fixedWidth: true,                                            // the left-wall cupboard's depth doesn't apply
     front: ({ CORNER_D } = state) => CORNER_D,                   // its own depth out along the left wall, in place of F
-    clearFrom: ({ CORNER_W } = state) => CORNER_W,
-    benchFrom: ({ CORNER_W } = state) => CORNER_W,
+    clearFrom: ({ CORNER_W } = state) => CORNER_W + sideShelfW(),   // past the side bookshelf, when there is one
+    benchFrom: ({ CORNER_W } = state) => CORNER_W + sideShelfW(),
+    marks: ({ CORNER_W } = state) => (sideShelfOn() ? [CORNER_W] : []),
     summary: ({ R, CORNER_D: F, BOARD, CORNER_W } = state) => {
-      if (cornerTooShallow('kitchen')) return `${tooShallowText('kitchen')}Bench ${W - CORNER_W}, from x = ${CORNER_W}, ${R} deep.`;
+      const S = CORNER_W + sideShelfW(), bench = `Bench ${W - S}, from x = ${S}, ${R} deep.`;
+      if (cornerTooShallow('kitchen')) return `${tooShallowText('kitchen')}${sideShelfText()}${bench}`;
       const w = Math.round((CORNER_W - BOARD - 9) / 2), reach = F + w;
       return `A full-height cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
         `${F === FRAME ? ', right up to the door frame' : ''}, with a pair of ${w} doors on its end, facing the kitchen. ` +
         (reach > HINGE ? `Opened to 90°, they reach ${reach} from the back wall, past the room door's hinge at ${HINGE}: they can't open fully while the room door is open. ` : '') +
-        `Bench ${W - CORNER_W}, from x = ${CORNER_W}, ${R} deep.`;
+        `${sideShelfText()}${bench}`;
     },
     second: 'Cupboard doors',
     build(g) {
-      return { second: cornerCupboard(g, 'kitchen') };
+      const doors = cornerCupboard(g, 'kitchen', state.CORNER_W + sideShelfW());
+      if (sideShelfOn()) sideBookshelf(g);
+      return { second: doors };
     },
   },
   {
@@ -2459,6 +2504,8 @@ function show(i) {
   document.getElementById('legBlock').style.display = no === 7 ? '' : 'none';
   document.getElementById('wardBlock').style.display = no === 9 ? '' : 'none';
   document.getElementById('cornerBlock').style.display = no === 10 || no === 11 ? '' : 'none';
+  document.getElementById('sideShelfBlock').style.display = no === 10 ? '' : 'none';   // option 11's doors open where it would stand
+  document.getElementById('sideShelfDetails').style.display = state.SIDE_SHELF ? '' : 'none';
   document.getElementById('front').style.display = option.front ? 'none' : '';   // options 10 and 11 have their own depth (cornerD)
   document.getElementById('depthBlock').style.display = option.fixedWidth ? 'none' : '';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
@@ -2550,6 +2597,9 @@ const ADDRESS = [
   ['BOARD', String, within(12, 25)],
   ['CORNER_W', String, within(500, 1200)],
   ['CORNER_D', String, within(0, 1329)],
+  ['SIDE_SHELF', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],
+  ['SIDE_W', String, within(200, 800)],
+  ['SIDE_D', String, within(150, 800)],
 ];
 const valueAt = path => path.split('.').reduce((o, k) => o[k], state);
 function setValueAt(path, value) {
@@ -2635,7 +2685,7 @@ for (const sec of document.querySelectorAll('#panel details.sec[id^=sec]')) {
   });
 }
 
-for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['legD', 'LEG_D'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D']]) {
+for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['legD', 'LEG_D'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']]) {
   const slider = document.getElementById(id);
   slider.addEventListener('input', () => {
     state[key] = Number(slider.value);
@@ -2643,6 +2693,12 @@ for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER
     show(state.option);
   });
 }
+// Option 10's side bookshelf: drawn, or not
+const sideShelfSwitch = document.getElementById('sideShelfOn');
+sideShelfSwitch.addEventListener('change', () => {
+  state.SIDE_SHELF = sideShelfSwitch.checked;
+  show(state.option);
+});
 const legSlider = document.getElementById('leg');
 legSlider.addEventListener('input', () => {
   state.LEG = Number(legSlider.value);
@@ -3284,7 +3340,8 @@ function syncControls() {
   slide('depth', T || 290, T || 'none');
   slide('rear', R);
   slide('board', BOARD);
-  for (const [id, key] of [['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D']]) slide(id, state[key]);
+  for (const [id, key] of [['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']]) slide(id, state[key]);
+  sideShelfSwitch.checked = state.SIDE_SHELF;
   check('front', F);
   benchSwitch.checked = benchOn;
   check('bench', BENCH);

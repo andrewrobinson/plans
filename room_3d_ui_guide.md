@@ -277,6 +277,9 @@ name), not by its place in `OPTIONS`, as the list starts at option 7 (options 1 
 were taken out): `optionAt(n)` gives option n's index, or -1. Options 10 and 11
 show `cornerBlock`, the corner cupboard's width and depth (`CORNER_W`, `CORNER_D`),
 and hide the left-wall cupboard front's buttons (`#front`), as they have `front()`.
+Option 10 alone shows `sideShelfBlock` in it, the Show side bookshelf switch
+(`SIDE_SHELF`), and its width and depth sliders (`SIDE_W`, `SIDE_D`) in
+`sideShelfDetails` when it's on.
 
 ### Dropdowns are filled by JS
 

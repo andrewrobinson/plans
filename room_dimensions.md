@@ -117,6 +117,9 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 | Shelving tower width | `TOWER` | 0 to 600, in 50s | 400 | Option 9: the open shelving tower beside it, R deep (0 for none) |
 | Corner cupboard width | `CORNER_W` | 500 to 1200, in 10s | 800 | Options 10 and 11: the full-height corner cupboard's width along the back wall; the bench starts at it. Option 10's doors are each (CORNER_W − BOARD − 9) / 2 (391 at 800) |
 | Corner cupboard depth | `CORNER_D` | 0 to 1329, in 1s | 650 | Options 10 and 11: how far the corner cupboard comes out along the left wall (1329 is up to the door frame), shown in place of the left-wall cupboard front's 1200 / 1329 buttons, which stay for the other options. Too shallow to build (under BOARD + 1 for option 10; under R + BOARD + 10 for option 11, to leave room for its doors beside the bench), the cupboard isn't drawn and the description says so. Option 11's doors are each (CORNER_D − R − BOARD − 9) / 2 |
+| Show side bookshelf | `SIDE_SHELF` | on, off | off | Option 10: a full-height open bookshelf on the back wall between the corner cupboard and the TV, x CORNER_W to CORNER_W + SIDE_W, sharing the cupboard's side (with a side of its own where it's deeper than the cupboard). Five lit shelves evenly up it. The bench, and the TV's clear wall, start past it. Its boards (side, top, bottom, shelves) are part of the cupboard, so they're in its cutting list. Not in option 11, whose doors open where it would stand |
+| Side bookshelf width | `SIDE_W` | 200 to 800, in 10s | 400 | Option 10, with the side bookshelf on: its width along the back wall. Its top, bottom and shelves are SIDE_W − BOARD long |
+| Side bookshelf depth | `SIDE_D` | 150 to 800, in 10s | 330 | Option 10, with the side bookshelf on: its depth from the back wall |
 | Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Everything above the bench moves with it |
 | Above the bench | `above` | Nothing, Shelves, TV, TV and shelves, TV and top shelf | TV and shelves | What's on the back wall over the bench |
 | Shelf depth | `shelfDepth` | 150 to 400, in 10s | 250 | Depth of the shelves above the bench |
@@ -175,7 +178,7 @@ The corner cupboard's inside, for each option (shelves are cut back as above; be
 | 7 | Both legs of the L at full height |
 | 8 | The corner unit at full height, to 25 behind its diagonal doors |
 | 9 | The double-door cupboard (x 0 to T + WARD − 18, WARD_D deep) and the left-wall leg, at full height |
-| 10, 11 | The CORNER_W × CORNER_D corner cupboard at full height, x 0 to CORNER_W − 18 (782 at 800), y 0 to CORNER_D − 18; none when too shallow to build |
+| 10, 11 | The CORNER_W × CORNER_D corner cupboard at full height, x 0 to CORNER_W − 18 (782 at 800), y 0 to CORNER_D − 18; none when too shallow to build. Option 10's side bookshelf is open, so it's no place to store them |
 | 16 (the current room) | None: they stay by the window |
 
 | Thing | Footprint (along x × along y, in the 850 × 1090 packing) | Height | Colour | Notes |

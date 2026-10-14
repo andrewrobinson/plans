@@ -43,6 +43,11 @@ const slide = (page, id, value) => page.locator(`#${id}`).evaluate((el, v) => {
   el.dispatchEvent(new Event('input', { bubbles: true }));
   return el.value;
 }, String(value));
+// ...and a switch, with its 'change' event
+const toggle = (page, id, on) => page.locator(`#${id}`).evaluate((el, v) => {
+  el.checked = v;
+  el.dispatchEvent(new Event('change', { bubbles: true }));
+}, on);
 const readout = (page, id) => page.locator(`#${id}Value`).evaluate(el => el.textContent);
 
 // Take a slider to its lowest, then its highest, then back to where it
@@ -100,6 +105,23 @@ test.describe('sliders, to each end and back', () => {
     }
     await OPTION(9)(page);
     await expect(page.locator('#front')).toBeVisible();
+  });
+
+  // Only option 10 has it: option 11's doors open where it would stand. Off,
+  // its sliders are hidden; on, it takes the bench's start along by its width
+  test('option 10\'s side bookshelf', async ({ page }) => {
+    await OPTION(10)(page);
+    await expect(page.locator('#sideShelfDetails')).toBeHidden();
+    await toggle(page, 'sideShelfOn', true);
+    await expect.poll(() => field(page, 34)).toBe('1');
+    await expect(page.locator('#summary')).toContainText('Bench 2638, from x = 1200');
+    await endsAndBack(page, 'sideW', at(35));
+    await endsAndBack(page, 'sideD', at(36));
+    await toggle(page, 'sideShelfOn', false);
+    await expect.poll(() => field(page, 34)).toBe('0');
+    await expect(page.locator('#summary')).toContainText('Bench 3038, from x = 800');
+    await OPTION(11)(page);
+    await expect(page.locator('#sideShelfBlock')).toBeHidden();
   });
 
   test('the bench', async ({ page }) => {
@@ -486,6 +508,22 @@ test.describe('the 2D views\' door sizes and cutting list', () => {
     await toggle.click();
     await expect(list).toBeHidden();
     await expect(toggle).toHaveText('Show cutting list');
+  });
+
+  // Option 10's side bookshelf is part of its cupboard: its sides, top,
+  // bottom and five shelves are in the cutting list, sized by its sliders
+  test('option 10\'s side bookshelf is in the cutting list', async ({ page }) => {
+    await openRoom(page, `#11-0-${PLAN.slice(PLAN.indexOf('-330-') + 1, PLAN.indexOf('~'))}-800-650-1-400-330${PLAN.slice(PLAN.indexOf('~'))}`);
+    const list = page.locator('#cutList');
+    await page.locator('#cutToggle').click();
+    await expect(list).toContainText('2443 × 330');                 // its own side, full height
+    await expect(list).toContainText('Bookshelf side');
+    await expect(list).toContainText('382 × 330');                  // top, bottom and shelves: SIDE_W - BOARD long
+    await expect(list).toContainText('Bookshelf top, bookshelf bottom');
+    await expect(list).toContainText('16 boards');                 // the cupboard's 8, and the bookshelf's 8
+    await toggle(page, 'sideShelfOn', false);
+    await expect(list).not.toContainText('Bookshelf');
+    await expect(list).toContainText('8 boards');
   });
 
   test('the door sizes button', async ({ page }) => {
