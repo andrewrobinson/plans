@@ -93,11 +93,20 @@ test.describe('sliders, to each end and back', () => {
     await endsAndBack(page, 'tower', at(11));
   });
 
-  test('options 10 and 11\'s corner cupboard width', async ({ page }) => {
+  // Their depth replaces the left-wall cupboard front's radio buttons. At its
+  // lowest (0) the cupboard is too shallow to build, and isn't drawn
+  test('options 10 and 11\'s corner cupboard width and depth', async ({ page }) => {
     for (const n of [10, 11]) {
       await OPTION(n)(page);
+      await expect(page.locator('#front')).toBeHidden();
       await endsAndBack(page, 'cornerW', at(34));
+      await endsAndBack(page, 'cornerD', at(35));
+      await slide(page, 'cornerD', 0);
+      await expect(page.locator('#summary')).toContainText('too shallow to build');
+      await slide(page, 'cornerD', 1200);
     }
+    await OPTION(9)(page);
+    await expect(page.locator('#front')).toBeVisible();
   });
 
   test('the bench', async ({ page }) => {

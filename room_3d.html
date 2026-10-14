@@ -276,6 +276,8 @@
   <div id="cornerBlock">
     <label for="cornerW">Corner cupboard width: <span id="cornerWValue">800</span></label>
     <input id="cornerW" type="range" min="500" max="1200" step="10" value="800">
+    <label for="cornerD">Corner cupboard depth (out along the left wall): <span id="cornerDValue">1200</span></label>
+    <input id="cornerD" type="range" min="0" max="1329" step="1" value="1200">
   </div>
   <div id="upperBlock">
     <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
@@ -687,6 +689,7 @@ const state = {
   WARD_D: 600,                     // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench and tower, which stay R deep
   TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)
   CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200. Option 10's doors are (CORNER_W - BOARD - 9) / 2 wide each
+  CORNER_D: 1200,                  // ...and out along the left wall, in place of F: 0 to 1329 (the door frame). Too shallow (cornerTooShallow()), it isn't built
   benchOn: true,                   // the bench drawn, with what's above it; off, the back wall's bare
   BENCH: 780,                      // the bench's height: 700, 780, 800 or 900
   above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
@@ -1564,14 +1567,15 @@ function shelvingTower(x0, x1, g) {
 }
 
 // Options 10 and 11: a full-height cupboard in the corner, CORNER_W along the
-// back wall and F out along the left wall, with the bench from it to the
-// right-hand wall. Its pair of doors face the kitchen (on its end, at y = F)
-// or the windows (on its side, where it's clear of the bench, y R to F).
-// Returns the doors' hinges.
+// back wall and CORNER_D (F here) out along the left wall, with the bench
+// from it to the right-hand wall. Its pair of doors face the kitchen (on its
+// end, at y = F) or the windows (on its side, where it's clear of the bench,
+// y R to F). Returns the doors' hinges, none if it's too shallow to build.
 function cornerCupboard(g, facing) {
-  const { R, F, BOARD, BENCH, CORNER_W } = state;
+  const { R, CORNER_D: F, BOARD, BENCH, CORNER_W } = state;
   const X = CORNER_W, E = X - BOARD;
   box(X, 0, 0, W, R, BENCH, benchMat, g);                        // bench, to the right-hand wall
+  if (cornerTooShallow(facing)) return [];
   part('Top', box(0, 0, H - BOARD, E, F - BOARD, H, carcassMat, g));                // top
   part('Bottom', box(0, 0, 0, E, F - BOARD, BOARD, carcassMat, g));                    // bottom
   for (const top of [600, 1200, 1800]) cupShelf(rectPoly(0, 0, E, F - BOARD), top, shelfMat);
@@ -1599,6 +1603,15 @@ function cornerCupboard(g, facing) {
   box(BOARD, 20 - w, 950, BOARD + 22, 40 - w, 1250, handleMat, front, false);
   return [back, front];
 }
+
+// The least depth (CORNER_D) options 10 and 11's cupboard can be built at, as
+// the slider goes down to 0: room inside for its top and bottom, and for
+// option 11 room for its doors beside the bench. Below it, the cupboard isn't
+// drawn and the description says so.
+const cornerLeast = facing => facing === 'kitchen' ? state.BOARD + 1 : state.R + state.BOARD + 10;
+const cornerTooShallow = facing => state.CORNER_D < cornerLeast(facing);
+const tooShallowText = facing => `No corner cupboard: at ${state.CORNER_D} out along the left wall it's too shallow to build ` +
+  `(it needs at least ${cornerLeast(facing)}${facing === 'kitchen' ? '' : `, for doors beside the ${state.R}-deep bench`}). `;
 
 // ---------------------------------------------------------------------------
 // The options. Summaries are functions of the settings, as their sizes depend
@@ -1830,9 +1843,11 @@ const OPTIONS = [
     name: '10. Corner cupboard, doors facing the kitchen',
     source: 'option 10 (new)',
     fixedWidth: true,                                            // the left-wall cupboard's depth doesn't apply
+    front: ({ CORNER_D } = state) => CORNER_D,                   // its own depth out along the left wall, in place of F
     clearFrom: ({ CORNER_W } = state) => CORNER_W,
     benchFrom: ({ CORNER_W } = state) => CORNER_W,
-    summary: ({ R, F, BOARD, CORNER_W } = state) => {
+    summary: ({ R, CORNER_D: F, BOARD, CORNER_W } = state) => {
+      if (cornerTooShallow('kitchen')) return `${tooShallowText('kitchen')}Bench ${W - CORNER_W}, from x = ${CORNER_W}, ${R} deep.`;
       const w = Math.round((CORNER_W - BOARD - 9) / 2), reach = F + w;
       return `A full-height cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
         `${F === FRAME ? ', right up to the door frame' : ''}, with a pair of ${w} doors on its end, facing the kitchen. ` +
@@ -1848,9 +1863,10 @@ const OPTIONS = [
     name: '11. Corner cupboard, doors facing the windows',
     source: 'option 11 (new)',
     fixedWidth: true,                                            // the left-wall cupboard's depth doesn't apply
+    front: ({ CORNER_D } = state) => CORNER_D,                   // its own depth out along the left wall, in place of F
     clearFrom: ({ CORNER_W } = state) => CORNER_W,
     benchFrom: ({ CORNER_W } = state) => CORNER_W,
-    summary: ({ R, F, BOARD, CORNER_W } = state) => `A full-height cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
+    summary: ({ R, CORNER_D: F, BOARD, CORNER_W } = state) => cornerTooShallow('windows') ? `${tooShallowText('windows')}Bench ${W - CORNER_W}, from x = ${CORNER_W}, ${R} deep.` : `A full-height cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
       `${F === FRAME ? ', right up to the door frame' : ''}, with a pair of ${Math.round((F - R - BOARD - 9) / 2)} doors on its side, facing the windows, ` +
       `where it's clear of the ${R}-deep bench (y ${R}-${F}). Behind the doors it runs back to the back wall, behind the bench end. ` +
       `Bench ${W - CORNER_W}, from x = ${CORNER_W}, ${R} deep.`,
@@ -1973,7 +1989,7 @@ function updateDims() {
   const { T, R, F, BENCH, above, shelfDepth } = state;
   const option = OPTIONS[state.option];
   const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks() : []), option.benchFrom(), option.clearFrom(), W];
-  const alongLeft = [0, R, ...(T || option.fixedWidth ? [F] : []), FRAME, HINGE, HINGE + ROOM_DOOR, FRAME_END];
+  const alongLeft = [0, R, ...(option.front ? [option.front()] : T || option.fixedWidth ? [F] : []), FRAME, HINGE, HINGE + ROOM_DOOR, FRAME_END];
   if (flatView === 'plan') {
     chain(alongBack, (v, off) => P(v, -250 - off, H), dims);
     chain([...alongLeft, RECESS_FROM, D], (v, off) => P(RECESS_X - 300 - off, v, H), dims);
@@ -2256,7 +2272,7 @@ function faceLabel(text, x, y, w, d, z, g) {
 // the clear height above each, in mm. Shelves inside are taken to be
 // removable; bench tops, dividers and the cupboard's own panels count.
 function cupboardSpaces() {
-  const { T, R, F, BOARD, BENCH, LEG, LEG_D, WARD, WARD_D, CORNER_W } = state;
+  const { T, R, F, BOARD, BENCH, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = state;
   const rect = (x0, y0, x1, y1, h) => ({ poly: [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], h });
   const full = H - 2 * BOARD, under = BENCH - 2 * BOARD;                       // inside a full-height cupboard, and under the bench
   const leftLeg = from => T ? [rect(0, from, T - BOARD, F - BOARD, full)] : [];
@@ -2273,8 +2289,8 @@ function cupboardSpaces() {
     }
     case 9:                                                      // the double-door cupboard and the left-wall leg
       return [rect(0, 0, T + WARD - BOARD, WARD_D, full), ...leftLeg(WARD_D)];
-    case 10: case 11:                                            // the CORNER_W-wide corner cupboard, back to the wall behind the bench
-      return [rect(0, 0, CORNER_W - BOARD, F - BOARD, full)];
+    case 10: case 11:                                            // the CORNER_W × CORNER_D corner cupboard, back to the wall behind the bench
+      return cornerTooShallow(OPTIONS[state.option].no === 10 ? 'kitchen' : 'windows') ? [] : [rect(0, 0, CORNER_W - BOARD, CORNER_D - BOARD, full)];
     default:
       return [];
   }
@@ -2686,6 +2702,7 @@ function show(i) {
   document.getElementById('legBlock').style.display = no === 7 ? '' : 'none';
   document.getElementById('wardBlock').style.display = no === 9 ? '' : 'none';
   document.getElementById('cornerBlock').style.display = no === 10 || no === 11 ? '' : 'none';
+  document.getElementById('front').style.display = option.front ? 'none' : '';   // options 10 and 11 have their own depth (cornerD)
   document.getElementById('depthBlock').style.display = option.fixedWidth ? 'none' : '';
   document.getElementById('secondBlock').style.display = option.second ? '' : 'none';
   document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
@@ -2777,6 +2794,7 @@ const ADDRESS = [
   }],
   ['BOARD', String, within(12, 25)],
   ['CORNER_W', String, within(500, 1200)],
+  ['CORNER_D', String, within(0, 1329)],
 ];
 const valueAt = path => path.split('.').reduce((o, k) => o[k], state);
 function setValueAt(path, value) {
@@ -2868,7 +2886,7 @@ upperSlider.addEventListener('input', () => {
   document.getElementById('upperValue').textContent = state.UPPER;
   show(state.option);
 });
-for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['legD', 'LEG_D'], ['cornerW', 'CORNER_W']]) {
+for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['legD', 'LEG_D'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D']]) {
   const slider = document.getElementById(id);
   slider.addEventListener('input', () => {
     state[key] = Number(slider.value);
@@ -3250,7 +3268,7 @@ const builtInViews = {
 // the way out of it, and which door it is ('tall' the left-wall
 // cupboard's, else the option's second).
 function packingSpot() {
-  const { T, R, F, LEG, LEG_D, WARD, WARD_D, CORNER_W } = state;
+  const { T, R, F, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = state;
   const mid = (x, y, nx, ny, door = 'second') => ({ x, y, nx, ny, door });
   // An L (back-wall leg Dl deep, left-wall leg T deep): standing diagonally
   // in front of its inside corner, looking into it, to see into both legs
@@ -3269,9 +3287,9 @@ function packingSpot() {
     case 9:                                                      // likewise an L, else the double doors
       return T ? lCorner(WARD_D) : mid(T + WARD / 2, WARD_D, 0, 1);
     case 10:                                                     // doors on its end, facing the kitchen
-      return mid(CORNER_W / 2, F, 0, 1);
+      return cornerTooShallow('kitchen') ? null : mid(CORNER_W / 2, CORNER_D, 0, 1);
     case 11:                                                     // doors on its side, facing the windows
-      return mid(CORNER_W, (R + F) / 2, 1, 0);
+      return cornerTooShallow('windows') ? null : mid(CORNER_W, (R + CORNER_D) / 2, 1, 0);
     default: {                                                   // the dresser or a larder in the corner: its front
       const o = OPTIONS[state.option];
       if (!o?.corner) return null;
@@ -3523,7 +3541,7 @@ function syncControls() {
   slide('depth', T || 290, T || 'none');
   slide('rear', R);
   slide('board', BOARD);
-  for (const [id, key] of [['upper', 'UPPER'], ['extra', 'EXTRA'], ['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['cornerW', 'CORNER_W']]) slide(id, state[key]);
+  for (const [id, key] of [['upper', 'UPPER'], ['extra', 'EXTRA'], ['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D']]) slide(id, state[key]);
   check('front', F);
   benchSwitch.checked = benchOn;
   check('bench', BENCH);
