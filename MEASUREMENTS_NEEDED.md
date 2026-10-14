@@ -10,6 +10,11 @@ room** is the room modelled so far (three windows), the **other room** is the
 one with the single large window, and the **hallway** runs between them past
 the stairs.
 
+**The easy way:** open `drawings/measure_sheet.html`. It draws what to
+measure on the floor plan, lettered A, B, C…, with an estimate for each.
+Type in what you measure, then **Copy for Claude** and paste the lines
+into the chat. It covers sections 1 and 2 and the main sizes from 3 and 4.
+
 ## How to measure
 
 - Everything in **mm**, to the nearest 5 or so.
