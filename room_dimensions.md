@@ -67,7 +67,7 @@ The kitchen and island are rough blocks in their real colours: units in Clerkenw
 
 Its sizes below are where its sliders start. The menu's **Dresser** dropdown sets them to a listed dresser (the first estimate, the Chester Large Dresser: 1370 wide, 1940 high, base 410 deep and 830 high, upper part 340 deep, or the Inglesham Small Dresser: 1000 wide, 1930 high, 420 deep throughout, base 830 high); the list is in `room_3d.dressers.js`, for editing.
 
-**Options 1 and 2** are now the *side cupboard with open shelves* and the *side cupboard with door above bench* (they were *open shelves in the corner* and *door over the corner shelves*): with no left-wall cupboard they mean nothing, so choosing one (or a link to one) with none gives a 360-deep one.
+**Options 1 to 6** (the side cupboard with open shelves, the side cupboard with door above bench, the upper open shelves and upper cupboard on the bench, the longer upper cupboard, and the L with open shelves) were taken out on 14 Oct 2026, so the option list starts at 7. Their address codes (1 to 6) now read as none, and the page keeps its own option.
 
 **Cupboard only, with dimensions** (the switch at the top of the menu's corner cupboard section) hides the rest of the room, so the chosen option's cupboard (bar its bench) stands on its own, with its dimensions in the 3D views and the 2D ones alike: along the back wall and out from it, the edges of its outline in plan (not the panels' thicknesses), each chain with the overall size outside it, and up, the shelves inside it and its height. The 2D views frame it to fill the screen. Its doors are left out of the measuring, as they may be open; shelf heights are the model's (600, 1200 and 1800), not decided ones.
 
@@ -75,17 +75,17 @@ Its sizes below are where its sliders start. The menu's **Dresser** dropdown set
 
 **Option 7's shelves** are set in the menu, as lists of shelf tops in mm: one for the back-wall leg (with the inside corner), one for the left-wall leg (600, 1200 and 1800 in each, to start with). As before, a shelf is cut back where something stored stands up through it. **Things to store** can stand **off the floor** (the menu's *Off the floor* for each), as on a shelf: drawn there, not cutting a shelf they rest on, and fitting only if their top is under the cupboard's. Both are in the address (shelves after the other settings; a thing's height as a fourth number after its x, y and turn, left out at 0).
 
-**The bench** can be left out, in any option (the **Bench** switch, first in the menu's back wall section, then the bench height): with it off, the bench (or option 9's base cupboards) isn't drawn, and nor is anything above it (TV and shelves), whose settings hide till it's on again. The options' descriptions then say there's no bench, and options 3 to 5, whose upper cupboard or shelves stand on it, are greyed out (one on show falls back to option 1).
+**The bench** can be left out, in any option (the **Bench** switch, first in the menu's back wall section, then the bench height): with it off, the bench (or option 9's base cupboards) isn't drawn, and nor is anything above it (TV and shelves), whose settings hide till it's on again. The options' descriptions then say there's no bench.
 
 **Larders.** The front-wall spot can hold the dresser, a larder or nothing (the menu's **On the front wall**), in every option but the current room. The larders are in `room_3d.larders.js`, for editing, their fronts stacked from the floor up as read from the product photos: the **Chester Double Larder** (1100 wide, 1950 high, 510 deep: four drawers on short legs under an oak top, then a pair of doors and a cornice) and the **Stow Narrow Single Larder** (670 wide, 1860 high, 500 deep: on a plinth, a lower door, a drawer and a tall upper door, both doors hinged on the right). Sliders resize the larder chosen, as the dresser's do (width 400 to 1500, height 1500 to 2400, depth 300 to 700): a change of height goes on its tallest doors, and a shallower top section stays as much shallower; the dropdown then says Custom. A larder takes the dresser's colour.
 
-**Options 12 to 15** put the dresser or the larder chosen in the corner instead of a built cupboard, against the back wall (facing the room) or the left wall (facing the windows), with the bench from it to the right-hand wall and the front wall left clear. Against the left wall anything over 1329 along it runs past the door frame into the doorway, as the 1370 Chester dresser does by 41; the description says so. In the larder options the door slider opens the larder's doors, and the Packing view stands you at its front with them open. The current room is now option 16 (its address code stays 10; options 12 to 15 are 13 to 16).
+**Options 12 to 15** (the dresser or the larder as the corner cupboard, against the back wall or the left wall) were taken out on 14 Oct 2026 too. The current room keeps its number, 16, and its address code, 10; codes 13 to 16, for the options taken out, now read as none.
 
 **The island** can be moved in any option (the menu's **Kitchen island**): out there (where it is now), or against the front wall between the sink and the desk in place of the dresser or larder, either long side out, its end against the wall and against the end of the kitchen counter (770 along the wall, x 800-1570, coming 1260 out to y 4119), or short side out, its long side along the wall, centred on the 1415 there (1260 along the wall, x 878-2138, coming 770 out to y 4609), or **None**, not there at all. "The island" is in Looking at. Out there, three sliders move and turn it: **its middle from the left wall** (x, 0 to 3838) and **from the back wall** (y, 0 to 5379), starting where it is (x 1395, y 3571), and **how far it's turned** (0 to 180° about its middle, starting at 0). They show only while it's out there. In the address they come after the shelves, as `x.y.turn` (e.g. `1395.3571.0`); links from before keep the island where it is. **The board thickness** (the menu's corner cupboard section, 12 to 25, 18 to start) comes after the island; links from before keep 18. **Options 10 and 11's corner cupboard width** and then **depth** come last before the first `~`.
 
 **A sofa** can be added in any option (the menu's **Sofa, facing the TV**), from `room_3d.sofas.js`, for editing: the Habitat x Morris & Co. **Merton 2 Seater** (1690 wide, 1000 deep, 920 high, seat 505 high and 650 deep; its arm and leg heights estimated). Sliders resize it (width 1200 to 2600, depth 700 to 1200, height 700 to 1100), the seat keeping its depth and height; the dropdown then says Custom. It's centred on the TV, facing it, its front a slider's distance from the TV wall (1000 to 3500, starting at 1900, where its back is 41 short of the island's end). **Sitting on the sofa** is in Where, and "the sofa" in Looking at.
 
-**Scenes**, to show people the options: everything on show bar where you're looking from (the option, the dresser, larder, island and sofa, what's above the bench, sizes and colours). The **Scenes** menu (the green ☰ at the bottom right; at the top right, the views list in the purple ☰ and where you are and what you look at in the blue ☰ under it; the option is in the settings drawer's corner cupboard section; and the page opens on Bird's eye unless its address has a view) has those in `room_3d.scenes.js` (the same on every device; it says how to add one) and those kept with **Save scene** (on that device only; **Delete scene** removes one). Choosing a scene loads the page again with its settings, keeping the view. The list shows the scene on screen, or "Your scene (not saved)" once anything's changed. `scene_kit.js` does this and is meant to serve other rooms too. On the front wall between the sink and the desk, a bit like the Cotswold Company's Chester Dove Grey large dresser. Drawn in options 1 to 9, not in the current room. Painted parts are in the dresser colour, which is the cupboards' unless you choose another; the top and shelves are in the shelf colour.
+**Scenes**, to show people the options: everything on show bar where you're looking from (the option, the dresser, larder, island and sofa, what's above the bench, sizes and colours). The **Scenes** menu (the green ☰ at the bottom right; at the top right, the views list in the purple ☰ and where you are and what you look at in the blue ☰ under it; the option is in the settings drawer's corner cupboard section; and the page opens on Bird's eye unless its address has a view) has those in `room_3d.scenes.js` (the same on every device; it says how to add one) and those kept with **Save scene** (on that device only; **Delete scene** removes one). Choosing a scene loads the page again with its settings, keeping the view. The list shows the scene on screen, or "Your scene (not saved)" once anything's changed. `scene_kit.js` does this and is meant to serve other rooms too. On the front wall between the sink and the desk, a bit like the Cotswold Company's Chester Dove Grey large dresser. Drawn in options 7 to 11, not in the current room. Painted parts are in the dresser colour, which is the cupboards' unless you choose another; the top and shelves are in the shelf colour.
 
 | What | Size or position | Notes |
 | --- | --- | --- |
@@ -107,31 +107,29 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 
 | Parameter | In the code | Values | Default | What it sets |
 | --- | --- | --- | --- | --- |
-| Option | `shown` | 1–16 (16 is the current room, with no cupboards: a bench along the whole back wall, with the Bench switch on) | 9 | Which cupboard layout. Options 10 and 11 (*Corner cupboard, doors facing the kitchen* and *…facing the windows*) are a full-height cupboard in the corner, `CORNER_W` (800 to start) along the back wall and `CORNER_D` (1200 to start) out along the left wall, with the bench from it to the right-hand wall: 10 has a pair of doors on its end facing the kitchen, 11 a pair on its side facing the windows, where it's clear of the bench (y R to F). The left-wall cupboard depth doesn't apply to them |
-| Left-wall cupboard depth | `T` | none, or 300 to 800 in 10s (slider; none is at its far left) | none (0) | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and options 2 and 8 aren't available |
+| Option | `shown` | 7–11, 16 (16 is the current room, with no cupboards: a bench along the whole back wall, with the Bench switch on) | 10 | Which cupboard layout. Options 10 and 11 (*Corner cupboard, doors facing the kitchen* and *…facing the windows*) are a full-height cupboard in the corner, `CORNER_W` (800 to start) along the back wall and `CORNER_D` (650 to start) out along the left wall, with the bench from it to the right-hand wall: 10 has a pair of doors on its end facing the kitchen, 11 a pair on its side facing the windows, where it's clear of the bench (y R to F). The left-wall cupboard depth doesn't apply to them |
+| Left-wall cupboard depth | `T` | none, or 300 to 800 in 10s (slider; none is at its far left) | none (0) | How far the left-wall cupboard comes out from the left wall. Everything along the back wall starts from x = T. At 0 there's no left-wall cupboard, and option 8 isn't available |
 | Left-wall cupboard front | `F` | 1200, 1329 | 1200 | How far the left-wall cupboard comes out from the back wall. 1329 is up to the door frame |
 | Rear wall cupboard depth | `R` | 300 to 800, in 10s (slider) | 330 | How deep the bench and the back-wall cupboards are, from the back wall |
-| Upper cupboard width | `UPPER` | 400 to 1200, in 50s | 700 | Width along the back wall of option 4's upper cupboard, and of options 3 and 5, which are built on it. Its door is UPPER − 24 wide. Shown on options 3–5 |
 | Back-wall leg width | `LEG` | 400 to 1200, in 50s | 600 | Option 7 only: inside leg of the full-height L along the back wall. Its door is LEG − 24 wide, and the bench starts at x = T + LEG |
 | Double-door cupboard width | `WARD` | 600 to 1400, in 50s | 900 | Option 9: width of the full-height double-door cupboard on the back wall. Each door is (WARD − 27) / 2 |
 | Double-door cupboard depth | `WARD_D` | 330 to 1000, in 10s | 600 | Option 9: its depth from the back wall, independent of the bench |
 | Shelving tower width | `TOWER` | 0 to 600, in 50s | 400 | Option 9: the open shelving tower beside it, R deep (0 for none) |
 | Corner cupboard width | `CORNER_W` | 500 to 1200, in 10s | 800 | Options 10 and 11: the full-height corner cupboard's width along the back wall; the bench starts at it. Option 10's doors are each (CORNER_W − BOARD − 9) / 2 (391 at 800) |
-| Corner cupboard depth | `CORNER_D` | 0 to 1329, in 1s | 1200 | Options 10 and 11: how far the corner cupboard comes out along the left wall (1329 is up to the door frame), shown in place of the left-wall cupboard front's 1200 / 1329 buttons, which stay for the other options. Too shallow to build (under BOARD + 1 for option 10; under R + BOARD + 10 for option 11, to leave room for its doors beside the bench), the cupboard isn't drawn and the description says so. Option 11's doors are each (CORNER_D − R − BOARD − 9) / 2 |
-| Option 5 second bay | `EXTRA` | 300 to 900, in 50s | 500 | Width of option 5's second upper cupboard bay, beyond the upper cupboard. Its door is EXTRA − 6 wide. Only shown on option 5 |
-| Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Upper cupboards, corner shelves and everything above the bench move with it |
+| Corner cupboard depth | `CORNER_D` | 0 to 1329, in 1s | 650 | Options 10 and 11: how far the corner cupboard comes out along the left wall (1329 is up to the door frame), shown in place of the left-wall cupboard front's 1200 / 1329 buttons, which stay for the other options. Too shallow to build (under BOARD + 1 for option 10; under R + BOARD + 10 for option 11, to leave room for its doors beside the bench), the cupboard isn't drawn and the description says so. Option 11's doors are each (CORNER_D − R − BOARD − 9) / 2 |
+| Bench height | `BENCH` | 700, 780, 800, 900 | 780 | Height of the bench top. Everything above the bench moves with it |
 | Above the bench | `above` | Nothing, Shelves, TV, TV and shelves, TV and top shelf | TV and shelves | What's on the back wall over the bench |
 | Shelf depth | `shelfDepth` | 150 to 400, in 10s | 250 | Depth of the shelves above the bench |
 | TV size | `TV_INCHES` (slider) | 32, 40, 42, 43, 48, 50, 55, 60, 65, 70, 75, 77, 83, 85, 86 inches | 75 | The TV's overall width and height, `TV_W` × `TV_H`, from LG UK's size guide: 720 × 440 at 32" up to 1930 × 1110 at 86" (75" is 1680 × 960). Shown when there's a TV above the bench |
 | Cupboard colour | `ralChosen.cupboard` | Named colours to compare (◀ ▶ flip between them): Clerkenwell Gloss White, AI Olive, Bella Brittany, Blinds as drawn, Kitchen worktop, Kitchen island, Kitchen island top, same colour as the door (Pure Brilliant White), same colour as the walls (Crown Gallery White). Or "Other colours…", which opens a second dropdown of 23 popular cupboard colours and all 99 RAL Classic colours by family | AI Olive | Covers carcasses, doors and the bench. Floor, walls and woodwork are fixed as the room is. Screen colours are approximate |
 | Dresser colour | `ralChosen.dresser` | The same named colours and "Other colours…" as the cupboards, plus Same as the cupboards (0), Same colour as the door (2) and Same colour as the walls (1) | Same as the cupboards | The dresser's painted body, doors and drawers. Its top and shelves follow the shelf colour |
 | Dresser sizes | `DRESSER` (sliders) | Width 900 to 1415 in 5s, height 1500 to 2400, base depth 300 to 600, base height 700 to 1000, upper depth 150 to 600 (no deeper than the base), all in 10s | 1370, 1940, 410, 830, 340 (the Chester; see `room_3d.dressers.js`) | The dresser stays centred between the end of the kitchen counter and the desk recess; its three shelves spread evenly up the upper part. Hidden for the current room |
-| Shelf colour | `shelfWood` | 0 As drawn (pale oak `#D6BC8F`, option 9's oak `#C8A26B`), 1 Honey oak (as the island top, `#D6A562`), 2 Dark oak (`#8A5A33`), 3 Walnut (`#5C3D26`) | 0 | All the wooden shelves (above the bench, corner and upper units, option 9's tower) and option 9's oak bench top |
+| Shelf colour | `shelfWood` | 0 As drawn (pale oak `#D6BC8F`, option 9's oak `#C8A26B`), 1 Honey oak (as the island top, `#D6A562`), 2 Dark oak (`#8A5A33`), 3 Walnut (`#5C3D26`) | 0 | All the wooden shelves (above the bench, option 9's tower) and option 9's oak bench top |
 | Left-wall cupboard door | slider | 0°–110° | 0° | How far it's opened |
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
 | Room door | slider | 0°–110° | 90° | How far it's opened |
 
-The full list of the address's fields, in order, with how each is checked, is `ADDRESS` in `room_3d.html`. The page address records the option (by a code that never changes, so old links keep working: 1 to 9 for options 1 to 9, 10 for the current room, 11 and 12 for options 10 and 11) and settings as `#option-T-R-F-above-shelfDepth-BENCH-EXTRA-UPPER-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-TV_INCHES-dresser-dresserSizes~stored` (dresserSizes is `w.h.baseD.baseH.upperD`), for example `#9-0-330-1200-4-250-780-500-700-700-900-400-600-3-9010-1-2-3-65-6-1320.2100.400.900.290~1.0.0_2550.2642.1_2100.2362.0_2000.2362.1_2100.2582.0_2500.2362.0_2000.2902.0`. After the `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, which are used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, and `.` and the room door's, left-wall cupboard's and option's own door angles, joined by `-`. For example `~look:desk:dresser.sit-tall.90-0-0`.
+The full list of the address's fields, in order, with how each is checked, is `ADDRESS` in `room_3d.html`. The page address records the option (by a code that never changes, so old links keep working: 7 to 9 for options 7 to 9, 10 for the current room, 11 and 12 for options 10 and 11; 1 to 6 and 13 to 16, for the options taken out, read as none) and settings as `#option-T-R-F-above-shelfDepth-BENCH-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-TV_INCHES-dresser-dresserSizes~stored` (dresserSizes is `w.h.baseD.baseH.upperD`), for example `#9-0-330-1200-4-250-780-700-900-400-600-3-9010-1-2-3-65-6-1320.2100.400.900.290~1.0.0_2550.2642.1_2100.2362.0_2000.2362.1_2100.2582.0_2500.2362.0_2000.2902.0`. After the `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, which are used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, and `.` and the room door's, left-wall cupboard's and option's own door angles, joined by `-`. For example `~look:desk:dresser.sit-tall.90-0-0`.
 
 ## Things to store
 
@@ -141,7 +139,7 @@ In the menu, **Packing** picks one of the four packings below, and **Where** put
 
 In the plan view the cupboard's inside is outlined (a rectangle, or an L of two), green when everything in it fits and red when something doesn't, with its size on the back wall. Over anything that sticks out, the part outside the inside is shaded red and labelled with how far it goes past the inside's edges (or the size of the part outside, when it's in the notch of an L).
 
-**Packing** (in the Views menu) stands you 1250 in front of the corner cupboard's door, at standing eye height, looking in: the left-wall cupboard's in options 1–5 (and 6 with one), else the option's own doors; in an L (options 7 and 9 with a left-wall cupboard) it stands diagonally in front of the L's inside corner instead, to see into both legs. All the cupboard's doors are opened wide (170°), folded back out of the way, and the room door is shut, as it can hide the cupboard. It follows the option as you change it. With no corner cupboard it's the corner view.
+**Packing** (in the Views menu) stands you 1250 in front of the corner cupboard's door, at standing eye height, looking in: the option's own doors; in an L (options 7 and 9 with a left-wall cupboard) it stands diagonally in front of the L's inside corner instead, to see into both legs. All the cupboard's doors are opened wide (170°), folded back out of the way, and the room door is shut, as it can hide the cupboard. It follows the option as you change it. With no corner cupboard it's the corner view.
 
 **Views.** The top bar picks where you are and what you're looking at (**Where** and **Looking at**), your **eye height** (short or tall, sitting or standing), or a view from the **views list**: config-defined ones, ones saved with **Save view** (kept in that browser, so on that device only), and the built-in ones (from above, and the 2D views). The places, things to look at, eye heights and config-defined views are in `room_3d.views.js`, in mm, for editing; `view_kit.js` does the choosing and is meant to serve other rooms too. **Looks** and **views** are saved apart: the Look menu's **Save** keeps a Where, Looking at and eye height by name (a look aims at its thing wherever it is, so it follows a changed dresser or a moved island; only a look just chosen can be saved, not anywhere moved to by hand), and the Views menu's **Save** keeps the camera's spot and direction, wherever you've got to. Looks can also go in `room_3d.views.js` (its `looks`), to be the same on every device. As a person (sitting or standing), dragging looks round where you are, and in the desk chair the chair swivels with you; right-drag, shift-drag, the arrow keys or WASD walk, and scrolling zooms like a lens. From above, dragging swings round the room as before.
 
@@ -159,30 +157,26 @@ A shelf can stay over a thing when its top is at least the thing's height + 18 +
 | Drying racks | 700 | 786 |
 | Yellow tub | 450 | 536 |
 
-So in every option the top shelf (1800, or 1803 in the left-wall cupboard) stays right across, 1764 (1767) clear of the cupboard floor, 144 (147) over the long ladder. The 1200 (1203) shelf is cut over the ladders and the mop but can stay over the hoover, the racks and the tub; the 600 shelf is cut over everything but the tub. With the tightest packing (850 × 1090) and a 600-deep left-wall cupboard (T = 600, R = 330, F = 1200, other sliders as they start):
+So in every option the top shelf (1800) stays right across, 1764 clear of the cupboard floor, 144 over the long ladder. The 1200 shelf is cut over the ladders and the mop but can stay over the hoover, the racks and the tub; the 600 shelf is cut over everything but the tub. With the tightest packing (850 × 1090) and a 600-deep left-wall cupboard (T = 600, R = 330, F = 1200, other sliders as they start):
 
 | Options | Shelves | Cut back for the bay | Fit |
 | --- | --- | --- | --- |
-| 1–5 | 1203, 1803 in the left-wall cupboard | 1203 over y 348–858 (folding ladder, long ladder, mop) | 4 of 6: the racks and tub stick out |
-| 6 | 600, 1200, 1800 in the left-wall leg; 390 in the lower cupboard | 600 over y 348–1182, 1200 over y 348–858 | 4 of 6: the racks and tub stick out |
 | 7 | 600, 1200, 1800 in both legs | 600 over x 0–860 and y 312–1090; 1200 over x 0–510 and y 312–550 | 5 of 6: the racks stick out |
 | 8 | 600, 1200, 1800 | 600 over x 0–860, 1200 over x 0–510 | 5 of 6: the racks stick out |
 | 9 | 600, 1200, 1800 in the double-door cupboard and the leg | 600 over x 0–860 and y 582–1090; 1200 over x 0–510 | 5 of 6: the racks stick out (the 580 × 1770 packing leaves only the tub out) |
 | 10, 11 (at 800 × 1200) | 600, 1200, 1800 | 600 over y 0–1090, 1200 over y 0–550 | 4 of 6: the racks and hoover stick out |
 
-Without a left-wall cupboard (T = 0), options 1–5 have no corner cupboard, option 6 fits none (its lower cupboard is only 744 high), and option 7 fits 1 of 6.
+Without a left-wall cupboard (T = 0), option 7 fits 1 of 6.
 
 The corner cupboard's inside, for each option (shelves are cut back as above; bench tops, dividers and panels count):
 
 | Options | Inside |
 | --- | --- |
-| 1–5 | The left-wall cupboard: full height (2407) from y = R + 18 to F − 18, and under the bench (BENCH − 36) behind that, x 0 to T |
-| 6 | The back-wall leg's lower cupboard (BENCH − 36 high), and the left-wall leg at full height |
 | 7 | Both legs of the L at full height |
 | 8 | The corner unit at full height, to 25 behind its diagonal doors |
 | 9 | The double-door cupboard (x 0 to T + WARD − 18, WARD_D deep) and the left-wall leg, at full height |
 | 10, 11 | The CORNER_W × CORNER_D corner cupboard at full height, x 0 to CORNER_W − 18 (782 at 800), y 0 to CORNER_D − 18; none when too shallow to build |
-| 12 | None: they stay by the window |
+| 16 (the current room) | None: they stay by the window |
 
 | Thing | Footprint (along x × along y, in the 850 × 1090 packing) | Height | Colour | Notes |
 | --- | --- | --- | --- | --- |
@@ -251,13 +245,8 @@ The screen colours each part is drawn in, as set in [room_3d.html](room_3d.html)
 | --- | --- |
 | Left-wall cupboard door width | F − R − 6 |
 | Inside leg along the left wall | F − R |
-| Bench, options 1–5 | from x = T, length 3838 − T, depth R |
-| Bench, options 6 and 8 | from x = T + 700, length 3138 − T, depth R |
+| Bench, option 8 | from x = T + 700, length 3138 − T, depth R |
 | Bench, option 7 | from x = T + LEG, length 3838 − T − LEG, depth R |
-| Corner above the bench (options 1–2) | T × R |
-| Door over the corner shelves (option 2) | (R − 6) × (H − 6 − BENCH) |
-| Upper cupboard doors (options 4, 5) | UPPER − 24 wide, and in option 5 a second one EXTRA − 6 wide; from BENCH + 3 to H − 3 |
-| Option 6 lower door | 676 × (BENCH − 24) |
 | Option 8 diagonal front | from (T, F) to (T + 700, R), length √(700² + (F − R)²), two doors each (length − 9) / 2 |
 
 ## Hardcoded dimensions
@@ -285,13 +274,10 @@ The screen colours each part is drawn in, as set in [room_3d.html](room_3d.html)
 | --- | --- | --- |
 | — | 18 | Panel thickness: carcass sides, tops, bottoms, shelves inside cupboards, doors |
 | — | 3 | Gap round each cupboard door (doors stop 3 short of floor, ceiling and neighbours, so full-height doors are H − 6 = 2437 high) |
-| — | 700 | Inside leg of the full-height L along the back wall, options 6 and 8 (x T to T + 700) |
-| — | 1203, 1803 | Shelf tops inside the left-wall cupboard |
-| `upperTops()` | BENCH, BENCH + 423, + 828, + 1233 | Shelf tops in the corner and upper units above the bench (780, 1203, 1608, 2013 at the default bench) |
+| — | 700 | Inside leg of option 8's corner unit along the back wall (x T to T + 700) |
 | — | 600, 1200, 1800 | Shelf tops inside the full-height L and option 8 |
-| — | 390 | Option 6's shelf inside the lower cupboard (top) |
 | — | 25 | Option 8: shelves stop this far behind the diagonal front |
-| — | 950 to 1250 | Full-height door handles. Doors above the bench: BENCH + 170 to + 470. Option 6 lower door: BENCH − 300 to − 80 |
+| — | 950 to 1250 | Full-height door handles |
 
 ### Above the bench
 
@@ -348,7 +334,6 @@ How these fit, with the counter at the back of the 372-deep sink recess (y = 575
 
 - **Board thickness:** every cupboard is drawn from boards 18 thick, typed into the code as `18` throughout. Planned: one setting with a slider (default 18), keeping the cupboards' **exterior** dimensions fixed; see `PLAN.md`.
 - Option 11's doors are only on the part of its side clear of the bench; doors along the whole side would need the bench to stop short of it.
-- The fit check for the things to store counts the space behind the bench line in options 1 to 5 as only bench height.
 - The shelfless bay cuts shelves straight across; a real one would want an upright panel at each cut to carry the shelf ends.
 - The Window viewpoint faces the sink with the front wall to its left; not confirmed that's what was meant.
 - With a small TV, the middle shelves either side sit level with its top edge, not halfway up it.

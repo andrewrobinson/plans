@@ -37,7 +37,7 @@ module.exports = defineConfig({
     { name: 'iphone', use: { ...devices['iPhone 13'] } },
   ],
   webServer: {
-    command: `python3 -m http.server ${PORT}`,
+    command: `python3 serve.py ${PORT}`,
     url: `http://localhost:${PORT}/room_3d.html`,
     reuseExistingServer: true,
     stderr: 'ignore',                        // the server's request log

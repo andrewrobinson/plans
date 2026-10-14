@@ -1,7 +1,7 @@
 // Larders for the menu's Larder dropdown in room_3d.html. Edit freely, add
 // more, then reload the page. A larder stands on the front wall (between the
-// sink and the desk) when the menu's "On the front wall" says Larder, and in
-// the corner in the options for that. It takes the dresser's colour.
+// sink and the desk) when the menu's "On the front wall" says Larder. It
+// takes the dresser's colour.
 //
 // Sizes in mm. w: width; d: depth, front to back. Its parts stack from the
 // floor up, and their heights add up to its height:

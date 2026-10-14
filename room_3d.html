@@ -276,12 +276,8 @@
   <div id="cornerBlock">
     <label for="cornerW">Corner cupboard width: <span id="cornerWValue">800</span></label>
     <input id="cornerW" type="range" min="500" max="1200" step="10" value="800">
-    <label for="cornerD">Corner cupboard depth (out along the left wall): <span id="cornerDValue">1200</span></label>
-    <input id="cornerD" type="range" min="0" max="1329" step="1" value="1200">
-  </div>
-  <div id="upperBlock">
-    <label for="upper">Upper cupboard width: <span id="upperValue">700</span></label>
-    <input id="upper" type="range" min="400" max="1200" step="50" value="700">
+    <label for="cornerD">Corner cupboard depth (out along the left wall): <span id="cornerDValue">650</span></label>
+    <input id="cornerD" type="range" min="0" max="1329" step="1" value="650">
   </div>
   <div id="legBlock">
     <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
@@ -292,10 +288,6 @@
     <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
     <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
     <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
-  </div>
-  <div id="extraBlock">
-    <label for="extra">Option 5 second bay: <span id="extraValue">500</span></label>
-    <input id="extra" type="range" min="300" max="900" step="50" value="500">
   </div>
 </div>
 
@@ -668,9 +660,9 @@ box(0, 600, 1000, 60, 720, 1020, handleMat, roomHinge, false);
 // height, where the dresser stands), and nor is the view (view_kit.js).
 // ---------------------------------------------------------------------------
 const state = {
-  option: 0,                       // the option on show, its index in OPTIONS (not its number, as some are left out): option 7 to start, set below OPTIONS
+  option: 0,                       // the option on show, its index in OPTIONS (not its number, as the list starts at 7): option 10 to start, set below OPTIONS
   // The left-wall cupboard's depth from the wall: 0 (none), or 300 to 800 in
-  // 10s. Options 2 and 8 need it, so they're unavailable at 0. Everything
+  // 10s. Option 8 needs it, so it's unavailable at 0. Everything
   // along the back wall starts from it. 600 to start, as option 7 has when
   // chosen.
   T: 600,
@@ -680,16 +672,14 @@ const state = {
   // from, 12 to 25: the same for all of them. Cupboards' outside sizes stay
   // as set, so thicker boards take room from the inside.
   BOARD: 18,
-  UPPER: 700,                      // option 4's upper cupboard, along the back wall: 400 to 1200. Options 3 and 5 are built on it. Its door is UPPER - BOARD - 6 wide
-  EXTRA: 500,                      // option 5's second bay, beyond option 4's upper cupboard: 300 to 900. Its door is EXTRA - 6 wide
-  LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200. Its door is LEG - BOARD - 6 wide. Options 6 and 8 keep 700
+  LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200. Its door is LEG - BOARD - 6 wide. Option 8 keeps 700
   LEG_D: 600,                      // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench, which stays R deep
   L_SHELVES: { back: [600, 1200, 1800], left: [600, 1200, 1800] },   // ...and its shelf tops in the back-wall leg (with the inside corner) and the left-wall leg
   WARD: 900,                       // option 9's full-height double-door cupboard on the back wall: 600 to 1400 wide
   WARD_D: 600,                     // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench and tower, which stay R deep
   TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)
   CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200. Option 10's doors are (CORNER_W - BOARD - 9) / 2 wide each
-  CORNER_D: 1200,                  // ...and out along the left wall, in place of F: 0 to 1329 (the door frame). Too shallow (cornerTooShallow()), it isn't built
+  CORNER_D: 650,                   // ...and out along the left wall, in place of F: 0 to 1329 (the door frame). Too shallow (cornerTooShallow()), it isn't built
   benchOn: true,                   // the bench drawn, with what's above it; off, the back wall's bare
   BENCH: 780,                      // the bench's height: 700, 780, 800 or 900
   above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
@@ -803,24 +793,8 @@ function cupCutText() {
 }
 
 // ---------------------------------------------------------------------------
-// Parts shared by options 1-5
+// Parts of options 7 to 9
 // ---------------------------------------------------------------------------
-
-// The tall cupboard on the left wall, x 0-T, y 0-F, full height. Its
-// door is on the exposed side (x = T, y R to F), hinged at the front
-// (y = F). Below the bench top, its inside runs back to the back wall,
-// behind the bench end. Returns the door's hinge.
-function tallCupboard(g) {
-  const { T, R, F, BOARD, BENCH } = state;
-  if (T === 0) return null;                                     // no left-wall cupboard
-  part('Left cupboard front end', box(0, F - BOARD, 0, T, F, H, carcassMat, g));                   // front end
-  part('Left cupboard top', box(0, 0, H - BOARD, T, F, H, carcassMat, g));                 // top
-  part('Left cupboard bottom', box(0, 0, 0, T, F, BOARD, carcassMat, g));                     // bottom
-  part('Divider above the bench', box(0, R, BENCH, T, R + BOARD, H - BOARD, carcassMat, g));            // divider, above the bench top only
-  part('Side behind the bench end', box(T - BOARD, 0, BOARD, T, R, BENCH - BOARD, carcassMat, g));        // side behind the bench end
-  for (const top of [1203, 1803]) cupShelf(rectPoly(0, R + BOARD, T - BOARD, F - BOARD), top, carcassMat);
-  return tallDoor(g);
-}
 
 // Left-wall cupboard door: (F - 6 - R) x (H - 6) on x T to T + BOARD, y R + 3 to
 // F - 3, hinged at y = F
@@ -832,29 +806,6 @@ function tallDoor(g, back = state.R) {                          // back: where t
   box(0, -w - 3, 3, BOARD, -3, H - 3, doorMat, h);
   box(BOARD, -w + 17, 950, BOARD + 22, -w + 37, 1250, handleMat, h, false); // handle near the free edge, 950-1250
   return h;
-}
-
-// The corner above the bench (x 0-T, y 0-R): backing panel against the
-// left wall, and shelves at BENCH (base) and upperTops(). `to` is where the
-// upper shelves end: T for the corner alone, further when they run on into
-// an upper cupboard on the bench.
-function cornerShelves(g, to) {
-  const { T, R, BOARD, BENCH } = state;
-  if (to <= BOARD) return;                                         // no corner, and nothing running on from it
-  part('Backing on the left wall', box(0, 0, BENCH, BOARD, R, H - BOARD, carcassMat, g));             // backing
-  box(BOARD, 0, BENCH - BOARD, T, R, BENCH, shelfMat, g);           // base, level with the bench top
-  for (const top of upperTops()) box(BOARD, 0, top - BOARD, to, R, top, shelfMat, g);
-}
-
-// Shelf tops above the bench in the corner and upper units: 1203, 1608 and
-// 2013 with the bench at 780
-const upperTops = ({ BENCH } = state) => [BENCH + 423, BENCH + 828, BENCH + 1233];
-
-// The upper unit on the bench, x T to T + UPPER, from the bench top to the ceiling
-function upperUnit(g) {
-  const { T, R, BOARD, BENCH, UPPER } = state;
-  part('Upper cupboard end', box(T + UPPER - BOARD, 0, BENCH, T + UPPER, R, H - BOARD, carcassMat, g)); // end panel
-  part('Upper cupboard top', box(T, 0, H - BOARD, T + UPPER, R, H, carcassMat, g));          // top
 }
 
 // The full-height L of option 7: legs inside LEG along the back wall (x 0 to
@@ -1267,8 +1218,7 @@ function placeDresser() {
   state.dresser.x1 = state.dresser.x0 + state.dresser.w;
 }
 placeDresser();
-// where: where it stands, for the description (by default, on the front wall)
-function dresser(g, where = `on the front wall between the sink and the desk (x ${state.dresser.x0}-${state.dresser.x1})`) {
+function dresser(g) {
   // Its width is overall, with the top's 20 overhang each side, so the body is 40 narrower
   const { h, baseD, baseH, upperD, drawer } = state.dresser, x0 = state.dresser.x0 + 20, x1 = state.dresser.x1 - 20, w = state.dresser.w - 40;
   const yb = D - baseD, yu = D - upperD;                         // the fronts of the base and the upper part
@@ -1291,15 +1241,14 @@ function dresser(g, where = `on the front wall between the sink and the desk (x 
   box(x0 - 20, yu - 20, h - 40, x1 + 20, D, h, dresserMat, g);   // top, 20 proud
   const shelfTops = [1, 2, 3].map(k => Math.round(baseH + k * (h - 40 - baseH) / 4));   // evenly up the upper part
   for (const top of shelfTops) box(x0 + 18, yu, top - 22, x1 - 18, D - 12, top, shelfMat, g);
-  return ` A dresser ${where}: ${state.dresser.w} wide overall (its body ${w}), ${h} high, ${baseD} deep up to ${baseH} ` +
+  return ` A dresser on the front wall between the sink and the desk (x ${state.dresser.x0}-${state.dresser.x1}): ${state.dresser.w} wide overall (its body ${w}), ${h} high, ${baseD} deep up to ${baseH} ` +
     `(two drawers over two doors, under a wooden top), then ${upperD} deep with three open shelves.`;
 }
 
 // ---------------------------------------------------------------------------
 // Larders, from room_3d.larders.js. Drawn as the dresser is, with its back on
-// the front wall from x0, facing into the room (placePiece() turns either
-// into a corner). Its parts stack from the floor up. Returns its doors
-// (hinges, for an option's door slider) and a description.
+// the front wall from x0, facing into the room. Its parts stack from the
+// floor up. Returns a description.
 const LARDERS = window.ROOM_LARDERS?.list ?? {};
 state.larder.key = Object.hasOwn(LARDERS, window.ROOM_LARDERS?.start ?? '') ? ROOM_LARDERS.start : Object.keys(LARDERS)[0] ?? '';
 // The larder's sizes can be changed from its sliders: [key, slider id,
@@ -1326,7 +1275,7 @@ function currentLarder() {
   return { ...L, label: resized ? `${L.label}, resized` : L.label, w, d, parts };
 }
 function larder(g, L, x0) {
-  const x1 = x0 + L.w, doors = [];
+  const x1 = x0 + L.w;
   let z = 0;
   for (const p of L.parts) {
     const h = partHeight(p), d = p.d ?? L.d, yf = D - d, z1 = z + h;   // yf: its front
@@ -1370,31 +1319,20 @@ function larder(g, L, x0) {
         box(low ? 0 : -dw, 0, z + 3, low ? dw : 0, 18, z1 - 3, dresserDoorMat, leaf);
         const kx = low ? dw - 50 : 30 - dw, kz = n === 2 || h < 1000 ? (z + z1) / 2 : z + 150;   // knob by the free edge
         box(kx, -20, kz - 10, kx + 20, 0, kz + 10, handleMat, leaf, false);
-        doors.push(leaf);
       }
     }
     z = z1;
   }
-  return { doors, text: `${L.label}: ${L.w} wide, ${larderHeight(L)} high, ${larderDepth(L)} deep` };
+  return `${L.label}: ${L.w} wide, ${larderHeight(L)} high, ${larderDepth(L)} deep`;
 }
-// The dresser and larders are drawn on the front wall from x0, w wide. In a
-// corner they're turned round into it: against the back wall, facing the
-// room ('back'), or against the left wall, facing the windows ('left').
-function placePiece(g, where, x0 = 0, w = 0) {
+// The dresser or a larder, in a group of its own, to look at
+function placePiece(g) {
   const sub = new THREE.Group();
   g.add(sub);
-  if (where === 'back') {
-    sub.rotation.y = Math.PI;
-    sub.position.set((x0 + w) * MM, 0, D * MM);
-  } else if (where === 'left') {
-    sub.rotation.y = -Math.PI / 2;
-    sub.position.set(D * MM, 0, -x0 * MM);
-  }
   return sub;
 }
 // On the front wall between the sink and the desk: the dresser, a larder or
-// nothing, in every option but the current room and those with the dresser
-// or a larder in the corner
+// nothing, in every option but the current room
 const FRONT_PIECES = ['dresser', 'larder', 'none'];
 const pieces = { dresser: null, larder: null, sofa: null };   // where each is drawn now, to look at
 const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;
@@ -1481,17 +1419,17 @@ function sofa(g) {
   const island = x0 < ix1 && x1 > ix0 && y1 > iy0 && y0 < iy1 ? ' It runs into the island.' : x0 < ix1 && x1 > ix0 && iy0 >= y1 ? ` Behind it, ${iy0 - y1} to the island.` : '';
   return ` A sofa facing the TV, the ${S.label}: ${S.w} wide, ${S.d} deep, ${S.h} high, its seat at ${S.seatH}. Its front is ${y0} from the TV wall (x ${x0}-${x1}, y ${y0}-${y1}).${island}`;
 }
-function frontWall(g, option, i) {
+function frontWall(g, i) {
   if (islandOnWall()) {
     const { x0, x1, y0 } = islandSpot();
     return ` The kitchen island against the front wall between the sink and the desk, its ${state.island.at === 'out' ? 'long' : 'short'} side out (x ${x0}-${x1}), coming ${D - y0} out from the wall to y ${y0}.`;
   }
-  if (i === CURRENT || option.corner) return '';
-  if (state.frontPiece === 'dresser') return dresser(pieces.dresser = placePiece(g, 'front'));
+  if (i === CURRENT) return '';
+  if (state.frontPiece === 'dresser') return dresser(pieces.dresser = placePiece(g));
   const L = currentLarder();
   if (state.frontPiece !== 'larder' || !L) return '';
   const x0 = larderFrontX0(L);
-  const { text } = larder(pieces.larder = placePiece(g, 'front'), L, x0);
+  const text = larder(pieces.larder = placePiece(g), L, x0);
   return ` A larder on the front wall between the sink and the desk (x ${x0}-${x0 + L.w}): the ${text}.` +
     (L.w > frontGap() ? ` It's ${L.w - frontGap()} wider than the ${frontGap()} of wall there.` : '');
 }
@@ -1501,55 +1439,12 @@ function frontSpan() {
     const { x0, x1 } = islandSpot();
     return { x0, x1, heights: [0, KITCHEN.island.top] };
   }
-  if (state.option === CURRENT || OPTIONS[state.option].corner) return null;
+  if (state.option === CURRENT) return null;
   if (state.frontPiece === 'dresser') return { x0: state.dresser.x0, x1: state.dresser.x1, heights: [0, state.dresser.baseH, state.dresser.h] };
   const L = currentLarder();
   if (state.frontPiece !== 'larder' || !L) return null;
   return { x0: larderFrontX0(L), x1: larderFrontX0(L) + L.w, heights: [0, larderHeight(L)] };
 }
-// The dresser's or larder's footprint in a corner: w along the wall, d out
-// from it, with what stands proud (the dresser's top, a larder's cornice)
-function pieceSize(kind) {
-  if (kind === 'dresser') return { w: state.dresser.w, d: Math.max(state.dresser.baseD + 15, state.dresser.upperD + 20) };
-  const L = currentLarder();
-  return L ? { w: L.w + 20, d: larderDepth(L) + 20 } : { w: 0, d: 0 };
-}
-// Options 12 to 15: the dresser or a larder as the corner cupboard, against
-// the back wall (facing the room) or the left wall (facing the windows),
-// with the bench from it to the right-hand wall, and the front wall clear
-function cornerPieceOption(n, kind, where) {
-  const wall = where === 'back' ? 'the back wall, facing the room' : 'the left wall, facing the windows';
-  const from = () => where === 'back' ? pieceSize(kind).w : pieceSize(kind).d;
-  return {
-    name: `${n}. ${kind === 'dresser' ? 'Dresser' : 'Larder'} as the corner cupboard, on the ${where} wall`,
-    source: `option ${n} (new)`,
-    corner: kind,
-    where,
-    fixedWidth: true,                                            // the left-wall cupboard's depth doesn't apply
-    clearFrom: from,
-    benchFrom: from,
-    summary: () => current?.text ?? '',
-    second: kind === 'larder' ? 'Larder doors' : undefined,
-    build(g) {
-      const { R, BENCH } = state;
-      const x = from(), { w } = pieceSize(kind);
-      box(x, 0, 0, W, R, BENCH, benchMat, g);                    // bench, to the right-hand wall
-      let text, doors = [];
-      if (kind === 'dresser') {
-        text = dresser(pieces.dresser = placePiece(g, where, state.dresser.x0, state.dresser.w), `in the corner, against ${wall}`).trim();
-      } else {
-        const L = currentLarder();
-        if (!L) return { text: 'No larders listed in room_3d.larders.js.' };
-        const x0 = larderFrontX0(L), made = larder(pieces.larder = placePiece(g, where, x0, L.w), L, x0);
-        doors = made.doors;
-        text = `A larder in the corner, against ${wall}: the ${made.text}.`;
-      }
-      if (where === 'left' && w > FRAME) text += ` At ${w} along the wall, it runs ${w - FRAME} past the door frame at ${FRAME}, into the doorway.`;
-      return { second: doors.length ? doors : undefined, text: `${text} Bench ${W - x}, from x = ${x}, ${R} deep.` };
-    },
-  };
-}
-
 // The open shelving tower, x0 to x1, full height, with a light strip under
 // the front of each shelf
 function shelvingTower(x0, x1, g) {
@@ -1616,133 +1511,9 @@ const tooShallowText = facing => `No corner cupboard: at ${state.CORNER_D} out a
 // ---------------------------------------------------------------------------
 // The options. Summaries are functions of the settings, as their sizes depend
 // on them: each part reads the sizes it needs from state when it's called,
-// as `clearFrom: ({ T, UPPER } = state) => T + UPPER`.
+// as `clearFrom: ({ T, LEG } = state) => T + LEG`.
 // ---------------------------------------------------------------------------
 const OPTIONS = [
-  /*{
-    name: '1. Side cupboard with open shelves',
-    leftDepth: 360,                                    // meaningless without the left-wall cupboard: this deep, if there's none
-    source: 'plans/room_3d.html',
-    clearFrom: ({ T } = state) => T,
-    benchFrom: ({ T } = state) => T,
-    summary: ({ T, R, F } = state) => `Tall cupboard on the left wall with a ${F - 6 - R} full-height door. Above the bench, the corner (${T} × ${R}) is open shelving facing into the room. Bench ${W - T}, from x = ${T}, ${R} deep.`,
-    build(g) {
-      const { T, R, BENCH } = state;
-      box(T, 0, 0, W, R, BENCH, benchMat, g);
-      cornerShelves(g, T);
-      return { tall: tallCupboard(g) };
-    },
-  },
-  {
-    name: '2. Side cupboard with door above bench',
-    leftDepth: 360,                                    // meaningless without the left-wall cupboard: this deep, if there's none
-    source: 'plans/room_3d_shelf_door.html',
-    clearFrom: ({ T } = state) => T,
-    benchFrom: ({ T } = state) => T,
-    summary: ({ T, R, BENCH } = state) => `As option 1, with a ${R - 6} × ${H - BENCH - 6} door covering the corner shelves, hinged at the back-wall side. Bench ${W - T}, from x = ${T}, ${R} deep.`,
-    second: 'Shelving door',
-    build(g) {
-      const { T, R, BOARD, BENCH } = state;
-      box(T, 0, 0, W, R, BENCH, benchMat, g);
-      cornerShelves(g, T);
-      const second = hinge(T + BOARD, 0, g);
-      box(-BOARD, 3, BENCH + 3, 0, R - 3, H - 3, doorMat, second);
-      box(0, R - 40, BENCH + 170, 22, R - 20, BENCH + 470, handleMat, second, false);
-      return { tall: tallCupboard(g), second };
-    },
-  },
-  {
-    name: '3. Upper open shelves on the bench',
-    needsBench: true,                                  // stands on the bench: not available without it
-    source: 'plan2/room_3d_open.html',
-    clearFrom: ({ T, UPPER } = state) => T + UPPER,
-    benchFrom: ({ T } = state) => T,
-    summaryNoLeft: ({ R, UPPER } = state) => `No left-wall cupboard: open shelves on the bench against the left wall (x 0-${UPPER}), facing down the room. Bench ${W}, ${R} deep.`,
-    summary: ({ T, R, UPPER } = state) => `As option 4 with no door: the shelves on the bench (x ${T}-${T + UPPER}) are open, facing down the room. Bench ${W - T}, ${R} deep.`,
-    build(g) {
-      const { T, R, BOARD, BENCH, UPPER } = state;
-      box(T, 0, 0, W, R, BENCH, benchMat, g);
-      upperUnit(g);
-      cornerShelves(g, T + UPPER - BOARD);
-      return { tall: tallCupboard(g) };
-    },
-  },
-  {
-    name: '4. Upper cupboard on the bench, with door',
-    needsBench: true,                                  // stands on the bench: not available without it
-    source: 'plan2/room_3d.html',
-    clearFrom: ({ T, UPPER } = state) => T + UPPER,
-    benchFrom: ({ T } = state) => T,
-    summaryNoLeft: ({ R, BOARD, BENCH, UPPER } = state) => `No left-wall cupboard: an upper cupboard on the bench against the left wall (x 0-${UPPER}, ${BENCH} to ceiling), with a ${UPPER - BOARD - 6} × ${H - BENCH - 6} door. Bench ${W}, ${R} deep.`,
-    summary: ({ T, R, F, BOARD, BENCH, UPPER } = state) => `An upper cupboard on the bench (x ${T}-${T + UPPER}, ${BENCH} to ceiling) makes an L with the tall cupboard: inside legs ${UPPER} along the back wall, ${F - R} along the left wall. Its ${UPPER - BOARD - 6} × ${H - BENCH - 6} door faces down the room. Bench ${W - T}, from x = ${T}, ${R} deep; the upper cupboard stands on its first ${UPPER}.`,
-    second: 'Upper cupboard door',
-    build(g) {
-      const { T, R, BOARD, BENCH, UPPER } = state;
-      box(T, 0, 0, W, R, BENCH, benchMat, g);
-      upperUnit(g);
-      cornerShelves(g, T + UPPER - BOARD);
-      const second = hinge(T + UPPER, R + BOARD, g);
-      box(BOARD + 3 - UPPER, -BOARD, BENCH + 3, -3, 0, H - 3, doorMat, second);
-      box(BOARD + 20 - UPPER, 0, BENCH + 170, BOARD + 40 - UPPER, 22, BENCH + 470, handleMat, second, false);
-      return { tall: tallCupboard(g), second };
-    },
-  },
-  {
-    name: '5. Longer upper cupboard, two doors',
-    needsBench: true,                                  // stands on the bench: not available without it
-    source: 'option 4 (new)',
-    clearFrom: ({ T, UPPER, EXTRA } = state) => T + UPPER + EXTRA,
-    benchFrom: ({ T } = state) => T,
-    summaryNoLeft: ({ R, BOARD, BENCH, UPPER, EXTRA } = state) => `No left-wall cupboard: an upper cupboard on the bench against the left wall, to x = ${UPPER + EXTRA}, in two bays with ${UPPER - BOARD - 6} and ${EXTRA - 6} doors, ${H - BENCH - 6} high. Bench ${W}, ${R} deep.`,
-    summary: ({ T, R, BOARD, BENCH, UPPER, EXTRA } = state) => `As option 4, but the upper cupboard runs on to x = ${T + UPPER + EXTRA} (${UPPER + EXTRA} inside leg), in two bays: the ${UPPER - BOARD - 6} door as before, then a ${EXTRA - 6} door in a ${EXTRA} bay, both ${H - BENCH - 6} high and hinged on their right. Bench ${W - T}, from x = ${T}, ${R} deep.`,
-    second: 'Upper cupboard doors',
-    build(g) {
-      const { T, R, BOARD, BENCH, UPPER, EXTRA } = state;
-      box(T, 0, 0, W, R, BENCH, benchMat, g);
-      upperUnit(g);                                              // its end panel is now the middle divider
-      const end = T + UPPER + EXTRA;                               // the second bay is EXTRA wide
-      part('Second bay end', box(end - BOARD, 0, BENCH, end, R, H - BOARD, carcassMat, g));    // end panel
-      part('Second bay top', box(T + UPPER, 0, H - BOARD, end, R, H, carcassMat, g));         // top
-      cornerShelves(g, T + UPPER - BOARD);
-      for (const top of upperTops()) box(T + UPPER, 0, top - BOARD, end - BOARD, R, top, shelfMat, g);
-      const first = hinge(T + UPPER, R + BOARD, g);
-      box(BOARD + 3 - UPPER, -BOARD, BENCH + 3, -3, 0, H - 3, doorMat, first);
-      box(BOARD + 20 - UPPER, 0, BENCH + 170, BOARD + 40 - UPPER, 22, BENCH + 470, handleMat, first, false);
-      const next = hinge(end, R + BOARD, g);
-      box(3 - EXTRA, -BOARD, BENCH + 3, -3, 0, H - 3, doorMat, next);
-      box(20 - EXTRA, 0, BENCH + 170, 40 - EXTRA, 22, BENCH + 470, handleMat, next, false);
-      return { tall: tallCupboard(g), second: [first, next] };
-    },
-  },
-  {
-    name: '6. Full-height L-shaped cupboard with shelves',
-    source: 'option 7 (new)',
-    clearFrom: ({ T } = state) => T + 700,
-    benchFrom: ({ T } = state) => T + 700,
-    summaryNoLeft: ({ R, BOARD, BENCH } = state) => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-700), open shelving from ${BENCH} up and a ${700 - BOARD - 6} × ${BENCH - BOARD - 6} door below. Bench ${W - 700}, from x = 700, ${R} deep.`,
-    summary: ({ T, R, BOARD, BENCH } = state) => `As option 7, but the back-wall leg is open shelving from ${BENCH} up, level with the bench top, with a ${700 - BOARD - 6} × ${BENCH - BOARD - 6} cupboard door below. A panel at y = ${R} separates the left-wall leg, so the corner belongs to the back-wall leg. Bench ${W - T - 700}, from x = ${T + 700}, ${R} deep.`,
-    second: 'Lower door',
-    build(g) {
-      const { T, R, F, BOARD, BENCH } = state;
-      const E = T + 700;
-      box(E, 0, 0, W, R, BENCH, benchMat, g);
-      part('Left-wall leg front end', box(0, F - BOARD, 0, T, F, H, carcassMat, g));                // left-wall leg front end
-      part('Back-wall leg end', box(E - BOARD, 0, 0, E, R, H, carcassMat, g));               // back-wall leg end
-      part('Back-wall leg top', box(0, 0, H - BOARD, E, R, H, carcassMat, g));               // tops
-      part('Left-wall leg top', box(0, R, H - BOARD, T, F - BOARD, H, carcassMat, g));
-      part('Back-wall leg bottom', box(0, 0, 0, E - BOARD, R, BOARD, carcassMat, g));              // bottoms
-      part('Left-wall leg bottom', box(0, R, 0, T, F - BOARD, BOARD, carcassMat, g));
-      part('Divider between the legs', box(0, R, BOARD, T, R + BOARD, H - BOARD, carcassMat, g));            // divider between the legs
-      for (const top of [600, 1200, 1800]) cupShelf(rectPoly(0, R + BOARD, T - BOARD, F - BOARD), top, carcassMat);
-      cupShelf(rectPoly(0, 0, E - BOARD, R - BOARD), 390, carcassMat);    // shelf inside the lower cupboard
-      box(0, 0, BENCH - BOARD, E - BOARD, R, BENCH, shelfMat, g);    // fixed shelf, level with the bench
-      for (const top of upperTops()) box(0, 0, top - BOARD, E - BOARD, R, top, shelfMat, g);
-      const second = hinge(E, R + BOARD, g);
-      box(T + BOARD + 3 - E, -BOARD, 3, -3, 0, BENCH - BOARD - 3, doorMat, second);
-      box(T + BOARD + 20 - E, 0, BENCH - 300, T + BOARD + 40 - E, 22, BENCH - 80, handleMat, second, false);
-      return { tall: tallDoor(g), second };
-    },
-  },*/
   {
     name: '7. Full-height L-shaped cupboard',
     defaultLeft: 600,                                  // chosen with no left-wall cupboard: one this deep (it can be taken away again)
@@ -1876,10 +1647,6 @@ const OPTIONS = [
     },
   },
 
-  cornerPieceOption(12, 'dresser', 'back'),
-  cornerPieceOption(13, 'dresser', 'left'),
-  cornerPieceOption(14, 'larder', 'back'),
-  cornerPieceOption(15, 'larder', 'left'),
   {
     name: '16. Current room, no cupboards yet',
     source: 'the room as it is now',
@@ -1893,17 +1660,17 @@ const OPTIONS = [
     },
   },
 ];
-// Each option's number is the one in its name. Options left out of OPTIONS
-// (commented out) keep theirs, so the rest are found by number, never by
-// their place in the list: optionAt(9) is option 9's index, -1 if it's out.
+// Each option's number is the one in its name. The list starts at 7 (options
+// 1 to 6 were taken out), so options are found by number, never by their
+// place in the list: optionAt(9) is option 9's index, -1 if there's none.
 for (const o of OPTIONS) o.no = parseInt(o.name, 10);
 const optionAt = no => OPTIONS.findIndex(o => o.no === no);
 const CURRENT = OPTIONS.length - 1;
-state.option = optionAt(7);
+state.option = optionAt(10);
 // In the address each option keeps the code it was first given, so links made
 // before options 10 and on still work: 1 to 9 as numbered, 10 for the current
-// room (it was option 10), then 11 on for options 10 on. An option left out
-// reads as none (undefined), so the page keeps its own.
+// room (it was option 10), then 11 on for options 10 on. A code for an option
+// taken out (1 to 6) reads as none (undefined), so the page keeps its own.
 const optionCode = i => i === CURRENT ? 10 : OPTIONS[i].no <= 9 ? OPTIONS[i].no : OPTIONS[i].no + 1;
 const optionIndex = code => {
   const i = code === 10 ? CURRENT : optionAt(code <= 9 ? code : code - 1);
@@ -2176,8 +1943,8 @@ function cuttingList() {
 const cutList = document.getElementById('cutList'), cutToggle = document.getElementById('cutToggle');
 function showCuttingList() {
   const option = OPTIONS[state.option];
-  if (option.corner || state.option === CURRENT) {
-    cutList.innerHTML = `<b>No cutting list</b>: ${option.corner ? `the ${option.corner} is bought furniture, not built from boards` : 'no cupboard in this option'}.`;
+  if (state.option === CURRENT) {
+    cutList.innerHTML = '<b>No cutting list</b>: no cupboard in this option.';
     return;
   }
   const kinds = cuttingList(), order = ['Panels', 'Doors', 'Shelves'];
@@ -2272,15 +2039,11 @@ function faceLabel(text, x, y, w, d, z, g) {
 // the clear height above each, in mm. Shelves inside are taken to be
 // removable; bench tops, dividers and the cupboard's own panels count.
 function cupboardSpaces() {
-  const { T, R, F, BOARD, BENCH, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = state;
+  const { T, F, BOARD, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = state;
   const rect = (x0, y0, x1, y1, h) => ({ poly: [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], h });
-  const full = H - 2 * BOARD, under = BENCH - 2 * BOARD;                       // inside a full-height cupboard, and under the bench
+  const full = H - 2 * BOARD;                                                   // inside a full-height cupboard
   const leftLeg = from => T ? [rect(0, from, T - BOARD, F - BOARD, full)] : [];
   switch (OPTIONS[state.option].no) {
-    case 1: case 2: case 3: case 4: case 5:                      // the left-wall cupboard, running under the bench at the back
-      return T ? [rect(0, R + BOARD, T, F - BOARD, full), rect(0, 0, T - BOARD, R + BOARD, under)] : [];
-    case 6:                                                      // the L: a lower cupboard on the back wall, full height on the left
-      return [rect(0, 0, T + 700 - BOARD, R - BOARD, under), ...leftLeg(R + BOARD)];
     case 7:                                                      // the full-height L, one space round the corner
       return [rect(0, 0, T + LEG - BOARD, LEG_D - BOARD, full), ...leftLeg(LEG_D - BOARD)];
     case 8: {                                                    // the corner unit, to 25 behind its diagonal front
@@ -2654,8 +2417,6 @@ function withoutBench(text) {
   return text
     .replace(/ ?Bench (shortened to )?\d+[^.;]*? deep(;[^.]*)?\./g, ' No bench, so nothing on the back wall.')
     .replace(/\. Base cupboards with \d+ doors under an oak top run on to the right-hand wall: [^.]*? deep\./, '. No base cupboards (no bench), so nothing on the back wall beyond.')
-    .replace(/(upper cupboard|open shelves|shelves) on the bench/g, '$1 at bench height')
-    .replace('level with the bench top', 'at bench height')
     .replace(/, where it's clear of the \d+-deep bench (\(y [^)]*\))/, ' $1')
     .replace(', behind the bench end.', '.')
     .replace(/Above the bench, /g, 'Above bench height, ');
@@ -2665,8 +2426,6 @@ function withoutBench(text) {
 // the same one (a size changed) leaves the doors as they were.
 function show(i) {
   if (state.T === 0 && OPTIONS[i].needsLeft) i = optionAt(7);  // 8 falls back to 7
-  if (!state.benchOn && OPTIONS[i].needsBench) i = OPTIONS.findIndex(o => !o.needsBench);   // 3 to 5 fall back to 1 (the first that doesn't)
-  if (state.T === 0 && OPTIONS[i].leftDepth) setDepth(OPTIONS[i].leftDepth);   // an option that needs the left-wall cupboard gets one
   const { T, benchOn, above } = state;                          // as they are now, for the option chosen
   const option = OPTIONS[i];
   const same = i === state.option && current;
@@ -2689,16 +2448,14 @@ function show(i) {
     for (const o of benches) o.parent?.remove(o);
     tvAt = [(option.clearFrom() + W) / 2, 0, TV_BOTTOM + TV_H / 2];
   }
-  const aboveText = (benchOn ? benchWall(option.clearFrom(), group) : '') + frontWall(group, option, i) + sofa(group);
+  const aboveText = (benchOn ? benchWall(option.clearFrom(), group) : '') + frontWall(group, i) + sofa(group);
 
-  [...currentSelect.options].forEach((o, j) => { o.disabled = (T === 0 && Boolean(OPTIONS[j].needsLeft)) || (!benchOn && Boolean(OPTIONS[j].needsBench)); });
+  [...currentSelect.options].forEach((o, j) => { o.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft); });
   currentSelect.value = String(i);
   document.getElementById('summary').innerHTML =
     `${withoutBench((T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary)())}${aboveText}<div class="src">From ${option.source}</div>`;
   document.getElementById('tallBlock').style.display = current.tall ? '' : 'none';
   const { no } = option;
-  document.getElementById('upperBlock').style.display = no >= 3 && no <= 5 ? '' : 'none';
-  document.getElementById('extraBlock').style.display = no === 5 ? '' : 'none';
   document.getElementById('legBlock').style.display = no === 7 ? '' : 'none';
   document.getElementById('wardBlock').style.display = no === 9 ? '' : 'none';
   document.getElementById('cornerBlock').style.display = no === 10 || no === 11 ? '' : 'none';
@@ -2708,8 +2465,8 @@ function show(i) {
   document.getElementById('tvBlock').style.display = above >= 2 ? '' : 'none';
   document.getElementById('shelfBlock').style.display = above === 1 || above >= 3 ? '' : 'none';   // only with shelves above the bench
   document.getElementById('benchDetails').style.display = benchOn ? '' : 'none';
-  const piece = option.corner ?? (i === CURRENT || islandOnWall() ? 'none' : state.frontPiece);   // the dresser or a larder, if either is drawn
-  document.getElementById('frontBlock').style.display = i === CURRENT || option.corner || islandOnWall() ? 'none' : '';
+  const piece = i === CURRENT || islandOnWall() ? 'none' : state.frontPiece;   // the dresser or a larder, if either is drawn
+  document.getElementById('frontBlock').style.display = i === CURRENT || islandOnWall() ? 'none' : '';
   document.getElementById('islandMoveBlock').style.display = state.island.at === 'room' ? '' : 'none';   // moving and turning: out there only
   document.getElementById('dresserBlock').style.display = piece === 'dresser' ? '' : 'none';
   document.getElementById('larderBlock').style.display = piece === 'larder' ? '' : 'none';
@@ -2761,8 +2518,6 @@ const ADDRESS = [
   ['above', String, radio('above')],
   ['shelfDepth', String, within(150, 400)],
   ['BENCH', String, radio('bench')],
-  ['EXTRA', String, within(300, 900)],
-  ['UPPER', String, within(400, 1200)],
   ['LEG', String, within(400, 1200)],
   ['WARD', String, within(600, 1400)],
   ['TOWER', String, within(0, 600)],
@@ -2880,12 +2635,6 @@ for (const sec of document.querySelectorAll('#panel details.sec[id^=sec]')) {
   });
 }
 
-const upperSlider = document.getElementById('upper');
-upperSlider.addEventListener('input', () => {
-  state.UPPER = Number(upperSlider.value);
-  document.getElementById('upperValue').textContent = state.UPPER;
-  show(state.option);
-});
 for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['legD', 'LEG_D'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D']]) {
   const slider = document.getElementById(id);
   slider.addEventListener('input', () => {
@@ -2898,12 +2647,6 @@ const legSlider = document.getElementById('leg');
 legSlider.addEventListener('input', () => {
   state.LEG = Number(legSlider.value);
   document.getElementById('legValue').textContent = state.LEG;
-  show(state.option);
-});
-const extraSlider = document.getElementById('extra');
-extraSlider.addEventListener('input', () => {
-  state.EXTRA = Number(extraSlider.value);
-  document.getElementById('extraValue').textContent = state.EXTRA;
   show(state.option);
 });
 // The cupboard and dresser colours: named colours to compare, or "Other
@@ -3264,20 +3007,15 @@ const builtInViews = {
 // Packing: standing back from the corner cupboard's door (PACK_BACK, below),
 // eyes at standing height, looking in and down a little, with its doors open wide.
 // Where that is depends on the option, so it's worked out when chosen.
-// Returns the middle of the door opening (or for an L, its inside corner),
-// the way out of it, and which door it is ('tall' the left-wall
-// cupboard's, else the option's second).
+// Returns the middle of the door opening (or for an L, its inside corner)
+// and the way out of it.
 function packingSpot() {
   const { T, R, F, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = state;
-  const mid = (x, y, nx, ny, door = 'second') => ({ x, y, nx, ny, door });
+  const mid = (x, y, nx, ny) => ({ x, y, nx, ny });
   // An L (back-wall leg Dl deep, left-wall leg T deep): standing diagonally
   // in front of its inside corner, looking into it, to see into both legs
   const lCorner = Dl => mid(T, Dl, Math.SQRT1_2, Math.SQRT1_2);
   switch (OPTIONS[state.option].no) {
-    case 1: case 2: case 3: case 4: case 5:                      // the left-wall cupboard's door, facing the windows
-      return T ? mid(T, (R + F) / 2, 1, 0, 'tall') : null;
-    case 6:                                                      // the left-wall leg's door, else the lower door
-      return T ? mid(T, (R + F) / 2, 1, 0, 'tall') : mid(350, R, 0, 1);
     case 7:                                                      // an L: in front of its inside corner; else the back-wall leg's door
       return T ? lCorner(LEG_D) : mid(T + LEG / 2, LEG_D, 0, 1);
     case 8: {                                                    // the diagonal doors
@@ -3290,12 +3028,8 @@ function packingSpot() {
       return cornerTooShallow('kitchen') ? null : mid(CORNER_W / 2, CORNER_D, 0, 1);
     case 11:                                                     // doors on its side, facing the windows
       return cornerTooShallow('windows') ? null : mid(CORNER_W, (R + CORNER_D) / 2, 1, 0);
-    default: {                                                   // the dresser or a larder in the corner: its front
-      const o = OPTIONS[state.option];
-      if (!o?.corner) return null;
-      const { w, d } = pieceSize(o.corner);
-      return o.where === 'back' ? mid(w / 2, d, 0, 1) : mid(d, w / 2, 1, 0);
-    }
+    default:
+      return null;
   }
 }
 const PACK_BACK = 1250;             // mm out from the cupboard's door: arm's reach (750) and half a metre
@@ -3522,9 +3256,18 @@ document.getElementById('share').addEventListener('click', async e => {
 });
 resize();
 
-// Work offline once installed (not when opened as a file)
+// Work offline once installed (not when opened as a file). Not on this
+// computer (localhost) either, where its saved copies would get in the way
+// of trying out changes: there any worker installed before is removed, with
+// what it saved.
+const onThisComputer = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  navigator.serviceWorker.register('sw.js').catch(() => { /* the page still works without it */ });
+  if (onThisComputer) {
+    navigator.serviceWorker.getRegistrations().then(list => list.forEach(r => r.unregister())).catch(() => { /* not important */ });
+    window.caches?.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => { /* not important */ });
+  } else {
+    navigator.serviceWorker.register('sw.js').catch(() => { /* the page still works without it */ });
+  }
 }
 
 // Every control in step with state: the sliders, radio buttons, switches
@@ -3541,7 +3284,7 @@ function syncControls() {
   slide('depth', T || 290, T || 'none');
   slide('rear', R);
   slide('board', BOARD);
-  for (const [id, key] of [['upper', 'UPPER'], ['extra', 'EXTRA'], ['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D']]) slide(id, state[key]);
+  for (const [id, key] of [['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D']]) slide(id, state[key]);
   check('front', F);
   benchSwitch.checked = benchOn;
   check('bench', BENCH);
