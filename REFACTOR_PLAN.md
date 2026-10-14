@@ -287,10 +287,13 @@ a full `npm test` each:
 5. `resize()` and the 2D/3D switch (`setFlat()`, the render loop), as
    `flatViews(stage, view)`; the room hands it the 2D views' framing
    (`flat`, `flatFit`, `flatPerM`), the view kit's `hfov` and the drawers
-   as getters, and keeps those variables.
+   as getters, and keeps those variables;
+6. the general part of the 2D dimensions: `dimLine()`, `dimLabel()`,
+   `chain()`, and `applyCut()` as `cutViews(scene, view)`, which reads the
+   view's cut and what alone to show; the room keeps `updateDims()`,
+   `cupboardDims()` and `doorDims()`.
 
-Still to move into the engine: the general part of the 2D dimensions (`dimLine()`,
-`dimLabel()`, `chain()`, `applyCut()`). Then `view_kit.js` and
+Still to move: `view_kit.js` and
 `scene_kit.js` into `kit/` as modules, and the room into `floor.js` and
 `living_room.js`.
 

@@ -1,7 +1,7 @@
 # room_3d.html — how the page is put together
 
-A guide to the HTML, CSS and JS in `room_3d.html` (3,087 lines),
-`kit/floor_kit.js` (469 lines) and `room_3d.css` (124 lines), focused on the UI: the menus, the controls, and how
+A guide to the HTML, CSS and JS in `room_3d.html` (3,040 lines),
+`kit/floor_kit.js` (538 lines) and `room_3d.css` (124 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers in the
 map below are as of 14 Oct 2026, after the cupboards were built from boards
 with rear panels against the walls (`PLAN.md` step 2) and the first moves of
@@ -50,13 +50,13 @@ The HTML only lays out the controls. It contains no logic.
 | 239–245 | `#about` | The description text (`#summary`), which JS fills in |
 | **247–302** | `#cupPanel` | **Cupboard options**, the other drawer: the cupboard-only switch, board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7) |
 
-### Scripts (lines 304–3085)
+### Scripts (lines 304–3038)
 
 | Lines | What |
 |---|---|
 | 304–308 | **Plain data scripts**: `room_3d.views.js`, `.dressers.js`, `.larders.js`, `.sofas.js`, `.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
 | 309–310 | **Plain helper scripts**: `view_kit.js` (sets `window.ViewKit`) and `scene_kit.js` (sets `window.SceneKit`) |
-| 311 | `<script type="module">` starts. Everything from here to line 3085 is one module, the room's, which imports the engine from `kit/floor_kit.js` |
+| 311 | `<script type="module">` starts. Everything from here to line 3038 is one module, the room's, which imports the engine from `kit/floor_kit.js` |
 
 Inside the module:
 
@@ -73,23 +73,23 @@ Inside the module:
 | 963–1244 | Option 9's base cupboards, dresser, larders, island, sofa, front wall | Includes `DRESSER_SLIDERS` (1006), `placeIsland()` (1164), `sofa()` (1202), `frontWall()` (1219) |
 | 1245–1344 | Option 9's shelving tower, options 10 and 11's corner cupboard, option 10's side bookshelf | `shelvingTower()`, `cornerCupboard()`, `sideBookshelf()` |
 | 1346–1525 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` and the address codes |
-| 1527–1757 | 2D dimensions | `updateDims()`, `applyCut()`, the cupboard-only view, `cupboardDims()`, `doorDims()` |
-| 1759–1824 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards), `showCuttingList()` |
-| 1826–2254 | Things to store | Packing, `cupboardSpaces()` (each option's inside), `insideText()`, drawing, and dragging in plan view |
-| **2256–2357** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
-| 2359–2436 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | The room's list of fields; the kit's `writeFields()` and `readFields()` write `state` into the URL `#hash` and read it back (section 5) |
-| **2437–2840** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
-| 2841–2941 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | At 2903–2916 the 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()`, which gives `setFlat()`, `resize()` and `startLoop()` |
-| 2942–2995 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `view_kit.js` |
-| **2996–3010** | **Pop-up menus** (the kit's `popMenus()`) and `SceneKit.create` | |
-| 3012–3021 | The Dimensions and Door sizes buttons | |
-| **3023–3029** | **The two drawers** (`DRAWERS`, the kit's `createDrawers()`) | |
-| 3031–3037 | Reset, Share and offline support (the kit's `resetButton()`, `shareButton()`, `workOffline()`) | |
-| 3043–3075 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
-| 3077–3083 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
-| 3084 | **Render loop** | The kit's `startLoop()`: `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
+| 1527–1710 | 2D dimensions | `updateDims()`, the kit's `cutViews()` giving `applyCut()`, the cupboard-only view, `cupboardDims()`, `doorDims()` (the kit draws the lines, labels and chains) |
+| 1712–1777 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards), `showCuttingList()` |
+| 1779–2207 | Things to store | Packing, `cupboardSpaces()` (each option's inside), `insideText()`, drawing, and dragging in plan view |
+| **2209–2310** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5) |
+| 2312–2389 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | The room's list of fields; the kit's `writeFields()` and `readFields()` write `state` into the URL `#hash` and read it back (section 5) |
+| **2390–2793** | **Control wiring** | One event listener per slider, radio group and dropdown (sections 4 and 5) |
+| 2794–2894 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | At 2856–2869 the 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()`, which gives `setFlat()`, `resize()` and `startLoop()` |
+| 2895–2948 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `view_kit.js` |
+| **2949–2963** | **Pop-up menus** (the kit's `popMenus()`) and `SceneKit.create` | |
+| 2965–2974 | The Dimensions and Door sizes buttons | |
+| **2976–2982** | **The two drawers** (`DRAWERS`, the kit's `createDrawers()`) | |
+| 2984–2990 | Reset, Share and offline support (the kit's `resetButton()`, `shareButton()`, `workOffline()`) | |
+| 2996–3025 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
+| 3027–3036 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
+| 3037 | **Render loop** | The kit's `startLoop()`: `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
 
-### kit/floor_kit.js (469 lines)
+### kit/floor_kit.js (538 lines)
 
 The engine, an ES module: what any room needs, and nothing about this one.
 
@@ -101,6 +101,7 @@ The engine, an ES module: what any room needs, and nothing about this one.
 | The address | `number()`, `within()`, `radio()`, `sizes()` (readers for a room's fields), `valueAt()`, `setValueAt()`, `writeFields()`, `readFields()` |
 | Menus and buttons | `narrow()`, `popMenus()`, `createDrawers()`, `resetButton()`, `shareButton()`, `workOffline()` |
 | The 2D/3D switch | `flatViews(stage, view)`: `setFlat()`, `resize()` (fitting the 3D and 2D views to the screen) and `startLoop()` (the render loop), reading the room's framing (`flat`, `flatFit`, `flatPerM`), the view kit's `hfov` and the drawers through `view` |
+| 2D dimensions | `dimLine()`, `dimLabel()`, `chain()` (a chain of dimensions), `cutViews(scene, view)`: `applyCut()`, reading the view's cut and what alone to show through `view` |
 
 ### room_3d.css (124 lines)
 

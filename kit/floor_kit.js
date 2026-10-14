@@ -467,3 +467,72 @@ export function flatViews(stage, view) {
 
   return { setFlat, resize, startLoop };
 }
+
+// ---------------------------------------------------------------------------
+// Dimensions for the 2D views: lines and labels in red, each added to group g
+// ---------------------------------------------------------------------------
+const dimMat = new THREE.LineBasicMaterial({ color: 0x9b1c1c, depthTest: false });
+
+export function dimLine(points, g) {
+  const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), dimMat);
+  l.renderOrder = 10;
+  g.add(l);
+}
+
+export function dimLabel(text, at, g, colour = '#9b1c1c', size = 0.13) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.font = 'bold 40px Helvetica, Arial, sans-serif';
+  canvas.width = Math.ceil(ctx.measureText(text).width) + 12;
+  canvas.height = 48;
+  ctx.font = 'bold 40px Helvetica, Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = colour;
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 6, 25);
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), depthTest: false }));
+  sprite.scale.set(size * canvas.width / canvas.height, size, 1);
+  sprite.position.copy(at);
+  sprite.renderOrder = 11;
+  g.add(sprite);
+}
+
+// A chain of dimensions between successive values in `at` (mm). place(v, off)
+// gives the scene point for value v, `off` mm out from the chain's line.
+export function chain(at, place, g) {
+  const v = [...new Set(at.map(Math.round))].sort((a, b) => a - b);
+  dimLine([place(v[0], 0), place(v[v.length - 1], 0)], g);
+  for (const x of v) dimLine([place(x, -40), place(x, 40)], g);
+  // Labels on short neighbouring gaps would overlap, so every other one moves further out
+  for (let i = 1; i < v.length; i++) {
+    const len = v[i] - v[i - 1];
+    dimLabel(String(len), place((v[i] + v[i - 1]) / 2, len < 250 && i % 2 ? 260 : 110), g);
+  }
+}
+
+// Cut views: in a wall view, anything wholly on the camera's side of the
+// view's cut is left out, so what's behind it isn't hidden. `view` is the
+// room's, read as needed: cut, the view's cut or null, and only, null or a
+// test only the meshes to show pass. Returns applyCut().
+export function cutViews(scene, view) {
+  // A cut is [axis, where in mm, which side the camera is: 1 for the higher
+  // side, -1 the lower].
+  function applyCut() {
+    const { cut, only } = view;
+    scene.updateMatrixWorld(true);
+    const b = new THREE.Box3();
+    scene.traverse(o => {
+      if (!o.isMesh) return;
+      o.visible = true;
+      if (!cut) return;
+      const [axis, at, side] = cut;
+      b.setFromObject(o);
+      const k = axis === 'x' ? 'x' : 'z';                            // room y is the scene's z
+      o.visible = side > 0 ? b.min[k] / MM <= at : b.max[k] / MM >= at;
+    });
+    if (only) scene.traverse(o => { if (o.isMesh && !only(o)) o.visible = false; });
+  }
+
+  return applyCut;
+}

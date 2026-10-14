@@ -312,7 +312,8 @@
 import * as THREE from 'three';
 import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
   number, within, radio, sizes, writeFields, readFields,
-  narrow, popMenus, createDrawers, resetButton, shareButton, workOffline, flatViews } from './kit/floor_kit.js';
+  narrow, popMenus, createDrawers, resetButton, shareButton, workOffline, flatViews,
+  dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -1526,7 +1527,6 @@ const optionIndex = code => {
 // ---------------------------------------------------------------------------
 // Dimensions for the 2D views, drawn from the current option and settings
 // ---------------------------------------------------------------------------
-const dimMat = new THREE.LineBasicMaterial({ color: 0x9b1c1c, depthTest: false });
 let showDims = true;
 let flatView = null;               // 'plan', 'back' or 'left' while 2D
 let dims = null;                   // the group of dimensions on show
@@ -1534,43 +1534,7 @@ let dims = null;                   // the group of dimensions on show
 // Room (x, y, z) in mm to a scene point
 const P = (x, y, z) => new THREE.Vector3(x * MM, z * MM, y * MM);
 
-function dimLine(points, g) {
-  const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), dimMat);
-  l.renderOrder = 10;
-  g.add(l);
-}
-
-function dimLabel(text, at, g, colour = '#9b1c1c', size = 0.13) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  ctx.font = 'bold 40px Helvetica, Arial, sans-serif';
-  canvas.width = Math.ceil(ctx.measureText(text).width) + 12;
-  canvas.height = 48;
-  ctx.font = 'bold 40px Helvetica, Arial, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = colour;
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, 6, 25);
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), depthTest: false }));
-  sprite.scale.set(size * canvas.width / canvas.height, size, 1);
-  sprite.position.copy(at);
-  sprite.renderOrder = 11;
-  g.add(sprite);
-}
-
-// A chain of dimensions between successive values in `at` (mm). place(v, off)
-// gives the scene point for value v, `off` mm out from the chain's line.
-function chain(at, place, g) {
-  const v = [...new Set(at.map(Math.round))].sort((a, b) => a - b);
-  dimLine([place(v[0], 0), place(v[v.length - 1], 0)], g);
-  for (const x of v) dimLine([place(x, -40), place(x, 40)], g);
-  // Labels on short neighbouring gaps would overlap, so every other one moves further out
-  for (let i = 1; i < v.length; i++) {
-    const len = v[i] - v[i - 1];
-    dimLabel(String(len), place((v[i] + v[i - 1]) / 2, len < 250 && i % 2 ? 260 : 110), g);
-  }
-}
+// dimLine(), dimLabel() and chain(), which draw them, are the kit's
 
 // Heights of what's above the bench: shelf tops, and the TV's bottom and top
 function aboveHeights(x0) {
@@ -1633,23 +1597,12 @@ function updateDims() {
 
 // In the wall views, anything wholly on the camera's side of the view's cut
 // is left out, so the wall and what stands against it aren't hidden behind
-// the island, the desk or the outside of the outer wall. A cut is [axis,
-// where in mm, which side the camera is: 1 for the higher side, -1 the lower].
-function applyCut() {
-  const cut = flat && flatView && !cupboardOnly ? builtInViews[flatView].cut : null;   // on its own, the cupboard needs no cut
-  scene.updateMatrixWorld(true);
-  const b = new THREE.Box3();
-  scene.traverse(o => {
-    if (!o.isMesh) return;
-    o.visible = true;
-    if (!cut) return;
-    const [axis, at, side] = cut;
-    b.setFromObject(o);
-    const k = axis === 'x' ? 'x' : 'z';                            // room y is the scene's z
-    o.visible = side > 0 ? b.min[k] / MM <= at : b.max[k] / MM >= at;
-  });
-  if (cupboardOnly) scene.traverse(o => { if (o.isMesh && !cupboardPart(o)) o.visible = false; });
-}
+// the island, the desk or the outside of the outer wall: the kit's, with
+// the view's cut, and with the cupboard on its own, only its parts.
+const applyCut = cutViews(scene, {
+  get cut() { return flat && flatView && !cupboardOnly ? builtInViews[flatView].cut : null; },   // on its own, the cupboard needs no cut
+  get only() { return cupboardOnly ? cupboardPart : null; },
+});
 
 // Cupboard only: the corner cupboard on its own (the option's build, bar its
 // bench), with its dimensions, in the 3D and 2D views alike
