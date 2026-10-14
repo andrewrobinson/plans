@@ -4,15 +4,15 @@ A guide to the HTML, CSS and JS in `room_3d.html` (3,040 lines),
 `kit/floor_kit.js` (538 lines) and `room_3d.css` (124 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers in the
 map below are as of 14 Oct 2026, after the cupboards were built from boards
-with rear panels against the walls (`PLAN.md` step 2) and the first moves of
-`REFACTOR_PLAN.md` step 4 into `kit/floor_kit.js`. They go stale with
+with rear panels against the walls and the engine moved into `kit/`. They go stale with
 every change, so the sections after the map name functions and ids instead:
 search for those.
 
-This describes the page as it is: one room. `PLAN.md` plans to turn it into
-one page for the whole flat (a second room, the hallway, and the staircase
-and entrance), with the engine in `kit/floor_kit.js`. When that happens, the
-map below will need redoing; the HTML, CSS and control patterns it explains
+This describes the page as it is: one room, with the engine in `kit/`.
+`PLAN.md` plans to turn it into one page for the whole flat (a second room,
+the hallway, and the staircase and entrance), starting with the living room
+moving into `floor.js` and `living_room.js`. When that happens, the map
+below will need redoing; the HTML, CSS and control patterns it explains
 stay the same.
 
 ---
@@ -476,8 +476,8 @@ step. The second entry maps a whole prefix, so
 ### Why the data files are classic scripts
 
 They were written to work when the page was opened from a file, which it no
-longer can be (see above); `REFACTOR_PLAN.md` step 4 is turning the code into
-modules. The kits (`kit/floor_kit.js`, `kit/view_kit.js`, `kit/scene_kit.js`)
+longer can be (see above); they become modules as the room moves into
+`living_room.js` (`REFACTOR_PLAN.md`). The kits (`kit/floor_kit.js`, `kit/view_kit.js`, `kit/scene_kit.js`)
 are modules already, which the room's module imports. For now the data files
 load as classic scripts before the module and hand over their contents
 through globals (`window.ROOM_SOFAS`, …). The module then reads those

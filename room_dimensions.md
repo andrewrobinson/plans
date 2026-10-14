@@ -353,7 +353,6 @@ How these fit, with the counter at the back of the 372-deep sink recess (y = 575
 
 - Option 11's doors are only on the part of its side clear of the bench; doors along the whole side would need the bench to stop short of it.
 - The shelfless bay cuts shelves straight across; a real one would want an upright panel at each cut to carry the shelf ends.
-- The cutting list leaves out parts that aren't `BOARD` thick (option 9's tower plinth and oak shelves); `PLAN.md` plans an "other parts" list for them.
 - The Window viewpoint faces the sink with the front wall to its left; not confirmed that's what was meant.
 - With a small TV, the middle shelves either side sit level with its top edge, not halfway up it.
 - A thin brick-coloured strip shows at one edge of the back and front wall views (a window's outer reveal, seen through the wall's thickness).

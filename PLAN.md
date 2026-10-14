@@ -1,163 +1,58 @@
 # Plan
 
-Where the cupboard planner is heading, as agreed so far. The model itself is
-described in `room_dimensions.md`.
+What's next for the cupboard planner, in order. The model itself is
+described in `room_dimensions.md`; the code's layout in
+`room_3d_ui_guide.md`. What's done is in git history (`git log`), not here.
 
-## The order of work (suggested 14 Oct 2026)
+How work goes: each piece on its own branch, `npm run test:quick` while
+working, the full `npm test` before it goes live, and "deploy to main" puts
+it on GitHub Pages. Two sessions testing at once need separate ports
+(`PORT=8766 npm test`).
 
-Four pieces of work were planned. Suggested order, each on its own branch,
-one step per session, `npm test` passing before each merge. Steps 1 and 2
-are done (14 Oct 2026); step 3 is under way (`REFACTOR_PLAN.md` step 4,
-branch `engine-kit`, with ES modules).
+## Next steps
 
-1. **Done.** Options 10 and 11: the corner cupboard's width as a setting
-   (next section).
-2. **Done.** Panels against the walls, for every option (the section after;
-   agreed 12 Oct 2026; branch `wall-panels`).
-3. **Readable code**: `REFACTOR_PLAN.md` step 4 (the engine out of
-   `room_3d.html` into `kit/floor_kit.js`, the room into `floor.js` and
-   `living_room.js`), then its step 5 (the code made readable, in the style of
-   `menu_demo/`).
+1. **The living room into `floor.js` and `living_room.js`**: the rest of
+   `REFACTOR_PLAN.md` step 4. The engine is already in `kit/` (ES modules;
+   the page needs a server). Nothing visible changes.
+2. **Readable code**: `REFACTOR_PLAN.md` step 5, in the style of
+   `menu_demo/`. After step 1, not during it.
+3. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1.
+   Any time before step 4, so the floor plan starts from measured numbers,
+   not ones scaled off the drawing.
 4. **The other room, the hallway and the stairs**, drawn from
    `drawings/second_floor_plan.png` and `drawings/first_floor_plan.png`
-   (see "The other room, the hallway and the stairs, from the floor plans"
-   below, and step 4 of "Then: one floor plan, with rooms").
+   (below), into the floor plan step 1 makes.
 
-Why this order:
+Smaller pieces, any time:
 
-- **1 first** because it's the smallest, and it's a change you can see. It also
-  gives the corner cupboard a width that can change before step 2 rebuilds the
-  cupboard, so that rebuild is checked at more than one width.
-- **2 before 3** because panels touch every option's `build()`, and step 3
-  moves all of those functions. Done first, the move carries finished code
-  once, and the screenshots retaken for the panels become step 3's
-  "nothing changed" reference. (The other way round also works, and step 2
-  would then be done in tidier code, but the panels would wait several
-  sessions for the move.)
-- **3 before 4** because a second room, a hallway and stairs need what step 3
-  builds: one floor plan with walls, doors and rooms, and an engine that draws
-  more than one room. Drawn into today's single `room_3d.html`, they'd have
-  to be pulled out again in step 3.
-- **The measurements for step 4** (`MEASUREMENTS_NEEDED.md`, priority 1)
-  can be taken any time during steps 1 to 3, so the floor plan starts from
-  measured numbers, not ones scaled off the drawing.
-- **`menu_demo/` keeps its own copy** of the room until step 3 makes
-  `floor.js`. After that its `room.js` can load the walls from `floor.js`, so
-  the room is defined in one place for both pages.
+- **Other parts in the cutting list**: parts not `BOARD` thick (option 9's
+  tower plinth and its 25-thick oak shelves) are left out today; list them
+  under "other parts".
+- **An overlap check** between things to store: today each is checked only
+  against the cupboard's walls, so two can overlap and still show green.
+- **Turning things to store by 45°**, so the racks can be shown diagonally
+  across option 7's inside corner, where the doors meet (with both open the
+  gap is about 844 across at 45°, more than the racks' 800).
+- **Designs**: a cupboard design as data (its kind, sizes, doors, shelves per
+  leg, notes), one marked the finished design, the others prototypes, chosen
+  in Cupboard options. Scenes would then refer to a design, plus the
+  packing, furniture and view. Later, the L-shaped cupboard built from the
+  data alone, so prototypes need no code, and a printable spec for the maker
+  from the finished design.
+- **`menu_demo/`** keeps its own copy of the room; once `floor.js` exists,
+  its `room.js` can load the walls from there.
 
-The floor plans are PNG images, not PDFs: `drawings/second_floor_plan.png`
-and `drawings/first_floor_plan.png`. If there are PDFs as well (sharper, or
-with dimensions), add them to `drawings/` before step 4.
+## The finished design today
 
-## 1. Options 10 and 11: the corner cupboard's width as a setting
+The scene "7. Finished design, 1200 × 1200, ready packed" in
+`room_3d.scenes.js`: option 7, each leg 618 deep outside, the back-wall leg
+582 wide, the front at 1200; inside, with the rear panels against the walls
+(boards 18), 1164 × 582 along the back wall and 582 × 582 along the left
+wall, 2407 high, and all seven things to store fit; shelves 790, 1300, 1850
+in the back-wall leg and corner, 1710 and 2150 in the left-wall leg; the tub
+on the 790 shelf over the racks.
 
-**Done** (14 Oct 2026): the names without sizes, `CORNER_W` in `state` with
-its slider and address field, `fixedWidth: true`, and a control test. The
-notes below are kept as the record of what was planned.
-
-Today the two options are named "10. 800 × 1200 with doors facing the
-kitchen" and "11. 800 × 1200 with doors facing the windows". The two numbers
-are of different kinds:
-
-- **800** is `CORNER_W`, a constant (`room_3d.html`, above
-  `cornerCupboard()`): the cupboard's width along the back wall. It isn't a
-  setting.
-- **1200** is `F`, the left-wall cupboard's front, which is a setting
-  already (1200, or 1329 right up to the door frame). The name is out of
-  date as soon as `F` is 1329.
-
-To do:
-
-- **Names without sizes:** "10. Corner cupboard, doors facing the kitchen"
-  and "11. Corner cupboard, doors facing the windows". The sizes are in each
-  option's summary already, which uses `${CORNER_W}` and `${F}`.
-- **`CORNER_W` into `state`**, default 800, with a slider in the Cupboard
-  options drawer that's shown only for options 10 and 11, like option 9's
-  width slider (`ward`). Range to decide, e.g. 500 to 1200 in 10s. For
-  option 10 the doors are `(CORNER_W - BOARD - 9) / 2` wide each, so 500 gives
-  two doors of about 236.
-- **The address:** a new field in `ADDRESS`, checked with `within(...)`,
-  read and written like `WARD`. Add it at the end so the addresses in
-  `tests/addresses.js` and `room_3d.scenes.js` keep their meaning, and
-  bring them up to date. (Old links needn't survive, agreed 12 Oct 2026.)
-- **Every place that reads it:** `cornerCupboard()`; the two options'
-  `clearFrom`, `benchFrom` and `summary`; `cupboardSpaces()` (`case 9: case
-  10:`); where the camera aims at each option's doors (`case 9:` and `case
-  10:`, near the end); `syncControls()`.
-- **Watch `fixedWidth`.** Options 10 and 11 set `fixedWidth: CORNER_W`, but
-  it's only ever tested as true or false (the dimension marks, and hiding
-  the depth sliders). Make it `fixedWidth: true`, so it
-  doesn't look like the width is read from it.
-- **Decide whether these stay fixed:** the shelf tops at 600, 1200 and 1800,
-  and the handles at 950 to 1250. They don't depend on the width, so leaving
-  them is fine for now.
-- **Check:** at 800 every option looks as before. Screenshots that show the
-  option list or option 10 or 11's name will change, so retake those by
-  choice and check them by eye. Add a control test that moves the new slider
-  to both ends. Update `room_dimensions.md` and `room_3d_ui_guide.md` where they
-  name the options.
-
-## 2. Panels against the walls, for every option (agreed 12 Oct 2026)
-
-**Done 14 Oct 2026.** Every option's cupboard is built with `board()`, rear
-panels against the back and left walls included (option 9's shelving tower
-and option 10's side bookshelf have their own). The inside
-(`cupboardSpaces()`) starts a board out from each wall, so it follows
-`BOARD`; it's given in each option's description, and the packing and its
-fit check in the plan use it. The cutting list has the rule at its head and
-names every board, doors and shelves too. Not done: "other parts" in the
-cutting list (the tower's plinth and oak shelves are still left out).
-
-Every built option (1 to 11) is to be made from boards, each with a width, a
-height and the board thickness (`BOARD`), **including rear panels against the
-walls**: today the walls stand in for them. Outside sizes stay fixed, so the
-inside of each cupboard gets a board thinner from each wall. The rule for
-which boards are shortened, to be stated at the top of the cutting list:
-
-- **Rear panels** (against the walls) and **ends** (exposed sides) run full
-  height.
-- **Tops, bases and dividers** fit between them: a board shorter at each one
-  they meet.
-- **In a corner** the back-wall rear panel runs through; the left-wall rear
-  panel stops at it. For option 7's 1200 × 1200 L at 18: 1200 × 2443 and
-  1182 × 2443.
-- **Shelves** fit inside, set back a board from the front; **doors** cover the
-  front edges, 3 clear.
-- Exceptions, named where they occur: option 10's left-wall rear panel stops
-  behind its doors; option 11's end facing the kitchen runs across the
-  left-wall rear panel. Option 9's tower plinth (a block) and its 25-thick oak
-  shelves go under "other parts".
-
-To do, in `room_3d.html`:
-
-- A `board(name, x0, y0, z0, x1, y1, z1, g, mat)` helper that names each part
-  (`userData.part`) for the cutting list; name the doors too.
-- Rebuild options 8 and 9, `tallDoor`, `fullHeightL` (option 7),
-  `shelvingTower` and `cornerCupboard` (10 and 11) to the rule. Option 8's top
-  and base run out to the diagonal front.
-- `cupboardSpaces()` (the things to store's fit check) to the new insides.
-- The cutting list: a description column for every board, the rule above as
-  its header, and "other parts" for anything not `BOARD` thick.
-- The scene "finished7" in `room_3d.scenes.js`: Rack 1 at y 10 is inside the
-  new rear panel; move it to y 18, then check everything still fits.
-- Retake the screenshots and check them by eye; `npm test` must pass.
-
-Do it in a fresh session, on its own branch, after step 1 above.
-
-## Done 12 Oct 2026
-
-- **Option 7 is the default.** The **option list is always in the top bar**;
-  the corner cupboard's settings have their own drawer, **Cupboard
-  options**, and the ☰ drawer is **Other options**. One drawer is open at a
-  time, below the top bar.
-- **Door sizes** on each cupboard door in the 2D views (a Door sizes button in
-  the Views menu turns them off), and a **cutting list** (Show cutting list,
-  bottom left in the 2D views), both read from the model, so they follow the
-  boards' thickness. The descriptions' door sizes follow it too.
-- The island's slider steps in 5s, so once moved it can't return to its
-  measured 3571 exactly (only 3570); steps of 1 would fix that, if wanted.
-
-## Then: one floor plan, with rooms
+## Where it's heading: one floor plan, with rooms
 
 A second room (a bedroom, or similar) is coming, with a hallway between it
 and the living room. Rather than separate room pages placed side by side,
@@ -204,30 +99,8 @@ living_room.md              today's room_dimensions.md; floor.md for the floor p
 
 Later, `hallway.js` and the other room's file sit alongside `living_room.js`.
 
-### Steps
-
-0. **Browser tests first** (Playwright; see `REFACTOR_PLAN.md`): reference
-   screenshots and address round-trips taken from the page as it is now, so
-   every step below can be checked automatically.
-1. **Pull the engine out** of `room_3d.html` (about 3,300 lines: roughly a
-   third is general, the rest this room) into `kit/floor_kit.js`, shaped for
-   a floor plan of walls, openings and rooms. Test against the living room at
-   each step; nothing visible changes.
-2. **Describe the living room** in `floor.js` and `living_room.js`; rename the
-   data files as above. (Saved views, looks and scenes in the browser needn't
-   survive, agreed 12 Oct 2026.)
-3. **Redirect** `room_3d.html` (with its `#...` address) into the floor app,
-   so the installed app keeps working. (Old share links needn't keep
-   working, agreed 12 Oct 2026.) Update
-   `manifest.webmanifest` and `sw.js`.
-4. **Add the hallway and the other room** when their measurements are in.
-
-Work on a branch; show the result before it goes live.
-
-`REFACTOR_PLAN.md` (the code tidy-up) overlaps with step 1. Its one `state`
-object and the address read and written from one list are done (12 Oct
-2026), ahead of the engine work; its step 4 is steps 1 and 2 here, with the
-layout above, and says what moves where.
+Agreed 12 Oct 2026: saved views, looks and scenes in the browser, and old
+share links, needn't survive the move.
 
 ## The other room, the hallway and the stairs, from the floor plans
 
@@ -329,45 +202,3 @@ The full checklist, with priorities and how to measure, is
 - The entrance: the street or rear door at ground level, the lobby at
   first-floor level and its door into the enclosed flight. Add a ground
   floor plan to `drawings/` when that part is modelled.
-
-## Also open
-
-- **Board thickness as a setting** (agreed 12 Oct 2026). **Done** 12 Oct
-  2026, branch `board-thickness`: `BOARD` and its slider; the dresser and
-  larders keep their own 18s, as bought furniture, not boards cut to size. Every cupboard is built from boards (MDF or
-  chipboard) 18 thick today, but 18 is typed straight into the cupboard code
-  about 115 times, with sums of it worked out by hand (36 for two boards, 618
-  for a 600 leg and its panel). Make it one value, `BOARD`, with a slider in
-  the corner cupboard section: **default 18**; a range of about 12 to 25,
-  step 1; all cupboards the same thickness for now; kept in the address,
-  with old links keeping 18.
-  - **Exterior dimensions stay fixed.** A cupboard's outside sizes don't
-    change with the board; thicker boards eat into the inside, thinner ones
-    give it back. The sliders' depths and widths are outside sizes.
-  - Check each `18` by eye as it's replaced: not every 18 is a board. Watch
-    for the hand-worked sums, the door gaps (3 and 6), and the stored
-    things' fit check, which assumes an 18 cupboard bottom (`LIFT`).
-  - Sizes written as inside sizes become outside sizes: the finished
-    design's legs, "600 deep inside (618 with its panel)" below, are 618
-    deep outside, so at 18 nothing moves.
-  - Do it after the Playwright tests (`REFACTOR_PLAN.md`): at 18 every
-    option must look exactly as before, and the screenshot tests prove it.
-
-- **Designs**: a cupboard design as data (its kind, sizes, doors, shelves per
-  leg, notes), one marked the finished design, the others prototypes, chosen
-  in the corner cupboard section. Scenes would then refer to a design, plus
-  the packing, furniture and view. Later, the L-shaped cupboard built from the
-  data alone, so prototypes need no code, and a printable spec for the maker
-  from the finished design.
-- **Turning things to store by 45°**, so the racks can be shown diagonally
-  across option 7's inside corner, where the doors meet (with both open the
-  gap is about 844 across at 45°, more than the racks' 800).
-- **An overlap check** between things to store: today each is checked only
-  against the cupboard's walls, so two can overlap and still show green.
-- **The finished design** today: the scene "7. Finished design, 1200 × 1200,
-  ready packed" in `room_3d.scenes.js`: option 7, each leg 618 deep outside,
-  the back-wall leg 582 wide, the front at 1200; inside, with the rear panels
-  against the walls (boards 18), 1164 × 582 along the back wall and 582 × 582
-  along the left wall, 2407 high, and all seven things still fit;
-  shelves 790, 1300, 1850 in the back-wall leg and corner, 1710 and 2150 in
-  the left-wall leg; the tub on the 790 shelf over the racks.
