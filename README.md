@@ -61,18 +61,17 @@ The notes:
 - **Downstairs**, from the first floor plan, estimated: the stairs' foot,
   your (internal) door into it and the lobby shared with the downstairs
   neighbour, with its external door; both doors on sliders in the Doors
-  menu. A **shoe rack** at the foot, an open rack of shelves (430 wide,
-  190 deep, 1240 high to start), always in the back right corner looking
-  down the stairs: its back to the window, its end against the outside
-  wall. Its sizes are sliders in **The shoe rack (downstairs)** in Other
-  options. Its shelves slope down towards the window (30° to start, a
-  slider), and it says how long a shoe fits along them, with a pair of UK
-  11 shoes on each shelf, as far right as they go. **Bevel for the door**
-  makes it as wide as the well and cuts off the corner the internal door
-  swings through to the angle on its **Bevel for internal door angle**
-  slider (78° to start); the cut stays as the door opens and shuts.
-  Without it, the menu says how far the door opens before meeting the rack
-  (79° as it starts).
+  menu. A **shoe rack** at the foot, an open rack of sloping shelves, always in
+  the back right corner looking down the stairs: its back to the window,
+  its end against the outside wall. It starts as the user worked out to fit
+  a pair of UK 11 shoes on each shelf: 300 deep, 1290 high, its shelves
+  sloping 45° down towards the window, and **Bevel for the door** on, cut
+  for the internal door opening to 72°. With the bevel it's as wide as the
+  well, its front-left corner cut where the door swings to the angle on
+  **Bevel for internal door angle** (its front is then 252 wide); the cut
+  stays as the door opens and shuts. Its sliders are in **The shoe rack
+  (downstairs)** in Other options, which also says how long a shoe fits
+  along a shelf and, without the bevel, how far the door opens.
 - **The pine cupboard** can be switched off in the bedroom, and on in
   the living room in place of the bench, as the bookcase can.
 - **The bedroom mirror** can be switched off too (**In the bedroom**, under

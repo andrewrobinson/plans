@@ -389,52 +389,51 @@ test.describe('the shoe rack', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page); });
 
   test('it can be resized and put back', async ({ page }) => {
-    expect(await field(page, 55)).toBe('430.190.1240.0.30.1.78');
-    await slide(page, 'shoeRack_w', 800);
-    await slide(page, 'shoeRack_d', 300);
+    expect(await field(page, 55)).toBe('460.300.1290.1.45.1.72');
+    await slide(page, 'shoeRack_d', 250);
     await slide(page, 'shoeRack_h', 900);
-    expect(await field(page, 55)).toBe('800.300.900.0.30.1.78');
+    await slide(page, 'shoeRack_slope', 30);
+    expect(await field(page, 55)).toBe('460.250.900.1.30.1.72');
     await page.locator('#shoeRackBlock [data-reset="sizes"]').evaluate(b => b.click());
-    expect(await field(page, 55)).toBe('430.190.1240.0.30.1.78');
+    expect(await field(page, 55)).toBe('460.300.1290.1.45.1.72');
   });
 
-  // The bevel: the well's whole width, cut where the internal door swings to
-  // its own slider's angle, whatever the door does; without it, how far the
-  // door opens
+  // The bevel, on to start: the well's whole width, cut where the internal
+  // door swings to its own slider's angle, whatever the door does; without
+  // it, its own width, and how far the door opens
   test('the bevel, the shelves\' slope and the shoes', async ({ page }) => {
-    await expect(page.locator('#shoeRack_door')).toContainText('opens to 79°');   // the door stops on its corner
-    await page.locator('#shoeRack_bevel').check();
-    expect(await field(page, 55)).toBe('430.190.1240.1.30.1.78');
     await expect(page.locator('#shoeRack_w')).toBeDisabled();
     expect(await readout(page, 'shoeRack_w')).toBe('900');              // as wide as the well
-    await expect(page.locator('#shoeRack_door')).toContainText('at 78°, its front is 428 wide');
+    await expect(page.locator('#shoeRack_door')).toContainText('at 72°, its front is 252 wide');
     await slide(page, 'flatDoor', 30);                                // the door moves; the cut stays
-    await expect(page.locator('#shoeRack_door')).toContainText('at 78°, its front is 428 wide');
+    await expect(page.locator('#shoeRack_door')).toContainText('at 72°, its front is 252 wide');
     await slide(page, 'shoeRack_bevelDoor', 80);
-    await expect(page.locator('#shoeRack_door')).toContainText('at 80°, its front is 332 wide');
+    await expect(page.locator('#shoeRack_door')).toContainText('at 80°, its front is 153 wide');
+    await expect(page.locator('#shoeRack_fits')).toContainText('up to 424 long');   // 300 / cos 45°
+    await page.locator('#shoeRack_bevel').uncheck();
+    expect(await field(page, 55)).toBe('460.300.1290.0.45.1.80');
+    await expect(page.locator('#shoeRack_w')).toBeEnabled();
+    await expect(page.locator('#shoeRack_bevelDoor')).toBeHidden();
+    await expect(page.locator('#shoeRack_door')).toContainText('opens to 65.5°');  // the door stops on its corner
     await slide(page, 'shoeRack_slope', 0);
-    await expect(page.locator('#shoeRack_fits')).toContainText('up to 190 long');
+    await expect(page.locator('#shoeRack_fits')).toContainText('sticks out 15');    // a UK 11, about 315, on 300
     await slide(page, 'shoeRack_d', 200);
     await slide(page, 'shoeRack_slope', 30);
     await expect(page.locator('#shoeRack_fits')).toContainText('up to 231 long');   // 200 / cos 30°
-    await expect(page.locator('#shoeRack_fits')).toContainText('sticks out 84');    // a UK 11, about 315
     await page.locator('#shoeRack_shoes').uncheck();
-    await page.locator('#shoeRack_bevel').uncheck();
-    expect(await field(page, 55)).toBe('430.200.1240.0.30.0.80');
-    await expect(page.locator('#shoeRack_w')).toBeEnabled();
-    await expect(page.locator('#shoeRack_bevelDoor')).toBeHidden();
+    expect(await field(page, 55)).toBe('460.200.1290.0.30.0.80');
   });
 
   test('a link with its settings keeps them, and holds them to the sliders', async ({ page }) => {
     const [settings, ...rest] = (await hash(page)).split('~');
     const withRack = rack => [settings.replace(/-[\d.]+$/, `-${rack}`), ...rest].join('~');
-    await openRoom(page, withRack('900.250.1500.1.15.0.60'));
-    expect(await hash(page)).toBe(withRack('900.250.1500.1.15.0.60'));
+    await openRoom(page, withRack('900.250.1500.0.15.0.60'));
+    expect(await hash(page)).toBe(withRack('900.250.1500.0.15.0.60'));
     expect(await readout(page, 'shoeRack_slope')).toBe('15°');
     await openRoom(page, withRack('900.250.1500'));                     // a shorter link: the rest as they start
-    expect(await field(page, 55)).toBe('900.250.1500.0.30.1.78');
+    expect(await field(page, 55)).toBe('900.250.1500.1.45.1.72');
     await openRoom(page, withRack('5000.250.1500.2.90.1.120'));         // too wide, a bad switch, too steep, past 90°
-    expect(await field(page, 55)).toBe('430.250.1500.0.30.1.78');
+    expect(await field(page, 55)).toBe('460.250.1500.1.45.1.72');
   });
 });
 

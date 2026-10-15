@@ -44,10 +44,11 @@ const PINE = '1-0-wall';
 const MIRROR_ON = '1';
 const CARPET = '0';
 // Then the shoe rack downstairs (added 15 Oct 2026):
-// w.d.h.bevel.slope.shoes.bevelDoor, 430 wide, 190 deep, 1240 high (always
-// in the corner of the back wall and the outside wall), no bevel, its
-// shelves sloping 30°, with UK 11 shoes on them, the bevel cut for 78°
-const SHOE_RACK = '430.190.1240.0.30.1.78';
+// w.d.h.bevel.slope.shoes.bevelDoor (always in the corner of the back wall
+// and the outside wall): the user's conclusion, 460 wide without the bevel,
+// 300 deep, 1290 high, the bevel on, cut for the door at 72°, its shelves
+// sloping 45°, with UK 11 shoes on them
+const SHOE_RACK = '460.300.1290.1.45.1.72';
 // The default settings after the option and the left-wall depth, the default
 // places of the things to store, and the default view
 const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}-${WICKER_BENCH}-${PINE}-${MIRROR_ON}-${CARPET}-${SHOE_RACK}`;

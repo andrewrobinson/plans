@@ -15,16 +15,18 @@ import { hallway, HALLWAY, ENTRANCE } from './floor.js';
 import { QUARTER_TURN, SIZE_LABEL, slider } from './other_room.js';
 
 // ---------------------------------------------------------------------------
-// Its sizes, in mm: the width, depth and height the user chose with the
-// sliders (15 Oct 2026); the boards' thickness and the shelves' spacing
-// chosen, as a plain flat-pack rack's
+// Its sizes, in mm: the user's conclusion (15 Oct 2026), to fit a pair of
+// UK 11 shoes on each shelf: 300 deep, 1290 high, its shelves sloping 45°,
+// with the bevel cut for the internal door opening to 72° (the width, 460,
+// is for without the bevel: with it, it's the well's). The boards'
+// thickness and the shelves' spacing chosen, as a plain flat-pack rack's
 // ---------------------------------------------------------------------------
 const RACK = {
-  w: 430, d: 190, h: 1240,
+  w: 460, d: 300, h: 1290,
   board: 18,                       // the sides' and shelves' thickness (chosen)
   bottomShelf: 40,                 // the lowest shelf's top off the floor (chosen)
   shelfPitch: 200,                 // about this far between shelves, enough for most shoes (chosen)
-  slope: 30,                       // the shelves' slant, down towards the back, in degrees (asked for, 15 Oct 2026)
+  slope: 45,                       // the shelves' slant, down towards the back, in degrees (the user's conclusion)
 };
 const rackMat = material(0xc9a77c);                // pale pine (chosen)
 // A UK size 11 shoe (the user's size), to see what fits: a foot about 295
@@ -42,10 +44,10 @@ const FOOT_WIDTH = HALLWAY.yWellIn - HALLWAY.yWellOut;                  // the w
 
 export const SHOE_RACK_START = {
   w: RACK.w, d: RACK.d, h: RACK.h,
-  bevel: false,                    // its front-left corner cut away as the internal door needs (below)
+  bevel: true,                     // its front-left corner cut away for the internal door (below)
   slope: RACK.slope,               // the shelves' slant
   shoes: true,                     // a pair of UK 11 shoes on each shelf, to see what fits
-  bevelDoor: 78,                   // the internal door's angle the bevel is cut for, in degrees (asked for, to start)
+  bevelDoor: 72,                   // the internal door's angle the bevel is cut for, in degrees (the user's conclusion)
 };
 
 // Where it stands: in its own mm (its back's middle at 0, its width along
