@@ -12,7 +12,7 @@
 // - upperD: the upper part's depth, no deeper than the base (150 to 600)
 // Sizes outside those ranges are held to them.
 window.ROOM_DRESSERS = {
-  start: 'chester',                // the dresser the page starts with (a link keeps its own)
+  start: 'inglesham',              // the dresser the page starts with (a link keeps its own)
   list: {
     // The first sizes drawn: estimates, a bit like the Chester below
     estimate: { label: 'First estimate', w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290 },

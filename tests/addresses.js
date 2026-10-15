@@ -19,6 +19,9 @@
 const REST = '330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330';
 const STORED = '0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1';
 const VIEW = 'birdseye.sit-tall.90-0-0';
+// The page now starts with the Inglesham dresser (dressers.js, 15 Oct 2026);
+// the other addresses keep the Chester's sizes, as recorded
+const START = REST.replace('-1370.1940.410.830.340-', '-1000.1930.420.830.420-');
 
 // Option codes in the address are not the dropdown's order: 10 is the
 // current room, so options 10 and 11 are 11 and 12 (optionCode() in
@@ -33,7 +36,7 @@ const OPTIONS = [
 ];
 
 const ADDRESSES = [
-  { name: 'default', address: `#11-600-${REST}~${STORED}~${VIEW}` },       // option 10 (code 11), as the page opens
+  { name: 'default', address: `#11-600-${START}~${STORED}~${VIEW}` },       // option 10 (code 11), as the page opens
   ...OPTIONS.map(([name, code, left]) => ({ name, address: `#${code}-${left}-${REST}~${STORED}~${VIEW}` })),
 
   // Option 10's side bookshelf, between the corner cupboard and the TV

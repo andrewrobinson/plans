@@ -134,9 +134,9 @@ test.describe('sliders, to each end and back', () => {
     await endsAndBack(page, 'dresserW', at(18, 0));
     await endsAndBack(page, 'dresserH', at(18, 1));
     await endsAndBack(page, 'dresserBaseH', at(18, 3));
-    // Its upper part is never deeper than its base (410)
-    await endsAndBack(page, 'dresserUpperD', at(18, 4), { text: v => Math.min(v, 410), address: v => Math.min(v, 410) });
-    // ...so a shallower base takes the upper part (340) with it, and it stays there
+    // Its upper part is never deeper than its base (420)
+    await endsAndBack(page, 'dresserUpperD', at(18, 4), { text: v => Math.min(v, 420), address: v => Math.min(v, 420) });
+    // ...so a shallower base takes the upper part (420) with it, and it stays there
     await endsAndBack(page, 'dresserBaseD', at(18, 2), { back: false });
     expect(await fieldPart(page, 18, 4)).toBe('300');
   });
