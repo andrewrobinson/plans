@@ -35,7 +35,7 @@ const BOOKCASE_ON = '1';
 // Then the wicker bench (added 15 Oct 2026): its sizes, w.d.h.legs, then
 // on.a.b.turn in the hallway (on, against the banister), the bedroom (off,
 // at the foot of the bed) and the living room (off, by the middle window)
-const WICKER_BENCH = '920.410.450.80-1.1370.1372.0-0.1360.1985.0-0.3686.2910.90';
+const WICKER_BENCH = '920.410.450.80-1.1470.1372.0-0.1360.1985.0-0.3686.2910.90';
 // The default settings after the option and the left-wall depth, the default
 // places of the things to store, and the default view
 const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}-${WICKER_BENCH}`;

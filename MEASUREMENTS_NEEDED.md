@@ -184,13 +184,16 @@ Plans don't give heights, so the slope can only come from these.
 - [ ] **Floor to floor,** from the second floor down to the first-floor
       landing, and from that landing down to the ground. Or count the
       steps and measure the rise (below), which gives the same answer.
-- [ ] **Number of steps in each flight,** counting each riser (each step up).
-- [ ] **Rise:** the height of one step, top of a tread to the top of the next.
-      Measure two or three and note if they differ.
+- [x] **Number of steps in each flight,** counting each riser (each step up).
+      The flat's flight: 11 straight, 3 winders, 1 more into the hallway (15 Oct 2026).
+- [x] **Rise:** the height of one step, top of a tread to the top of the next.
+      Measure two or three and note if they differ. 190 (15 Oct 2026).
 - [ ] **Going:** the depth of one straight step, front edge (nosing) to front
       edge. The drawing suggests about 220.
-- [ ] **Width of the flight,** wall to wall or wall to banister.
-- [ ] **The winders at the top** (the turning steps): how many, and each
+- [x] **Width of the flight,** wall to wall or wall to banister. 900 wall to
+      wall, the steps 810 wide; a 110 ledge and a 240 box at the top (15 Oct 2026).
+- [ ] **The winders at the top** (the turning steps): how many (3, counted),
+      and each
       one's depth at the narrow end, the middle and the wide end. A sketch is
       easiest.
 - [ ] **The top of the stairs:** where the top step meets the hallway floor,

@@ -241,12 +241,14 @@ from inside only, as the bedroom's, so the bird's eye looks in.
 | Kitchen side, opposite the stairs | y 2221 | Measured from the back wall's line (C) |
 | Step back at the bedroom's door | 150, at x −1200 (1050 along from the door wall) | Measured (AC, E) |
 | The bedroom's wall, hallway side | y 2371, 150 thick (G), so the bedroom's side is at 2521 | Measured (C + AC, G) |
-| The banister | y 1312, 909 from the kitchen side | Measured (AB; D gives 1317) |
+| The banister | y 1312, 909 from the kitchen side, its rail flush with the box's hallway face (y 1372) | Measured (AB; D gives 1317) |
 | The far end, the WC wall | x −2480, 2330 along | Measured (Y), to check: the drawing scales 3360 |
-| The stairs | A landing 800 along at the top (the winders, simplified), a step (210) down from the hallway's floor, then a straight flight down to the far end: 7 steps, rise 210, going about 219, wall to banister | The step from the photo; the rest estimated, as W and X are still to measure |
-| Floors | The hallway's oak boards, as the living room's, with a metal strip (30 wide) along their edge over the landing; the landing and the stairs carpet, as the bedroom | From the photos |
+| The stairwell | 900 wall to wall, y 122 to 1022; along its hallway side a 110 ledge, then a 240 box (150 high) the banister stands on, to y 1372 | Measured 15 Oct 2026 (the box's height estimated); the outside wall comes 122 in from the back wall's line, as the drawing has it |
+| The stairs | Up from the lobby: 11 straight steps along the outside wall towards the living room door, 3 winders turning right in a 900 square against the door wall, then 1 more step whose tread is level with the hallway floor. 15 risers of 190, 2850 floor to floor; straight steps 810 wide between 45 strings. The newel at the winders' inner corner, x −1050; the flight's foot at x −3470 | Measured and counted 15 Oct 2026; the going (220) is the drawing's, still to measure |
+| Under the bathroom | Past the far end the flight runs on under the bathroom's floor (taken as 300 thick), to a lobby drawn 1000 long | Estimated |
+| Floors | The hallway's oak boards, as the living room's, with a metal strip (30 wide) where the top step's carpet meets them; the stairs carpet, as the bedroom | From the photos |
 | Banister | Rail at 900, 60 wide; spindles 30 thick, about 120 apart; a 90 newel post at each end | Estimated |
-| Ceiling | 2443, as the living room's | Assumed |
+| Ceiling | Not drawn, as asked; the walls go to 2443, as the living room's | Assumed |
 
 ### The wicker bench
 
@@ -266,7 +268,7 @@ location**. Looking at offers it in each room.
 | Length × depth × height | 920 × 410 × 450, to the top of the lid (sliders 400 to 2000, 250 to 800, 250 to 900) | Measured |
 | Legs | 80 high (slider 0 to 300, held to leave at least 100 of wicker under the lid), turned, 55 across at the top and 40 at the foot | Height measured; the rest estimated from the photo |
 | Lid | 60 thick, a 20 wooden rim under the padded top, 10 proud of the wicker all round | Estimated from the photo |
-| In the hallway (on) | Its back to the banister, against the rail's line (y 1372), its near end 20 past the newel post at the top of the flight: its back's middle 1370 from the living room door's wall, facing the kitchen side | From the photo |
+| In the hallway (on) | Its back to the banister, against the rail's line (y 1372), its near end 20 past the newel post at the top of the flight: its back's middle 1470 from the living room door's wall, facing the kitchen side | From the photo |
 | In the bedroom (off to start) | Its back to the foot of the bed, 20 off, centred on it (u 1360, v 1985), facing away from the hallway wall | Chosen |
 | In the living room (off to start) | Its back 20 in front of the middle window's radiator (x 3686, y 2910), facing the left wall | Chosen |
 

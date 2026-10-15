@@ -60,10 +60,10 @@ window.ROOM_VIEWS = {
     door:   { label: 'In the doorway, walking in', at: [150, 1780], posture: 'stand', cannotSee: ['door'], arrive: 'shutRoomDoor' },
     // In the hallway (floor.js's HALLWAY): just out of the living room's
     // door, by the bedroom's (its doorway's middle, 470 out from it), and on
-    // the landing at the top of the stairs
+    // the top step, level with the hallway floor (its middle)
     hallLivingDoor:  { room: 'hallway', label: 'Outside the living room door', at: [-500, 1780], posture: 'stand', cannotSee: ['livingRoomDoor'] },
     hallBedroomDoor: { room: 'hallway', label: 'Outside the bedroom door', at: [-1600, 1900], posture: 'stand' },
-    hallStairs:      { room: 'hallway', label: 'At the top of the stairs', at: [-550, 650], posture: 'stand', cannotSee: ['stairs'] },
+    hallStairs:      { room: 'hallway', label: 'At the top of the stairs', at: [-600, 1197], posture: 'stand' },
     // In the bedroom: in from its door, at the doorway's middle, just past
     // the door (open, it stands 760 into the room); on the bed, your head on
     // the pillow, and beside it, halfway along its side
@@ -100,7 +100,7 @@ window.ROOM_VIEWS = {
     // the far end, where the bathroom and WC are
     livingRoomDoor: { room: 'hallway', label: 'the living room door', at: [-150, 1780, 989] },
     bedroomDoor:    { room: 'hallway', label: 'the bedroom door', at: [-1600, 2371, 989] },
-    stairs:         { room: 'hallway', label: 'the stairs', at: [-1700, 650, -700] },
+    stairs:         { room: 'hallway', label: 'the stairs', at: [-2260, 572, -1710] },
     hallEnd:        { room: 'hallway', label: 'the far end, by the bathroom', at: [-2480, 1840, 1200] },
     hallBench:      { room: 'hallway', label: 'the wicker bench', anchor: 'hallBench' },     // wherever it stands (wicker_bench.js)
     // In the bedroom (other_room.js): the fitted cupboards in the recess

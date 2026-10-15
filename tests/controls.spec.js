@@ -349,7 +349,7 @@ test.describe('the wicker bench', () => {
     await slide(page, 'wickerBench_bedroom_u', 2000);
     expect(await readout(page, 'wickerBench_w')).toBe('1200');
     expect(await field(page, 46)).toBe('1200.410.450.80');
-    expect(await field(page, 47)).toBe('0.1370.1372.0');
+    expect(await field(page, 47)).toBe('0.1470.1372.0');
     expect(await field(page, 48)).toBe('1.2000.1985.0');
     expect(await field(page, 49)).toBe('0.3686.2910.90');
     await page.locator('#wickerBenchBlock [data-reset="bedroom"]').evaluate(b => b.click());
