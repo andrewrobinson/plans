@@ -40,7 +40,13 @@ across the hallway and through the door frames fix where each room sits.
       living room's back wall (the bench wall) to the far edge of the frame.
 - [ ] **The wall the living room door is in:** its thickness, i.e. the depth of
       the door frame from the living room face to the hallway face.
-- [ ] **The hallway's width** opposite the living room door, wall to wall.
+- [ ] **The hallway's width** just outside the living room door, banister
+      to the wall opposite (the kitchen side).
+- [ ] **The step in the hallway wall.** Photos (15 Oct 2026) show the
+      hallway wall beside the kitchen in line with the living room door
+      frame's far edge, and the other room's door in a stretch set back
+      from it, with the door's latch side right at the corner. How far is
+      it set back? The hallway is wider there by that much.
 - [ ] **The living room's back wall carried on:** standing in the hallway, how
       far it is from the outside wall (the wall the stairs run along) to the
       hallway wall opposite. Does the outside wall line up with the living
@@ -63,6 +69,10 @@ across the hallway and through the door frames fix where each room sits.
 - [ ] **Chimney breast:** how far it sticks out, and where it starts and ends
       along the wall, measured from the kitchen-side wall.
 - [ ] **Recess beside it:** depth and length.
+- [ ] **The fitted wardrobes** on the wall opposite the door: how deep they
+      are, front to the wall behind, and where they start and end. Where
+      they hide the chimney breast or recess, measure to their fronts and
+      say so.
 - [ ] **Window:** distance from each side wall to the opening; opening width;
       sill height from the floor; top of the opening from the floor; sill
       depth; the reveal's depth (wall thickness at the window).
@@ -82,6 +92,13 @@ across the hallway and through the door frames fix where each room sits.
       door; its width along the way, where it changes; ceiling height.
 - [ ] **Each door off the hallway** (the bathroom and WC): position, opening
       width, and which way it opens.
+- [ ] **The hallway radiator,** on the other room's wall just past its
+      door's hinge side: distance from the door frame, width, height off
+      the floor to its bottom and top, and how far it stands out (valve
+      included).
+- Paint: the hallway and the other room use the living room's paints (walls
+  Crown Gallery White, woodwork Pure Brilliant White), confirmed 15 Oct 2026.
+  Nothing to measure.
 - [ ] **Bathroom and WC:** length and width of each, and the windows'
       positions and sizes. The shower, basin and WC only roughly, unless
       you want them shown in detail.
