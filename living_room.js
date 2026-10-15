@@ -2,6 +2,23 @@
 // options, their 2D dimensions and cutting list, the things to store, its
 // settings and address, its controls and views. Its walls, door frame and
 // windows are in floor.js; the engine is in kit/. index.html loads it.
+//
+// How it works: `state` holds every setting. The controls change it through
+// changeSettings(), which puts every control in step (syncControls()) and
+// calls show(). show() builds the option chosen (its build() in OPTIONS),
+// then the bench, what's above it, the dresser or larder and the sofa round
+// it; redrawAround() then redraws the dimensions, colours, things to store,
+// cutting list and the address. The address (ADDRESS) is read at the start
+// and written on every change, so a link brings the same settings back.
+//
+// In order, below: the materials and the room's fittings (kitchen, desk,
+// chair, island); the settings (state); the corner cupboard's shelves; the
+// parts of options 7 to 9; above the bench (shelves and TV); the colours;
+// option 9's base cupboards and the dresser; the larders, island, sofa and
+// front wall; options 10 and 11's corner cupboard and side bookshelf; the
+// options (OPTIONS); the 2D dimensions, cuts and cutting list; the things to
+// store; switching options, the address and the controls; the views and
+// scenes; and starting the page.
 import * as THREE from 'three';
 import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
   number, within, radio, sizes, writeFields, readFields,

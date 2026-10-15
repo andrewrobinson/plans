@@ -1,4 +1,5 @@
-/* The styles for room_3d.html */
+/* The styles for index.html, the cupboard options page (room_3d.html is its
+   old address, which only moves on to it) */
 :root { color-scheme: light; }
 html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetica, Arial, sans-serif; }
 #view { position: fixed; inset: 0; }

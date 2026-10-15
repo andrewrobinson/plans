@@ -77,8 +77,13 @@ heights named":
   `setSofaSize()` and `setLarderSize()` only change `state`. Not through
   it: the door sliders and view switches (not settings), and the things
   to store, which have their own (`drawStored()`).
-- Left: each file's opening comment; `board()` could take
-  `{ from, to }` as `box()` now does.
+  Each file opens with what it's for: `living_room.js` now also says how
+  a change flows through the page and maps its sections, `index.html` and
+  `floor.js` say what they hold, and `room_3d.css` names its page.
+- Left: `board()` could take `{ from, to }` as `box()` now does; then
+  step 5's "after each step": `room_3d_ui_guide.md` still has the old
+  short names (`W`, `D`, `H`, `WALL`, `FRAME`, `HINGE`) and old line
+  numbers.
 
 Scripts that rename only in code (not comments or strings) and rewrite
 calls by their arguments made the first two safe; write one again for

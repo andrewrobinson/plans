@@ -1,7 +1,9 @@
 // The floor plan: the walls, the door frame and the windows, drawn into
 // `floor`, a group the page adds to its scene. For now only the living room's
 // (PLAN.md has the floor plan to come), in its mm: x along the back wall from
-// the left wall, y from the back wall towards the front, z up.
+// the left wall, y from the back wall towards the front, z up. It exports
+// the room's measurements (ROOM_WIDTH, the recesses, the door frame, …) and
+// the materials the colours menu changes, for living_room.js.
 import * as THREE from 'three';
 import { MM, material, box, slab } from './kit/floor_kit.js';
 
