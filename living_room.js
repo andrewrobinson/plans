@@ -26,7 +26,7 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
-import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
+import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, HALLWAY, hallway } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
@@ -817,7 +817,7 @@ function placePiece(g) {
   return sub;
 }
 // On the front wall between the sink and the desk: the dresser, a larder,
-// the bedroom's bookcase or nothing, in every option but the current room.
+// a bookcase like the bedroom's or nothing, in every option but the current room.
 // Their order is their code in the address, so the bookshelf, added later,
 // is last.
 const FRONT_PIECES = ['dresser', 'larder', 'none', 'bookshelf'];
@@ -922,23 +922,17 @@ function frontWall(g, i) {
   const text = larder(pieces.larder = placePiece(g), L, x0);
   return ` A larder on the front wall between the sink and the desk (x ${x0}-${x0 + L.w}): the ${text}.` + widerThanFrontGap(L.w);
 }
-// There's one bookcase, so it's in one place: on the back wall (the
-// Bookshelf switch), on the front wall (chosen there, and drawn there: not
-// in the current room, nor with the island against that wall), or else in
-// the bedroom. Choosing either place takes it from the other (their
-// listeners below); an address with both has it on the back wall.
-const bookcaseFrontDrawn = () => state.frontPiece === 'bookshelf' && !state.bookshelfOn && state.option !== CURRENT && !islandOnWall();
-const bookcaseInLivingRoom = () => state.bookshelfOn || bookcaseFrontDrawn();
-// The bedroom's bookcase on the front wall between the sink and the desk,
-// at its bedroom sizes: its back to the wall, centred there
+// A bookcase like the bedroom's on the front wall between the sink and the
+// desk, at its bedroom sizes: its back to the wall, centred there. Each
+// place has its own, so it's drawn whether or not there's one on the back
+// wall or in the bedroom.
 function bookcaseOnFrontWall(g) {
-  if (state.bookshelfOn) return ' Nothing on the front wall between the sink and the desk: the bookcase is on the back wall.';
   const { w, d, h } = state.otherRoom.bookcase, x0 = frontX0(w);
   const piece = bookcase({ w, d, h });                           // drawn with its back's middle at its origin, facing out
   piece.position.set((x0 + w / 2) * MM, 0, ROOM_DEPTH * MM);
   piece.rotation.y = Math.PI;                                    // facing into the room
   g.add(piece);
-  return ` The bedroom's bookcase on the front wall between the sink and the desk (x ${x0}-${x0 + w}): ${w} wide, ${d} deep, ${h} high.` + widerThanFrontGap(w);
+  return ` A bookcase like the bedroom's on the front wall between the sink and the desk (x ${x0}-${x0 + w}): ${w} wide, ${d} deep, ${h} high.` + widerThanFrontGap(w);
 }
 // The front-wall piece's span and heights, for the 2D dimensions
 function frontSpan() {
@@ -950,7 +944,7 @@ function frontSpan() {
   if (state.frontPiece === 'dresser') return { x0: state.dresser.x0, x1: state.dresser.x1, heights: [0, state.dresser.baseH, state.dresser.h] };
   if (state.frontPiece === 'bookshelf') {
     const { w, h } = state.otherRoom.bookcase;
-    return bookcaseFrontDrawn() ? { x0: frontX0(w), x1: frontX0(w) + w, heights: [0, h] } : null;
+    return { x0: frontX0(w), x1: frontX0(w) + w, heights: [0, h] };
   }
   const L = currentLarder();
   if (state.frontPiece !== 'larder' || !L) return null;
@@ -1978,7 +1972,7 @@ function bookcaseOnBenchWall(x0, g) {
   piece.position.set(x * MM, 0, y * MM);
   piece.rotation.y = THREE.MathUtils.degToRad(-turn);
   g.add(piece);
-  const sizes = `The bedroom's bookcase (${w} wide, ${d} deep, ${h} high)`;
+  const sizes = `A bookcase like the bedroom's (${w} wide, ${d} deep, ${h} high)`;
   if (state.bookshelfMove) return ` ${sizes} in place of the bench, moved: the middle of its back at x ${x}, y ${y}, facing ${BOOKSHELF_FACING[turn]}.`;
   const where = w <= span ? `centred on the ${span} of clear wall` : `against the cupboards, ${w - span} wider than the ${span} of clear wall`;
   return ` ${sizes} on the back wall, ${where}.`;
@@ -2077,7 +2071,7 @@ function showInMenus(option, i, aboveText) {
 // Everything drawn round the option: dimensions, colours, the things to
 // store and the cupboard shelves round them, the cutting list, the address
 function redrawAround() {
-  drawOtherRoom(state.otherRoom, { bookcaseAway: bookcaseInLivingRoom() });   // the bedroom's furniture, bar the bookcase if it's in here
+  drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2147,6 +2141,7 @@ const ADDRESS = [
   ...MIRROR_ADDRESS,                                            // the bedroom's mirror
   ...RECESS_FRONTS_ADDRESS,                                     // the upper recess cupboard's drawers and mirrors
   ['bookshelfMove', m => (m ? `${m.x}.${m.y}.${m.turn}` : BOOKSHELF_HOME), readBookshelfMove],
+  ...BOOKCASE_ON_ADDRESS,                                       // the bedroom's bookcase there or not
 ];
 // The bookshelf moved, as `x.y.turn`, or BOOKSHELF_HOME where it starts
 // (as links from before it could move keep it)
@@ -2433,10 +2428,7 @@ benchSwitch.addEventListener('change', () => changeSettings(s => { s.benchOn = b
 // on, the Bench switch is off and can't be changed; benchOn is kept, for
 // when it's off again
 const bookshelfSwitch = document.getElementById('bookshelfOn');
-bookshelfSwitch.addEventListener('change', () => changeSettings(s => {
-  s.bookshelfOn = bookshelfSwitch.checked;
-  if (s.bookshelfOn && s.frontPiece === 'bookshelf') s.frontPiece = 'none';   // taken from the front wall
-}, { look: true }));
+bookshelfSwitch.addEventListener('change', () => changeSettings(s => { s.bookshelfOn = bookshelfSwitch.checked; }, { look: true }));
 // Moving it, and turning it in quarter turns: the first move starts from
 // where it stands; Reset location puts it back against the wall
 const BOOKSHELF_SLIDERS = [['x', 'bookshelfX', ROOM_WIDTH, 5, ''], ['y', 'bookshelfY', ROOM_DEPTH, 5, ''], ['turn', 'bookshelfTurn', 360 - QUARTER_TURN, QUARTER_TURN, '°']];
@@ -2483,10 +2475,7 @@ for (const [k, id] of [['x', 'islandX'], ['y', 'islandY'], ['turn', 'islandTurn'
   document.getElementById(id).addEventListener('input', e => changeSettings(s => { s.island.move[k] = Number(e.target.value); }));
 }
 // On the front wall: the dresser, a larder or nothing; and which larder
-document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => changeSettings(s => {
-  s.frontPiece = r.value;
-  if (s.frontPiece === 'bookshelf') s.bookshelfOn = false;     // taken from the back wall
-}, { look: true })));
+document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.frontPiece = r.value; }, { look: true })));
 // The Larder dropdown: the larders in larders.js, or Custom when the
 // sliders have changed its sizes (it keeps that larder's front)
 const larderPick = document.getElementById('larderPick');

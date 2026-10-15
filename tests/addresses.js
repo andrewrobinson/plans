@@ -30,9 +30,11 @@ const RECESS_FRONTS = '0.0';
 // Then the bookshelf's place, where it starts against the back wall (added
 // 15 Oct 2026)
 const BOOKSHELF_PLACE = 'wall';
+// Then whether the bookcase is in the bedroom, as it is (added 15 Oct 2026)
+const BOOKCASE_ON = '1';
 // The default settings after the option and the left-wall depth, the default
 // places of the things to store, and the default view
-const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}`;
+const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}`;
 const STORED = '0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1';
 const VIEW = 'birdseye.sit-tall.90-0-0-90';
 // The page now starts with the Inglesham dresser (dressers.js, 15 Oct 2026);
@@ -67,10 +69,12 @@ const ADDRESSES = [
   // 1400 from the hallway wall, 1200 × 1600 from 300 up
   // The bookshelf there moved out into the room (x 2500, y 2000) and turned
   // to face the left wall (90°)
-  { name: 'bookshelf-moved', address: `#9-0-${REST.replace(`-${BOOKSHELF}-${MIRROR}`, `-1-${MIRROR}`).replace(/-wall$/, '-2500.2000.90')}~${STORED}~${VIEW}` },
+  { name: 'bookshelf-moved', address: `#9-0-${REST.replace(`-${BOOKSHELF}-${MIRROR}`, `-1-${MIRROR}`).replace(`-${BOOKSHELF_PLACE}-`, '-2500.2000.90-')}~${STORED}~${VIEW}` },
   // The bookcase on the front wall between the sink and the desk instead
   // (front piece 3)
   { name: 'front-wall-bookshelf', address: `#9-0-${REST.replace('.340-0-chester-', '.340-3-chester-')}~${STORED}~${VIEW}` },
+  // The bedroom from above without its bookcase (the last setting, 0)
+  { name: 'bedroom-no-bookcase', address: `#9-0-${REST.replace(/-1$/, '-0')}~${STORED}~birdseye.sit-tall.90-0-0-90.bedroom` },
   { name: 'bedroom-mirror-kitchen-wall', address: `#9-0-${REST.replace(`-${MIRROR}`, '-3.1400.300.1200.1600')}~${STORED}~birdseye.sit-tall.90-0-0-90.bedroom` },
   // The recess cupboards from the bedroom window, the upper one with drawers
   // over its open shelves and mirrors on its tall doors
@@ -86,8 +90,8 @@ const ADDRESSES = [
   // Nearly every setting away from its default, so each field of the
   // address is read and written back (refactor step 3). Checked against the
   // code before step 3: the same address, description and picture.
-  { name: 'settings-option07-no-bench', address: '#7-500-450-1200-1-200-700-900-900-400-600-0-5-0-0-3-43-0-1000.1800.350.800.250-2-chester-2-none-1900-1100.1950.510-1690.1000.920-0-900-300.900.1500-0-1000.2000.170-25-1200-900-0-800-150-2000.500.90-1000.2000.0.1000.250.1000-500.500.270.1000.400.2000-450-0-2.1500.900.600.1200-1.0-1200.300.180~1.3.2_100.100.1_200.900.0_300.1000.0.400_400.400.1_500.500.0_600.600.0_700.700.1~plan.sit-tall.90-0-0-90' },
-  { name: 'settings-current-room', address: `#10-0-330-1200-2-250-800-600-900-400-600-0-0-0-0-1-86-1-1370.1940.410.830.340-0-chester-3-merton-3000-1100.1950.510-2600.1200.1100-1-600-600.1200.1800-600.1200.1800-1395.3571.0-12-800-1200-1-200-800-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}~0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~birdseye.sit-tall.90-0-0-90` },
+  { name: 'settings-option07-no-bench', address: '#7-500-450-1200-1-200-700-900-900-400-600-0-5-0-0-3-43-0-1000.1800.350.800.250-2-chester-2-none-1900-1100.1950.510-1690.1000.920-0-900-300.900.1500-0-1000.2000.170-25-1200-900-0-800-150-2000.500.90-1000.2000.0.1000.250.1000-500.500.270.1000.400.2000-450-0-2.1500.900.600.1200-1.0-1200.300.180-1~1.3.2_100.100.1_200.900.0_300.1000.0.400_400.400.1_500.500.0_600.600.0_700.700.1~plan.sit-tall.90-0-0-90' },
+  { name: 'settings-current-room', address: `#10-0-330-1200-2-250-800-600-900-400-600-0-0-0-0-1-86-1-1370.1940.410.830.340-0-chester-3-merton-3000-1100.1950.510-2600.1200.1100-1-600-600.1200.1800-600.1200.1800-1395.3571.0-12-800-1200-1-200-800-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}~0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~birdseye.sit-tall.90-0-0-90` },
 ];
 
 module.exports = { ADDRESSES, VIEW, BEDROOM };

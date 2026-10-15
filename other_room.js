@@ -119,6 +119,7 @@ export const OTHER_ROOM_START = {
   bed: { u: 680 + BED.width / 2, v: 0, turn: 0 },
   bookcase: { u: OTHER_ROOM.recessWidth + BOOKCASE.w / 2, v: OTHER_ROOM.breastFace, turn: 180, w: BOOKCASE.w, d: BOOKCASE.d, h: BOOKCASE.h },
   cupboard: { u: OTHER_ROOM.length, v: OTHER_ROOM.breastFace - BOOKCASE.d - PINE.w / 2, turn: 90, w: PINE.w, d: PINE.d, h: PINE.h },
+  bookcaseOn: true,                // the bookcase there, or not (whatever's in the living room)
   lowerD: RECESS_CUPBOARDS.lowerD,
   upperDrawers: false,             // the upper recess cupboard: drawers over its open shelves
   upperMirrors: false,             // ...and mirrors on its two tall doors
@@ -155,7 +156,7 @@ const sizeSliders = piece => SIZES[piece].map(([k, lo, hi]) => [`${piece}.${k}`,
 // for the mirror the choice of wall, reset with its place
 const PIECES = [
   { heading: 'Bed (with its headboard and mattress)', sizes: [], place: PLACE('bed') },
-  { heading: 'Bookcase', sizes: sizeSliders('bookcase'), place: PLACE('bookcase') },
+  { heading: 'Bookcase', sizes: sizeSliders('bookcase'), place: PLACE('bookcase'), switches: [['bookcaseOn', 'In the bedroom']] },
   { heading: 'Pine cupboard', sizes: sizeSliders('cupboard'), place: PLACE('cupboard') },
   // The lower one's depth up to 800, as far as it might go (asked for, 15 Oct 2026)
   { heading: 'Recess cupboards', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [],
@@ -203,6 +204,9 @@ export const RECESS_FRONTS_ADDRESS = [['otherRoom',
     const [drawers, mirrors] = text.split('.');
     return { ...r, upperDrawers: onOff(drawers, r.upperDrawers), upperMirrors: onOff(mirrors, r.upperMirrors) };
   }]];
+// Then whether the bookcase is in the bedroom, 1 or 0 (added later; links
+// from before have it there)
+export const BOOKCASE_ON_ADDRESS = [['otherRoom.bookcaseOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
 
 // ---------------------------------------------------------------------------
 // Drawing. Each movable piece is drawn in its own group, its back's middle
@@ -213,14 +217,14 @@ const furniture = new THREE.Group();
 otherRoom.add(furniture);
 export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null, mirror: null };   // each piece's group as drawn now, to look at
 
-// Draw everything again from the settings `s` (state.otherRoom). With
-// `bookcaseAway` (it's in the living room, in place of the bench) the
-// bookcase is hidden, though still placed, so Looking at it aims at its spot.
-export function drawOtherRoom(s, { bookcaseAway = false } = {}) {
+// Draw everything again from the settings `s` (state.otherRoom). With the
+// bookcase switched off it's hidden, though still placed, so Looking at it
+// aims at its spot.
+export function drawOtherRoom(s) {
   furniture.clear();
   otherRoomPieces.bed = place(bed(), s.bed);
   otherRoomPieces.bookcase = place(bookcase(s.bookcase), s.bookcase);
-  otherRoomPieces.bookcase.visible = !bookcaseAway;
+  otherRoomPieces.bookcase.visible = s.bookcaseOn;
   otherRoomPieces.cupboard = place(pineCupboard(s.cupboard), s.cupboard);
   recessCupboards(s);
   otherRoomPieces.mirror = place(mirror(s.mirror), mirrorPlace(s.mirror));

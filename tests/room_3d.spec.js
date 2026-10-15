@@ -34,10 +34,11 @@ test.describe('saved addresses', () => {
     });
   }
 
-  // From before the bookshelf could move: its place left off the end
-  test('a link without the bookshelf\'s place keeps it against the wall', async ({ page }) => {
+  // From before the bookshelf could move or the bedroom's bookcase be taken
+  // out: both left off the end, so it's against the wall and in the bedroom
+  test('a link without the bookshelf\'s place or the bedroom bookcase keeps them as they were', async ({ page }) => {
     const [settings, ...rest] = DEFAULT.split('~');
-    await openRoom(page, [settings.replace(/-wall$/, ''), ...rest].join('~'));
+    await openRoom(page, [settings.replace(/-wall-1$/, ''), ...rest].join('~'));
     expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
   });
 
@@ -234,16 +235,19 @@ test.describe('the controls', () => {
     await expect(page.locator('#bookshelfBlock')).toBeHidden();
   });
 
-  // One bookcase: on the front wall (front piece, field 19) or the back
-  // wall (bookshelfOn, field 41), and choosing one takes it from the other
-  test('the bookshelf is on the front wall or the back wall, not both', async ({ page }) => {
+  // A bookcase on the front wall (front piece, field 19), the back wall
+  // (bookshelfOn, field 41) and in the bedroom (field 45), each on its own
+  test('a bookcase can be on either wall and in the bedroom, each on its own', async ({ page }) => {
     await page.check('input[name=frontPiece][value="bookshelf"]');
     await page.locator('#bookshelfOn').check();
-    expect(settingsField(await hash(page), 19)).toBe('2');
-    await expect(page.locator('input[name=frontPiece][value="none"]')).toBeChecked();
-    await page.check('input[name=frontPiece][value="bookshelf"]');
-    await expect(page.locator('#bookshelfOn')).not.toBeChecked();
-    expect(settingsField(await hash(page), 41)).toBe('0');
+    expect(settingsField(await hash(page), 19)).toBe('3');
+    expect(settingsField(await hash(page), 41)).toBe('1');
+    expect(settingsField(await hash(page), 45)).toBe('1');
+    await page.click('#bedMenu');
+    await page.locator('#otherRoom_bookcaseOn').uncheck();
+    expect(settingsField(await hash(page), 45)).toBe('0');
+    expect(settingsField(await hash(page), 19)).toBe('3');           // the living room's kept
+    expect(settingsField(await hash(page), 41)).toBe('1');
   });
 
   // Its place, field 44: `wall` where it starts, else x.y.turn

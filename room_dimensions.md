@@ -87,7 +87,7 @@ The inside of each cupboard therefore starts a board out from each wall; the des
 
 **The bench** can be left out, in any option (the **Bench** switch, first in the menu's back wall section, then the bench height): with it off, the bench (or option 9's base cupboards) isn't drawn, and nor is anything above it (TV and shelves), whose settings hide till it's on again. The options' descriptions then say there's no bench.
 
-**Larders.** The front-wall spot can hold the dresser, a larder, the bookshelf (the bedroom's bookcase, centred there with its back to the wall, at its bedroom sizes, which its sliders there also change) or nothing (the menu's **On the front wall**), in every option but the current room. In the address the front piece is 0 dresser, 1 larder, 2 nothing, 3 bookshelf. The larders are in `larders.js`, for editing, their fronts stacked from the floor up as read from the product photos: the **Chester Double Larder** (1100 wide, 1950 high, 510 deep: four drawers on short legs under an oak top, then a pair of doors and a cornice) and the **Stow Narrow Single Larder** (670 wide, 1860 high, 500 deep: on a plinth, a lower door, a drawer and a tall upper door, both doors hinged on the right). Sliders resize the larder chosen, as the dresser's do (width 400 to 1500, height 1500 to 2400, depth 300 to 700): a change of height goes on its tallest doors, and a shallower top section stays as much shallower; the dropdown then says Custom. A larder takes the dresser's colour.
+**Larders.** The front-wall spot can hold the dresser, a larder, the bookshelf (a bookcase like the bedroom's, centred there with its back to the wall, at the bedroom one's sizes, which its sliders there also change) or nothing (the menu's **On the front wall**), in every option but the current room. In the address the front piece is 0 dresser, 1 larder, 2 nothing, 3 bookshelf. The larders are in `larders.js`, for editing, their fronts stacked from the floor up as read from the product photos: the **Chester Double Larder** (1100 wide, 1950 high, 510 deep: four drawers on short legs under an oak top, then a pair of doors and a cornice) and the **Stow Narrow Single Larder** (670 wide, 1860 high, 500 deep: on a plinth, a lower door, a drawer and a tall upper door, both doors hinged on the right). Sliders resize the larder chosen, as the dresser's do (width 400 to 1500, height 1500 to 2400, depth 300 to 700): a change of height goes on its tallest doors, and a shallower top section stays as much shallower; the dropdown then says Custom. A larder takes the dresser's colour.
 
 **Options 12 to 15** (the dresser or the larder as the corner cupboard, against the back wall or the left wall) were taken out on 14 Oct 2026 too. The current room keeps its number, 16, and its address code, 10; codes 13 to 16, for the options taken out, now read as none.
 
@@ -145,9 +145,9 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 
 The full list of the address's fields, in order, with how each is checked, is `ADDRESS` in `living_room.js`; new fields go at its end. The page address records the option (by its code: 7 to 9 for options 7 to 9, 10 for the current room, 11 and 12 for options 10 and 11; 1 to 6 and 13 to 16, for the options taken out, read as none) and the settings, joined by `-`:
 
-`#option-T-R-F-above-shelfDepth-BENCH-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-tv-dresserColour-dresserSizes-frontPiece-larder-island-sofa-sofaFront-larderSizes-sofaSizes-benchOn-LEG_D-backShelves-leftShelves-islandMove-BOARD-CORNER_W-CORNER_D-SIDE_SHELF-SIDE_W-SIDE_D-bed-bookcase-pineCupboard-recessLowerD-bookshelfOn-mirror-recessFronts-bookshelfMove~stored~view`
+`#option-T-R-F-above-shelfDepth-BENCH-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-tv-dresserColour-dresserSizes-frontPiece-larder-island-sofa-sofaFront-larderSizes-sofaSizes-benchOn-LEG_D-backShelves-leftShelves-islandMove-BOARD-CORNER_W-CORNER_D-SIDE_SHELF-SIDE_W-SIDE_D-bed-bookcase-pineCupboard-recessLowerD-bookshelfOn-mirror-recessFronts-bookshelfMove-bookcaseOn~stored~view`
 
-Sizes of one thing are joined by `.` (dresserSizes `w.h.baseD.baseH.upperD`, larderSizes and sofaSizes `w.d.h`, shelves as their tops, islandMove `x.y.turn`; the bedroom's bed `u.v.turn`, bookcase and pineCupboard `u.v.turn.w.d.h`, see below). For example, option 7 with a 600-deep left-wall cupboard and everything else as it starts: `#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1000.1930.420.830.420-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301-0-0.2569.1400.1000.800-0.0-wall`. After the first `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, with a fourth number for its height off the floor when it isn't 0; they're used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, `.` and the room door's, left-wall cupboard's and option's own door angles, joined by `-`, and, unless it's the living room, `.` and the room chosen (`hallway` or `bedroom`). For example `~look:desk:dresser.sit-tall.90-0-0`, or `~birdseye.sit-tall.90-0-0.bedroom`. Old links needn't keep working (agreed 12 Oct 2026).
+Sizes of one thing are joined by `.` (dresserSizes `w.h.baseD.baseH.upperD`, larderSizes and sofaSizes `w.d.h`, shelves as their tops, islandMove `x.y.turn`; the bedroom's bed `u.v.turn`, bookcase and pineCupboard `u.v.turn.w.d.h`, see below). For example, option 7 with a 600-deep left-wall cupboard and everything else as it starts: `#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1000.1930.420.830.420-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301-0-0.2569.1400.1000.800-0.0-wall-1`. After the first `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, with a fourth number for its height off the floor when it isn't 0; they're used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, `.` and the room door's, left-wall cupboard's and option's own door angles, joined by `-`, and, unless it's the living room, `.` and the room chosen (`hallway` or `bedroom`). For example `~look:desk:dresser.sit-tall.90-0-0`, or `~birdseye.sit-tall.90-0-0.bedroom`. Old links needn't keep working (agreed 12 Oct 2026).
 
 ## The other room (the bedroom)
 
@@ -177,10 +177,10 @@ along y. Measured and estimated sizes are in `MEASUREMENTS_NEEDED.md`
 Its furniture, each with sliders in the **Bedroom options** drawer (its
 button in the top bar; the bookcase and pine cupboard resized as well as
 moved, and each piece turned in quarter turns, 0° to 270°). The back
-wall's **Bookshelf** switch (in Other options, beside **Bench**) stands the
-bookcase on the living room's back wall in place of the bench and what's
-above it, centred on the clear wall as the TV is, at its bedroom sizes; it's
-then not in the bedroom, and the Bench switch is off and can't be changed
+wall's **Bookshelf** switch (in Other options, beside **Bench**) stands a
+bookcase like the bedroom's on the living room's back wall in place of the
+bench and what's above it, centred on the clear wall as the TV is, at the
+bedroom one's sizes; the Bench switch is then off and can't be changed
 until the bookshelf's off again. It's in the address after the bedroom's
 furniture, `bookshelfOn`, 1 or 0. While it's on, three sliders under the
 switch move it round the living room: **its back's middle from the left
@@ -188,17 +188,16 @@ wall** (x, 0 to 3838) and **from the back wall** (y, 0 to 5379), and how
 far it's **turned**, in quarter turns as in the bedroom (0° facing the
 front wall, 90° the left wall, 180° the back wall, 270° the right wall).
 They start where it stands against the back wall, and **Reset location**
-puts it back there. They're the address's last field before the first
-`~`, `bookshelfMove`: `x.y.turn`, or `wall` where it starts (links from
-before keep it there).
+puts it back there. They come after the recess cupboards' switches in
+the address, `bookshelfMove`: `x.y.turn`, or `wall` where it starts (links
+from before keep it there).
 
-There's one bookcase, so it's in one place: on the back wall, on the front
-wall (the **On the front wall** choice), or in the bedroom. Choosing either
-living-room place takes it from the other (the Bookshelf switch sets the
-front wall to Nothing; choosing Bookshelf there turns the switch off), and
-an address with both has it on the back wall. It's in the bedroom whenever
-it isn't drawn in the living room: with neither chosen, or chosen for the
-front wall in the current room or with the island against that wall.
+The bookcases in each place are independent (asked for, 15 Oct 2026): one
+can be on the back wall, one on the front wall (the **On the front wall**
+choice) and one in the bedroom, in any mix, all at the bedroom one's sizes.
+The bedroom's has an **In the bedroom** switch under its heading in
+Bedroom options; it's the address's last field before the first `~`,
+`bookcaseOn`, 1 or 0 (links from before have it there).
 
 Each piece has **Reset dimensions** and **Reset location** buttons (the
 bed only the second, the recess cupboards only the first), back to where
