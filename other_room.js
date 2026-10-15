@@ -26,6 +26,15 @@ const BED = {
   headboard: { top: 950, thick: 25, post: 40, rails: [[910, 950], [790, 820], [660, 690]] },
   rail: { thick: 40, high: 50 },   // the base's metal frame (estimated)
 };
+// Where you lie on the bed and stand beside it (the Look menu's Where), in
+// the bed's own mm: across it from its middle, and along it from the back
+// of its headboard. Your eyes 300 in from the headboard, on the pillow, and
+// beside it halfway along its side away from the window (with the bed as it
+// starts, the room side), 450 out: room to stand (all chosen)
+export const BED_SPOTS = {
+  pillow: [0, BED.headboard.thick + 300],
+  side: [BED.width / 2 + 450, BED.headboard.thick + BED.length / 2],
+};
 const BOOKCASE = {
   w: 1490, d: 290, h: 1220,        // dark brown, open shelves
   board: 18, back: 6, plinth: 70,  // its boards, back and plinth (estimated)

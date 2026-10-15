@@ -1,7 +1,7 @@
 # index.html — how the page is put together
 
-A guide to the HTML, CSS and JS in `index.html` (316 lines), the living
-room's `living_room.js` (2,625 lines) and `floor.js` (133 lines),
+A guide to the HTML, CSS and JS in `index.html` (321 lines), the living
+room's `living_room.js` (2,696 lines) and `floor.js` (341 lines),
 `kit/floor_kit.js` (541 lines) and `room_3d.css` (125 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers in the
 map below are as of 15 Oct 2026, after step 5 of `REFACTOR_PLAN.md` (longer
@@ -58,9 +58,9 @@ The HTML only lays out the controls. It contains no logic.
 | 309–313 | **Plain data scripts**: `living_room.views.js`, `dressers.js`, `larders.js`, `sofas.js`, `living_room.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
 | 314 | `<script type="module" src="living_room.js">`: the room's module, which imports the floor plan from `floor.js`, the engine from `kit/floor_kit.js` and the view and scene kits from `kit/view_kit.js` and `kit/scene_kit.js` |
 
-### floor.js (133 lines)
+### floor.js (341 lines)
 
-The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `WALL_THICKNESS`), the floor, the walls with their recesses (kitchen, sink, desk: `KITCHEN_RECESS_BACK_WALL_X`, `SINK_RECESS`, `DESK_RECESS`, …), the doorway and its frame (`DOOR_FRAME_STARTS_AT`, `DOOR_HINGE_AT`, `FRAME_END`, …), the ceiling and downlights, and the outer wall with its windows and radiators (`OUTER`). It draws them into `floor`, a group `living_room.js` adds to the scene, and exports the measurements and the materials the colours menu changes (`wallMat`, `frameMat`, `floorMat`, `ceilingMat`). For now only the living room's, in its mm.
+The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `WALL_THICKNESS`), the floor, the walls with their recesses (kitchen, sink, desk: `KITCHEN_RECESS_BACK_WALL_X`, `SINK_RECESS`, `DESK_RECESS`, …), the doorway and its frame (`DOOR_FRAME_STARTS_AT`, `DOOR_HINGE_AT`, `FRAME_END`, …), the ceiling and downlights, and the outer wall with its windows and radiators (`OUTER`). It draws them into `floor`, a group `living_room.js` adds to the scene, and exports the measurements and the materials the colours menu changes (`wallMat`, `frameMat`, `floorMat`, `ceilingMat`). The living room's in its mm; then the bedroom's walls, door and window (`OTHER_ROOM`, in the `otherRoom` group at `OTHER_ROOM_CORNER`, in its own u, v mm), and the hallway's walls, floor, stairs and banister (`HALLWAY`, in the `hallway` group, in the living room's mm).
 
 ### other_room.js (the bedroom's furniture)
 
@@ -74,7 +74,7 @@ and `otherRoomControls(container, change)`, which writes the drawer's
 them in step. Unlike the other sections, its sliders aren't in the HTML.
 The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 
-### living_room.js (2,625 lines)
+### living_room.js (2,696 lines)
 
 | Lines | Section | Notes |
 |---|---|---|
@@ -120,7 +120,7 @@ The engine, an ES module: what any room needs, and nothing about this one.
 | The 2D/3D switch | `flatViews(stage, view)`: `setFlat()`, `resize()` (fitting the 3D and 2D views to the screen) and `startLoop()` (the render loop), reading the room's framing (`flat`, `flatFit`, `flatPerM`), the view kit's `hfov` and the drawers through `view` |
 | 2D dimensions | `dimLine()`, `dimLabel()`, `chain()` (a chain of dimensions), `cutViews(scene, view)`: `applyCut()`, reading the view's cut and what alone to show through `view` |
 
-### kit/view_kit.js (471 lines) and kit/scene_kit.js (93 lines)
+### kit/view_kit.js (532 lines) and kit/scene_kit.js (93 lines)
 
 The Views and Look menus, and the Scenes menu: ES modules too, each
 exporting `create()`, which the room imports as `ViewKit` and `SceneKit`.
@@ -266,8 +266,8 @@ open/closed state in `localStorage`, using the `toggle` event.
 The `<select>` elements in the HTML are **empty** (e.g. `<select id="where"
 class="pick"></select>`). JS adds every `<option>`:
 
-- Views and Look (`#viewPick`, `#where`, `#lookAt`, `#eye`, `#lookPick`) are filled by
-  `kit/view_kit.js`. The page passes the elements in to `ViewKit.create()`.
+- Views and Look (`#viewPick`, `#room`, `#where`, `#lookAt`, `#eye`, `#lookPick`) are filled by
+  `kit/view_kit.js`, Where and Looking at again each time the room changes. The page passes the elements in to `ViewKit.create()`.
 - Scenes (`#scenePick`) is filled by `kit/scene_kit.js`, through `SceneKit.create()`.
 - The rest are filled in the module (section 4).
 

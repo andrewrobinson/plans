@@ -415,6 +415,29 @@ test.describe('the Views and Look menus', () => {
     await expect.poll(() => view(page)).toMatch(/\.stand-short\./);
   });
 
+  // The rooms: Bird's eye and the plan stay as they are, framing the room
+  // chosen; from anywhere else you go in at its doorway. Where and Looking
+  // at offer only its places and things, and the address ends with the
+  // room, unless it's the living room.
+  test('choosing the room', async ({ page }) => {
+    await page.locator('#viewMenu .popToggle').click();
+    const options = id => page.locator(`#${id} option`).evaluateAll(os => os.filter(o => o.value).map(o => o.textContent));
+    await page.selectOption('#room', 'bedroom');
+    await expect.poll(() => view(page)).toMatch(/^birdseye\..*\.bedroom$/);
+    expect(await options('where')).toEqual(['In the bedroom doorway, walking in', 'Lying on the bed', 'Standing beside the bed', 'Standing at the bedroom window']);
+    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at the window', 'Looking at the bed']);
+    await page.selectOption('#where', 'bed');
+    await expect.poll(() => view(page)).toMatch(/^look:bed:\w+\.lie-tall\..*\.bedroom$/);
+    await page.selectOption('#room', 'hallway');
+    await expect.poll(() => view(page)).toMatch(/^look:hallLivingDoor:bedroomDoor\.stand-tall\..*\.hallway$/);
+    await page.locator('#viewsMenu .popToggle').click();
+    await page.selectOption('#viewPick', 'plan');
+    await expect.poll(() => view(page)).toMatch(/^plan\..*\.hallway$/);
+    await page.locator('#viewMenu .popToggle').click();             // one menu open at a time
+    await page.selectOption('#room', 'living');
+    await expect.poll(() => view(page)).toMatch(/^plan\.stand-tall\.[\d-]+$/);
+  });
+
   test('saving and deleting a view', async ({ page }) => {
     await page.locator('#viewsMenu .popToggle').click();
     page.once('dialog', d => d.accept('Test view'));

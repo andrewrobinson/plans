@@ -45,6 +45,13 @@ its own mm, and its furniture in `other_room.js`. Its settings are
 by `otherRoomControls()`. That's the piece to lift out when the engine
 takes each room's `build(group)`.
 
+The hallway followed the same day, in `floor.js`'s `hallway` group, in the
+living room's mm. The view kit now knows the rooms (`config.rooms`, each
+place and thing's `room`, built-in views with `rooms` that frame whichever
+is chosen) and puts the room chosen at the end of the view's part of the
+address, unless it's the living room, so the living room's addresses
+didn't change. The settings' part still has no room names.
+
 ---
 
 ## Step 5: readable code, in the style of `menu_demo/`

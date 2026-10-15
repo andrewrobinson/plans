@@ -41,6 +41,16 @@ about 1810, AL 819, AM 1632), and the other room's furniture (`PLAN.md`).
 Later on 15 Oct 2026: L 1858 (so the recess is 1824 wide), the window's
 reveal 250 deep (AP) and its sill 290 from the glass (AQ).
 
+**The hallway is drawn from these** (15 Oct 2026, `room_dimensions.md`,
+"The hallway"). Two things they show:
+
+- C + AC put the hallway's face of the bedroom's wall at 2371 from the
+  living room's back wall line, and the bedroom is placed with its side of
+  that wall at 2562: the wall comes out 191 thick, against G's guess of
+  120. F and G will say which is out.
+- E puts the bedroom doorway's near edge 1050 along, at the step. The
+  model's door, from Q and R (both guessed), comes 20 short of it.
+
 **Still outstanding, and important** (red ! on the sheet). Each is only a
 guess today, or could be well out:
 

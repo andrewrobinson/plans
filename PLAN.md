@@ -27,14 +27,19 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    **Started 15 Oct 2026**: the other room (the bedroom) is drawn, its shell
    in `floor.js` (`OTHER_ROOM`, its own u, v coordinates) and its furniture
    and recess cupboards in `other_room.js`, with sliders in the drawer's
-   Bedroom furniture section, three views (Bedroom bird's eye, Bedroom door,
-   Bedroom window) and the address's last four fields
+   Bedroom furniture section, and the address's last four fields
    (`room_dimensions.md`, "The other room"). Its settings still live in
-   `living_room.js`'s `state.otherRoom`. Still to do: the hallway and
-   stairs; the measured numbers as they come in (F, G, N, P, Q, R, S, T, U:
-   `MEASUREMENTS_NEEDED.md`); a 2D plan view of the bedroom (the living
-   room's plan shows it at its edge, under the left-wall dimensions);
-   stopping furniture at the walls; and the engine refactor below.
+   `living_room.js`'s `state.otherRoom`. Later on 15 Oct 2026 the hallway
+   and the top of the stairs (`floor.js`'s `HALLWAY`, from the measured A
+   to E, AB, AC and Y), and a **Room** choice in the Look menu: Where and
+   Looking at offer that room's, and Bird's eye and Plan (2D) frame it
+   (`room_dimensions.md`, "Views"). The bedroom's door and window views
+   became places in its Where. Still to do: the measured numbers as they
+   come in (F, G, N, P, Q, R, S, T, U, W, X: `MEASUREMENTS_NEEDED.md`); the
+   bathroom and WC; walls drawn from above in the bedroom's and hallway's
+   plans (they're faces seen from inside, so the plan shows only floors);
+   looking from the hallway into a room; stopping furniture at the walls;
+   and the engine refactor below.
 
 Smaller pieces, any time:
 

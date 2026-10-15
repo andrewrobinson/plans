@@ -2,27 +2,44 @@
 // reload the page.
 //
 // Positions are in mm, as in room_dimensions.md: [x, y] across the floor, or
-// [x, y, height] with height up from the floor.
+// [x, y, height] with height up from the floor. In the living room and the
+// hallway:
 // - x runs along the TV (back) wall, from the door wall (0) to the window
-//   wall (3838). The kitchen recess is beyond the door wall, so its x is
-//   below 0.
+//   wall (3838). The kitchen recess, the hallway and the bedroom are beyond
+//   the door wall, so their x is below 0.
 // - y runs from the TV wall (0) to the front wall (5379); the desk and sink
 //   recesses go on to 5751.
+// In the bedroom, its own (other_room.js): u from its window wall (0) to
+// the kitchen-side wall (3682), v from the hallway wall (0) to the chimney
+// breast (2841) and its recess (3189). u runs as x, v as y.
 window.ROOM_VIEWS = {
-  // Eye heights, keyed '<sit or stand>-<who>'. Choosing a view where you sit
-  // or stand switches to the same person sitting or standing. Tall sitting
-  // is measured in the desk chair; short is an estimate for someone about
-  // 1.6 m tall.
+  // Eye heights, keyed '<sit, stand or lie>-<who>'. Choosing a view where
+  // you sit, stand or lie switches to the same person doing that. Tall
+  // sitting is measured in the desk chair; short is an estimate for someone
+  // about 1.6 m tall. Lying, on the bed: its mattress's top (610, measured)
+  // and your head on a pillow (estimated), the same whoever you are
   eyes: {
     'sit-short':   { label: 'Short, sitting',  height: 1200 },
     'sit-tall':    { label: 'Tall, sitting',   height: 1400 },
     'stand-short': { label: 'Short, standing', height: 1500 },
     'stand-tall':  { label: 'Tall, standing',  height: 1750 },
+    'lie-short':   { label: 'Short, lying',    height: 800 },
+    'lie-tall':    { label: 'Tall, lying',     height: 800 },
   },
   eye: 'sit-tall',                 // the eye height to start with, until one's chosen
 
-  // Where you can be (the top bar's Where): a spot on the floor [x, y], and
-  // whether you sit or stand there.
+  // The rooms (the Look menu's Room). Choosing one takes you in at its
+  // doorway (`enter`: a place and a thing to look at), and Where and
+  // Looking at offer its own. Places and things are in the living room
+  // unless they say (`room`).
+  rooms: {
+    living:  { label: 'Living room', enter: { place: 'door', thing: 'monitors' } },
+    hallway: { label: 'Hallway', enter: { place: 'hallLivingDoor', thing: 'bedroomDoor' } },
+    bedroom: { label: 'Bedroom', enter: { place: 'bedroomDoorway', thing: 'bedroomWindow' } },
+  },
+
+  // Where you can be (the Look menu's Where): a spot on the floor [x, y], and
+  // whether you sit, stand or lie there.
   // - chair: you're in the swivel chair, `at` its middle; it turns to face
   //   what you look at, and turns with you as you look round.
   // - cannotSee: things not to offer from here.
@@ -41,9 +58,25 @@ window.ROOM_VIEWS = {
     sofa:   { label: 'Sitting on the sofa', anchor: 'sofaSeat', posture: 'sit', cannotSee: ['sofa'] },
     // The door's shut behind you, as open it stands in the room in front of you
     door:   { label: 'In the doorway, walking in', at: [150, 1780], posture: 'stand', cannotSee: ['door'], arrive: 'shutRoomDoor' },
+    // In the hallway (floor.js's HALLWAY): just out of the living room's
+    // door, by the bedroom's (its doorway's middle, 470 out from it), and on
+    // the landing at the top of the stairs
+    hallLivingDoor:  { room: 'hallway', label: 'Outside the living room door', at: [-500, 1780], posture: 'stand', cannotSee: ['livingRoomDoor'] },
+    hallBedroomDoor: { room: 'hallway', label: 'Outside the bedroom door', at: [-1600, 1900], posture: 'stand' },
+    hallStairs:      { room: 'hallway', label: 'At the top of the stairs', at: [-550, 650], posture: 'stand', cannotSee: ['stairs'] },
+    // In the bedroom: in from its door, at the doorway's middle, just past
+    // the door (open, it stands 760 into the room); on the bed, your head on
+    // the pillow, and beside it, halfway along its side
+    // away from the window (both worked out in living_room.js, as the bed
+    // moves with its sliders); and between the bed and the window, centred
+    // on it, clear of the radiator
+    bedroomDoorway: { room: 'bedroom', label: 'In the bedroom doorway, walking in', at: [3242, 940], posture: 'stand' },
+    bed:            { room: 'bedroom', label: 'Lying on the bed', anchor: 'bedPillow', posture: 'lie', cannotSee: ['bed'] },
+    bedSide:        { room: 'bedroom', label: 'Standing beside the bed', anchor: 'bedSide', posture: 'stand' },
+    bedroomWindow:  { room: 'bedroom', label: 'Standing at the bedroom window', at: [450, 1425], posture: 'stand', cannotSee: ['bedroomWindow'] },
   },
 
-  // What you can look at (the top bar's Looking at): the point to aim at,
+  // What you can look at (the Look menu's Looking at): the point to aim at,
   // [x, y, height]. Things that move with the option on show or the sliders
   // have an `anchor` instead, worked out in living_room.js.
   things: {
@@ -62,16 +95,28 @@ window.ROOM_VIEWS = {
     window1:  { label: 'window 1 (TV end)', at: [3838, 1196, 1607] },
     window2:  { label: 'window 2 (middle)', at: [3838, 2907, 1607] },
     window3:  { label: 'window 3 (desk end)', at: [3838, 4598, 1607] },
-    // In the bedroom, beyond the kitchen (other_room.js), wherever they stand
-    bed:          { label: 'the bed', anchor: 'bed' },
-    bookcase:     { label: 'the bookcase', anchor: 'bookcase' },
-    pineCupboard: { label: 'the pine cupboard', anchor: 'pineCupboard' },
+    // In the hallway: the two doors' middles, the stairs halfway down, and
+    // the far end, where the bathroom and WC are
+    livingRoomDoor: { room: 'hallway', label: 'the living room door', at: [-150, 1780, 989] },
+    bedroomDoor:    { room: 'hallway', label: 'the bedroom door', at: [-1600, 2371, 989] },
+    stairs:         { room: 'hallway', label: 'the stairs', at: [-1700, 650, -700] },
+    hallEnd:        { room: 'hallway', label: 'the far end, by the bathroom', at: [-2480, 1840, 1200] },
+    // In the bedroom (other_room.js): the fitted cupboards in the recess
+    // (its middle, 1824 wide, at the upper one's front, 2769, measured);
+    // the bookcase, the bed and the pine cupboard (the wardrobe), wherever
+    // they stand; and the window's middle (floor.js's OTHER_ROOM.window)
+    recessCupboards: { room: 'bedroom', label: 'the cupboards in the recess', at: [912, 2769, 1200] },
+    bookcase:        { room: 'bedroom', label: 'the bookcase', anchor: 'bookcase' },
+    pineCupboard:    { room: 'bedroom', label: 'the wardrobe', anchor: 'pineCupboard' },
+    bedroomWindow:   { room: 'bedroom', label: 'the window', at: [0, 1425, 1607] },
+    bed:             { room: 'bedroom', label: 'the bed', anchor: 'bed' },
   },
   look: { place: 'desk', thing: 'dresser' },   // Where and Looking at, until chosen
   hfov: 79,                        // the angle across, in degrees, looking from a place
 
-  // Config-defined views (the views list): the camera at `position`, looking
-  // at `target`, both [x, y, height]. hfov: the angle across, in degrees.
+  // Config-defined views (the views list), in the living room: the camera
+  // at `position`, looking at `target`, both [x, y, height]. hfov: the angle
+  // across, in degrees.
   // posture: you're in the view as a person, sitting or standing, so it's
   // drawn at the chosen eye height (looking at the same angle) rather than
   // the height given. chair: you're in the swivel chair. compute: worked out
@@ -94,15 +139,6 @@ window.ROOM_VIEWS = {
     // island) to the desk
     door:     { label: 'Door', title: 'Looking in from the entrance door, towards my desk', posture: 'stand',
                 position: [150, 1780, 1700], target: [3026, 5350, 1000], hfov: 79 },
-    // In the bedroom (other_room.js; its window wall is at x -4802, its
-    // hallway wall at y 2562): in from the door, past the open door (it
-    // stands 760 into the room), looking across the bed to the window; and
-    // back to the window by the recess, looking at the bed's headboard and
-    // the door, as in the photo taken there
-    bedroomDoor:   { label: 'Bedroom door', title: 'In from the bedroom door, towards the bed and the window', posture: 'stand',
-                     position: [-1550, 3500, 1700], target: [-4300, 3300, 700], hfov: 79 },
-    bedroomWindow: { label: 'Bedroom window', title: 'In the bedroom, by the window, towards the bed and the door', posture: 'stand',
-                     position: [-4400, 5150, 1700], target: [-3000, 2562, 900], hfov: 79 },
     packing:  { label: 'Packing', title: 'In front of the corner cupboard, its doors open', posture: 'stand', compute: 'packing' },
   },
   // Looks (the Look menu's list): a Where, Looking at and eye height by

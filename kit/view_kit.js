@@ -5,9 +5,11 @@
 // - Views from the room's data (config-defined), views saved in the page
 //   (kept in the browser, so on one device), and the room's own built-in
 //   views, in one list.
+// - Rooms: choosing one offers its places and things, and takes you to its
+//   doorway; views that frame every room (a bird's eye, a plan) frame it.
 // - Places you can be and things you can look at, chosen apart: the camera
 //   stands at the place, at the chosen eye height, aimed at the thing.
-// - Eye heights: who's looking (short, tall) and whether they sit or stand.
+// - Eye heights: who's looking (short, tall) and whether they sit, stand or lie.
 // - As a person, dragging turns your head where you are (and swivels the
 //   chair, if you're in one); right-drag, shift-drag, the arrow keys or WASD
 //   walk; scrolling zooms like a lens. Views from above orbit as usual.
@@ -31,9 +33,11 @@ const person = key => key.split('-').slice(1).join('-');
 // options:
 //   THREE, camera, controls (OrbitControls), canvas: the 3D view
 //   room: a name for this room, to keep its saved views apart
-//   config: the room's data (eyes, places, things, views, looks, startView, look)
+//   config: the room's data (eyes, rooms, places, things, views, looks, startView, look)
 //   builtIn: { id: view } the room's own views, in scene metres; those
 //     with `fit` are 2D, for the room's code to place (see hooks.place)
+//   origins: { room: [x, y] } each room's corner, in mm, where its places'
+//     and things' `at` are measured from (the first room's is [0, 0])
 //   anchors: { name: () => [x, y, height] } things that move, in mm (or
 //     [x, y] for places that move)
 //   computed: { name: () => view } views worked out when chosen, in scene metres
@@ -42,19 +46,37 @@ const person = key => key.split('-').slice(1).join('-');
 //     turn when no one's in it (radians), and how far your eyes are in
 //     front of its middle (mm)
 //   el: { where, lookAt, eye, views, save, remove, hint } the controls, and
-//     optionally { looks, saveLook, removeLook } for saved looks
+//     optionally { room } to choose the room, and { looks, saveLook,
+//     removeLook } for saved looks
 //   hints: { flat, orbit, person } what the hint says in each case
 //   hooks: {
-//     place(view, id)   put the cameras at the view (2D or 3D), then resize and update
+//     place(view, id, room)   put the cameras at the view (2D or 3D), then resize and update
 //     isFlat()          in a 2D view
 //     resize()          after the lens changes
 //     writeAddress()    write the page address, with address() as its view part
 //     sceneState        optional { get(), set(text) }: more of the scene for the address, as door angles
 //   }
 export function create(o) {
-  const { THREE, camera, controls, canvas, config, builtIn = {}, anchors = {}, computed = {}, actions = {}, chair = null, el, hints, hooks } = o;
+  const { THREE, camera, controls, canvas, config, builtIn = {}, origins = {}, anchors = {}, computed = {}, actions = {}, chair = null, el, hints, hooks } = o;
   const EYES = Object.fromEntries(Object.entries(config.eyes).map(([k, e]) => [k, { ...e, height: e.height * MM }]));
   const PLACES = config.places, THINGS = config.things;
+
+  // Rooms (config.rooms: { id: { label, enter: { place, thing } } }). Each
+  // place and thing is in one: its `room`, else the first. Built-in and
+  // config-defined views are likewise in one room, or frame whichever room
+  // is chosen, with `rooms`: { room: what's different there }.
+  const ROOMS = config.rooms ?? { room: { label: 'Room' } };
+  const firstRoom = Object.keys(ROOMS)[0];
+  const roomOf = item => item.room ?? firstRoom;
+  const inRoom = (item, [x, y, ...height]) => {
+    const [ox, oy] = origins[roomOf(item)] ?? [0, 0];
+    return [x + ox, y + oy, ...height];
+  };
+  const forRoom = v => v.rooms?.[room] ? { ...v, ...v.rooms[room] } : v;
+  const inRoomOf = (r, items) => Object.keys(items).filter(id => roomOf(items[id]) === r);
+  // Where you arrive in a room: its doorway, as the room says, else its first place and thing
+  const entrance = r => ROOMS[r].enter ?? { place: inRoomOf(r, PLACES)[0], thing: inRoomOf(r, THINGS)[0] };
+  let room = firstRoom;
   const userViews = Object.fromEntries(Object.entries(config.views).map(([id, v]) =>
     [id, v.compute ? v : { ...v, position: toScene(v.position), target: toScene(v.target) }]));
   const views = { ...builtIn, ...userViews };
@@ -80,7 +102,7 @@ export function create(o) {
   // View ids: a config-defined or built-in view's own, 'saved:<name>', or
   // 'look:<place>:<thing>'
   const lookParts = id => id.split(':').slice(1);
-  const thingAt = id => THINGS[id].anchor ? anchors[THINGS[id].anchor]() : THINGS[id].at;
+  const thingAt = id => THINGS[id].anchor ? anchors[THINGS[id].anchor]() : inRoom(THINGS[id], THINGS[id].at);
   function is3dView(id) {
     if (id.startsWith('saved:')) return savedViews().some(v => v.name === id.slice(6));
     if (id.startsWith('look:')) {
@@ -92,7 +114,7 @@ export function create(o) {
   function findView(id) {
     if (id.startsWith('saved:')) return savedViews().find(v => v.name === id.slice(6)) || null;
     if (id.startsWith('look:')) return is3dView(id) ? lookView(...lookParts(id)) : null;
-    const v = Object.hasOwn(views, id) ? views[id] : null;
+    const v = Object.hasOwn(views, id) ? forRoom(views[id]) : null;
     if (v && v.compute) return { ...v, ...computed[v.compute](), follows: true, compute: undefined };
     return v;
   }
@@ -102,7 +124,7 @@ export function create(o) {
   function lookView(placeId, thingId) {
     const place = PLACES[placeId], [tx, ty, th] = thingAt(thingId);
     if (place.arrive) actions[place.arrive]?.();
-    let [x, y] = place.anchor ? anchors[place.anchor]() : place.at, chairTurn;
+    let [x, y] = place.anchor ? anchors[place.anchor]() : inRoom(place, place.at), chairTurn;
     if (place.chair && chair) {
       chairTurn = Math.atan2(tx - x, ty - y);                 // the chair's front is its +y, turned by this from the room's
       x += chair.eyes * Math.sin(chairTurn);
@@ -134,6 +156,7 @@ export function create(o) {
   // keepEye: the eye height was just chosen, so the view doesn't set
   // sitting or standing
   function setView(id, keepEye = false) {
+    setRoom(roomOfView(id));
     let v = findView(id);
     if (!v) v = findView(id = firstView);                     // a saved view since deleted
     applyView(v, id, keepEye);
@@ -150,7 +173,7 @@ export function create(o) {
     seatable = Boolean(v.chair || v.seat);
     if (chair) chair.object.rotation.y = v.chairTurn ?? chair.rest;
     hfov = v.hfov || null;
-    hooks.place(v, id);
+    hooks.place(v, id, room);
     const flat = hooks.isFlat();
     setPerson(!flat && Boolean(v.posture));
     if (!flat) controls.update();
@@ -239,17 +262,50 @@ export function create(o) {
   }
   fillViews();
   el.eye.append(unset('Eye height'), ...Object.entries(EYES).map(([k, e]) => choice(k, `${e.label} (${e.height.toFixed(2)} m)`)));
-  // Changing Where or Looking at keeps the other
+  // Changing Where or Looking at keeps the other, if it's in the same room
   let lookPlace = config.look?.place ?? Object.keys(PLACES)[0];
   let lookThing = config.look?.thing ?? Object.keys(THINGS)[0];
-  el.where.append(unset('Where'), ...Object.entries(PLACES).map(([id, p]) => choice(id, p.label)));
-  el.lookAt.append(unset('Looking at'), ...Object.entries(THINGS).map(([id, t]) => choice(id, `Looking at ${t.label}`)));
+  // Room, Where and Looking at offer the room's places and things
+  el.room?.append(...Object.entries(ROOMS).map(([id, r]) => choice(id, r.label)));
+  function fillRoomLists() {
+    el.where.replaceChildren(unset('Where'), ...inRoomOf(room, PLACES).map(id => choice(id, PLACES[id].label)));
+    el.lookAt.replaceChildren(unset('Looking at'), ...inRoomOf(room, THINGS).map(id => choice(id, `Looking at ${THINGS[id].label}`)));
+    if (el.room) el.room.value = room;
+  }
+  fillRoomLists();
+  function setRoom(r) {
+    if (r === room) return;
+    room = r;
+    fillRoomLists();
+  }
+  // The room a view is in: a look's place's; a built-in or config-defined
+  // view's own (the first room, unless it says), or if it frames every
+  // room, the one chosen; a saved view's, as saved
+  function roomOfView(id) {
+    if (id.startsWith('look:')) return Object.hasOwn(PLACES, lookParts(id)[0] ?? '') ? roomOf(PLACES[lookParts(id)[0]]) : room;
+    if (id.startsWith('saved:')) return savedViews().find(v => v.name === id.slice(6))?.room ?? room;
+    if (Object.hasOwn(views, id)) return views[id].rooms ? room : roomOf(views[id]);
+    return room;
+  }
   const cannotSee = (p, t) => Boolean(PLACES[p].cannotSee?.includes(t));
+  const canSee = (p, t) => roomOf(THINGS[t]) === roomOf(PLACES[p]) && !cannotSee(p, t);
   function lookFromPicks() {
-    if (cannotSee(lookPlace, lookThing)) lookThing = Object.keys(THINGS).find(t => !cannotSee(lookPlace, t));
+    if (roomOf(PLACES[lookPlace]) !== room) lookPlace = entrance(room).place;
+    if (!canSee(lookPlace, lookThing)) lookThing = Object.keys(THINGS).find(t => canSee(lookPlace, t));
     setView(`look:${lookPlace}:${lookThing}`);
     remember('startView', startView = viewId);
   }
+  // A new room: the same view if it frames every room, else in at its doorway
+  el.room?.addEventListener('change', () => {
+    setRoom(el.room.value);
+    if (viewId && views[viewId]?.rooms) {
+      setView(viewId);
+      if (!hooks.isFlat()) remember('startView', startView = viewId);
+      return;
+    }
+    ({ place: lookPlace, thing: lookThing } = entrance(room));
+    lookFromPicks();
+  });
   el.where.addEventListener('change', () => {
     lookPlace = el.where.value;
     lookFromPicks();
@@ -329,7 +385,8 @@ export function create(o) {
     if (looking) [lookPlace, lookThing] = lookParts(viewId);
     el.where.value = looking ? lookPlace : '';
     el.lookAt.value = looking ? lookThing : '';
-    [...el.lookAt.options].forEach(op => { op.disabled = !op.value || cannotSee(lookPlace, op.value); });
+    [...el.lookAt.options].forEach(op => { op.disabled = !op.value || (roomOf(PLACES[lookPlace]) === room && cannotSee(lookPlace, op.value)); });
+    if (el.room) el.room.value = room;
     viewUnset.textContent = viewId ? 'Views' : 'Your view (not saved)';
     el.views.value = looking ? '' : viewId;
     if (postured || asPerson) el.eye.value = eye;
@@ -389,7 +446,7 @@ export function create(o) {
     // is chosen later; anywhere else, it stays where it is
     const postured = eyeLevel && Math.abs(camera.position.y - EYES[eye].height) < 0.3;
     const round = p => p.toArray().map(n => Math.round(n * 1000) / 1000);
-    const view = { name, ...(postured && { posture: posture(eye) }), ...(inChair && { seat: true }),
+    const view = { name, room, ...(postured && { posture: posture(eye) }), ...(inChair && { seat: true }),
       position: round(camera.position), target: round(asPerson ? aimOut() : controls.target), hfov };
     if (at >= 0) list[at] = view;
     else list.push(view);
@@ -418,8 +475,9 @@ export function create(o) {
   // hand, or saved on a device) as 'cam' (orbiting), 'walk' (as a person)
   // or 'seat' (in the chair) and seven numbers, joined by ':': the camera's
   // place and aim in mm, and the angle across in degrees. Then '.' and the
-  // eye height, and '.' and the room's sceneState, if it has one. 2D views
-  // keep their id only, not any panning or zooming.
+  // eye height, '.' and the room's sceneState, if it has one, and '.' and
+  // the room chosen, unless it's the first. 2D views keep their id only,
+  // not any panning or zooming.
   let ready = false;               // the address's own view has been read, so it can be written
   let timer = null;
   function writeView() {
@@ -428,17 +486,19 @@ export function create(o) {
     timer = setTimeout(hooks.writeAddress, 250);
   }
   function address() {
-    const extra = hooks.sceneState ? `.${hooks.sceneState.get()}` : '';
-    if (hooks.isFlat() || (viewId && !viewId.startsWith('saved:'))) return `${viewId}.${eye}${extra}`;
+    const tail = [eye, hooks.sceneState ? hooks.sceneState.get() : '', room === firstRoom ? '' : room];
+    while (tail.at(-1) === '') tail.pop();
+    if (hooks.isFlat() || (viewId && !viewId.startsWith('saved:'))) return [viewId, ...tail].join('.');
     const kind = inChair ? 'seat' : asPerson ? 'walk' : 'cam';
     const mm = p => p.toArray().map(n => Math.round(n * 1000));
-    return [kind, ...mm(camera.position), ...mm(asPerson ? aimOut() : controls.target), Math.round(hfov || 0)].join(':') + `.${eye}${extra}`;
+    return [[kind, ...mm(camera.position), ...mm(asPerson ? aimOut() : controls.target), Math.round(hfov || 0)].join(':'), ...tail].join('.');
   }
   // Returns whether there was a view to show
   function readAddress(text) {
     if (!text) return false;
-    const [what, eyeIn, extra] = text.split('.');
+    const [what, eyeIn, extra, roomIn] = text.split('.');
     if (Object.hasOwn(EYES, eyeIn ?? '')) eye = eyeIn;
+    if (Object.hasOwn(ROOMS, roomIn ?? '')) setRoom(roomIn);
     if (hooks.sceneState && extra) hooks.sceneState.set(extra);   // first, as the view may then change it
     const [kind, ...numbers] = what.split(':');
     if (['cam', 'walk', 'seat'].includes(kind)) {
@@ -465,6 +525,7 @@ export function create(o) {
     // The room changed: work the view out again, if it's worked out from it
     refresh() { if (follows) setView(viewId); },
     get viewId() { return viewId; },
+    get room() { return room; },
     get startView() { return startView; },
     get hfov() { return hfov; },
   };

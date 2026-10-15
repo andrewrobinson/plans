@@ -26,8 +26,8 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
-import { drawOtherRoom, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, OTHER_ROOM_ADDRESS } from './other_room.js';
-import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER } from './floor.js';
+import { drawOtherRoom, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, OTHER_ROOM_ADDRESS, BED_SPOTS } from './other_room.js';
+import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, HALLWAY, hallway } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -1189,6 +1189,7 @@ const optionIndex = code => {
 // ---------------------------------------------------------------------------
 let showDims = true;
 let flatView = null;               // 'plan', 'back' or 'left' while 2D
+let flatRoom = 'living';           // the room the plan is of (the Look menu's Room)
 let dims = null;                   // the group of dimensions on show
 
 // Room (x, y, z) in mm to a scene point
@@ -1227,7 +1228,11 @@ function updateDims() {
   const option = OPTIONS[state.option];
   const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks() : []), option.benchFrom(), option.clearFrom(), ROOM_WIDTH];
   const alongLeft = [0, R, ...(option.front ? [option.front()] : T || option.fixedWidth ? [F] : []), DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, DOOR_HINGE_AT + ROOM_DOOR, FRAME_END];
-  if (flatView === 'plan') {
+  if (flatView === 'plan' && flatRoom === 'bedroom') {
+    bedroomPlanDims(dims);
+  } else if (flatView === 'plan' && flatRoom === 'hallway') {
+    hallwayPlanDims(dims);
+  } else if (flatView === 'plan') {
     chain(alongBack, (v, off) => P(v, -250 - off, CEILING_HEIGHT), dims);
     chain([...alongLeft, RECESS_FROM, ROOM_DEPTH], (v, off) => P(KITCHEN_RECESS_BACK_WALL_X - 300 - off, v, CEILING_HEIGHT), dims);
     chain([KITCHEN_RECESS_BACK_WALL_X, KITCHEN_RECESS_BACK_WALL_X + KITCHEN_DEPTH, 0], (v, off) => P(v, ROOM_DEPTH + 250 + off, CEILING_HEIGHT), dims); // the recess and kitchen depth
@@ -1253,6 +1258,25 @@ function updateDims() {
     chain([0, radiator.bottom, radiator.top, sill, top, CEILING_HEIGHT], (v, off) => P(ROOM_WIDTH, -250 - off, v), dims);
   }
   doorDims(dims);
+}
+
+// The bedroom's plan: along its hallway wall (the door's opening), its
+// window wall (the window) and the recess's back (the chimney breast), in
+// its own mm, from its corner by the window and the hallway
+function bedroomPlanDims(g) {
+  const { length, breastFace, recessBack, recessWidth, ceiling, doorFrom, doorTo, window: win } = OTHER_ROOM, { x, y } = OTHER_ROOM_CORNER;
+  chain([0, doorFrom, doorTo, length], (v, off) => P(x + v, y - 250 - off, ceiling), g);
+  chain([0, win.from, win.from + win.width, breastFace, recessBack], (v, off) => P(x - win.reveal - 250 - off, y + v, ceiling), g);
+  chain([0, recessWidth, length], (v, off) => P(x + v, y + recessBack + 250 + off, ceiling), g);
+}
+// The hallway's plan, in the living room's mm: along its stairs side (the
+// landing), along its bedroom side (the step back and the doorway), and
+// across at its far end (the banister and the kitchen side)
+function hallwayPlanDims(g) {
+  const { x0, xStep, xEnd, xLanding, yBanister, kitchenSide, ySetBack, bedroomDoor } = HALLWAY;
+  chain([xEnd, xLanding, x0], (v, off) => P(v, -250 - off, CEILING_HEIGHT), g);
+  chain([xEnd, bedroomDoor[0], xStep, x0], (v, off) => P(v, ySetBack + 250 + off, CEILING_HEIGHT), g);
+  chain([0, yBanister, kitchenSide, ySetBack], (v, off) => P(xEnd - 250 - off, v, CEILING_HEIGHT), g);
 }
 
 // In the wall views, anything wholly on the camera's side of the view's cut
@@ -2381,25 +2405,38 @@ document.getElementById('xray').addEventListener('click', e => {
 // fit on screen. The config-defined views, the places you can be and the
 // things you can look at are in living_room.views.js, for editing; kit/view_kit.js
 // does the choosing (see viewKit below).
-// The bedroom (other_room.js), for the views below, in scene metres: its
-// middle, and its window wall's x
-const BEDROOM_MIDDLE = { x: -2.961, y: 4.157 }, BEDROOM_WINDOW_WALL = -4.802;
+// The bedroom and the hallway (floor.js), for the bird's eye and the plan,
+// which frame whichever room is chosen (the kit's `rooms`): each one's
+// middle and size, in scene metres, and the bedroom's window wall's x
+const BEDROOM_AREA = { x: (OTHER_ROOM_CORNER.x + OTHER_ROOM.length / 2) * MM, y: (OTHER_ROOM_CORNER.y + OTHER_ROOM.recessBack / 2) * MM,
+  w: OTHER_ROOM.length * MM, d: OTHER_ROOM.recessBack * MM };
+const HALLWAY_AREA = { x: (HALLWAY.x0 + HALLWAY.xEnd) / 2 * MM, y: HALLWAY.ySetBack / 2 * MM, w: HALLWAY.length * MM, d: HALLWAY.ySetBack * MM };
+const BEDROOM_WINDOW_WALL = OTHER_ROOM_CORNER.x * MM;
+// A room's plan: straight down on its middle, the back wall's side at the
+// top as in the living room's, with room round it for its dimensions
+const PLAN_MARGIN = 1.4;                                        // metres, chosen
+const planOf = ({ x, y, w, d }) => ({ position: [x, 20, y + 0.001], target: [x, 0, y], fit: [w + PLAN_MARGIN, d + PLAN_MARGIN] });
 const builtInViews = {
   top:    { label: 'Top', title: 'Straight down from above', position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },
   corner: { label: 'Corner', title: 'From high in the corner by the desk', position: [4.6, 3.4, 5.4], target: [1.0, 1.0, 1.0] },
   // High above the windows, looking down across the room towards the door
   // and the kitchen. The outer wall and ceiling only show from inside, so
   // the room is open from here; any further out and the outer wall's brick
-  // face would hide the floor along it
-  birdseye: { label: "Bird's eye", title: 'Looking down from above the windows', position: [4.5, 7.5, 2.75], target: [1.2, 0, 2.75], hfov: 66 },
-  // The same over the bedroom, from above its window
-  bedroom: { label: "Bedroom, bird's eye", title: 'Looking down into the bedroom from above its window', position: [BEDROOM_WINDOW_WALL - 0.66, 7.5, BEDROOM_MIDDLE.y], target: [BEDROOM_WINDOW_WALL + 2.6, 0, BEDROOM_MIDDLE.y], hfov: 66 },
+  // face would hide the floor along it. The same over the bedroom, from
+  // above its window, and over the hallway, from above the stairs' outside
+  // wall, which likewise only shows from inside
+  birdseye: { label: "Bird's eye", title: 'Looking down on the room', position: [4.5, 7.5, 2.75], target: [1.2, 0, 2.75], hfov: 66,
+    rooms: {
+      bedroom: { position: [BEDROOM_WINDOW_WALL - 0.66, 7.5, BEDROOM_AREA.y], target: [BEDROOM_WINDOW_WALL + 2.6, 0, BEDROOM_AREA.y] },
+      hallway: { position: [HALLWAY_AREA.x, 6.0, -1.8], target: [HALLWAY_AREA.x, 0, 1.6] },
+    } },
   // The wall views leave out what's on the camera's side of their cut (see
   // applyCut): the back wall view everything past the return wall, the left
   // wall view the island, the dresser and beyond, the front wall view
   // everything short of the island's far end, the right wall view everything
   // left of the desk recess
-  plan:   { label: 'Plan (2D)', position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9] },    // back wall at the top
+  plan:   { label: 'Plan (2D)', position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9],    // back wall at the top
+    rooms: { bedroom: planOf(BEDROOM_AREA), hallway: planOf(HALLWAY_AREA) } },
   back:   { label: 'Back wall (2D)', position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1] },        // facing the back wall
   left:   { label: 'Left wall (2D)', position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 700, 1] },         // facing the left wall, back wall on the right
   front:  { label: 'Front wall (2D)', position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
@@ -2469,6 +2506,13 @@ function middleOf(object) {
   const c = new THREE.Box3().setFromObject(object).getCenter(new THREE.Vector3());
   return [c.x / MM, c.z / MM, c.y / MM];
 }
+// A point given in a piece's own mm (across it, along it), on the floor,
+// room [x, y] in mm, wherever the piece now stands and however it's turned
+function pointOn(piece, [across, along]) {
+  piece.updateWorldMatrix(true, false);
+  const p = piece.localToWorld(new THREE.Vector3(across * MM, 0, along * MM));
+  return [p.x / MM, p.z / MM];
+}
 const anchors = {
   // Wherever they are, else where they'd be on the front wall
   dresser: () => pieces.dresser ? middleOf(pieces.dresser) : [(state.dresser.x0 + state.dresser.x1) / 2, ROOM_DEPTH - state.dresser.baseD / 2, state.dresser.h / 2],
@@ -2486,10 +2530,13 @@ const anchors = {
     return at ? [at.x, at.y, 1200] : [400, 400, 1200];
   },
   tv: () => tvAt ?? [ROOM_WIDTH / 2, 0, 1400],
-  // The bedroom's furniture (other_room.js)
+  // The bedroom's furniture (other_room.js), and where you lie on the bed
+  // and stand beside it, as it's moved and turned
   bed: () => middleOf(otherRoomPieces.bed),
   bookcase: () => middleOf(otherRoomPieces.bookcase),
   pineCupboard: () => middleOf(otherRoomPieces.cupboard),
+  bedPillow: () => pointOn(otherRoomPieces.bed, BED_SPOTS.pillow),
+  bedSide: () => pointOn(otherRoomPieces.bed, BED_SPOTS.side),
 };
 const DOORS = [roomSlider, tallSlider, secondSlider];
 const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
@@ -2498,6 +2545,7 @@ const viewKit = ViewKit.create({
   room: 'room_3d',
   config: ROOM_VIEWS,
   builtIn: builtInViews,
+  origins: { bedroom: [OTHER_ROOM_CORNER.x, OTHER_ROOM_CORNER.y] },     // its places and things are in its own mm
   anchors,
   computed: { packing: packingView },
   actions: {
@@ -2508,17 +2556,19 @@ const viewKit = ViewKit.create({
   },
   chair: { object: deskChair, rest: CHAIR_TURN, eyes: 150 },
   el: {
-    where: document.getElementById('where'), lookAt: document.getElementById('lookAt'), eye: document.getElementById('eye'),
+    room: document.getElementById('room'), where: document.getElementById('where'), lookAt: document.getElementById('lookAt'), eye: document.getElementById('eye'),
     views: document.getElementById('viewPick'), save: document.getElementById('saveView'), remove: document.getElementById('deleteView'),
     looks: document.getElementById('lookPick'), saveLook: document.getElementById('saveLook'), removeLook: document.getElementById('deleteLook'),
   },
   hooks: {
-    place(v, id) {
+    place(v, id, room) {
       setFlat(Boolean(v.fit));
       const [cam, ctl] = flat ? [flatCamera, flatControls] : [camera, controls];
       cam.position.set(...v.position);
       ctl.target.set(...v.target);
       flatView = flat ? id : null;
+      flatRoom = room;
+      hallway.visible = !flat || id === 'plan';                 // the wall views are the living room's: its stairwell would hang below their floor
       updateDims();
       applyCut();
       drawStored();
