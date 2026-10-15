@@ -13,6 +13,8 @@ const ROOM_WIDTH = 3838, ROOM_DEPTH = 5379, CEILING_HEIGHT = 2443, WALL_THICKNES
 
 const wallMat = material(0xf2efe9);
 const floorMat = material(0xd9d3c5);
+// The windows' glass, every window's: pale blue, see-through from both sides (chosen)
+const glassMat = new THREE.MeshStandardMaterial({ color: 0xcfe3ef, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
 // Past the door frame the left wall steps back: a short return wall (with the
 // light switch on it) and a recess for the kitchen. The kitchen's fronts are
 // 405 behind the door wall and the fridge unit is 590 deep (both measured), so
@@ -99,7 +101,6 @@ const OUTER = {
   face(end, CEILING_HEIGHT - top, wallMat, end / 2, (top + CEILING_HEIGHT) / 2);              // above them
   const edges = [0, ...windows.flatMap(w => w.y), end];             // the wall between them
   for (let k = 0; k < edges.length; k += 2) face(edges[k + 1] - edges[k], top - sill, wallMat, (edges[k] + edges[k + 1]) / 2, (sill + top) / 2);
-  const glassMat = new THREE.MeshStandardMaterial({ color: 0xcfe3ef, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
 
   // The outside of this wall, 300 out from the inside face (the thickness is
   // estimated; the recesses are 207 to the glass). It faces outwards only, so
@@ -171,11 +172,11 @@ const HALLWAY = {
   rightSill: { width: 120 },
   sillThick: 25,
   // Beyond the hallway's far end the flight runs on under the bathroom's
-  // floor, taken as 300 thick (estimated: not measured), to its foot, which
-  // runs on to the building's back wall (ENTRANCE, below). Over the well
+  // floor to its foot, which runs on to the building's back wall
+  // (ENTRANCE, below). The floor's thickness, bathroomFloor, is set there,
+  // from the foot's ceiling, measured at its window. Over the well
   // the WC wall stops at the hallway floor's level, its bottom as deep as
   // the left board runs past the far end (1650 − 1430: 220)
-  bathroomFloor: 300,
   // The banister's rail height and its spindles' spacing (estimated)
   rail: 900, spindles: 120,
   post: 90, railW: 60, spindle: 30,  // the newel posts' and the rail's width, the spindles' thickness (estimated)
@@ -282,9 +283,21 @@ const ENTRANCE = {
   // away from the lobby: drawn shut
   neighbourDoor: { fromWellWall: 80, width: 760, wall: 150 },
   doorT: 44,                       // each door's thickness (estimated, as the room door)
+  // The small window in the back wall at the stairs' foot, left of the
+  // outside door (measured 15 Oct 2026): its recess 560 wide and 990 high,
+  // 265 deep from the wall's face to the glass, its bottom at the sill's
+  // top, 1395 off the floor, and its top 280 below the ceiling. The sill is
+  // 25 thick, 300 deep from the glass (so it stands 35 out from the wall)
+  // and 620 across, centred on the recess. Across the well it's taken as
+  // centred, as the drawing has it, within a few pixels
+  stairWindow: { width: 560, height: 990, depth: 265, sill: 1395, belowCeiling: 280, sillThick: 25, sillDepth: 300, sillWidth: 620 },
 };
 ENTRANCE.floor = -HALLWAY.drop;                                         // the first floor's level: -2850
-ENTRANCE.height = HALLWAY.drop - HALLWAY.bathroomFloor;                 // up to the floor above: 2550
+// Up to the ceiling, the bathroom floor's underside: from the window's
+// measurements, so the bathroom floor is what's left of the 2850
+ENTRANCE.height = ENTRANCE.stairWindow.sill + ENTRANCE.stairWindow.height + ENTRANCE.stairWindow.belowCeiling;   // 2665
+HALLWAY.bathroomFloor = HALLWAY.drop - ENTRANCE.height;                 // 185 (it was estimated as 300)
+ENTRANCE.yStairWindow = (HALLWAY.yWellOut + HALLWAY.yWellIn - ENTRANCE.stairWindow.width) / 2;   // the recess's outside-wall side: 292
 ENTRANCE.yLobby0 = HALLWAY.yWellIn + ENTRANCE.wellWall;                 // the lobby's well-side wall: 1172
 ENTRANCE.yLobby1 = ENTRANCE.yLobby0 + ENTRANCE.lobby.width;             // its far side: 2142
 ENTRANCE.xLobbyEnd = ENTRANCE.xBack + ENTRANCE.lobby.length;            // the neighbour's wall: -3737
@@ -357,7 +370,6 @@ function faceAround(length, [a0, a1], [z0, z1], height, mat, along, facing, pare
   // the reveal's sides and top, a sill and the radiator under it
   const w0 = win.from, w1 = win.from + win.width, mid = (w0 + w1) / 2;
   faceAround(recessBack, [w0, w1], [win.sill, win.top], ceiling, wallMat, a => [0, a], '+u');
-  const glassMat = new THREE.MeshStandardMaterial({ color: 0xcfe3ef, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
   insideFace(win.width, win.top - win.sill, glassMat, [-win.reveal, mid, (win.sill + win.top) / 2], '+u');
   insideFace(win.reveal, win.top - win.sill, wallMat, [-win.reveal / 2, w0, (win.sill + win.top) / 2], '+v');
   insideFace(win.reveal, win.top - win.sill, wallMat, [-win.reveal / 2, w1, (win.sill + win.top) / 2], '-v');
@@ -517,15 +529,34 @@ function frameAlongY(y0, y1, x0, x1, doorH, frameH) {
   box({ from: [x0, y0, doorH], to: [x1, y1, frameH] }, frameMat, entrance);
 }
 
+// The stairs' window, in the back wall at the foot: its glass at the back
+// of the recess, the recess's sides and top through the wall, the outer
+// part's bottom, and the sill. Returns the opening's sides [y0, y1], for
+// the wall's faces round it
+function drawStairWindow() {
+  const { xBack, backWall, stairWindow: win, yStairWindow: y0 } = ENTRANCE;
+  const y1 = y0 + win.width, mid = (y0 + y1) / 2, top = win.sill + win.height, zMid = (win.sill + top) / 2;
+  const glassX = xBack - win.depth, xThrough = xBack - backWall / 2, outer = backWall - win.depth;
+  const face = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, entrance);
+  insideFace(win.width, win.height, glassMat, [glassX, mid, zMid], '+u', entrance);
+  face(backWall, win.height, [xThrough, y0, zMid], '+v');
+  face(backWall, win.height, [xThrough, y1, zMid], '-v');
+  face(backWall, win.width, [xThrough, mid, top], '+u').rotation.set(Math.PI / 2, 0, 0);                      // the top, flat, facing down
+  face(outer, win.width, [glassX - outer / 2, mid, win.sill], '+u').rotation.set(-Math.PI / 2, 0, 0);        // outside the glass, the bottom, facing up
+  box({ from: [glassX, mid - win.sillWidth / 2, win.sill - win.sillThick], to: [glassX + win.sillDepth, mid + win.sillWidth / 2, win.sill] }, frameMat, entrance);   // the sill
+  return [y0, y1];
+}
+
 {
-  const { xBack, backWall, flatDoor, outsideDoor, neighbourDoor, doorT, height, lobby, yLobby0, yLobby1, xLobbyEnd, flatDoorHingeX, outsideDoorHingeY } = ENTRANCE;
+  const { xBack, backWall, flatDoor, outsideDoor, neighbourDoor, doorT, height, stairWindow, lobby, yLobby0, yLobby1, xLobbyEnd, flatDoorHingeX, outsideDoorHingeY } = ENTRANCE;
   const { xFoot, xSillEnd, yWellOut, yWellIn, well } = HALLWAY;
   const face = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, entrance);
 
   // The stairs' foot: its floor, from the bottom step to the back wall, and
   // the back wall's face
   slab([[xFoot, yWellOut], [xBack, yWellOut], [xBack, yWellIn], [xFoot, yWellIn]], -20, 0, hallFloorMat, entrance);
-  face(well, height, [xBack, (yWellOut + yWellIn) / 2, height / 2], '+u');
+  const stairWindowOpening = drawStairWindow();
+  faceAround(well, stairWindowOpening.map(y => y - yWellOut), [stairWindow.sill, stairWindow.sill + stairWindow.height], height, wallMat, a => [xBack, yWellOut + a], '+u', entrance);
 
   // The wall between the foot and the lobby, with the flat's door: the
   // wall's face on each side, the frame through it, and the door, flush
@@ -554,10 +585,12 @@ function frameAlongY(y0, y1, x0, x1, doorH, frameH) {
   face(reveal, outsideFrameH, [xReveal, o0 - JAMB, outsideFrameH / 2], '+v');
   face(reveal, outsideFrameH, [xReveal, o1 + JAMB, outsideFrameH / 2], '-v');
   face(reveal, o1 - o0 + 2 * JAMB, [xReveal, (o0 + o1) / 2, outsideFrameH], '+u').rotation.set(Math.PI / 2, 0, 0);   // flat, facing down
-  // The back wall's outside face, across the well and the lobby, for
-  // standing outside the external door
+  // The back wall's outside face, for standing outside the external door:
+  // across the well, round the stairs' window, and across the lobby (and
+  // the wall between), round the door
   const outsideFace = xBack - backWall;
-  faceAround(yLobby1 - yWellOut, [o0 - JAMB - yWellOut, o1 + JAMB - yWellOut], [0, outsideFrameH], height, wallMat, a => [outsideFace, yWellOut + a], '-u', entrance);
+  faceAround(well, stairWindowOpening.map(y => y - yWellOut), [stairWindow.sill, stairWindow.sill + stairWindow.height], height, wallMat, a => [outsideFace, yWellOut + a], '-u', entrance);
+  faceAround(yLobby1 - yWellIn, [o0 - JAMB - yWellIn, o1 + JAMB - yWellIn], [0, outsideFrameH], height, wallMat, a => [outsideFace, yWellIn + a], '-u', entrance);
   outsideDoorHinge = skewHinge(xBack - doorT, o1, 90, -1, entrance);
   box({ from: [0, 0, 0], to: [outsideDoor.width, doorT, outsideDoor.height] }, outsideDoorMat, outsideDoorHinge);
 

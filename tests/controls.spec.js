@@ -463,7 +463,12 @@ test.describe('the Views and Look menus', () => {
     // Downstairs: its plan, and a place on the first floor's level
     await page.selectOption('#room', 'downstairs');
     await expect.poll(() => view(page)).toMatch(/^plan\..*\.downstairs$/);
-    expect(await options('where')).toEqual(['At bottom of stairs', 'Outside internal door', 'Outside external door']);
+    expect(await options('where')).toEqual(['Halfway down the stairs', 'At bottom of stairs', 'Outside internal door', 'Outside external door']);
+    // Halfway down, looking on down: the foot, its window and the internal door
+    await page.selectOption('#where', 'stairsHalfway');
+    await expect.poll(() => view(page)).toMatch(/^look:stairsHalfway:\w+\.stand-tall\..*\.downstairs$/);
+    const offered = () => page.locator('#lookAt option').evaluateAll(os => os.filter(o => o.value && !o.disabled).map(o => o.textContent));
+    expect(await offered()).toEqual(['Looking at the foot of the stairs', 'Looking at the window at the foot of the stairs', 'Looking at the internal door']);
     await page.selectOption('#where', 'outsideFlatDoor');
     await expect.poll(() => view(page)).toMatch(/^look:outsideFlatDoor:\w+\.stand-tall\..*\.downstairs$/);
   });

@@ -67,14 +67,15 @@ window.ROOM_VIEWS = {
     hallLivingDoor:  { room: 'hallway', label: 'Outside the living room door', at: [-500, 1780], posture: 'stand', cannotSee: ['livingRoomDoor'] },
     hallBedroomDoor: { room: 'hallway', label: 'Outside the bedroom door', at: [-1600, 1900], posture: 'stand' },
     hallStairs:      { room: 'hallway', label: 'At the top of the stairs', at: [-600, 1197], posture: 'stand' },
-    // Halfway down the stairs, in the well's middle, on the 6th step (9
-    // risers of 190 down: `floor`)
-    stairsHalfway:   { room: 'hallway', label: 'Halfway down the stairs', at: [-2260, 572], floor: -1710, posture: 'stand' },
     // Downstairs, on the first floor (2850 down; floor.js's ENTRANCE): in
     // the well's middle between the bottom step and your door; in the
     // shared lobby outside that door, as far back from it as the lobby
     // allows (200 from its far side); and outdoors, 1000 out from the
     // external door's middle, its ground taken as the lobby's level (not known)
+    // Halfway down the stairs, in the well's middle, on the 6th step (9
+    // risers of 190 down: `floor`), facing on down: from there, the foot,
+    // its window and the internal door
+    stairsHalfway:   { room: 'downstairs', label: 'Halfway down the stairs', at: [-2260, 572], floor: -1710, posture: 'stand', cannotSee: ['outsideDoor', 'lobby', 'stairsUp'] },
     stairsFoot:      { room: 'downstairs', label: 'At bottom of stairs', at: [-3750, 572], floor: -2850, posture: 'stand' },
     outsideFlatDoor: { room: 'downstairs', label: 'Outside internal door', at: [-4347, 1942], floor: -2850, posture: 'stand', cannotSee: ['lobby'] },
     outsideExternal: { room: 'downstairs', label: 'Outside external door', at: [-6177, 1657], floor: -2850, posture: 'stand' },
@@ -119,9 +120,11 @@ window.ROOM_VIEWS = {
     hallBench:      { room: 'hallway', label: 'the wicker bench', anchor: 'hallBench' },     // wherever it stands (wicker_bench.js)
     // Downstairs, heights from the hallway floor (the first floor is 2850
     // down): the foot's floor; the internal (the flat's) door and the
-    // external door, their middles; the lobby, its middle; and back up the
-    // stairs, the top step
+    // external door, their middles; the window at the foot, its middle
+    // (floor.js's ENTRANCE.stairWindow: 1395 + 990 / 2 off the floor); the
+    // lobby, its middle; and back up the stairs, the top step
     stairsFoot:   { room: 'downstairs', label: 'the foot of the stairs', at: [-3900, 572, -2850] },
+    stairWindow:  { room: 'downstairs', label: 'the window at the foot of the stairs', at: [-4827, 572, -960] },
     flatDoor:     { room: 'downstairs', label: 'the internal door', at: [-4347, 1022, -1861] },
     outsideDoor:  { room: 'downstairs', label: 'the external door', at: [-4827, 1657, -1850] },
     lobby:        { room: 'downstairs', label: 'the lobby', at: [-4282, 1657, -2000] },
