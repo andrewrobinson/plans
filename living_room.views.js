@@ -62,6 +62,10 @@ window.ROOM_VIEWS = {
     window1:  { label: 'window 1 (TV end)', at: [3838, 1196, 1607] },
     window2:  { label: 'window 2 (middle)', at: [3838, 2907, 1607] },
     window3:  { label: 'window 3 (desk end)', at: [3838, 4598, 1607] },
+    // In the bedroom, beyond the kitchen (other_room.js), wherever they stand
+    bed:          { label: 'the bed', anchor: 'bed' },
+    bookcase:     { label: 'the bookcase', anchor: 'bookcase' },
+    pineCupboard: { label: 'the pine cupboard', anchor: 'pineCupboard' },
   },
   look: { place: 'desk', thing: 'dresser' },   // Where and Looking at, until chosen
   hfov: 79,                        // the angle across, in degrees, looking from a place
@@ -90,6 +94,15 @@ window.ROOM_VIEWS = {
     // island) to the desk
     door:     { label: 'Door', title: 'Looking in from the entrance door, towards my desk', posture: 'stand',
                 position: [150, 1780, 1700], target: [3026, 5350, 1000], hfov: 79 },
+    // In the bedroom (other_room.js; its window wall is at x -4802, its
+    // hallway wall at y 2562): in from the door, past the open door (it
+    // stands 760 into the room), looking across the bed to the window; and
+    // back to the window by the recess, looking at the bed's headboard and
+    // the door, as in the photo taken there
+    bedroomDoor:   { label: 'Bedroom door', title: 'In from the bedroom door, towards the bed and the window', posture: 'stand',
+                     position: [-1550, 3500, 1700], target: [-4300, 3300, 700], hfov: 79 },
+    bedroomWindow: { label: 'Bedroom window', title: 'In the bedroom, by the window, towards the bed and the door', posture: 'stand',
+                     position: [-4400, 5150, 1700], target: [-3000, 2562, 900], hfov: 79 },
     packing:  { label: 'Packing', title: 'In front of the corner cupboard, its doors open', posture: 'stand', compute: 'packing' },
   },
   // Looks (the Look menu's list): a Where, Looking at and eye height by

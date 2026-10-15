@@ -62,6 +62,18 @@ The HTML only lays out the controls. It contains no logic.
 
 The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `WALL_THICKNESS`), the floor, the walls with their recesses (kitchen, sink, desk: `KITCHEN_RECESS_BACK_WALL_X`, `SINK_RECESS`, `DESK_RECESS`, …), the doorway and its frame (`DOOR_FRAME_STARTS_AT`, `DOOR_HINGE_AT`, `FRAME_END`, …), the ceiling and downlights, and the outer wall with its windows and radiators (`OUTER`). It draws them into `floor`, a group `living_room.js` adds to the scene, and exports the measurements and the materials the colours menu changes (`wallMat`, `frameMat`, `floorMat`, `ceilingMat`). For now only the living room's, in its mm.
 
+### other_room.js (the bedroom's furniture)
+
+The bedroom's bed, bookcase, pine cupboard and recess cupboards, drawn
+into `floor.js`'s `otherRoom` group in the room's own u, v mm. It exports
+`OTHER_ROOM_START` (the settings as they start), `OTHER_ROOM_ADDRESS` (their
+address fields), `drawOtherRoom(settings)` (called from `redrawAround()`)
+and `otherRoomControls(container, change)`, which writes the drawer's
+**Bedroom furniture** sliders into `#otherRoomBlock` from
+`OTHER_ROOM_SLIDERS` and returns the function `syncControls()` calls to put
+them in step. Unlike the other sections, its sliders aren't in the HTML.
+The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
+
 ### living_room.js (2,625 lines)
 
 | Lines | Section | Notes |

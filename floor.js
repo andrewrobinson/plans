@@ -130,4 +130,112 @@ const OUTER = {
   }
 }
 
-export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER };
+// ---------------------------------------------------------------------------
+// The other room (the bedroom), beyond the kitchen recess. It has its own
+// coordinates, as measured there: u along the hallway wall from the window
+// wall (0) to the kitchen-side wall (3682), v from the hallway wall (0) to
+// the chimney breast's face (2841) and on into the recess beside it (3189).
+// otherRoom is placed at that corner in the living room's coordinates; its
+// u runs the same way as the living room's x, its v as y.
+// ---------------------------------------------------------------------------
+const OTHER_ROOM = {
+  length: 3682,                    // u: window wall to kitchen-side wall (H, measured)
+  breastFace: 2841,                // v: hallway wall to the chimney breast's face (J, measured)
+  recessBack: 3189,                // v: to the back of the recess: the upper recess cupboard's front (2769, measured) + its depth (420, measured)
+  breastLength: 1858,              // u: the chimney breast, from the kitchen-side wall to its end (L, measured), so the recess is 3682 - 1858 = 1824 wide
+  ceiling: 2451,                   // the lower recess cupboard's top (819) + the upper one's height to the ceiling (1632), both measured
+  kitchenWall: 125,                // the wall between the kitchen recess and this room (F, estimated)
+  // The door, in the hallway wall: 60 from the kitchen-side wall, a 760
+  // opening, 120 thick wall (Q, R, G, all estimated); hinged at the end away
+  // from the kitchen and opening into the room (seen in photos). The door
+  // and its frame are as the living room's.
+  door: { fromKitchenWall: 60, width: 760, wall: 120 },
+  // The window, in the window wall: 670 from the hallway wall and 1510 wide
+  // (N, P, estimated from the drawing), sill and top as the living room's
+  // (T, U, not yet measured). Its reveal is 250 deep, glass to the wall's
+  // face, and the sill 290 from the glass to its front edge (both measured),
+  // so the sill stands 40 out from the wall
+  window: { from: 670, width: 1510, sill: 912, top: 2302, reveal: 250, sillDepth: 290 },
+  // A radiator under it, seen in a photo; its size as the living room's (estimated)
+  radiator: { width: 600, bottom: 240, top: 840, out: 132, thick: 100 },
+};
+// Its corner (window wall, hallway wall) in the living room's coordinates.
+// The kitchen-side wall stands behind the kitchen recess's back wall, the
+// wall F thick. The recess is taken to line up with the living room's sink
+// recess, both 5751 from the living room's back wall (assumed, until F and G
+// are measured), which puts the hallway wall at 5751 - 3189.
+OTHER_ROOM.recessWidth = OTHER_ROOM.length - OTHER_ROOM.breastLength;          // 1824
+const OTHER_ROOM_CORNER = {
+  x: KITCHEN_RECESS_BACK_WALL_X - OTHER_ROOM.kitchenWall - OTHER_ROOM.length,   // -4802
+  y: ROOM_DEPTH + SINK_RECESS.depth - OTHER_ROOM.recessBack,                   // 2562
+};
+const carpetMat = material(0x8f8780);             // grey-beige, from the photos
+const otherRoom = new THREE.Group();
+otherRoom.position.set(OTHER_ROOM_CORNER.x * MM, 0, OTHER_ROOM_CORNER.y * MM);
+floor.add(otherRoom);
+
+// A wall's face, seen from inside only: w across and h high, its middle at
+// (u, v, z), facing the way `facing` says: '+u', '-u', '+v' or '-v'. From
+// outside the room it can't be seen, so the views from above look in.
+const FACING = { '+u': Math.PI / 2, '-u': -Math.PI / 2, '+v': 0, '-v': Math.PI };
+function insideFace(w, h, mat, [u, v, z], facing, parent = otherRoom) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w * MM, h * MM), mat);
+  m.position.set(u * MM, z * MM, v * MM);
+  m.rotation.y = FACING[facing];
+  m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+// A wall face with an opening in it: [a0, a1] along the wall, [z0, z1] up it.
+// along(a) gives the face's middle for a stretch's middle a.
+function faceAround(length, [a0, a1], [z0, z1], height, mat, along, facing) {
+  const piece = (from, to, lo, hi) => { if (to > from && hi > lo) insideFace(to - from, hi - lo, mat, [...along((from + to) / 2), (lo + hi) / 2], facing); };
+  piece(0, a0, 0, height);                         // either side of it, full height
+  piece(a1, length, 0, height);
+  piece(a0, a1, 0, z0);                            // below it
+  piece(a0, a1, z1, height);                       // above it
+}
+
+{
+  const { length, breastFace, recessBack, recessWidth, ceiling, door, window: win, radiator } = OTHER_ROOM;
+  // The floor: the room and the recess, carpeted
+  slab([[0, 0], [length, 0], [length, breastFace], [recessWidth, breastFace], [recessWidth, recessBack], [0, recessBack]], -20, 0, carpetMat, otherRoom);
+
+  // The hallway wall, with the door's opening (to the top of its frame's
+  // trim; the frame fills the rest). The door's hinge end is away from the kitchen.
+  const doorTo = length - door.fromKitchenWall, doorFrom = doorTo - door.width;
+  faceAround(length, [doorFrom - JAMB, doorTo + JAMB], [0, FRAME_H], ceiling, wallMat, a => [a, 0], '+v');
+  box({ from: [doorFrom - JAMB, -door.wall, 0], to: [doorFrom, 0, FRAME_H] }, frameMat, otherRoom);            // frame, hinge side
+  box({ from: [doorTo, -door.wall, 0], to: [doorTo + JAMB, 0, FRAME_H] }, frameMat, otherRoom);                // frame, kitchen side
+  box({ from: [doorFrom, -door.wall, ROOM_DOOR_H], to: [doorTo, 0, FRAME_H] }, frameMat, otherRoom);           // frame head, down to the door
+  // The door, open square into the room along its hinge side
+  box({ from: [doorFrom, 0, 0], to: [doorFrom + 44, door.width, ROOM_DOOR_H] }, frameMat, otherRoom);
+
+  // The kitchen-side wall, then the chimney breast's face and its side
+  // into the recess, and the recess's back
+  insideFace(breastFace, ceiling, wallMat, [length, breastFace / 2, ceiling / 2], '-u');
+  insideFace(length - recessWidth, ceiling, wallMat, [(recessWidth + length) / 2, breastFace, ceiling / 2], '-v');
+  insideFace(recessBack - breastFace, ceiling, wallMat, [recessWidth, (breastFace + recessBack) / 2, ceiling / 2], '-u');
+  insideFace(recessWidth, ceiling, wallMat, [recessWidth / 2, recessBack, ceiling / 2], '-v');
+
+  // The window wall, with the window: its glass at the back of the reveal,
+  // the reveal's sides and top, a sill and the radiator under it
+  const w0 = win.from, w1 = win.from + win.width, mid = (w0 + w1) / 2;
+  faceAround(recessBack, [w0, w1], [win.sill, win.top], ceiling, wallMat, a => [0, a], '+u');
+  const glassMat = new THREE.MeshStandardMaterial({ color: 0xcfe3ef, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+  insideFace(win.width, win.top - win.sill, glassMat, [-win.reveal, mid, (win.sill + win.top) / 2], '+u');
+  insideFace(win.reveal, win.top - win.sill, wallMat, [-win.reveal / 2, w0, (win.sill + win.top) / 2], '+v');
+  insideFace(win.reveal, win.top - win.sill, wallMat, [-win.reveal / 2, w1, (win.sill + win.top) / 2], '-v');
+  const revealTop = insideFace(win.reveal, win.width, wallMat, [-win.reveal / 2, mid, win.top], '+u');
+  revealTop.rotation.set(Math.PI / 2, 0, 0);                     // lying flat, facing down
+  box({ from: [-win.reveal, w0 - 30, win.sill - 25], to: [win.sillDepth - win.reveal, w1 + 30, win.sill] }, frameMat, otherRoom);   // window sill
+  box({ from: [radiator.out - radiator.thick, mid - radiator.width / 2, radiator.bottom], to: [radiator.out, mid + radiator.width / 2, radiator.top] }, material(0xf6f6f4), otherRoom);
+
+  // The ceiling, facing down only, so the views from above look in
+  const top = new THREE.Mesh(new THREE.PlaneGeometry(length * MM, recessBack * MM), ceilingMat);
+  top.rotation.x = Math.PI / 2;
+  top.position.set(length / 2 * MM, ceiling * MM, recessBack / 2 * MM);
+  otherRoom.add(top);
+}
+
+export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom };

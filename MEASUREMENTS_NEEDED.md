@@ -38,6 +38,8 @@ into the chat. It covers sections 1 and 2 and the main sizes from 3 and 4.
 AB 909, AC 150, D 1054, E 1050, Y 2330, H 3682, J 2841, K to the recess
 cupboards' fronts (2888 lower, 2769 upper), the recess cupboards (AJ, AK
 about 1810, AL 819, AM 1632), and the other room's furniture (`PLAN.md`).
+Later on 15 Oct 2026: L 1858 (so the recess is 1824 wide), the window's
+reveal 250 deep (AP) and its sill 290 from the glass (AQ).
 
 **Still outstanding, and important** (red ! on the sheet). Each is only a
 guess today, or could be well out:
@@ -45,10 +47,9 @@ guess today, or could be well out:
 | | What | Why it matters |
 |---|---|---|
 | F, G | The thickness of the wall between the kitchen and the other room, and of the other room's door wall | Guessed (125, 120). Together with C they fix where the other room sits against the living room |
-| N, P | The other room's window: where it starts, and its width | Guessed from the drawing; could be 100 or more out |
+| N, P | The other room's window: where it starts, and its width | Guessed from the drawing; could be 100 or more out. N can't be reached from the hallway side: measure from the recess corner instead |
 | Q, R | The other room's door: where it starts, and its width | Guessed (60, 760). They decide how the door swings past the bed |
 | T, U | The window's sill and top heights | Copied from the living room's windows |
-| L | Where the chimney breast ends | Worked out from the recess cupboard's width (1800 + about 10) |
 | S | The other room's ceiling height | Worked out as 2451 from the recess cupboards (819 + 1632); one check |
 
 **To check, already sent:**

@@ -24,6 +24,17 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    `build(group)` and the address gets a room's name in front of each part
    (`REFACTOR_PLAN.md`, "When a second room comes").
    Its furniture ("The other room's furniture", below) comes with it.
+   **Started 15 Oct 2026**: the other room (the bedroom) is drawn, its shell
+   in `floor.js` (`OTHER_ROOM`, its own u, v coordinates) and its furniture
+   and recess cupboards in `other_room.js`, with sliders in the drawer's
+   Bedroom furniture section, three views (Bedroom bird's eye, Bedroom door,
+   Bedroom window) and the address's last four fields
+   (`room_dimensions.md`, "The other room"). Its settings still live in
+   `living_room.js`'s `state.otherRoom`. Still to do: the hallway and
+   stairs; the measured numbers as they come in (F, G, N, P, Q, R, S, T, U:
+   `MEASUREMENTS_NEEDED.md`); a 2D plan view of the bedroom (the living
+   room's plan shows it at its edge, under the left-wall dimensions);
+   stopping furniture at the walls; and the engine refactor below.
 
 Smaller pieces, any time:
 
@@ -195,7 +206,9 @@ anything is fitted.
 
 The user wants the bookcase and the cupboard resizable with sliders and
 movable around the room, as the living room's sofa and larders are; the
-bed is a fixed size. Sizes in mm, width × depth × height:
+bed is a fixed size. Done 15 Oct 2026 (`other_room.js`), with the lower
+recess cupboard's depth on a slider too, as the user asked. The headboard
+was measured as well: 25 thick, 950 high. Sizes in mm, width × depth × height:
 
 | Piece | Size | Colour | Adjustable |
 |---|---|---|---|

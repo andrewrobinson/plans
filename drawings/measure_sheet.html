@@ -119,6 +119,8 @@ const ITEMS = [
   { k: 'Q', what: 'Door: kitchen-side wall to the door opening', how: 'In the room, along the hallway wall', est: 60, mark: [362, 681, 430, 705] },
   { k: 'AJ', what: 'Fitted wardrobes: how deep', how: 'On the wall opposite the door: from their fronts to the wall behind. Note whether they run the whole wall, or where they start and end', est: 600, mark: [650, 960] },
   { k: 'AN', what: 'Radiator under the window', how: 'From the window wall\'s corner by the hallway to its near end; its width, the floor to its bottom and top, and how far it stands out. Seen in a photo, not measured', est: 600, mark: [400, 1040] },
+  { k: 'AP', what: 'Window reveal depth', how: 'From the glass to the wall\'s face', est: 207, mark: [470, 1035] },
+  { k: 'AQ', what: 'Window sill depth', how: 'From the glass to the sill\'s front edge', est: 240, mark: [560, 1035] },
   { k: 'AK', what: 'Recess width', how: 'Along the recess, from the end of the chimney breast to the window wall. The cupboards in it fill it', est: 1850, mark: [712, 975] },
   { k: 'R', what: 'Door opening width', how: 'Inside the frame. Note which side the hinges are on and which way it opens (the drawing has it opening into the room, hinged at the end away from the kitchen)', est: 760, line: [372, 685, 372, 776] },
   { group: 'Heights, in the other room', h: true },
@@ -152,6 +154,8 @@ const SUPPLIED = {
   // overhanging the lower, so K could only be taken to their fronts
   H: '3682', J: '2841', K: '2888 to the lower cupboard, 2769 to the upper',
   AJ: '420 upper (1800 wide), lower about 300', AK: 'about 1810', AL: '819', AM: '1632',
+  // 15 Oct 2026, later
+  L: '1858', AP: '250', AQ: '290',
 };
 
 // Outstanding measurements that matter most: only guessed (from the
@@ -159,8 +163,7 @@ const SUPPLIED = {
 const CRUCIAL = {
   "F": "Guessed (125). With G, it fixes where the other room sits against the living room",
   "G": "Guessed (120). With F and C, it fixes where the other room's hallway wall is",
-  "L": "Worked out from the recess cupboard (1800 + about 10), not measured",
-  "N": "Guessed from the drawing; it could be out by 100 or more",
+  "N": "Guessed from the drawing; it could be out by 100 or more. If the hallway side can't be reached, measure from the recess corner to the window opening instead, and say so",
   "P": "Guessed from the drawing; it could be out by 100 or more",
   "Q": "Guessed (60); it sets where the door swings, next to the bed",
   "R": "Guessed (760), like the living room door",

@@ -145,9 +145,47 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 
 The full list of the address's fields, in order, with how each is checked, is `ADDRESS` in `living_room.js`; new fields go at its end. The page address records the option (by its code: 7 to 9 for options 7 to 9, 10 for the current room, 11 and 12 for options 10 and 11; 1 to 6 and 13 to 16, for the options taken out, read as none) and the settings, joined by `-`:
 
-`#option-T-R-F-above-shelfDepth-BENCH-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-tv-dresserColour-dresserSizes-frontPiece-larder-island-sofa-sofaFront-larderSizes-sofaSizes-benchOn-LEG_D-backShelves-leftShelves-islandMove-BOARD-CORNER_W-CORNER_D-SIDE_SHELF-SIDE_W-SIDE_D~stored~view`
+`#option-T-R-F-above-shelfDepth-BENCH-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-tv-dresserColour-dresserSizes-frontPiece-larder-island-sofa-sofaFront-larderSizes-sofaSizes-benchOn-LEG_D-backShelves-leftShelves-islandMove-BOARD-CORNER_W-CORNER_D-SIDE_SHELF-SIDE_W-SIDE_D-bed-bookcase-pineCupboard-recessLowerD~stored~view`
 
-Sizes of one thing are joined by `.` (dresserSizes `w.h.baseD.baseH.upperD`, larderSizes and sofaSizes `w.d.h`, shelves as their tops, islandMove `x.y.turn`). For example, option 7 with a 600-deep left-wall cupboard and everything else as it starts: `#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1000.1930.420.830.420-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330`. After the first `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, with a fourth number for its height off the floor when it isn't 0; they're used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, and `.` and the room door's, left-wall cupboard's and option's own door angles, joined by `-`. For example `~look:desk:dresser.sit-tall.90-0-0`. Old links needn't keep working (agreed 12 Oct 2026).
+Sizes of one thing are joined by `.` (dresserSizes `w.h.baseD.baseH.upperD`, larderSizes and sofaSizes `w.d.h`, shelves as their tops, islandMove `x.y.turn`; the bedroom's bed `u.v.turn`, bookcase and pineCupboard `u.v.turn.w.d.h`, see below). For example, option 7 with a 600-deep left-wall cupboard and everything else as it starts: `#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1000.1930.420.830.420-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301`. After the first `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, with a fourth number for its height off the floor when it isn't 0; they're used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, and `.` and the room door's, left-wall cupboard's and option's own door angles, joined by `-`. For example `~look:desk:dresser.sit-tall.90-0-0`. Old links needn't keep working (agreed 12 Oct 2026).
+
+## The other room (the bedroom)
+
+Drawn since 15 Oct 2026: its walls, door, window, floor and ceiling in
+[floor.js](floor.js) (`OTHER_ROOM`), its furniture and fitted cupboards in
+[other_room.js](other_room.js). It has its own coordinates, as it was
+measured: **u** along the hallway wall from the window wall (0) to the
+kitchen-side wall (3682), **v** from the hallway wall (0) to the chimney
+breast's face (2841) and the recess's back (3189). Its corner (u 0, v 0) is
+at living room x −4802, y 2562 (`OTHER_ROOM_CORNER`), with u along x and v
+along y. Measured and estimated sizes are in `MEASUREMENTS_NEEDED.md`
+("Where it's got to") and each constant's comment.
+
+| What | Size | Source |
+| --- | --- | --- |
+| Room, window wall to kitchen-side wall | 3682 | Measured (H) |
+| Hallway wall to chimney breast face | 2841 | Measured (J) |
+| Chimney breast, from the kitchen-side wall | 1858, so the recess is 1824 wide | Measured (L) |
+| Recess back | 3189 from the hallway wall | Upper recess cupboard's front 2769 + its 420 depth, measured |
+| Ceiling | 2451 | Lower recess cupboard 819 + upper one 1632, measured |
+| Window | 670 from the hallway wall, 1510 wide, sill 912, top 2302 | Estimated; its reveal 250 and sill 290 from the glass are measured |
+| Door | 60 from the kitchen-side wall, 760 wide, in a 120 wall; hinged away from the kitchen, opening in | Estimated; as the living room's door and frame |
+| Where it sits | Recess back in line with the living room's sink recess (5751) | Assumed until F and G are measured |
+
+Its furniture, each with sliders in the drawer's **Bedroom furniture**
+section (the bookcase and pine cupboard resized as well as moved):
+
+| Piece | Size (w × d × h) | Starts at (its back's middle, u, v; facing) |
+| --- | --- | --- |
+| Bed, base 350 high, mattress 260 on it, headboard 25 thick and 950 high | 1360 × 1940 | 1360, 0 (head on the hallway wall, 680 from the window wall, measured); 0° |
+| Bookcase, dark brown | 1490 × 290 × 1220 | 2569, 2841 (back to the chimney breast, from the recess); 180° |
+| Pine cupboard, 60 off the wall (it stands 560 out) | 1300 × 500 × 1790 | 3682, 1901 (back to the kitchen-side wall, up to the bookcase); 90° |
+| Recess cupboards, fixed: upper 1800 wide, 420 deep, 1632 high; lower 819 high | lower 301 deep, its slider 150 to 600 | In the recess, centred |
+
+A piece's place is the middle of its back (the bed's head end), so a new
+size keeps it against its wall; it turns about that point: 0° faces away
+from the hallway wall, 90° the window wall, 180° the hallway wall, 270°
+the kitchen-side wall. Nothing stops a piece going through a wall.
 
 ## Things to store
 

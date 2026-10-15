@@ -26,6 +26,7 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
+import { drawOtherRoom, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, OTHER_ROOM_ADDRESS } from './other_room.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
@@ -239,6 +240,7 @@ const state = {
   // middle window, 1 in the corner cupboard, 2 moved by hand), and each
   // thing's { x, y, turned, z } (set up with STORED below)
   stored: { shown: false, packing: 0, where: 0, spots: [] },
+  otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
 };
 
 const baseDoorCount = () => Math.max(1, Math.round((ROOM_WIDTH - state.T - state.WARD - state.TOWER) / 450));
@@ -1976,6 +1978,7 @@ function showInMenus(option, i, aboveText) {
 // Everything drawn round the option: dimensions, colours, the things to
 // store and the cupboard shelves round them, the cutting list, the address
 function redrawAround() {
+  drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2040,6 +2043,7 @@ const ADDRESS = [
   ['SIDE_SHELF', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],
   ['SIDE_W', String, within(200, 800)],
   ['SIDE_D', String, within(150, 800)],
+  ...OTHER_ROOM_ADDRESS,                                        // the bedroom's furniture
 ];
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
@@ -2377,6 +2381,9 @@ document.getElementById('xray').addEventListener('click', e => {
 // fit on screen. The config-defined views, the places you can be and the
 // things you can look at are in living_room.views.js, for editing; kit/view_kit.js
 // does the choosing (see viewKit below).
+// The bedroom (other_room.js), for the views below, in scene metres: its
+// middle, and its window wall's x
+const BEDROOM_MIDDLE = { x: -2.961, y: 4.157 }, BEDROOM_WINDOW_WALL = -4.802;
 const builtInViews = {
   top:    { label: 'Top', title: 'Straight down from above', position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },
   corner: { label: 'Corner', title: 'From high in the corner by the desk', position: [4.6, 3.4, 5.4], target: [1.0, 1.0, 1.0] },
@@ -2385,6 +2392,8 @@ const builtInViews = {
   // the room is open from here; any further out and the outer wall's brick
   // face would hide the floor along it
   birdseye: { label: "Bird's eye", title: 'Looking down from above the windows', position: [4.5, 7.5, 2.75], target: [1.2, 0, 2.75], hfov: 66 },
+  // The same over the bedroom, from above its window
+  bedroom: { label: "Bedroom, bird's eye", title: 'Looking down into the bedroom from above its window', position: [BEDROOM_WINDOW_WALL - 0.66, 7.5, BEDROOM_MIDDLE.y], target: [BEDROOM_WINDOW_WALL + 2.6, 0, BEDROOM_MIDDLE.y], hfov: 66 },
   // The wall views leave out what's on the camera's side of their cut (see
   // applyCut): the back wall view everything past the return wall, the left
   // wall view the island, the dresser and beyond, the front wall view
@@ -2477,6 +2486,10 @@ const anchors = {
     return at ? [at.x, at.y, 1200] : [400, 400, 1200];
   },
   tv: () => tvAt ?? [ROOM_WIDTH / 2, 0, 1400],
+  // The bedroom's furniture (other_room.js)
+  bed: () => middleOf(otherRoomPieces.bed),
+  bookcase: () => middleOf(otherRoomPieces.bookcase),
+  pineCupboard: () => middleOf(otherRoomPieces.cupboard),
 };
 const DOORS = [roomSlider, tallSlider, secondSlider];
 const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
@@ -2580,6 +2593,13 @@ workOffline('sw.js');
 // changeSettings(). The colours, the shelves' wood, the dresser's place and
 // the island go on the model too. The option's own controls, and the things
 // to store's, are show()'s.
+// The bedroom's sliders (other_room.js): each sets its setting in
+// state.otherRoom, a path such as 'bed.u'
+const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomBlock'), (path, value) => changeSettings(s => {
+  const keys = path.split('.'), last = keys.pop();
+  keys.reduce((o, k) => o[k], s.otherRoom)[last] = value;
+}));
+
 function syncControls() {
   const { T, R, F, BOARD, BENCH, above, shelfDepth, benchOn, tv, frontPiece, island } = state;
   const slide = (id, value, text = value) => {
@@ -2610,6 +2630,7 @@ function syncControls() {
   showSofa();
   check('islandAt', island.at);
   placeIsland();
+  syncOtherRoom(state.otherRoom);
 }
 
 // Start on the settings in the address (room_dimensions.md has their

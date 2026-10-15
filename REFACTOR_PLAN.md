@@ -37,6 +37,14 @@ as there's nothing to test them against until then:
 - **The address**: each room's part needs its name in front of it (old links
   needn't survive).
 
+The bedroom came on 15 Oct 2026, ahead of this: its walls are in
+`floor.js`'s `otherRoom` group, placed at its corner so its numbers stay in
+its own mm, and its furniture in `other_room.js`. Its settings are
+`state.otherRoom` in `living_room.js`, written at the end of `ADDRESS`
+(`OTHER_ROOM_ADDRESS`), redrawn from `redrawAround()`, and its sliders made
+by `otherRoomControls()`. That's the piece to lift out when the engine
+takes each room's `build(group)`.
+
 ---
 
 ## Step 5: readable code, in the style of `menu_demo/`
