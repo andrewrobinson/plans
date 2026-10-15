@@ -72,7 +72,8 @@ address fields), `drawOtherRoom(settings)` (called from `redrawAround()`)
 (drawn in the living room by `bookcaseOnBenchWall()` when the back wall's
 Bookshelf is on), and `otherRoomControls(container, change)`, which writes
 the **Bedroom options** drawer's sliders into `#otherRoomBlock` from
-`OTHER_ROOM_SLIDERS` and returns the function `syncControls()` calls to put
+`PIECES` (each piece's size and place sliders, its reset buttons, and the
+mirror's choice of wall, `WALLS`) and returns the function `syncControls()` calls to put
 them in step. Unlike the other sections, its sliders aren't in the HTML.
 The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 

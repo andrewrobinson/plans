@@ -30,7 +30,9 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    **Bedroom options** drawer of their own, turning in quarter turns), and
    the address's fields after SIDE_D (`room_dimensions.md`, "The other
    room"). The back wall's **Bookshelf** switch puts the bedroom's bookcase
-   in the living room in place of the bench (the address's last field). Its settings still live in
+   in the living room in place of the bench. Each piece has Reset
+   dimensions and Reset location buttons, and a mirror (sized, and moved
+   along and up any of the four walls) is the address's last field. Its settings still live in
    `living_room.js`'s `state.otherRoom`. Later on 15 Oct 2026 the hallway
    and the top of the stairs (`floor.js`'s `HALLWAY`, from the measured A
    to E, AB, AC and Y), and a **Room** choice in the Look menu: Where and

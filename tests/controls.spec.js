@@ -425,7 +425,7 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#room', 'bedroom');
     await expect.poll(() => view(page)).toMatch(/^birdseye\..*\.bedroom$/);
     expect(await options('where')).toEqual(['In the bedroom doorway, walking in', 'Lying on the bed', 'Standing beside the bed', 'Standing at the bedroom window']);
-    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at the window', 'Looking at the bed']);
+    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
     await page.selectOption('#where', 'bed');
     await expect.poll(() => view(page)).toMatch(/^look:bed:\w+\.lie-tall\..*\.bedroom$/);
     await page.selectOption('#room', 'hallway');

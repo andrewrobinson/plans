@@ -62,6 +62,14 @@ const RECESS_CUPBOARDS = {
   front: 18, gap: 3,
 };
 
+// The mirror: none there yet, so its size and place are chosen to start
+// with, on the chimney breast over the bookcase, 180 above the bookcase's
+// top. A thin dark frame round the glass, standing off the wall.
+const MIRROR = {
+  w: 1000, h: 800, bottom: BOOKCASE.h + 180,
+  frame: 30, thick: 25,            // the frame's width round the glass, and how far it stands out (chosen)
+};
+
 const bedFrameMat = material(0x262626);
 const mattressMat = material(0xece8e0);
 const bookcaseMat = material(0x4a2e1c);
@@ -69,6 +77,9 @@ const pineMat = material(0xc98a45);
 const knobMat = material(0x8a5a2b);
 const fittedMat = material(0xf2f0ea);
 const shadowMat = material(0x6f6a62);              // the open shelves' inside, in shade
+const mirrorFrameMat = material(0x2b2b2b);
+// The glass: pale and shiny, a hint of a mirror rather than a reflection
+const glassMat = new THREE.MeshStandardMaterial({ color: 0xdfe8ec, roughness: 0.1, metalness: 0.3 });
 
 // ---------------------------------------------------------------------------
 // The settings: where each movable piece is, and the sizes of those that
@@ -76,7 +87,24 @@ const shadowMat = material(0x6f6a62);              // the open shelves' inside, 
 // head end), so a change of size keeps it against its wall. turn is which
 // way it faces: 0° away from the hallway wall (the bed's head against it),
 // 90° the window wall, 180° the hallway wall, 270° the kitchen-side wall.
+// The mirror hangs on one of WALLS instead: `along` is its middle along that
+// wall, and `bottom` its bottom edge off the carpet.
 // ---------------------------------------------------------------------------
+
+// The walls the mirror can hang on, in the menu's order: its name there; the
+// turn that puts a piece's back to it; which way it runs (u or v), measured
+// from the window wall or the hallway wall; from where to where along it;
+// and where it stands across (its own u or v). The chimney breast's face
+// only, not the recess beside it, which the fitted cupboards fill.
+const WALLS = {
+  breast: { label: 'The chimney breast (over the bookcase)', turn: 180, runs: 'u', from: OTHER_ROOM.recessWidth, to: OTHER_ROOM.length, at: OTHER_ROOM.breastFace },
+  hallway: { label: 'The hallway wall', turn: 0, runs: 'u', from: 0, to: OTHER_ROOM.length, at: 0 },
+  window: { label: 'The window wall', turn: 270, runs: 'v', from: 0, to: OTHER_ROOM.recessBack, at: 0 },
+  kitchen: { label: 'The kitchen-side wall', turn: 90, runs: 'v', from: 0, to: OTHER_ROOM.breastFace, at: OTHER_ROOM.length },
+};
+const WALL_KEYS = Object.keys(WALLS);
+const ALONG_LABEL = { u: 'Middle from the window wall', v: 'Middle from the hallway wall' };
+const alongWall = (wall, along) => Math.min(WALLS[wall].to, Math.max(WALLS[wall].from, along));
 export const OTHER_ROOM_START = {
   // Where they stand now (from the photos, 15 Oct 2026): the bed's head
   // against the hallway wall, 680 from the window wall (measured); the
@@ -87,6 +115,7 @@ export const OTHER_ROOM_START = {
   bookcase: { u: OTHER_ROOM.recessWidth + BOOKCASE.w / 2, v: OTHER_ROOM.breastFace, turn: 180, w: BOOKCASE.w, d: BOOKCASE.d, h: BOOKCASE.h },
   cupboard: { u: OTHER_ROOM.length, v: OTHER_ROOM.breastFace - BOOKCASE.d - PINE.w / 2, turn: 90, w: PINE.w, d: PINE.d, h: PINE.h },
   lowerD: RECESS_CUPBOARDS.lowerD,
+  mirror: { wall: 'breast', along: OTHER_ROOM.recessWidth + BOOKCASE.w / 2, bottom: MIRROR.bottom, w: MIRROR.w, h: MIRROR.h },
 };
 
 // Each slider: [the setting's path in state.otherRoom, its label, lowest,
@@ -99,22 +128,35 @@ const PLACE = (piece) => [
   [`${piece}.v`, 'Back’s middle from the hallway wall', 0, OTHER_ROOM.recessBack, 5, ''],
   [`${piece}.turn`, 'Turned', 0, 360 - QUARTER_TURN, QUARTER_TURN, '°'],
 ];
+// The mirror's place: along its wall (the slider's label and range follow
+// the wall), and up it
+const MIRROR_PLACE = [
+  ['mirror.along', ALONG_LABEL.u, 0, OTHER_ROOM.length, 5, ''],
+  ['mirror.bottom', 'Bottom off the carpet', 0, OTHER_ROOM.ceiling, 10, ''],
+];
 const SIZES = {
   bookcase: [['w', 400, 2000], ['d', 200, 500], ['h', 600, 2200]],
   cupboard: [['w', 600, 2000], ['d', 300, 700], ['h', 1200, 2400]],
+  mirror: [['w', 200, 2000], ['h', 200, 2000]],
 };
 const SIZE_LABEL = { w: 'Width', d: 'Depth', h: 'Height' };
 const sizeSliders = piece => SIZES[piece].map(([k, lo, hi]) => [`${piece}.${k}`, SIZE_LABEL[k], lo, hi, 10, '']);
-export const OTHER_ROOM_SLIDERS = [
-  ['Bed (with its headboard and mattress)', PLACE('bed')],
-  ['Bookcase', [...sizeSliders('bookcase'), ...PLACE('bookcase')]],
-  ['Pine cupboard', [...sizeSliders('cupboard'), ...PLACE('cupboard')]],
-  ['Recess cupboards', [['lowerD', 'Lower cupboard’s depth', 150, 600, 1, '']]],
+// The menu's pieces, in order: each its heading, its size sliders and its
+// place sliders (each with a reset button, back to OTHER_ROOM_START), and
+// for the mirror the choice of wall, reset with its place
+const PIECES = [
+  { heading: 'Bed (with its headboard and mattress)', sizes: [], place: PLACE('bed') },
+  { heading: 'Bookcase', sizes: sizeSliders('bookcase'), place: PLACE('bookcase') },
+  { heading: 'Pine cupboard', sizes: sizeSliders('cupboard'), place: PLACE('cupboard') },
+  // The lower one's depth up to 800, as far as it might go (asked for, 15 Oct 2026)
+  { heading: 'Recess cupboards', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [] },
+  { heading: 'Mirror', sizes: sizeSliders('mirror'), place: MIRROR_PLACE, wall: 'mirror.wall' },
 ];
+const SLIDERS = PIECES.flatMap(p => [...p.sizes, ...p.place]);
 
 // The settings' address fields, for living_room.js's ADDRESS: each piece as
 // its numbers joined by '.', each held to its slider's range
-const RANGES = Object.fromEntries(OTHER_ROOM_SLIDERS.flatMap(([, sliders]) => sliders.map(([path, , lo, hi]) => [path, [lo, hi]])));
+const RANGES = Object.fromEntries(SLIDERS.map(([path, , lo, hi]) => [path, [lo, hi]]));
 const held = (path, text, was) => {
   const [lo, hi] = RANGES[path], n = text ? Number(text) : NaN;
   if (path.endsWith('.turn') && n % QUARTER_TURN !== 0) return was;   // only quarter turns
@@ -132,6 +174,15 @@ export const OTHER_ROOM_ADDRESS = [
   pieceField('cupboard', ['u', 'v', 'turn', 'w', 'd', 'h']),
   ['otherRoom.lowerD', String, (text, was) => held('lowerD', text, was)],
 ];
+// The mirror's, added later, so at the end of ADDRESS: its wall (as its
+// place in WALLS), then along, bottom, w and h
+export const MIRROR_ADDRESS = [['otherRoom.mirror',
+  m => [WALL_KEYS.indexOf(m.wall), m.along, m.bottom, m.w, m.h].join('.'),
+  (text, m) => {
+    const [wall, ...parts] = text.split('.');
+    const read = Object.fromEntries(['along', 'bottom', 'w', 'h'].map((k, i) => [k, held(`mirror.${k}`, parts[i], m[k])]));
+    return { ...read, wall: WALL_KEYS[Number(wall)] ?? m.wall };
+  }]];
 
 // ---------------------------------------------------------------------------
 // Drawing. Each movable piece is drawn in its own group, its back's middle
@@ -140,7 +191,7 @@ export const OTHER_ROOM_ADDRESS = [
 // ---------------------------------------------------------------------------
 const furniture = new THREE.Group();
 otherRoom.add(furniture);
-export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null };   // each piece's group as drawn now, to look at
+export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null, mirror: null };   // each piece's group as drawn now, to look at
 
 // Draw everything again from the settings `s` (state.otherRoom). With
 // `bookcaseAway` (it's in the living room, in place of the bench) the
@@ -152,6 +203,13 @@ export function drawOtherRoom(s, { bookcaseAway = false } = {}) {
   otherRoomPieces.bookcase.visible = !bookcaseAway;
   otherRoomPieces.cupboard = place(pineCupboard(s.cupboard), s.cupboard);
   recessCupboards(s.lowerD);
+  otherRoomPieces.mirror = place(mirror(s.mirror), mirrorPlace(s.mirror));
+}
+
+// Where the mirror's back is, and its turn, from its wall and how far along
+function mirrorPlace({ wall, along }) {
+  const { runs, at, turn } = WALLS[wall], a = alongWall(wall, along);
+  return runs === 'u' ? { u: a, v: at, turn } : { u: at, v: a, turn };
 }
 
 function place(g, { u, v, turn }) {
@@ -223,6 +281,15 @@ function pineCupboard({ w, d, h }) {
   return g;
 }
 
+// The mirror: a frame against the wall and the glass set in it, its bottom
+// `bottom` off the carpet
+function mirror({ w, h, bottom }) {
+  const g = new THREE.Group(), half = w / 2, { frame, thick } = MIRROR, top = bottom + h;
+  box({ from: [-half, 0, bottom], to: [half, thick - 2, top] }, mirrorFrameMat, g);
+  box({ from: [-half + frame, thick - 2, bottom + frame], to: [half - frame, thick, top - frame] }, glassMat, g, false);
+  return g;
+}
+
 // The recess's two fitted cupboards, against its back wall and filling its
 // width: the upper one up to the ceiling, standing out over the lower one
 function recessCupboards(lowerD) {
@@ -254,26 +321,67 @@ function recessCupboards(lowerD) {
 }
 
 // ---------------------------------------------------------------------------
-// The menu's block: a heading and sliders for each piece, built into
-// `container`. change(path, value) is called as a slider moves; the
-// function returned puts the sliders in step with the settings `s`.
+// The menu's block: for each piece a heading, the mirror's wall, its
+// sliders, and buttons to put its dimensions and its location back as they
+// started, built into `container`. change(edits) is called with a list of
+// [path, value] as anything changes; the function returned puts the
+// controls in step with the settings `s`.
 // ---------------------------------------------------------------------------
+const valueAt = (s, path) => path.split('.').reduce((o, k) => o[k], s);
+
 export function otherRoomControls(container, change) {
   const id = path => `otherRoom_${path.replace('.', '_')}`;
-  container.innerHTML = OTHER_ROOM_SLIDERS.map(([heading, sliders]) => `<div class="depth"><div><b>${heading}</b></div>` +
-    sliders.map(([path, label, lo, hi, step]) =>
-      `<label for="${id(path)}">${label}: <span id="${id(path)}Value"></span></label>` +
-      `<input id="${id(path)}" type="range" min="${lo}" max="${hi}" step="${step}">`).join('') + '</div>').join('');
-  for (const [, sliders] of OTHER_ROOM_SLIDERS) {
-    for (const [path] of sliders) document.getElementById(id(path)).addEventListener('input', e => change(path, Number(e.target.value)));
-  }
+  let shown = OTHER_ROOM_START;                        // the settings last put in the controls
+  container.innerHTML = PIECES.map((piece, i) => `<div class="depth"><div><b>${piece.heading}</b></div>` +
+    (piece.wall ? wallPick(id(piece.wall)) : '') +
+    [...piece.sizes, ...piece.place].map(slider(id)).join('') +
+    resetButtons(piece, i) + '</div>').join('');
+
+  for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
+  // A new wall keeps the mirror as far along as it can
+  document.getElementById(id('mirror.wall')).addEventListener('change', e =>
+    change([['mirror.wall', e.target.value], ['mirror.along', alongWall(e.target.value, shown.mirror.along)]]));
+  container.querySelectorAll('button[data-reset]').forEach(b => b.addEventListener('click', () => {
+    const piece = PIECES[Number(b.dataset.piece)], what = b.dataset.reset;
+    const paths = what === 'sizes' ? piece.sizes.map(([path]) => path) : [...piece.place.map(([path]) => path), ...(piece.wall ? [piece.wall] : [])];
+    change(paths.map(path => [path, valueAt(OTHER_ROOM_START, path)]));
+  }));
+
   return s => {
-    for (const [, sliders] of OTHER_ROOM_SLIDERS) {
-      for (const [path, , , , , unit] of sliders) {
-        const value = path.split('.').reduce((o, k) => o[k], s);
-        document.getElementById(id(path)).value = String(value);
-        document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
-      }
+    shown = s;
+    for (const [path, , , , , unit] of SLIDERS) {
+      const value = valueAt(s, path);
+      document.getElementById(id(path)).value = String(value);
+      document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
     }
+    followWall(id, s.mirror);
   };
+}
+
+function slider(id) {
+  return ([path, label, lo, hi, step]) =>
+    `<label for="${id(path)}"><span id="${id(path)}Label">${label}</span>: <span id="${id(path)}Value"></span></label>` +
+    `<input id="${id(path)}" type="range" min="${lo}" max="${hi}" step="${step}">`;
+}
+
+function wallPick(pickId) {
+  return `<label for="${pickId}">On the wall:</label> <select id="${pickId}">` +
+    WALL_KEYS.map(k => `<option value="${k}">${WALLS[k].label}</option>`).join('') + '</select>';
+}
+
+function resetButtons(piece, i) {
+  const button = (what, text) => `<button data-reset="${what}" data-piece="${i}">${text}</button>`;
+  const buttons = [piece.sizes.length && button('sizes', 'Reset dimensions'), piece.place.length && button('place', 'Reset location')].filter(Boolean);
+  return buttons.length ? `<div class="row">${buttons.join('')}</div>` : '';
+}
+
+// The mirror's wall chosen, and its along slider labelled and ranged for it
+function followWall(id, { wall, along }) {
+  const { runs, from, to } = WALLS[wall], alongId = id('mirror.along');
+  document.getElementById(id('mirror.wall')).value = wall;
+  document.getElementById(`${alongId}Label`).textContent = ALONG_LABEL[runs];
+  const input = document.getElementById(alongId);
+  input.min = String(from);
+  input.max = String(to);
+  input.value = String(alongWall(wall, along));
 }

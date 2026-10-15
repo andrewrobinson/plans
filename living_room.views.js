@@ -103,13 +103,14 @@ window.ROOM_VIEWS = {
     hallEnd:        { room: 'hallway', label: 'the far end, by the bathroom', at: [-2480, 1840, 1200] },
     // In the bedroom (other_room.js): the fitted cupboards in the recess
     // (its middle, 1824 wide, at the upper one's front, 2769, measured);
-    // the bookcase, the bed and the pine cupboard (the wardrobe), wherever
-    // they stand; and the window's middle (floor.js's OTHER_ROOM.window)
+    // the bookcase, the bed, the pine cupboard (the wardrobe) and the
+    // mirror, wherever they stand; and the window's middle (floor.js's OTHER_ROOM.window)
     recessCupboards: { room: 'bedroom', label: 'the cupboards in the recess', at: [912, 2769, 1200] },
     bookcase:        { room: 'bedroom', label: 'the bookcase', anchor: 'bookcase' },
     pineCupboard:    { room: 'bedroom', label: 'the wardrobe', anchor: 'pineCupboard' },
     bedroomWindow:   { room: 'bedroom', label: 'the window', at: [0, 1425, 1630] },
     bed:             { room: 'bedroom', label: 'the bed', anchor: 'bed' },
+    mirror:          { room: 'bedroom', label: 'the mirror', anchor: 'mirror' },
   },
   look: { place: 'desk', thing: 'dresser' },   // Where and Looking at, until chosen
   hfov: 79,                        // the angle across, in degrees, looking from a place
