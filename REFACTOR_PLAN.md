@@ -80,10 +80,10 @@ heights named":
   Each file opens with what it's for: `living_room.js` now also says how
   a change flows through the page and maps its sections, `index.html` and
   `floor.js` say what they hold, and `room_3d.css` names its page.
-- Left: `board()` could take `{ from, to }` as `box()` now does; then
-  step 5's "after each step": `room_3d_ui_guide.md` still has the old
-  short names (`W`, `D`, `H`, `WALL`, `FRAME`, `HINGE`) and old line
-  numbers.
+  `room_3d_ui_guide.md` has the new names, line numbers and
+  `changeSettings()`.
+- Left (optional): `board()` could take `{ from, to }` as `box()` now
+  does.
 
 Scripts that rename only in code (not comments or strings) and rewrite
 calls by their arguments made the first two safe; write one again for
