@@ -1868,8 +1868,7 @@ currentSelect.addEventListener('change', () => chooseOption(Number(currentSelect
 // Choosing an option (not a link to one): with no left-wall cupboard, an
 // option with a default for it gets one
 function chooseOption(i) {
-  if (state.T === 0 && OPTIONS[i].defaultLeft) setDepth(OPTIONS[i].defaultLeft);
-  show(i);
+  changeSettings(s => { if (s.T === 0 && OPTIONS[i].defaultLeft) s.T = OPTIONS[i].defaultLeft; }, { option: i });
 }
 
 
@@ -2054,36 +2053,30 @@ window.addEventListener('keydown', e => {
   if (n >= 1 && optionAt(n) >= 0) chooseOption(optionAt(n));
 });
 
+// Every settings control changes the settings through here: edit(state)
+// changes them, then every control is put in step with them
+// (syncControls()), the option is built again round them (show()), and, with
+// look, the view follows anything looked at that's moved. option: the option
+// to show, when one is chosen.
+function changeSettings(edit, { option = state.option, look = false } = {}) {
+  edit(state);
+  syncControls();
+  show(option);
+  if (look) viewKit.refresh();
+}
+
 // The left-wall cupboard's depth: none at the far left (290 on the slider),
 // then 300 to 800
 const depthSlider = document.getElementById('depth');
-function setDepth(t) {
-  state.T = t;
-  depthSlider.value = String(t || 290);
-  document.getElementById('depthValue').textContent = t ? t : 'none';
-}
 depthSlider.addEventListener('input', () => {
   const v = Number(depthSlider.value);
-  setDepth(v < 300 ? 0 : v);
-  show(state.option);
+  changeSettings(s => { s.T = v < 300 ? 0 : v; });
 });
 const rearSlider = document.getElementById('rear');
-rearSlider.addEventListener('input', () => {
-  state.R = Number(rearSlider.value);
-  document.getElementById('rearValue').textContent = state.R;
-  show(state.option);
-});
+rearSlider.addEventListener('input', () => changeSettings(s => { s.R = Number(rearSlider.value); }));
 const boardSlider = document.getElementById('board');
-boardSlider.addEventListener('input', () => {
-  state.BOARD = Number(boardSlider.value);
-  document.getElementById('boardValue').textContent = state.BOARD;
-  show(state.option);
-});
-document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => {
-  state.BENCH = Number(r.value);
-  benchHeights();
-  show(state.option);
-}));
+boardSlider.addEventListener('input', () => changeSettings(s => { s.BOARD = Number(boardSlider.value); }));
+document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.BENCH = Number(r.value); })));
 // The description starts folded away; remember if the viewer opens it
 const about = document.getElementById('about');
 try { about.open = localStorage.getItem('aboutOpen') === '1'; } catch (e) { /* not important */ }
@@ -2100,24 +2093,13 @@ for (const sec of document.querySelectorAll('#panel details.sec[id^=sec]')) {
 
 for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['legD', 'LEG_D'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']]) {
   const slider = document.getElementById(id);
-  slider.addEventListener('input', () => {
-    state[key] = Number(slider.value);
-    document.getElementById(`${id}Value`).textContent = slider.value;
-    show(state.option);
-  });
+  slider.addEventListener('input', () => changeSettings(s => { s[key] = Number(slider.value); }));
 }
 // Option 10's side bookshelf: drawn, or not
 const sideShelfSwitch = document.getElementById('sideShelfOn');
-sideShelfSwitch.addEventListener('change', () => {
-  state.SIDE_SHELF = sideShelfSwitch.checked;
-  show(state.option);
-});
+sideShelfSwitch.addEventListener('change', () => changeSettings(s => { s.SIDE_SHELF = sideShelfSwitch.checked; }));
 const legSlider = document.getElementById('leg');
-legSlider.addEventListener('input', () => {
-  state.LEG = Number(legSlider.value);
-  document.getElementById('legValue').textContent = state.LEG;
-  show(state.option);
-});
+legSlider.addEventListener('input', () => changeSettings(s => { s.LEG = Number(legSlider.value); }));
 // The cupboard and dresser colours: named colours to compare, or "Other
 // colours…", which shows a second dropdown of popular cupboard colours and
 // every RAL colour by family. ◀ and ▶ step between the named ones.
@@ -2160,11 +2142,7 @@ function colourPicker(target, [selectId, otherId, otherRowId, prevId, nextId, sw
     const colour = colourOf(shownCode(target));
     document.getElementById(swatchId).style.background = colour ? colour.hex : 'transparent';
   });
-  const pick = code => {
-    setRal(target, code);
-    refreshColours();                                           // anything following it changes too
-    show(state.option);                                                // keeps the address up to date
-  };
+  const pick = code => changeSettings(() => setRal(target, code));   // anything following it changes too
   // "Other colours…" starts on the other dropdown's current choice
   select.addEventListener('change', () => pick(select.value === OTHER ? Number(other.value) : Number(select.value)));
   other.addEventListener('change', () => pick(Number(other.value)));
@@ -2203,10 +2181,7 @@ function setShelfWood(i) {
   document.getElementById('shelfSwatch').style.background = shelves;
 }
 setShelfWood(state.shelfWood);
-shelfSelect.addEventListener('change', () => {
-  setShelfWood(Number(shelfSelect.value));
-  show(state.option);                                                  // keeps the address up to date
-});
+shelfSelect.addEventListener('change', () => changeSettings(s => { s.shelfWood = Number(shelfSelect.value); }));
 
 // "Colours in this view" in the menu: a colour square for each part on show,
 // read from the model's own materials so it follows the choices above. Parts
@@ -2249,24 +2224,16 @@ palette.addEventListener('toggle', () => {
 });
 
 const shelfSlider = document.getElementById('shelfDepth');
-shelfSlider.addEventListener('input', () => {
-  state.shelfDepth = Number(shelfSlider.value);
-  document.getElementById('shelfDepthValue').textContent = state.shelfDepth;
-  show(state.option);
-});
+shelfSlider.addEventListener('input', () => changeSettings(s => { s.shelfDepth = Number(shelfSlider.value); }));
 // The TV size, one of TV_SIZES by its place in the list
 const tvSlider = document.getElementById('tvSize');
-function setTvSize(k) {
-  state.tv = TV_SIZES[k][0];
-  benchHeights();                                               // its width and height, and the top shelf may move with it
-  tvSlider.value = String(k);
-  document.getElementById('tvSizeValue').textContent = `${state.tv}" (${TV_W} × ${TV_H})`;
-}
 // The dresser's sliders
 // sizes: { key: mm } for any of the slider keys, each held to its slider's range
 function setDresser(sizes) {
   for (const [k, , lo, hi] of DRESSER_SLIDERS) if (Number.isFinite(sizes[k])) state.dresser[k] = Math.min(hi, Math.max(lo, sizes[k]));
   placeDresser();
+}
+function showDresser() {
   for (const [k, id] of DRESSER_SLIDERS) {                       // the upper depth may have been held to the base's
     document.getElementById(id).value = String(state.dresser[k]);
     document.getElementById(`${id}Value`).textContent = state.dresser[k];
@@ -2274,10 +2241,7 @@ function setDresser(sizes) {
   showDresserPick();
 }
 for (const [key, id] of DRESSER_SLIDERS) {
-  document.getElementById(id).addEventListener('input', e => {
-    setDresser({ [key]: Number(e.target.value) });
-    show(state.option);
-  });
+  document.getElementById(id).addEventListener('input', e => changeSettings(() => setDresser({ [key]: Number(e.target.value) })));
 }
 // The Dresser dropdown: the dressers in dressers.js, or Custom when
 // the sliders match none of them
@@ -2289,12 +2253,8 @@ function showDresserPick() {
   const match = Object.entries(DRESSERS).find(([, d]) => DRESSER_SLIDERS.every(([k]) => d[k] === state.dresser[k]));
   dresserPick.value = match ? match[0] : '';
 }
-setDresser(state.dresser);                                            // the sliders to the starting dresser
-dresserPick.addEventListener('change', () => {
-  setDresser(DRESSERS[dresserPick.value]);
-  show(state.option);
-  viewKit.refresh();                                            // looking at the dresser: at it as it is now
-});
+// Looking at the dresser: at it as it is now
+dresserPick.addEventListener('change', () => changeSettings(() => setDresser(DRESSERS[dresserPick.value]), { look: true }));
 // The sofa: none, or one from the list, and how far its front is from the TV wall
 const sofaPick = document.getElementById('sofaPick'), sofaSlider = document.getElementById('sofaFront');
 sofaPick.append(Object.assign(document.createElement('option'), { value: '', textContent: 'None' }),
@@ -2317,29 +2277,15 @@ function showSofa() {
 // sizes: { key: mm } for any of the slider keys, each held to its slider's range
 function setSofaSize(sizes) {
   for (const [k, , lo, hi] of SOFA_SLIDERS) if (Number.isFinite(sizes[k])) state.sofa.size[k] = Math.min(hi, Math.max(lo, sizes[k]));
-  showSofa();
 }
-showSofa();
 for (const [key, id] of SOFA_SLIDERS) {
-  document.getElementById(id).addEventListener('input', e => {
-    setSofaSize({ [key]: Number(e.target.value) });
-    show(state.option);
-    viewKit.refresh();
-  });
+  document.getElementById(id).addEventListener('input', e => changeSettings(() => setSofaSize({ [key]: Number(e.target.value) }), { look: true }));
 }
-sofaPick.addEventListener('change', () => {
-  state.sofa.key = sofaPick.value;
-  if (SOFAS[state.sofa.key]) state.sofa.size = sofaOwnSize(SOFAS[state.sofa.key]);
-  showSofa();
-  show(state.option);
-  viewKit.refresh();
-});
-sofaSlider.addEventListener('input', () => {
-  state.sofa.front = Number(sofaSlider.value);
-  showSofa();
-  show(state.option);
-  viewKit.refresh();
-});
+sofaPick.addEventListener('change', () => changeSettings(s => {
+  s.sofa.key = sofaPick.value;
+  if (SOFAS[s.sofa.key]) s.sofa.size = sofaOwnSize(SOFAS[s.sofa.key]);
+}, { look: true }));
+sofaSlider.addEventListener('input', () => changeSettings(s => { s.sofa.front = Number(sofaSlider.value); }, { look: true }));
 // Cupboard only: the rest of the room hidden, and the cupboard's dimensions shown
 document.getElementById('cupboardOnly').addEventListener('change', e => {
   cupboardOnly = e.target.checked;
@@ -2349,11 +2295,7 @@ document.getElementById('cupboardOnly').addEventListener('change', e => {
 });
 // The bench: drawn, or not (and nothing above it)
 const benchSwitch = document.getElementById('benchOn');
-benchSwitch.addEventListener('change', () => {
-  state.benchOn = benchSwitch.checked;
-  show(state.option);
-  viewKit.refresh();
-});
+benchSwitch.addEventListener('change', () => changeSettings(s => { s.benchOn = benchSwitch.checked; }, { look: true }));
 // Option 7's shelves: a list of tops for each leg, 100 up to just under the
 // ceiling (none is fine)
 const shelfInputs = { back: document.getElementById('shelvesBack'), left: document.getElementById('shelvesLeft') };
@@ -2361,32 +2303,15 @@ const readShelves = text => [...new Set(String(text).split(/[^0-9]+/).map(Number
 function showShelves() {
   for (const k of ['back', 'left']) shelfInputs[k].value = state.L_SHELVES[k].join(', ');
 }
-for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => {
-  state.L_SHELVES[k] = readShelves(shelfInputs[k].value);
-  showShelves();
-  show(state.option);
-});
+for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => changeSettings(s => { s.L_SHELVES[k] = readShelves(shelfInputs[k].value); }));
 // The island: where it is, or against the front wall
-document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListener('change', () => {
-  state.island.at = r.value;
-  placeIsland();
-  show(state.option);
-  viewKit.refresh();
-}));
+document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.island.at = r.value; }, { look: true })));
 // Out there: the island's middle, and how far it's turned
 for (const [k, id] of [['x', 'islandX'], ['y', 'islandY'], ['turn', 'islandTurn']]) {
-  document.getElementById(id).addEventListener('input', e => {
-    state.island.move[k] = Number(e.target.value);
-    placeIsland();
-    show(state.option);
-  });
+  document.getElementById(id).addEventListener('input', e => changeSettings(s => { s.island.move[k] = Number(e.target.value); }));
 }
 // On the front wall: the dresser, a larder or nothing; and which larder
-document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => {
-  state.frontPiece = r.value;
-  show(state.option);
-  viewKit.refresh();
-}));
+document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.frontPiece = r.value; }, { look: true })));
 // The Larder dropdown: the larders in larders.js, or Custom when the
 // sliders have changed its sizes (it keeps that larder's front)
 const larderPick = document.getElementById('larderPick');
@@ -2396,7 +2321,6 @@ larderPick.append(larderCustom, ...Object.entries(LARDERS).map(([id, L]) =>
 // sizes: { key: mm } for any of the slider keys, each held to its slider's range
 function setLarderSize(sizes) {
   for (const [k, , lo, hi] of LARDER_SLIDERS) if (Number.isFinite(sizes[k])) state.larder.size[k] = Math.min(hi, Math.max(lo, sizes[k]));
-  showLarder();
 }
 function showLarder() {
   const { key, size } = state.larder;
@@ -2408,33 +2332,16 @@ function showLarder() {
   larderCustom.textContent = `Custom: the ${L?.label ?? 'larder'}, resized`;
   larderPick.value = own && LARDER_SLIDERS.every(([k]) => own[k] === size[k]) ? key : '';
 }
-showLarder();
-larderPick.addEventListener('change', () => {
-  state.larder.key = larderPick.value;
-  state.larder.size = larderOwnSize(LARDERS[state.larder.key]);
-  showLarder();
-  show(state.option);
-  viewKit.refresh();
-});
+larderPick.addEventListener('change', () => changeSettings(s => {
+  s.larder.key = larderPick.value;
+  s.larder.size = larderOwnSize(LARDERS[s.larder.key]);
+}, { look: true }));
 for (const [key, id] of LARDER_SLIDERS) {
-  document.getElementById(id).addEventListener('input', e => {
-    setLarderSize({ [key]: Number(e.target.value) });
-    show(state.option);
-    viewKit.refresh();
-  });
+  document.getElementById(id).addEventListener('input', e => changeSettings(() => setLarderSize({ [key]: Number(e.target.value) }), { look: true }));
 }
-tvSlider.addEventListener('input', () => {
-  setTvSize(Number(tvSlider.value));
-  show(state.option);
-});
-document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => {
-  state.above = Number(r.value);
-  show(state.option);
-}));
-document.querySelectorAll('input[name=front]').forEach(r => r.addEventListener('change', () => {
-  state.F = Number(r.value);
-  show(state.option);
-}));
+tvSlider.addEventListener('input', () => changeSettings(s => { s.tv = TV_SIZES[Number(tvSlider.value)][0]; }));
+document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.above = Number(r.value); })));
+document.querySelectorAll('input[name=front]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.F = Number(r.value); })));
 
 let xray = false;
 document.getElementById('xray').addEventListener('click', e => {
@@ -2652,9 +2559,10 @@ resize();
 workOffline('sw.js');
 
 // Every control in step with state: the sliders, radio buttons, switches
-// and dropdowns, the reverse of their listeners above. The colours, the
-// shelves' wood, the dresser's place and the island go on the model too.
-// The option's own controls, and the things to store's, are show()'s.
+// and dropdowns, the reverse of their listeners above, which all go through
+// changeSettings(). The colours, the shelves' wood, the dresser's place and
+// the island go on the model too. The option's own controls, and the things
+// to store's, are show()'s.
 function syncControls() {
   const { T, R, F, BOARD, BENCH, above, shelfDepth, benchOn, tv, frontPiece, island } = state;
   const slide = (id, value, text = value) => {
@@ -2679,7 +2587,8 @@ function syncControls() {
   refreshColours();
   setShelfWood(state.shelfWood);
   check('frontPiece', frontPiece);
-  setDresser(state.dresser);
+  placeDresser();
+  showDresser();
   showLarder();
   showSofa();
   check('islandAt', island.at);

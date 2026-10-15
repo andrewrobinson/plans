@@ -48,7 +48,7 @@ step applies those choices to `living_room.js`, `floor.js` and the kit.
 
 One kind of change per commit, a file at a time, `npm test` after each.
 
-### Where it's got to (15 Oct 2026)
+### Where it's got to (15 Oct 2026, later)
 
 On the `refactor` branch, a commit each, and on main up to "the handles'
 heights named":
@@ -69,9 +69,15 @@ heights named":
   `wardCarcass()`, `wardDoors()`; `cornerCarcass()`,
   `cornerDoorsToKitchen()`, `cornerDoorsToWindows()`), drawing in the
   same order so the cutting lists don't change. The other options'
-  `build()`s were already short, as is `fullHeightL()`.
-- Left: one function for changing the
-  settings; each file's opening comment; `board()` could take
+  `build()`s were already short, as is `fullHeightL()`. One function
+  changes the settings: every settings control calls `changeSettings(edit,
+  { option, look })`, which changes `state`, puts every control in step
+  (`syncControls()`), shows the option and, with `look`, refreshes the
+  view; `setDepth()` and `setTvSize()` are gone, and `setDresser()`,
+  `setSofaSize()` and `setLarderSize()` only change `state`. Not through
+  it: the door sliders and view switches (not settings), and the things
+  to store, which have their own (`drawStored()`).
+- Left: each file's opening comment; `board()` could take
   `{ from, to }` as `box()` now does.
 
 Scripts that rename only in code (not comments or strings) and rewrite
