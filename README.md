@@ -61,14 +61,16 @@ The notes:
 - **Downstairs**, from the first floor plan, estimated: the stairs' foot,
   your (internal) door into it and the lobby shared with the downstairs
   neighbour, with its external door; both doors on sliders in the Doors
-  menu. A **shoe rack** at the foot, an open rack of shelves (600 wide,
-  200 deep, 1200 high to start), against the outside wall clear of the
-  internal door's swing; its sizes, place and turn are sliders in **The
+  menu. A **shoe rack** at the foot, an open rack of shelves (430 wide,
+  190 deep, 1240 high to start), in the corner of the back wall and the
+  outside wall, under the window; its sizes, place and turn are sliders in **The
   shoe rack (downstairs)** in Other options. Its shelves slope down to the
   back (30° to start, a slider), and it says how long a shoe fits along
   them, with a pair of UK 11 shoes shown on the bottom shelf. **Bevel for
-  the door** stands it in the corner furthest from the internal door and
-  cuts its front-left corner clear of the door's swing.
+  the door** stands it with its back to the window, as far right as it goes
+  looking down the stairs, and cuts off its front-left corner by two
+  sliders; the menu says how far the internal door then opens (73.5°
+  without the cut, 78.5° with it as it starts, at most about 83.5°).
 - **The pine cupboard** can be switched off in the bedroom, and on in
   the living room in place of the bench, as the bookcase can.
 - **The bedroom mirror** can be switched off too (**In the bedroom**, under
