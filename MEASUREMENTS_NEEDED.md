@@ -94,6 +94,11 @@ across the hallway and through the door frames fix where each room sits.
       width; door width, height and thickness; frame height; which side the
       hinges are on; which way it opens. The drawing shows it opening into
       the room, hinged on the side away from the kitchen.
+- [x] **The furniture:** bookcase, free-standing cupboard, bed and mattress,
+      measured 15 Oct 2026 (sizes in `PLAN.md`, "The other room's
+      furniture").
+- [ ] **Where the furniture stands now** (optional, for an "as it is"
+      scene): each piece's distance from the two walls nearest it.
 - [ ] **Anything fixed** that a cupboard or furniture would have to clear:
       sockets, switches, pipes, skirting height and depth, coving, a picture
       rail.

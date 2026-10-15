@@ -23,6 +23,26 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    (below), into `floor.js`. This is when the engine takes each room's
    `build(group)` and the address gets a room's name in front of each part
    (`REFACTOR_PLAN.md`, "When a second room comes").
+   Its furniture, below, comes with it.
+
+### The other room's furniture (measured 15 Oct 2026)
+
+The user wants the bookcase and the cupboard resizable with sliders and
+movable around the room, as the living room's sofa and larders are; the
+bed is a fixed size. Sizes in mm, width × depth × height:
+
+| Piece | Size | Colour | Adjustable |
+|---|---|---|---|
+| Bookcase, open shelves | 1490 × 290 × 1220 | dark brown | sliders and position |
+| Free-standing cupboard: three doors over five drawers, cornice on top | 1300 × 500 × 1790; stands 560 out from the wall (the cornice, the carpet and its lean) | pine | sliders and position |
+| Bed base | 1360 × 1940, 350 high off the carpet | | position only |
+| Mattress, on the bed | 1360 × 1940, 260 thick (top at 610) | | fixed |
+
+Where they stand now, from a photo (to confirm): the cupboard against the
+kitchen-side wall, near the chimney breast corner; the bookcase against
+the chimney breast face, beside the recess cupboards; the bed in the
+middle of the room. The recess's fitted cupboards are measured too
+(`MEASUREMENTS_NEEDED.md`, section 2) and are fixed.
 
 Smaller pieces, any time:
 
