@@ -108,6 +108,7 @@
     <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
       <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
       <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
+      <label><input type="radio" name="frontPiece" value="bookshelf"> Bookshelf</label>
       <label><input type="radio" name="frontPiece" value="none"> Nothing</label>
     </div>
     <div id="dresserBlock">
@@ -134,6 +135,10 @@
       <label for="larderD">Larder depth: <span id="larderDValue">510</span></label>
       <input id="larderD" type="range" min="300" max="700" step="10" value="510">
     </div>
+    <div id="bookshelfBlock">
+      <div class="hint">The bedroom's bookcase, at its bedroom sizes: these sliders and the Bedroom options' are the same. It's not in the bedroom while it's here, nor on the back wall.</div>
+      <div id="bookshelfSizes"></div>
+    </div>
   </details>
   <details class="sec" id="secSofa" open>
     <summary>Sofa</summary>
@@ -156,6 +161,15 @@
     <summary>The back wall: bench, TV and shelves</summary>
     <label class="switch"><input type="checkbox" id="benchOn" checked> Bench</label>
     <label class="switch" title="The bedroom's bookcase against the back wall, in place of the bench"><input type="checkbox" id="bookshelfOn"> Bookshelf</label>
+    <div id="bookshelfMoveBlock" class="depth">
+      <label for="bookshelfX">Bookshelf back's middle from the left wall: <span id="bookshelfXValue"></span></label>
+      <input id="bookshelfX" type="range">
+      <label for="bookshelfY">Bookshelf back's middle from the back wall: <span id="bookshelfYValue"></span></label>
+      <input id="bookshelfY" type="range">
+      <label for="bookshelfTurn">Bookshelf turned: <span id="bookshelfTurnValue"></span></label>
+      <input id="bookshelfTurn" type="range">
+      <div class="row"><button id="bookshelfHome">Reset location</button></div>
+    </div>
     <div id="benchDetails">
     <div id="bench" class="depth">Bench height:
       <label><input type="radio" name="bench" value="700"> 700</label>

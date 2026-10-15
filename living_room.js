@@ -26,7 +26,7 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
-import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
+import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, HALLWAY, hallway } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
@@ -224,6 +224,7 @@ const state = {
   SIDE_D: 330,                     // ...and its depth from the back wall, 150 to 800
   benchOn: true,                   // the bench drawn, with what's above it; off, the back wall's bare
   bookshelfOn: false,              // the bedroom's bookcase on the back wall in place of the bench (and what's above it), which is then off whatever benchOn says
+  bookshelfMove: null,             // ...and moved round the room from there: { x, y, turn } (see bookshelfHome()), or null where it starts
   BENCH: 780,                      // the bench's height: 700, 780, 800 or 900
   above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
   shelfDepth: 250,                 // the shelves above the bench: 150 to 400 deep
@@ -815,13 +816,17 @@ function placePiece(g) {
   g.add(sub);
   return sub;
 }
-// On the front wall between the sink and the desk: the dresser, a larder or
-// nothing, in every option but the current room
-const FRONT_PIECES = ['dresser', 'larder', 'none'];
+// On the front wall between the sink and the desk: the dresser, a larder,
+// the bedroom's bookcase or nothing, in every option but the current room.
+// Their order is their code in the address, so the bookshelf, added later,
+// is last.
+const FRONT_PIECES = ['dresser', 'larder', 'none', 'bookshelf'];
 const pieces = { dresser: null, larder: null, sofa: null };   // where each is drawn now, to look at
 const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;
 const frontGap = () => DESK_RECESS.x0 - frontFrom();             // 1415
-const larderFrontX0 = L => Math.round(frontFrom() + (frontGap() - L.w) / 2);
+const frontX0 = w => Math.round(frontFrom() + (frontGap() - w) / 2);   // a piece w wide, centred there
+const larderFrontX0 = L => frontX0(L.w);
+const widerThanFrontGap = w => (w > frontGap() ? ` It's ${w - frontGap()} wider than the ${frontGap()} of wall there.` : '');
 // Where the island stands, in any option: where it is ('room'), or against
 // the front wall between the sink and the desk, in place of the dresser or
 // larder: its end against the wall and its long side running out into the
@@ -910,12 +915,30 @@ function frontWall(g, i) {
   }
   if (i === CURRENT) return '';
   if (state.frontPiece === 'dresser') return dresser(pieces.dresser = placePiece(g));
+  if (state.frontPiece === 'bookshelf') return bookcaseOnFrontWall(g);
   const L = currentLarder();
   if (state.frontPiece !== 'larder' || !L) return '';
   const x0 = larderFrontX0(L);
   const text = larder(pieces.larder = placePiece(g), L, x0);
-  return ` A larder on the front wall between the sink and the desk (x ${x0}-${x0 + L.w}): the ${text}.` +
-    (L.w > frontGap() ? ` It's ${L.w - frontGap()} wider than the ${frontGap()} of wall there.` : '');
+  return ` A larder on the front wall between the sink and the desk (x ${x0}-${x0 + L.w}): the ${text}.` + widerThanFrontGap(L.w);
+}
+// There's one bookcase, so it's in one place: on the back wall (the
+// Bookshelf switch), on the front wall (chosen there, and drawn there: not
+// in the current room, nor with the island against that wall), or else in
+// the bedroom. Choosing either place takes it from the other (their
+// listeners below); an address with both has it on the back wall.
+const bookcaseFrontDrawn = () => state.frontPiece === 'bookshelf' && !state.bookshelfOn && state.option !== CURRENT && !islandOnWall();
+const bookcaseInLivingRoom = () => state.bookshelfOn || bookcaseFrontDrawn();
+// The bedroom's bookcase on the front wall between the sink and the desk,
+// at its bedroom sizes: its back to the wall, centred there
+function bookcaseOnFrontWall(g) {
+  if (state.bookshelfOn) return ' Nothing on the front wall between the sink and the desk: the bookcase is on the back wall.';
+  const { w, d, h } = state.otherRoom.bookcase, x0 = frontX0(w);
+  const piece = bookcase({ w, d, h });                           // drawn with its back's middle at its origin, facing out
+  piece.position.set((x0 + w / 2) * MM, 0, ROOM_DEPTH * MM);
+  piece.rotation.y = Math.PI;                                    // facing into the room
+  g.add(piece);
+  return ` The bedroom's bookcase on the front wall between the sink and the desk (x ${x0}-${x0 + w}): ${w} wide, ${d} deep, ${h} high.` + widerThanFrontGap(w);
 }
 // The front-wall piece's span and heights, for the 2D dimensions
 function frontSpan() {
@@ -925,6 +948,10 @@ function frontSpan() {
   }
   if (state.option === CURRENT) return null;
   if (state.frontPiece === 'dresser') return { x0: state.dresser.x0, x1: state.dresser.x1, heights: [0, state.dresser.baseH, state.dresser.h] };
+  if (state.frontPiece === 'bookshelf') {
+    const { w, h } = state.otherRoom.bookcase;
+    return bookcaseFrontDrawn() ? { x0: frontX0(w), x1: frontX0(w) + w, heights: [0, h] } : null;
+  }
   const L = currentLarder();
   if (state.frontPiece !== 'larder' || !L) return null;
   return { x0: larderFrontX0(L), x1: larderFrontX0(L) + L.w, heights: [0, larderHeight(L)] };
@@ -1213,10 +1240,12 @@ function aboveHeights(x0) {
 }
 
 // Heights up the back wall, for the back view: the bench and what's above
-// it, or the bookcase's top in its place, or nothing with neither
+// it, or the bookcase's top in its place (unless it's been moved off the
+// wall), or nothing with neither
 function backWallHeights(option) {
   if (benchDrawn()) return [state.BENCH, ...aboveHeights(option.clearFrom())];
-  return state.bookshelfOn ? [state.otherRoom.bookcase.h] : [];
+  const againstWall = !state.bookshelfMove || (state.bookshelfMove.y === 0 && state.bookshelfMove.turn === 0);
+  return state.bookshelfOn && againstWall ? [state.otherRoom.bookcase.h] : [];
 }
 
 function updateDims() {
@@ -1929,18 +1958,30 @@ function chooseOption(i) {
 // The bench is drawn when it's on and the bookshelf isn't in its place
 const benchDrawn = () => state.benchOn && !state.bookshelfOn;
 
-// The bedroom's bookcase against the back wall in place of the bench (the
-// menu's Bookshelf), at its bedroom sizes: centred on the clear wall from
-// x0, as the TV is, or against the cupboards if it's wider than that wall.
-// Returns a sentence for the summary.
+// The bedroom's bookcase in place of the bench (the menu's Bookshelf), at
+// its bedroom sizes. Where it stands: the middle of its back, room x and y,
+// and how far it's turned, in quarter turns (as in the bedroom), which way
+// it faces given in BOOKSHELF_FACING. It starts with its back to the back
+// wall, centred on the clear wall from x0, as the TV is, or against the
+// cupboards if it's wider than that wall; its sliders move it from there.
+const BOOKSHELF_FACING = { 0: 'the front wall', 90: 'the left wall', 180: 'the back wall', 270: 'the right wall' };
+function bookshelfHome(x0) {
+  const { w } = state.otherRoom.bookcase;
+  return { x: Math.max(x0 + w / 2, (x0 + ROOM_WIDTH) / 2), y: 0, turn: 0 };
+}
+const bookshelfSpot = () => state.bookshelfMove ?? bookshelfHome(OPTIONS[state.option].clearFrom());
+// Draw it, clear of the bench wall from x0. Returns a sentence for the summary.
 function bookcaseOnBenchWall(x0, g) {
   const { w, d, h } = state.otherRoom.bookcase, span = ROOM_WIDTH - x0;
-  const middle = Math.max(x0 + w / 2, (x0 + ROOM_WIDTH) / 2);
+  const { x, y, turn } = state.bookshelfMove ?? bookshelfHome(x0);
   const piece = bookcase({ w, d, h });                           // drawn with its back's middle at its origin, facing out
-  piece.position.set(middle * MM, 0, 0);
+  piece.position.set(x * MM, 0, y * MM);
+  piece.rotation.y = THREE.MathUtils.degToRad(-turn);
   g.add(piece);
+  const sizes = `The bedroom's bookcase (${w} wide, ${d} deep, ${h} high)`;
+  if (state.bookshelfMove) return ` ${sizes} in place of the bench, moved: the middle of its back at x ${x}, y ${y}, facing ${BOOKSHELF_FACING[turn]}.`;
   const where = w <= span ? `centred on the ${span} of clear wall` : `against the cupboards, ${w - span} wider than the ${span} of clear wall`;
-  return ` The bedroom's bookcase (${w} wide, ${d} deep, ${h} high) on the back wall, ${where}.`;
+  return ` ${sizes} on the back wall, ${where}.`;
 }
 
 // An option's description, with the bench off: no bench (rather than its
@@ -2027,13 +2068,16 @@ function showInMenus(option, i, aboveText) {
   shown('islandMoveBlock', state.island.at === 'room');         // moving and turning: out there only
   shown('dresserBlock', piece === 'dresser');
   shown('larderBlock', piece === 'larder');
+  shown('bookshelfBlock', piece === 'bookshelf');
+  shown('bookshelfMoveBlock', state.bookshelfOn);
+  showBookshelfPlace();                                         // where it starts follows the option's clear wall
   document.getElementById('secondLabel').textContent = option.second || '';
 }
 
 // Everything drawn round the option: dimensions, colours, the things to
 // store and the cupboard shelves round them, the cutting list, the address
 function redrawAround() {
-  drawOtherRoom(state.otherRoom, { bookcaseAway: state.bookshelfOn });   // the bedroom's furniture, bar the bookcase if it's in here
+  drawOtherRoom(state.otherRoom, { bookcaseAway: bookcaseInLivingRoom() });   // the bedroom's furniture, bar the bookcase if it's in here
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2102,7 +2146,17 @@ const ADDRESS = [
   ['bookshelfOn', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],
   ...MIRROR_ADDRESS,                                            // the bedroom's mirror
   ...RECESS_FRONTS_ADDRESS,                                     // the upper recess cupboard's drawers and mirrors
+  ['bookshelfMove', m => (m ? `${m.x}.${m.y}.${m.turn}` : BOOKSHELF_HOME), readBookshelfMove],
 ];
+// The bookshelf moved, as `x.y.turn`, or BOOKSHELF_HOME where it starts
+// (as links from before it could move keep it)
+const BOOKSHELF_HOME = 'wall';
+function readBookshelfMove(text) {
+  if (text === BOOKSHELF_HOME) return null;
+  const [x, y, turn] = text.split('.').map(v => (v ? Number(v) : NaN));
+  const fits = x >= 0 && x <= ROOM_WIDTH && y >= 0 && y <= ROOM_DEPTH && turn >= 0 && turn < 360 && turn % QUARTER_TURN === 0;
+  return fits ? { x, y, turn } : undefined;
+}
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
   return `${writeFields(ADDRESS, state)}~${storedAddress()}`;
@@ -2379,7 +2433,41 @@ benchSwitch.addEventListener('change', () => changeSettings(s => { s.benchOn = b
 // on, the Bench switch is off and can't be changed; benchOn is kept, for
 // when it's off again
 const bookshelfSwitch = document.getElementById('bookshelfOn');
-bookshelfSwitch.addEventListener('change', () => changeSettings(s => { s.bookshelfOn = bookshelfSwitch.checked; }, { look: true }));
+bookshelfSwitch.addEventListener('change', () => changeSettings(s => {
+  s.bookshelfOn = bookshelfSwitch.checked;
+  if (s.bookshelfOn && s.frontPiece === 'bookshelf') s.frontPiece = 'none';   // taken from the front wall
+}, { look: true }));
+// Moving it, and turning it in quarter turns: the first move starts from
+// where it stands; Reset location puts it back against the wall
+const BOOKSHELF_SLIDERS = [['x', 'bookshelfX', ROOM_WIDTH, 5, ''], ['y', 'bookshelfY', ROOM_DEPTH, 5, ''], ['turn', 'bookshelfTurn', 360 - QUARTER_TURN, QUARTER_TURN, '°']];
+const roundedSpot = ({ x, y, turn }) => ({ x: Math.round(x), y: Math.round(y), turn });
+for (const [k, id, max, step] of BOOKSHELF_SLIDERS) {
+  const input = Object.assign(document.getElementById(id), { min: '0', max: String(max), step: String(step) });
+  input.addEventListener('input', () => changeSettings(s => { s.bookshelfMove = { ...roundedSpot(bookshelfSpot()), [k]: Number(input.value) }; }));
+}
+document.getElementById('bookshelfHome').addEventListener('click', () => changeSettings(s => { s.bookshelfMove = null; }));
+function showBookshelfPlace() {
+  const spot = roundedSpot(bookshelfSpot());
+  for (const [k, id, , , unit] of BOOKSHELF_SLIDERS) {
+    document.getElementById(id).value = String(spot[k]);
+    document.getElementById(`${id}Value`).textContent = `${spot[k]}${unit}`;
+  }
+}
+// On the front wall, the bookcase's sizes: the bedroom's (its sliders in
+// Bedroom options), so either set changes the one bookcase
+const bookshelfSizeId = k => `bookshelf${k.toUpperCase()}`;
+document.getElementById('bookshelfSizes').innerHTML = BOOKCASE_SIZES.map(([k, lo, hi]) =>
+  `<label for="${bookshelfSizeId(k)}">Bookshelf ${SIZE_LABEL[k].toLowerCase()}: <span id="${bookshelfSizeId(k)}Value"></span></label>` +
+  `<input id="${bookshelfSizeId(k)}" type="range" min="${lo}" max="${hi}" step="10">`).join('');
+for (const [k] of BOOKCASE_SIZES) {
+  document.getElementById(bookshelfSizeId(k)).addEventListener('input', e => changeSettings(s => { s.otherRoom.bookcase[k] = Number(e.target.value); }, { look: true }));
+}
+function showBookshelfSizes() {
+  for (const [k] of BOOKCASE_SIZES) {
+    document.getElementById(bookshelfSizeId(k)).value = String(state.otherRoom.bookcase[k]);
+    document.getElementById(`${bookshelfSizeId(k)}Value`).textContent = state.otherRoom.bookcase[k];
+  }
+}
 // Option 7's shelves: a list of tops for each leg, 100 up to just under the
 // ceiling (none is fine)
 const shelfInputs = { back: document.getElementById('shelvesBack'), left: document.getElementById('shelvesLeft') };
@@ -2395,7 +2483,10 @@ for (const [k, id] of [['x', 'islandX'], ['y', 'islandY'], ['turn', 'islandTurn'
   document.getElementById(id).addEventListener('input', e => changeSettings(s => { s.island.move[k] = Number(e.target.value); }));
 }
 // On the front wall: the dresser, a larder or nothing; and which larder
-document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.frontPiece = r.value; }, { look: true })));
+document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => changeSettings(s => {
+  s.frontPiece = r.value;
+  if (s.frontPiece === 'bookshelf') s.bookshelfOn = false;     // taken from the back wall
+}, { look: true })));
 // The Larder dropdown: the larders in larders.js, or Custom when the
 // sliders have changed its sizes (it keeps that larder's front)
 const larderPick = document.getElementById('larderPick');
@@ -2709,6 +2800,7 @@ function syncControls() {
   benchSwitch.checked = benchOn && !bookshelfOn;
   benchSwitch.disabled = bookshelfOn;
   bookshelfSwitch.checked = bookshelfOn;
+  showBookshelfSizes();
   check('bench', BENCH);
   check('above', above);
   slide('shelfDepth', shelfDepth);

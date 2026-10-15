@@ -34,6 +34,13 @@ test.describe('saved addresses', () => {
     });
   }
 
+  // From before the bookshelf could move: its place left off the end
+  test('a link without the bookshelf\'s place keeps it against the wall', async ({ page }) => {
+    const [settings, ...rest] = DEFAULT.split('~');
+    await openRoom(page, [settings.replace(/-wall$/, ''), ...rest].join('~'));
+    expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
+  });
+
   test('no address gives the default page', async ({ page }) => {
     await openRoom(page);
     expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
@@ -216,8 +223,44 @@ test.describe('the controls', () => {
     await page.check('input[name=frontPiece][value="none"]');
     await expect(page.locator('#larderBlock')).toBeHidden();
     await expect(page.locator('#dresserBlock')).toBeHidden();
+    await page.check('input[name=frontPiece][value="bookshelf"]');
+    await expect(page.locator('#bookshelfBlock')).toBeVisible();
+    await expect(page.locator('#dresserBlock')).toBeHidden();
+    expect(settingsField(await hash(page), 19)).toBe('3');
+    await page.locator('#bookshelfW').fill('1200');             // the bedroom's bookcase's width (field 38's fourth)
+    expect(settingsField(await hash(page), 38).split('.')[3]).toBe('1200');
     await page.check('input[name=frontPiece][value="dresser"]');
     await expect(page.locator('#dresserBlock')).toBeVisible();
+    await expect(page.locator('#bookshelfBlock')).toBeHidden();
+  });
+
+  // One bookcase: on the front wall (front piece, field 19) or the back
+  // wall (bookshelfOn, field 41), and choosing one takes it from the other
+  test('the bookshelf is on the front wall or the back wall, not both', async ({ page }) => {
+    await page.check('input[name=frontPiece][value="bookshelf"]');
+    await page.locator('#bookshelfOn').check();
+    expect(settingsField(await hash(page), 19)).toBe('2');
+    await expect(page.locator('input[name=frontPiece][value="none"]')).toBeChecked();
+    await page.check('input[name=frontPiece][value="bookshelf"]');
+    await expect(page.locator('#bookshelfOn')).not.toBeChecked();
+    expect(settingsField(await hash(page), 41)).toBe('0');
+  });
+
+  // Its place, field 44: `wall` where it starts, else x.y.turn
+  test('the bookshelf in the bench\'s place can be moved and turned', async ({ page }) => {
+    await expect(page.locator('#bookshelfMoveBlock')).toBeHidden();
+    await page.locator('#bookshelfOn').check();
+    await expect(page.locator('#bookshelfMoveBlock')).toBeVisible();
+    expect(settingsField(await hash(page), 44)).toBe('wall');
+    await page.locator('#bookshelfY').fill('1000');
+    await expect(page.locator('#bookshelfYValue')).toHaveText('1000');
+    expect(settingsField(await hash(page), 44)).toMatch(/^\d+\.1000\.0$/);
+    await page.locator('#bookshelfTurn').fill('90');
+    await expect(page.locator('#bookshelfTurnValue')).toHaveText('90°');
+    expect(settingsField(await hash(page), 44)).toMatch(/^\d+\.1000\.90$/);
+    await page.click('#bookshelfHome');
+    expect(settingsField(await hash(page), 44)).toBe('wall');
+    await expect(page.locator('#bookshelfTurnValue')).toHaveText('0°');
   });
 
   test('the island can only be moved when it is out in the room', async ({ page }) => {

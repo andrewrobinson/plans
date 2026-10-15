@@ -129,7 +129,7 @@ export const OTHER_ROOM_START = {
 // highest, step, unit], in the menu's order under each piece's heading.
 // Turned goes in quarter turns, all that's needed to stand a piece square
 // to a wall (chosen 15 Oct 2026)
-const QUARTER_TURN = 90;
+export const QUARTER_TURN = 90;
 const PLACE = (piece) => [
   [`${piece}.u`, 'Back’s middle from the window wall', 0, OTHER_ROOM.length, 5, ''],
   [`${piece}.v`, 'Back’s middle from the hallway wall', 0, OTHER_ROOM.recessBack, 5, ''],
@@ -146,7 +146,9 @@ const SIZES = {
   cupboard: [['w', 600, 2000], ['d', 300, 700], ['h', 1200, 2400]],
   mirror: [['w', 200, 2000], ['h', 200, 2000]],
 };
-const SIZE_LABEL = { w: 'Width', d: 'Depth', h: 'Height' };
+// The bookcase's: also its sliders in the living room, on the front wall
+export const BOOKCASE_SIZES = SIZES.bookcase;
+export const SIZE_LABEL = { w: 'Width', d: 'Depth', h: 'Height' };
 const sizeSliders = piece => SIZES[piece].map(([k, lo, hi]) => [`${piece}.${k}`, SIZE_LABEL[k], lo, hi, 10, '']);
 // The menu's pieces, in order: each its heading, its size sliders and its
 // place sliders (each with a reset button, back to OTHER_ROOM_START), and
