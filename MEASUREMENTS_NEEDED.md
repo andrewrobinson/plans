@@ -32,6 +32,48 @@ into the chat. It covers sections 1 and 2 and the main sizes from 3 and 4.
 
 ## 1. Tying the rooms together (priority 1)
 
+## Where it's got to (15 Oct 2026)
+
+**Supplied** (starred * on the sheet): A 2252, B about 150, C 2221,
+AB 909, AC 150, D 1054, E 1050, Y 2330, H 3682, J 2841, K to the recess
+cupboards' fronts (2888 lower, 2769 upper), the recess cupboards (AJ, AK
+about 1810, AL 819, AM 1632), and the other room's furniture (`PLAN.md`).
+
+**Still outstanding, and important** (red ! on the sheet). Each is only a
+guess today, or could be well out:
+
+| | What | Why it matters |
+|---|---|---|
+| F, G | The thickness of the wall between the kitchen and the other room, and of the other room's door wall | Guessed (125, 120). Together with C they fix where the other room sits against the living room |
+| N, P | The other room's window: where it starts, and its width | Guessed from the drawing; could be 100 or more out |
+| Q, R | The other room's door: where it starts, and its width | Guessed (60, 760). They decide how the door swings past the bed |
+| T, U | The window's sill and top heights | Copied from the living room's windows |
+| L | Where the chimney breast ends | Worked out from the recess cupboard's width (1800 + about 10) |
+| S | The other room's ceiling height | Worked out as 2451 from the recess cupboards (819 + 1632); one check |
+
+**To check, already sent:**
+
+- **Y 2330** against 3360 scaled off the drawing: which wall was it
+  measured to? The sheet asks for the WC wall at the hallway's far end.
+- **A 2252** makes the far side's trim about 92 wide, against 71 on the
+  hinge side. The living room door's width (760) is assumed, not measured:
+  measuring it would settle which is right.
+- **The headboard**: 950 high, and said to be 360 above the 350 base. The
+  mattress's top is at 610 (350 + 260), so 950 is 340 above it. The model
+  takes 950 from the floor.
+- **Where the furniture stands now**, read from photos (`PLAN.md`): the
+  pine cupboard against the kitchen-side wall, its side up to the
+  bookcase; the bookcase against the chimney breast from the recess.
+- **The other room's hallway wall** is placed so its recess lines up with
+  the living room's sink recess (both 5751 from the living room's back
+  wall). F and G will confirm or move it.
+
+**Still outstanding, less urgent:** V (door height), AN (the radiator
+under the other room's window, seen in a photo), the hallway radiator (AD
+to AH), the stairs (W, X), the bathroom (Z, AA), and sections 3 to 5 below.
+
+---
+
 Rooms measured separately rarely add up when joined, so a few measurements
 across the hallway and through the door frames fix where each room sits.
 

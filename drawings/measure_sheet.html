@@ -31,6 +31,10 @@ h2 { font-size: 15px; margin: 18px 0 6px; }
 table { width: 100%; border-collapse: collapse; }
 td { border-top: 1px solid var(--line); padding: 7px 4px; vertical-align: top; }
 td.l { width: 52px; white-space: nowrap; }
+td.l .must { color: #c62828; font-weight: 700; font-size: 18px; line-height: 1; margin-left: 3px; vertical-align: -2px; }
+td.what .why { color: #c62828; }
+#tally { margin: 0 0 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+#tally b { font-weight: 700; }
 td.l .got { color: #2a9d4b; font-weight: 700; font-size: 20px; line-height: 1; margin-left: 3px; vertical-align: -3px; }
 td.l span { display: inline-block; min-width: 30px; text-align: center; padding: 2px 4px; border-radius: 5px; color: var(--tag-ink); font-weight: 700; background: var(--dim); }
 tr.h td.l span { background: var(--height); }
@@ -73,7 +77,8 @@ button.go { background: var(--dim); border-color: var(--dim); color: #fff; }
   </section>
 
   <section>
-    <p><b style="color:#2a9d4b">*</b> already sent to Claude: shown filled in, and left out of Copy unless you change it.</p>
+    <div id="tally"></div>
+    <p><b style="color:#2a9d4b">*</b> already sent to Claude: shown filled in, and left out of Copy unless you change it. <b style="color:#c62828">!</b> still to measure, and important: only guessed, or likely to be well out.</p>
     <p>Measure in mm, wall to wall at about waist height, to the nearest 5 or so. For doors and windows, measure to the opening (inside the frame or reveal). Leave any you can't get, and type a note after a number if you like ("2240 at floor, 2255 at ceiling").</p>
     <div id="lists"></div>
     <div class="actions">
@@ -113,6 +118,7 @@ const ITEMS = [
   { k: 'P', what: 'Window opening width', how: 'Inside the reveal', est: 1510, line: [435, 1095, 615, 1095] },
   { k: 'Q', what: 'Door: kitchen-side wall to the door opening', how: 'In the room, along the hallway wall', est: 60, mark: [362, 681, 430, 705] },
   { k: 'AJ', what: 'Fitted wardrobes: how deep', how: 'On the wall opposite the door: from their fronts to the wall behind. Note whether they run the whole wall, or where they start and end', est: 600, mark: [650, 960] },
+  { k: 'AN', what: 'Radiator under the window', how: 'From the window wall\'s corner by the hallway to its near end; its width, the floor to its bottom and top, and how far it stands out. Seen in a photo, not measured', est: 600, mark: [400, 1040] },
   { k: 'AK', what: 'Recess width', how: 'Along the recess, from the end of the chimney breast to the window wall. The cupboards in it fill it', est: 1850, mark: [712, 975] },
   { k: 'R', what: 'Door opening width', how: 'Inside the frame. Note which side the hinges are on and which way it opens (the drawing has it opening into the room, hinged at the end away from the kitchen)', est: 760, line: [372, 685, 372, 776] },
   { group: 'Heights, in the other room', h: true },
@@ -146,6 +152,22 @@ const SUPPLIED = {
   // overhanging the lower, so K could only be taken to their fronts
   H: '3682', J: '2841', K: '2888 to the lower cupboard, 2769 to the upper',
   AJ: '420 upper (1800 wide), lower about 300', AK: 'about 1810', AL: '819', AM: '1632',
+};
+
+// Outstanding measurements that matter most: only guessed (from the
+// drawing or a photo) or likely to be well out. Shown with a red !.
+const CRUCIAL = {
+  "F": "Guessed (125). With G, it fixes where the other room sits against the living room",
+  "G": "Guessed (120). With F and C, it fixes where the other room's hallway wall is",
+  "L": "Worked out from the recess cupboard (1800 + about 10), not measured",
+  "N": "Guessed from the drawing; it could be out by 100 or more",
+  "P": "Guessed from the drawing; it could be out by 100 or more",
+  "Q": "Guessed (60); it sets where the door swings, next to the bed",
+  "R": "Guessed (760), like the living room door",
+  "S": "Worked out as 2451 from the recess cupboards (819 + 1632); worth one check",
+  "T": "Copied from the living room's windows; not measured here",
+  "U": "Copied from the living room's windows; not measured here",
+  "Y": "2330 came back against 3360 from the drawing. Which wall was it measured to?",
 };
 
 const ROOMS = [['Living room', 395, 300], ['Other room', 540, 885], ['Hallway', 255, 720], ['Stairs', 120, 815], ['Bathroom', 145, 980], ['WC', 292, 1035]];
@@ -196,13 +218,30 @@ function list() {
     }
     const value = saved[it.k] || SUPPLIED[it.k] || '';
     const cls = [it.h && 'h', it.p2 && 'p2', value && 'done'].filter(Boolean).join(' ');
-    const star = SUPPLIED[it.k] ? '<b class="got" title="Already sent to Claude">*</b>' : '';
+    // a sent one can still be flagged, to check it
+    const star = (SUPPLIED[it.k] ? '<b class="got" title="Already sent to Claude">*</b>' : '') +
+      (CRUCIAL[it.k] ? '<b class="must" title="Important: to measure, or to check">!</b>' : '');
+    const why = CRUCIAL[it.k] ? `<small class="why">${CRUCIAL[it.k]}</small>` : '';
     html += `<tr class="${cls}" data-k="${it.k}"><td class="l"><span>${it.k}</span>${star}</td>` +
-      `<td class="what">${it.what}${it.how ? `<small>${it.how}</small>` : ''}</td>` +
+      `<td class="what">${it.what}${it.how ? `<small>${it.how}</small>` : ''}${why}</td>` +
       `<td class="est">≈ ${it.est}</td>` +
       `<td class="val"><input inputmode="decimal" aria-label="${it.k}, measured" placeholder="mm" value="${value.replace(/"/g, '&quot;')}"></td></tr>`;
   }
   document.getElementById('lists').innerHTML = html + '</table>';
+  showTally();
+}
+
+// How many are sent, typed in here, still to measure, and important among those
+function showTally() {
+  const items = ITEMS.filter(it => it.k);
+  const sent = items.filter(it => SUPPLIED[it.k]).length;
+  const typed = items.filter(it => !SUPPLIED[it.k] && saved[it.k]).length;
+  const left = items.filter(it => !SUPPLIED[it.k] && !saved[it.k]);
+  const important = left.filter(it => CRUCIAL[it.k]).map(it => it.k);
+  const toCheck = items.filter(it => SUPPLIED[it.k] && CRUCIAL[it.k]).map(it => it.k);
+  document.getElementById('tally').innerHTML = `<b>${sent}</b> sent to Claude, <b>${typed}</b> typed in here to send, <b>${left.length}</b> still to measure` +
+    (important.length ? `, of which <b style="color:#c62828">${important.length} important</b>: ${important.join(', ')}.` : '.') +
+    (toCheck.length ? ` To check: ${toCheck.join(', ')}.` : '');
 }
 
 draw();
@@ -215,6 +254,7 @@ document.getElementById('lists').addEventListener('input', e => {
   // a supplied value typed back unchanged isn't a new measurement
   if (v && v !== SUPPLIED[k]) saved[k] = v; else delete saved[k];
   row.classList.toggle('done', !!(v || SUPPLIED[k]));
+  showTally();
   save();
 });
 
