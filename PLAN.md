@@ -35,7 +35,7 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    Looking at offer that room's, and Bird's eye and Plan (2D) frame it
    (`room_dimensions.md`, "Views"). The bedroom's door and window views
    became places in its Where. Still to do: the measured numbers as they
-   come in (F, G, N, P, Q, R, S, T, U, W, X: `MEASUREMENTS_NEEDED.md`); the
+   come in (N, P, Q, R, S, T, U, W, X: `MEASUREMENTS_NEEDED.md`); the
    bathroom and WC; walls drawn from above in the bedroom's and hallway's
    plans (they're faces seen from inside, so the plan shows only floors);
    looking from the hallway into a room; stopping furniture at the walls;

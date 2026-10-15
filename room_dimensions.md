@@ -157,7 +157,7 @@ Drawn since 15 Oct 2026: its walls, door, window, floor and ceiling in
 measured: **u** along the hallway wall from the window wall (0) to the
 kitchen-side wall (3682), **v** from the hallway wall (0) to the chimney
 breast's face (2841) and the recess's back (3189). Its corner (u 0, v 0) is
-at living room x −4802, y 2562 (`OTHER_ROOM_CORNER`), with u along x and v
+at living room x −4827, y 2521 (`OTHER_ROOM_CORNER`), with u along x and v
 along y. Measured and estimated sizes are in `MEASUREMENTS_NEEDED.md`
 ("Where it's got to") and each constant's comment.
 
@@ -169,8 +169,8 @@ along y. Measured and estimated sizes are in `MEASUREMENTS_NEEDED.md`
 | Recess back | 3189 from the hallway wall | Upper recess cupboard's front 2769 + its 420 depth, measured |
 | Ceiling | 2451 | Lower recess cupboard 819 + upper one 1632, measured |
 | Window | 670 from the hallway wall, 1510 wide, sill 912, top 2302 | Estimated; its reveal 250 and sill 290 from the glass are measured |
-| Door | 60 from the kitchen-side wall, 760 wide, in a 120 wall; hinged away from the kitchen, opening in | Estimated; as the living room's door and frame |
-| Where it sits | Recess back in line with the living room's sink recess (5751) | Assumed until F and G are measured |
+| Door | 60 from the kitchen-side wall, 760 wide, in a 150 wall; hinged away from the kitchen, opening in | Place and width estimated, as the living room's door and frame; the wall measured (G) |
+| Where it sits | Its hallway wall behind the hallway's stepped-back wall (C + AC + G = 2521), its kitchen-side wall 150 behind the kitchen recess (F, taken as G as it can't be reached). So its recess's back is at 5710, 41 short of the living room's sink recess | Measured, but for F |
 
 Its furniture, each with sliders in the drawer's **Bedroom furniture**
 section (the bookcase and pine cupboard resized as well as moved):
@@ -198,7 +198,7 @@ from inside only, as the bedroom's, so the bird's eye looks in.
 | The living room door's wall | 150 thick, so the hallway starts at x −150 | Measured as about 150 (B); the living room draws it 100, so the doorway is lined through the other 50 |
 | Kitchen side, opposite the stairs | y 2221 | Measured from the back wall's line (C) |
 | Step back at the bedroom's door | 150, at x −1200 (1050 along from the door wall) | Measured (AC, E) |
-| The bedroom's wall, hallway side | y 2371 | C + AC. The bedroom's own side is at 2562, so the wall comes out 191 thick against G's guess of 120 |
+| The bedroom's wall, hallway side | y 2371, 150 thick (G), so the bedroom's side is at 2521 | Measured (C + AC, G) |
 | The banister | y 1312, 909 from the kitchen side | Measured (AB; D gives 1317) |
 | The far end, the WC wall | x −2480, 2330 along | Measured (Y), to check: the drawing scales 3360 |
 | The stairs | A landing 800 along at the top (the winders, simplified), then a straight flight down to the far end: 7 steps, rise 210, going about 219, wall to banister | Estimated; W and X are still to measure |

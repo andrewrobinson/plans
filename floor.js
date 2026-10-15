@@ -131,6 +131,41 @@ const OUTER = {
 }
 
 // ---------------------------------------------------------------------------
+// The hallway, from the living room's door to the bedroom's, with the top of
+// the stairs along one side, in the living room's mm (x, y as there), as
+// its measurements were taken from there: the measure sheet's letters,
+// 15 Oct 2026. Measured before the bedroom, as they place it; drawn after
+// it. Beyond its far end are the bathroom and WC, not drawn yet.
+// ---------------------------------------------------------------------------
+const HALLWAY = {
+  doorWall: 150,                   // the living room door's wall, so the hallway starts at x -150 (B, measured as about 150)
+  kitchenSide: 2221,               // y: the wall opposite the stairs, beside the kitchen, from the back wall's line (C, measured)
+  setBack: 150,                    // that wall steps back this far at the bedroom's door (AC, measured)
+  stepAlong: 1050,                 // the step, along from the door wall's hallway face (E, measured)
+  length: 2330,                    // the door wall's hallway face to the WC wall at the far end (Y, measured; to check, as the drawing scales 3360)
+  // The banister, from the kitchen side at the living room door (AB,
+  // measured). D, 1054 from the stepped-back wall, puts it 5 further: the same line
+  width: 909,
+  // The stairs: at the top, by the living room door, winders turn you into
+  // the hallway; drawn as a landing this far along (estimated from the
+  // drawing), then a straight flight down to the far end. Each step's rise
+  // and going are estimated (about 2750 floor to floor in 13 risers), as
+  // are the banister's rail height and its spindles' spacing
+  landing: 800,
+  rise: 210, going: 220,
+  rail: 900, spindles: 120,
+};
+// Where its walls are, in the living room's x and y
+HALLWAY.x0 = -HALLWAY.doorWall;                                         // the door wall's hallway face: -150
+HALLWAY.xStep = HALLWAY.x0 - HALLWAY.stepAlong;                         // where the wall steps back: -1200
+HALLWAY.xEnd = HALLWAY.x0 - HALLWAY.length;                             // the far end: -2480
+HALLWAY.xLanding = HALLWAY.x0 - HALLWAY.landing;                        // the top of the flight: -950
+HALLWAY.yBanister = HALLWAY.kitchenSide - HALLWAY.width;                // 1312
+HALLWAY.ySetBack = HALLWAY.kitchenSide + HALLWAY.setBack;               // the bedroom's wall: 2371
+HALLWAY.steps = Math.round((HALLWAY.xLanding - HALLWAY.xEnd) / HALLWAY.going);   // 7, in the flight as far as the far end
+HALLWAY.drop = HALLWAY.steps * HALLWAY.rise;                            // how far down the stairs go before the far end
+
+// ---------------------------------------------------------------------------
 // The other room (the bedroom), beyond the kitchen recess. It has its own
 // coordinates, as measured there: u along the hallway wall from the window
 // wall (0) to the kitchen-side wall (3682), v from the hallway wall (0) to
@@ -144,12 +179,12 @@ const OTHER_ROOM = {
   recessBack: 3189,                // v: to the back of the recess: the upper recess cupboard's front (2769, measured) + its depth (420, measured)
   breastLength: 1858,              // u: the chimney breast, from the kitchen-side wall to its end (L, measured), so the recess is 3682 - 1858 = 1824 wide
   ceiling: 2451,                   // the lower recess cupboard's top (819) + the upper one's height to the ceiling (1632), both measured
-  kitchenWall: 125,                // the wall between the kitchen recess and this room (F, estimated)
+  kitchenWall: 150,                // the wall between the kitchen recess and this room (F: it can't be reached, so taken as G)
   // The door, in the hallway wall: 60 from the kitchen-side wall, a 760
-  // opening, 120 thick wall (Q, R, G, all estimated); hinged at the end away
-  // from the kitchen and opening into the room (seen in photos). The door
-  // and its frame are as the living room's.
-  door: { fromKitchenWall: 60, width: 760, wall: 120 },
+  // opening (Q, R, estimated), in a 150 wall (G, measured); hinged at the
+  // end away from the kitchen and opening into the room (seen in photos).
+  // The door and its frame are as the living room's.
+  door: { fromKitchenWall: 60, width: 760, wall: 150 },
   // The window, in the window wall: 670 from the hallway wall and 1510 wide
   // (N, P, estimated from the drawing), sill and top as the living room's
   // (T, U, not yet measured). Its reveal is 250 deep, glass to the wall's
@@ -161,15 +196,15 @@ const OTHER_ROOM = {
 };
 // Its corner (window wall, hallway wall) in the living room's coordinates.
 // The kitchen-side wall stands behind the kitchen recess's back wall, the
-// wall F thick. The recess is taken to line up with the living room's sink
-// recess, both 5751 from the living room's back wall (assumed, until F and G
-// are measured), which puts the hallway wall at 5751 - 3189.
+// wall F thick; the hallway wall is G thick, behind the hallway's
+// stepped-back wall (C + AC). So its recess's back is at 5710, 41 short of
+// the living room's sink recess.
 OTHER_ROOM.recessWidth = OTHER_ROOM.length - OTHER_ROOM.breastLength;          // 1824
 OTHER_ROOM.doorTo = OTHER_ROOM.length - OTHER_ROOM.door.fromKitchenWall;       // u: the door's opening, from 2862 (its hinge side) to 3622
 OTHER_ROOM.doorFrom = OTHER_ROOM.doorTo - OTHER_ROOM.door.width;
 const OTHER_ROOM_CORNER = {
-  x: KITCHEN_RECESS_BACK_WALL_X - OTHER_ROOM.kitchenWall - OTHER_ROOM.length,   // -4802
-  y: ROOM_DEPTH + SINK_RECESS.depth - OTHER_ROOM.recessBack,                   // 2562
+  x: KITCHEN_RECESS_BACK_WALL_X - OTHER_ROOM.kitchenWall - OTHER_ROOM.length,   // -4827
+  y: HALLWAY.ySetBack + OTHER_ROOM.door.wall,                                   // 2521
 };
 const carpetMat = material(0x8f8780);             // grey-beige, from the photos
 const otherRoom = new THREE.Group();
@@ -240,38 +275,8 @@ function faceAround(length, [a0, a1], [z0, z1], height, mat, along, facing, pare
 }
 
 // ---------------------------------------------------------------------------
-// The hallway, from the living room's door to the bedroom's, with the top of
-// the stairs along one side. Drawn in the living room's mm (x, y as there),
-// as its measurements were taken from there: the measure sheet's letters,
-// 15 Oct 2026. Beyond its far end are the bathroom and WC, not drawn yet.
+// The hallway, drawn: its walls (as measured above), floor, stairs and ceiling
 // ---------------------------------------------------------------------------
-const HALLWAY = {
-  doorWall: 150,                   // the living room door's wall, so the hallway starts at x -150 (B, measured as about 150)
-  kitchenSide: 2221,               // y: the wall opposite the stairs, beside the kitchen, from the back wall's line (C, measured)
-  setBack: 150,                    // that wall steps back this far at the bedroom's door (AC, measured)
-  stepAlong: 1050,                 // the step, along from the door wall's hallway face (E, measured)
-  length: 2330,                    // the door wall's hallway face to the WC wall at the far end (Y, measured; to check, as the drawing scales 3360)
-  // The banister, from the kitchen side at the living room door (AB,
-  // measured). D, 1054 from the stepped-back wall, puts it 5 further: the same line
-  width: 909,
-  // The stairs: at the top, by the living room door, winders turn you into
-  // the hallway; drawn as a landing this far along (estimated from the
-  // drawing), then a straight flight down to the far end. Each step's rise
-  // and going are estimated (about 2750 floor to floor in 13 risers), as
-  // are the banister's rail height and its spindles' spacing
-  landing: 800,
-  rise: 210, going: 220,
-  rail: 900, spindles: 120,
-};
-// Where its walls are, in the living room's x and y
-HALLWAY.x0 = -HALLWAY.doorWall;                                         // the door wall's hallway face: -150
-HALLWAY.xStep = HALLWAY.x0 - HALLWAY.stepAlong;                         // where the wall steps back: -1200
-HALLWAY.xEnd = HALLWAY.x0 - HALLWAY.length;                             // the far end: -2480
-HALLWAY.xLanding = HALLWAY.x0 - HALLWAY.landing;                        // the top of the flight: -950
-HALLWAY.yBanister = HALLWAY.kitchenSide - HALLWAY.width;                // 1312
-HALLWAY.ySetBack = HALLWAY.kitchenSide + HALLWAY.setBack;               // the bedroom's wall: 2371
-HALLWAY.steps = Math.round((HALLWAY.xLanding - HALLWAY.xEnd) / HALLWAY.going);   // 7, in the flight as far as the far end
-HALLWAY.drop = HALLWAY.steps * HALLWAY.rise;                            // how far down the stairs go before the far end
 // The bedroom's doorway, its frame's outer edges in the living room's x
 // (OTHER_ROOM is in the bedroom's own u, v), and where its frame starts
 // through the wall, on the hallway side
@@ -302,10 +307,12 @@ floor.add(hallway);
   face(ySetBack - kitchenSide, CEILING_HEIGHT, [xStep, (kitchenSide + ySetBack) / 2, CEILING_HEIGHT / 2], '-u');
   const doorway = [xStep - Math.min(xStep, bedroomDoor[1]), xStep - bedroomDoor[0]];   // along the wall from the step
   faceAround(xStep - xEnd, doorway, [0, FRAME_H], CEILING_HEIGHT, wallMat, a => [xStep - a, ySetBack], '-v', hallway);
-  const lining = bedroomFrameBack - ySetBack;
-  face(lining, FRAME_H, [bedroomDoor[0], ySetBack + lining / 2, FRAME_H / 2], '+u');
-  face(lining, FRAME_H, [xStep, ySetBack + lining / 2, FRAME_H / 2], '-u');
-  face(doorway[1] - doorway[0], lining, [xStep - (doorway[0] + doorway[1]) / 2, ySetBack + lining / 2, FRAME_H], '-u').rotation.set(Math.PI / 2, 0, 0);
+  const lining = bedroomFrameBack - ySetBack;                   // none, now G is measured: the frame runs through the wall
+  if (lining > 0) {
+    face(lining, FRAME_H, [bedroomDoor[0], ySetBack + lining / 2, FRAME_H / 2], '+u');
+    face(lining, FRAME_H, [xStep, ySetBack + lining / 2, FRAME_H / 2], '-u');
+    face(doorway[1] - doorway[0], lining, [xStep - (doorway[0] + doorway[1]) / 2, ySetBack + lining / 2, FRAME_H], '-u').rotation.set(Math.PI / 2, 0, 0);
+  }
 
   // The far end, and the outside wall behind the stairs, both on down into
   // the stairwell

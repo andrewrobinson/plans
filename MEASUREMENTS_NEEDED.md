@@ -39,24 +39,23 @@ AB 909, AC 150, D 1054, E 1050, Y 2330, H 3682, J 2841, K to the recess
 cupboards' fronts (2888 lower, 2769 upper), the recess cupboards (AJ, AK
 about 1810, AL 819, AM 1632), and the other room's furniture (`PLAN.md`).
 Later on 15 Oct 2026: L 1858 (so the recess is 1824 wide), the window's
-reveal 250 deep (AP) and its sill 290 from the glass (AQ).
+reveal 250 deep (AP) and its sill 290 from the glass (AQ). That evening:
+G 150; F can't be reached, so it's taken as 150 too.
 
 **The hallway is drawn from these** (15 Oct 2026, `room_dimensions.md`,
-"The hallway"). Two things they show:
-
-- C + AC put the hallway's face of the bedroom's wall at 2371 from the
-  living room's back wall line, and the bedroom is placed with its side of
-  that wall at 2562: the wall comes out 191 thick, against G's guess of
-  120. F and G will say which is out.
-- E puts the bedroom doorway's near edge 1050 along, at the step. The
-  model's door, from Q and R (both guessed), comes 20 short of it.
+"The hallway"), and **they place the other room**: its hallway wall's
+room side at C + AC + G = 2521 from the living room's back wall line (it
+was assumed at 2562, lining its recess up with the living room's sink
+recess; it's now 41 short of that), and its window wall F + H beyond the
+kitchen recess, at x −4827. E puts the doorway's near edge 1050 along, at
+the step in the hallway wall; the model's door, from Q and R (both
+guessed), comes 20 short of it.
 
 **Still outstanding, and important** (red ! on the sheet). Each is only a
 guess today, or could be well out:
 
 | | What | Why it matters |
 |---|---|---|
-| F, G | The thickness of the wall between the kitchen and the other room, and of the other room's door wall | Guessed (125, 120). Together with C they fix where the other room sits against the living room |
 | N, P | The other room's window: where it starts, and its width | Guessed from the drawing; could be 100 or more out. N can't be reached from the hallway side: measure from the recess corner instead |
 | Q, R | The other room's door: where it starts, and its width | Guessed (60, 760). They decide how the door swings past the bed |
 | T, U | The window's sill and top heights | Copied from the living room's windows |
@@ -75,9 +74,6 @@ guess today, or could be well out:
 - **Where the furniture stands now**, read from photos (`PLAN.md`): the
   pine cupboard against the kitchen-side wall, its side up to the
   bookcase; the bookcase against the chimney breast from the recess.
-- **The other room's hallway wall** is placed so its recess lines up with
-  the living room's sink recess (both 5751 from the living room's back
-  wall). F and G will confirm or move it.
 
 **Still outstanding, less urgent:** V (door height), AN (the radiator
 under the other room's window, seen in a photo), the hallway radiator (AD
@@ -108,15 +104,14 @@ across the hallway and through the door frames fix where each room sits.
       far it is from the outside wall (the wall the stairs run along) to the
       hallway wall opposite. Does the outside wall line up with the living
       room's back wall, or step in or out?
-- [ ] **The other room's door frame:** the thickness of the wall it's in, and
+- [x] **The other room's door frame:** the thickness of the wall it's in, and
       the distance along the hallway from the living room door frame's far
       edge to the near edge of the other room's door frame. **Along the
       hallway, 1050** (E, from the hallway face of the living room door's
-      wall); the thickness is still to measure.
-- [ ] **The wall between the kitchen recess and the other room:** its
+      wall); **the wall 150** (G).
+- [x] **The wall between the kitchen recess and the other room:** its
       thickness, if it can be found, e.g. from the other room's door
-      frame or a socket box. Otherwise the two measurements in section 2
-      that run to it.
+      frame or a socket box. **It can't be reached: taken as 150**, as G.
 
 ## 2. The other room (priority 1)
 
