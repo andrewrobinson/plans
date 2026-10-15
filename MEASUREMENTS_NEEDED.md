@@ -75,8 +75,7 @@ guess today, or could be well out:
   pine cupboard against the kitchen-side wall, its side up to the
   bookcase; the bookcase against the chimney breast from the recess.
 
-**Still outstanding, less urgent:** V (door height), AN (the radiator
-under the other room's window, seen in a photo), the hallway radiator (AD
+**Still outstanding, less urgent:** V (door height), the hallway radiator (AD
 to AH), the stairs (W, X), the bathroom (Z, AA), and sections 3 to 5 below.
 
 ---
@@ -139,8 +138,11 @@ across the hallway and through the door frames fix where each room sits.
       depth; the reveal's depth (wall thickness at the window). **Measured
       15 Oct 2026:** 655 from the hallway wall, 1540 wide, sill 990 (25
       thick), top 2270, reveal 250, sill 290 from the glass.
-- [ ] **Radiator,** if any: position along the wall, width, height, how far
-      it stands off the wall, and its height off the floor.
+- [x] **Radiator,** if any: position along the wall, width, height, how far
+      it stands off the wall, and its height off the floor. **Measured 15 Oct
+      2026:** 1000 wide, 600 high (270 to 870 off the floor, 95 under the
+      sill), 105 thick, 135 out from the wall; 290 from the opening's
+      hallway side and 255 from the other. The sill is 1590 across.
 - [ ] **Door:** distance from the kitchen-side wall to the opening; opening
       width; door width, height and thickness; frame height; which side the
       hinges are on; which way it opens. The drawing shows it opening into

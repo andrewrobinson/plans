@@ -190,10 +190,16 @@ const OTHER_ROOM = {
   // (N, P), the sill's top at 990 and 25 thick, and the opening's top at
   // 2270 (T, U). Its reveal is 250 deep, glass to the wall's face, and the
   // sill 290 from the glass to its front edge, so the sill stands 40 out
-  // from the wall. All measured
-  window: { from: 655, width: 1540, sill: 990, sillThick: 25, top: 2270, reveal: 250, sillDepth: 290 },
-  // A radiator under it, seen in a photo; its size as the living room's (estimated)
-  radiator: { width: 600, bottom: 240, top: 840, out: 132, thick: 100 },
+  // from the wall. The sill is 1590 across, centred on the opening. All
+  // measured. (A later 1355 "across the recess" doesn't fit the radiator's
+  // gaps below, which add up to the 1540, so 1540 stands.)
+  window: { from: 655, width: 1540, sill: 990, sillThick: 25, top: 2270, reveal: 250, sillDepth: 290, sillWidth: 1590 },
+  // The radiator under it, all measured 15 Oct 2026: 1000 wide, 270 to 870
+  // off the floor (so 95 under the sill), 105 thick, its front 135 out from
+  // the wall. It's off-centre: 290 from the opening's hallway side (on the
+  // right, facing the window) and 255 from the other, 5 more than the 1540
+  // leaves, so it's placed from the hallway side.
+  radiator: { width: 1000, bottom: 270, top: 870, out: 135, thick: 105, fromHallwaySide: 290 },
 };
 // Its corner (window wall, hallway wall) in the living room's coordinates.
 // The kitchen-side wall stands behind the kitchen recess's back wall, the
@@ -272,8 +278,9 @@ function faceAround(length, [a0, a1], [z0, z1], height, mat, along, facing, pare
   insideFace(win.reveal, win.top - win.sill, wallMat, [-win.reveal / 2, w1, (win.sill + win.top) / 2], '-v');
   const revealTop = insideFace(win.reveal, win.width, wallMat, [-win.reveal / 2, mid, win.top], '+u');
   revealTop.rotation.set(Math.PI / 2, 0, 0);                     // lying flat, facing down
-  box({ from: [-win.reveal, w0 - 30, win.sill - win.sillThick], to: [win.sillDepth - win.reveal, w1 + 30, win.sill] }, frameMat, otherRoom);   // window sill
-  box({ from: [radiator.out - radiator.thick, mid - radiator.width / 2, radiator.bottom], to: [radiator.out, mid + radiator.width / 2, radiator.top] }, material(0xf6f6f4), otherRoom);
+  box({ from: [-win.reveal, mid - win.sillWidth / 2, win.sill - win.sillThick], to: [win.sillDepth - win.reveal, mid + win.sillWidth / 2, win.sill] }, frameMat, otherRoom);   // window sill
+  const r0 = w0 + radiator.fromHallwaySide;
+  box({ from: [radiator.out - radiator.thick, r0, radiator.bottom], to: [radiator.out, r0 + radiator.width, radiator.top] }, material(0xf6f6f4), otherRoom);
 
   // The ceiling, facing down only, so the views from above look in
   const top = new THREE.Mesh(new THREE.PlaneGeometry(length * MM, recessBack * MM), ceilingMat);
