@@ -174,6 +174,12 @@ window.ROOM_VIEWS = {
     door:     { label: 'Door', title: 'Looking in from the entrance door, towards my desk', posture: 'stand',
                 position: [150, 1780, 1700], target: [3026, 5350, 1000], hfov: 79 },
     packing:  { label: 'Packing', title: 'In front of the corner cupboard, its doors open', posture: 'stand', compute: 'packing' },
+    // Downstairs (heights from the hallway floor, the first floor 2850
+    // down): high over the stairs' foot, near its ceiling, 250 in from the
+    // back wall in the well's middle, looking down at the foot's floor and
+    // the shoe rack; where the user stood the camera (15 Oct 2026)
+    footFromAbove: { label: 'Foot of the stairs', title: 'Looking down on the foot of the stairs, from near its ceiling', room: 'downstairs',
+                position: [-4577, 583, -308], target: [-5072, 569, -3267], hfov: 100 },
   },
   // Looks (the Look menu's list): a Where, Looking at and eye height by
   // name, the same on every device, alongside those saved with its Save. A

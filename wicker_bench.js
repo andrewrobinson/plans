@@ -28,7 +28,6 @@ const BENCH = {
   minWicker: 100,                  // the least wicker between the legs and the lid, however the sliders are set (chosen)
 };
 const wickerMat = material(0xebe7db);              // white wicker, aged
-const lidMat = material(0x474d7d);                 // the lid's navy floral, as its colour overall
 const rimMat = material(0x6b4a2e);                 // the lid's wooden rim, with its studs
 const legMat = material(0xf3f1ea);
 
@@ -146,6 +145,69 @@ export function drawWickerBench(s) {
     wickerBenches[room] = g;
   }
 }
+
+// The lid's fabric, drawn: a floral chintz on a periwinkle ground, cream
+// branches with sage leaves, pink roses and a few rust and red flowers. Its
+// colours are picked by eye from the user's photo of the bench (15 Oct
+// 2026); the pattern is made up, in its manner, as the photo couldn't be
+// read as a file. One tile covers the top, so it's drawn at the lid's shape.
+const FABRIC = {
+  ground: '#6870B6', cream: '#EEE3C6', sage: '#8DB89C', leaf: '#6E9E7E',
+  rose: '#E6A9A3', roseHeart: '#C2625F', rust: '#C9844E', red: '#C4555A',
+  px: 1024,                        // the tile's width in pixels, across the lid's 920 mm (chosen), so a pixel is about 0.9 mm
+  sprays: 14, roses: 34, flowers: 10, // how many of each to scatter (chosen, to look as busy as the photo)
+  roseR: 20, leafL: 22, leafW: 9,  // a rose's radius and a leaf's half-length and half-width in pixels: roses about 40 mm across, as in the photo
+};
+function floralFabric() {
+  const { px } = FABRIC, high = Math.round(px * BENCH.d / BENCH.w);
+  const canvas = document.createElement('canvas');
+  canvas.width = px; canvas.height = high;
+  const ctx = canvas.getContext('2d');
+  let seed = 11;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const at = () => [rand() * px, rand() * high];
+  ctx.fillStyle = FABRIC.ground;
+  ctx.fillRect(0, 0, px, high);
+  // Branches: cream curves, each with sage leaves along it
+  for (let k = 0; k < FABRIC.sprays; k++) {
+    const [x0, y0] = at(), [x1, y1] = at(), cx = (x0 + x1) / 2 + (rand() - 0.5) * 200, cy = (y0 + y1) / 2 + (rand() - 0.5) * 200;
+    ctx.strokeStyle = FABRIC.cream; ctx.lineWidth = 5 + rand() * 6;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(cx, cy, x1, y1); ctx.stroke();
+    for (let t = 0.06; t < 1; t += 0.07) {
+      const x = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t ** 2 * x1, y = (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t ** 2 * y1;
+      leafAt(ctx, x + (rand() - 0.5) * 40, y + (rand() - 0.5) * 40, rand() * Math.PI, rand() < 0.5 ? FABRIC.sage : FABRIC.leaf);
+    }
+  }
+  // Roses, often in twos and threes, and a few larger rust and red flowers
+  for (let k = 0; k < FABRIC.roses; k++) {
+    const [x, y] = at();
+    for (let n = 1 + Math.floor(rand() * 3); n > 0; n--) roseAt(ctx, x + (rand() - 0.5) * 70, y + (rand() - 0.5) * 70, FABRIC.roseR * (0.7 + rand() * 0.5), FABRIC.rose, FABRIC.roseHeart);
+  }
+  for (let k = 0; k < FABRIC.flowers; k++) {
+    const [x, y] = at();
+    roseAt(ctx, x, y, FABRIC.roseR * (1.2 + rand() * 0.5), rand() < 0.5 ? FABRIC.rust : FABRIC.red, FABRIC.cream);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  return texture;
+}
+function leafAt(ctx, x, y, turn, colour) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(turn);
+  ctx.fillStyle = colour;
+  ctx.beginPath(); ctx.ellipse(0, 0, FABRIC.leafL, FABRIC.leafW, 0, 0, 2 * Math.PI); ctx.fill();
+  ctx.restore();
+}
+function roseAt(ctx, x, y, r, colour, heart) {
+  ctx.fillStyle = colour;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fill();
+  ctx.strokeStyle = heart; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, 1.6 * Math.PI); ctx.stroke();
+  ctx.fillStyle = heart;
+  ctx.beginPath(); ctx.arc(x, y, r * 0.22, 0, 2 * Math.PI); ctx.fill();
+}
+
+const lidMat = new THREE.MeshStandardMaterial({ color: 0xffffff, map: floralFabric(), roughness: 0.9 });   // the lid's floral fabric
 
 // Legs at its corners, the wicker on them, and the lid over it: a wooden
 // rim with the padded top on it, standing out over the wicker all round
