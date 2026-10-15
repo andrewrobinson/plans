@@ -167,7 +167,7 @@ test.describe('sliders, to each end and back', () => {
   // The doors turn without rebuilding
   test('the doors', async ({ page }) => {
     await LEFT_CUPBOARD(page);                                         // so the left-wall cupboard has a door
-    for (const [id, k] of [['roomDoor', 0], ['tallDoor', 1], ['secondDoor', 2]]) await endsAndBack(page, id, door(k), { text: v => `${v}°` });
+    for (const [id, k] of [['roomDoor', 0], ['tallDoor', 1], ['secondDoor', 2], ['bedroomDoor', 3]]) await endsAndBack(page, id, door(k), { text: v => `${v}°` });
   });
 });
 

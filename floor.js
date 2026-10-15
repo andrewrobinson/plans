@@ -5,7 +5,7 @@
 // the room's measurements (ROOM_WIDTH, the recesses, the door frame, …) and
 // the materials the colours menu changes, for living_room.js.
 import * as THREE from 'three';
-import { MM, material, box, slab } from './kit/floor_kit.js';
+import { MM, material, box, slab, hinge } from './kit/floor_kit.js';
 
 export const floor = new THREE.Group();
 
@@ -207,6 +207,10 @@ const OTHER_ROOM_CORNER = {
   x: KITCHEN_RECESS_BACK_WALL_X - OTHER_ROOM.kitchenWall - OTHER_ROOM.length,   // -4827
   y: HALLWAY.ySetBack + OTHER_ROOM.door.wall,                                   // 2521
 };
+// The bedroom door's thickness, as the living room's (estimated); its hinge
+// is set when the room is drawn below
+const BEDROOM_DOOR_T = 44;
+let bedroomHinge;
 const carpetMat = material(0x8f8780);             // grey-beige, from the photos
 const otherRoom = new THREE.Group();
 otherRoom.position.set(OTHER_ROOM_CORNER.x * MM, 0, OTHER_ROOM_CORNER.y * MM);
@@ -245,8 +249,11 @@ function faceAround(length, [a0, a1], [z0, z1], height, mat, along, facing, pare
   box({ from: [doorFrom - JAMB, -door.wall, 0], to: [doorFrom, 0, FRAME_H] }, frameMat, otherRoom);            // frame, hinge side
   box({ from: [doorTo, -door.wall, 0], to: [doorTo + JAMB, 0, FRAME_H] }, frameMat, otherRoom);                // frame, kitchen side
   box({ from: [doorFrom, -door.wall, ROOM_DOOR_H], to: [doorTo, 0, FRAME_H] }, frameMat, otherRoom);           // frame head, down to the door
-  // The door, open square into the room along its hinge side
-  box({ from: [doorFrom, 0, 0], to: [doorFrom + 44, door.width, ROOM_DOOR_H] }, frameMat, otherRoom);
+  // The door, on a hinge at its hinge side's frame, drawn shut across the
+  // opening (flush with the room's face of the wall); the Doors menu's
+  // slider swings it into the room, 0 shut to 180 back against the wall
+  bedroomHinge = hinge(doorFrom, 0, otherRoom);
+  box({ from: [0, -BEDROOM_DOOR_T, 0], to: [door.width, 0, ROOM_DOOR_H] }, frameMat, bedroomHinge);
 
   // The kitchen-side wall, then the chimney breast's face and its side
   // into the recess, and the recess's back
@@ -346,4 +353,4 @@ floor.add(hallway);
   hallway.add(top);
 }
 
-export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, HALLWAY, hallway };
+export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, bedroomHinge, HALLWAY, hallway };

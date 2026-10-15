@@ -27,7 +27,7 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
 import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
-import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, HALLWAY, hallway } from './floor.js';
+import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, HALLWAY, hallway } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -1896,6 +1896,7 @@ for (const type of ['pointerup', 'pointercancel']) {
 const tallSlider = document.getElementById('tallDoor');
 const secondSlider = document.getElementById('secondDoor');
 const roomSlider = document.getElementById('roomDoor');
+const bedroomSlider = document.getElementById('bedroomDoor');
 let current = null;          // { group, tall, second }
 
 function update() {
@@ -1904,13 +1905,15 @@ function update() {
     for (const s of [].concat(current.second ?? [])) s.rotation.y = (s.userData.dir ?? 1) * THREE.MathUtils.degToRad(Number(secondSlider.value));
   }
   roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomSlider.value));
+  bedroomHinge.rotation.y = -THREE.MathUtils.degToRad(Number(bedroomSlider.value));   // it opens the other way, into the bedroom
   if (dims) updateDims();                                       // the doors' labels go with them
   applyCut();                                                   // the doors may have moved across a cut
   document.getElementById('tallDoorValue').textContent = `${tallSlider.value}°`;
   document.getElementById('secondDoorValue').textContent = `${secondSlider.value}°`;
   document.getElementById('roomDoorValue').textContent = `${roomSlider.value}°`;
+  document.getElementById('bedroomDoorValue').textContent = `${bedroomSlider.value}°`;
 }
-[tallSlider, secondSlider, roomSlider].forEach(s => s.addEventListener('input', update));
+[tallSlider, secondSlider, roomSlider, bedroomSlider].forEach(s => s.addEventListener('input', update));
 
 // The top bar's dropdown of options, kept in step by show()
 const currentSelect = document.getElementById('current');
@@ -2575,7 +2578,7 @@ const anchors = {
   bedPillow: () => pointOn(otherRoomPieces.bed, BED_SPOTS.pillow),
   bedSide: () => pointOn(otherRoomPieces.bed, BED_SPOTS.side),
 };
-const DOORS = [roomSlider, tallSlider, secondSlider];
+const DOORS = [roomSlider, tallSlider, secondSlider, bedroomSlider];   // the bedroom's last, added later, so older links leave it at 90°
 const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
 const viewKit = ViewKit.create({
   THREE, camera, controls, canvas: renderer.domElement,
@@ -2620,8 +2623,8 @@ const viewKit = ViewKit.create({
     isFlat: () => flat,
     resize: () => resize(),
     writeAddress: () => writeAddress(true),
-    // The doors' angles: the room door's, the left-wall cupboard's and the
-    // option's own, as some views open or shut them
+    // The doors' angles: the room door's, the left-wall cupboard's, the
+    // option's own and the bedroom's, as some views open or shut them
     sceneState: {
       get: () => DOORS.map(d => d.value).join('-'),
       set(text) {

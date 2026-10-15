@@ -45,7 +45,7 @@ The HTML only lays out the controls. It contains no logic.
 | 90–135 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
 | 136–152 | `#secSofa` | Sofa dropdown plus sliders |
 | 153–179 | `#secBench` | Bench switch, bench-height radios, "above the bench" radios, TV and shelf sliders |
-| 180–192 | `#secDoors` | Three door-angle sliders |
+| 180–192 | `#secDoors` | Four door-angle sliders (the bedroom's last) |
 | 193–227 | `#secColours` | Colour dropdowns with ◀ ▶ buttons and swatches, plus a nested `<details>` palette |
 | 228–243 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
 | 244–250 | `#about` | The description text (`#summary`), which JS fills in |
