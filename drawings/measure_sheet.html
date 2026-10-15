@@ -113,11 +113,14 @@ const ITEMS = [
   { k: 'P', what: 'Window opening width', how: 'Inside the reveal', est: 1510, line: [435, 1095, 615, 1095] },
   { k: 'Q', what: 'Door: kitchen-side wall to the door opening', how: 'In the room, along the hallway wall', est: 60, mark: [362, 681, 430, 705] },
   { k: 'AJ', what: 'Fitted wardrobes: how deep', how: 'On the wall opposite the door: from their fronts to the wall behind. Note whether they run the whole wall, or where they start and end', est: 600, mark: [650, 960] },
+  { k: 'AK', what: 'Recess width', how: 'Along the recess, from the end of the chimney breast to the window wall. The cupboards in it fill it', est: 1850, mark: [712, 975] },
   { k: 'R', what: 'Door opening width', how: 'Inside the frame. Note which side the hinges are on and which way it opens (the drawing has it opening into the room, hinged at the end away from the kitchen)', est: 760, line: [372, 685, 372, 776] },
   { group: 'Heights, in the other room', h: true },
   { k: 'S', h: true, what: 'Ceiling height', how: 'At a few places; the living room\'s is 2443', est: 2443, mark: [620, 945] },
   { k: 'T', h: true, what: 'Window sill height', how: 'Floor to the top of the sill', est: 912, mark: [470, 1060] },
   { k: 'U', h: true, what: 'Top of the window opening', how: 'Floor to the top of the opening', est: 2302, mark: [580, 1060] },
+  { k: 'AL', h: true, what: 'Recess cupboards: top of the lower one', how: 'Floor (carpet) to its top, where the upper one overhangs it', est: 820, mark: [655, 1050] },
+  { k: 'AM', h: true, what: 'Recess cupboards: height of the upper one', how: 'From its bottom to the ceiling', est: 1620, mark: [655, 1080] },
   { k: 'V', h: true, what: 'Door opening height', how: 'Floor to the underside of the frame head', est: 1980, mark: [490, 745] },
   { group: 'Hallway, stairs and bathroom (can follow)', p2: true },
   { k: 'W', p2: true, what: 'Stairs: width of the flight', how: 'Wall to banister', est: 910, line: [67, 760, 175, 760] },
@@ -139,6 +142,10 @@ const ITEMS = [
 const SUPPLIED = {
   // 15 Oct 2026
   A: '2252', B: '150 approx', C: '2221', AB: '909', AC: '150', D: '1054', E: '1050', Y: '2330',
+  // The recess has fitted cupboards filling it, the upper one 420 deep and
+  // overhanging the lower, so K could only be taken to their fronts
+  H: '3682', J: '2841', K: '2888 to the lower cupboard, 2769 to the upper',
+  AJ: '420 upper (1800 wide), lower about 300', AK: 'about 1810', AL: '819', AM: '1632',
 };
 
 const ROOMS = [['Living room', 395, 300], ['Other room', 540, 885], ['Hallway', 255, 720], ['Stairs', 120, 815], ['Bathroom', 145, 980], ['WC', 292, 1035]];

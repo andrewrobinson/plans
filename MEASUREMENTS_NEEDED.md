@@ -67,18 +67,24 @@ across the hallway and through the door frames fix where each room sits.
 
 ## 2. The other room (priority 1)
 
-- [ ] **Length, kitchen-side wall to window wall,** at both ends of the
-      room if they differ.
-- [ ] **Width, hallway wall to the chimney breast face,** and to the back of
-      the recess beside it.
+- [x] **Length, kitchen-side wall to window wall,** at both ends of the
+      room if they differ. **Measured 3682** (H).
+- [x] **Width, hallway wall to the chimney breast face,** and to the back of
+      the recess beside it. **2841 to the breast** (J). The recess is filled
+      by two fitted cupboards, so K went to their fronts: 2888 to the lower,
+      2769 to the upper. The upper is 420 deep, so the recess's back is at
+      about 3189 (2769 + 420) and the breast sticks out about 348.
 - [ ] **Ceiling height,** at a few places (the living room's is 2443).
 - [ ] **Chimney breast:** how far it sticks out, and where it starts and ends
       along the wall, measured from the kitchen-side wall.
 - [ ] **Recess beside it:** depth and length.
-- [ ] **The fitted wardrobes** on the wall opposite the door: how deep they
+- [x] **The fitted wardrobes** on the wall opposite the door: how deep they
       are, front to the wall behind, and where they start and end. Where
       they hide the chimney breast or recess, measure to their fronts and
-      say so.
+      say so. **Measured 15 Oct 2026:** they fill the recess. The upper one
+      is 1800 wide (so the recess is about 1810), 420 deep and 1632 high,
+      up to the ceiling, overhanging the lower one by 119 (2888 − 2769).
+      The lower one is 819 high off the carpet, so about 300 deep.
 - [ ] **Window:** distance from each side wall to the opening; opening width;
       sill height from the floor; top of the opening from the floor; sill
       depth; the reveal's depth (wall thickness at the window).
