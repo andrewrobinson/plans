@@ -21,12 +21,13 @@
 // scenes; and starting the page.
 import * as THREE from 'three';
 import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
-  number, within, radio, sizes, writeFields, readFields,
+  number, within, radio, sizes, writeFields, readFields, setValueAt,
   narrow, popMenus, createDrawers, resetButton, shareButton, workOffline, flatViews,
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
 import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
+import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_ADDRESS } from './wicker_bench.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, HALLWAY, hallway } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
@@ -243,6 +244,7 @@ const state = {
   // thing's { x, y, turned, z } (set up with STORED below)
   stored: { shown: false, packing: 0, where: 0, spots: [] },
   otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
+  wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
 };
 
 const baseDoorCount = () => Math.max(1, Math.round((ROOM_WIDTH - state.T - state.WARD - state.TOWER) / 450));
@@ -2072,6 +2074,7 @@ function showInMenus(option, i, aboveText) {
 // store and the cupboard shelves round them, the cutting list, the address
 function redrawAround() {
   drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
+  drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2142,6 +2145,7 @@ const ADDRESS = [
   ...RECESS_FRONTS_ADDRESS,                                     // the upper recess cupboard's drawers and mirrors
   ['bookshelfMove', m => (m ? `${m.x}.${m.y}.${m.turn}` : BOOKSHELF_HOME), readBookshelfMove],
   ...BOOKCASE_ON_ADDRESS,                                       // the bedroom's bookcase there or not
+  ...WICKER_BENCH_ADDRESS,                                      // the wicker bench's sizes, then where it is in each room
 ];
 // The bookshelf moved, as `x.y.turn`, or BOOKSHELF_HOME where it starts
 // (as links from before it could move keep it)
@@ -2657,6 +2661,10 @@ const anchors = {
   mirror: () => middleOf(otherRoomPieces.mirror),
   bedPillow: () => pointOn(otherRoomPieces.bed, BED_SPOTS.pillow),
   bedSide: () => pointOn(otherRoomPieces.bed, BED_SPOTS.side),
+  // The wicker bench (wicker_bench.js), wherever it is in each room
+  hallBench: () => middleOf(wickerBenches.hallway),
+  bedroomBench: () => middleOf(wickerBenches.bedroom),
+  livingBench: () => middleOf(wickerBenches.livingRoom),
 };
 const DOORS = [roomSlider, tallSlider, secondSlider, bedroomSlider];   // the bedroom's last, added later, so older links leave it at 90°
 const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
@@ -2773,6 +2781,12 @@ const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomBlock'
   }
 }));
 
+// The wicker bench's (wicker_bench.js): each sets its setting in
+// state.wickerBench, a path such as 'hallway.along'
+const syncWickerBench = wickerBenchControls(document.getElementById('wickerBenchBlock'), edits => changeSettings(s => {
+  for (const [path, value] of edits) setValueAt(s.wickerBench, path, value);
+}, { look: true }));
+
 function syncControls() {
   const { T, R, F, BOARD, BENCH, above, shelfDepth, benchOn, bookshelfOn, tv, frontPiece, island } = state;
   const slide = (id, value, text = value) => {
@@ -2807,6 +2821,7 @@ function syncControls() {
   check('islandAt', island.at);
   placeIsland();
   syncOtherRoom(state.otherRoom);
+  syncWickerBench(state.wickerBench);
 }
 
 // Start on the settings in the address (room_dimensions.md has their

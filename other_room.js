@@ -31,6 +31,8 @@ const BED = {
 // of its headboard. Your eyes 300 in from the headboard, on the pillow, and
 // beside it halfway along its side away from the window (with the bed as it
 // starts, the room side), 450 out: room to stand (all chosen)
+// The bed's foot, from the back of its headboard, for what stands at it
+export const BED_FOOT = BED.headboard.thick + BED.length;
 export const BED_SPOTS = {
   pillow: [0, BED.headboard.thick + 300],
   side: [BED.width / 2 + 450, BED.headboard.thick + BED.length / 2],
@@ -405,7 +407,9 @@ export function otherRoomControls(container, change) {
   };
 }
 
-function slider(id) {
+// A labelled slider for [path, label, lowest, highest, step], its ids from
+// id(path); also the wicker bench's (wicker_bench.js)
+export function slider(id) {
   return ([path, label, lo, hi, step]) =>
     `<label for="${id(path)}"><span id="${id(path)}Label">${label}</span>: <span id="${id(path)}Value"></span></label>` +
     `<input id="${id(path)}" type="range" min="${lo}" max="${hi}" step="${step}">`;

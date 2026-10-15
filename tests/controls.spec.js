@@ -335,6 +335,30 @@ test.describe('switches and buttons', () => {
   });
 });
 
+// The wicker bench: its sizes (field 46), then on.a.b.turn in the hallway
+// (47), the bedroom (48) and the living room (49), each on its own
+test.describe('the wicker bench', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+
+  test('it can be on in each room, resized and moved', async ({ page }) => {
+    await expect(page.locator('#wickerBench_bedroom')).toBeHidden();
+    await toggle(page, 'wickerBench_bedroom_on', true);
+    await expect(page.locator('#wickerBench_bedroom')).toBeVisible();
+    await toggle(page, 'wickerBench_hallway_on', false);
+    await slide(page, 'wickerBench_w', 1200);
+    await slide(page, 'wickerBench_bedroom_u', 2000);
+    expect(await readout(page, 'wickerBench_w')).toBe('1200');
+    expect(await field(page, 46)).toBe('1200.410.450.80');
+    expect(await field(page, 47)).toBe('0.1370.1372.0');
+    expect(await field(page, 48)).toBe('1.2000.1985.0');
+    expect(await field(page, 49)).toBe('0.3686.2910.90');
+    await page.locator('#wickerBenchBlock [data-reset="bedroom"]').evaluate(b => b.click());
+    expect(await field(page, 48)).toBe('1.1360.1985.0');
+    await page.locator('#wickerBenchBlock [data-reset="sizes"]').evaluate(b => b.click());
+    expect(await field(page, 46)).toBe('920.410.450.80');
+  });
+});
+
 test.describe('things to store', () => {
   const head = async page => (await stored(page))[0];
 
@@ -425,7 +449,7 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#room', 'bedroom');
     await expect.poll(() => view(page)).toMatch(/^birdseye\..*\.bedroom$/);
     expect(await options('where')).toEqual(['In the bedroom doorway, walking in', 'Lying on the bed', 'Standing beside the bed', 'Standing at the bedroom window']);
-    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
+    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
     await page.selectOption('#where', 'bed');
     await expect.poll(() => view(page)).toMatch(/^look:bed:\w+\.lie-tall\..*\.bedroom$/);
     await page.selectOption('#room', 'hallway');

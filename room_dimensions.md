@@ -145,7 +145,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 
 The full list of the address's fields, in order, with how each is checked, is `ADDRESS` in `living_room.js`; new fields go at its end. The page address records the option (by its code: 7 to 9 for options 7 to 9, 10 for the current room, 11 and 12 for options 10 and 11; 1 to 6 and 13 to 16, for the options taken out, read as none) and the settings, joined by `-`:
 
-`#option-T-R-F-above-shelfDepth-BENCH-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-tv-dresserColour-dresserSizes-frontPiece-larder-island-sofa-sofaFront-larderSizes-sofaSizes-benchOn-LEG_D-backShelves-leftShelves-islandMove-BOARD-CORNER_W-CORNER_D-SIDE_SHELF-SIDE_W-SIDE_D-bed-bookcase-pineCupboard-recessLowerD-bookshelfOn-mirror-recessFronts-bookshelfMove-bookcaseOn~stored~view`
+`#option-T-R-F-above-shelfDepth-BENCH-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-tv-dresserColour-dresserSizes-frontPiece-larder-island-sofa-sofaFront-larderSizes-sofaSizes-benchOn-LEG_D-backShelves-leftShelves-islandMove-BOARD-CORNER_W-CORNER_D-SIDE_SHELF-SIDE_W-SIDE_D-bed-bookcase-pineCupboard-recessLowerD-bookshelfOn-mirror-recessFronts-bookshelfMove-bookcaseOn-wickerBench-hallBench-bedroomBench-livingBench~stored~view`
 
 Sizes of one thing are joined by `.` (dresserSizes `w.h.baseD.baseH.upperD`, larderSizes and sofaSizes `w.d.h`, shelves as their tops, islandMove `x.y.turn`; the bedroom's bed `u.v.turn`, bookcase and pineCupboard `u.v.turn.w.d.h`, see below). For example, option 7 with a 600-deep left-wall cupboard and everything else as it starts: `#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1000.1930.420.830.420-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301-0-0.2569.1400.1000.800-0.0-wall-1`. After the first `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, with a fourth number for its height off the floor when it isn't 0; they're used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, `.` and the room door's, left-wall cupboard's and option's own door angles, joined by `-`, and, unless it's the living room, `.` and the room chosen (`hallway` or `bedroom`). For example `~look:desk:dresser.sit-tall.90-0-0`, or `~birdseye.sit-tall.90-0-0.bedroom`. Old links needn't keep working (agreed 12 Oct 2026).
 
@@ -244,8 +244,38 @@ from inside only, as the bedroom's, so the bird's eye looks in.
 | The banister | y 1312, 909 from the kitchen side | Measured (AB; D gives 1317) |
 | The far end, the WC wall | x −2480, 2330 along | Measured (Y), to check: the drawing scales 3360 |
 | The stairs | A landing 800 along at the top (the winders, simplified), then a straight flight down to the far end: 7 steps, rise 210, going about 219, wall to banister | Estimated; W and X are still to measure |
-| Banister | Rail at 900, spindles about 120 apart, a newel post at each end | Estimated |
+| Banister | Rail at 900, 60 wide; spindles 30 thick, about 120 apart; a 90 newel post at each end | Estimated |
 | Ceiling | 2443, as the living room's | Assumed |
+
+### The wicker bench
+
+The hallway's bench, a white wicker ottoman with a padded floral lid on four
+short turned legs, is in [wicker_bench.js](wicker_bench.js) (called the
+wicker bench to keep it apart from the living room's back-wall bench).
+There's one, at one set of sizes, but it can be switched on in the
+hallway, the bedroom and the living room, each with its own place (asked
+for, 15 Oct 2026). Its section in Other options, **The wicker bench (the
+hallway's)**, has its size sliders, then for each room a switch and,
+while it's on, sliders for where the middle of its back is and how far
+it's turned, in quarter turns, with **Reset dimensions** and **Reset
+location**. Looking at offers it in each room.
+
+| What | Size or position | Source |
+| --- | --- | --- |
+| Length × depth × height | 920 × 410 × 450, to the top of the lid (sliders 400 to 2000, 250 to 800, 250 to 900) | Measured |
+| Legs | 80 high (slider 0 to 300, held to leave at least 100 of wicker under the lid), turned, 55 across at the top and 40 at the foot | Height measured; the rest estimated from the photo |
+| Lid | 60 thick, a 20 wooden rim under the padded top, 10 proud of the wicker all round | Estimated from the photo |
+| In the hallway (on) | Its back to the banister, against the rail's line (y 1372), its near end 20 past the newel post at the top of the flight: its back's middle 1370 from the living room door's wall, facing the kitchen side | From the photo |
+| In the bedroom (off to start) | Its back to the foot of the bed, 20 off, centred on it (u 1360, v 1985), facing away from the hallway wall | Chosen |
+| In the living room (off to start) | Its back 20 in front of the middle window's radiator (x 3686, y 2910), facing the left wall | Chosen |
+
+In the address, after `bookcaseOn`: its sizes `w.d.h.legs`, then for the
+hallway, the bedroom and the living room `on.a.b.turn` (on 1 or 0). The
+hallway's a and b are its back's middle from the living room door's wall
+and from the outside wall behind the stairs (the living room's y), with 0°
+facing the kitchen side and 90° the far end; the bedroom's are its u and v,
+turned as its furniture; the living room's are x and y, turned as the
+bookshelf. Links from before it have it as it starts.
 
 The bathroom and WC beyond its far end aren't drawn yet. The living
 room's wall views leave the hallway out, as its stairwell would hang below

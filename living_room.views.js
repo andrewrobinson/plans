@@ -90,6 +90,7 @@ window.ROOM_VIEWS = {
     door:     { label: 'the door', at: [0, 1780, 989] },            // the doorway's middle
     cupboard: { label: 'the corner cupboard', anchor: 'cupboard' },
     tv:       { label: 'the TV', anchor: 'tv' },
+    livingBench: { label: 'the wicker bench', anchor: 'livingBench' },   // if it's on in here (wicker_bench.js)
     // The three windows, numbered from the TV end: the middle of each, on the
     // window wall's face
     window1:  { label: 'window 1 (TV end)', at: [3838, 1196, 1607] },
@@ -101,6 +102,7 @@ window.ROOM_VIEWS = {
     bedroomDoor:    { room: 'hallway', label: 'the bedroom door', at: [-1600, 2371, 989] },
     stairs:         { room: 'hallway', label: 'the stairs', at: [-1700, 650, -700] },
     hallEnd:        { room: 'hallway', label: 'the far end, by the bathroom', at: [-2480, 1840, 1200] },
+    hallBench:      { room: 'hallway', label: 'the wicker bench', anchor: 'hallBench' },     // wherever it stands (wicker_bench.js)
     // In the bedroom (other_room.js): the fitted cupboards in the recess
     // (its middle, 1824 wide, at the upper one's front, 2769, measured);
     // the bookcase, the bed, the pine cupboard (the wardrobe) and the
@@ -108,6 +110,7 @@ window.ROOM_VIEWS = {
     recessCupboards: { room: 'bedroom', label: 'the cupboards in the recess', at: [912, 2769, 1200] },
     bookcase:        { room: 'bedroom', label: 'the bookcase', anchor: 'bookcase' },
     pineCupboard:    { room: 'bedroom', label: 'the wardrobe', anchor: 'pineCupboard' },
+    bedroomBench:    { room: 'bedroom', label: 'the wicker bench', anchor: 'bedroomBench' },
     bedroomWindow:   { room: 'bedroom', label: 'the window', at: [0, 1425, 1630] },
     bed:             { room: 'bedroom', label: 'the bed', anchor: 'bed' },
     mirror:          { room: 'bedroom', label: 'the mirror', anchor: 'mirror' },

@@ -154,6 +154,7 @@ const HALLWAY = {
   landing: 800,
   rise: 210, going: 220,
   rail: 900, spindles: 120,
+  post: 90, railW: 60, spindle: 30,  // the newel posts' and the rail's width, the spindles' thickness (estimated)
 };
 // Where its walls are, in the living room's x and y
 HALLWAY.x0 = -HALLWAY.doorWall;                                         // the door wall's hallway face: -150
@@ -301,7 +302,7 @@ HALLWAY.bedroomFrameBack = OTHER_ROOM_CORNER.y - OTHER_ROOM.door.wall;
 const hallway = new THREE.Group();                                     // at the living room's origin
 floor.add(hallway);
 {
-  const { x0, xStep, xEnd, xLanding, kitchenSide, yBanister, ySetBack, steps, rise, drop, rail, spindles, bedroomDoor, bedroomFrameBack } = HALLWAY;
+  const { x0, xStep, xEnd, xLanding, kitchenSide, yBanister, ySetBack, steps, rise, drop, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
   const face = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, hallway);
 
   // The floor: the landing at the top of the stairs, and the hallway
@@ -344,7 +345,6 @@ floor.add(hallway);
   face(yBanister, drop, [xLanding, yBanister / 2, -drop / 2], '-u');
 
   // The banister along the flight: a rail on spindles, a newel post at each end
-  const post = 90, spindle = 30, railW = 60;
   box({ from: [xEnd, yBanister, rail - 50], to: [xLanding, yBanister + railW, rail] }, frameMat, hallway);
   for (const x of [xLanding - post, xEnd]) box({ from: [x, yBanister, 0], to: [x + post, yBanister + post, rail + 100] }, frameMat, hallway);
   const gaps = Math.round((xLanding - xEnd - 2 * post) / spindles);

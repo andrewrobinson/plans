@@ -34,11 +34,13 @@ test.describe('saved addresses', () => {
     });
   }
 
-  // From before the bookshelf could move or the bedroom's bookcase be taken
-  // out: both left off the end, so it's against the wall and in the bedroom
-  test('a link without the bookshelf\'s place or the bedroom bookcase keeps them as they were', async ({ page }) => {
+  // From before the bookshelf could move, the bedroom's bookcase be taken
+  // out or the wicker bench be drawn: their six fields left off the end, so
+  // the bookshelf's against the wall, the bookcase in the bedroom and the
+  // bench in the hallway as it starts
+  test('a link without the bookshelf\'s place, the bedroom bookcase or the wicker bench keeps them as they start', async ({ page }) => {
     const [settings, ...rest] = DEFAULT.split('~');
-    await openRoom(page, [settings.replace(/-wall-1$/, ''), ...rest].join('~'));
+    await openRoom(page, [settings.split('-').slice(0, -6).join('-'), ...rest].join('~'));
     expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
   });
 

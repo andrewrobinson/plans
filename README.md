@@ -27,6 +27,7 @@ takes new screenshots when a change is meant to show.
 | `floor.js` | The walls, doors and windows: the living room's, the hallway's (`HALLWAY`, with the top of the stairs) and the bedroom's (`OTHER_ROOM`, in its own u, v mm) |
 | `living_room.js` | The living room's fittings and cupboard options, the settings and the page address, and the built-in views |
 | `other_room.js` | The bedroom's furniture and fitted cupboards, and their sliders |
+| `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `living_room.views.js` | The rooms, places (Where), things (Looking at), eye heights and config-defined views, for editing |
 | `living_room.scenes.js`, `dressers.js`, `larders.js`, `sofas.js` | Scenes and furniture catalogues, for editing |
 | `kit/` | The engine: `floor_kit.js`, `view_kit.js` (views, rooms, Where and Looking at), `scene_kit.js` |
@@ -48,7 +49,8 @@ The notes:
 - **The bedroom**, measured but for its ceiling (S, worked out as 2445 from
   the recess cupboards), with its furniture on sliders.
 - **The hallway**, from the measured A to E, AB, AC, G and Y; the stairs
-  are estimated, as W and X aren't measured.
+  are estimated, as W and X aren't measured; its wicker bench, measured,
+  can be switched on in the bedroom and the living room too.
 - **The Look menu** chooses the **Room** (living room, hallway, bedroom):
   Where and Looking at offer that room's, and Bird's eye and Plan (2D)
   frame it.
