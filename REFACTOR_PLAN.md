@@ -48,7 +48,7 @@ step applies those choices to `living_room.js`, `floor.js` and the kit.
 
 One kind of change per commit, a file at a time, `npm test` after each.
 
-### Where it's got to (14 Oct 2026)
+### Where it's got to (15 Oct 2026)
 
 On the `refactor` branch, a commit each, and on main up to "the handles'
 heights named":
@@ -58,9 +58,13 @@ heights named":
   `DOOR_FRAME_STARTS_AT`, `DOOR_HINGE_AT`, `WALL_THICKNESS`,
   `KITCHEN_RECESS_BACK_WALL_X`); `show()` split into `buildOption()`,
   `takeOutBench()`, `showInMenus()` and `redrawAround()`; the handles'
-  heights named (`HANDLE_BOTTOM`, `HANDLE_TOP`).
-- Left: the other numbers (the 3s and 9s of door gaps, 25 and 40 for
-  worktops); each option's `build()` and `cornerCupboard()` in named
+  heights named (`HANDLE_BOTTOM`, `HANDLE_TOP`); the door gaps named
+  (`DOOR_GAP`, with the 6s and 9s as 2 and 3 gaps), and the kitchen's
+  worktop (`KITCHEN.worktopT`, `worktopProud`), the island's top
+  (`island.topT`), the desk's top (`DESK_TOP_T`) and option 8's
+  `SHELF_SETBACK`. The dresser and larders keep their own 3s and 40s, as
+  bought furniture; the handles' 20s and 22s could be named too.
+- Left: each option's `build()` and `cornerCupboard()` in named
   steps (`fullHeightL()` is short enough); one function for changing the
   settings; each file's opening comment; `board()` could take
   `{ from, to }` as `box()` now does.
