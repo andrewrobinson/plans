@@ -56,10 +56,15 @@ const PINE = {
 // recess. The upper one's fronts
 // as in the photo: a row of short doors along the top, a tall door either
 // side, and in the middle open shelves over three drawers (heights estimated).
+// Two changes can be tried on the upper one: drawers over the open shelves,
+// as many as fit at about the height of those below, and a mirror on each
+// tall door, `mirrorInset` in from its edges (chosen), `mirrorThick` proud.
 const RECESS_CUPBOARDS = {
   w: 1800, upperD: 420, lowerTop: 820, lowerD: 301,
   topDoors: 400, drawersTop: 1400, plinth: 80, lowerDoors: 4,
+  drawers: 3,                      // the drawers under the open shelves
   front: 18, gap: 3,
+  mirrorInset: 60, mirrorThick: 4,
 };
 
 // The mirror: none there yet, so its size and place are chosen to start
@@ -115,6 +120,8 @@ export const OTHER_ROOM_START = {
   bookcase: { u: OTHER_ROOM.recessWidth + BOOKCASE.w / 2, v: OTHER_ROOM.breastFace, turn: 180, w: BOOKCASE.w, d: BOOKCASE.d, h: BOOKCASE.h },
   cupboard: { u: OTHER_ROOM.length, v: OTHER_ROOM.breastFace - BOOKCASE.d - PINE.w / 2, turn: 90, w: PINE.w, d: PINE.d, h: PINE.h },
   lowerD: RECESS_CUPBOARDS.lowerD,
+  upperDrawers: false,             // the upper recess cupboard: drawers over its open shelves
+  upperMirrors: false,             // ...and mirrors on its two tall doors
   mirror: { wall: 'breast', along: OTHER_ROOM.recessWidth + BOOKCASE.w / 2, bottom: MIRROR.bottom, w: MIRROR.w, h: MIRROR.h },
 };
 
@@ -149,10 +156,12 @@ const PIECES = [
   { heading: 'Bookcase', sizes: sizeSliders('bookcase'), place: PLACE('bookcase') },
   { heading: 'Pine cupboard', sizes: sizeSliders('cupboard'), place: PLACE('cupboard') },
   // The lower one's depth up to 800, as far as it might go (asked for, 15 Oct 2026)
-  { heading: 'Recess cupboards', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [] },
+  { heading: 'Recess cupboards', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [],
+    switches: [['upperDrawers', 'Upper cupboard: drawers over the open shelves'], ['upperMirrors', 'Upper cupboard: mirrors on the tall doors']] },
   { heading: 'Mirror', sizes: sizeSliders('mirror'), place: MIRROR_PLACE, wall: 'mirror.wall' },
 ];
 const SLIDERS = PIECES.flatMap(p => [...p.sizes, ...p.place]);
+const SWITCHES = PIECES.flatMap(p => p.switches ?? []);
 
 // The settings' address fields, for living_room.js's ADDRESS: each piece as
 // its numbers joined by '.', each held to its slider's range
@@ -183,6 +192,15 @@ export const MIRROR_ADDRESS = [['otherRoom.mirror',
     const read = Object.fromEntries(['along', 'bottom', 'w', 'h'].map((k, i) => [k, held(`mirror.${k}`, parts[i], m[k])]));
     return { ...read, wall: WALL_KEYS[Number(wall)] ?? m.wall };
   }]];
+// Then the upper recess cupboard's drawers and mirrors, as `drawers.mirrors`,
+// each 1 or 0
+const onOff = (text, was) => (text === '1' ? true : text === '0' ? false : was);
+export const RECESS_FRONTS_ADDRESS = [['otherRoom',
+  r => `${r.upperDrawers ? 1 : 0}.${r.upperMirrors ? 1 : 0}`,
+  (text, r) => {
+    const [drawers, mirrors] = text.split('.');
+    return { ...r, upperDrawers: onOff(drawers, r.upperDrawers), upperMirrors: onOff(mirrors, r.upperMirrors) };
+  }]];
 
 // ---------------------------------------------------------------------------
 // Drawing. Each movable piece is drawn in its own group, its back's middle
@@ -202,7 +220,7 @@ export function drawOtherRoom(s, { bookcaseAway = false } = {}) {
   otherRoomPieces.bookcase = place(bookcase(s.bookcase), s.bookcase);
   otherRoomPieces.bookcase.visible = !bookcaseAway;
   otherRoomPieces.cupboard = place(pineCupboard(s.cupboard), s.cupboard);
-  recessCupboards(s.lowerD);
+  recessCupboards(s);
   otherRoomPieces.mirror = place(mirror(s.mirror), mirrorPlace(s.mirror));
 }
 
@@ -292,8 +310,8 @@ function mirror({ w, h, bottom }) {
 
 // The recess's two fitted cupboards, against its back wall and filling its
 // width: the upper one up to the ceiling, standing out over the lower one
-function recessCupboards(lowerD) {
-  const { w, upperD, lowerTop, topDoors, drawersTop, plinth, lowerDoors, front, gap } = RECESS_CUPBOARDS;
+function recessCupboards({ lowerD, upperDrawers, upperMirrors }) {
+  const { w, upperD, lowerTop, topDoors, drawersTop, plinth, lowerDoors, drawers, front, gap } = RECESS_CUPBOARDS;
   const back = OTHER_ROOM.recessBack, top = OTHER_ROOM.ceiling;
   const u0 = (OTHER_ROOM.recessWidth - w) / 2, u1 = u0 + w;     // centred in the recess
   const panel = (a0, a1, z0, z1, frontV, mat = fittedMat) =>
@@ -307,17 +325,37 @@ function recessCupboards(lowerD) {
   for (let i = 0; i < lowerDoors; i++) panel(u0 + i * doorW, u0 + (i + 1) * doorW, plinth, lowerTop, lowFront + front);
 
   // The upper one, in three equal columns: short doors along the top; tall
-  // doors either side; in the middle, open shelves (in shade) over drawers
+  // doors either side (with mirrors, if chosen); in the middle, open
+  // shelves (in shade) over drawers, or drawers all the way up
   const upFront = back - upperD, col = w / 3, under = top - topDoors;
   box({ from: [u0, upFront + front, lowerTop], to: [u1, back, top] }, fittedMat, furniture);
   for (let i = 0; i < 3; i++) panel(u0 + i * col, u0 + (i + 1) * col, under, top, upFront + front);
-  panel(u0, u0 + col, lowerTop, under, upFront + front);
-  panel(u1 - col, u1, lowerTop, under, upFront + front);
-  const drawer = (drawersTop - lowerTop) / 3;
-  for (let i = 0; i < 3; i++) panel(u0 + col, u1 - col, lowerTop + i * drawer, lowerTop + (i + 1) * drawer, upFront + front);
+  for (const a0 of [u0, u1 - col]) {
+    panel(a0, a0 + col, lowerTop, under, upFront + front);
+    if (upperMirrors) doorMirror(a0, a0 + col, lowerTop, under, upFront);
+  }
+  drawerStack(u0 + col, u1 - col, lowerTop, drawersTop, drawers, panel, upFront + front);
+  if (upperDrawers) {
+    const drawerH = (drawersTop - lowerTop) / drawers;
+    drawerStack(u0 + col, u1 - col, drawersTop, under, Math.max(1, Math.round((under - drawersTop) / drawerH)), panel, upFront + front);
+    return;
+  }
   panel(u0 + col, u1 - col, drawersTop, under, upFront + front, shadowMat);       // the open shelves
   const shelf = (drawersTop + under) / 2;
   box({ from: [u0 + col + gap, upFront, shelf - 9], to: [u1 - col - gap, upFront + front, shelf + 9] }, fittedMat, furniture);
+}
+
+// n drawer fronts, of equal height, from z0 up to z1 between a0 and a1
+function drawerStack(a0, a1, z0, z1, n, panel, frontV) {
+  const each = (z1 - z0) / n;
+  for (let i = 0; i < n; i++) panel(a0, a1, z0 + i * each, z0 + (i + 1) * each, frontV);
+}
+
+// A mirror on the face of the door from a0 to a1 and z0 to z1, whose face
+// is at faceV, set in from its edges
+function doorMirror(a0, a1, z0, z1, faceV) {
+  const { mirrorInset: inset, mirrorThick: thick } = RECESS_CUPBOARDS;
+  box({ from: [a0 + inset, faceV - thick, z0 + inset], to: [a1 - inset, faceV, z1 - inset] }, glassMat, furniture, false);
 }
 
 // ---------------------------------------------------------------------------
@@ -334,10 +372,12 @@ export function otherRoomControls(container, change) {
   let shown = OTHER_ROOM_START;                        // the settings last put in the controls
   container.innerHTML = PIECES.map((piece, i) => `<div class="depth"><div><b>${piece.heading}</b></div>` +
     (piece.wall ? wallPick(id(piece.wall)) : '') +
+    (piece.switches ?? []).map(([path, label]) => `<label class="switch"><input type="checkbox" id="${id(path)}"> ${label}</label>`).join('') +
     [...piece.sizes, ...piece.place].map(slider(id)).join('') +
     resetButtons(piece, i) + '</div>').join('');
 
   for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
+  for (const [path] of SWITCHES) document.getElementById(id(path)).addEventListener('change', e => change([[path, e.target.checked]]));
   // A new wall keeps the mirror as far along as it can
   document.getElementById(id('mirror.wall')).addEventListener('change', e =>
     change([['mirror.wall', e.target.value], ['mirror.along', alongWall(e.target.value, shown.mirror.along)]]));
@@ -354,6 +394,7 @@ export function otherRoomControls(container, change) {
       document.getElementById(id(path)).value = String(value);
       document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
     }
+    for (const [path] of SWITCHES) document.getElementById(id(path)).checked = valueAt(s, path);
     followWall(id, s.mirror);
   };
 }

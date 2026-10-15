@@ -178,11 +178,15 @@ test.describe('the controls', () => {
   test('the bedroom\'s reset buttons, and the mirror\'s wall', async ({ page }) => {
     await page.click('#bedMenu');
     const recess = page.locator('#otherRoomBlock .depth', { hasText: 'Recess cupboards' });
-    const mirror = page.locator('#otherRoomBlock .depth', { hasText: 'Mirror' });
+    const mirror = page.locator('#otherRoomBlock .depth').last();             // the mirror's, last
     await page.locator('#otherRoom_lowerD').fill('800');
     expect(settingsField(await hash(page), 40)).toBe('800');
     await recess.getByRole('button', { name: 'Reset dimensions' }).click();
     expect(settingsField(await hash(page), 40)).toBe('301');
+    await page.locator('#otherRoom_upperDrawers').check();             // the upper cupboard's drawers and mirrors (field 43)
+    expect(settingsField(await hash(page), 43)).toBe('1.0');
+    await page.locator('#otherRoom_upperMirrors').check();
+    expect(settingsField(await hash(page), 43)).toBe('1.1');
     await page.selectOption('#otherRoom_mirror_wall', 'kitchen');
     await expect(page.locator('#otherRoom_mirror_alongLabel')).toHaveText('Middle from the hallway wall');
     expect(settingsField(await hash(page), 42)).toBe('3.2569.1400.1000.800');

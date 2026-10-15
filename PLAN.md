@@ -32,7 +32,9 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    room"). The back wall's **Bookshelf** switch puts the bedroom's bookcase
    in the living room in place of the bench. Each piece has Reset
    dimensions and Reset location buttons, and a mirror (sized, and moved
-   along and up any of the four walls) is the address's last field. Its settings still live in
+   along and up any of the four walls), and the upper recess cupboard can
+   have drawers over its open shelves and mirrors on its tall doors (the
+   address's last field). Its settings still live in
    `living_room.js`'s `state.otherRoom`. Later on 15 Oct 2026 the hallway
    and the top of the stairs (`floor.js`'s `HALLWAY`, from the measured A
    to E, AB, AC and Y), and a **Room** choice in the Look menu: Where and

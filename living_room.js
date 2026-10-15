@@ -26,7 +26,7 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
-import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, BED_SPOTS } from './other_room.js';
+import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, HALLWAY, hallway } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
@@ -2098,6 +2098,7 @@ const ADDRESS = [
   ...OTHER_ROOM_ADDRESS,                                        // the bedroom's furniture
   ['bookshelfOn', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],
   ...MIRROR_ADDRESS,                                            // the bedroom's mirror
+  ...RECESS_FRONTS_ADDRESS,                                     // the upper recess cupboard's drawers and mirrors
 ];
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
