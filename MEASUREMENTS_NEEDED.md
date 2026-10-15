@@ -37,10 +37,13 @@ into the chat. It covers sections 1 and 2 and the main sizes from 3 and 4.
 **Supplied** (starred * on the sheet): A 2252, B about 150, C 2221,
 AB 909, AC 150, D 1054, E 1050, Y 2330, H 3682, J 2841, K to the recess
 cupboards' fronts (2888 lower, 2769 upper), the recess cupboards (AJ, AK
-about 1810, AL 819, AM 1632), and the other room's furniture (`PLAN.md`).
+about 1810, AL 819 and AM 1632, since corrected below), and the other room's furniture (`PLAN.md`).
 Later on 15 Oct 2026: L 1858 (so the recess is 1824 wide), the window's
 reveal 250 deep (AP) and its sill 290 from the glass (AQ). That evening:
-G 150; F can't be reached, so it's taken as 150 too.
+G 150; F can't be reached, so it's taken as 150 too. Then the window (N
+655, P 1540, T 990 with its sill 25 thick, U 2270), the door (Q 60, though
+it could be 50; R 760), and the recess cupboards again: AL 820, AM 1625, so
+the ceiling is 2445.
 
 **The hallway is drawn from these** (15 Oct 2026, `room_dimensions.md`,
 "The hallway"), and **they place the other room**: its hallway wall's
@@ -48,18 +51,15 @@ room side at C + AC + G = 2521 from the living room's back wall line (it
 was assumed at 2562, lining its recess up with the living room's sink
 recess; it's now 41 short of that), and its window wall F + H beyond the
 kitchen recess, at x −4827. E puts the doorway's near edge 1050 along, at
-the step in the hallway wall; the model's door, from Q and R (both
-guessed), comes 20 short of it.
+the step in the hallway wall; the model's door, from Q and R, comes 20
+short of it (Q at 50 would make it 10).
 
 **Still outstanding, and important** (red ! on the sheet). Each is only a
 guess today, or could be well out:
 
 | | What | Why it matters |
 |---|---|---|
-| N, P | The other room's window: where it starts, and its width | Guessed from the drawing; could be 100 or more out. N can't be reached from the hallway side: measure from the recess corner instead |
-| Q, R | The other room's door: where it starts, and its width | Guessed (60, 760). They decide how the door swings past the bed |
-| T, U | The window's sill and top heights | Copied from the living room's windows |
-| S | The other room's ceiling height | Worked out as 2451 from the recess cupboards (819 + 1632); one check |
+| S | The other room's ceiling height | Worked out as 2445 from the recess cupboards (820 + 1625); one check |
 
 **To check, already sent:**
 
@@ -130,18 +130,23 @@ across the hallway and through the door frames fix where each room sits.
       are, front to the wall behind, and where they start and end. Where
       they hide the chimney breast or recess, measure to their fronts and
       say so. **Measured 15 Oct 2026:** they fill the recess. The upper one
-      is 1800 wide (so the recess is about 1810), 420 deep and 1632 high,
+      is 1800 wide (so the recess is about 1810), 420 deep and 1625 high,
       up to the ceiling, overhanging the lower one by 119 (2888 − 2769).
-      The lower one is 819 high off the carpet, so about 300 deep.
-- [ ] **Window:** distance from each side wall to the opening; opening width;
+      The lower one is 820 high off the carpet, so about 300 deep (both
+      heights corrected later that day).
+- [x] **Window:** distance from each side wall to the opening; opening width;
       sill height from the floor; top of the opening from the floor; sill
-      depth; the reveal's depth (wall thickness at the window).
+      depth; the reveal's depth (wall thickness at the window). **Measured
+      15 Oct 2026:** 655 from the hallway wall, 1540 wide, sill 990 (25
+      thick), top 2270, reveal 250, sill 290 from the glass.
 - [ ] **Radiator,** if any: position along the wall, width, height, how far
       it stands off the wall, and its height off the floor.
 - [ ] **Door:** distance from the kitchen-side wall to the opening; opening
       width; door width, height and thickness; frame height; which side the
       hinges are on; which way it opens. The drawing shows it opening into
-      the room, hinged on the side away from the kitchen.
+      the room, hinged on the side away from the kitchen. **Measured 15 Oct
+      2026:** 60 from the kitchen-side wall (or 50), the opening 760; the
+      door's height (V) is still to measure.
 - [x] **The furniture:** bookcase, free-standing cupboard, bed and mattress,
       measured 15 Oct 2026 (sizes in `PLAN.md`, "The other room's
       furniture").

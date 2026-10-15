@@ -108,7 +108,7 @@ window.ROOM_VIEWS = {
     recessCupboards: { room: 'bedroom', label: 'the cupboards in the recess', at: [912, 2769, 1200] },
     bookcase:        { room: 'bedroom', label: 'the bookcase', anchor: 'bookcase' },
     pineCupboard:    { room: 'bedroom', label: 'the wardrobe', anchor: 'pineCupboard' },
-    bedroomWindow:   { room: 'bedroom', label: 'the window', at: [0, 1425, 1607] },
+    bedroomWindow:   { room: 'bedroom', label: 'the window', at: [0, 1425, 1630] },
     bed:             { room: 'bedroom', label: 'the bed', anchor: 'bed' },
   },
   look: { place: 'desk', thing: 'dresser' },   // Where and Looking at, until chosen

@@ -178,19 +178,20 @@ const OTHER_ROOM = {
   breastFace: 2841,                // v: hallway wall to the chimney breast's face (J, measured)
   recessBack: 3189,                // v: to the back of the recess: the upper recess cupboard's front (2769, measured) + its depth (420, measured)
   breastLength: 1858,              // u: the chimney breast, from the kitchen-side wall to its end (L, measured), so the recess is 3682 - 1858 = 1824 wide
-  ceiling: 2451,                   // the lower recess cupboard's top (819) + the upper one's height to the ceiling (1632), both measured
+  ceiling: 2445,                   // the lower recess cupboard's top (820, AL) + the upper one's height to the ceiling (1625, AM), both measured
   kitchenWall: 150,                // the wall between the kitchen recess and this room (F: it can't be reached, so taken as G)
-  // The door, in the hallway wall: 60 from the kitchen-side wall, a 760
-  // opening (Q, R, estimated), in a 150 wall (G, measured); hinged at the
-  // end away from the kitchen and opening into the room (seen in photos).
+  // The door, in the hallway wall: 60 from the kitchen-side wall (Q,
+  // measured as 50 or 60), a 760 opening (R), in a 150 wall (G), all
+  // measured; hinged at the end away from the kitchen and opening into the
+  // room (seen in photos).
   // The door and its frame are as the living room's.
   door: { fromKitchenWall: 60, width: 760, wall: 150 },
-  // The window, in the window wall: 670 from the hallway wall and 1510 wide
-  // (N, P, estimated from the drawing), sill and top as the living room's
-  // (T, U, not yet measured). Its reveal is 250 deep, glass to the wall's
-  // face, and the sill 290 from the glass to its front edge (both measured),
-  // so the sill stands 40 out from the wall
-  window: { from: 670, width: 1510, sill: 912, top: 2302, reveal: 250, sillDepth: 290 },
+  // The window, in the window wall: 655 from the hallway wall and 1540 wide
+  // (N, P), the sill's top at 990 and 25 thick, and the opening's top at
+  // 2270 (T, U). Its reveal is 250 deep, glass to the wall's face, and the
+  // sill 290 from the glass to its front edge, so the sill stands 40 out
+  // from the wall. All measured
+  window: { from: 655, width: 1540, sill: 990, sillThick: 25, top: 2270, reveal: 250, sillDepth: 290 },
   // A radiator under it, seen in a photo; its size as the living room's (estimated)
   radiator: { width: 600, bottom: 240, top: 840, out: 132, thick: 100 },
 };
@@ -264,7 +265,7 @@ function faceAround(length, [a0, a1], [z0, z1], height, mat, along, facing, pare
   insideFace(win.reveal, win.top - win.sill, wallMat, [-win.reveal / 2, w1, (win.sill + win.top) / 2], '-v');
   const revealTop = insideFace(win.reveal, win.width, wallMat, [-win.reveal / 2, mid, win.top], '+u');
   revealTop.rotation.set(Math.PI / 2, 0, 0);                     // lying flat, facing down
-  box({ from: [-win.reveal, w0 - 30, win.sill - 25], to: [win.sillDepth - win.reveal, w1 + 30, win.sill] }, frameMat, otherRoom);   // window sill
+  box({ from: [-win.reveal, w0 - 30, win.sill - win.sillThick], to: [win.sillDepth - win.reveal, w1 + 30, win.sill] }, frameMat, otherRoom);   // window sill
   box({ from: [radiator.out - radiator.thick, mid - radiator.width / 2, radiator.bottom], to: [radiator.out, mid + radiator.width / 2, radiator.top] }, material(0xf6f6f4), otherRoom);
 
   // The ceiling, facing down only, so the views from above look in

@@ -167,9 +167,9 @@ along y. Measured and estimated sizes are in `MEASUREMENTS_NEEDED.md`
 | Hallway wall to chimney breast face | 2841 | Measured (J) |
 | Chimney breast, from the kitchen-side wall | 1858, so the recess is 1824 wide | Measured (L) |
 | Recess back | 3189 from the hallway wall | Upper recess cupboard's front 2769 + its 420 depth, measured |
-| Ceiling | 2451 | Lower recess cupboard 819 + upper one 1632, measured |
-| Window | 670 from the hallway wall, 1510 wide, sill 912, top 2302 | Estimated; its reveal 250 and sill 290 from the glass are measured |
-| Door | 60 from the kitchen-side wall, 760 wide, in a 150 wall; hinged away from the kitchen, opening in | Place and width estimated, as the living room's door and frame; the wall measured (G) |
+| Ceiling | 2445 | Lower recess cupboard 820 + upper one 1625, measured |
+| Window | 655 from the hallway wall, 1540 wide, sill 990 (25 thick), top 2270; its reveal 250 deep and sill 290 from the glass | Measured (N, P, T, U, AP, AQ) |
+| Door | 60 from the kitchen-side wall, 760 wide, in a 150 wall; hinged away from the kitchen, opening in | Measured (Q, as 50 or 60; R; G); its frame as the living room's |
 | Where it sits | Its hallway wall behind the hallway's stepped-back wall (C + AC + G = 2521), its kitchen-side wall 150 behind the kitchen recess (F, taken as G as it can't be reached). So its recess's back is at 5710, 41 short of the living room's sink recess | Measured, but for F |
 
 Its furniture, each with sliders in the drawer's **Bedroom furniture**
@@ -180,7 +180,7 @@ section (the bookcase and pine cupboard resized as well as moved):
 | Bed, base 350 high, mattress 260 on it, headboard 25 thick and 950 high | 1360 × 1940 | 1360, 0 (head on the hallway wall, 680 from the window wall, measured); 0° |
 | Bookcase, dark brown | 1490 × 290 × 1220 | 2569, 2841 (back to the chimney breast, from the recess); 180° |
 | Pine cupboard, 60 off the wall (it stands 560 out) | 1300 × 500 × 1790 | 3682, 1901 (back to the kitchen-side wall, up to the bookcase); 90° |
-| Recess cupboards, fixed: upper 1800 wide, 420 deep, 1632 high; lower 819 high | lower 301 deep, its slider 150 to 600 | In the recess, centred |
+| Recess cupboards, fixed: upper 1800 wide, 420 deep, 1625 high; lower 820 high | lower 301 deep, its slider 150 to 600 | In the recess, centred |
 
 A piece's place is the middle of its back (the bed's head end), so a new
 size keeps it against its wall; it turns about that point: 0° faces away

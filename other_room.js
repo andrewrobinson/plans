@@ -50,14 +50,14 @@ const PINE = {
   drawerRows: [240, 180],          // the two rows of drawers, bottom up (estimated)
   front: 18, gap: 3,               // the doors' and drawers' thickness, and the gaps round them (estimated)
 };
-// The recess's fitted cupboards: the upper one 1800 wide, 420 deep and 1632
-// high, up to the ceiling; the lower one 819 high, 301 deep (its front 119
+// The recess's fitted cupboards: the upper one 1800 wide, 420 deep and 1625
+// high, up to the ceiling; the lower one 820 high, 301 deep (its front 119
 // behind the upper one's: 2888 - 2769), all measured. Centred in the 1824
 // recess. The upper one's fronts
 // as in the photo: a row of short doors along the top, a tall door either
 // side, and in the middle open shelves over three drawers (heights estimated).
 const RECESS_CUPBOARDS = {
-  w: 1800, upperD: 420, lowerTop: 819, lowerD: 301,
+  w: 1800, upperD: 420, lowerTop: 820, lowerD: 301,
   topDoors: 400, drawersTop: 1400, plinth: 80, lowerDoors: 4,
   front: 18, gap: 3,
 };
