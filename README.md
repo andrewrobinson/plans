@@ -48,15 +48,18 @@ The notes:
   larders, sofa, island and things to store.
 - **The bedroom**, measured but for its ceiling (S, worked out as 2445 from
   the recess cupboards), with its furniture on sliders.
-- **The hallway**, from the measured A to E, AB, AC, G and Y; the stairs
-  are estimated, as W and X aren't measured; its wicker bench, measured,
-  can be switched on in the bedroom and the living room too.
+- **The hallway**, from the measured A to E, AB, AC, G and Y, with no
+  ceiling drawn; its wicker bench, measured, can be switched on in the
+  bedroom and the living room too.
+- **The stairs**, measured and counted: 900 wall to wall, 11 straight steps,
+  3 winders and a top step level with the hallway, 15 risers of 190. Only
+  the going (X) is still the drawing's 220.
 - **The Look menu** chooses the **Room** (living room, hallway, bedroom):
   Where and Looking at offer that room's, and Bird's eye and Plan (2D)
   frame it.
 
 Next (`PLAN.md`): Y to check (2330, against 3360 on the drawing); the
-stairs (W, X); the bathroom and WC; walls seen from above in the bedroom's
+stairs' going (X) and the winders' sizes; the bathroom and WC; walls seen from above in the bedroom's
 and hallway's plans; looking from the hallway into a room; stopping
 furniture at the walls.
 

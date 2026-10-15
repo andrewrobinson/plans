@@ -43,7 +43,9 @@ reveal 250 deep (AP) and its sill 290 from the glass (AQ). That evening:
 G 150; F can't be reached, so it's taken as 150 too. Then the window (N
 655, P 1540, T 990 with its sill 25 thick, U 2270), the door (Q 60, though
 it could be 50; R 760), and the recess cupboards again: AL 820, AM 1625, so
-the ceiling is 2445.
+the ceiling is 2445. Then the stairs (W): 900 wall to wall, steps 810 wide,
+rise 190; 11 straight steps, 3 winders and 1 more into the hallway; a 110
+ledge and a 240 box along the top of the well.
 
 **The hallway is drawn from these** (15 Oct 2026, `room_dimensions.md`,
 "The hallway"), and **they place the other room**: its hallway wall's
@@ -76,7 +78,7 @@ guess today, or could be well out:
   bookcase; the bookcase against the chimney breast from the recess.
 
 **Still outstanding, less urgent:** V (door height), the hallway radiator (AD
-to AH), the stairs (W, X), the bathroom (Z, AA), and sections 3 to 5 below.
+to AH), the stairs' going (X) and the winders' sizes, the bathroom (Z, AA), and sections 3 to 5 below.
 
 ---
 

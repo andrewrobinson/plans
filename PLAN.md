@@ -39,7 +39,10 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    and the top of the stairs (`floor.js`'s `HALLWAY`, from the measured A
    to E, AB, AC and Y), and a **Room** choice in the Look menu: Where and
    Looking at offer that room's, and Bird's eye and Plan (2D) frame it
-   (`room_dimensions.md`, "Views"). The bedroom's door and window views
+   (`room_dimensions.md`, "Views"). That evening the stairs from the
+   user's measurements and photos: 11 straight steps, 3 winders turning
+   right by the living room door, a top step level with the hallway, 15
+   risers of 190; the hallway's ceiling left out, as asked. The bedroom's door and window views
    became places in its Where. Still to do: the measured numbers as they
    come in (S, W, X: `MEASUREMENTS_NEEDED.md`); the
    bathroom and WC; walls drawn from above in the bedroom's and hallway's
