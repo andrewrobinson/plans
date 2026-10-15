@@ -64,7 +64,11 @@ The notes:
   menu. A **shoe rack** at the foot, an open rack of shelves (600 wide,
   200 deep, 1200 high to start), against the outside wall clear of the
   internal door's swing; its sizes, place and turn are sliders in **The
-  shoe rack (downstairs)** in Other options.
+  shoe rack (downstairs)** in Other options. Its shelves slope down to the
+  back (30° to start, a slider), and it says how long a shoe fits along
+  them, with a pair of UK 11 shoes shown on the bottom shelf. **Bevel for
+  the door** stands it in the corner furthest from the internal door and
+  cuts its front-left corner clear of the door's swing.
 - **The pine cupboard** can be switched off in the bedroom, and on in
   the living room in place of the bench, as the bookcase can.
 - **The bedroom mirror** can be switched off too (**In the bedroom**, under
