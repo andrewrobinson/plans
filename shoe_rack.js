@@ -1,8 +1,9 @@
 // The shoe rack: downstairs, at the foot of the stairs, a simple open rack
 // of shelves between two sides (asked for, 15 Oct 2026; not bought yet, so
-// its sizes are sliders). It stands on the foot's floor, between the bottom
-// step and the building's back wall, and starts where the user put it: in
-// the corner of the back wall and the outside wall, under the window.
+// its sizes are sliders). It always stands in the same place, as the user
+// asked: in the foot's back right corner looking down the stairs, its back
+// to the window and its end against the outside wall, facing the stairs,
+// so its shelves slope down towards the window.
 //
 // living_room.js holds the settings (state.shoeRack, starting as
 // SHOE_RACK_START) and puts them in its address (SHOE_RACK_ADDRESS); this
@@ -33,79 +34,105 @@ const SHOE = { length: 315, width: 110, height: 100, apart: 20 };   // apart: th
 const shoeMat = material(0x3a2f2a);                // dark brown leather (chosen)
 
 // ---------------------------------------------------------------------------
-// The foot of the stairs: its floor runs along from the back wall to the
-// bottom step's riser, and across from the outside wall to the wall with
-// the flat's door in it (floor.js's ENTRANCE and HALLWAY)
+// The foot of the stairs: its floor runs along from the back wall (a) to
+// the bottom step's riser, and across from the outside wall (b) to the wall
+// with the flat's door in it (floor.js's ENTRANCE and HALLWAY)
 // ---------------------------------------------------------------------------
-const FOOT_LENGTH = HALLWAY.xFoot - ENTRANCE.xBack;                     // 1357
 const FOOT_WIDTH = HALLWAY.yWellIn - HALLWAY.yWellOut;                  // the well: 900
 
-// Where it starts, where the user placed it (15 Oct 2026): in the corner
-// of the back wall and the outside wall, under the window, its back to the
-// window (turned 270°, so it faces the stairs) and its end against the
-// outside wall: to the right, looking down the stairs. The internal door,
-// swinging in, stops on its front-left corner (see doorOpensTo())
 export const SHOE_RACK_START = {
   w: RACK.w, d: RACK.d, h: RACK.h,
-  along: 0,                        // its back's middle from the back wall: against it
-  across: 215,                     // ...and from the outside wall: half its width, so its end is against it
-  turn: 270,
-  bevel: false,                    // its front-left corner cut away for the door (below)
+  bevel: false,                    // its front-left corner cut away as the internal door needs (below)
   slope: RACK.slope,               // the shelves' slant
-  shoes: true,                     // a pair of UK 11 shoes on its bottom shelf, to see what fits
-  bevelFront: 200, bevelSide: 150, // the bevel's cut: along the front from that corner, and back along its end (chosen to start: the door then opens to 78.5°, from 73.5°)
+  shoes: true,                     // a pair of UK 11 shoes on each shelf, to see what fits
+  bevelDoor: 78,                   // the internal door's angle the bevel is cut for, in degrees (asked for, to start)
 };
 
+// Where it stands: in its own mm (its back's middle at 0, its width along
+// x, its front at y = d), turned to face the stairs, its back on the back
+// wall and its end on the outside wall. On the foot's floor that's a = y
+// (along from the back wall) and b = w / 2 - x (across from the outside
+// wall): its front-left corner, (-w / 2, d), is the one by the door
+const onFoot = (w, [x, y]) => [y, w / 2 - x];
+
 // ---------------------------------------------------------------------------
-// The bevel (asked for, 15 Oct 2026), only where it's wanted: the rack's
-// back to the window, as far right as it goes looking down the stairs (the
-// corner it starts in). Its front-left corner, the one the internal door
-// swings into, is cut off straight, by two sliders: how far along the front
-// and how far back along its end. The door's whole swing passes over the
-// rack's front there, so no bevel lets it open fully; the menu says how far
-// it then opens (doorOpensTo())
+// The internal door, on the foot's floor: hinged at the back wall's end of
+// its opening, it turns from lying along its wall (0°) to across the foot
+// (90°). Its leading face runs from the hinge; its thickness trails behind.
+// At `deg`: how far a point is ahead of that face, the way it swings
+// (`ahead`), and how far out along it from the hinge (`out`)
 // ---------------------------------------------------------------------------
-// Where it stands, as set, or with the bevel in that corner
-export function placeOf(s) {
-  if (!s.bevel) return { along: s.along, across: s.across, turn: s.turn };
-  return { along: 0, across: s.w / 2, turn: 270 };
-}
-// The cut, in mm (none without the bevel), held inside the rack: a board's
-// width of front left at the far end, and its end's back board
-export function bevelCut({ w, d, bevel, bevelFront, bevelSide }) {
-  if (!bevel) return { front: 0, side: 0 };
-  return { front: Math.min(bevelFront, w - 2 * RACK.board), side: Math.min(bevelSide, d) };
+const HINGE = [ENTRANCE.flatDoor.fromBackWall, FOOT_WIDTH];
+function doorAt(deg) {
+  const t = THREE.MathUtils.degToRad(deg), along = [Math.cos(t), -Math.sin(t)], lead = [-Math.sin(t), -Math.cos(t)];
+  const rel = ([a, b]) => [a - HINGE[0], b - HINGE[1]];
+  const dot = (u, v) => u[0] * v[0] + u[1] * v[1];
+  return { ahead: p => dot(rel(p), lead), out: p => dot(rel(p), along) };
 }
 
 // ---------------------------------------------------------------------------
-// How far the internal door opens before it meets the rack, in degrees (to
-// the nearest half), up to its 90°. Worked out on the foot's floor, in mm
-// along from the back wall (a) and across from the outside wall (b): the
-// door, a slab ENTRANCE.flatDoor.width long and doorT thick, turns about its
-// hinge from lying along its wall (0°) to across the foot (90°); the rack is
-// its outline, trimmed by the bevel and placed. Each angle is tried in turn
-// until the two overlap
+// The bevel (asked for, 15 Oct 2026): the rack is as wide as it can be, the
+// well's whole width, and cut for the internal door opening to an angle of
+// its own slider (bevelDoor), so the cut stays whatever the door does:
+// only what the door sweeps to reach that angle, BEVEL_GAP clear, the part
+// of its front-left corner behind the door's leading face and within the
+// door's length of the hinge. The depth and that angle are there to try.
+// Without the bevel, the menu says how far the door opens before meeting
+// the rack (doorOpensTo())
 // ---------------------------------------------------------------------------
+const BEVEL_GAP = 10;              // between the door's face and the cut (chosen)
+export const widthOf = s => (s.bevel ? FOOT_WIDTH : s.w);
+// A board's outline, in the rack's own mm, as the pieces left once the
+// door at `deg` has swept what it reaches: the part still ahead of its
+// face (by BEVEL_GAP), and the part beyond its end
+function aroundTheDoor(points, w, deg) {
+  const door = doorAt(deg), reach = ENTRANCE.flatDoor.width + BEVEL_GAP;
+  const ahead = p => door.ahead(onFoot(w, p)) - BEVEL_GAP;              // >= 0: not swept yet
+  const beyond = p => door.out(onFoot(w, p)) - reach;                    // >= 0: past its end
+  return [clip(points, ahead), clip(clip(points, beyond), p => -ahead(p))].filter(o => o.length >= 3);
+}
+// With the bevel, how wide the rack's front edge is left, in mm, to the
+// nearest one: its points not swept by the door
+export function frontLeft(s, deg) {
+  const w = widthOf(s), door = doorAt(deg), reach = ENTRANCE.flatDoor.width + BEVEL_GAP;
+  let kept = 0;
+  for (let x = -w / 2 + 0.5; x < w / 2; x++) {
+    const p = onFoot(w, [x, s.d]);
+    if (door.ahead(p) >= BEVEL_GAP || door.out(p) >= reach) kept++;
+  }
+  return kept;
+}
+// An outline less the part where f < 0, f being straight (Sutherland-Hodgman)
+function clip(points, f) {
+  const out = [];
+  points.forEach((p, i) => {
+    const q = points[(i + 1) % points.length], fp = f(p), fq = f(q);
+    if (fp >= 0) out.push(p);
+    if (fp * fq < 0) {
+      const t = fp / (fp - fq);
+      out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]);
+    }
+  });
+  return out;
+}
+
+// How far the door opens before it meets the rack, uncut, in degrees to
+// the nearest DOOR_STEP, up to its 90°: each angle tried in turn until the
+// door's outline overlaps the rack's
 const DOOR_STEP = 0.5;             // degrees between the angles tried (chosen)
-export function doorOpensTo(s) {
-  const rackOutline = footOutline(s);
-  const hinge = [ENTRANCE.flatDoor.fromBackWall, FOOT_WIDTH], long = ENTRANCE.flatDoor.width, thick = ENTRANCE.doorT;
+export function doorOpensTo({ w, d }) {
+  const rackOutline = [[-w / 2, 0], [w / 2, 0], [w / 2, d], [-w / 2, d]].map(p => onFoot(w, p));
   let open = 0;
   for (let deg = DOOR_STEP; deg <= 90; deg += DOOR_STEP) {
-    const t = THREE.MathUtils.degToRad(deg);
-    const along = [Math.cos(t), -Math.sin(t)], lead = [-Math.sin(t), -Math.cos(t)];   // the door's length, and the way it swings
-    const at = (l, k) => [hinge[0] + l * along[0] + k * lead[0], hinge[1] + l * along[1] + k * lead[1]];
-    if (overlap([at(0, 0), at(long, 0), at(long, thick), at(0, thick)], rackOutline)) break;
+    if (overlap(doorOutline(deg), rackOutline)) break;
     open = deg;
   }
   return open;
 }
-// The rack's outline on the foot's floor, [a, b], as it stands
-function footOutline(s) {
-  const { along, across, turn } = placeOf(s), half = s.w / 2, t = THREE.MathUtils.degToRad(-turn);
-  // As the group's turn: its own x and depth (y) onto the floor's a and b
-  return trimmed([[-half, 0], [half, 0], [half, s.d], [-half, s.d]], half, s.d, bevelCut(s))
-    .map(([x, y]) => [along + x * Math.cos(t) + y * Math.sin(t), across - x * Math.sin(t) + y * Math.cos(t)]);
+function doorOutline(deg) {
+  const t = THREE.MathUtils.degToRad(deg), along = [Math.cos(t), -Math.sin(t)], lead = [-Math.sin(t), -Math.cos(t)];
+  const at = (l, k) => [HINGE[0] + l * along[0] + k * lead[0], HINGE[1] + l * along[1] + k * lead[1]];
+  return [at(0, 0), at(ENTRANCE.flatDoor.width, 0), at(ENTRANCE.flatDoor.width, -ENTRANCE.doorT), at(0, -ENTRANCE.doorT)];
 }
 // Whether two convex outlines overlap: they don't if some edge of either
 // has the other wholly on its far side (separating axes)
@@ -122,37 +149,24 @@ function overlap(p, q) {
 }
 
 // The sliders, as other_room.js's: [path in state.shoeRack, label, lowest,
-// highest, step, unit]. Its back's middle can go anywhere on the foot's
-// floor; the turn goes all the way round to 360°, back where it began
-const RACK_MAX = { w: 1200, d: 500 };
-const SIZE_SLIDERS = [...[['w', 300, RACK_MAX.w], ['d', 150, RACK_MAX.d], ['h', 300, 2000]].map(([k, lo, hi]) => [k, SIZE_LABEL[k], lo, hi, 10, '']),
-  ['slope', 'Shelves’ slope, down towards the back', 0, 45, 5, '°']];
-const PLACE_SLIDERS = [
-  ['along', 'Back’s middle from the back wall (the window’s)', 0, FOOT_LENGTH, 5, ''],
-  ['across', 'Back’s middle from the outside wall', 0, FOOT_WIDTH, 5, ''],
-  ['turn', 'Turned (0° faces the internal door’s wall, 90° the back wall, 270° the stairs)', 0, 360, QUARTER_TURN, '°'],
-];
-const BEVEL_SLIDERS = [
-  ['bevelFront', 'Bevel along the front', 0, RACK_MAX.w, 5, ''],
-  ['bevelSide', 'Bevel back along its end', 0, RACK_MAX.d, 5, ''],
-];
-const SLIDERS = [...SIZE_SLIDERS, ...PLACE_SLIDERS, ...BEVEL_SLIDERS];
+// highest, step, unit]
+const SIZE_SLIDERS = [...[['w', 300, 1200], ['d', 150, 500], ['h', 300, 2000]].map(([k, lo, hi]) => [k, SIZE_LABEL[k], lo, hi, 10, '']),
+  ['slope', 'Shelves’ slope, down towards the window', 0, 45, 5, '°']];
+const BEVEL_SLIDER = ['bevelDoor', 'Bevel for internal door angle', 0, 90, 1, '°'];
+const SLIDERS = [...SIZE_SLIDERS, BEVEL_SLIDER];
 const SIZE_KEYS = SIZE_SLIDERS.map(([k]) => k);
-const PLACE_KEYS = PLACE_SLIDERS.map(([k]) => k);
 
 // ---------------------------------------------------------------------------
-// The address: `w.d.h.along.across.turn.bevel.slope.shoes.bevelFront.bevelSide`,
-// each number held to its slider's range, the turn to quarter turns; the
-// bevel and the shoes 1 or 0. A link from before has fewer: the rest as they start
+// The address: `w.d.h.bevel.slope.shoes.bevelDoor`, each number held to its
+// slider's range, the bevel and the shoes 1 or 0. A link from before has
+// fewer: the rest as they start
 // ---------------------------------------------------------------------------
 const RANGES = Object.fromEntries(SLIDERS.map(([k, , lo, hi]) => [k, [lo, hi]]));
 function held(key, text, was) {
   const [lo, hi] = RANGES[key], n = text ? Number(text) : NaN;
-  if (key === 'turn' && n % QUARTER_TURN !== 0) return was;
   return n >= lo && n <= hi ? n : was;
 }
-const NUMBER_KEYS = ['w', 'd', 'h', ...PLACE_KEYS];
-const ADDRESS_KEYS = [...NUMBER_KEYS, 'bevel', 'slope', 'shoes', 'bevelFront', 'bevelSide'];
+const ADDRESS_KEYS = ['w', 'd', 'h', 'bevel', 'slope', 'shoes', 'bevelDoor'];
 const SWITCHES = ['bevel', 'shoes'];
 const onOff = (text, was) => (text === '1' ? true : text === '0' ? false : was);
 export const SHOE_RACK_ADDRESS = [
@@ -170,40 +184,43 @@ export const SHOE_RACK_ADDRESS = [
 // ---------------------------------------------------------------------------
 // Drawing: the rack in its own group, its back's middle at the origin, its
 // width along x and its depth out along y, as the bedroom's pieces are;
-// placed in the hallway's group at the first floor's level
+// placed in the hallway's group at the first floor's level, in its corner
 // ---------------------------------------------------------------------------
 // The rack as drawn now, to look at
 export let shoeRack = null;
+const FACING_THE_STAIRS = 270;     // its turn, in degrees as the group turns: its back to the window
 
 export function drawShoeRack(s) {
   if (shoeRack) shoeRack.removeFromParent();
-  const { along, across, turn } = placeOf(s);
-  shoeRack = rack(s, bevelCut(s));
-  if (s.shoes) shoeRack.add(shoePair(s));
-  shoeRack.position.set((ENTRANCE.xBack + along) * MM, ENTRANCE.floor * MM, (HALLWAY.yWellOut + across) * MM);
-  shoeRack.rotation.y = THREE.MathUtils.degToRad(-turn);
+  const sized = { ...s, w: widthOf(s) };
+  shoeRack = rack(sized, s.bevel ? s.bevelDoor : null);
+  if (s.shoes) shoeRack.add(shoePairs(sized));
+  shoeRack.position.set(ENTRANCE.xBack * MM, ENTRANCE.floor * MM, (HALLWAY.yWellOut + sized.w / 2) * MM);
+  shoeRack.rotation.y = THREE.MathUtils.degToRad(-FACING_THE_STAIRS);
   hallway.add(shoeRack);
 }
 
 // Two sides, the full height, and shelves between them, evenly spaced from
-// the bottom one up to one at the top, about RACK.shelfPitch apart. With a
-// bevel, each board is cut by it: drawn as its outline, trimmed, stood up.
-// The shelves slope down to the back: each is its outline in plan, trimmed,
-// stretched to its length along the slope and tilted at its front edge
-function rack({ w, d, h, slope }, cut) {
+// the bottom one up to one at the top, about RACK.shelfPitch apart. Each
+// board is its outline in plan, cut round the door when there's a bevel,
+// stood up. The shelves slope down to the back: each outline is stretched
+// to its length along the slope and tilted at its front edge
+function rack({ w, d, h, slope }, doorDeg) {
   const g = new THREE.Group(), half = w / 2, { board } = RACK;
-  const outline = (x0, x1) => trimmed([[x0, 0], [x1, 0], [x1, d], [x0, d]], half, d, cut);
+  const pieces = (x0, x1) => {
+    const outline = [[x0, 0], [x1, 0], [x1, d], [x0, d]];
+    return doorDeg === null ? [outline] : aroundTheDoor(outline, w, doorDeg);
+  };
   for (const [x0, x1] of [[-half, -half + board], [half - board, half]]) {   // the sides
-    const o = outline(x0, x1);
-    if (o.length >= 3) slab(o, 0, h, rackMat, g);
+    for (const o of pieces(x0, x1)) slab(o, 0, h, rackMat, g);
   }
-  const tilt = THREE.MathUtils.degToRad(slope), o = outline(-half + board, half - board);
+  const tilt = THREE.MathUtils.degToRad(slope), shelf = pieces(-half + board, half - board);
   for (const front of shelfFronts({ d, h, slope })) {
-    const shelf = new THREE.Group();
-    shelf.position.set(0, front * MM, d * MM);                          // pivoting on its front edge's top
-    shelf.rotation.x = -tilt;                                           // its back down
-    slab(o.map(([x, y]) => [x, (y - d) / Math.cos(tilt)]), -board, 0, rackMat, shelf);
-    g.add(shelf);
+    const tilted = new THREE.Group();
+    tilted.position.set(0, front * MM, d * MM);                         // pivoting on its front edge's top
+    tilted.rotation.x = -tilt;                                          // its back down
+    for (const o of shelf) slab(o.map(([x, y]) => [x, (y - d) / Math.cos(tilt)]), -board, 0, rackMat, tilted);
+    g.add(tilted);
   }
   return g;
 }
@@ -213,38 +230,23 @@ function rack({ w, d, h, slope }, cut) {
 const shelfDrop = ({ d, slope }) => d * Math.tan(THREE.MathUtils.degToRad(slope));
 export const shoeRoom = ({ d, slope }) => Math.round(d / Math.cos(THREE.MathUtils.degToRad(slope)));
 
-// A pair of UK 11 shoes on the bottom shelf, lying along its slope, their
-// heels at its front edge, side by side in its middle: what sticks out
-// past the back shows when they don't fit
-function shoePair(s) {
-  const tilt = THREE.MathUtils.degToRad(s.slope), front = shelfFronts(s)[0];
-  const pair = new THREE.Group();
-  pair.position.set(0, front * MM, s.d * MM);
-  pair.rotation.x = -tilt;
-  for (const x of [-SHOE.apart / 2 - SHOE.width, SHOE.apart / 2]) {
-    box({ from: [x, -SHOE.length, 0], to: [x + SHOE.width, 0, SHOE.height] }, shoeMat, pair);
-  }
-  return pair;
-}
-
-// An outline [x, y] in the rack's own mm (its back's middle at 0, its front
-// at y = d, its left end at x = -half), less what's beyond the bevel's cut:
-// the line from `front` along the front to `side` back along the left end
-function trimmed(points, half, d, { front, side }) {
-  if (!front || !side) return points;
-  const a = [-half + front, d], b = [-half, d - side];
-  const keep = ([x, y]) => (b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]);   // which side of the cut; the back-right corner's side is kept
-  const sign = Math.sign(keep([half, 0]));
-  const out = [];
-  points.forEach((p, i) => {
-    const q = points[(i + 1) % points.length], kp = keep(p) * sign, kq = keep(q) * sign;
-    if (kp >= 0) out.push(p);
-    if (kp * kq < 0) {                                                  // the edge crosses the cut: where
-      const t = kp / (kp - kq);
-      out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]);
+// A pair of UK 11 shoes on every shelf, the top one too, lying along its
+// slope, their heels at its front edge, as far right as they go looking
+// down the stairs: against the side board at the outside wall's end, clear
+// of the bevel. What sticks out past the back shows when they don't fit
+function shoePairs(s) {
+  const tilt = THREE.MathUtils.degToRad(s.slope), g = new THREE.Group();
+  const right = s.w / 2 - RACK.board;                                  // the inside of the right-hand side board
+  for (const front of shelfFronts(s)) {
+    const pair = new THREE.Group();
+    pair.position.set(0, front * MM, s.d * MM);
+    pair.rotation.x = -tilt;
+    for (const x1 of [right, right - SHOE.width - SHOE.apart]) {
+      box({ from: [x1 - SHOE.width, -SHOE.length, 0], to: [x1, 0, SHOE.height] }, shoeMat, pair);
     }
-  });
-  return out;
+    g.add(pair);
+  }
+  return g;
 }
 
 // The shelves' front edges' heights: the lowest with its back RACK.bottomShelf
@@ -257,46 +259,42 @@ function shelfFronts(s) {
 }
 
 // ---------------------------------------------------------------------------
-// The menu's block, built into `container`: its sizes and its place, each
-// with a button to put them back as they started. change(edits) is called
-// with a list of [key, value]; the function returned puts the controls in
-// step with the settings `s`.
+// The menu's block, built into `container`: its sizes, with a button to put
+// them back as they started, and the bevel. change(edits) is called with a
+// list of [key, value]; the function returned puts the controls in step
+// with the settings `s`
 // ---------------------------------------------------------------------------
 export function shoeRackControls(container, change) {
   const id = key => `shoeRack_${key}`;
-  const reset = (what, text) => `<div class="row"><button data-reset="${what}">${text}</button></div>`;
   container.innerHTML =
+    `<div class="hint">It stands in the back right corner looking down the stairs: its back to the window, its end against the outside wall.</div>` +
     `<div class="depth"><div><b>Its sizes</b></div>${SIZE_SLIDERS.map(slider(id)).join('')}` +
     `<div class="hint" id="${id('fits')}"></div>` +
-    `<label class="switch"><input type="checkbox" id="${id('shoes')}"> Show a pair of UK 11 shoes</label>${reset('sizes', 'Reset dimensions')}</div>` +
+    `<label class="switch"><input type="checkbox" id="${id('shoes')}"> Show UK 11 shoes, a pair on each shelf</label>` +
+    `<div class="row"><button data-reset="sizes">Reset dimensions</button></div></div>` +
     `<div class="depth"><label class="switch"><input type="checkbox" id="${id('bevel')}"> Bevel for the door</label>` +
-    `<div class="hint">Stands it with its back to the window, as far right as it goes looking down the stairs, and cuts off its front-left corner, which the internal door swings into.</div>` +
-    `<div id="${id('bevelSizes')}">${BEVEL_SLIDERS.map(slider(id)).join('')}</div>` +
-    `<div class="hint" id="${id('door')}"></div></div>` +
-    `<div class="depth" id="${id('place')}"><div><b>Where it stands</b></div>${PLACE_SLIDERS.map(slider(id)).join('')}${reset('place', 'Reset location')}</div>`;
+    `<div class="hint">Makes it as wide as the well and cuts off its front-left corner where the internal door swings, as far as the angle below. The cut stays as the door opens and closes (Doors menu), so set the door, read its angle, and set this to match. Try its depth too.</div>` +
+    `<div id="${id('bevelSlider')}">${slider(id)(BEVEL_SLIDER)}</div>` +
+    `<div class="hint" id="${id('door')}"></div></div>`;
 
   for (const [key] of SLIDERS) document.getElementById(id(key)).addEventListener('input', e => change([[key, Number(e.target.value)]]));
   for (const key of SWITCHES) document.getElementById(id(key)).addEventListener('change', e => change([[key, e.target.checked]]));
-  container.querySelectorAll('button[data-reset]').forEach(b => b.addEventListener('click', () => {
-    const keys = b.dataset.reset === 'sizes' ? [...SIZE_KEYS, ...BEVEL_SLIDERS.map(([k]) => k)] : PLACE_KEYS;
-    change(keys.map(key => [key, valueAt(SHOE_RACK_START, key)]));
-  }));
+  container.querySelector('button[data-reset]').addEventListener('click', () => change(SIZE_KEYS.map(key => [key, valueAt(SHOE_RACK_START, key)])));
 
-  // The place sliders show where it stands; with the bevel that's the
-  // corner, so they're greyed out
   return s => {
-    const at = { ...s, ...placeOf(s) };
+    const shown = { ...s, w: widthOf(s) };                             // with the bevel, the well's width
     for (const [key, , , , , unit] of SLIDERS) {
-      document.getElementById(id(key)).value = String(at[key]);
-      document.getElementById(`${id(key)}Value`).textContent = `${at[key]}${unit}`;
+      document.getElementById(id(key)).value = String(shown[key]);
+      document.getElementById(`${id(key)}Value`).textContent = `${shown[key]}${unit}`;
     }
-    for (const [key] of PLACE_SLIDERS) document.getElementById(id(key)).disabled = s.bevel;
-    container.querySelector('button[data-reset="place"]').disabled = s.bevel;
+    document.getElementById(id('w')).disabled = s.bevel;
+    document.getElementById(id('bevelSlider')).hidden = !s.bevel;
     for (const key of SWITCHES) document.getElementById(id(key)).checked = s[key];
     const room = shoeRoom(s);
     document.getElementById(id('fits')).textContent = `A shoe up to ${room} long lies on a shelf, front to back along its slope: a UK 11 is about ${SHOE.length}, so it ${room >= SHOE.length ? 'fits' : `sticks out ${SHOE.length - room} past the back`}.`;
-    document.getElementById(id('bevelSizes')).hidden = !s.bevel;
     const opens = doorOpensTo(s);
-    document.getElementById(id('door')).textContent = opens >= 90 ? 'The internal door opens all the way (90°).' : `The internal door opens to ${opens}° before it meets the rack.`;
+    document.getElementById(id('door')).textContent = s.bevel
+      ? `Cut for the door at ${s.bevelDoor}°, its front is ${frontLeft(s, s.bevelDoor)} wide of the ${shown.w} at the back.`
+      : opens >= 90 ? 'The internal door opens all the way (90°).' : `The internal door opens to ${opens}° before it meets the rack.`;
   };
 }

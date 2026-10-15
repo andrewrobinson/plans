@@ -62,15 +62,17 @@ The notes:
   your (internal) door into it and the lobby shared with the downstairs
   neighbour, with its external door; both doors on sliders in the Doors
   menu. A **shoe rack** at the foot, an open rack of shelves (430 wide,
-  190 deep, 1240 high to start), in the corner of the back wall and the
-  outside wall, under the window; its sizes, place and turn are sliders in **The
-  shoe rack (downstairs)** in Other options. Its shelves slope down to the
-  back (30° to start, a slider), and it says how long a shoe fits along
-  them, with a pair of UK 11 shoes shown on the bottom shelf. **Bevel for
-  the door** stands it with its back to the window, as far right as it goes
-  looking down the stairs, and cuts off its front-left corner by two
-  sliders; the menu says how far the internal door then opens (73.5°
-  without the cut, 78.5° with it as it starts, at most about 83.5°).
+  190 deep, 1240 high to start), always in the back right corner looking
+  down the stairs: its back to the window, its end against the outside
+  wall. Its sizes are sliders in **The shoe rack (downstairs)** in Other
+  options. Its shelves slope down towards the window (30° to start, a
+  slider), and it says how long a shoe fits along them, with a pair of UK
+  11 shoes on each shelf, as far right as they go. **Bevel for the door**
+  makes it as wide as the well and cuts off the corner the internal door
+  swings through to the angle on its **Bevel for internal door angle**
+  slider (78° to start); the cut stays as the door opens and shuts.
+  Without it, the menu says how far the door opens before meeting the rack
+  (79° as it starts).
 - **The pine cupboard** can be switched off in the bedroom, and on in
   the living room in place of the bench, as the bookcase can.
 - **The bedroom mirror** can be switched off too (**In the bedroom**, under
