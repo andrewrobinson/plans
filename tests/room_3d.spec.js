@@ -174,6 +174,18 @@ test.describe('the controls', () => {
     expect(settingsField(await hash(page), 26)).toBe('1');
   });
 
+  test('the bookshelf takes the bench\'s place and turns its switch off', async ({ page }) => {
+    await page.locator('#bookshelfOn').check();
+    await expect(page.locator('#benchOn')).toBeDisabled();
+    await expect(page.locator('#benchOn')).not.toBeChecked();
+    await expect(page.locator('#benchDetails')).toBeHidden();
+    expect(settingsField(await hash(page), 41)).toBe('1');
+    await page.locator('#bookshelfOn').uncheck();
+    await expect(page.locator('#benchOn')).toBeEnabled();
+    await expect(page.locator('#benchOn')).toBeChecked();             // the bench as it was
+    expect(settingsField(await hash(page), 41)).toBe('0');
+  });
+
   test('the front-wall piece shows the dresser or larder settings', async ({ page }) => {
     await page.check('input[name=frontPiece][value="larder"]');
     await expect(page.locator('#larderBlock')).toBeVisible();

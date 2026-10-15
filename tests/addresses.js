@@ -18,9 +18,12 @@
 // the bed, the bookcase and the pine cupboard, then the lower recess
 // cupboard's depth
 const BEDROOM = '1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301';
+// Then the bookshelf (the bedroom's bookcase in place of the bench), off
+// (added 15 Oct 2026)
+const BOOKSHELF = '0';
 // The default settings after the option and the left-wall depth, the default
 // places of the things to store, and the default view
-const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}`;
+const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}-${BOOKSHELF}`;
 const STORED = '0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1';
 const VIEW = 'birdseye.sit-tall.90-0-0';
 // The page now starts with the Inglesham dresser (dressers.js, 15 Oct 2026);
@@ -49,6 +52,8 @@ const ADDRESSES = [
   // The views: 2D with dimensions, and from places in the room
   { name: 'view-plan', address: `#9-0-${REST}~${STORED}~plan.sit-tall.90-0-0` },
   { name: 'view-back-wall', address: `#9-0-${REST}~${STORED}~back.sit-tall.90-0-0` },
+  // The bedroom's bookcase on the back wall in place of the bench (the last setting, 1)
+  { name: 'view-back-wall-bookshelf', address: `#9-0-${REST.replace(/-0$/, '-1')}~${STORED}~back.sit-tall.90-0-0` },
   { name: 'view-packing', address: `#9-0-${REST}~${STORED}~packing.stand-tall.0-170-170` },
   { name: 'view-desk', address: `#9-0-${REST}~${STORED}~desk.sit-tall.90-0-0` },
 
@@ -60,8 +65,8 @@ const ADDRESSES = [
   // Nearly every setting away from its default, so each field of the
   // address is read and written back (refactor step 3). Checked against the
   // code before step 3: the same address, description and picture.
-  { name: 'settings-option07-no-bench', address: '#7-500-450-1200-1-200-700-900-900-400-600-0-5-0-0-3-43-0-1000.1800.350.800.250-2-chester-2-none-1900-1100.1950.510-1690.1000.920-0-900-300.900.1500-0-1000.2000.170-25-1200-900-0-800-150-2000.500.90-1000.2000.0.1000.250.1000-500.500.270.1000.400.2000-450~1.3.2_100.100.1_200.900.0_300.1000.0.400_400.400.1_500.500.0_600.600.0_700.700.1~plan.sit-tall.90-0-0' },
-  { name: 'settings-current-room', address: `#10-0-330-1200-2-250-800-600-900-400-600-0-0-0-0-1-86-1-1370.1940.410.830.340-0-chester-3-merton-3000-1100.1950.510-2600.1200.1100-1-600-600.1200.1800-600.1200.1800-1395.3571.0-12-800-1200-1-200-800-${BEDROOM}~0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~birdseye.sit-tall.90-0-0` },
+  { name: 'settings-option07-no-bench', address: '#7-500-450-1200-1-200-700-900-900-400-600-0-5-0-0-3-43-0-1000.1800.350.800.250-2-chester-2-none-1900-1100.1950.510-1690.1000.920-0-900-300.900.1500-0-1000.2000.170-25-1200-900-0-800-150-2000.500.90-1000.2000.0.1000.250.1000-500.500.270.1000.400.2000-450-0~1.3.2_100.100.1_200.900.0_300.1000.0.400_400.400.1_500.500.0_600.600.0_700.700.1~plan.sit-tall.90-0-0' },
+  { name: 'settings-current-room', address: `#10-0-330-1200-2-250-800-600-900-400-600-0-0-0-0-1-86-1-1370.1940.410.830.340-0-chester-3-merton-3000-1100.1950.510-2600.1200.1100-1-600-600.1200.1800-600.1200.1800-1395.3571.0-12-800-1200-1-200-800-${BEDROOM}-${BOOKSHELF}~0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~birdseye.sit-tall.90-0-0` },
 ];
 
 module.exports = { ADDRESSES, VIEW, BEDROOM };

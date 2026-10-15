@@ -26,9 +26,11 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    Its furniture ("The other room's furniture", below) comes with it.
    **Started 15 Oct 2026**: the other room (the bedroom) is drawn, its shell
    in `floor.js` (`OTHER_ROOM`, its own u, v coordinates) and its furniture
-   and recess cupboards in `other_room.js`, with sliders in the drawer's
-   Bedroom furniture section, and the address's last four fields
-   (`room_dimensions.md`, "The other room"). Its settings still live in
+   and recess cupboards in `other_room.js`, with sliders (now in a
+   **Bedroom options** drawer of their own, turning in quarter turns), and
+   the address's fields after SIDE_D (`room_dimensions.md`, "The other
+   room"). The back wall's **Bookshelf** switch puts the bedroom's bookcase
+   in the living room in place of the bench (the address's last field). Its settings still live in
    `living_room.js`'s `state.otherRoom`. Later on 15 Oct 2026 the hallway
    and the top of the stairs (`floor.js`'s `HALLWAY`, from the measured A
    to E, AB, AC and Y), and a **Room** choice in the Look menu: Where and

@@ -35,7 +35,7 @@ The HTML only lays out the controls. It contains no logic.
 | Lines | Element | What it is on screen |
 |---|---|---|
 | 29 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
-| 32–38 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), the **option list** (`#current`), **Cupboard options** (`#cupMenu`, opens its drawer), Share and Reset |
+| 32–38 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), the **option list** (`#current`), **Cupboard options** (`#cupMenu`, opens its drawer), **Bedroom options** (`#bedMenu`, opens `#bedPanel`), Share and Reset |
 | 41–65 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
 | 67–77 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
 | 79–82 | `#cutBox` | The **cutting list** (`#cutList`) and its Show/Hide button (`#cutToggle`), bottom left, in the 2D views only |
@@ -68,8 +68,10 @@ The bedroom's bed, bookcase, pine cupboard and recess cupboards, drawn
 into `floor.js`'s `otherRoom` group in the room's own u, v mm. It exports
 `OTHER_ROOM_START` (the settings as they start), `OTHER_ROOM_ADDRESS` (their
 address fields), `drawOtherRoom(settings)` (called from `redrawAround()`)
-and `otherRoomControls(container, change)`, which writes the drawer's
-**Bedroom furniture** sliders into `#otherRoomBlock` from
+(the bookcase hidden while it's in the living room) and `bookcase(sizes)`
+(drawn in the living room by `bookcaseOnBenchWall()` when the back wall's
+Bookshelf is on), and `otherRoomControls(container, change)`, which writes
+the **Bedroom options** drawer's sliders into `#otherRoomBlock` from
 `OTHER_ROOM_SLIDERS` and returns the function `syncControls()` calls to put
 them in step. Unlike the other sections, its sliders aren't in the HTML.
 The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
@@ -232,7 +234,7 @@ The one exception is `<details>`, which is pure HTML.
 
 | Part | Where |
 |---|---|
-| HTML | `<div id="panel" class="drawer">` (**Other options**, opened by ☰ `#menu`) and `<div id="cupPanel" class="drawer">` (**Cupboard options**, opened by `#cupMenu` in the top bar), each with a ✕ (`.close`) |
+| HTML | `<div id="panel" class="drawer">` (**Other options**, opened by ☰ `#menu`) `<div id="cupPanel" class="drawer">` (**Cupboard options**, opened by `#cupMenu` in the top bar) and `<div id="bedPanel" class="drawer">` (**Bedroom options**, opened by `#bedMenu`), each with a ✕ (`.close`) |
 | CSS | Normally moved off-screen to the left with `transform`. With `body.menu-open #panel` or `body.cup-open #cupPanel` it is back on screen. A `transition` on `transform` animates the slide |
 | JS | `DRAWERS` maps each drawer to its button and its class on `<body>`. `setMenu(id)` opens drawer `id` and closes the other (`setMenu(null)` closes both), so one is open at a time. Its button toggles it; ✕, the scrim and Escape close it |
 

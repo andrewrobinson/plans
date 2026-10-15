@@ -28,11 +28,12 @@
 <body>
 <div id="view"></div>
 <!-- The top bar: ☰ for Other options, the option on show (always to hand),
-     Cupboard options, Share and Reset -->
+     Cupboard options, Bedroom options, Share and Reset -->
 <div id="bar">
   <button id="menu" aria-label="Other options" title="Other options" aria-controls="panel" aria-expanded="false">☰</button>
   <select id="current" class="pick" aria-label="Cupboard option"></select>
   <button id="cupMenu" class="chip" aria-controls="cupPanel" aria-expanded="false">Cupboard options</button>
+  <button id="bedMenu" class="chip" aria-controls="bedPanel" aria-expanded="false">Bedroom options</button>
   <button id="share" class="chip">Share</button>
   <button id="reset" class="chip">Reset</button>
 </div>
@@ -151,13 +152,10 @@
       </div>
     </div>
   </details>
-  <details class="sec" id="secOtherRoom">
-    <summary>Bedroom furniture</summary>
-    <div id="otherRoomBlock"></div>
-  </details>
   <details class="sec" id="secBench" open>
     <summary>The back wall: bench, TV and shelves</summary>
     <label class="switch"><input type="checkbox" id="benchOn" checked> Bench</label>
+    <label class="switch" title="The bedroom's bookcase against the back wall, in place of the bench"><input type="checkbox" id="bookshelfOn"> Bookshelf</label>
     <div id="benchDetails">
     <div id="bench" class="depth">Bench height:
       <label><input type="radio" name="bench" value="700"> 700</label>
@@ -308,6 +306,16 @@
     <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
     <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
   </div>
+</div>
+
+<!-- Bedroom options: the bedroom's furniture, where each piece stands and
+     its sizes, a drawer of its own; the sliders are other_room.js's -->
+<div id="bedPanel" class="drawer">
+  <div class="head">
+    <h1>Bedroom options</h1>
+    <button id="bedClose" class="close" aria-label="Close bedroom options">✕</button>
+  </div>
+  <div id="otherRoomBlock"></div>
 </div>
 
 <!-- The room's views, dressers, larders, sofas and scenes, for editing; the module after them imports the kits that show the views and scenes -->

@@ -90,11 +90,14 @@ export const OTHER_ROOM_START = {
 };
 
 // Each slider: [the setting's path in state.otherRoom, its label, lowest,
-// highest, step, unit], in the menu's order under each piece's heading
+// highest, step, unit], in the menu's order under each piece's heading.
+// Turned goes in quarter turns, all that's needed to stand a piece square
+// to a wall (chosen 15 Oct 2026)
+const QUARTER_TURN = 90;
 const PLACE = (piece) => [
   [`${piece}.u`, 'Back’s middle from the window wall', 0, OTHER_ROOM.length, 5, ''],
   [`${piece}.v`, 'Back’s middle from the hallway wall', 0, OTHER_ROOM.recessBack, 5, ''],
-  [`${piece}.turn`, 'Turned', 0, 355, 5, '°'],
+  [`${piece}.turn`, 'Turned', 0, 360 - QUARTER_TURN, QUARTER_TURN, '°'],
 ];
 const SIZES = {
   bookcase: [['w', 400, 2000], ['d', 200, 500], ['h', 600, 2200]],
@@ -114,6 +117,7 @@ export const OTHER_ROOM_SLIDERS = [
 const RANGES = Object.fromEntries(OTHER_ROOM_SLIDERS.flatMap(([, sliders]) => sliders.map(([path, , lo, hi]) => [path, [lo, hi]])));
 const held = (path, text, was) => {
   const [lo, hi] = RANGES[path], n = text ? Number(text) : NaN;
+  if (path.endsWith('.turn') && n % QUARTER_TURN !== 0) return was;   // only quarter turns
   return n >= lo && n <= hi ? n : was;
 };
 const pieceField = (piece, keys) => [`otherRoom.${piece}`,
@@ -138,11 +142,14 @@ const furniture = new THREE.Group();
 otherRoom.add(furniture);
 export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null };   // each piece's group as drawn now, to look at
 
-// Draw everything again from the settings `s` (state.otherRoom)
-export function drawOtherRoom(s) {
+// Draw everything again from the settings `s` (state.otherRoom). With
+// `bookcaseAway` (it's in the living room, in place of the bench) the
+// bookcase is hidden, though still placed, so Looking at it aims at its spot.
+export function drawOtherRoom(s, { bookcaseAway = false } = {}) {
   furniture.clear();
   otherRoomPieces.bed = place(bed(), s.bed);
   otherRoomPieces.bookcase = place(bookcase(s.bookcase), s.bookcase);
+  otherRoomPieces.bookcase.visible = !bookcaseAway;
   otherRoomPieces.cupboard = place(pineCupboard(s.cupboard), s.cupboard);
   recessCupboards(s.lowerD);
 }
@@ -172,8 +179,9 @@ function bed() {
 }
 
 // The bookcase: sides, top, a bottom over a plinth, a thin back, and shelves
-// about BOOKCASE.shelfGap apart between
-function bookcase({ w, d, h }) {
+// about BOOKCASE.shelfGap apart between. Exported for the living room, where
+// it can stand in place of the bench.
+export function bookcase({ w, d, h }) {
   const g = new THREE.Group(), half = w / 2, { board: t, back, plinth } = BOOKCASE;
   box({ from: [-half, 0, 0], to: [-half + t, d, h] }, bookcaseMat, g);                    // sides
   box({ from: [half - t, 0, 0], to: [half, d, h] }, bookcaseMat, g);

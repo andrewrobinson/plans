@@ -14,7 +14,7 @@ html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetic
   box-shadow: 2px 0 14px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45;
   transform: translateX(-105%); transition: transform 0.25s ease;
 }
-body.menu-open #panel, body.cup-open #cupPanel { transform: none; }
+body.menu-open #panel, body.cup-open #cupPanel, body.bed-open #bedPanel { transform: none; }
 .drawer h1 { font-size: 15px; margin: 0; }
 .drawer .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
 .drawer .close { font-size: 18px; line-height: 1; padding: 4px 10px; }
@@ -67,7 +67,7 @@ body.menu-open #panel, body.cup-open #cupPanel { transform: none; }
 #current { flex: 1 1 200px; max-width: 340px; }
 /* On phones the open drawer dims the model; tapping there closes it */
 #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
-@media (max-width: 900px) { body.menu-open #scrim, body.cup-open #scrim { display: block; } }
+@media (max-width: 900px) { body.menu-open #scrim, body.cup-open #scrim, body.bed-open #scrim { display: block; } }
 .drawer label { display: block; margin: 8px 0 2px; }
 /* The drawer's sections, each opening and closing (remembered here) */
 .drawer details.sec { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; }
@@ -82,6 +82,7 @@ body.menu-open #panel, body.cup-open #cupPanel { transform: none; }
 .drawer #islandBlock label { display: block; margin: 2px 0 0 10px; }   /* long choices, one a line */
 /* A switch: a checkbox drawn as a sliding toggle */
 .drawer label.switch { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; }
+.drawer label.switch:has(input:disabled) { opacity: 0.45; cursor: default; }   /* the Bench, while the bookshelf's in its place */
 .switch input { appearance: none; margin: 0; width: 36px; height: 20px; border-radius: 10px; background: #bbb; position: relative; cursor: pointer; transition: background 0.15s; }
 .switch input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 0.15s; }
 .switch input:checked { background: #1f4e79; }

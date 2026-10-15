@@ -26,7 +26,7 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
-import { drawOtherRoom, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, OTHER_ROOM_ADDRESS, BED_SPOTS } from './other_room.js';
+import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, OTHER_ROOM_ADDRESS, BED_SPOTS } from './other_room.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, HALLWAY, hallway } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
@@ -223,6 +223,7 @@ const state = {
   SIDE_W: 400,                     // ...its width along the back wall, 200 to 800, the cupboard's side included (it shares it)
   SIDE_D: 330,                     // ...and its depth from the back wall, 150 to 800
   benchOn: true,                   // the bench drawn, with what's above it; off, the back wall's bare
+  bookshelfOn: false,              // the bedroom's bookcase on the back wall in place of the bench (and what's above it), which is then off whatever benchOn says
   BENCH: 780,                      // the bench's height: 700, 780, 800 or 900
   above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
   shelfDepth: 250,                 // the shelves above the bench: 150 to 400 deep
@@ -1211,6 +1212,13 @@ function aboveHeights(x0) {
   return [];
 }
 
+// Heights up the back wall, for the back view: the bench and what's above
+// it, or the bookcase's top in its place, or nothing with neither
+function backWallHeights(option) {
+  if (benchDrawn()) return [state.BENCH, ...aboveHeights(option.clearFrom())];
+  return state.bookshelfOn ? [state.otherRoom.bookcase.h] : [];
+}
+
 function updateDims() {
   if (dims) scene.remove(dims);
   dims = null;
@@ -1240,7 +1248,7 @@ function updateDims() {
     chain([0, R, ...(above === 1 || above >= 3 ? [shelfDepth] : []), ROOM_DEPTH], (v, off) => P(ROOM_WIDTH + 250 + off, v, CEILING_HEIGHT), dims);
   } else if (flatView === 'back') {
     chain(alongBack, (v, off) => P(v, ROOM_DEPTH, -200 - off), dims);
-    chain([0, BENCH, ...aboveHeights(option.clearFrom()), CEILING_HEIGHT], (v, off) => P(ROOM_WIDTH + 250 + off, ROOM_DEPTH, v), dims);
+    chain([0, ...backWallHeights(option), CEILING_HEIGHT], (v, off) => P(ROOM_WIDTH + 250 + off, ROOM_DEPTH, v), dims);
   } else if (flatView === 'left') {
     chain([...alongLeft, RECESS_FROM, ROOM_DEPTH], (v, off) => P(ROOM_WIDTH, v, -200 - off), dims);
     chain([0, ROOM_DOOR_H, FRAME_H, CEILING_HEIGHT], (v, off) => P(ROOM_WIDTH, FRAME_END + 300 + off, v), dims);
@@ -1915,13 +1923,31 @@ function chooseOption(i) {
 }
 
 
+// The bench is drawn when it's on and the bookshelf isn't in its place
+const benchDrawn = () => state.benchOn && !state.bookshelfOn;
+
+// The bedroom's bookcase against the back wall in place of the bench (the
+// menu's Bookshelf), at its bedroom sizes: centred on the clear wall from
+// x0, as the TV is, or against the cupboards if it's wider than that wall.
+// Returns a sentence for the summary.
+function bookcaseOnBenchWall(x0, g) {
+  const { w, d, h } = state.otherRoom.bookcase, span = ROOM_WIDTH - x0;
+  const middle = Math.max(x0 + w / 2, (x0 + ROOM_WIDTH) / 2);
+  const piece = bookcase({ w, d, h });                           // drawn with its back's middle at its origin, facing out
+  piece.position.set(middle * MM, 0, 0);
+  g.add(piece);
+  const where = w <= span ? `centred on the ${span} of clear wall` : `against the cupboards, ${w - span} wider than the ${span} of clear wall`;
+  return ` The bedroom's bookcase (${w} wide, ${d} deep, ${h} high) on the back wall, ${where}.`;
+}
+
 // An option's description, with the bench off: no bench (rather than its
-// length) and nothing on the back wall, and what stood on the bench at
-// bench height
+// length) and nothing on the back wall (or the bookcase there), and what
+// stood on the bench at bench height
 function withoutBench(text) {
-  if (state.benchOn) return text;
+  if (benchDrawn()) return text;
+  const backWall = state.bookshelfOn ? ' No bench: the bookcase stands there instead.' : ' No bench, so nothing on the back wall.';
   return text
-    .replace(/ ?Bench (shortened to )?\d+[^.;]*? deep(;[^.]*)?\./g, ' No bench, so nothing on the back wall.')
+    .replace(/ ?Bench (shortened to )?\d+[^.;]*? deep(;[^.]*)?\./g, backWall)
     .replace(/\. Base cupboards with \d+ doors under an oak top run on to the right-hand wall: [^.]*? deep\./, '. No base cupboards (no bench), so nothing on the back wall beyond.')
     .replace(/, where it's clear of the \d+-deep bench (\(y [^)]*\))/, ' $1')
     .replace(', behind the bench end.', '.')
@@ -1936,8 +1962,10 @@ function show(i) {
   const same = i === state.option && current;
   state.option = i;
   const group = buildOption(option);
-  if (!state.benchOn) takeOutBench(group, option);
-  const aboveText = (state.benchOn ? benchWall(option.clearFrom(), group) : '') + frontWall(group, i) + sofa(group);
+  if (!benchDrawn()) takeOutBench(group, option);
+  const backWall = benchDrawn() ? benchWall(option.clearFrom(), group)
+    : state.bookshelfOn ? bookcaseOnBenchWall(option.clearFrom(), group) : '';
+  const aboveText = backWall + frontWall(group, i) + sofa(group);
   showInMenus(option, i, aboveText);
   if (!same) secondSlider.value = 0;
   if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
@@ -1972,7 +2000,7 @@ function takeOutBench(group, option) {
 // The menus for option i: the option list, the description, and only the
 // blocks of controls that apply to it
 function showInMenus(option, i, aboveText) {
-  const { T, benchOn, above } = state;
+  const { T, above } = state;
   [...currentSelect.options].forEach((o, j) => { o.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft); });
   currentSelect.value = String(i);
   document.getElementById('summary').innerHTML =
@@ -1990,7 +2018,7 @@ function showInMenus(option, i, aboveText) {
   shown('secondBlock', option.second);
   shown('tvBlock', above >= 2);
   shown('shelfBlock', above === 1 || above >= 3);               // only with shelves above the bench
-  shown('benchDetails', benchOn);
+  shown('benchDetails', benchDrawn());
   const piece = i === CURRENT || islandOnWall() ? 'none' : state.frontPiece;   // the dresser or a larder, if either is drawn
   shown('frontBlock', !(i === CURRENT || islandOnWall()));
   shown('islandMoveBlock', state.island.at === 'room');         // moving and turning: out there only
@@ -2002,7 +2030,7 @@ function showInMenus(option, i, aboveText) {
 // Everything drawn round the option: dimensions, colours, the things to
 // store and the cupboard shelves round them, the cutting list, the address
 function redrawAround() {
-  drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
+  drawOtherRoom(state.otherRoom, { bookcaseAway: state.bookshelfOn });   // the bedroom's furniture, bar the bookcase if it's in here
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2068,6 +2096,7 @@ const ADDRESS = [
   ['SIDE_W', String, within(200, 800)],
   ['SIDE_D', String, within(150, 800)],
   ...OTHER_ROOM_ADDRESS,                                        // the bedroom's furniture
+  ['bookshelfOn', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],
 ];
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
@@ -2341,6 +2370,11 @@ document.getElementById('cupboardOnly').addEventListener('change', e => {
 // The bench: drawn, or not (and nothing above it)
 const benchSwitch = document.getElementById('benchOn');
 benchSwitch.addEventListener('change', () => changeSettings(s => { s.benchOn = benchSwitch.checked; }, { look: true }));
+// The bookshelf: the bedroom's bookcase in place of the bench. While it's
+// on, the Bench switch is off and can't be changed; benchOn is kept, for
+// when it's off again
+const bookshelfSwitch = document.getElementById('bookshelfOn');
+bookshelfSwitch.addEventListener('change', () => changeSettings(s => { s.bookshelfOn = bookshelfSwitch.checked; }, { look: true }));
 // Option 7's shelves: a list of tops for each leg, 100 up to just under the
 // ceiling (none is fine)
 const shelfInputs = { back: document.getElementById('shelvesBack'), left: document.getElementById('shelvesLeft') };
@@ -2622,11 +2656,12 @@ document.getElementById('doorDims').addEventListener('click', e => {
   updateDims();
 });
 
-// The settings drawers, one open at a time, both closed to start on every
-// screen: Other options, opened by ☰, and Cupboard options by its button.
+// The settings drawers, one open at a time, all closed to start on every
+// screen: Other options, opened by ☰, and Cupboard options and Bedroom
+// options by their buttons.
 // Each: [its button, the class on <body> while it's open]. The 2D views
 // move clear of the drawer as it opens and closes.
-const DRAWERS = { panel: ['menu', 'menu-open'], cupPanel: ['cupMenu', 'cup-open'] };
+const DRAWERS = { panel: ['menu', 'menu-open'], cupPanel: ['cupMenu', 'cup-open'], bedPanel: ['bedMenu', 'bed-open'] };
 const drawers = createDrawers(DRAWERS, () => resize(true));
 drawers.setMenu(null);
 
@@ -2651,7 +2686,7 @@ const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomBlock'
 }));
 
 function syncControls() {
-  const { T, R, F, BOARD, BENCH, above, shelfDepth, benchOn, tv, frontPiece, island } = state;
+  const { T, R, F, BOARD, BENCH, above, shelfDepth, benchOn, bookshelfOn, tv, frontPiece, island } = state;
   const slide = (id, value, text = value) => {
     document.getElementById(id).value = String(value);
     document.getElementById(`${id}Value`).textContent = text;
@@ -2663,7 +2698,9 @@ function syncControls() {
   for (const [id, key] of [['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']]) slide(id, state[key]);
   sideShelfSwitch.checked = state.SIDE_SHELF;
   check('front', F);
-  benchSwitch.checked = benchOn;
+  benchSwitch.checked = benchOn && !bookshelfOn;
+  benchSwitch.disabled = bookshelfOn;
+  bookshelfSwitch.checked = bookshelfOn;
   check('bench', BENCH);
   check('above', above);
   slide('shelfDepth', shelfDepth);
