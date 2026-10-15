@@ -243,7 +243,8 @@ from inside only, as the bedroom's, so the bird's eye looks in.
 | The bedroom's wall, hallway side | y 2371, 150 thick (G), so the bedroom's side is at 2521 | Measured (C + AC, G) |
 | The banister | y 1312, 909 from the kitchen side | Measured (AB; D gives 1317) |
 | The far end, the WC wall | x −2480, 2330 along | Measured (Y), to check: the drawing scales 3360 |
-| The stairs | A landing 800 along at the top (the winders, simplified), then a straight flight down to the far end: 7 steps, rise 210, going about 219, wall to banister | Estimated; W and X are still to measure |
+| The stairs | A landing 800 along at the top (the winders, simplified), a step (210) down from the hallway's floor, then a straight flight down to the far end: 7 steps, rise 210, going about 219, wall to banister | The step from the photo; the rest estimated, as W and X are still to measure |
+| Floors | The hallway's oak boards, as the living room's, with a metal strip (30 wide) along their edge over the landing; the landing and the stairs carpet, as the bedroom | From the photos |
 | Banister | Rail at 900, 60 wide; spindles 30 thick, about 120 apart; a 90 newel post at each end | Estimated |
 | Ceiling | 2443, as the living room's | Assumed |
 

@@ -5,7 +5,7 @@
 // the room's measurements (ROOM_WIDTH, the recesses, the door frame, …) and
 // the materials the colours menu changes, for living_room.js.
 import * as THREE from 'three';
-import { MM, material, box, slab, hinge } from './kit/floor_kit.js';
+import { MM, material, box, slab, hinge, oakBoards } from './kit/floor_kit.js';
 
 export const floor = new THREE.Group();
 
@@ -148,7 +148,8 @@ const HALLWAY = {
   width: 909,
   // The stairs: at the top, by the living room door, winders turn you into
   // the hallway; drawn as a landing this far along (estimated from the
-  // drawing), then a straight flight down to the far end. Each step's rise
+  // drawing), a step down from the hallway (from the photo, 15 Oct 2026),
+  // then a straight flight down to the far end. Each step's rise
   // and going are estimated (about 2750 floor to floor in 13 risers), as
   // are the banister's rail height and its spindles' spacing
   landing: 800,
@@ -164,7 +165,8 @@ HALLWAY.xLanding = HALLWAY.x0 - HALLWAY.landing;                        // the t
 HALLWAY.yBanister = HALLWAY.kitchenSide - HALLWAY.width;                // 1312
 HALLWAY.ySetBack = HALLWAY.kitchenSide + HALLWAY.setBack;               // the bedroom's wall: 2371
 HALLWAY.steps = Math.round((HALLWAY.xLanding - HALLWAY.xEnd) / HALLWAY.going);   // 7, in the flight as far as the far end
-HALLWAY.drop = HALLWAY.steps * HALLWAY.rise;                            // how far down the stairs go before the far end
+HALLWAY.landingDown = HALLWAY.rise;                                     // the landing, a step down from the hallway's floor
+HALLWAY.drop = HALLWAY.landingDown + HALLWAY.steps * HALLWAY.rise;      // how far down the stairs go before the far end
 
 // ---------------------------------------------------------------------------
 // The other room (the bedroom), beyond the kitchen recess. It has its own
@@ -219,6 +221,13 @@ const OTHER_ROOM_CORNER = {
 const BEDROOM_DOOR_T = 44;
 let bedroomHinge;
 const carpetMat = material(0x8f8780);             // grey-beige, from the photos
+// The hallway's floor: oak boards, as the living room's oak (from the
+// photos, 15 Oct 2026), its own so the living room's floor colour leaves it
+// be; the landing and the stairs are carpet, as the bedroom is, with a metal
+// strip along the hallway floor's edge over the landing
+const hallFloorMat = new THREE.MeshStandardMaterial({ color: 0xffffff, map: oakBoards(), roughness: 0.8 });
+const trimMat = new THREE.MeshStandardMaterial({ color: 0xc8c8c4, roughness: 0.3, metalness: 0.6 });
+const NOSING = { w: 30, h: 5 };                    // the strip's width and how far it stands up (estimated from the photos)
 const otherRoom = new THREE.Group();
 otherRoom.position.set(OTHER_ROOM_CORNER.x * MM, 0, OTHER_ROOM_CORNER.y * MM);
 floor.add(otherRoom);
@@ -302,11 +311,17 @@ HALLWAY.bedroomFrameBack = OTHER_ROOM_CORNER.y - OTHER_ROOM.door.wall;
 const hallway = new THREE.Group();                                     // at the living room's origin
 floor.add(hallway);
 {
-  const { x0, xStep, xEnd, xLanding, kitchenSide, yBanister, ySetBack, steps, rise, drop, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
+  const { x0, xStep, xEnd, xLanding, kitchenSide, yBanister, ySetBack, steps, rise, landingDown, drop, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
   const face = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, hallway);
 
-  // The floor: the landing at the top of the stairs, and the hallway
-  slab([[x0, 0], [xLanding, 0], [xLanding, yBanister], [xEnd, yBanister], [xEnd, ySetBack], [xStep, ySetBack], [xStep, kitchenSide], [x0, kitchenSide]], -20, 0, carpetMat, hallway);
+  // The floors: the hallway's, with the metal strip along its edge over the
+  // landing, and the landing a step down, its riser under that edge, and
+  // the door wall's face down to it
+  slab([[x0, yBanister], [xEnd, yBanister], [xEnd, ySetBack], [xStep, ySetBack], [xStep, kitchenSide], [x0, kitchenSide]], -20, 0, hallFloorMat, hallway);
+  box({ from: [xLanding, yBanister, 0], to: [x0, yBanister + NOSING.w, NOSING.h] }, trimMat, hallway, false);
+  slab([[x0, 0], [xLanding, 0], [xLanding, yBanister], [x0, yBanister]], -landingDown - 20, -landingDown, carpetMat, hallway);
+  insideFace(x0 - xLanding, landingDown, carpetMat, [(x0 + xLanding) / 2, yBanister, -landingDown / 2], '-v', hallway);
+  face(yBanister, landingDown, [x0, yBanister / 2, -landingDown / 2], '-u');
 
   // The living room door's wall: its hallway face, and the sides and head
   // of the doorway through the part of it the living room's 100 leaves
@@ -339,10 +354,10 @@ floor.add(hallway);
   // to the bottom, with the hallway floor's edge and the landing's above them
   for (let k = 0; k < steps; k++) {
     const going = (xLanding - xEnd) / steps;
-    box({ from: [xLanding - (k + 1) * going, 0, -drop], to: [xLanding - k * going, yBanister, -(k + 1) * rise] }, carpetMat, hallway);
+    box({ from: [xLanding - (k + 1) * going, 0, -drop], to: [xLanding - k * going, yBanister, -landingDown - (k + 1) * rise] }, carpetMat, hallway);
   }
   face(xLanding - xEnd, drop, [(xLanding + xEnd) / 2, yBanister, -drop / 2], '-v');
-  face(yBanister, drop, [xLanding, yBanister / 2, -drop / 2], '-u');
+  face(yBanister, drop - landingDown, [xLanding, yBanister / 2, -(drop + landingDown) / 2], '-u');
 
   // The banister along the flight: a rail on spindles, a newel post at each end
   box({ from: [xEnd, yBanister, rail - 50], to: [xLanding, yBanister + railW, rail] }, frameMat, hallway);
