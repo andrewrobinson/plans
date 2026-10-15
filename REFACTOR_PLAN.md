@@ -63,9 +63,14 @@ heights named":
   worktop (`KITCHEN.worktopT`, `worktopProud`), the island's top
   (`island.topT`), the desk's top (`DESK_TOP_T`) and option 8's
   `SHELF_SETBACK`. The dresser and larders keep their own 3s and 40s, as
-  bought furniture; the handles' 20s and 22s could be named too.
-- Left: each option's `build()` and `cornerCupboard()` in named
-  steps (`fullHeightL()` is short enough); one function for changing the
+  bought furniture; the handles' 20s and 22s could be named too. Options
+  8's and 9's `build()` and `cornerCupboard()` in named steps
+  (`diagonalCarcass()`, `diagonalShelves()`, `diagonalDoors()`;
+  `wardCarcass()`, `wardDoors()`; `cornerCarcass()`,
+  `cornerDoorsToKitchen()`, `cornerDoorsToWindows()`), drawing in the
+  same order so the cutting lists don't change. The other options'
+  `build()`s were already short, as is `fullHeightL()`.
+- Left: one function for changing the
   settings; each file's opening comment; `board()` could take
   `{ from, to }` as `box()` now does.
 
