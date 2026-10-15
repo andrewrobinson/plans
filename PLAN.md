@@ -42,7 +42,10 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    (`room_dimensions.md`, "Views"). That evening the stairs from the
    user's measurements and photos: 11 straight steps, 3 winders turning
    right by the living room door, a top step level with the hallway, 15
-   risers of 190; the hallway's ceiling left out, as asked. The bedroom's door and window views
+   risers of 190; the hallway's ceiling left out, as asked. Then the top
+   of the well from photos: a sill board each side bridging to the
+   hallway floor, the banister's 110 base, and the WC wall stopping at
+   the floor's level over the stairs. The bedroom's door and window views
    became places in its Where. Still to do: the measured numbers as they
    come in (S, W, X: `MEASUREMENTS_NEEDED.md`); the
    bathroom and WC; walls drawn from above in the bedroom's and hallway's

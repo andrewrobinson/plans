@@ -53,13 +53,18 @@ The notes:
   bedroom and the living room too.
 - **The stairs**, measured and counted: 900 wall to wall, 11 straight steps,
   3 winders and a top step level with the hallway, 15 risers of 190. Only
-  the going (X) is still the drawing's 220.
+  the going (X) is still the drawing's 220. At the top, a sill board on
+  each side bridges to the hallway floor (240 wide and 210 down on the
+  banister's side, 120 wide and level on the outside), and the WC wall
+  stops at the floor's level over the stairs.
 - **The Look menu** chooses the **Room** (living room, hallway, bedroom):
   Where and Looking at offer that room's, and Bird's eye and Plan (2D)
   frame it.
 
 Next (`PLAN.md`): Y to check (2330, against 3360 on the drawing); the
-stairs' going (X) and the winders' sizes; the bathroom and WC; walls seen from above in the bedroom's
+stairs' going (X) and the winders' sizes; the right sill board's 2370
+against the hallway's 2330, and the WC wall's bottom over the stairs (how
+deep, how far down); the bathroom and WC; walls seen from above in the bedroom's
 and hallway's plans; looking from the hallway into a room; stopping
 furniture at the walls.
 
