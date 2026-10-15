@@ -245,14 +245,23 @@ test.describe('dropdowns', () => {
     expect(await field(page, 17)).toBe('5014');
   });
 
-  // The carpet (bedroom and stairs), field 54: Dormouse as laid (0), the
-  // darker colour from the photos (12), or any RAL colour
+  // The carpet (bedroom and stairs), field 54: from the doorway photo (0),
+  // the first photos' colour lighter (13), as it was (12), Dormouse's
+  // swatch (11), or any RAL colour
   test('the carpet colour, ◀ ▶, and other colours', async ({ page }) => {
     expect(await field(page, 54)).toBe('0');
-    await expect(page.locator('#carpetSwatch')).toHaveCSS('background-color', 'rgb(162, 144, 124)');   // #A2907C, Dormouse
+    await expect(page.locator('#carpetSwatch')).toHaveCSS('background-color', 'rgb(181, 164, 153)');   // #B5A499, from the doorway photo
+    await page.click('#carpetNext');
+    expect(await field(page, 54)).toBe('13');
+    await expect(page.locator('#carpetSwatch')).toHaveCSS('background-color', 'rgb(171, 165, 160)');   // #ABA5A0, the photos' colour, lighter
     await page.click('#carpetNext');
     expect(await field(page, 54)).toBe('12');
     await expect(page.locator('#carpetSwatch')).toHaveCSS('background-color', 'rgb(143, 135, 128)');   // #8F8780, from the photos
+    await page.click('#carpetNext');
+    expect(await field(page, 54)).toBe('11');
+    await expect(page.locator('#carpetSwatch')).toHaveCSS('background-color', 'rgb(162, 144, 124)');   // #A2907C, Dormouse
+    await page.click('#carpetPrev');
+    await page.click('#carpetPrev');
     await page.click('#carpetPrev');
     expect(await field(page, 54)).toBe('0');
     await page.selectOption('#ral-carpet', 'other');

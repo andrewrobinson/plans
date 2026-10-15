@@ -309,12 +309,17 @@ ENTRANCE.outsideDoorHingeY = ENTRANCE.yLobby0 + ENTRANCE.outsideDoor.fromWellWal
 const BEDROOM_DOOR_T = 44;
 let bedroomHinge;
 // The carpet, in the bedroom and on the stairs: Cormar's Hampstead wool
-// twist in Dormouse, a light warm grey-beige. Its colour is averaged from
-// the maker's overhead swatch photo (cormarcarpets.co.uk, Hampstead,
-// variants, Dormouse; 15 Oct 2026). The darker grey-beige it was drawn in
-// before, from the room photos, is kept to choose in the Colours menu.
-const CARPET_COLOURS = { dormouse: '#A2907C', fromPhotos: '#8F8780' };
-const carpetMat = material(CARPET_COLOURS.dormouse);
+// twist in Dormouse. It's drawn in the colour from the user's photo from the
+// bedroom doorway into the hallway (15 Oct 2026), the carpet beside the
+// oak, the woodwork and the walls. The photo's light is warm: the carpet
+// (#99806C there) is corrected by the woodwork's white (#D2C3B0 there,
+// Dulux Pure Brilliant White, drawn #F8F8F6), channel by channel in linear
+// light. Kept to choose in the Colours menu: the colour first taken from
+// the room photos (#8F8780), that mixed a quarter of the way to white, and
+// Dormouse averaged from the maker's overhead swatch photo
+// (cormarcarpets.co.uk, Hampstead, variants, Dormouse), which looked too brown.
+const CARPET_COLOURS = { doorwayPhoto: '#B5A499', lighter: '#ABA5A0', dormouse: '#A2907C', fromPhotos: '#8F8780' };
+const carpetMat = material(CARPET_COLOURS.doorwayPhoto);
 // The hallway's floor: oak boards, as the living room's oak (from the
 // photos, 15 Oct 2026), its own so the living room's floor colour leaves it
 // be; the stairs are carpet, as the bedroom is, with a metal strip where

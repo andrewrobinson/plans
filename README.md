@@ -70,8 +70,10 @@ The notes:
 - **The bedroom mirror** can be switched off too (**In the bedroom**, under
   Mirror in Bedroom options).
 - **The carpet** (bedroom and stairs) is Cormar's Hampstead wool twist in
-  Dormouse, a light warm grey-beige from the maker's swatch photo; its
-  colour can be changed under **Carpet** in the Colours menu.
+  Dormouse, drawn in its colour in the photo from the bedroom doorway,
+  corrected for the photo's warm light by the woodwork's white (the
+  maker's swatch came out too brown); its colour can be changed under
+  **Carpet** in the Colours menu.
 - **The Look menu** chooses the **Room** (living room, hallway, bedroom,
   downstairs):
   Where and Looking at offer that room's, and Bird's eye and Plan (2D)

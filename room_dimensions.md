@@ -138,7 +138,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 | Cupboard colour | `colours.cupboard` | Named colours to compare (◀ ▶ flip between them): Clerkenwell Gloss White, AI Olive, Bella Brittany, Blinds as drawn, Kitchen worktop, Kitchen island, Kitchen island top, same colour as the door (Pure Brilliant White), same colour as the walls (Crown Gallery White). Or "Other colours…", which opens a second dropdown of 23 popular cupboard colours and all 99 RAL Classic colours by family | AI Olive | Covers carcasses, doors and the bench. Floor, walls and woodwork are fixed as the room is. Screen colours are approximate |
 | Dresser colour | `colours.dresser` | The same named colours and "Other colours…" as the cupboards, plus Same as the cupboards (0), Same colour as the door (2) and Same colour as the walls (1) | Same as the cupboards | The dresser's painted body, doors and drawers. Its top and shelves follow the shelf colour |
 | Dresser sizes | `dresser` (sliders) | Width 900 to 1415 in 5s, height 1500 to 2400, base depth 300 to 600, base height 700 to 1000, upper depth 150 to 600 (no deeper than the base), all in 10s | 1000, 1930, 420, 830, 420 (the Inglesham; see `dressers.js`) | The dresser stays centred between the end of the kitchen counter and the desk recess; its three shelves spread evenly up the upper part. Hidden for the current room |
-| Carpet colour | `colours.carpet` | Cormar Dormouse, as laid (0), or From the room photos (12, the darker `#8F8780` it was drawn in before); ◀ ▶ flip between them. Or "Other colours…", any RAL colour as for the cupboards | Cormar Dormouse `#A2907C` | The bedroom's and the stairs' carpet. Dormouse's colour is averaged from Cormar's overhead swatch photo of Hampstead in Dormouse (15 Oct 2026). Screen colours are approximate |
+| Carpet colour | `colours.carpet` | From the doorway photo (0, `#B5A499`), From the room photos, lighter (13, `#ABA5A0`, greyer), From the room photos (12, the darker `#8F8780` it was drawn in first), or Cormar Dormouse swatch (11, `#A2907C`, browner); ◀ ▶ flip between them. Or "Other colours…", any RAL colour as for the cupboards | From the doorway photo | The bedroom's and the stairs' carpet, Cormar Hampstead in Dormouse. Its colour is from the user's photo from the bedroom doorway (15 Oct 2026): the carpet's `#99806C` there, corrected channel by channel, in linear light, by the woodwork's `#D2C3B0` there to the woodwork's `#F8F8F6`. Screen colours are approximate |
 | Shelf colour | `shelfWood` | 0 As drawn (pale oak `#D6BC8F`, option 9's oak `#C8A26B`), 1 Honey oak (as the island top, `#D6A562`), 2 Dark oak (`#8A5A33`), 3 Walnut (`#5C3D26`) | 0 | All the wooden shelves (above the bench, option 9's tower) and option 9's oak bench top |
 | Left-wall cupboard door | slider | 0°–110° | 0° | How far it's opened |
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
@@ -153,7 +153,7 @@ The full list of the address's fields, in order, with how each is checked, is `A
 
 The last three (added 15 Oct 2026): the pine cupboard in the bedroom (1 or 0); on the living room's back wall in place of the bench (the **Pine cupboard** switch under The back wall, 1 or 0), as the Bookshelf is; and its place there, `wall` where it starts (its back to the back wall, in the corner by the right-hand wall, at its bedroom sizes) or `x.y.turn`. With both it and the bookshelf on, the bookshelf starts centred on the clear wall up to the pine cupboard, or against the cupboards if it's wider than that.
 
-Then (added 15 Oct 2026) the bedroom's mirror there or not (its **In the bedroom** switch, 1 or 0), and the carpet's colour (`colours.carpet`, 0 for Cormar Dormouse).
+Then (added 15 Oct 2026) the bedroom's mirror there or not (its **In the bedroom** switch, 1 or 0), and the carpet's colour (`colours.carpet`, 0 for its colour in the doorway photo).
 
 Then (added 15 Oct 2026) the shoe rack downstairs, `w.d.h.along.across.turn` (see "The shoe rack" below).
 
@@ -423,7 +423,7 @@ The screen colours each part is drawn in, as set in [living_room.js](living_room
 | Door, door frame, window sills | `#F8F8F6` | Dulux Pure Brilliant White (finish 2) |
 | Ceiling | `#EDECE7` | Pure Brilliant White, matt |
 | Floor | oak boards averaging `#D29A50` | Howdens oak (finish 3), drawn as a texture |
-| Carpet (bedroom and stairs) | `#A2907C` | Cormar Hampstead in Dormouse (finish 11), from the maker's swatch photo; or the carpet colour chosen |
+| Carpet (bedroom and stairs) | `#B5A499` | Cormar Hampstead in Dormouse, its colour in the doorway photo (finish 14); or the carpet colour chosen |
 | Cupboards: carcasses, doors and bench | the cupboard colour | AI Olive `#B8B0A4` by default; see the named colours above |
 | Shelves | `#D6BC8F` | Or the shelf colour chosen |
 | Option 9's tower shelves and oak top | `#C8A26B` | Or the shelf colour chosen |

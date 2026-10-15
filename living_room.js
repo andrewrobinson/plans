@@ -608,10 +608,13 @@ const FINISHES = {
   8: { name: 'Kitchen worktop', hex: '#CFC3B0' },
   9: { name: 'Kitchen island', hex: '#EDE6D5' },
   10: { name: 'Kitchen island top', hex: '#D6A562' },                // the island's honey oak top, as a plain colour
-  // The carpet (bedroom and stairs), as laid, and as it was drawn from the
-  // room photos before (floor.js's CARPET_COLOURS)
+  // The carpet (bedroom and stairs): Dormouse from the maker's swatch, the
+  // colour from the room photos, that made lighter, and the colour from the
+  // doorway photo, as it's drawn (floor.js's CARPET_COLOURS)
   11: { name: 'Cormar Dormouse', hex: CARPET_COLOURS.dormouse },
   12: { name: 'Carpet from the photos', hex: CARPET_COLOURS.fromPhotos },
+  13: { name: 'Carpet, lighter', hex: CARPET_COLOURS.lighter },
+  14: { name: 'Carpet from the doorway photo', hex: CARPET_COLOURS.doorwayPhoto },
 };
 const colourOf = code => RAL[code] ? { name: RAL[code][0], hex: RAL[code][1] } : FINISHES[code];
 
@@ -624,7 +627,7 @@ const COLOUR_TARGETS = {
   wall: { mats: [wallMat], room: 1 },
   woodwork: { mats: [frameMat, roomDoorMat], room: 2 },
   dresser: { mats: [dresserMat, dresserDoorMat], follows: 'cupboard' },
-  carpet: { mats: [carpetMat], room: 11 },
+  carpet: { mats: [carpetMat], room: 14 },
 };
 
 
@@ -2354,10 +2357,11 @@ colourPicker('cupboard', ['ral-cupboard', 'ral-other', 'otherRow', 'colPrev', 'c
   [[0, 'Same colour as the door'], [1, 'Same colour as the walls']]);
 colourPicker('dresser', ['ral-dresser', 'ral-dresser-other', 'dresserOtherRow', 'dresserPrev', 'dresserNext', 'dresserSwatch'],
   [[0, 'Same as the cupboards'], [2, 'Same colour as the door'], [1, 'Same colour as the walls']]);
-// The carpet: as laid (0, its default, Dormouse), or as drawn before, from
-// the photos; none of the cupboards' named colours
+// The carpet: from the doorway photo (0, its default), the first photos'
+// colour made lighter, or as it was, or Dormouse from the maker's swatch;
+// none of the cupboards' named colours
 colourPicker('carpet', ['ral-carpet', 'ral-carpet-other', 'carpetOtherRow', 'carpetPrev', 'carpetNext', 'carpetSwatch'],
-  [[0, 'Cormar Dormouse (as laid)'], [12, 'From the room photos (darker)']], []);
+  [[0, 'From the doorway photo'], [13, 'From the room photos, lighter (greyer)'], [12, 'From the room photos (darker)'], [11, 'Cormar Dormouse swatch (browner)']], []);
 refreshColours();
 
 // The shelf colour: the wooden shelves everywhere (above the bench, in the

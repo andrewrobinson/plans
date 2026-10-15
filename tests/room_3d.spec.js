@@ -40,7 +40,7 @@ test.describe('saved addresses', () => {
   // drawn: their twelve fields left off the end, so the bookshelf's against
   // the wall, the bookcase, the pine cupboard and the mirror in the bedroom,
   // the bench in the hallway, no pine cupboard in the living room, the
-  // carpet Dormouse and the shoe rack at the foot of the stairs, as they start
+  // carpet as in the doorway photo and the shoe rack at the foot of the stairs, as they start
   test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench, the pine cupboard, the mirror, the carpet or the shoe rack keeps them as they start', async ({ page }) => {
     const [settings, ...rest] = DEFAULT.split('~');
     await openRoom(page, [settings.split('-').slice(0, -12).join('-'), ...rest].join('~'));

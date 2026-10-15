@@ -40,7 +40,7 @@ const WICKER_BENCH = '920.410.450.80-1.1470.1372.0-0.1360.1985.0-0.3686.2910.90'
 // the living room (0), where it would start against the back wall
 const PINE = '1-0-wall';
 // Then whether the mirror is in the bedroom, as it is (1), and the carpet's
-// colour, 0 for its default, Cormar Dormouse (both added 15 Oct 2026)
+// colour, 0 for its default, from the doorway photo (both added 15 Oct 2026)
 const MIRROR_ON = '1';
 const CARPET = '0';
 // Then the shoe rack downstairs (added 15 Oct 2026): w.d.h.along.across.turn,

@@ -36,7 +36,7 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    have drawers over its open shelves and mirrors on its tall doors (the
    address's last field). Later the mirror got an **In the bedroom**
    switch, as the bookcase and the pine cupboard have, and the carpet a
-   colour in the Colours menu, Cormar Dormouse as it starts. Its settings still live in
+   colour in the Colours menu, its colour in the doorway photo as it starts. Its settings still live in
    `living_room.js`'s `state.otherRoom`. Later on 15 Oct 2026 the hallway
    and the top of the stairs (`floor.js`'s `HALLWAY`, from the measured A
    to E, AB, AC and Y), and a **Room** choice in the Look menu: Where and
