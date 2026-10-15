@@ -28,7 +28,7 @@ import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
 import { drawOtherRoom, bookcase, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
 import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_ADDRESS } from './wicker_bench.js';
-import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, HALLWAY, hallway } from './floor.js';
+import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -1265,6 +1265,8 @@ function updateDims() {
     bedroomPlanDims(dims);
   } else if (flatView === 'plan' && flatRoom === 'hallway') {
     hallwayPlanDims(dims);
+  } else if (flatView === 'plan' && flatRoom === 'downstairs') {
+    entrancePlanDims(dims);
   } else if (flatView === 'plan') {
     chain(alongBack, (v, off) => P(v, -250 - off, CEILING_HEIGHT), dims);
     chain([...alongLeft, RECESS_FROM, ROOM_DEPTH], (v, off) => P(KITCHEN_RECESS_BACK_WALL_X - 300 - off, v, CEILING_HEIGHT), dims);
@@ -1311,6 +1313,17 @@ function hallwayPlanDims(g) {
   chain([xEnd, xTurn, x0], (v, off) => P(v, -250 - off, CEILING_HEIGHT), g);
   chain([xEnd, bedroomDoor[0], xStep, x0], (v, off) => P(v, ySetBack + 250 + off, CEILING_HEIGHT), g);
   chain([yHallOut, yWellOut, yWellIn, ySillEdge, yBoxFace, kitchenSide, ySetBack], (v, off) => P(xEnd - 250 - off, v, CEILING_HEIGHT), g);
+}
+
+// The stairs' and entrance's plan, in the living room's mm: along the
+// stairs' outside wall (the back wall, the flat's door, the bottom step,
+// the winders' square, the door wall), and across beside the back wall
+// (the well, the wall to the lobby, the outside door and the lobby)
+function entrancePlanDims(g) {
+  const { x0, xTurn, xFoot, yWellOut, yWellIn } = HALLWAY;
+  const { xBack, flatDoorHingeX: f0, flatDoor, yLobby0, yLobby1, outsideDoorHingeY: o1, outsideDoor } = ENTRANCE;
+  chain([xBack, f0, f0 + flatDoor.width, xFoot, xTurn, x0], (v, off) => P(v, yWellOut - 250 - off, CEILING_HEIGHT), g);
+  chain([yWellOut, yWellIn, yLobby0, o1 - outsideDoor.width, o1, yLobby1], (v, off) => P(xBack - 250 - off, v, CEILING_HEIGHT), g);
 }
 
 // In the wall views, anything wholly on the camera's side of the view's cut
@@ -1923,6 +1936,10 @@ const tallSlider = document.getElementById('tallDoor');
 const secondSlider = document.getElementById('secondDoor');
 const roomSlider = document.getElementById('roomDoor');
 const bedroomSlider = document.getElementById('bedroomDoor');
+// The entrance's two doors (floor.js's ENTRANCE): the flat's own, into the
+// stairs' foot, and the shared lobby's outside door
+const flatDoorSlider = document.getElementById('flatDoor');
+const outsideDoorSlider = document.getElementById('outsideDoor');
 let current = null;          // { group, tall, second }
 
 function update() {
@@ -1932,14 +1949,17 @@ function update() {
   }
   roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomSlider.value));
   bedroomHinge.rotation.y = -THREE.MathUtils.degToRad(Number(bedroomSlider.value));   // it opens the other way, into the bedroom
+  for (const [h, s] of [[flatDoorHinge, flatDoorSlider], [outsideDoorHinge, outsideDoorSlider]]) h.rotation.y = (h.userData.dir ?? 1) * THREE.MathUtils.degToRad(Number(s.value));
   if (dims) updateDims();                                       // the doors' labels go with them
   applyCut();                                                   // the doors may have moved across a cut
   document.getElementById('tallDoorValue').textContent = `${tallSlider.value}°`;
   document.getElementById('secondDoorValue').textContent = `${secondSlider.value}°`;
   document.getElementById('roomDoorValue').textContent = `${roomSlider.value}°`;
   document.getElementById('bedroomDoorValue').textContent = `${bedroomSlider.value}°`;
+  document.getElementById('flatDoorValue').textContent = `${flatDoorSlider.value}°`;
+  document.getElementById('outsideDoorValue').textContent = `${outsideDoorSlider.value}°`;
 }
-[tallSlider, secondSlider, roomSlider, bedroomSlider].forEach(s => s.addEventListener('input', update));
+[tallSlider, secondSlider, roomSlider, bedroomSlider, flatDoorSlider, outsideDoorSlider].forEach(s => s.addEventListener('input', update));
 
 // The top bar's dropdown of options, kept in step by show()
 const currentSelect = document.getElementById('current');
@@ -2535,6 +2555,9 @@ document.getElementById('xray').addEventListener('click', e => {
 const BEDROOM_AREA = { x: (OTHER_ROOM_CORNER.x + OTHER_ROOM.length / 2) * MM, y: (OTHER_ROOM_CORNER.y + OTHER_ROOM.recessBack / 2) * MM,
   w: OTHER_ROOM.length * MM, d: OTHER_ROOM.recessBack * MM };
 const HALLWAY_AREA = { x: (HALLWAY.x0 + HALLWAY.xEnd) / 2 * MM, y: HALLWAY.ySetBack / 2 * MM, w: HALLWAY.length * MM, d: HALLWAY.ySetBack * MM };
+// The stairs and the entrance: from the hallway's door wall to the
+// building's back wall, and from the stairs' outside wall across the lobby
+const ENTRANCE_AREA = { x: (HALLWAY.x0 + ENTRANCE.xBack) / 2 * MM, y: ENTRANCE.yLobby1 / 2 * MM, w: (HALLWAY.x0 - ENTRANCE.xBack) * MM, d: ENTRANCE.yLobby1 * MM };
 const BEDROOM_WINDOW_WALL = OTHER_ROOM_CORNER.x * MM;
 // A room's plan: straight down on its middle, the back wall's side at the
 // top as in the living room's, with room round it for its dimensions
@@ -2553,6 +2576,7 @@ const builtInViews = {
     rooms: {
       bedroom: { position: [BEDROOM_WINDOW_WALL - 0.66, 7.5, BEDROOM_AREA.y], target: [BEDROOM_WINDOW_WALL + 2.6, 0, BEDROOM_AREA.y] },
       hallway: { position: [HALLWAY_AREA.x, 6.0, -1.8], target: [HALLWAY_AREA.x, 0, 1.6] },
+      downstairs: { position: [ENTRANCE_AREA.x, 3.6, -3.4], target: [ENTRANCE_AREA.x, ENTRANCE.floor / 2 * MM, 1.2] },   // aimed halfway down the stairs, chosen to fit
     } },
   // The wall views leave out what's on the camera's side of their cut (see
   // applyCut): the back wall view everything past the return wall, the left
@@ -2560,7 +2584,7 @@ const builtInViews = {
   // everything short of the island's far end, the right wall view everything
   // left of the desk recess
   plan:   { label: 'Plan (2D)', position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9],    // back wall at the top
-    rooms: { bedroom: planOf(BEDROOM_AREA), hallway: planOf(HALLWAY_AREA) } },
+    rooms: { bedroom: planOf(BEDROOM_AREA), hallway: planOf(HALLWAY_AREA), downstairs: planOf(ENTRANCE_AREA) } },
   back:   { label: 'Back wall (2D)', position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1] },        // facing the back wall
   left:   { label: 'Left wall (2D)', position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 700, 1] },         // facing the left wall, back wall on the right
   front:  { label: 'Front wall (2D)', position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
@@ -2667,7 +2691,7 @@ const anchors = {
   bedroomBench: () => middleOf(wickerBenches.bedroom),
   livingBench: () => middleOf(wickerBenches.livingRoom),
 };
-const DOORS = [roomSlider, tallSlider, secondSlider, bedroomSlider];   // the bedroom's last, added later, so older links leave it at 90°
+const DOORS = [roomSlider, tallSlider, secondSlider, bedroomSlider, flatDoorSlider, outsideDoorSlider];   // newer doors last, so older links leave them as they start
 const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
 const viewKit = ViewKit.create({
   THREE, camera, controls, canvas: renderer.domElement,
@@ -2713,7 +2737,7 @@ const viewKit = ViewKit.create({
     resize: () => resize(),
     writeAddress: () => writeAddress(true),
     // The doors' angles: the room door's, the left-wall cupboard's, the
-    // option's own and the bedroom's, as some views open or shut them
+    // option's own, the bedroom's and the entrance's two, as some views open or shut them
     sceneState: {
       get: () => DOORS.map(d => d.value).join('-'),
       set(text) {

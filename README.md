@@ -24,7 +24,7 @@ takes new screenshots when a change is meant to show.
 | File | What |
 | --- | --- |
 | `index.html` | The page and its menus |
-| `floor.js` | The walls, doors and windows: the living room's, the hallway's (`HALLWAY`, with the top of the stairs) and the bedroom's (`OTHER_ROOM`, in its own u, v mm) |
+| `floor.js` | The walls, doors and windows: the living room's, the hallway's (`HALLWAY`, with the stairs), downstairs (`ENTRANCE`) and the bedroom's (`OTHER_ROOM`, in its own u, v mm) |
 | `living_room.js` | The living room's fittings and cupboard options, the settings and the page address, and the built-in views |
 | `other_room.js` | The bedroom's furniture and fitted cupboards, and their sliders |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
@@ -57,7 +57,12 @@ The notes:
   each side bridges to the hallway floor (240 wide and 210 down on the
   banister's side, 120 wide and level on the outside), and the WC wall
   stops at the floor's level over the stairs.
-- **The Look menu** chooses the **Room** (living room, hallway, bedroom):
+- **Downstairs**, from the first floor plan, estimated: the stairs' foot,
+  your (internal) door into it and the lobby shared with the downstairs
+  neighbour, with its external door; both doors on sliders in the Doors
+  menu.
+- **The Look menu** chooses the **Room** (living room, hallway, bedroom,
+  downstairs):
   Where and Looking at offer that room's, and Bird's eye and Plan (2D)
   frame it.
 

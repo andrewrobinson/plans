@@ -231,7 +231,17 @@ Only as much as is needed to show the way in from the street.
 - [ ] **The ground-floor stair:** number of steps, rise, going and width, as
       for section 4.
 - [ ] **The first-floor lobby:** its length and width, and its door into the
-      enclosed flight (width, which way it opens).
+      enclosed flight (width, which way it opens). Drawn from the plan
+      (15 Oct 2026), all estimated: the lobby 970 across, 1090 deep; the
+      internal door 760, 100 off the back wall, opening into the stairs'
+      foot; the external door 800, 85 in from the internal door's wall,
+      opening in; the foot 1357 from the bottom step to the back wall.
+      For a shoe rack at the foot, the most useful: **the foot's length**
+      (bottom step's riser to the back wall), **the internal door's
+      width and its distance from the back wall**, and how far it must
+      open.
+- [ ] **Outside the external door:** is the ground level with the lobby, or
+      are there steps down?
 - [ ] **Which way you turn** at each level: a sketch from the street door up
       to the flat's hallway would cover it.
 

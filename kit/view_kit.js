@@ -130,14 +130,15 @@ export function create(o) {
       x += chair.eyes * Math.sin(chairTurn);
       y += chair.eyes * Math.cos(chairTurn);
     }
-    return { posture: place.posture, chair: place.chair, aimed: true, follows: true, chairTurn,
+    return { posture: place.posture, chair: place.chair, aimed: true, follows: true, chairTurn, floor: (place.floor ?? 0) * MM,
       position: [x * MM, 0, y * MM], target: toScene([tx, ty, th]), hfov: place.hfov ?? config.hfov ?? 79 };
   }
-  // As a person, at the chosen eye height: raised or lowered, looking at
-  // the same angle, or still at the same thing
+  // As a person, at the chosen eye height above the floor you're on (a
+  // view's `floor`, in metres, for a place on the stairs or below): raised
+  // or lowered, looking at the same angle, or still at the same thing
   function atEyeHeight(v) {
     if (!v.posture || v.exact) return v;
-    const h = EYES[eye].height;
+    const h = EYES[eye].height + (v.floor ?? 0);
     if (v.aimed) return { ...v, position: [v.position[0], h, v.position[2]] };
     const rise = h - v.position[1];
     const up = ([x, ht, y]) => [x, ht + rise, y];
@@ -147,6 +148,7 @@ export function create(o) {
   let viewId = firstView;          // the view chosen, or '' once moved by hand
   let follows = false;             // worked out from the room as it is, so worked out again when it changes
   let eyeLevel = false;            // at the chosen eye height, as a person, before any moving by hand
+  let floorLevel = 0;              // the height of the floor you're on, in metres (0 but on the stairs and below)
   let aimed = false;               // looking at a thing, before any moving by hand
   let seatable = false;            // in a view with a chair to sit in
   let hfov = null;                 // the angle across, in degrees, if the view sets one
@@ -169,6 +171,7 @@ export function create(o) {
     if (v.posture && !keepEye) eye = eyeFor(v.posture);
     v = atEyeHeight(v);
     eyeLevel = Boolean(v.posture);
+    floorLevel = v.floor ?? 0;
     aimed = Boolean(v.aimed);
     seatable = Boolean(v.chair || v.seat);
     if (chair) chair.object.rotation.y = v.chairTurn ?? chair.rest;
@@ -424,7 +427,7 @@ export function create(o) {
       return;
     }
     eyeLevel = true;
-    const rise = EYES[eye].height - camera.position.y;
+    const rise = EYES[eye].height + floorLevel - camera.position.y;
     camera.position.y += rise;
     controls.target.y += rise;
     setPerson(true);                                          // standing up gets you out of the chair
@@ -444,9 +447,9 @@ export function create(o) {
     // Moved from the chosen eye height, and not far up or down (dragging
     // can swing you up or down a little), it keeps to whoever's eye height
     // is chosen later; anywhere else, it stays where it is
-    const postured = eyeLevel && Math.abs(camera.position.y - EYES[eye].height) < 0.3;
+    const postured = eyeLevel && Math.abs(camera.position.y - floorLevel - EYES[eye].height) < 0.3;
     const round = p => p.toArray().map(n => Math.round(n * 1000) / 1000);
-    const view = { name, room, ...(postured && { posture: posture(eye) }), ...(inChair && { seat: true }),
+    const view = { name, room, ...(postured && { posture: posture(eye) }), ...(postured && floorLevel && { floor: floorLevel }), ...(inChair && { seat: true }),
       position: round(camera.position), target: round(asPerson ? aimOut() : controls.target), hfov };
     if (at >= 0) list[at] = view;
     else list.push(view);

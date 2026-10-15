@@ -36,6 +36,7 @@ window.ROOM_VIEWS = {
     living:  { label: 'Living room', enter: { place: 'door', thing: 'monitors' } },
     hallway: { label: 'Hallway', enter: { place: 'hallLivingDoor', thing: 'bedroomDoor' } },
     bedroom: { label: 'Bedroom', enter: { place: 'bedroomDoorway', thing: 'bedroomWindow' } },
+    downstairs: { label: 'Downstairs', enter: { place: 'outsideFlatDoor', thing: 'flatDoor' } },
   },
 
   // Where you can be (the Look menu's Where): a spot on the floor [x, y], and
@@ -46,6 +47,8 @@ window.ROOM_VIEWS = {
   // - arrive: something the room does when you get here (see the actions
   //   in living_room.js).
   // - anchor: instead of `at`, worked out in living_room.js, for places that move.
+  // - floor: the height of the floor you stand on, in mm, for a place on
+  //   the stairs or at their foot (0 unless it says).
   places: {
     desk:   { label: 'Seated at the desk', at: [3026, 4599], posture: 'sit', chair: true },
     // Back to each window, centred on it and just clear of its radiator
@@ -64,6 +67,17 @@ window.ROOM_VIEWS = {
     hallLivingDoor:  { room: 'hallway', label: 'Outside the living room door', at: [-500, 1780], posture: 'stand', cannotSee: ['livingRoomDoor'] },
     hallBedroomDoor: { room: 'hallway', label: 'Outside the bedroom door', at: [-1600, 1900], posture: 'stand' },
     hallStairs:      { room: 'hallway', label: 'At the top of the stairs', at: [-600, 1197], posture: 'stand' },
+    // Halfway down the stairs, in the well's middle, on the 6th step (9
+    // risers of 190 down: `floor`)
+    stairsHalfway:   { room: 'hallway', label: 'Halfway down the stairs', at: [-2260, 572], floor: -1710, posture: 'stand' },
+    // Downstairs, on the first floor (2850 down; floor.js's ENTRANCE): in
+    // the well's middle between the bottom step and your door; in the
+    // shared lobby outside that door, as far back from it as the lobby
+    // allows (200 from its far side); and outdoors, 1000 out from the
+    // external door's middle, its ground taken as the lobby's level (not known)
+    stairsFoot:      { room: 'downstairs', label: 'At bottom of stairs', at: [-3750, 572], floor: -2850, posture: 'stand' },
+    outsideFlatDoor: { room: 'downstairs', label: 'Outside internal door', at: [-4347, 1942], floor: -2850, posture: 'stand', cannotSee: ['lobby'] },
+    outsideExternal: { room: 'downstairs', label: 'Outside external door', at: [-6177, 1657], floor: -2850, posture: 'stand' },
     // In the bedroom: in from its door, at the doorway's middle, just past
     // the door (open, it stands 760 into the room); on the bed, your head on
     // the pillow, and beside it, halfway along its side
@@ -103,6 +117,15 @@ window.ROOM_VIEWS = {
     stairs:         { room: 'hallway', label: 'the stairs', at: [-2260, 572, -1710] },
     hallEnd:        { room: 'hallway', label: 'the far end, by the bathroom', at: [-2480, 1840, 1200] },
     hallBench:      { room: 'hallway', label: 'the wicker bench', anchor: 'hallBench' },     // wherever it stands (wicker_bench.js)
+    // Downstairs, heights from the hallway floor (the first floor is 2850
+    // down): the foot's floor; the internal (the flat's) door and the
+    // external door, their middles; the lobby, its middle; and back up the
+    // stairs, the top step
+    stairsFoot:   { room: 'downstairs', label: 'the foot of the stairs', at: [-3900, 572, -2850] },
+    flatDoor:     { room: 'downstairs', label: 'the internal door', at: [-4347, 1022, -1861] },
+    outsideDoor:  { room: 'downstairs', label: 'the external door', at: [-4827, 1657, -1850] },
+    lobby:        { room: 'downstairs', label: 'the lobby', at: [-4282, 1657, -2000] },
+    stairsUp:     { room: 'downstairs', label: 'up the stairs', at: [-600, 572, 0] },
     // In the bedroom (other_room.js): the fitted cupboards in the recess
     // (its middle, 1824 wide, at the upper one's front, 2769, measured);
     // the bookcase, the bed, the pine cupboard (the wardrobe) and the

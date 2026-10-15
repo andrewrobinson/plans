@@ -5,7 +5,7 @@
 // the room's measurements (ROOM_WIDTH, the recesses, the door frame, …) and
 // the materials the colours menu changes, for living_room.js.
 import * as THREE from 'three';
-import { MM, material, box, slab, hinge, oakBoards } from './kit/floor_kit.js';
+import { MM, material, box, slab, hinge, skewHinge, oakBoards } from './kit/floor_kit.js';
 
 export const floor = new THREE.Group();
 
@@ -147,7 +147,7 @@ const HALLWAY = {
   // measured). D, 1054 from the stepped-back wall, puts it 5 further: the same line
   width: 909,
   // The stairs (measured and counted 15 Oct 2026, with photos): up from the
-  // lobby below, a straight flight of 11 steps along the outside wall
+  // foot below, a straight flight of 11 steps along the outside wall
   // towards the living room door, 3 winders turning right, and 1 more
   // step, its tread level with the hallway floor, where the carpet meets
   // the oak. Each rise is 190 and each straight step 810 wide; the
@@ -171,11 +171,11 @@ const HALLWAY = {
   rightSill: { width: 120 },
   sillThick: 25,
   // Beyond the hallway's far end the flight runs on under the bathroom's
-  // floor, taken as 300 thick; at its foot, a lobby, drawn 1000 long (both
-  // estimated: not measured). Over the well the WC wall stops at the
-  // hallway floor's level, its bottom as deep as the left board runs past
-  // the far end (1650 − 1430: 220)
-  bathroomFloor: 300, lobby: 1000,
+  // floor, taken as 300 thick (estimated: not measured), to its foot, which
+  // runs on to the building's back wall (ENTRANCE, below). Over the well
+  // the WC wall stops at the hallway floor's level, its bottom as deep as
+  // the left board runs past the far end (1650 − 1430: 220)
+  bathroomFloor: 300,
   // The banister's rail height and its spindles' spacing (estimated)
   rail: 900, spindles: 120,
   post: 90, railW: 60, spindle: 30,  // the newel posts' and the rail's width, the spindles' thickness (estimated)
@@ -252,6 +252,45 @@ const OTHER_ROOM_CORNER = {
   x: KITCHEN_RECESS_BACK_WALL_X - OTHER_ROOM.kitchenWall - OTHER_ROOM.length,   // -4827
   y: HALLWAY.ySetBack + OTHER_ROOM.door.wall,                                   // 2521
 };
+// ---------------------------------------------------------------------------
+// The entrance, at the stairs' foot, on the first floor (2850 below the
+// hallway): the flight's foot runs on to the building's back wall, and
+// beside it, through the flat's own door, is the lobby shared with the
+// downstairs neighbour, with the outside door in the back wall and the
+// neighbour's door at its far end (drawings/first_floor_plan.png, red and
+// blue). All scaled off that drawing (about 8.4 mm a pixel), so estimated,
+// not measured. In the living room's mm, as the hallway.
+// ---------------------------------------------------------------------------
+const ENTRANCE = {
+  // The back wall's inside face, taken in line with the bedroom's window
+  // wall above (the drawing has them within a pixel or two)
+  xBack: OTHER_ROOM_CORNER.x,
+  backWall: 350,                   // its thickness (the drawing's about 40 px)
+  wellWall: 150,                   // between the stairs' foot and the lobby (about 18 px)
+  // The flat's door, in that wall: its opening starts 100 from the back
+  // wall, hinged at that end, and opens into the stairs' foot, as far as
+  // lying along the back wall (90°)
+  flatDoor: { fromBackWall: 100, width: 760 },
+  // The lobby: 970 across (from the well's wall), 1090 from the back wall to
+  // the neighbour's wall
+  lobby: { width: 970, length: 1090 },
+  // The outside door, in the back wall: from 85 in from the well's wall,
+  // 800 wide, hinged at the far side and opening into the lobby, as far as
+  // lying along its side wall (90°)
+  outsideDoor: { fromWellWall: 85, width: 800, height: 2000, frameDepth: 100 },   // its frame at the wall's inside face, the rest a plain reveal
+  // The neighbour's door, in the far wall, near the well's wall, opening
+  // away from the lobby: drawn shut
+  neighbourDoor: { fromWellWall: 80, width: 760, wall: 150 },
+  doorT: 44,                       // each door's thickness (estimated, as the room door)
+};
+ENTRANCE.floor = -HALLWAY.drop;                                         // the first floor's level: -2850
+ENTRANCE.height = HALLWAY.drop - HALLWAY.bathroomFloor;                 // up to the floor above: 2550
+ENTRANCE.yLobby0 = HALLWAY.yWellIn + ENTRANCE.wellWall;                 // the lobby's well-side wall: 1172
+ENTRANCE.yLobby1 = ENTRANCE.yLobby0 + ENTRANCE.lobby.width;             // its far side: 2142
+ENTRANCE.xLobbyEnd = ENTRANCE.xBack + ENTRANCE.lobby.length;            // the neighbour's wall: -3737
+ENTRANCE.flatDoorHingeX = ENTRANCE.xBack + ENTRANCE.flatDoor.fromBackWall;                   // -4727
+ENTRANCE.outsideDoorHingeY = ENTRANCE.yLobby0 + ENTRANCE.outsideDoor.fromWellWall + ENTRANCE.outsideDoor.width;   // 2057
+
 // The bedroom door's thickness, as the living room's (estimated); its hinge
 // is set when the room is drawn below
 const BEDROOM_DOOR_T = 44;
@@ -363,11 +402,11 @@ const hallway = new THREE.Group();                                     // at the
 floor.add(hallway);
 {
   const { x0, xStep, xEnd, xTurn, xFoot, xSillEnd, kitchenSide, yBanister, yBoxFace, ySillEdge, yWellIn, yWellOut, yHallOut, ySetBack, well, stepWidth, rise, going, flightSteps, winders, topSteps, drop,
-    baseH, leftSill, sillThick, bathroomFloor, lobby, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
+    baseH, leftSill, sillThick, bathroomFloor, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
   const leftSillTop = -leftSill.below;
   const face = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, hallway);
   const level = n => -n * rise;                                 // a tread n steps down from the hallway floor
-  const xLobby = xFoot - lobby;                                 // the lobby's far wall, at the stairs' foot
+  const xBack = ENTRANCE.xBack;                                 // the building's back wall, at the stairs' foot
   const yWell = (yWellOut + yWellIn) / 2;
 
   // The floors: the hallway's oak up to the banister's box, and the top
@@ -417,21 +456,18 @@ floor.add(hallway);
   face(xEnd - xSillEnd, underWC, [(xEnd + xSillEnd) / 2, (yWellOut + ySillEdge) / 2, 0], '-u').rotation.set(Math.PI / 2, 0, 0);   // flat, facing down
   face(well, bathroomFloor, [xSillEnd, yWell, -bathroomFloor / 2], '+u');
   face(leftSill.width, leftSill.below, [xSillEnd, (yWellIn + ySillEdge) / 2, leftSillTop / 2], '+u');
-  face(xSillEnd - xLobby, well, [(xSillEnd + xLobby) / 2, yWell, -bathroomFloor], '-u').rotation.set(Math.PI / 2, 0, 0);   // the bathroom floor's underside, flat, facing down
+  face(xSillEnd - xBack, well, [(xSillEnd + xBack) / 2, yWell, -bathroomFloor], '-u').rotation.set(Math.PI / 2, 0, 0);   // the bathroom floor's underside, flat, facing down
 
   // The well's walls: the outside one, above the right board as far as the
   // hallway goes, below it on to the board's corner, and then up to the
   // bathroom floor's underside; the hallway side, up to the left board and
-  // then likewise; and the lobby, at the foot
+  // then likewise (on down to the foot, with the flat's door, below)
   face(x0 - xEnd, CEILING_HEIGHT, [(x0 + xEnd) / 2, yHallOut, CEILING_HEIGHT / 2], '+v');
   face(x0 - xSillEnd, drop, [(x0 + xSillEnd) / 2, yWellOut, -drop / 2], '+v');
-  face(xSillEnd - xLobby, drop - bathroomFloor, [(xSillEnd + xLobby) / 2, yWellOut, -(drop + bathroomFloor) / 2], '+v');
+  face(xSillEnd - xBack, drop - bathroomFloor, [(xSillEnd + xBack) / 2, yWellOut, -(drop + bathroomFloor) / 2], '+v');
   face(xTurn - xSillEnd, drop - leftSill.below, [(xTurn + xSillEnd) / 2, yWellIn, -(drop + leftSill.below) / 2], '-v');
-  face(xSillEnd - xLobby, drop - bathroomFloor, [(xSillEnd + xLobby) / 2, yWellIn, -(drop + bathroomFloor) / 2], '-v');
-  slab([[xFoot, yWellOut], [xLobby, yWellOut], [xLobby, yWellIn], [xFoot, yWellIn]], -drop - 20, -drop, hallFloorMat, hallway);
-  face(well, drop - bathroomFloor, [xLobby, yWell, -(drop + bathroomFloor) / 2], '+u');
 
-  // The stairs, each tread a block down to the lobby's floor: the straight
+  // The stairs, each tread a block down to the foot's floor: the straight
   // flight's carpet 810 wide between white strings, then the winders,
   // carpeted wall to wall (simplified), up to the top step
   const string = (well - stepWidth) / 2;
@@ -455,4 +491,82 @@ floor.add(hallway);
   // No ceiling over the hallway: left out, as asked (15 Oct 2026)
 }
 
-export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, bedroomHinge, HALLWAY, hallway };
+// ---------------------------------------------------------------------------
+// The entrance, drawn: the stairs' foot and the shared lobby, in a group at
+// the first floor's level, so heights in it are from that floor. The two
+// doors you go through are on hinges, opened by the Doors menu's sliders
+// ---------------------------------------------------------------------------
+const entrance = new THREE.Group();
+entrance.position.y = ENTRANCE.floor * MM;
+hallway.add(entrance);
+const lobbyFloorMat = material(0xb9b4ab);          // a plain grey-beige: its finish isn't known
+const outsideDoorMat = material(0x3d4a5c);         // a dark blue-grey: its colour isn't known
+let flatDoorHinge, outsideDoorHinge;
+
+// A door frame through a wall that runs along x, from y0 to y1: a jamb
+// each side of the opening [x0, x1] and the head, down to the door's top
+function frameAlongX(x0, x1, y0, y1, doorH, frameH) {
+  box({ from: [x0 - JAMB, y0, 0], to: [x0, y1, frameH] }, frameMat, entrance);
+  box({ from: [x1, y0, 0], to: [x1 + JAMB, y1, frameH] }, frameMat, entrance);
+  box({ from: [x0, y0, doorH], to: [x1, y1, frameH] }, frameMat, entrance);
+}
+// And through a wall that runs along y, from x0 to x1, the opening [y0, y1]
+function frameAlongY(y0, y1, x0, x1, doorH, frameH) {
+  box({ from: [x0, y0 - JAMB, 0], to: [x1, y0, frameH] }, frameMat, entrance);
+  box({ from: [x0, y1, 0], to: [x1, y1 + JAMB, frameH] }, frameMat, entrance);
+  box({ from: [x0, y0, doorH], to: [x1, y1, frameH] }, frameMat, entrance);
+}
+
+{
+  const { xBack, backWall, flatDoor, outsideDoor, neighbourDoor, doorT, height, lobby, yLobby0, yLobby1, xLobbyEnd, flatDoorHingeX, outsideDoorHingeY } = ENTRANCE;
+  const { xFoot, xSillEnd, yWellOut, yWellIn, well } = HALLWAY;
+  const face = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, entrance);
+
+  // The stairs' foot: its floor, from the bottom step to the back wall, and
+  // the back wall's face
+  slab([[xFoot, yWellOut], [xBack, yWellOut], [xBack, yWellIn], [xFoot, yWellIn]], -20, 0, hallFloorMat, entrance);
+  face(well, height, [xBack, (yWellOut + yWellIn) / 2, height / 2], '+u');
+
+  // The wall between the foot and the lobby, with the flat's door: the
+  // wall's face on each side, the frame through it, and the door, flush
+  // with the foot's side, hinged at the back wall's end
+  const f0 = flatDoorHingeX, f1 = f0 + flatDoor.width;
+  const flatOpening = [flatDoor.fromBackWall - JAMB, flatDoor.fromBackWall + flatDoor.width + JAMB];
+  faceAround(xSillEnd - xBack, flatOpening, [0, FRAME_H], height, wallMat, a => [xBack + a, yWellIn], '-v', entrance);
+  faceAround(lobby.length, flatOpening, [0, FRAME_H], height, wallMat, a => [xBack + a, yLobby0], '+v', entrance);
+  frameAlongX(f0, f1, yWellIn, yLobby0, ROOM_DOOR_H, FRAME_H);
+  flatDoorHinge = hinge(f0, yWellIn, entrance);
+  box({ from: [0, 0, 0], to: [flatDoor.width, doorT, ROOM_DOOR_H] }, frameMat, flatDoorHinge);
+
+  // The lobby: its floor and its side wall
+  slab([[xBack, yLobby0], [xLobbyEnd, yLobby0], [xLobbyEnd, yLobby1], [xBack, yLobby1]], -20, 0, lobbyFloorMat, entrance);
+  face(lobby.length, height, [(xBack + xLobbyEnd) / 2, yLobby1, height / 2], '-v');
+
+  // The back wall, with the outside door: its frame at the wall's inside
+  // face and a plain reveal through the rest; the door in the frame,
+  // hinged at the side away from the stairs, turned to run along the wall
+  // and opening inwards (dir -1)
+  const o1 = outsideDoorHingeY, o0 = o1 - outsideDoor.width;
+  const outsideFrameH = outsideDoor.height + JAMB;
+  faceAround(lobby.width, [o0 - JAMB - yLobby0, o1 + JAMB - yLobby0], [0, outsideFrameH], height, wallMat, a => [xBack, yLobby0 + a], '+u', entrance);
+  frameAlongY(o0, o1, xBack - outsideDoor.frameDepth, xBack, outsideDoor.height, outsideFrameH);
+  const reveal = backWall - outsideDoor.frameDepth, xReveal = xBack - outsideDoor.frameDepth - reveal / 2;
+  face(reveal, outsideFrameH, [xReveal, o0 - JAMB, outsideFrameH / 2], '+v');
+  face(reveal, outsideFrameH, [xReveal, o1 + JAMB, outsideFrameH / 2], '-v');
+  face(reveal, o1 - o0 + 2 * JAMB, [xReveal, (o0 + o1) / 2, outsideFrameH], '+u').rotation.set(Math.PI / 2, 0, 0);   // flat, facing down
+  // The back wall's outside face, across the well and the lobby, for
+  // standing outside the external door
+  const outsideFace = xBack - backWall;
+  faceAround(yLobby1 - yWellOut, [o0 - JAMB - yWellOut, o1 + JAMB - yWellOut], [0, outsideFrameH], height, wallMat, a => [outsideFace, yWellOut + a], '-u', entrance);
+  outsideDoorHinge = skewHinge(xBack - doorT, o1, 90, -1, entrance);
+  box({ from: [0, 0, 0], to: [outsideDoor.width, doorT, outsideDoor.height] }, outsideDoorMat, outsideDoorHinge);
+
+  // The far wall, with the neighbour's door, shut, flush with the wall's
+  // far side, as it opens away from the lobby
+  const n0 = yLobby0 + neighbourDoor.fromWellWall, n1 = n0 + neighbourDoor.width, xFar = xLobbyEnd + neighbourDoor.wall;
+  faceAround(lobby.width, [n0 - JAMB - yLobby0, n1 + JAMB - yLobby0], [0, FRAME_H], height, wallMat, a => [xLobbyEnd, yLobby0 + a], '-u', entrance);
+  frameAlongY(n0, n1, xLobbyEnd, xFar, ROOM_DOOR_H, FRAME_H);
+  box({ from: [xFar - doorT, n0, 0], to: [xFar, n1, ROOM_DOOR_H] }, frameMat, entrance);
+}
+
+export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, bedroomHinge, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge };

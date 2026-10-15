@@ -46,7 +46,12 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    of the well from photos: a sill board each side bridging to the
    hallway floor, the banister's 110 base, and the WC wall stopping at
    the floor's level over the stairs. The bedroom's door and window views
-   became places in its Where. Still to do: the measured numbers as they
+   became places in its Where. Then downstairs, from the first floor plan
+   (estimated): the stairs' foot, the flat's internal door and the shared
+   lobby with its external door, both doors on sliders, and a
+   **Downstairs** room in the Look menu with places on the first
+   floor's level. Next there: a shoe rack at the foot, which will limit
+   how far the internal door opens (sizes to come). Still to do: the measured numbers as they
    come in (S, W, X: `MEASUREMENTS_NEEDED.md`); the
    bathroom and WC; walls drawn from above in the bedroom's and hallway's
    plans (they're faces seen from inside, so the plan shows only floors);

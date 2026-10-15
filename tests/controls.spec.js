@@ -167,7 +167,7 @@ test.describe('sliders, to each end and back', () => {
   // The doors turn without rebuilding
   test('the doors', async ({ page }) => {
     await LEFT_CUPBOARD(page);                                         // so the left-wall cupboard has a door
-    for (const [id, k] of [['roomDoor', 0], ['tallDoor', 1], ['secondDoor', 2], ['bedroomDoor', 3]]) await endsAndBack(page, id, door(k), { text: v => `${v}°` });
+    for (const [id, k] of [['roomDoor', 0], ['tallDoor', 1], ['secondDoor', 2], ['bedroomDoor', 3], ['flatDoor', 4], ['outsideDoor', 5]]) await endsAndBack(page, id, door(k), { text: v => `${v}°` });
   });
 });
 
@@ -460,6 +460,12 @@ test.describe('the Views and Look menus', () => {
     await page.locator('#viewMenu .popToggle').click();             // one menu open at a time
     await page.selectOption('#room', 'living');
     await expect.poll(() => view(page)).toMatch(/^plan\.stand-tall\.[\d-]+$/);
+    // Downstairs: its plan, and a place on the first floor's level
+    await page.selectOption('#room', 'downstairs');
+    await expect.poll(() => view(page)).toMatch(/^plan\..*\.downstairs$/);
+    expect(await options('where')).toEqual(['At bottom of stairs', 'Outside internal door', 'Outside external door']);
+    await page.selectOption('#where', 'outsideFlatDoor');
+    await expect.poll(() => view(page)).toMatch(/^look:outsideFlatDoor:\w+\.stand-tall\..*\.downstairs$/);
   });
 
   test('saving and deleting a view', async ({ page }) => {
