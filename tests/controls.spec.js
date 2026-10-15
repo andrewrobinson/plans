@@ -245,6 +245,22 @@ test.describe('dropdowns', () => {
     expect(await field(page, 17)).toBe('5014');
   });
 
+  // The carpet (bedroom and stairs), field 54: Dormouse as laid (0), the
+  // darker colour from the photos (12), or any RAL colour
+  test('the carpet colour, ◀ ▶, and other colours', async ({ page }) => {
+    expect(await field(page, 54)).toBe('0');
+    await expect(page.locator('#carpetSwatch')).toHaveCSS('background-color', 'rgb(162, 144, 124)');   // #A2907C, Dormouse
+    await page.click('#carpetNext');
+    expect(await field(page, 54)).toBe('12');
+    await expect(page.locator('#carpetSwatch')).toHaveCSS('background-color', 'rgb(143, 135, 128)');   // #8F8780, from the photos
+    await page.click('#carpetPrev');
+    expect(await field(page, 54)).toBe('0');
+    await page.selectOption('#ral-carpet', 'other');
+    await expect(page.locator('#carpetOtherRow')).toBeVisible();
+    await page.selectOption('#ral-carpet-other', '7035');
+    expect(await field(page, 54)).toBe('7035');
+  });
+
   test('the shelf wood', async ({ page }) => {
     await page.selectOption('#shelfWood', '2');
     expect(await field(page, 15)).toBe('2');
@@ -359,6 +375,39 @@ test.describe('the wicker bench', () => {
   });
 });
 
+// The shoe rack, downstairs: w.d.h.along.across.turn (field 55)
+test.describe('the shoe rack', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+
+  test('it can be resized, moved and turned, and put back', async ({ page }) => {
+    expect(await field(page, 55)).toBe('600.200.1200.745.0.0');
+    await slide(page, 'shoeRack_w', 800);
+    await slide(page, 'shoeRack_d', 300);
+    await slide(page, 'shoeRack_h', 900);
+    await slide(page, 'shoeRack_along', 400);
+    await slide(page, 'shoeRack_across', 600);
+    expect(await slide(page, 'shoeRack_turn', 200)).toBe('180');       // only quarter turns
+    expect(await readout(page, 'shoeRack_turn')).toBe('180°');
+    await slide(page, 'shoeRack_turn', 360);                          // all the way round
+    expect(await readout(page, 'shoeRack_turn')).toBe('360°');
+    expect(await field(page, 55)).toBe('800.300.900.400.600.360');
+    await page.locator('#shoeRackBlock [data-reset="place"]').evaluate(b => b.click());
+    expect(await field(page, 55)).toBe('800.300.900.745.0.0');
+    await page.locator('#shoeRackBlock [data-reset="sizes"]').evaluate(b => b.click());
+    expect(await field(page, 55)).toBe('600.200.1200.745.0.0');
+  });
+
+  test('a link with its settings keeps them, and holds them to the sliders', async ({ page }) => {
+    const [settings, ...rest] = (await hash(page)).split('~');
+    const withRack = rack => [settings.replace(/-[\d.]+$/, `-${rack}`), ...rest].join('~');
+    await openRoom(page, withRack('900.250.1500.1000.300.270'));
+    expect(await hash(page)).toBe(withRack('900.250.1500.1000.300.270'));
+    expect(await readout(page, 'shoeRack_turn')).toBe('270°');
+    await openRoom(page, withRack('5000.250.1500.99999.300.45'));     // too wide, past the bottom step, not a quarter turn
+    expect(await field(page, 55)).toBe('600.250.1500.745.300.0');
+  });
+});
+
 test.describe('things to store', () => {
   const head = async page => (await stored(page))[0];
 
@@ -468,7 +517,7 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#where', 'stairsHalfway');
     await expect.poll(() => view(page)).toMatch(/^look:stairsHalfway:\w+\.stand-tall\..*\.downstairs$/);
     const offered = () => page.locator('#lookAt option').evaluateAll(os => os.filter(o => o.value && !o.disabled).map(o => o.textContent));
-    expect(await offered()).toEqual(['Looking at the foot of the stairs', 'Looking at the window at the foot of the stairs', 'Looking at the internal door']);
+    expect(await offered()).toEqual(['Looking at the foot of the stairs', 'Looking at the window at the foot of the stairs', 'Looking at the internal door', 'Looking at the shoe rack']);
     await page.selectOption('#where', 'outsideFlatDoor');
     await expect.poll(() => view(page)).toMatch(/^look:outsideFlatDoor:\w+\.stand-tall\..*\.downstairs$/);
   });

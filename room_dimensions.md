@@ -138,6 +138,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 | Cupboard colour | `colours.cupboard` | Named colours to compare (◀ ▶ flip between them): Clerkenwell Gloss White, AI Olive, Bella Brittany, Blinds as drawn, Kitchen worktop, Kitchen island, Kitchen island top, same colour as the door (Pure Brilliant White), same colour as the walls (Crown Gallery White). Or "Other colours…", which opens a second dropdown of 23 popular cupboard colours and all 99 RAL Classic colours by family | AI Olive | Covers carcasses, doors and the bench. Floor, walls and woodwork are fixed as the room is. Screen colours are approximate |
 | Dresser colour | `colours.dresser` | The same named colours and "Other colours…" as the cupboards, plus Same as the cupboards (0), Same colour as the door (2) and Same colour as the walls (1) | Same as the cupboards | The dresser's painted body, doors and drawers. Its top and shelves follow the shelf colour |
 | Dresser sizes | `dresser` (sliders) | Width 900 to 1415 in 5s, height 1500 to 2400, base depth 300 to 600, base height 700 to 1000, upper depth 150 to 600 (no deeper than the base), all in 10s | 1000, 1930, 420, 830, 420 (the Inglesham; see `dressers.js`) | The dresser stays centred between the end of the kitchen counter and the desk recess; its three shelves spread evenly up the upper part. Hidden for the current room |
+| Carpet colour | `colours.carpet` | Cormar Dormouse, as laid (0), or From the room photos (12, the darker `#8F8780` it was drawn in before); ◀ ▶ flip between them. Or "Other colours…", any RAL colour as for the cupboards | Cormar Dormouse `#A2907C` | The bedroom's and the stairs' carpet. Dormouse's colour is averaged from Cormar's overhead swatch photo of Hampstead in Dormouse (15 Oct 2026). Screen colours are approximate |
 | Shelf colour | `shelfWood` | 0 As drawn (pale oak `#D6BC8F`, option 9's oak `#C8A26B`), 1 Honey oak (as the island top, `#D6A562`), 2 Dark oak (`#8A5A33`), 3 Walnut (`#5C3D26`) | 0 | All the wooden shelves (above the bench, option 9's tower) and option 9's oak bench top |
 | Left-wall cupboard door | slider | 0°–110° | 0° | How far it's opened |
 | Second door(s) | slider | 0°–110° | 0° | The option's other door or doors |
@@ -148,11 +149,15 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 
 The full list of the address's fields, in order, with how each is checked, is `ADDRESS` in `living_room.js`; new fields go at its end. The page address records the option (by its code: 7 to 9 for options 7 to 9, 10 for the current room, 11 and 12 for options 10 and 11; 1 to 6 and 13 to 16, for the options taken out, read as none) and the settings, joined by `-`:
 
-`#option-T-R-F-above-shelfDepth-BENCH-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-tv-dresserColour-dresserSizes-frontPiece-larder-island-sofa-sofaFront-larderSizes-sofaSizes-benchOn-LEG_D-backShelves-leftShelves-islandMove-BOARD-CORNER_W-CORNER_D-SIDE_SHELF-SIDE_W-SIDE_D-bed-bookcase-pineCupboard-recessLowerD-bookshelfOn-mirror-recessFronts-bookshelfMove-bookcaseOn-wickerBench-hallBench-bedroomBench-livingBench-pineCupboardOn-pineOn-pineMove~stored~view`
+`#option-T-R-F-above-shelfDepth-BENCH-LEG-WARD-TOWER-WARD_D-floor-cupboard-wall-woodwork-shelfWood-tv-dresserColour-dresserSizes-frontPiece-larder-island-sofa-sofaFront-larderSizes-sofaSizes-benchOn-LEG_D-backShelves-leftShelves-islandMove-BOARD-CORNER_W-CORNER_D-SIDE_SHELF-SIDE_W-SIDE_D-bed-bookcase-pineCupboard-recessLowerD-bookshelfOn-mirror-recessFronts-bookshelfMove-bookcaseOn-wickerBench-hallBench-bedroomBench-livingBench-pineCupboardOn-pineOn-pineMove-mirrorOn-carpet-shoeRack~stored~view`
 
 The last three (added 15 Oct 2026): the pine cupboard in the bedroom (1 or 0); on the living room's back wall in place of the bench (the **Pine cupboard** switch under The back wall, 1 or 0), as the Bookshelf is; and its place there, `wall` where it starts (its back to the back wall, in the corner by the right-hand wall, at its bedroom sizes) or `x.y.turn`. With both it and the bookshelf on, the bookshelf starts centred on the clear wall up to the pine cupboard, or against the cupboards if it's wider than that.
 
-Sizes of one thing are joined by `.` (dresserSizes `w.h.baseD.baseH.upperD`, larderSizes and sofaSizes `w.d.h`, shelves as their tops, islandMove `x.y.turn`; the bedroom's bed `u.v.turn`, bookcase and pineCupboard `u.v.turn.w.d.h`, see below). For example, option 7 with a 600-deep left-wall cupboard and everything else as it starts: `#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1000.1930.420.830.420-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301-0-0.2569.1400.1000.800-0.0-wall-1`. After the first `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, with a fourth number for its height off the floor when it isn't 0; they're used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 10 are the room's finishes and the named cupboard colours below, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, `.` and the room door's, left-wall cupboard's, option's own, bedroom's, internal (downstairs) and external door angles, joined by `-` (links without the later ones leave those doors as they start), and, unless it's the living room, `.` and the room chosen (`hallway`, `bedroom` or `downstairs`). For example `~look:desk:dresser.sit-tall.90-0-0`, or `~birdseye.sit-tall.90-0-0.bedroom`. Old links needn't keep working (agreed 12 Oct 2026).
+Then (added 15 Oct 2026) the bedroom's mirror there or not (its **In the bedroom** switch, 1 or 0), and the carpet's colour (`colours.carpet`, 0 for Cormar Dormouse).
+
+Then (added 15 Oct 2026) the shoe rack downstairs, `w.d.h.along.across.turn` (see "The shoe rack" below).
+
+Sizes of one thing are joined by `.` (dresserSizes `w.h.baseD.baseH.upperD`, larderSizes and sofaSizes `w.d.h`, shelves as their tops, islandMove `x.y.turn`; the bedroom's bed `u.v.turn`, bookcase and pineCupboard `u.v.turn.w.d.h`, see below). For example, option 7 with a 600-deep left-wall cupboard and everything else as it starts: `#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1000.1930.420.830.420-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301-0-0.2569.1400.1000.800-0.0-wall-1`. After the first `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, with a fourth number for its height off the floor when it isn't 0; they're used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 12 are the room's finishes, the named cupboard colours below and the carpet's two, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, `.` and the room door's, left-wall cupboard's, option's own, bedroom's, internal (downstairs) and external door angles, joined by `-` (links without the later ones leave those doors as they start), and, unless it's the living room, `.` and the room chosen (`hallway`, `bedroom` or `downstairs`). For example `~look:desk:dresser.sit-tall.90-0-0`, or `~birdseye.sit-tall.90-0-0.bedroom`. Old links needn't keep working (agreed 12 Oct 2026).
 
 ## The other room (the bedroom)
 
@@ -213,7 +218,9 @@ wall, from the window wall for the first two and from the hallway wall for
 the others, and a new wall keeps it as far along as the wall allows; its
 **bottom** is off the carpet. It comes after `bookshelfOn` in the address,
 as `wall.along.bottom.w.h`, the wall 0 to 3 in that order (e.g.
-`0.2569.1400.1000.800`). "The mirror" is in Looking at.
+`0.2569.1400.1000.800`). "The mirror" is in Looking at. It has an **In
+the bedroom** switch too, `mirrorOn` in the address, 1 or 0; switched off,
+Looking at it still aims at its spot.
 
 The **recess cupboards** have two switches for the upper one: **drawers
 over the open shelves** (as many as fit at about the height of the three
@@ -276,6 +283,24 @@ Places can stand on a lower floor (`floor` in `living_room.views.js`).
 | The external door | In the back wall, 800 wide, 85 in from the internal door's wall (y 1257 to 2057), 2000 high, hinged at the far side, opening into the lobby, 90° at most; its frame at the wall's inside face, 100 deep, a plain reveal beyond; dark blue-grey (colour not known) | Estimated |
 | The neighbour's door | In the lobby's far wall (150 thick), 760 wide from 80 in from the internal door's wall, opening away from the lobby: drawn shut | Estimated |
 | Outside | Only the back wall's outside face, across the well and the lobby; the ground taken as level with the lobby (not known) | Assumed |
+
+### The shoe rack
+
+At the foot of the stairs, a simple open rack of shelves between two sides
+(asked for, 15 Oct 2026; not bought yet), in [shoe_rack.js](shoe_rack.js).
+Its section in Other options, **The shoe rack (downstairs)**, has sliders
+for its sizes and where it stands, with **Reset dimensions** and **Reset
+location**. Looking at offers it downstairs.
+
+| What | Size or position | Source |
+| --- | --- | --- |
+| Width × depth × height | 600 × 200 × 1200 (sliders 300 to 1200, 150 to 500, 300 to 2000, in 10s) | Asked for |
+| Boards | 18 thick; shelves evenly spaced about 200 apart, the lowest one's top 40 off the floor, one at the top | Chosen |
+| Where it stands | Its back's middle along from the back wall (0 to 1357, the bottom step) and across from the outside wall (0 to 900), in 5s; turned 0° to 360° in quarter turns, 0° facing the internal door's wall, 90° the back wall | |
+| Where it starts | Its back to the outside wall, its near end 50 clear of the internal door as it swings (the 760 door passes the rack's front corner 296 along from its hinge): its back's middle 745 from the back wall, about 310 short of the bottom step | Chosen |
+
+In the address, after `carpet`: `w.d.h.along.across.turn`, each held to its
+slider's range. Links from before it have it as it starts.
 
 ### The wicker bench
 
@@ -398,6 +423,7 @@ The screen colours each part is drawn in, as set in [living_room.js](living_room
 | Door, door frame, window sills | `#F8F8F6` | Dulux Pure Brilliant White (finish 2) |
 | Ceiling | `#EDECE7` | Pure Brilliant White, matt |
 | Floor | oak boards averaging `#D29A50` | Howdens oak (finish 3), drawn as a texture |
+| Carpet (bedroom and stairs) | `#A2907C` | Cormar Hampstead in Dormouse (finish 11), from the maker's swatch photo; or the carpet colour chosen |
 | Cupboards: carcasses, doors and bench | the cupboard colour | AI Olive `#B8B0A4` by default; see the named colours above |
 | Shelves | `#D6BC8F` | Or the shelf colour chosen |
 | Option 9's tower shelves and oak top | `#C8A26B` | Or the shelf colour chosen |

@@ -26,9 +26,10 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
-import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, CUPBOARD_ON_ADDRESS, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
+import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, CUPBOARD_ON_ADDRESS, MIRROR_ON_ADDRESS, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
 import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_ADDRESS } from './wicker_bench.js';
-import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge } from './floor.js';
+import { drawShoeRack, shoeRack, shoeRackControls, SHOE_RACK_START, SHOE_RACK_ADDRESS } from './shoe_rack.js';
+import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -232,7 +233,7 @@ const state = {
   above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
   shelfDepth: 250,                 // the shelves above the bench: 150 to 400 deep
   tv: 75,                          // the TV's size in inches, one of TV_SIZES
-  colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0 },   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards
+  colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0 },   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards
   shelfWood: 0,                    // the shelves' wood, which of SHELF_WOODS
   frontPiece: 'dresser',           // on the front wall between the sink and the desk: one of FRONT_PIECES
   // The dresser's, larder's and sofa's sizes, and which larder and sofa:
@@ -247,6 +248,7 @@ const state = {
   stored: { shown: false, packing: 0, where: 0, spots: [] },
   otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
   wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
+  shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
 };
 
 const baseDoorCount = () => Math.max(1, Math.round((ROOM_WIDTH - state.T - state.WARD - state.TOWER) / 450));
@@ -606,6 +608,10 @@ const FINISHES = {
   8: { name: 'Kitchen worktop', hex: '#CFC3B0' },
   9: { name: 'Kitchen island', hex: '#EDE6D5' },
   10: { name: 'Kitchen island top', hex: '#D6A562' },                // the island's honey oak top, as a plain colour
+  // The carpet (bedroom and stairs), as laid, and as it was drawn from the
+  // room photos before (floor.js's CARPET_COLOURS)
+  11: { name: 'Cormar Dormouse', hex: CARPET_COLOURS.dormouse },
+  12: { name: 'Carpet from the photos', hex: CARPET_COLOURS.fromPhotos },
 };
 const colourOf = code => RAL[code] ? { name: RAL[code][0], hex: RAL[code][1] } : FINISHES[code];
 
@@ -618,6 +624,7 @@ const COLOUR_TARGETS = {
   wall: { mats: [wallMat], room: 1 },
   woodwork: { mats: [frameMat, roomDoorMat], room: 2 },
   dresser: { mats: [dresserMat, dresserDoorMat], follows: 'cupboard' },
+  carpet: { mats: [carpetMat], room: 11 },
 };
 
 
@@ -2122,6 +2129,7 @@ function showInMenus(option, i, aboveText) {
 function redrawAround() {
   drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
   drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
+  drawShoeRack(state.shoeRack);                                 // the shoe rack, downstairs
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2196,6 +2204,9 @@ const ADDRESS = [
   ...CUPBOARD_ON_ADDRESS,                                       // the bedroom's pine cupboard there or not
   ['pineOn', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],   // the pine cupboard in the living room
   ['pineMove', writeSpot, readSpot],
+  ...MIRROR_ON_ADDRESS,                                         // the bedroom's mirror there or not
+  ['colours.carpet', String, colour],                           // the carpet's colour (bedroom and stairs)
+  ...SHOE_RACK_ADDRESS,                                         // the shoe rack's sizes and place, downstairs
 ];
 // A piece in place of the bench moved, as `x.y.turn`, or AT_HOME where it
 // starts (as links from before the bookshelf could move keep it)
@@ -2311,9 +2322,9 @@ const colourRefreshers = [];
 const refreshColours = () => colourRefreshers.forEach(f => f());
 // A colour picker for one target: a dropdown of the named colours and the
 // extras, ◀ ▶ to step between them, and "Other colours…" for any RAL colour
-function colourPicker(target, [selectId, otherId, otherRowId, prevId, nextId, swatchId], extras) {
+function colourPicker(target, [selectId, otherId, otherRowId, prevId, nextId, swatchId], extras, named = NAMED) {
   const select = document.getElementById(selectId), other = document.getElementById(otherId);
-  const choices = [...NAMED, ...extras], compare = choices.map(([code]) => code);
+  const choices = [...named, ...extras], compare = choices.map(([code]) => code);
   select.innerHTML = choices.map(([code, label]) => `<option value="${code}">${label}</option>`).join('') +
     `<option value="${OTHER}">Other colours…</option>`;
   other.innerHTML = OTHER_OPTIONS;
@@ -2343,6 +2354,10 @@ colourPicker('cupboard', ['ral-cupboard', 'ral-other', 'otherRow', 'colPrev', 'c
   [[0, 'Same colour as the door'], [1, 'Same colour as the walls']]);
 colourPicker('dresser', ['ral-dresser', 'ral-dresser-other', 'dresserOtherRow', 'dresserPrev', 'dresserNext', 'dresserSwatch'],
   [[0, 'Same as the cupboards'], [2, 'Same colour as the door'], [1, 'Same colour as the walls']]);
+// The carpet: as laid (0, its default, Dormouse), or as drawn before, from
+// the photos; none of the cupboards' named colours
+colourPicker('carpet', ['ral-carpet', 'ral-carpet-other', 'carpetOtherRow', 'carpetPrev', 'carpetNext', 'carpetSwatch'],
+  [[0, 'Cormar Dormouse (as laid)'], [12, 'From the room photos (darker)']], []);
 refreshColours();
 
 // The shelf colour: the wooden shelves everywhere (above the bench, in the
@@ -2385,6 +2400,7 @@ function updatePalette() {
     ['Door, frame and sills', hex(frameMat), colourOf(shownCode('woodwork')).name],
     ['Ceiling', hex(ceilingMat), 'Pure Brilliant White, matt'],
     ['Floor', FINISHES[3].hex, 'Howdens oak 3-strip, on average'],
+    ['Carpet (bedroom and stairs)', hex(carpetMat), colourOf(shownCode('carpet')).name],
     ['Kitchen units', hex(kitchenMat), 'Clerkenwell Gloss White'],
     ['Kitchen worktop', hex(worktopMat), 'Light stone laminate'],
     ['Sink', '#C4C8CC', 'Stainless steel'],
@@ -2725,6 +2741,8 @@ const anchors = {
   hallBench: () => middleOf(wickerBenches.hallway),
   bedroomBench: () => middleOf(wickerBenches.bedroom),
   livingBench: () => middleOf(wickerBenches.livingRoom),
+  // The shoe rack (shoe_rack.js), wherever it stands at the foot of the stairs
+  shoeRack: () => middleOf(shoeRack),
 };
 const DOORS = [roomSlider, tallSlider, secondSlider, bedroomSlider, flatDoorSlider, outsideDoorSlider];   // newer doors last, so older links leave them as they start
 const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
@@ -2847,6 +2865,11 @@ const syncWickerBench = wickerBenchControls(document.getElementById('wickerBench
   for (const [path, value] of edits) setValueAt(s.wickerBench, path, value);
 }, { look: true }));
 
+// The shoe rack's (shoe_rack.js): each sets its setting in state.shoeRack
+const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), edits => changeSettings(s => {
+  for (const [key, value] of edits) s.shoeRack[key] = value;
+}, { look: true }));
+
 function syncControls() {
   const { T, R, F, BOARD, BENCH, above, shelfDepth, tv, frontPiece, island } = state;
   const slide = (id, value, text = value) => {
@@ -2882,6 +2905,7 @@ function syncControls() {
   placeIsland();
   syncOtherRoom(state.otherRoom);
   syncWickerBench(state.wickerBench);
+  syncShoeRack(state.shoeRack);
 }
 
 // Start on the settings in the address (room_dimensions.md has their

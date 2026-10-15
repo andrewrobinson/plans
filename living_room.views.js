@@ -72,10 +72,13 @@ window.ROOM_VIEWS = {
     // shared lobby outside that door, as far back from it as the lobby
     // allows (200 from its far side); and outdoors, 1000 out from the
     // external door's middle, its ground taken as the lobby's level (not known)
-    // Halfway down the stairs, in the well's middle, on the 6th step (9
-    // risers of 190 down: `floor`), facing on down: from there, the foot,
-    // its window and the internal door
-    stairsHalfway:   { room: 'downstairs', label: 'Halfway down the stairs', at: [-2260, 572], floor: -1710, posture: 'stand', cannotSee: ['outsideDoor', 'lobby', 'stairsUp'] },
+    // Halfway down the stairs, on the 4th step up from the foot (as the
+    // user asked, 15 Oct 2026): 4 risers of 190 up from the first floor
+    // (`floor`), in the middle of that tread and of the well (floor.js's
+    // HALLWAY: the flight's 8th tread down, 7.5 goings of 220 on from the
+    // winders' turn at -1050), facing on down: from there, the foot, its
+    // window and the internal door
+    stairsHalfway:   { room: 'downstairs', label: 'Halfway down the stairs', at: [-2700, 572], floor: -2090, posture: 'stand', cannotSee: ['outsideDoor', 'lobby', 'stairsUp'] },
     stairsFoot:      { room: 'downstairs', label: 'At bottom of stairs', at: [-3750, 572], floor: -2850, posture: 'stand' },
     outsideFlatDoor: { room: 'downstairs', label: 'Outside internal door', at: [-4347, 1942], floor: -2850, posture: 'stand', cannotSee: ['lobby'] },
     outsideExternal: { room: 'downstairs', label: 'Outside external door', at: [-6177, 1657], floor: -2850, posture: 'stand' },
@@ -129,6 +132,7 @@ window.ROOM_VIEWS = {
     outsideDoor:  { room: 'downstairs', label: 'the external door', at: [-4827, 1657, -1850] },
     lobby:        { room: 'downstairs', label: 'the lobby', at: [-4282, 1657, -2000] },
     stairsUp:     { room: 'downstairs', label: 'up the stairs', at: [-600, 572, 0] },
+    shoeRack:     { room: 'downstairs', label: 'the shoe rack', anchor: 'shoeRack' },   // wherever it stands (shoe_rack.js)
     // In the bedroom (other_room.js): the fitted cupboards in the recess
     // (its middle, 1824 wide, at the upper one's front, 2769, measured);
     // the bookcase, the bed, the pine cupboard (the wardrobe) and the

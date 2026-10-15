@@ -28,6 +28,7 @@ takes new screenshots when a change is meant to show.
 | `living_room.js` | The living room's fittings and cupboard options, the settings and the page address, and the built-in views |
 | `other_room.js` | The bedroom's furniture and fitted cupboards, and their sliders |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
+| `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
 | `living_room.views.js` | The rooms, places (Where), things (Looking at), eye heights and config-defined views, for editing |
 | `living_room.scenes.js`, `dressers.js`, `larders.js`, `sofas.js` | Scenes and furniture catalogues, for editing |
 | `kit/` | The engine: `floor_kit.js`, `view_kit.js` (views, rooms, Where and Looking at), `scene_kit.js` |
@@ -60,9 +61,17 @@ The notes:
 - **Downstairs**, from the first floor plan, estimated: the stairs' foot,
   your (internal) door into it and the lobby shared with the downstairs
   neighbour, with its external door; both doors on sliders in the Doors
-  menu.
+  menu. A **shoe rack** at the foot, an open rack of shelves (600 wide,
+  200 deep, 1200 high to start), against the outside wall clear of the
+  internal door's swing; its sizes, place and turn are sliders in **The
+  shoe rack (downstairs)** in Other options.
 - **The pine cupboard** can be switched off in the bedroom, and on in
   the living room in place of the bench, as the bookcase can.
+- **The bedroom mirror** can be switched off too (**In the bedroom**, under
+  Mirror in Bedroom options).
+- **The carpet** (bedroom and stairs) is Cormar's Hampstead wool twist in
+  Dormouse, a light warm grey-beige from the maker's swatch photo; its
+  colour can be changed under **Carpet** in the Colours menu.
 - **The Look menu** chooses the **Room** (living room, hallway, bedroom,
   downstairs):
   Where and Looking at offer that room's, and Bird's eye and Plan (2D)

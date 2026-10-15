@@ -123,6 +123,7 @@ export const OTHER_ROOM_START = {
   cupboard: { u: OTHER_ROOM.length, v: OTHER_ROOM.breastFace - BOOKCASE.d - PINE.w / 2, turn: 90, w: PINE.w, d: PINE.d, h: PINE.h },
   bookcaseOn: true,                // the bookcase there, or not (whatever's in the living room)
   cupboardOn: true,                // the pine cupboard likewise
+  mirrorOn: true,                  // the mirror likewise
   lowerD: RECESS_CUPBOARDS.lowerD,
   upperDrawers: false,             // the upper recess cupboard: drawers over its open shelves
   upperMirrors: false,             // ...and mirrors on its two tall doors
@@ -164,7 +165,7 @@ const PIECES = [
   // The lower one's depth up to 800, as far as it might go (asked for, 15 Oct 2026)
   { heading: 'Recess cupboards', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [],
     switches: [['upperDrawers', 'Upper cupboard: drawers over the open shelves'], ['upperMirrors', 'Upper cupboard: mirrors on the tall doors']] },
-  { heading: 'Mirror', sizes: sizeSliders('mirror'), place: MIRROR_PLACE, wall: 'mirror.wall' },
+  { heading: 'Mirror', sizes: sizeSliders('mirror'), place: MIRROR_PLACE, wall: 'mirror.wall', switches: [['mirrorOn', 'In the bedroom']] },
 ];
 const SLIDERS = PIECES.flatMap(p => [...p.sizes, ...p.place]);
 const SWITCHES = PIECES.flatMap(p => p.switches ?? []);
@@ -212,6 +213,8 @@ export const RECESS_FRONTS_ADDRESS = [['otherRoom',
 export const BOOKCASE_ON_ADDRESS = [['otherRoom.bookcaseOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
 // And the pine cupboard's, added later still
 export const CUPBOARD_ON_ADDRESS = [['otherRoom.cupboardOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
+// And the mirror's, added later again (15 Oct 2026)
+export const MIRROR_ON_ADDRESS = [['otherRoom.mirrorOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
 
 // ---------------------------------------------------------------------------
 // Drawing. Each movable piece is drawn in its own group, its back's middle
@@ -223,8 +226,8 @@ otherRoom.add(furniture);
 export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null, mirror: null };   // each piece's group as drawn now, to look at
 
 // Draw everything again from the settings `s` (state.otherRoom). With the
-// bookcase or the pine cupboard switched off it's hidden, though still
-// placed, so Looking at it aims at its spot.
+// bookcase, the pine cupboard or the mirror switched off it's hidden,
+// though still placed, so Looking at it aims at its spot.
 export function drawOtherRoom(s) {
   furniture.clear();
   otherRoomPieces.bed = place(bed(), s.bed);
@@ -234,6 +237,7 @@ export function drawOtherRoom(s) {
   otherRoomPieces.cupboard.visible = s.cupboardOn;
   recessCupboards(s);
   otherRoomPieces.mirror = place(mirror(s.mirror), mirrorPlace(s.mirror));
+  otherRoomPieces.mirror.visible = s.mirrorOn;
 }
 
 // Where the mirror's back is, and its turn, from its wall and how far along

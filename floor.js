@@ -308,7 +308,13 @@ ENTRANCE.outsideDoorHingeY = ENTRANCE.yLobby0 + ENTRANCE.outsideDoor.fromWellWal
 // is set when the room is drawn below
 const BEDROOM_DOOR_T = 44;
 let bedroomHinge;
-const carpetMat = material(0x8f8780);             // grey-beige, from the photos
+// The carpet, in the bedroom and on the stairs: Cormar's Hampstead wool
+// twist in Dormouse, a light warm grey-beige. Its colour is averaged from
+// the maker's overhead swatch photo (cormarcarpets.co.uk, Hampstead,
+// variants, Dormouse; 15 Oct 2026). The darker grey-beige it was drawn in
+// before, from the room photos, is kept to choose in the Colours menu.
+const CARPET_COLOURS = { dormouse: '#A2907C', fromPhotos: '#8F8780' };
+const carpetMat = material(CARPET_COLOURS.dormouse);
 // The hallway's floor: oak boards, as the living room's oak (from the
 // photos, 15 Oct 2026), its own so the living room's floor colour leaves it
 // be; the stairs are carpet, as the bedroom is, with a metal strip where
@@ -602,4 +608,4 @@ function drawStairWindow() {
   box({ from: [xFar - doorT, n0, 0], to: [xFar, n1, ROOM_DOOR_H] }, frameMat, entrance);
 }
 
-export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, bedroomHinge, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge };
+export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, bedroomHinge, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge };

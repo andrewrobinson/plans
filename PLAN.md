@@ -34,7 +34,9 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    dimensions and Reset location buttons, and a mirror (sized, and moved
    along and up any of the four walls), and the upper recess cupboard can
    have drawers over its open shelves and mirrors on its tall doors (the
-   address's last field). Its settings still live in
+   address's last field). Later the mirror got an **In the bedroom**
+   switch, as the bookcase and the pine cupboard have, and the carpet a
+   colour in the Colours menu, Cormar Dormouse as it starts. Its settings still live in
    `living_room.js`'s `state.otherRoom`. Later on 15 Oct 2026 the hallway
    and the top of the stairs (`floor.js`'s `HALLWAY`, from the measured A
    to E, AB, AC and Y), and a **Room** choice in the Look menu: Where and
@@ -50,8 +52,11 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    (estimated): the stairs' foot, the flat's internal door and the shared
    lobby with its external door, both doors on sliders, and a
    **Downstairs** room in the Look menu with places on the first
-   floor's level. Next there: a shoe rack at the foot, which will limit
-   how far the internal door opens (sizes to come). Still to do: the measured numbers as they
+   floor's level. Then a shoe rack at the foot (`shoe_rack.js`): an open
+   rack of shelves, 600 × 200 × 1200 to start, its sizes, place on the
+   foot's floor and quarter turns on sliders, starting against the outside
+   wall clear of the internal door's swing; Looking at offers it
+   downstairs. Its real sizes to come. Still to do: the measured numbers as they
    come in (S, W, X: `MEASUREMENTS_NEEDED.md`); the
    bathroom and WC; walls drawn from above in the bedroom's and hallway's
    plans (they're faces seen from inside, so the plan shows only floors);

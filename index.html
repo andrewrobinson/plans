@@ -209,6 +209,11 @@
     <div class="hint">One bench, at one set of sizes, that can be on in any of the rooms, each with its own place.</div>
     <div id="wickerBenchBlock"></div>
   </details>
+  <details class="sec" id="secShoeRack">
+    <summary>The shoe rack (downstairs)</summary>
+    <div class="hint">An open rack of shelves at the foot of the stairs, on its floor between the bottom step and the back wall.</div>
+    <div id="shoeRackBlock"></div>
+  </details>
   <details class="sec" id="secDoors" open>
     <summary>Doors</summary>
     <div id="tallBlock">
@@ -251,7 +256,17 @@
       <div class="colrow" id="dresserOtherRow" hidden>
         <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
       </div>
-      <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
+      <div class="colhead" style="margin-top: 8px">Carpet (bedroom and stairs)</div>
+      <div class="colrow">
+        <button id="carpetPrev" aria-label="Previous named carpet colour">◀</button>
+        <select id="ral-carpet" aria-label="Carpet colour"></select>
+        <button id="carpetNext" aria-label="Next named carpet colour">▶</button>
+        <span class="swatch" id="carpetSwatch"></span>
+      </div>
+      <div class="colrow" id="carpetOtherRow" hidden>
+        <select id="ral-carpet-other" aria-label="Other carpet colour"></select>
+      </div>
+      <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. The carpet is Cormar's Hampstead in Dormouse. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
       <div class="colhead" style="margin-top: 8px">Shelves</div>
       <div class="colrow">
         <select id="shelfWood" aria-label="Shelf colour"></select>
