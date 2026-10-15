@@ -61,6 +61,8 @@ The notes:
   your (internal) door into it and the lobby shared with the downstairs
   neighbour, with its external door; both doors on sliders in the Doors
   menu.
+- **The pine cupboard** can be switched off in the bedroom, and on in
+  the living room in place of the bench, as the bookcase can.
 - **The Look menu** chooses the **Room** (living room, hallway, bedroom,
   downstairs):
   Where and Looking at offer that room's, and Bird's eye and Plan (2D)

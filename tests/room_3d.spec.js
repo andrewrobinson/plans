@@ -35,12 +35,13 @@ test.describe('saved addresses', () => {
   }
 
   // From before the bookshelf could move, the bedroom's bookcase be taken
-  // out or the wicker bench be drawn: their six fields left off the end, so
-  // the bookshelf's against the wall, the bookcase in the bedroom and the
-  // bench in the hallway as it starts
-  test('a link without the bookshelf\'s place, the bedroom bookcase or the wicker bench keeps them as they start', async ({ page }) => {
+  // out, the wicker bench be drawn or the pine cupboard be moved about: their
+  // nine fields left off the end, so the bookshelf's against the wall, the
+  // bookcase and the pine cupboard in the bedroom, the bench in the hallway
+  // and no pine cupboard in the living room, as they start
+  test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench or the pine cupboard keeps them as they start', async ({ page }) => {
     const [settings, ...rest] = DEFAULT.split('~');
-    await openRoom(page, [settings.split('-').slice(0, -6).join('-'), ...rest].join('~'));
+    await openRoom(page, [settings.split('-').slice(0, -9).join('-'), ...rest].join('~'));
     expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
   });
 
@@ -217,6 +218,30 @@ test.describe('the controls', () => {
     await expect(page.locator('#benchOn')).toBeEnabled();
     await expect(page.locator('#benchOn')).toBeChecked();             // the bench as it was
     expect(settingsField(await hash(page), 41)).toBe('0');
+  });
+
+  // The bedroom's pine cupboard in the living room (pineOn, field 51; its
+  // place, field 52) and in the bedroom (cupboardOn, field 50), each on its
+  // own; in the bench's place, with the bookshelf too if it's on
+  test('the pine cupboard can be on the back wall and in the bedroom, each on its own', async ({ page }) => {
+    await expect(page.locator('#pineMoveBlock')).toBeHidden();
+    await page.locator('#pineOn').check();
+    await expect(page.locator('#benchOn')).toBeDisabled();
+    await expect(page.locator('#pineMoveBlock')).toBeVisible();
+    expect(settingsField(await hash(page), 51)).toBe('1');
+    expect(settingsField(await hash(page), 52)).toBe('wall');
+    await page.locator('#pineY').fill('1000');
+    expect(settingsField(await hash(page), 52)).toMatch(/^\d+\.1000\.0$/);
+    await page.locator('#pineHome').click();
+    expect(settingsField(await hash(page), 52)).toBe('wall');
+    await page.locator('#bookshelfOn').check();
+    await page.locator('#pineOn').uncheck();
+    await expect(page.locator('#benchOn')).toBeDisabled();            // the bookshelf's still there
+    expect(settingsField(await hash(page), 50)).toBe('1');
+    await page.click('#bedMenu');
+    await page.locator('#otherRoom_cupboardOn').uncheck();
+    expect(settingsField(await hash(page), 50)).toBe('0');
+    expect(settingsField(await hash(page), 41)).toBe('1');           // the living room's kept
   });
 
   test('the front-wall piece shows the dresser or larder settings', async ({ page }) => {
