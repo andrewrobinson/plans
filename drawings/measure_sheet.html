@@ -30,7 +30,8 @@ p { margin: 0 0 10px; color: var(--muted); }
 h2 { font-size: 15px; margin: 18px 0 6px; }
 table { width: 100%; border-collapse: collapse; }
 td { border-top: 1px solid var(--line); padding: 7px 4px; vertical-align: top; }
-td.l { width: 40px; }
+td.l { width: 52px; white-space: nowrap; }
+td.l .got { color: #2a9d4b; font-weight: 700; font-size: 20px; line-height: 1; margin-left: 3px; vertical-align: -3px; }
 td.l span { display: inline-block; min-width: 30px; text-align: center; padding: 2px 4px; border-radius: 5px; color: var(--tag-ink); font-weight: 700; background: var(--dim); }
 tr.h td.l span { background: var(--height); }
 tr.p2 td.l span { background: var(--p2); }
@@ -72,6 +73,7 @@ button.go { background: var(--dim); border-color: var(--dim); color: #fff; }
   </section>
 
   <section>
+    <p><b style="color:#2a9d4b">*</b> already sent to Claude: shown filled in, and left out of Copy unless you change it.</p>
     <p>Measure in mm, wall to wall at about waist height, to the nearest 5 or so. For doors and windows, measure to the opening (inside the frame or reveal). Leave any you can't get, and type a note after a number if you like ("2240 at floor, 2255 at ceiling").</p>
     <div id="lists"></div>
     <div class="actions">
@@ -132,6 +134,13 @@ const ITEMS = [
   { k: 'AH', p2: true, what: 'Hallway radiator: how far it stands out', how: 'From the wall to its front, or to the valve if that sticks out further', est: 110 },
 ];
 
+// Measurements already sent in the chat, so they show as done here on any
+// device. Copy leaves them out unless they're changed on the page.
+const SUPPLIED = {
+  // 15 Oct 2026
+  A: '2252', B: '150 approx', C: '2221', AB: '909', AC: '150', D: '1054', E: '1050', Y: '2330',
+};
+
 const ROOMS = [['Living room', 395, 300], ['Other room', 540, 885], ['Hallway', 255, 720], ['Stairs', 120, 815], ['Bathroom', 145, 980], ['WC', 292, 1035]];
 
 const colour = it => it.h ? 'var(--height)' : it.p2 ? 'var(--p2)' : 'var(--dim)';
@@ -178,11 +187,13 @@ function list() {
       open = true;
       continue;
     }
-    const cls = [it.h && 'h', it.p2 && 'p2', saved[it.k] && 'done'].filter(Boolean).join(' ');
-    html += `<tr class="${cls}" data-k="${it.k}"><td class="l"><span>${it.k}</span></td>` +
+    const value = saved[it.k] || SUPPLIED[it.k] || '';
+    const cls = [it.h && 'h', it.p2 && 'p2', value && 'done'].filter(Boolean).join(' ');
+    const star = SUPPLIED[it.k] ? '<b class="got" title="Already sent to Claude">*</b>' : '';
+    html += `<tr class="${cls}" data-k="${it.k}"><td class="l"><span>${it.k}</span>${star}</td>` +
       `<td class="what">${it.what}${it.how ? `<small>${it.how}</small>` : ''}</td>` +
       `<td class="est">≈ ${it.est}</td>` +
-      `<td class="val"><input inputmode="decimal" aria-label="${it.k}, measured" placeholder="mm" value="${(saved[it.k] || '').replace(/"/g, '&quot;')}"></td></tr>`;
+      `<td class="val"><input inputmode="decimal" aria-label="${it.k}, measured" placeholder="mm" value="${value.replace(/"/g, '&quot;')}"></td></tr>`;
   }
   document.getElementById('lists').innerHTML = html + '</table>';
 }
@@ -193,8 +204,10 @@ list();
 document.getElementById('lists').addEventListener('input', e => {
   const row = e.target.closest('tr');
   const v = e.target.value.trim();
-  if (v) saved[row.dataset.k] = v; else delete saved[row.dataset.k];
-  row.classList.toggle('done', !!v);
+  const k = row.dataset.k;
+  // a supplied value typed back unchanged isn't a new measurement
+  if (v && v !== SUPPLIED[k]) saved[k] = v; else delete saved[k];
+  row.classList.toggle('done', !!(v || SUPPLIED[k]));
   save();
 });
 

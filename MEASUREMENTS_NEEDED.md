@@ -35,25 +35,31 @@ into the chat. It covers sections 1 and 2 and the main sizes from 3 and 4.
 Rooms measured separately rarely add up when joined, so a few measurements
 across the hallway and through the door frames fix where each room sits.
 
-- [ ] **Living room door frame, far side.** Its width. Today it's assumed to
+- [x] **Living room door frame, far side.** Its width. Today it's assumed to
       be 71, like the hinge side (frame ending at y = 2231). Measured from the
       living room's back wall (the bench wall) to the far edge of the frame.
-- [ ] **The wall the living room door is in:** its thickness, i.e. the depth of
+      **Measured 2252** (sheet's A, 15 Oct 2026).
+- [x] **The wall the living room door is in:** its thickness, i.e. the depth of
       the door frame from the living room face to the hallway face.
-- [ ] **The hallway's width** just outside the living room door, banister
-      to the wall opposite (the kitchen side).
-- [ ] **The step in the hallway wall.** Photos (15 Oct 2026) show the
+      **About 150** (B).
+- [x] **The hallway's width** just outside the living room door, banister
+      to the wall opposite (the kitchen side). **Measured 909** (AB); 1054
+      past the other room's door (D).
+- [x] **The step in the hallway wall.** **Measured 150** (AC). Photos (15 Oct 2026) show the
       hallway wall beside the kitchen in line with the living room door
       frame's far edge, and the other room's door in a stretch set back
       from it, with the door's latch side right at the corner. How far is
       it set back? The hallway is wider there by that much.
-- [ ] **The living room's back wall carried on:** standing in the hallway, how
+- [ ] **The living room's back wall carried on:** **2221** (C); whether
+      the outside wall lines up is still to say. standing in the hallway, how
       far it is from the outside wall (the wall the stairs run along) to the
       hallway wall opposite. Does the outside wall line up with the living
       room's back wall, or step in or out?
 - [ ] **The other room's door frame:** the thickness of the wall it's in, and
       the distance along the hallway from the living room door frame's far
-      edge to the near edge of the other room's door frame.
+      edge to the near edge of the other room's door frame. **Along the
+      hallway, 1050** (E, from the hallway face of the living room door's
+      wall); the thickness is still to measure.
 - [ ] **The wall between the kitchen recess and the other room:** its
       thickness, if it can be found, e.g. from the other room's door
       frame or a socket box. Otherwise the two measurements in section 2
@@ -90,6 +96,8 @@ across the hallway and through the door frames fix where each room sits.
 
 - [ ] **Hallway:** its length from the top of the stairs to the bathroom
       door; its width along the way, where it changes; ceiling height.
+      **Length 2330** (Y), **widths 909 and 1054** (AB, D); ceiling height
+      still to measure.
 - [ ] **Each door off the hallway** (the bathroom and WC): position, opening
       width, and which way it opens.
 - [ ] **The hallway radiator,** on the other room's wall just past its
