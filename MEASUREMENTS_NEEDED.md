@@ -193,7 +193,9 @@ Plans don't give heights, so the slope can only come from these.
 - [ ] **Going:** the depth of one straight step, front edge (nosing) to front
       edge. The drawing suggests about 220.
 - [x] **Width of the flight,** wall to wall or wall to banister. 900 wall to
-      wall, the steps 810 wide; a 110 ledge and a 240 box at the top (15 Oct 2026).
+      wall, the steps 810 wide; at the top a 110 base under the banister, then
+      sill boards bridging to the walls: 240 wide, 210 down, on the hallway
+      side, 120 wide and level with the floor on the outside (15 Oct 2026).
 - [ ] **The winders at the top** (the turning steps): how many (3, counted),
       and each
       one's depth at the narrow end, the middle and the wide end. A sketch is
@@ -205,6 +207,12 @@ Plans don't give heights, so the slope can only come from these.
 - [ ] **The opening above the stairs:** its length and width, and the
       headroom, the lowest ceiling over any step, measured straight up
       from the step's front edge.
+- [ ] **The sill boards and the WC wall over the stairs:** the right
+      board measured 2370 to where the stairs turn, but the hallway is 2330
+      long: from where to where? And the WC wall's bottom over the stairs
+      (drawn level with the hallway floor, 220 deep, to the left board's
+      corner): how deep it is, front to back, and how far it comes down.
+      The banister's base: its height above the hallway floor.
 - [ ] **The ceiling over the stairs:** is it flat or sloping, and where does it
       change?
 

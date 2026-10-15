@@ -155,14 +155,26 @@ const HALLWAY = {
   // is still to measure: 220 is the drawing's
   well: 900, stepWidth: 810, rise: 190, going: 220,
   flightSteps: 11, winders: 3, topSteps: 1,
-  // Along the top of the stairwell's hallway-side wall, looking down the
-  // stairs: a 110 ledge, then a 240 box the banister stands on, its
-  // hallway face the banister's (all measured; the box's height estimated
-  // from the photos)
-  ledge: 110, box: 240, boxH: 150,
+  // At the top, the opening is wider than the well: on each side a white
+  // window-sill board bridges the gap from the well's wall to the hallway
+  // floor (measured 15 Oct 2026; the boards' thickness taken as the
+  // bedroom's sill's). Looking down the stairs, the left one, on the
+  // hallway side, is 240 wide and 210 below the hallway floor; it runs
+  // 1650 from the winders, past the hallway's far end into a corner under
+  // the WC wall. Between it and the hallway floor, a 110 base the
+  // banister stands on, its hallway face the banister's (its height
+  // estimated from the photos). The right one, against the outside wall,
+  // is 120 wide and level with the floor, 2370 long to where the stairs
+  // turn: drawn the hallway's length, 2330
+  base: 110, baseH: 150,
+  leftSill: { width: 240, below: 210, length: 1650 },
+  rightSill: { width: 120 },
+  sillThick: 25,
   // Beyond the hallway's far end the flight runs on under the bathroom's
   // floor, taken as 300 thick; at its foot, a lobby, drawn 1000 long (both
-  // estimated: not measured)
+  // estimated: not measured). Over the well the WC wall stops at the
+  // hallway floor's level, its bottom as deep as the left board runs past
+  // the far end (1650 − 1430: 220)
   bathroomFloor: 300, lobby: 1000,
   // The banister's rail height and its spindles' spacing (estimated)
   rail: 900, spindles: 120,
@@ -174,19 +186,23 @@ HALLWAY.xStep = HALLWAY.x0 - HALLWAY.stepAlong;                         // where
 HALLWAY.xEnd = HALLWAY.x0 - HALLWAY.length;                             // the far end: -2480
 HALLWAY.yBanister = HALLWAY.kitchenSide - HALLWAY.width;                // 1312
 HALLWAY.ySetBack = HALLWAY.kitchenSide + HALLWAY.setBack;               // the bedroom's wall: 2371
-// The stairwell, across: the box's hallway face (the banister's, with the
-// rail flush with it), then the box and the ledge, then the well. That puts
-// its outside wall 122 in from the living room's back wall line, as the
-// drawing has it (its stairs drawn about 130 in)
+// The stairwell, across: the banister base's hallway face (with the rail
+// flush with it), then the base and the left board, then the well. That
+// puts its outside wall 122 in from the living room's back wall line, as
+// the drawing has it (its stairs drawn about 130 in); above the right
+// board, the outside wall is all but in line with the living room's
 HALLWAY.yBoxFace = HALLWAY.yBanister + HALLWAY.railW;                   // 1372
-HALLWAY.yWellIn = HALLWAY.yBoxFace - HALLWAY.box - HALLWAY.ledge;       // the well's hallway-side wall: 1022
+HALLWAY.ySillEdge = HALLWAY.yBoxFace - HALLWAY.base;                    // the left board's hallway edge: 1262
+HALLWAY.yWellIn = HALLWAY.ySillEdge - HALLWAY.leftSill.width;           // the well's hallway-side wall: 1022
 HALLWAY.yWellOut = HALLWAY.yWellIn - HALLWAY.well;                      // its outside wall: 122
+HALLWAY.yHallOut = HALLWAY.yWellOut - HALLWAY.rightSill.width;          // that wall above the right board: 2
 // And along: the winders turn in a square as wide as the well, against
 // the door wall; the newel at its inner corner tops the straight flight
 HALLWAY.xTurn = HALLWAY.x0 - HALLWAY.well;                              // -1050
 HALLWAY.xFoot = HALLWAY.xTurn - HALLWAY.flightSteps * HALLWAY.going;    // the bottom step's riser: -3470
 HALLWAY.risers = HALLWAY.flightSteps + HALLWAY.winders + HALLWAY.topSteps;   // 15
 HALLWAY.drop = HALLWAY.risers * HALLWAY.rise;                           // floor to floor: 2850
+HALLWAY.xSillEnd = HALLWAY.xTurn - HALLWAY.leftSill.length;             // the left board's corner, under the WC wall: -2700
 
 // ---------------------------------------------------------------------------
 // The other room (the bedroom), beyond the kitchen recess. It has its own
@@ -346,8 +362,9 @@ function winderTreads({ x0, xTurn, yWellIn, yWellOut, well, winders }) {
 const hallway = new THREE.Group();                                     // at the living room's origin
 floor.add(hallway);
 {
-  const { x0, xStep, xEnd, xTurn, xFoot, kitchenSide, yBanister, yBoxFace, yWellIn, yWellOut, ySetBack, well, stepWidth, rise, going, flightSteps, winders, topSteps, drop,
-    ledge, boxH, bathroomFloor, lobby, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
+  const { x0, xStep, xEnd, xTurn, xFoot, xSillEnd, kitchenSide, yBanister, yBoxFace, ySillEdge, yWellIn, yWellOut, yHallOut, ySetBack, well, stepWidth, rise, going, flightSteps, winders, topSteps, drop,
+    baseH, leftSill, sillThick, bathroomFloor, lobby, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
+  const leftSillTop = -leftSill.below;
   const face = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, hallway);
   const level = n => -n * rise;                                 // a tread n steps down from the hallway floor
   const xLobby = xFoot - lobby;                                 // the lobby's far wall, at the stairs' foot
@@ -355,13 +372,16 @@ floor.add(hallway);
 
   // The floors: the hallway's oak up to the banister's box, and the top
   // step, its tread level with it, carpet, the metal strip between them;
-  // along the well's hallway side, from the newel to the far end, the
-  // ledge and the box the banister stands on
+  // along the well's hallway side, from the newel, the base the banister
+  // stands on, down to the left board below it, which runs on under the
+  // WC wall; along the outside wall, the right board, level with the floor
   slab([[x0, yBoxFace], [xEnd, yBoxFace], [xEnd, ySetBack], [xStep, ySetBack], [xStep, kitchenSide], [x0, kitchenSide]], -20, 0, hallFloorMat, hallway);
   slab([[x0, yWellIn], [xTurn, yWellIn], [xTurn, yBoxFace], [x0, yBoxFace]], level(1), 0, carpetMat, hallway);
   box({ from: [xTurn, yBoxFace, 0], to: [x0, yBoxFace + NOSING.w, NOSING.h] }, trimMat, hallway, false);
-  box({ from: [xEnd, yWellIn, -20], to: [xTurn, yWellIn + ledge, 0] }, frameMat, hallway);
-  box({ from: [xEnd, yWellIn + ledge, 0], to: [xTurn, yBoxFace, boxH] }, frameMat, hallway);
+  box({ from: [xEnd, ySillEdge, leftSillTop], to: [xTurn, yBoxFace, baseH] }, frameMat, hallway);
+  box({ from: [xSillEnd, yWellIn, leftSillTop - sillThick], to: [xTurn, ySillEdge, leftSillTop] }, frameMat, hallway);
+  face(xEnd - xSillEnd, leftSill.below, [(xEnd + xSillEnd) / 2, ySillEdge, leftSillTop / 2], '-v');   // behind it, under the WC wall
+  box({ from: [xEnd, yHallOut, -sillThick], to: [x0, yWellOut, 0] }, frameMat, hallway);
 
   // The living room door's wall: its hallway face, and the sides and head
   // of the doorway through the part of it the living room's 100 leaves,
@@ -387,18 +407,27 @@ floor.add(hallway);
     face(doorway[1] - doorway[0], lining, [xStep - (doorway[0] + doorway[1]) / 2, ySetBack + lining / 2, FRAME_H], '-u').rotation.set(Math.PI / 2, 0, 0);
   }
 
-  // The far end (the WC wall), across the hallway and the well, down to
-  // the bathroom floor's underside: the flight runs on beneath it
-  face(ySetBack - yWellOut, CEILING_HEIGHT + bathroomFloor, [xEnd, (yWellOut + ySetBack) / 2, (CEILING_HEIGHT - bathroomFloor) / 2], '+u');
-  face(xEnd - xLobby, well, [(xEnd + xLobby) / 2, yWell, -bathroomFloor], '-u').rotation.set(Math.PI / 2, 0, 0);   // that underside, flat, facing down
+  // The far end (the WC wall), across the hallway and the opening, down to
+  // the floor's level; its bottom, over the well and the left board, as far
+  // as the board's corner; there its far face, down to the bathroom
+  // floor's underside over the well and to the board beside it: the
+  // flight runs on beneath them
+  const underWC = ySillEdge - yWellOut;
+  face(ySetBack - yHallOut, CEILING_HEIGHT, [xEnd, (yHallOut + ySetBack) / 2, CEILING_HEIGHT / 2], '+u');
+  face(xEnd - xSillEnd, underWC, [(xEnd + xSillEnd) / 2, (yWellOut + ySillEdge) / 2, 0], '-u').rotation.set(Math.PI / 2, 0, 0);   // flat, facing down
+  face(well, bathroomFloor, [xSillEnd, yWell, -bathroomFloor / 2], '+u');
+  face(leftSill.width, leftSill.below, [xSillEnd, (yWellIn + ySillEdge) / 2, leftSillTop / 2], '+u');
+  face(xSillEnd - xLobby, well, [(xSillEnd + xLobby) / 2, yWell, -bathroomFloor], '-u').rotation.set(Math.PI / 2, 0, 0);   // the bathroom floor's underside, flat, facing down
 
-  // The well's walls: the outside one, full height as far as the hallway
-  // goes and then up to the bathroom floor's underside; the hallway side,
-  // up to the ledge and then likewise; and the lobby, at the foot
-  face(x0 - xEnd, CEILING_HEIGHT + drop, [(x0 + xEnd) / 2, yWellOut, (CEILING_HEIGHT - drop) / 2], '+v');
-  face(xEnd - xLobby, drop - bathroomFloor, [(xEnd + xLobby) / 2, yWellOut, -(drop + bathroomFloor) / 2], '+v');
-  face(xTurn - xEnd, drop, [(xTurn + xEnd) / 2, yWellIn, -drop / 2], '-v');
-  face(xEnd - xLobby, drop - bathroomFloor, [(xEnd + xLobby) / 2, yWellIn, -(drop + bathroomFloor) / 2], '-v');
+  // The well's walls: the outside one, above the right board as far as the
+  // hallway goes, below it on to the board's corner, and then up to the
+  // bathroom floor's underside; the hallway side, up to the left board and
+  // then likewise; and the lobby, at the foot
+  face(x0 - xEnd, CEILING_HEIGHT, [(x0 + xEnd) / 2, yHallOut, CEILING_HEIGHT / 2], '+v');
+  face(x0 - xSillEnd, drop, [(x0 + xSillEnd) / 2, yWellOut, -drop / 2], '+v');
+  face(xSillEnd - xLobby, drop - bathroomFloor, [(xSillEnd + xLobby) / 2, yWellOut, -(drop + bathroomFloor) / 2], '+v');
+  face(xTurn - xSillEnd, drop - leftSill.below, [(xTurn + xSillEnd) / 2, yWellIn, -(drop + leftSill.below) / 2], '-v');
+  face(xSillEnd - xLobby, drop - bathroomFloor, [(xSillEnd + xLobby) / 2, yWellIn, -(drop + bathroomFloor) / 2], '-v');
   slab([[xFoot, yWellOut], [xLobby, yWellOut], [xLobby, yWellIn], [xFoot, yWellIn]], -drop - 20, -drop, hallFloorMat, hallway);
   face(well, drop - bathroomFloor, [xLobby, yWell, -(drop + bathroomFloor) / 2], '+u');
 
@@ -413,15 +442,15 @@ floor.add(hallway);
   }
   winderTreads(HALLWAY).forEach((plan, i) => slab(plan, -drop, level(topSteps + winders - 1 - i), carpetMat, hallway));
 
-  // The banister on the box, from the newel at the winders' corner to the
+  // The banister on its base, from the newel at the winders' corner to the
   // far end: a rail on spindles, a newel post at each end, all flush with
-  // the box's hallway face
+  // the base's hallway face
   box({ from: [xEnd, yBanister, rail - 50], to: [xTurn, yBoxFace, rail] }, frameMat, hallway);
   for (const x of [xTurn - post, xEnd]) box({ from: [x, yBoxFace - post, 0], to: [x + post, yBoxFace, rail + 100] }, frameMat, hallway);
   const gaps = Math.round((xTurn - xEnd - 2 * post) / spindles);
   for (let k = 1; k < gaps; k++) {
     const x = xEnd + post + k * (xTurn - xEnd - 2 * post) / gaps;
-    box({ from: [x - spindle / 2, yBanister + (railW - spindle) / 2, boxH], to: [x + spindle / 2, yBanister + (railW + spindle) / 2, rail - 50] }, frameMat, hallway, false);
+    box({ from: [x - spindle / 2, yBanister + (railW - spindle) / 2, baseH], to: [x + spindle / 2, yBanister + (railW + spindle) / 2, rail - 50] }, frameMat, hallway, false);
   }
   // No ceiling over the hallway: left out, as asked (15 Oct 2026)
 }

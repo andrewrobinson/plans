@@ -1304,13 +1304,13 @@ function bedroomPlanDims(g) {
 }
 // The hallway's plan, in the living room's mm: along its stairs side (the
 // winders' square, to the newel), along its bedroom side (the step back and
-// the doorway), and across at its far end (the well, the ledge and box, and
-// the kitchen side)
+// the doorway), and across at its far end (the right sill board, the well,
+// the left board and the banister's base, and the kitchen side)
 function hallwayPlanDims(g) {
-  const { x0, xStep, xEnd, xTurn, yWellOut, yWellIn, yBoxFace, kitchenSide, ySetBack, bedroomDoor } = HALLWAY;
+  const { x0, xStep, xEnd, xTurn, yHallOut, yWellOut, yWellIn, ySillEdge, yBoxFace, kitchenSide, ySetBack, bedroomDoor } = HALLWAY;
   chain([xEnd, xTurn, x0], (v, off) => P(v, -250 - off, CEILING_HEIGHT), g);
   chain([xEnd, bedroomDoor[0], xStep, x0], (v, off) => P(v, ySetBack + 250 + off, CEILING_HEIGHT), g);
-  chain([0, yWellOut, yWellIn, yBoxFace, kitchenSide, ySetBack], (v, off) => P(xEnd - 250 - off, v, CEILING_HEIGHT), g);
+  chain([yHallOut, yWellOut, yWellIn, ySillEdge, yBoxFace, kitchenSide, ySetBack], (v, off) => P(xEnd - 250 - off, v, CEILING_HEIGHT), g);
 }
 
 // In the wall views, anything wholly on the camera's side of the view's cut
