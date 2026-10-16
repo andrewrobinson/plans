@@ -45,10 +45,12 @@ test.describe('saved addresses', () => {
     await openRoom(page);
     const entries = (await page.evaluate(() => window.plans.schema())).filter(e => e.slider);
     expect(entries.length).toBeGreaterThan(30);
-    for (const { path, slider, min, max, step } of entries) {
-      const html = await page.locator(`#${slider}`).evaluate(el => [Number(el.min), Number(el.max), Number(el.step || 1)]);
-      expect(html, `${path}'s slider, #${slider}`).toEqual([min, max, step]);
-    }
+    // Read in one go: one by one, the desktop's slow drawing made it time out
+    const html = await page.evaluate(ids => ids.map(id => {
+      const el = document.getElementById(id);
+      return [Number(el.min), Number(el.max), Number(el.step || 1)];
+    }), entries.map(e => e.slider));
+    entries.forEach(({ path, slider, min, max, step }, k) => expect(html[k], `${path}'s slider, #${slider}`).toEqual([min, max, step]));
   });
 
   test('no address gives the default page', async ({ page }) => {
