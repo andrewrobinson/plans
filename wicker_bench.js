@@ -10,7 +10,7 @@
 // (WICKER_BENCH_SCHEMA), says how it looks, draws it in each room
 // (drawWickerBench()) and makes its menu block (wickerBenchControls()).
 import * as THREE from 'three';
-import { MM, material, box, valueAt } from './kit/floor_kit.js';
+import { MM, material, box, valueAt, makeCanvas } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { floor, hallway, otherRoom, HALLWAY, OUTER, OTHER_ROOM, ROOM_WIDTH, ROOM_DEPTH } from './floor.js';
 import { OTHER_ROOM_START, BED_FOOT, QUARTER_TURN, SIZE_LABEL, slider } from './other_room.js';
@@ -144,7 +144,7 @@ const FABRIC = {
 };
 function floralFabric() {
   const { px } = FABRIC, high = Math.round(px * BENCH.d / BENCH.w);
-  const canvas = document.createElement('canvas');
+  const canvas = makeCanvas();
   canvas.width = px; canvas.height = high;
   const ctx = canvas.getContext('2d');
   let seed = 11;

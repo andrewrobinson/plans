@@ -225,12 +225,21 @@ export const RAL = {
   9018: ['Papyrus white', '#D7D7D7'],
 };
 
+// A canvas to draw a texture on: the page's; or where there's no page (Node,
+// for the model's tests), a stand-in that draws nothing, so the shapes and
+// the labels' text are the same and only the pictures are missing
+export function makeCanvas() {
+  if (typeof document !== 'undefined') return document.createElement('canvas');
+  const nothing = new Proxy(() => nothing, { get: (target, key) => (key === 'measureText' ? () => ({ width: 0 }) : nothing), set: () => true });
+  return { width: 0, height: 0, getContext: () => nothing };
+}
+
 // Oak boards for the floor, drawn once: rows of 69 mm strips (three to a
 // 207 mm board) of varied lengths and tones, as a texture tiling every 1104 mm
 let oakTexture = null;
 export function oakBoards() {
   if (oakTexture) return oakTexture;
-  const px = 1024, mmPx = px / 1104, canvas = document.createElement('canvas');
+  const px = 1024, mmPx = px / 1104, canvas = makeCanvas();
   canvas.width = canvas.height = px;
   const ctx = canvas.getContext('2d');
   let seed = 7;
@@ -468,7 +477,7 @@ export function dimLine(points, g) {
 }
 
 export function dimLabel(text, at, g, colour = '#9b1c1c', size = 0.13) {
-  const canvas = document.createElement('canvas');
+  const canvas = makeCanvas();
   const ctx = canvas.getContext('2d');
   ctx.font = 'bold 40px Helvetica, Arial, sans-serif';
   canvas.width = Math.ceil(ctx.measureText(text).width) + 12;

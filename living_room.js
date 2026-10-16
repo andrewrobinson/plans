@@ -22,7 +22,7 @@
 // store; switching options, the address and the controls; the views and
 // scenes; the configuration; and starting the page.
 import * as THREE from 'three';
-import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
+import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards, makeCanvas,
   setValueAt,
   narrow, popMenus, createDrawers, resetButton, shareButton, screenshotButton, workOffline, flatViews,
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
@@ -1616,7 +1616,7 @@ const storedSize = k => sizeOf(k, state.stored.spots[k].turned);
 // reading the right way up when facing the back wall
 function faceLabel(text, x, y, w, d, z, g) {
   const along = Math.max(w, d), across = Math.min(w, d);
-  const canvas = document.createElement('canvas');
+  const canvas = makeCanvas();
   canvas.width = 512;
   canvas.height = Math.max(48, Math.round(512 * across / along));
   const ctx = canvas.getContext('2d');
