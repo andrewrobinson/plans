@@ -75,6 +75,11 @@ the **Bedroom options** drawer's sliders into `#otherRoomBlock` from
 `PIECES` (each piece's size and place sliders, its reset buttons, and the
 mirror's choice of wall, `WALLS`) and returns the function `syncControls()` calls to put
 them in step. Unlike the other sections, its sliders aren't in the HTML.
+The **New cupboard** switch puts a copy of the living room's corner
+cupboard in the bedroom (`NEW_CUPBOARD`, its corner): `living_room.js`'s
+`copyCupboardToBedroom()` clones the option's cupboard, bar its bench,
+whenever it, its doors or its shelves change, and hands it to
+`showNewCupboard()`.
 The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 
 ### living_room.js (2,696 lines)

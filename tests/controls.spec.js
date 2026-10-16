@@ -426,7 +426,7 @@ test.describe('the shoe rack', () => {
 
   test('a link with its settings keeps them, and holds them to the sliders', async ({ page }) => {
     const [settings, ...rest] = (await hash(page)).split('~');
-    const withRack = rack => [settings.replace(/-[\d.]+$/, `-${rack}`), ...rest].join('~');
+    const withRack = rack => [settings.split('-').map((f, k) => (k === 55 ? rack : f)).join('-'), ...rest].join('~');   // its field, 55
     await openRoom(page, withRack('900.250.1500.0.15.0.60'));
     expect(await hash(page)).toBe(withRack('900.250.1500.0.15.0.60'));
     expect(await readout(page, 'shoeRack_slope')).toBe('15°');
@@ -527,7 +527,7 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#room', 'bedroom');
     await expect.poll(() => view(page)).toMatch(/^birdseye\..*\.bedroom$/);
     expect(await options('where')).toEqual(['In the bedroom doorway, walking in', 'Lying on the bed', 'Standing beside the bed', 'Standing at the bedroom window']);
-    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
+    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at the new cupboard', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
     await page.selectOption('#where', 'bed');
     await expect.poll(() => view(page)).toMatch(/^look:bed:\w+\.lie-tall\..*\.bedroom$/);
     await page.selectOption('#room', 'hallway');

@@ -69,6 +69,15 @@ const RECESS_CUPBOARDS = {
   mirrorInset: 60, mirrorThick: 4,
 };
 
+// The new cupboard: whatever Cupboard options and the option list build in
+// the living room's corner (the back wall and the left wall), copied into
+// the corner where the chimney breast's face meets the kitchen-side wall,
+// where the pine cupboard and the bookcase meet (asked for, 16 Oct 2026).
+// Turned half round, the living room's back wall runs along the chimney
+// breast and its left wall along the kitchen-side wall: the only way into
+// that corner without drawing it mirrored.
+const NEW_CUPBOARD = { u: OTHER_ROOM.length, v: OTHER_ROOM.breastFace, turn: 180 };
+
 // The mirror: none there yet, so its size and place are chosen to start
 // with, on the chimney breast over the bookcase, 180 above the bookcase's
 // top. A thin dark frame round the glass, standing off the wall.
@@ -124,6 +133,7 @@ export const OTHER_ROOM_START = {
   bookcaseOn: true,                // the bookcase there, or not (whatever's in the living room)
   cupboardOn: true,                // the pine cupboard likewise
   mirrorOn: true,                  // the mirror likewise
+  newCupboardOn: false,            // the living room's corner cupboard copied in (NEW_CUPBOARD), in place of the pine cupboard
   lowerD: RECESS_CUPBOARDS.lowerD,
   upperDrawers: false,             // the upper recess cupboard: drawers over its open shelves
   upperMirrors: false,             // ...and mirrors on its two tall doors
@@ -155,10 +165,12 @@ const SIZES = {
 export const BOOKCASE_SIZES = SIZES.bookcase;
 export const SIZE_LABEL = { w: 'Width', d: 'Depth', h: 'Height' };
 const sizeSliders = piece => SIZES[piece].map(([k, lo, hi]) => [`${piece}.${k}`, SIZE_LABEL[k], lo, hi, 10, '']);
-// The menu's pieces, in order: each its heading, its size sliders and its
+// The menu's pieces, in order: each its heading (if it has one), its size sliders and its
 // place sliders (each with a reset button, back to OTHER_ROOM_START), and
 // for the mirror the choice of wall, reset with its place
 const PIECES = [
+  // The new cupboard first, just its switch (asked for, 16 Oct 2026)
+  { sizes: [], place: [], switches: [['newCupboardOn', 'New cupboard']] },
   { heading: 'Bed (with its headboard and mattress)', sizes: [], place: PLACE('bed') },
   { heading: 'Bookcase', sizes: sizeSliders('bookcase'), place: PLACE('bookcase'), switches: [['bookcaseOn', 'In the bedroom']] },
   { heading: 'Pine cupboard', sizes: sizeSliders('cupboard'), place: PLACE('cupboard'), switches: [['cupboardOn', 'In the bedroom']] },
@@ -215,6 +227,8 @@ export const BOOKCASE_ON_ADDRESS = [['otherRoom.bookcaseOn', on => (on ? 1 : 0),
 export const CUPBOARD_ON_ADDRESS = [['otherRoom.cupboardOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
 // And the mirror's, added later again (15 Oct 2026)
 export const MIRROR_ON_ADDRESS = [['otherRoom.mirrorOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
+// And the new cupboard's (16 Oct 2026)
+export const NEW_CUPBOARD_ON_ADDRESS = [['otherRoom.newCupboardOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
 
 // ---------------------------------------------------------------------------
 // Drawing. Each movable piece is drawn in its own group, its back's middle
@@ -223,21 +237,35 @@ export const MIRROR_ON_ADDRESS = [['otherRoom.mirrorOn', on => (on ? 1 : 0), (te
 // ---------------------------------------------------------------------------
 const furniture = new THREE.Group();
 otherRoom.add(furniture);
-export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null, mirror: null };   // each piece's group as drawn now, to look at
+// The new cupboard's own group, apart from the furniture as it's redrawn
+// from the living room's cupboard (showNewCupboard()), not from `s`
+const newCupboardSpot = new THREE.Group();
+newCupboardSpot.position.set(NEW_CUPBOARD.u * MM, 0, NEW_CUPBOARD.v * MM);
+newCupboardSpot.rotation.y = THREE.MathUtils.degToRad(-NEW_CUPBOARD.turn);
+otherRoom.add(newCupboardSpot);
+export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null, mirror: null, newCupboard: newCupboardSpot };   // each piece's group as drawn now, to look at
 
 // Draw everything again from the settings `s` (state.otherRoom). With the
 // bookcase, the pine cupboard or the mirror switched off it's hidden,
-// though still placed, so Looking at it aims at its spot.
+// though still placed, so Looking at it aims at its spot. The new cupboard
+// takes the pine cupboard's place, so hides it too.
 export function drawOtherRoom(s) {
   furniture.clear();
   otherRoomPieces.bed = place(bed(), s.bed);
   otherRoomPieces.bookcase = place(bookcase(s.bookcase), s.bookcase);
   otherRoomPieces.bookcase.visible = s.bookcaseOn;
   otherRoomPieces.cupboard = place(pineCupboard(s.cupboard), s.cupboard);
-  otherRoomPieces.cupboard.visible = s.cupboardOn;
+  otherRoomPieces.cupboard.visible = s.cupboardOn && !s.newCupboardOn;
   recessCupboards(s);
   otherRoomPieces.mirror = place(mirror(s.mirror), mirrorPlace(s.mirror));
   otherRoomPieces.mirror.visible = s.mirrorOn;
+}
+
+// The new cupboard: `cupboard`, a copy of the living room's, drawn in the
+// living room's mm from its corner, put in the bedroom's corner; or none
+export function showNewCupboard(cupboard) {
+  newCupboardSpot.clear();
+  if (cupboard) newCupboardSpot.add(cupboard);
 }
 
 // Where the mirror's back is, and its turn, from its wall and how far along
@@ -386,7 +414,7 @@ const valueAt = (s, path) => path.split('.').reduce((o, k) => o[k], s);
 export function otherRoomControls(container, change) {
   const id = path => `otherRoom_${path.replace('.', '_')}`;
   let shown = OTHER_ROOM_START;                        // the settings last put in the controls
-  container.innerHTML = PIECES.map((piece, i) => `<div class="depth"><div><b>${piece.heading}</b></div>` +
+  container.innerHTML = PIECES.map((piece, i) => `<div class="depth">${piece.heading ? `<div><b>${piece.heading}</b></div>` : ''}` +
     (piece.wall ? wallPick(id(piece.wall)) : '') +
     (piece.switches ?? []).map(([path, label]) => `<label class="switch"><input type="checkbox" id="${id(path)}"> ${label}</label>`).join('') +
     [...piece.sizes, ...piece.place].map(slider(id)).join('') +
@@ -411,6 +439,7 @@ export function otherRoomControls(container, change) {
       document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
     }
     for (const [path] of SWITCHES) document.getElementById(id(path)).checked = valueAt(s, path);
+    document.getElementById(id('cupboardOn')).disabled = s.newCupboardOn;   // the new cupboard stands in its place
     followWall(id, s.mirror);
   };
 }

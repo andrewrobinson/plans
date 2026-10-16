@@ -37,13 +37,15 @@ test.describe('saved addresses', () => {
   // From before the bookshelf could move, the bedroom's bookcase be taken
   // out, the wicker bench be drawn, the pine cupboard be moved about, the
   // mirror be taken out, the carpet's colour chosen or the shoe rack be
-  // drawn: their twelve fields left off the end, so the bookshelf's against
-  // the wall, the bookcase, the pine cupboard and the mirror in the bedroom,
-  // the bench in the hallway, no pine cupboard in the living room, the
-  // carpet as in the doorway photo and the shoe rack at the foot of the stairs, as they start
-  test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench, the pine cupboard, the mirror, the carpet or the shoe rack keeps them as they start', async ({ page }) => {
+  // drawn, or the new cupboard be copied into the bedroom: their thirteen
+  // fields left off the end, so the bookshelf's against the wall, the
+  // bookcase, the pine cupboard and the mirror in the bedroom, the bench in
+  // the hallway, no pine cupboard in the living room, the carpet as in the
+  // doorway photo, the shoe rack at the foot of the stairs and no new
+  // cupboard in the bedroom, as they start
+  test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench, the pine cupboard, the mirror, the carpet, the shoe rack or the new cupboard keeps them as they start', async ({ page }) => {
     const [settings, ...rest] = DEFAULT.split('~');
-    await openRoom(page, [settings.split('-').slice(0, -12).join('-'), ...rest].join('~'));
+    await openRoom(page, [settings.split('-').slice(0, -13).join('-'), ...rest].join('~'));
     expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
   });
 
@@ -244,6 +246,22 @@ test.describe('the controls', () => {
     await page.locator('#otherRoom_cupboardOn').uncheck();
     expect(settingsField(await hash(page), 50)).toBe('0');
     expect(settingsField(await hash(page), 41)).toBe('1');           // the living room's kept
+  });
+
+  // The living room's corner cupboard copied into the bedroom (newCupboardOn,
+  // field 56): the pine cupboard's switch (field 50) can't be used while it's
+  // there, and keeps its setting for when it's gone
+  test('the new cupboard takes the bedroom pine cupboard\'s place', async ({ page }) => {
+    expect(settingsField(await hash(page), 56)).toBe('0');
+    await page.click('#bedMenu');
+    await expect(page.locator('#otherRoom_cupboardOn')).toBeEnabled();
+    await page.locator('#otherRoom_newCupboardOn').check();
+    expect(settingsField(await hash(page), 56)).toBe('1');
+    await expect(page.locator('#otherRoom_cupboardOn')).toBeDisabled();
+    expect(settingsField(await hash(page), 50)).toBe('1');
+    await page.locator('#otherRoom_newCupboardOn').uncheck();
+    expect(settingsField(await hash(page), 56)).toBe('0');
+    await expect(page.locator('#otherRoom_cupboardOn')).toBeEnabled();
   });
 
   // The bedroom's mirror (mirrorOn, field 53) switched off and on again

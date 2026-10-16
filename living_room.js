@@ -26,7 +26,7 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
-import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, CUPBOARD_ON_ADDRESS, MIRROR_ON_ADDRESS, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
+import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, CUPBOARD_ON_ADDRESS, MIRROR_ON_ADDRESS, NEW_CUPBOARD_ON_ADDRESS, showNewCupboard, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
 import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_ADDRESS } from './wicker_bench.js';
 import { drawShoeRack, shoeRack, shoeRackControls, SHOE_RACK_START, SHOE_RACK_ADDRESS } from './shoe_rack.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge } from './floor.js';
@@ -1734,6 +1734,7 @@ function drawStored() {
   storedGroup.visible = shown;
   showLifts();
   drawCupShelves();                                             // cut back round where they now stand
+  copyCupboardToBedroom();                                      // with those shelves
   document.getElementById('storedToggle').textContent = `Stored things: ${shown ? 'shown' : 'hidden'}`;
   const plan = flat && flatView === 'plan';
   const spaces = cupboardSpaces(), fits = STORED.map((s, k) => fitOf(k, stored[k], spaces));
@@ -1970,6 +1971,20 @@ function update() {
   document.getElementById('bedroomDoorValue').textContent = `${bedroomSlider.value}°`;
   document.getElementById('flatDoorValue').textContent = `${flatDoorSlider.value}°`;
   document.getElementById('outsideDoorValue').textContent = `${outsideDoorSlider.value}°`;
+  copyCupboardToBedroom();                                      // with its doors as they now stand
+}
+
+// The bedroom's New cupboard switch: a copy of the option's cupboard as
+// built, doors, shelves and all, bar its bench, in the bedroom's corner
+// (other_room.js). Copied again whenever the cupboard, its doors or its
+// shelves change; the copy shares their shapes and colours.
+function copyCupboardToBedroom() {
+  if (!state.otherRoom.newCupboardOn || !current) return showNewCupboard(null);
+  const copy = current.cupboard.clone();
+  const benches = [];
+  copy.traverse(o => { if (isBench(o)) benches.push(o); });
+  for (const o of benches) o.parent?.remove(o);
+  showNewCupboard(copy);
 }
 [tallSlider, secondSlider, roomSlider, bedroomSlider, flatDoorSlider, outsideDoorSlider].forEach(s => s.addEventListener('input', update));
 
@@ -2082,12 +2097,15 @@ function buildOption(option) {
   return group;
 }
 
+// The bench, as an option draws it: a bench top, or base cupboards
+const isBench = o => o.userData.bench || (o.isMesh && o.material === benchMat);
+
 // The bench off: the options draw it (a bench top, or base cupboards), so
 // it's taken out again, with nothing above it; the TV's place is kept for
 // the sofa to face
 function takeOutBench(group, option) {
   const benches = [];
-  group.traverse(o => { if (o.userData.bench || (o.isMesh && o.material === benchMat)) benches.push(o); });
+  group.traverse(o => { if (isBench(o)) benches.push(o); });
   for (const o of benches) o.parent?.remove(o);
   tvAt = [(option.clearFrom() + ROOM_WIDTH) / 2, 0, TV_BOTTOM + TV_H / 2];
 }
@@ -2210,6 +2228,7 @@ const ADDRESS = [
   ...MIRROR_ON_ADDRESS,                                         // the bedroom's mirror there or not
   ['colours.carpet', String, colour],                           // the carpet's colour (bedroom and stairs)
   ...SHOE_RACK_ADDRESS,                                         // the shoe rack's sizes and place, downstairs
+  ...NEW_CUPBOARD_ON_ADDRESS,                                   // the corner cupboard copied into the bedroom, or not
 ];
 // A piece in place of the bench moved, as `x.y.turn`, or AT_HOME where it
 // starts (as links from before the bookshelf could move keep it)
@@ -2738,6 +2757,10 @@ const anchors = {
   bed: () => middleOf(otherRoomPieces.bed),
   bookcase: () => middleOf(otherRoomPieces.bookcase),
   pineCupboard: () => middleOf(otherRoomPieces.cupboard),
+  newCupboard: () => {                                          // with none (switched off, or option 16), the pine cupboard's spot
+    const drawn = new THREE.Box3().setFromObject(otherRoomPieces.newCupboard);
+    return middleOf(drawn.isEmpty() ? otherRoomPieces.cupboard : otherRoomPieces.newCupboard);
+  },
   mirror: () => middleOf(otherRoomPieces.mirror),
   bedPillow: () => pointOn(otherRoomPieces.bed, BED_SPOTS.pillow),
   bedSide: () => pointOn(otherRoomPieces.bed, BED_SPOTS.side),
