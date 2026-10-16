@@ -1,157 +1,93 @@
-// Saved addresses for the screenshot and round-trip tests, recorded from
-// room_3d.html as it was on 12 Oct 2026, before the refactor (REFACTOR_PLAN.md),
-// with options 10 and 11's corner cupboard width and depth (CORNER_W,
-// CORNER_D) added at the end of the settings on 14 Oct 2026, then option
-// 10's side bookshelf (SIDE_SHELF, SIDE_W, SIDE_D), and options 1 to
-// 6's upper cupboard and second bay (EXTRA, UPPER) taken out of them.
-// The address format is in room_dimensions.md.
+// Saved addresses for the screenshot and round-trip tests: each a
+// configuration and a view (room_dimensions.md has their format), in
+// tests/configs/<name>.json. They were recorded from room_3d.html on 12 Oct
+// 2026, before the refactor (REFACTOR_PLAN.md), with what's been added
+// since, and converted from the old address format, the settings' fields
+// joined by "-", on 16 Oct 2026 (step 6b): each read the old way and
+// written the new, its snapshot and screenshot unchanged.
 //
-// Each entry: a name (also the file name of its screenshot and of its
-// snapshot, tests/snapshots/<name>.json) and the address to load, which
-// must come back unchanged. Old share links needn't keep working
-// (agreed 12 Oct 2026), so none are tested.
+// Each entry: a name (the file name of its configuration, of its
+// screenshot and of its snapshot, tests/snapshots/<name>.json), and what it
+// shows. Loaded, each must give its configuration and view back unchanged.
+// Old share links needn't keep working (agreed 12 Oct 2026), so none are
+// tested.
 //
 // Scenes from living_room.scenes.js are added by room_3d.spec.js itself, so a new
 // scene is tested as soon as it's added (run `npm run test:update` once to
 // take its screenshot).
+//
+// Most are option 9, with the Chester dresser's sizes (the page now starts
+// with the Inglesham's), the things to store where they start, and the view
+// from above (birdseye), unless they say.
+const fs = require('fs');
+const path = require('path');
 
-// The bedroom's furniture as it starts (other_room.js, added 15 Oct 2026):
-// the bed, the bookcase and the pine cupboard, then the lower recess
-// cupboard's depth
-const BEDROOM = '1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301';
-// Then the bookshelf (the bedroom's bookcase in place of the bench), off
-// (added 15 Oct 2026)
-const BOOKSHELF = '0';
-// Then the bedroom's mirror (added 15 Oct 2026): on the chimney breast
-// (wall 0), its middle 2569 along, its bottom 1400 up, 1000 × 800
-const MIRROR = '0.2569.1400.1000.800';
-// Then the upper recess cupboard's drawers over its open shelves and
-// mirrors on its tall doors, both off (added 15 Oct 2026)
-const RECESS_FRONTS = '0.0';
-// Then the bookshelf's place, where it starts against the back wall (added
-// 15 Oct 2026)
-const BOOKSHELF_PLACE = 'wall';
-// Then whether the bookcase is in the bedroom, as it is (added 15 Oct 2026)
-const BOOKCASE_ON = '1';
-// Then the wicker bench (added 15 Oct 2026): its sizes, w.d.h.legs, then
-// on.a.b.turn in the hallway (on, against the banister), the bedroom (off,
-// at the foot of the bed) and the living room (off, by the middle window)
-const WICKER_BENCH = '920.410.450.80-1.1470.1372.0-0.1360.1985.0-0.3686.2910.90';
-// Then the pine cupboard (added 15 Oct 2026): in the bedroom (1), not in
-// the living room (0), where it would start against the back wall
-const PINE = '1-0-wall';
-// Then whether the mirror is in the bedroom, as it is (1), and the carpet's
-// colour, 0 for its default, from the doorway photo (both added 15 Oct 2026)
-const MIRROR_ON = '1';
-const CARPET = '0';
-// Then the shoe rack downstairs (added 15 Oct 2026):
-// w.d.h.bevel.slope.shoes.bevelDoor (always in the corner of the back wall
-// and the outside wall): the user's conclusion, 460 wide without the bevel,
-// 300 deep, 1290 high, the bevel on, cut for the door at 72°, its shelves
-// sloping 45°, with UK 11 shoes on them
-const SHOE_RACK = '460.300.1290.1.45.1.72';
-// Then whether the living room's corner cupboard is copied into the
-// bedroom, in place of the pine cupboard: off (added 16 Oct 2026)
-const NEW_CUPBOARD = '0';
-// Then the sofa's place: where it starts, centred on the TV and facing it
-// (added 16 Oct 2026)
-const SOFA_PLACE = 'tv';
-// Then Sean, Billy and BillyChest in the garage, each on.x.y.turn (added 16
-// Oct 2026); then Metal, Yellow (on.x.y.turn.z, on the scaffold bench), the
-// scaffold bench, Small Billy, Potters, Biltong (on.x.y.turn.z, on
-// Trellis), Trellis and the pine cupboard (added later that day). Where
-// the user put them, BillyChest out
-const GARAGE = '1.1255.2865.180-1.0.1920.270-0.0.1100.270-1.670.360.90-1.3390.2550.0.438-1.3430.2650.0-1.2480.0.0.0-1.3090.0.0.0-1.580.1070.90.750-1.730.1160.90-1.1425.0.0';
-// The garage's things moved, raised and taken out (garage-moved-plan, below)
-const GARAGE_MOVED = '1.2000.1000.90-0.0.1920.270-1.3000.1100.0-1.670.360.90-1.2300.2550.0.0-1.3430.2650.0-1.2480.0.0.25-1.3090.0.0.0-1.580.1070.90.1200-1.730.1160.90-0.1425.0.0';
-// The default settings after the option and the left-wall depth, the default
-// places of the things to store, and the default view
-const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}-${WICKER_BENCH}-${PINE}-${MIRROR_ON}-${CARPET}-${SHOE_RACK}-${NEW_CUPBOARD}-${SOFA_PLACE}-${GARAGE}`;
-const STORED = '0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1';
-const VIEW = 'birdseye.sit-tall.90-0-0-90-0-0';
-// The page now starts with the Inglesham dresser (dressers.js, 15 Oct 2026);
-// the other addresses keep the Chester's sizes, as recorded
-const START = REST.replace('-1370.1940.410.830.340-', '-1000.1930.420.830.420-');
-
-// Option codes in the address are not the dropdown's order: 10 is the
-// current room, so options 10 and 11 are 11 and 12 (optionCode() in
-// room_3d.html). The left-wall depth is what the page picks when you choose
-// that option from the default page. There are no options 1 to 6 or 12 to 15
-// (taken out), so the list is 7 to 11 and the current room, 16.
-const OPTIONS = [
-  ['option07', 7, 600],
-  ['option08', 8, 600],                     // needs a left-wall cupboard
-  ['option09', 9, 0], ['option10', 11, 0], ['option11', 12, 0],
-  ['option16-current-room', 10, 0],
-];
-
-const ADDRESSES = [
-  { name: 'default', address: `#11-600-${START}~${STORED}~${VIEW}` },       // option 10 (code 11), as the page opens
-  ...OPTIONS.map(([name, code, left]) => ({ name, address: `#${code}-${left}-${REST}~${STORED}~${VIEW}` })),
-
+const SAVED = [
+  // Option 10, as the page opens
+  'default',
+  // Each option, from the default page: options 7 and 8 with the 600
+  // left-wall cupboard the page picks for them, the current room (option 16)
+  'option07', 'option08', 'option09', 'option10', 'option11', 'option16-current-room',
   // Option 10's side bookshelf, between the corner cupboard and the TV
-  { name: 'option10-side-bookshelf', address: `#11-0-${REST.replace(/-0-400-330-/, '-1-400-330-')}~${STORED}~back.sit-tall.90-0-0-90-0-0` },
+  'option10-side-bookshelf',
 
   // The views: 2D with dimensions, and from places in the room
-  { name: 'view-plan', address: `#9-0-${REST}~${STORED}~plan.sit-tall.90-0-0-90-0-0` },
-  { name: 'view-back-wall', address: `#9-0-${REST}~${STORED}~back.sit-tall.90-0-0-90-0-0` },
-  // The bedroom's bookcase on the back wall in place of the bench (the last setting, 1)
-  { name: 'view-back-wall-bookshelf', address: `#9-0-${REST.replace(`-${BOOKSHELF}-${MIRROR}`, `-1-${MIRROR}`)}~${STORED}~back.sit-tall.90-0-0-90-0-0` },
+  'view-plan', 'view-back-wall',
+  // The bedroom's bookcase on the back wall in place of the bench
+  'view-back-wall-bookshelf',
   // The pine cupboard on the back wall, in the window corner, beside the bookshelf
-  { name: 'view-back-wall-pine', address: `#9-0-${REST.replace(`-${BOOKSHELF}-${MIRROR}`, `-1-${MIRROR}`).replace(`-${PINE}`, '-1-1-wall')}~${STORED}~back.sit-tall.90-0-0-90-0-0` },
-  // The bedroom from above, the mirror on the kitchen-side wall (wall 3),
-  // 1400 from the hallway wall, 1200 × 1600 from 300 up
+  'view-back-wall-pine',
   // The bookshelf there moved out into the room (x 2500, y 2000) and turned
   // to face the left wall (90°)
-  { name: 'bookshelf-moved', address: `#9-0-${REST.replace(`-${BOOKSHELF}-${MIRROR}`, `-1-${MIRROR}`).replace(`-${BOOKSHELF_PLACE}-`, '-2500.2000.90-')}~${STORED}~${VIEW}` },
+  'bookshelf-moved',
   // The bookcase on the front wall between the sink and the desk instead
-  // (front piece 3)
-  { name: 'front-wall-bookshelf', address: `#9-0-${REST.replace('.340-0-chester-', '.340-3-chester-')}~${STORED}~${VIEW}` },
-  // The bedroom from above without its bookcase (bookcaseOn, 0)
-  { name: 'bedroom-no-bookcase', address: `#9-0-${REST.replace(`-${BOOKCASE_ON}-${WICKER_BENCH}`, `-0-${WICKER_BENCH}`)}~${STORED}~birdseye.sit-tall.90-0-0-90-0-0.bedroom` },
-  // The bedroom from above without its mirror (mirrorOn, 0), the carpet a
-  // light grey (RAL 7035) to show the colour reaches it
-  { name: 'bedroom-no-mirror-grey-carpet', address: `#9-0-${REST.replace(`-1-0-${SHOE_RACK}-${NEW_CUPBOARD}`, `-0-7035-${SHOE_RACK}-${NEW_CUPBOARD}`)}~${STORED}~birdseye.sit-tall.90-0-0-90-0-0.bedroom` },
-  { name: 'bedroom-mirror-kitchen-wall', address: `#9-0-${REST.replace(`-${MIRROR}`, '-3.1400.300.1200.1600')}~${STORED}~birdseye.sit-tall.90-0-0-90-0-0.bedroom` },
+  'front-wall-bookshelf',
+  // The bedroom from above without its bookcase
+  'bedroom-no-bookcase',
+  // The bedroom from above without its mirror, the carpet a light grey (RAL
+  // 7035) to show the colour reaches it
+  'bedroom-no-mirror-grey-carpet',
+  // The bedroom from above, the mirror on the kitchen-side wall, 1400 from
+  // the hallway wall, 1200 × 1600 from 300 up
+  'bedroom-mirror-kitchen-wall',
   // The recess cupboards from the bedroom window, the upper one with drawers
   // over its open shelves and mirrors on its tall doors
-  { name: 'bedroom-recess-drawers-mirrors', address: `#9-0-${REST.replace(`-${RECESS_FRONTS}`, '-1.1')}~${STORED}~look:bedroomWindow:recessCupboards.stand-tall.90-0-0-90-0-0.bedroom` },
+  'bedroom-recess-drawers-mirrors',
+  // Downstairs in plan, the internal door open 60° into the stairs' foot
+  // and the external door 45° into the lobby
+  'downstairs-doors-plan',
+  // The shoe rack at the foot of the stairs, seen from halfway down
+  'shoe-rack-stairs',
   // The wicker bench in the hallway, seen from outside the living room
   // door; then in all three rooms, 1200 long on 150 legs, the hallway's
   // turned to face its far end, the bedroom's under the window and the
   // living room's out in the room
-  // Downstairs in plan, the internal door open 60° into the stairs' foot
-  // and the external door 45° into the lobby
-  { name: 'downstairs-doors-plan', address: `#9-0-${REST}~${STORED}~plan.sit-tall.90-0-0-90-60-45.downstairs` },
-  // The shoe rack at the foot of the stairs, seen from halfway down
-  { name: 'shoe-rack-stairs', address: `#9-0-${REST}~${STORED}~look:stairsHalfway:shoeRack.stand-tall.90-0-0-90-0-0.downstairs` },
-  { name: 'wicker-bench-hallway', address: `#9-0-${REST}~${STORED}~look:hallLivingDoor:hallBench.stand-tall.90-0-0-90-0-0.hallway` },
-  { name: 'wicker-bench-every-room', address: `#9-0-${REST.replace(`-${WICKER_BENCH}`, '-1200.410.450.150-1.1800.1800.90-1.200.1425.270-1.2000.2500.0')}~${STORED}~${VIEW}` },
+  'wicker-bench-hallway', 'wicker-bench-every-room',
   // The garage's plan, its things moved, raised and taken out: Sean moved
   // and turned, Billy out, BillyChest in and moved, Yellow down off the
   // scaffold bench onto the floor beside it, Biltong raised above Trellis,
   // Small Billy 25 off the wall and the pine cupboard out
-  { name: 'garage-moved-plan', address: `#9-0-${REST.replace(`-${GARAGE}`, `-${GARAGE_MOVED}`)}~${STORED}~plan.sit-tall.90-0-0-90-0-0.garage` },
+  'garage-moved-plan',
   // The living room's corner cupboard copied into the bedroom, from above:
   // option 7, then option 10, as the page opens
-  { name: 'bedroom-new-cupboard-option07', address: `#7-600-${REST.replace(`-${NEW_CUPBOARD}-${SOFA_PLACE}-`, `-1-${SOFA_PLACE}-`)}~${STORED}~birdseye.sit-tall.90-0-0-90-0-0.bedroom` },
-  { name: 'bedroom-new-cupboard-option10', address: `#11-600-${START.replace(`-${NEW_CUPBOARD}-${SOFA_PLACE}-`, `-1-${SOFA_PLACE}-`)}~${STORED}~birdseye.sit-tall.90-0-0-90-0-0.bedroom` },
+  'bedroom-new-cupboard-option07', 'bedroom-new-cupboard-option10',
   // The sofa in plan, moved towards the left wall (its middle at x 1500,
   // y 2000) and turned 90° to face the right-hand (window) wall
-  { name: 'sofa-moved-turned-plan', address: `#9-0-${REST.replace('-none-1900-', '-merton-1900-').replace(`-tv-${GARAGE}`, `-1500.2000.90-${GARAGE}`)}~${STORED}~plan.sit-tall.90-0-0-90-0-0` },
-  { name: 'view-packing', address: `#9-0-${REST}~${STORED}~packing.stand-tall.0-170-170-90-0-0` },
-  { name: 'view-desk', address: `#9-0-${REST}~${STORED}~desk.sit-tall.90-0-0-90-0-0` },
+  'sofa-moved-turned-plan',
+  // Packing the corner cupboard, its doors open wide and the room door
+  // shut; and seated at the desk
+  'view-packing', 'view-desk',
 
   // Board thickness, at both ends of its slider: the cupboards' outside
   // sizes stay put, and the boards eat into the inside
-  { name: 'board-25-option07-packing', address: `#7-600-${REST.replace(/-18-800-650-/, '-25-800-650-')}~${STORED}~packing.stand-tall.0-170-170-90-0-0` },
-  { name: 'board-12-option09-plan', address: `#9-600-${REST.replace(/-18-800-650-/, '-12-800-650-')}~${STORED}~plan.sit-tall.90-0-0-90-0-0` },
+  'board-25-option07-packing', 'board-12-option09-plan',
 
-  // Nearly every setting away from its default, so each field of the
-  // address is read and written back (refactor step 3). Checked against the
-  // code before step 3: the same address, description and picture.
-  { name: 'settings-option07-no-bench', address: '#7-500-450-1200-1-200-700-900-900-400-600-0-5-0-0-3-43-0-1000.1800.350.800.250-2-chester-2-none-1900-1100.1950.510-1690.1000.920-0-900-300.900.1500-0-1000.2000.170-25-1200-900-0-800-150-2000.500.90-1000.2000.0.1000.250.1000-500.500.270.1000.400.2000-450-0-2.1500.900.600.1200-1.0-1200.300.180-1-1000.500.500.100-0.2000.2000.180-0.1000.1500.90-0.1000.3000.270-0-1-500.300.90-0-12-900.300.1500.0.30.1.78-0-1200.3000.270-1.2000.1000.90-1.4000.500.180-0.3000.200.0-1.670.360.90-1.3390.2550.0.438-1.3430.2650.0-1.2480.0.0.0-1.3090.0.0.0-1.580.1070.90.750-1.730.1160.90-1.1425.0.0~1.3.2_100.100.1_200.900.0_300.1000.0.400_400.400.1_500.500.0_600.600.0_700.700.1~plan.sit-tall.90-0-0-90-0-0' },
-  { name: 'settings-current-room', address: `#10-0-330-1200-2-250-800-600-900-400-600-0-0-0-0-1-86-1-1370.1940.410.830.340-0-chester-3-merton-3000-1100.1950.510-2600.1200.1100-1-600-600.1200.1800-600.1200.1800-1395.3571.0-12-800-1200-1-200-800-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}-${WICKER_BENCH}-${PINE}-${MIRROR_ON}-${CARPET}-${SHOE_RACK}-${NEW_CUPBOARD}-${SOFA_PLACE}-${GARAGE}~0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~birdseye.sit-tall.90-0-0-90-0-0` },
+  // Nearly every setting away from its default, so each is read and
+  // written back (refactor step 3)
+  'settings-option07-no-bench', 'settings-current-room',
 ];
 
-module.exports = { ADDRESSES, VIEW, BEDROOM };
+const CONFIGS = path.join(__dirname, 'configs');
+const ADDRESSES = SAVED.map(name => ({ name, ...JSON.parse(fs.readFileSync(path.join(CONFIGS, `${name}.json`), 'utf8')) }));
+
+module.exports = { ADDRESSES };

@@ -1,9 +1,11 @@
 // Shared by the test files: a `test` that fails on any console error;
-// openRoom(), which loads index.html and waits until it's drawn;
+// openRoom(), which loads index.html and waits until it's drawn, and
+// addressOf(), the address of a configuration and a view;
 // expectSnapshot(), which checks what the page makes of its settings
 // against the one saved; and setting(), which reads one.
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 const base = require('@playwright/test');
 
 // Every test gets this automatically (auto: true): it listens for console
@@ -38,6 +40,35 @@ async function openRoom(page, hash = '') {
     }, 100);
   }));
 }
+
+// The address of a configuration and, if given, a view (with none, the
+// page shows its starting view): each JSON deflated and in base64url, as
+// the page packs them (kit/config_kit.js). Node's deflate may not give the
+// browser's bytes, so tests compare what the page reads (plans.export()
+// and plans.view()), not the address it writes
+const packed = json => zlib.deflateRawSync(JSON.stringify(json)).toString('base64url');
+const addressOf = (configuration, view) => `#${packed(configuration)}${view ? `~${packed(view)}` : ''}`;
+// What an address holds, { configuration, view }, read back in Node
+const unpacked = text => (text ? JSON.parse(zlib.inflateRawSync(Buffer.from(text, 'base64url')).toString()) : undefined);
+function readAddress(hash) {
+  const [configuration, view] = hash.replace(/^#/, '').split('~');
+  return { configuration: unpacked(configuration), view: unpacked(view) };
+}
+// A copy of a configuration with settings changed, as { 'pieces.sofa.design.w': 1500 };
+// undefined takes one out
+function edited(configuration, changes) {
+  const copy = structuredClone(configuration);
+  for (const [at, value] of Object.entries(changes)) {
+    const keys = at.split('.'), last = keys.pop();
+    const parent = keys.reduce((o, k) => o[k], copy);
+    if (value === undefined) delete parent[last];
+    else parent[last] = value;
+  }
+  return copy;
+}
+// What the page has: its configuration and its view
+const configurationOf = page => page.evaluate(() => window.plans.export());
+const viewOf = page => page.evaluate(() => window.plans.view());
 
 // Choose option n (its number, as in its name) from the option list. Its
 // place in the list isn't n - 1, as the list starts at option 7.
@@ -79,4 +110,4 @@ const setting = (page, path) => page.evaluate(p => p.split('.').reduce((o, k) =>
 // place in OPTIONS)
 const optionShown = page => page.locator('#current option:checked').evaluate(o => parseInt(o.textContent, 10));
 
-module.exports = { test, expect: base.expect, openRoom, pickOption, setting, optionShown, expectSnapshot };
+module.exports = { test, expect: base.expect, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot };

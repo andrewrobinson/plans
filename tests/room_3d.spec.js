@@ -4,8 +4,8 @@
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
-const { test, expect, openRoom, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
-const { ADDRESSES, VIEW } = require('./addresses');
+const { test, expect, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
+const { ADDRESSES } = require('./addresses');
 
 // The scenes in living_room.scenes.js, read the way the page reads them
 const sceneFile = fs.readFileSync(path.join(__dirname, '..', 'living_room.scenes.js'), 'utf8');
@@ -13,49 +13,56 @@ const sandbox = { window: {} };
 vm.runInNewContext(sceneFile, sandbox);
 const SCENES = Object.entries(sandbox.window.ROOM_SCENES.list);
 
-// The default page's address, as it writes it
-const DEFAULT = ADDRESSES.find(a => a.name === 'default').address;
+// The default page's configuration and view
+const DEFAULT = ADDRESSES.find(a => a.name === 'default');
+const OPTION_7 = (({ configuration, view }) => addressOf(configuration, view))(ADDRESSES.find(a => a.name === 'option07'));
 
 test.describe('saved addresses', () => {
-  for (const { name, address } of ADDRESSES) {
+  for (const { name, configuration, view } of ADDRESSES) {
     test(`${name} looks the same and round-trips`, async ({ page }) => {
-      await openRoom(page, address);
-      expect(await page.evaluate(() => location.hash)).toBe(address);
+      await openRoom(page, addressOf(configuration, view));
+      expect(await configurationOf(page)).toEqual(configuration);
+      expect(await viewOf(page)).toEqual(view);
       await expectSnapshot(page, name);
       await expect(page).toHaveScreenshot(`${name}.png`);
     });
   }
 
-  for (const [id, { address }] of SCENES) {
+  for (const [id, { configuration }] of SCENES) {
     test(`scene ${id} looks the same and round-trips`, async ({ page }) => {
-      await openRoom(page, `#${address}`);
-      // A scene leaves out the view, so the page adds its default one
-      expect(await page.evaluate(() => location.hash)).toBe(`#${address}~${VIEW}`);
+      await openRoom(page, addressOf(configuration));
+      // A scene leaves out the view, so the page shows its starting one
+      expect(await configurationOf(page)).toEqual(configuration);
+      expect(await viewOf(page)).toEqual(DEFAULT.view);
       await expectSnapshot(page, `scene-${id}`);
       await expect(page).toHaveScreenshot(`scene-${id}.png`);
     });
   }
 
-  // From before the bookshelf could move, the bedroom's bookcase be taken
-  // out, the wicker bench be drawn, the pine cupboard be moved about, the
-  // mirror be taken out, the carpet's colour chosen or the shoe rack be
-  // drawn, the new cupboard be copied into the bedroom, the sofa be moved
-  // and turned, or Sean, Billy, BillyChest and the rest be placed in the garage: their twenty-five
-  // fields left off the end, so the bookshelf's against the wall, the
-  // bookcase, the pine cupboard and the mirror in the bedroom, the bench in
-  // the hallway, no pine cupboard in the living room, the carpet as in the
-  // doorway photo, the shoe rack at the foot of the stairs and no new
-  // cupboard in the bedroom, the sofa where it starts, and the garage's
-  // things where they start, as they start
-  test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench, the pine cupboard, the mirror, the carpet, the shoe rack, the new cupboard, the sofa\'s place or the garage\'s keeps them as they start', async ({ page }) => {
-    const [settings, ...rest] = DEFAULT.split('~');
-    await openRoom(page, [settings.split('-').slice(0, -25).join('-'), ...rest].join('~'));
-    expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
+  // A configuration that leaves settings out (as one from before they were
+  // added would) has them as they start; one it doesn't know is ignored,
+  // and one out of its range, or of the wrong kind, keeps its default
+  test('a configuration without some settings keeps them as they start, and ignores what it doesn\'t know', async ({ page }) => {
+    await openRoom(page, addressOf(edited(DEFAULT.configuration, {
+      'pieces.wickerBench': undefined, 'pieces.shoeRack.design': undefined, 'pieces.sean': undefined, 'pieces.mirror.in': undefined,
+      'colours.carpet': undefined, 'pieces.sofa.in': undefined, thingsToStore: undefined,
+      'pieces.cornerCupboard.design.R': 5000, 'pieces.cornerCupboard.design.T': 200, 'pieces.bench.design.height': 750,
+      'pieces.aboveBench.design.what': 'everything', 'pieces.billy.in.garage.turn': 45, 'pieces.bench.in.livingRoom.on': 'yes',
+      'pieces.unknown': { design: { w: 1 } },
+    })));
+    expect(await configurationOf(page)).toEqual(DEFAULT.configuration);
+  });
+
+  // Another version's configuration isn't read: the page starts as it is
+  test('a configuration of another version gives the default page', async ({ page }) => {
+    await openRoom(page, addressOf(edited(ADDRESSES.find(a => a.name === 'option07').configuration, { version: 2 })));
+    expect(await configurationOf(page)).toEqual(DEFAULT.configuration);
   });
 
   test('no address gives the default page', async ({ page }) => {
     await openRoom(page);
-    expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
+    expect(await configurationOf(page)).toEqual(DEFAULT.configuration);
+    expect(await viewOf(page)).toEqual(DEFAULT.view);
   });
 });
 
@@ -401,18 +408,22 @@ test.describe('the pop-up menus', () => {
     const dims = page.locator('#dims');
     await expect(dims).toBeHidden();                            // 3D views have no dimensions
     await page.selectOption('#viewPick', 'plan');
-    await expect.poll(() => page.evaluate(() => location.hash.split('~')[2])).toMatch(/^plan\./);
+    await expect.poll(async () => (await viewOf(page)).view).toBe('plan');
     await expect(dims).toHaveText('Dimensions: on');
     await dims.click();
+    await expect(dims).toHaveText('Dimensions: off');
+    // and into the address: loaded again, they're off still
+    await expect.poll(async () => readAddress(await page.evaluate(() => location.hash)).view.dimensions).toBe(false);
+    await openRoom(page, await page.evaluate(() => location.hash));
     await expect(dims).toHaveText('Dimensions: off');
   });
 
   test('Scenes: choosing one loads its settings', async ({ page }) => {
-    const [id, { address }] = SCENES[0];
+    const [id, { configuration }] = SCENES[0];
     await page.locator('#sceneMenu .popToggle').click();
     await page.selectOption('#scenePick', id);
     // The page loads again with the scene's settings, keeping the view
-    await page.waitForURL(url => url.hash.startsWith(`#${address}~`));
+    await page.waitForFunction(scene => JSON.stringify(window.plans?.export()) === scene, JSON.stringify(configuration));
   });
 });
 
@@ -425,7 +436,7 @@ test.describe('Share and Reset', () => {
       Object.defineProperty(navigator, 'clipboard', { value: { writeText: async text => { window.sent.push(text); } } });
       Object.defineProperty(navigator, 'share', { value: async data => { window.sent.push(data.url); } });
     });
-    await openRoom(page, ADDRESSES.find(a => a.name === 'option07').address);
+    await openRoom(page, OPTION_7);
     await page.click('#share');
     if (!isMobile) await expect(page.locator('#share')).toHaveText('Link copied');
     // Always a link to the published page, so it works for others
@@ -443,7 +454,7 @@ test.describe('Share and Reset', () => {
         window.copied.push({ type: png.type, size: png.size });
       } } });
     });
-    await openRoom(page, ADDRESSES.find(a => a.name === 'option07').address);
+    await openRoom(page, OPTION_7);
     await page.click('#screenshot');
     await expect(page.locator('#screenshot')).toHaveText('Copied');
     const [copied] = await page.evaluate(() => window.copied);
@@ -452,7 +463,7 @@ test.describe('Share and Reset', () => {
   });
 
   test('Reset asks first, then goes back to the default page', async ({ page }) => {
-    await openRoom(page, ADDRESSES.find(a => a.name === 'option07').address);
+    await openRoom(page, OPTION_7);
     // Cancelled: nothing changes
     page.once('dialog', d => d.dismiss());
     await page.click('#reset');
@@ -463,6 +474,6 @@ test.describe('Share and Reset', () => {
       d.accept();
     });
     await page.click('#reset');
-    await expect.poll(() => page.evaluate(() => location.hash)).toBe(DEFAULT);
+    await expect.poll(() => configurationOf(page).catch(() => 'loading')).toEqual(DEFAULT.configuration);
   });
 });

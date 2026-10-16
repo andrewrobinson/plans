@@ -6,13 +6,15 @@
 // The settings are read through window.plans.get() (setting(), by their
 // paths in `state` in living_room.js), not from the address, so a new
 // address format leaves these tests alone.
-const { test, expect, openRoom, pickOption, setting, optionShown } = require('./helpers');
+const { test, expect, openRoom, addressOf, readAddress, edited, configurationOf, pickOption, setting, optionShown } = require('./helpers');
 
 const hash = page => page.evaluate(() => location.hash);
 // The things to store: whether they're shown, which packing, where (state.stored)
 const storedHead = async page => { const { shown, packing, where } = await setting(page, 'stored'); return { shown, packing, where }; };
-// The view: its id, eye height, the doors' angles and the room
-const view = async page => (await hash(page)).split('~')[2];
+// The view in the address: the room, the view's id (or the camera), the eye
+// height and the switches for what's shown
+const view = async page => readAddress(await hash(page)).view;
+const any = expect.stringMatching;
 
 // The page with a drawer open (Other options, or with '#cupMenu' Cupboard
 // options), and every section in it unfolded
@@ -452,28 +454,28 @@ test.describe('the garage', () => {
     expect(await setting(page, 'garage.smallBilly')).toEqual({ on: true, x: 2480, y: 0, turn: 0, off: 25 });
     expect(await setting(page, 'garage.potters')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 40 });
     await page.locator('#garageBlock [data-reset="potters"]').evaluate(b => b.click());
-    expect(await setting(page, 'garage.potters')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 0 });    // a link from before there was a gap keeps it as it starts
-    const [settings, ...rest] = (await hash(page)).split('~');
-    await openRoom(page, [settings.split('-').map((f, k) => (k === 64 ? '0.1000.0.90' : f)).join('-'), ...rest].join('~'));
+    expect(await setting(page, 'garage.potters')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 0 });
+    // A configuration without the gap (as from before there was one) keeps it as it starts
+    const now = await configurationOf(page);
+    await openRoom(page, addressOf(edited(now, { 'pieces.smallBilly.in.garage': { on: false, x: 1000, y: 0, turn: 90 } })));
     expect(await setting(page, 'garage.smallBilly')).toEqual({ on: false, x: 1000, y: 0, turn: 90, off: 0 });
   });
 
-  // Links from before Sean and Billy could be taken out, x.y.turn, keep
-  // them in
-  test('a link with their places keeps them, and holds them to the garage', async ({ page }) => {
-    const [settings, ...rest] = (await hash(page)).split('~');
-    const withPlaces = (sean, billy) => [settings.split('-').map((f, k) => (k === 58 ? sean : k === 59 ? billy : f)).join('-'), ...rest].join('~');
-    await openRoom(page, withPlaces('0.3000.2000.180', '500.500.0'));
+  // A configuration's places are kept, each held to its slider's range,
+  // turns to quarter turns
+  test('a configuration with their places keeps them, and holds them to the garage', async ({ page }) => {
+    const now = await configurationOf(page);
+    const withPlaces = (sean, billy) => addressOf(edited(now, { 'pieces.sean.in.garage': sean, 'pieces.billy.in.garage': billy }));
+    await openRoom(page, withPlaces({ on: false, x: 3000, y: 2000, turn: 180 }, { on: true, x: 500, y: 500, turn: 0 }));
     expect(await setting(page, 'garage.sean')).toEqual({ on: false, x: 3000, y: 2000, turn: 180 });
     expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 500, y: 500, turn: 0 });
-    await openRoom(page, withPlaces('1.9000.2000.45', '500.500.0'));   // past the back wall's far end, and not a quarter turn
+    await openRoom(page, withPlaces({ on: true, x: 9000, y: 2000, turn: 45 }, { on: true, x: 500, y: 500, turn: 0 }));   // past the back wall's far end, and not a quarter turn
     expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 1255, y: 2000, turn: 180 });
   });
 });
 
 // The shoe rack, downstairs (state.shoeRack): its sizes, bevel, shelves'
-// slope, shoes and the door angle its bevel's cut for (field 55 in the
-// address, for the test of links)
+// slope, shoes and the door angle its bevel's cut for
 test.describe('the shoe rack', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page); });
 
@@ -513,15 +515,16 @@ test.describe('the shoe rack', () => {
     expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 200, h: 1290, bevel: false, slope: 30, shoes: false, bevelDoor: 80 });
   });
 
-  test('a link with its settings keeps them, and holds them to the sliders', async ({ page }) => {
-    const [settings, ...rest] = (await hash(page)).split('~');
-    const withRack = rack => [settings.split('-').map((f, k) => (k === 55 ? rack : f)).join('-'), ...rest].join('~');   // its field, 55
-    await openRoom(page, withRack('900.250.1500.0.15.0.60'));
-    expect(await hash(page)).toBe(withRack('900.250.1500.0.15.0.60'));
+  test('a configuration with its settings keeps them, and holds them to the sliders', async ({ page }) => {
+    const now = await configurationOf(page);
+    const withRack = design => addressOf(edited(now, { 'pieces.shoeRack.design': design }));
+    const rack = { w: 900, d: 250, h: 1500, bevel: false, slope: 15, shoes: false, bevelDoor: 60 };
+    await openRoom(page, withRack(rack));
+    expect((await configurationOf(page)).pieces.shoeRack.design).toEqual(rack);
     expect(await readout(page, 'shoeRack_slope')).toBe('15°');
-    await openRoom(page, withRack('900.250.1500'));                     // a shorter link: the rest as they start
+    await openRoom(page, withRack({ w: 900, d: 250, h: 1500 }));          // some left out: those as they start
     expect(await setting(page, 'shoeRack')).toEqual({ w: 900, d: 250, h: 1500, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
-    await openRoom(page, withRack('5000.250.1500.2.90.1.120'));         // too wide, a bad switch, too steep, past 90°
+    await openRoom(page, withRack({ w: 5000, d: 250, h: 1500, bevel: 2, slope: 90, shoes: true, bevelDoor: 120 }));   // too wide, a bad switch, too steep, past 90°
     expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 250, h: 1500, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
   });
 });
@@ -588,62 +591,62 @@ test.describe('the Views and Look menus', () => {
   test('a view from the list', async ({ page }) => {
     await page.locator('#viewsMenu .popToggle').click();
     await page.selectOption('#viewPick', 'top');
-    await expect.poll(() => view(page)).toMatch(/^top\./);
+    await expect.poll(() => view(page)).toMatchObject({ view: 'top' });
   });
 
   test('where you are, what you look at, and eye height', async ({ page }) => {
     await page.locator('#viewMenu .popToggle').click();
     await page.selectOption('#where', 'island');
-    await expect.poll(() => view(page)).toMatch(/^look:island:/);
+    await expect.poll(() => view(page)).toMatchObject({ view: any(/^look:island:/) });
     await page.selectOption('#lookAt', 'tv');
-    await expect.poll(() => view(page)).toMatch(/^look:island:tv\./);
+    await expect.poll(() => view(page)).toMatchObject({ view: 'look:island:tv' });
     await page.selectOption('#eye', 'stand-short');
-    await expect.poll(() => view(page)).toMatch(/\.stand-short\./);
+    await expect.poll(() => view(page)).toMatchObject({ eye: 'stand-short' });
   });
 
   // The rooms: Bird's eye and the plan stay as they are, framing the room
   // chosen; from anywhere else you go in at its doorway. Where and Looking
-  // at offer only its places and things, and the address ends with the
-  // room, unless it's the living room.
+  // at offer only its places and things, and the address's view has the
+  // room.
   test('choosing the room', async ({ page }) => {
     await page.locator('#viewMenu .popToggle').click();
     const options = id => page.locator(`#${id} option`).evaluateAll(os => os.filter(o => o.value).map(o => o.textContent));
     await page.selectOption('#room', 'bedroom');
-    await expect.poll(() => view(page)).toMatch(/^birdseye\..*\.bedroom$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: 'birdseye' });
     expect(await options('where')).toEqual(['In the bedroom doorway, walking in', 'Lying on the bed', 'Standing beside the bed', 'Standing at the bedroom window']);
     expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at the new cupboard', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
     await page.selectOption('#where', 'bed');
-    await expect.poll(() => view(page)).toMatch(/^look:bed:\w+\.lie-tall\..*\.bedroom$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: any(/^look:bed:\w+$/), eye: 'lie-tall' });
     await page.selectOption('#room', 'hallway');
-    await expect.poll(() => view(page)).toMatch(/^look:hallLivingDoor:bedroomDoor\.stand-tall\..*\.hallway$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'hallway', view: 'look:hallLivingDoor:bedroomDoor', eye: 'stand-tall' });
     await page.locator('#viewsMenu .popToggle').click();
     await page.selectOption('#viewPick', 'plan');
-    await expect.poll(() => view(page)).toMatch(/^plan\..*\.hallway$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'hallway', view: 'plan' });
     await page.locator('#viewMenu .popToggle').click();             // one menu open at a time
     await page.selectOption('#room', 'livingRoom');
-    await expect.poll(() => view(page)).toMatch(/^plan\.stand-tall\.[\d-]+$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'livingRoom', view: 'plan', eye: 'stand-tall' });
     // Downstairs: its plan, and a place on the first floor's level
     await page.selectOption('#room', 'downstairs');
-    await expect.poll(() => view(page)).toMatch(/^plan\..*\.downstairs$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'downstairs', view: 'plan' });
     expect(await options('where')).toEqual(['Halfway down the stairs', 'At bottom of stairs', 'Outside internal door', 'Outside external door']);
     // Halfway down, looking on down: the foot, its window and the internal door
     await page.selectOption('#where', 'stairsHalfway');
-    await expect.poll(() => view(page)).toMatch(/^look:stairsHalfway:\w+\.stand-tall\..*\.downstairs$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'downstairs', view: any(/^look:stairsHalfway:\w+$/), eye: 'stand-tall' });
     const offered = () => page.locator('#lookAt option').evaluateAll(os => os.filter(o => o.value && !o.disabled).map(o => o.textContent));
     expect(await offered()).toEqual(['Looking at the foot of the stairs', 'Looking at the window at the foot of the stairs', 'Looking at the internal door', 'Looking at the shoe rack']);
     await page.selectOption('#where', 'outsideFlatDoor');
-    await expect.poll(() => view(page)).toMatch(/^look:outsideFlatDoor:\w+\.stand-tall\..*\.downstairs$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'downstairs', view: any(/^look:outsideFlatDoor:\w+$/), eye: 'stand-tall' });
     // The garage: in at its door, looking in at Sean; Looking in and Looking
     // out, each not offering the wall you stand at
     await page.selectOption('#room', 'garage');
-    await expect.poll(() => view(page)).toMatch(/^look:garageLookingIn:sean\.stand-tall\..*\.garage$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'garage', view: 'look:garageLookingIn:sean', eye: 'stand-tall' });
     expect(await options('where')).toEqual(['Looking in', 'Looking out', 'Looking in from outside']);
     const garageThings = ['Looking at Sean', 'Looking at Billy', 'Looking at BillyChest', 'Looking at Metal', 'Looking at Yellow', 'Looking at the scaffold bench', 'Looking at Small Billy', 'Looking at Potters', 'Looking at Biltong', 'Looking at Trellis', 'Looking at the pine cupboard'];
     expect(await offered()).toEqual([...garageThings, 'Looking at the back wall']);
     await page.selectOption('#where', 'garageLookingOut');
     expect(await offered()).toEqual([...garageThings, 'Looking at the entrance']);
     await page.selectOption('#where', 'garageOutside');
-    await expect.poll(() => view(page)).toMatch(/^look:garageOutside:\w+\.stand-tall\..*\.garage$/);
+    await expect.poll(() => view(page)).toMatchObject({ room: 'garage', view: any(/^look:garageOutside:\w+$/), eye: 'stand-tall' });
   });
 
   test('saving and deleting a view', async ({ page }) => {

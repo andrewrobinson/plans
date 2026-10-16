@@ -2332,9 +2332,20 @@ function readAddress(text) {
 // replace: change the address without adding to the history, as when
 // looking round
 let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
-function writeAddress(replace = false) {
-  const hash = `#${settingsAddress()}~${viewKit.address()}`;
+//
+// The address is the configuration, then "~" and the view, each packed
+// (kit/config_kit.js). Packing is asynchronous, so each write is numbered,
+// and one overtaken by a later write is dropped
+// Nothing's written till the page has read its own address, at the start
+let addressWrites = 0;
+let addressRead = false;
+async function writeAddress(replace = false) {
+  if (!addressRead) return;
+  const write = ++addressWrites;
+  const configuration = configurationNow(), view = viewNow();
   sceneKit?.refresh();
+  const hash = `#${await Config.pack(configuration)}~${await Config.pack(view)}`;
+  if (write !== addressWrites) return;
   try {
     if (replace) history.replaceState(null, '', hash);
     else location.hash = hash;
@@ -2888,7 +2899,7 @@ const anchors = {
   // Sean, Billy, BillyChest and the rest (garage.js), wherever they stand in the garage
   ...Object.fromEntries(Object.keys(garagePieces).map(piece => [piece, () => middleOf(garagePieces[piece])])),
 };
-const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
+const startingAddress = location.hash.slice(1);                 // read before anything rewrites it
 const viewKit = ViewKit.create({
   THREE, camera, controls, canvas: renderer.domElement,
   room: 'room_3d',
@@ -2954,9 +2965,9 @@ sceneKit = SceneKit.create({
   room: 'room_3d',
   config: window.ROOM_SCENES,
   el: { scenes: document.getElementById('scenePick'), save: document.getElementById('saveScene'), remove: document.getElementById('deleteScene') },
-  get: settingsAddress,
-  apply(address) {
-    history.replaceState(null, '', `#${address}~${viewKit.address()}`);
+  get: () => configurationNow(),
+  async apply(configuration) {
+    history.replaceState(null, '', `#${await Config.pack(configuration)}~${await Config.pack(viewNow())}`);
     location.reload();
   },
 });
@@ -3242,14 +3253,21 @@ window.plans = {
   }),
 };
 
-// Start on the settings in the address (room_dimensions.md has their
-// order). Anything it leaves out, and everything with no address, starts as
-// in state: option 7 with a 600 left-wall cupboard, TV and shelves above the
-// bench, and AI Olive cupboards.
-readAddress(location.hash.slice(1));
+// Start on the configuration and the view in the address (room_dimensions.md
+// has their format), unpacked first. Anything the configuration leaves out,
+// and everything with no address, starts as in state: option 10, TV and
+// shelves above the bench, and AI Olive cupboards. An address in the old
+// format, the settings' fields joined by "-", is read the old way, for now
+const [configurationText, viewText] = startingAddress.split('~');
+const [startingConfiguration, startingView] = await Promise.all([Config.unpack(configurationText), Config.unpack(viewText)]);
+if (startingConfiguration) readConfiguration(startingConfiguration);
+else readAddress(startingAddress);
+addressRead = true;
 syncControls();
 show(state.option);
 // The view: the address's, else the last chosen here. After show(), as
-// some views are worked out from the option
-viewKit.start(addressView);
+// some views are worked out from the option; the switches for what's shown
+// first, as Cupboard only frames the view
+readDisplay(startingView);
+viewKit.start(startingView ?? startingAddress.split('~')[2]);
 startLoop();
