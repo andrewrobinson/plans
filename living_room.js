@@ -30,8 +30,8 @@ import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
 import { shoeRack, shoeRackControls } from './shoe_rack.js';
 import { garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
 import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims, build,
-  drawStored, turnDoors, describe, settle, cupboardRows, BACK_WALL_KEYS, CHAIR_TURN, CURRENT,
-  CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DEFAULT_CONFIGURATION, DRESSERS, DRESSER_SLIDERS, FINISHES,
+  drawStored, turnDoors, describe, settle, cupboardRows, startAgain, BACK_WALL_KEYS, CHAIR_TURN, CURRENT,
+  CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES,
   LARDERS, LARDER_SLIDERS, OPTIONS, PACKINGS, SCHEMA, SHELF_WOODS, SOFAS, SOFA_SLIDERS, STORED,
   TV_H, TV_SIZES, TV_W, benchDrawn, carcassMat, colourOf, configurationNow, cornerTooShallow,
   cupboardPart, current, currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
@@ -1119,7 +1119,7 @@ function settingsNow() {
 // Show a configuration in place of the settings on show: everything it
 // leaves out as the page starts. The view stays, bar following what moves
 function loadConfiguration(configuration) {
-  readConfiguration(DEFAULT_CONFIGURATION);
+  startAgain();
   readConfiguration(configuration);
   syncControls();
   show(state.option);

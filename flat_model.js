@@ -2142,7 +2142,7 @@ export function describe(option, aboveText) {
 // dimensions): what the page's snapshot holds (tests/snapshots/), the
 // description as HTML
 export function buildFlat(configuration, view = {}) {
-  readConfiguration(DEFAULT_CONFIGURATION);
+  startAgain();
   readConfiguration(configuration);
   setDisplay({ flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true, ...view });
   const { option, aboveText } = build(state.option);
@@ -2164,6 +2164,17 @@ export const cupboardRows = () => ({
   livingRoom: state.option === CURRENT ? null : cuttingRows(current?.cupboard),
   bedroom: bedroomCopy ? cuttingRows(bedroomCopy) : null,
 });
+
+// The settings as the page starts, and putting them back so: everything,
+// not only what's in the configuration (the things to store's places, read
+// only when they've been moved by hand, and what's worked out, as where the
+// dresser stands), so one configuration shown after another isn't left with
+// any of the other's
+const START = structuredClone(state);
+export function startAgain() {
+  for (const key of Object.keys(state)) delete state[key];
+  Object.assign(state, structuredClone(START));
+}
 
 // What the page reads, besides the functions exported where they're defined
 export {
