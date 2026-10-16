@@ -147,8 +147,22 @@
       <label for="sofaPick">Sofa, facing the TV</label>
       <select id="sofaPick"></select>
       <div id="sofaFrontBlock">
-        <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
-        <input id="sofaFront" type="range" min="1000" max="3500" step="50" value="1900">
+        <div id="sofaFrontRow">
+          <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
+          <input id="sofaFront" type="range" min="1000" max="3500" step="50" value="1900">
+        </div>
+        <label for="sofaX">Sofa's middle from the left wall: <span id="sofaXValue"></span></label>
+        <input id="sofaX" type="range">
+        <label for="sofaY">Sofa's middle from the TV wall: <span id="sofaYValue"></span></label>
+        <input id="sofaY" type="range">
+        <label for="sofaTurn">Sofa turned (360° is 0° again)</label>
+        <select id="sofaTurn">
+          <option value="0">0°, facing the TV wall</option>
+          <option value="90">90°, facing the right-hand wall</option>
+          <option value="180">180°, facing the front wall</option>
+          <option value="270">270°, facing the left wall</option>
+        </select>
+        <div class="row"><button id="sofaHome">Reset location</button></div>
         <label for="sofaW">Sofa width: <span id="sofaWValue">1690</span></label>
         <input id="sofaW" type="range" min="1200" max="2600" step="10" value="1690">
         <label for="sofaD">Sofa depth: <span id="sofaDValue">1000</span></label>
@@ -206,7 +220,7 @@
     </div>
   </details>
   <details class="sec" id="secWickerBench">
-    <summary>The wicker bench (the hallway's)</summary>
+    <summary>The wicker bench</summary>
     <div class="hint">One bench, at one set of sizes, that can be on in any of the rooms, each with its own place.</div>
     <div id="wickerBenchBlock"></div>
   </details>

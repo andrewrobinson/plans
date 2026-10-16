@@ -37,15 +37,15 @@ test.describe('saved addresses', () => {
   // From before the bookshelf could move, the bedroom's bookcase be taken
   // out, the wicker bench be drawn, the pine cupboard be moved about, the
   // mirror be taken out, the carpet's colour chosen or the shoe rack be
-  // drawn, or the new cupboard be copied into the bedroom: their thirteen
-  // fields left off the end, so the bookshelf's against the wall, the
+  // drawn, the new cupboard be copied into the bedroom, or the sofa be moved
+  // and turned: their fourteen fields left off the end, so the bookshelf's against the wall, the
   // bookcase, the pine cupboard and the mirror in the bedroom, the bench in
   // the hallway, no pine cupboard in the living room, the carpet as in the
   // doorway photo, the shoe rack at the foot of the stairs and no new
-  // cupboard in the bedroom, as they start
-  test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench, the pine cupboard, the mirror, the carpet, the shoe rack or the new cupboard keeps them as they start', async ({ page }) => {
+  // cupboard in the bedroom, and the sofa where it starts, as they start
+  test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench, the pine cupboard, the mirror, the carpet, the shoe rack, the new cupboard or the sofa\'s place keeps them as they start', async ({ page }) => {
     const [settings, ...rest] = DEFAULT.split('~');
-    await openRoom(page, [settings.split('-').slice(0, -13).join('-'), ...rest].join('~'));
+    await openRoom(page, [settings.split('-').slice(0, -14).join('-'), ...rest].join('~'));
     expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
   });
 
@@ -322,6 +322,32 @@ test.describe('the controls', () => {
     await page.click('#bookshelfHome');
     expect(settingsField(await hash(page), 44)).toBe('wall');
     await expect(page.locator('#bookshelfTurnValue')).toHaveText('0°');
+  });
+
+  // The sofa's place, field 57: `tv` where it starts, centred on the TV,
+  // else its middle's x.y and how far it's turned, in quarter turns
+  test('the sofa can be moved and turned, and its place round-trips through the address', async ({ page }) => {
+    await page.selectOption('#sofaPick', 'merton');
+    expect(settingsField(await hash(page), 57)).toBe('tv');
+    await expect(page.locator('#sofaFront')).toBeVisible();
+    await page.locator('#sofaX').fill('1500');
+    await page.locator('#sofaY').fill('2000');
+    await page.selectOption('#sofaTurn', '90');
+    expect(settingsField(await hash(page), 57)).toBe('1500.2000.90');
+    await expect(page.locator('#sofaFront')).toBeHidden();         // moved, its sliders say where
+    // Turned a quarter, its 1690 width runs along the room and its 1000 depth across
+    await expect(page.locator('#summary')).toContainText('its middle at x 1500, y 2000, facing the right-hand wall (x 1000-2000, y 1155-2845)');
+    const moved = await hash(page);
+    await openRoom(page, moved);
+    expect(await hash(page)).toBe(moved);
+    await expect(page.locator('#sofaXValue')).toHaveText('1500');
+    await expect(page.locator('#sofaYValue')).toHaveText('2000');
+    await expect(page.locator('#sofaTurn')).toHaveValue('90');
+    await page.click('#menu');
+    await page.click('#sofaHome');
+    expect(settingsField(await hash(page), 57)).toBe('tv');
+    await expect(page.locator('#sofaTurn')).toHaveValue('0');
+    await expect(page.locator('#summary')).toContainText('Its front is 1900 from the TV wall');
   });
 
   test('the island can only be moved when it is out in the room', async ({ page }) => {

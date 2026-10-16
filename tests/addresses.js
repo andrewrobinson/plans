@@ -52,9 +52,12 @@ const SHOE_RACK = '460.300.1290.1.45.1.72';
 // Then whether the living room's corner cupboard is copied into the
 // bedroom, in place of the pine cupboard: off (added 16 Oct 2026)
 const NEW_CUPBOARD = '0';
+// Then the sofa's place: where it starts, centred on the TV and facing it
+// (added 16 Oct 2026)
+const SOFA_PLACE = 'tv';
 // The default settings after the option and the left-wall depth, the default
 // places of the things to store, and the default view
-const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}-${WICKER_BENCH}-${PINE}-${MIRROR_ON}-${CARPET}-${SHOE_RACK}-${NEW_CUPBOARD}`;
+const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}-${WICKER_BENCH}-${PINE}-${MIRROR_ON}-${CARPET}-${SHOE_RACK}-${NEW_CUPBOARD}-${SOFA_PLACE}`;
 const STORED = '0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1';
 const VIEW = 'birdseye.sit-tall.90-0-0-90-0-0';
 // The page now starts with the Inglesham dresser (dressers.js, 15 Oct 2026);
@@ -115,6 +118,9 @@ const ADDRESSES = [
   { name: 'shoe-rack-stairs', address: `#9-0-${REST}~${STORED}~look:stairsHalfway:shoeRack.stand-tall.90-0-0-90-0-0.downstairs` },
   { name: 'wicker-bench-hallway', address: `#9-0-${REST}~${STORED}~look:hallLivingDoor:hallBench.stand-tall.90-0-0-90-0-0.hallway` },
   { name: 'wicker-bench-every-room', address: `#9-0-${REST.replace(`-${WICKER_BENCH}`, '-1200.410.450.150-1.1800.1800.90-1.200.1425.270-1.2000.2500.0')}~${STORED}~${VIEW}` },
+  // The sofa in plan, moved towards the left wall (its middle at x 1500,
+  // y 2000) and turned 90° to face the right-hand (window) wall
+  { name: 'sofa-moved-turned-plan', address: `#9-0-${REST.replace('-none-1900-', '-merton-1900-').replace(/-tv$/, '-1500.2000.90')}~${STORED}~plan.sit-tall.90-0-0-90-0-0` },
   { name: 'view-packing', address: `#9-0-${REST}~${STORED}~packing.stand-tall.0-170-170-90-0-0` },
   { name: 'view-desk', address: `#9-0-${REST}~${STORED}~desk.sit-tall.90-0-0-90-0-0` },
 
@@ -126,8 +132,8 @@ const ADDRESSES = [
   // Nearly every setting away from its default, so each field of the
   // address is read and written back (refactor step 3). Checked against the
   // code before step 3: the same address, description and picture.
-  { name: 'settings-option07-no-bench', address: '#7-500-450-1200-1-200-700-900-900-400-600-0-5-0-0-3-43-0-1000.1800.350.800.250-2-chester-2-none-1900-1100.1950.510-1690.1000.920-0-900-300.900.1500-0-1000.2000.170-25-1200-900-0-800-150-2000.500.90-1000.2000.0.1000.250.1000-500.500.270.1000.400.2000-450-0-2.1500.900.600.1200-1.0-1200.300.180-1-1000.500.500.100-0.2000.2000.180-0.1000.1500.90-0.1000.3000.270-0-1-500.300.90-0-12-900.300.1500.0.30.1.78-0~1.3.2_100.100.1_200.900.0_300.1000.0.400_400.400.1_500.500.0_600.600.0_700.700.1~plan.sit-tall.90-0-0-90-0-0' },
-  { name: 'settings-current-room', address: `#10-0-330-1200-2-250-800-600-900-400-600-0-0-0-0-1-86-1-1370.1940.410.830.340-0-chester-3-merton-3000-1100.1950.510-2600.1200.1100-1-600-600.1200.1800-600.1200.1800-1395.3571.0-12-800-1200-1-200-800-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}-${WICKER_BENCH}-${PINE}-${MIRROR_ON}-${CARPET}-${SHOE_RACK}-${NEW_CUPBOARD}~0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~birdseye.sit-tall.90-0-0-90-0-0` },
+  { name: 'settings-option07-no-bench', address: '#7-500-450-1200-1-200-700-900-900-400-600-0-5-0-0-3-43-0-1000.1800.350.800.250-2-chester-2-none-1900-1100.1950.510-1690.1000.920-0-900-300.900.1500-0-1000.2000.170-25-1200-900-0-800-150-2000.500.90-1000.2000.0.1000.250.1000-500.500.270.1000.400.2000-450-0-2.1500.900.600.1200-1.0-1200.300.180-1-1000.500.500.100-0.2000.2000.180-0.1000.1500.90-0.1000.3000.270-0-1-500.300.90-0-12-900.300.1500.0.30.1.78-0-1200.3000.270~1.3.2_100.100.1_200.900.0_300.1000.0.400_400.400.1_500.500.0_600.600.0_700.700.1~plan.sit-tall.90-0-0-90-0-0' },
+  { name: 'settings-current-room', address: `#10-0-330-1200-2-250-800-600-900-400-600-0-0-0-0-1-86-1-1370.1940.410.830.340-0-chester-3-merton-3000-1100.1950.510-2600.1200.1100-1-600-600.1200.1800-600.1200.1800-1395.3571.0-12-800-1200-1-200-800-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}-${WICKER_BENCH}-${PINE}-${MIRROR_ON}-${CARPET}-${SHOE_RACK}-${NEW_CUPBOARD}-${SOFA_PLACE}~0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~birdseye.sit-tall.90-0-0-90-0-0` },
 ];
 
 module.exports = { ADDRESSES, VIEW, BEDROOM };

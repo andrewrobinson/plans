@@ -240,7 +240,8 @@ const state = {
   // these until set from dressers.js, larders.js and sofas.js below
   dresser: { w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290, drawer: 160 },
   larder: { key: '', size: { w: 1100, h: 1950, d: 510 } },
-  sofa: { key: '', front: 1900, size: { w: 1690, d: 1000, h: 920 } },   // key '' for none; front: its front from the TV wall
+  sofa: { key: '', front: 1900, size: { w: 1690, d: 1000, h: 920 },     // key '' for none; front: its front from the TV wall
+          move: null },          // ...or moved and turned from there: { x, y, turn } (see sofaSpot), or null where it starts
   island: { at: 'room', move: null },   // where the island is, one of ISLAND_AT; out there, where its middle is and how far it's turned (ISLAND_HOME to start)
   // The things to store: shown or not, which of PACKINGS, where (0 by the
   // middle window, 1 in the corner cupboard, 2 moved by hand), and each
@@ -899,15 +900,31 @@ function currentSofa() {
     seatD: Math.min(S.seatD, d - 150), armH: Math.min(S.armH, h - 50) };
 }
 const sofaMat = material(0x9da3a6);
-function sofaSpot() {
-  const S = currentSofa(), cx = (tvAt ?? [ROOM_WIDTH / 2])[0];
-  const x0 = Math.round(cx - S.w / 2);
-  const { front } = state.sofa;
-  return { S, x0, x1: x0 + S.w, y0: front, y1: front + S.d };
+// Where the sofa stands: the middle of the floor it covers, room x and y,
+// and how far it's turned, in quarter turns as the bookshelf (360 is 0
+// again). It starts centred on the TV, facing it, its front
+// state.sofa.front from the TV wall; its sliders move it from there.
+const SOFA_FACING = { 0: 'the TV wall', 90: 'the right-hand wall', 180: 'the front wall', 270: 'the left wall' };
+function sofaHome(S) {
+  return { x: (tvAt ?? [ROOM_WIDTH / 2])[0], y: state.sofa.front + S.d / 2, turn: 0 };
 }
+// Where it is now, and the floor it covers (x0 to x1, y0 to y1), square to
+// the walls, as it's turned
+function sofaSpot() {
+  const S = currentSofa(), { x, y, turn } = state.sofa.move ?? sofaHome(S);
+  const sideways = turn % 180 !== 0;
+  const across = sideways ? S.d : S.w, along = sideways ? S.w : S.d;
+  const x0 = Math.round(x - across / 2), y0 = Math.round(y - along / 2);
+  return { S, x, y, turn, x0, x1: x0 + across, y0, y1: y0 + along };
+}
+// Drawn in a group of its own, its middle at the group's origin and its
+// front to -y (facing the TV wall), then moved and turned into place
 function sofa(g) {
   if (!SOFAS[state.sofa.key]) return '';
-  const { S, x0, x1, y0, y1 } = sofaSpot(), sub = new THREE.Group(), cushion = 150;
+  const spot = sofaSpot(), { S } = spot, sub = new THREE.Group(), cushion = 150;
+  const x0 = -S.w / 2, x1 = S.w / 2, y0 = -S.d / 2, y1 = S.d / 2;
+  sub.position.set(spot.x * MM, 0, spot.y * MM);
+  sub.rotation.y = THREE.MathUtils.degToRad(-spot.turn);
   g.add(sub);
   pieces.sofa = sub;
   sofaMat.color.set(S.colour ?? '#9DA3A6');
@@ -918,9 +935,24 @@ function sofa(g) {
   box({ from: [x0, y0, S.legH], to: [x0 + S.armW, y1, S.armH] }, sofaMat, sub);    // arms
   box({ from: [x1 - S.armW, y0, S.legH], to: [x1, y1, S.armH] }, sofaMat, sub);
   box({ from: [x0 + S.armW, y0 + S.seatD, S.seatH - cushion], to: [x1 - S.armW, y1, S.h] }, sofaMat, sub);   // the back
-  const { x0: ix0, x1: ix1, y0: iy0, y1: iy1 } = state.island.at === 'none' ? { x0: 0, x1: 0, y0: 0, y1: 0 } : islandSpot();
-  const island = x0 < ix1 && x1 > ix0 && y1 > iy0 && y0 < iy1 ? ' It runs into the island.' : x0 < ix1 && x1 > ix0 && iy0 >= y1 ? ` Behind it, ${iy0 - y1} to the island.` : '';
-  return ` A sofa facing the TV, the ${S.label}: ${S.w} wide, ${S.d} deep, ${S.h} high, its seat at ${S.seatH}. Its front is ${y0} from the TV wall (x ${x0}-${x1}, y ${y0}-${y1}).${island}`;
+  return sofaText(spot);
+}
+// The sofa's sentence for the summary, from its spot (sofaSpot)
+function sofaText(spot) {
+  const { S, x, y, turn, x0, x1, y0, y1 } = spot;
+  const sizes = `the ${S.label}: ${S.w} wide, ${S.d} deep, ${S.h} high, its seat at ${S.seatH}.`;
+  const floor = `(x ${x0}-${x1}, y ${y0}-${y1})`;
+  if (!state.sofa.move) return ` A sofa facing the TV, ${sizes} Its front is ${y0} from the TV wall ${floor}.${sofaByIsland(spot)}`;
+  return ` A sofa, ${sizes} Moved: its middle at x ${Math.round(x)}, y ${Math.round(y)}, facing ${SOFA_FACING[turn]} ${floor}.${sofaByIsland(spot)}`;
+}
+// Whether the sofa's floor runs into the island's, or how far behind it the
+// island starts (where the sofa's square to the TV, its back to the island)
+function sofaByIsland({ turn, x0, x1, y0, y1 }) {
+  if (state.island.at === 'none') return '';
+  const { x0: ix0, x1: ix1, y0: iy0, y1: iy1 } = islandSpot();
+  const level = x0 < ix1 && x1 > ix0;
+  if (level && y1 > iy0 && y0 < iy1) return ' It runs into the island.';
+  return level && iy0 >= y1 && turn === 0 ? ` Behind it, ${iy0 - y1} to the island.` : '';
 }
 function frontWall(g, i) {
   if (islandOnWall()) {
@@ -2142,6 +2174,7 @@ function showInMenus(option, i, aboveText) {
     shown(`${key}MoveBlock`, state[`${key}On`]);
     showPlace(key);                                             // where it starts follows the option's clear wall
   }
+  showSofaPlace();                                              // where it starts follows the TV
   document.getElementById('secondLabel').textContent = option.second || '';
 }
 
@@ -2229,15 +2262,17 @@ const ADDRESS = [
   ['colours.carpet', String, colour],                           // the carpet's colour (bedroom and stairs)
   ...SHOE_RACK_ADDRESS,                                         // the shoe rack's sizes and place, downstairs
   ...NEW_CUPBOARD_ON_ADDRESS,                                   // the corner cupboard copied into the bedroom, or not
+  ['sofa.move', m => writeSpot(m, SOFA_HOME), text => readSpot(text, SOFA_HOME)],   // the sofa moved and turned, or where it starts
 ];
 // A piece in place of the bench moved, as `x.y.turn`, or AT_HOME where it
-// starts (as links from before the bookshelf could move keep it)
-const AT_HOME = 'wall';
-function writeSpot(m) {
-  return m ? `${m.x}.${m.y}.${m.turn}` : AT_HOME;
+// starts (as links from before the bookshelf could move keep it); the sofa
+// likewise, SOFA_HOME where it starts, facing the TV
+const AT_HOME = 'wall', SOFA_HOME = 'tv';
+function writeSpot(m, home = AT_HOME) {
+  return m ? `${m.x}.${m.y}.${m.turn}` : home;
 }
-function readSpot(text) {
-  if (text === AT_HOME) return null;
+function readSpot(text, home = AT_HOME) {
+  if (text === home) return null;
   const [x, y, turn] = text.split('.').map(v => (v ? Number(v) : NaN));
   const fits = x >= 0 && x <= ROOM_WIDTH && y >= 0 && y <= ROOM_DEPTH && turn >= 0 && turn < 360 && turn % QUARTER_TURN === 0;
   return fits ? { x, y, turn } : undefined;
@@ -2497,6 +2532,7 @@ function showSofa() {
     document.getElementById(`${id}Value`).textContent = size[k];
   }
   document.getElementById('sofaFrontBlock').style.display = key ? '' : 'none';
+  document.getElementById('sofaFrontRow').style.display = state.sofa.move ? 'none' : '';   // moved, its sliders say where
 }
 // sizes: { key: mm } for any of the slider keys, each held to its slider's range
 function setSofaSize(sizes) {
@@ -2543,6 +2579,29 @@ function showPlace(key) {
     document.getElementById(`${key}${suffix}`).value = String(spot[k]);
     document.getElementById(`${key}${suffix}Value`).textContent = `${spot[k]}${unit}`;
   }
+}
+// Moving the sofa about the room, and turning it about its middle in quarter
+// turns: the first move starts from where it stands, centred on the TV;
+// Reset location puts it back there, its front the slider's distance away
+const sofaTurn = document.getElementById('sofaTurn');
+for (const [k, suffix, max, step] of PLACE_SLIDERS.filter(([k]) => k !== 'turn')) {
+  const input = Object.assign(document.getElementById(`sofa${suffix}`), { min: '0', max: String(max), step: String(step) });
+  input.addEventListener('input', () => changeSettings(s => { s.sofa.move = { ...sofaPlace(), [k]: Number(input.value) }; }, { look: true }));
+}
+sofaTurn.addEventListener('change', () => changeSettings(s => { s.sofa.move = { ...sofaPlace(), turn: Number(sofaTurn.value) }; }, { look: true }));
+document.getElementById('sofaHome').addEventListener('click', () => changeSettings(s => { s.sofa.move = null; }, { look: true }));
+// Where the sofa is, to the nearest mm (the TV's middle may fall on a half)
+function sofaPlace() {
+  return roundedSpot(state.sofa.move ?? sofaHome(currentSofa()));
+}
+function showSofaPlace() {
+  if (!SOFAS[state.sofa.key]) return;
+  const { x, y, turn } = sofaPlace();
+  for (const [suffix, v] of [['X', x], ['Y', y]]) {
+    document.getElementById(`sofa${suffix}`).value = String(v);
+    document.getElementById(`sofa${suffix}Value`).textContent = v;
+  }
+  sofaTurn.value = String(turn);
 }
 // On the front wall, the bookcase's sizes: the bedroom's (its sliders in
 // Bedroom options), so either set changes the one bookcase
@@ -2743,9 +2802,9 @@ const anchors = {
   sofa: () => pieces.sofa ? middleOf(pieces.sofa) : [ROOM_WIDTH / 2, 2400, 500],
   // Sitting on it: in the middle, eyes over the back of the seat
   sofaSeat: () => {
-    if (!SOFAS[state.sofa.key]) return [ROOM_WIDTH / 2, 2500];
-    const { S, x0, x1, y0 } = sofaSpot();
-    return [(x0 + x1) / 2, y0 + S.seatD - 100];
+    if (!SOFAS[state.sofa.key] || !pieces.sofa) return [ROOM_WIDTH / 2, 2500];
+    const S = currentSofa();
+    return pointOn(pieces.sofa, [0, -S.d / 2 + S.seatD - 100]);
   },
   cupboard: () => {                                             // the middle of its door, else the corner
     const at = packingSpot();
