@@ -11,7 +11,9 @@
 // - baseH: the base's height, to the top of its worktop (700 to 1000)
 // - upperD: the upper part's depth, no deeper than the base (150 to 600)
 // Sizes outside those ranges are held to them.
-window.ROOM_DRESSERS = {
+//
+// An ES module: living_room.js imports it.
+export const DRESSER_MODELS = {
   start: 'inglesham',              // the dresser the page starts with (a link keeps its own)
   list: {
     // The first sizes drawn: estimates, a bit like the Chester below

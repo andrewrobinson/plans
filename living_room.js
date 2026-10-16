@@ -29,6 +29,9 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
 import * as Config from './kit/config_kit.js';
+import { DRESSER_MODELS } from './dressers.js';
+import { LARDER_MODELS } from './larders.js';
+import { SOFA_MODELS } from './sofas.js';
 import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, showNewCupboard, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, BED_SPOTS, OTHER_ROOM_SCHEMA } from './other_room.js';
 import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
 import { drawShoeRack, shoeRack, shoeRackControls, SHOE_RACK_START, SHOE_RACK_SCHEMA } from './shoe_rack.js';
@@ -722,8 +725,8 @@ function baseCupboards(x0, parent) {
 const DRESSER_SLIDERS = [['w', 'dresserW', 900, 1415, 5], ['h', 'dresserH', 1500, 2400, 10],
   ['baseD', 'dresserBaseD', 300, 600, 10], ['baseH', 'dresserBaseH', 700, 1000, 10], ['upperD', 'dresserUpperD', 150, 600, 10]];
 // Start with the dresser chosen in dressers.js (a link keeps its own)
-const DRESSERS = window.ROOM_DRESSERS?.list ?? {};
-for (const [k] of DRESSER_SLIDERS) state.dresser[k] = DRESSERS[window.ROOM_DRESSERS?.start]?.[k] ?? state.dresser[k];
+const DRESSERS = DRESSER_MODELS.list;
+for (const [k] of DRESSER_SLIDERS) state.dresser[k] = DRESSERS[DRESSER_MODELS.start]?.[k] ?? state.dresser[k];
 function placeDresser() {
   state.dresser.upperD = Math.min(state.dresser.upperD, state.dresser.baseD);
   const from = KITCHEN.frontRunTo + KITCHEN.counterPast, gap = DESK_RECESS.x0 - from;   // 1415 clear
@@ -762,8 +765,8 @@ function dresser(g) {
 // Larders, from larders.js. Drawn as the dresser is, with its back on
 // the front wall from x0, facing into the room. Its parts stack from the
 // floor up. Returns a description.
-const LARDERS = window.ROOM_LARDERS?.list ?? {};
-state.larder.key = Object.hasOwn(LARDERS, window.ROOM_LARDERS?.start ?? '') ? ROOM_LARDERS.start : Object.keys(LARDERS)[0] ?? '';
+const LARDERS = LARDER_MODELS.list;
+state.larder.key = Object.hasOwn(LARDERS, LARDER_MODELS.start ?? '') ? LARDER_MODELS.start : Object.keys(LARDERS)[0] ?? '';
 // The larder's sizes can be changed from its sliders: [key, slider id,
 // lowest, highest]. Choosing a larder sets them to its own.
 const partHeight = p => p.legs ?? p.plinth ?? p.top ?? p.cornice ?? p.h ?? 0;
@@ -892,9 +895,9 @@ function placeIsland() {
 }
 // A sofa from sofas.js, in any option: facing the TV, centred on it,
 // its front state.sofa.front from the TV wall. Returns a description.
-const SOFAS = window.ROOM_SOFAS?.list ?? {};
-state.sofa.key = Object.hasOwn(SOFAS, window.ROOM_SOFAS?.start ?? '') ? ROOM_SOFAS.start : '';
-state.sofa.front = window.ROOM_SOFAS?.front ?? 1900;
+const SOFAS = SOFA_MODELS.list;
+state.sofa.key = Object.hasOwn(SOFAS, SOFA_MODELS.start ?? '') ? SOFA_MODELS.start : '';
+state.sofa.front = SOFA_MODELS.front ?? 1900;
 // The sofa's sizes can be changed from its sliders: [key, slider id,
 // lowest, highest]. Choosing a sofa sets them to its own.
 const SOFA_SLIDERS = [['w', 'sofaW', 1200, 2600], ['d', 'sofaD', 700, 1200], ['h', 'sofaH', 700, 1100]];

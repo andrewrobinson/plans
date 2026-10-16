@@ -19,7 +19,9 @@
 // The menu's sliders resize the larder chosen (width 400 to 1500, height 1500
 // to 2400, depth 300 to 700), keeping its front: a change of height goes on
 // its tallest doors, and parts set back stay set back as much.
-window.ROOM_LARDERS = {
+//
+// An ES module: living_room.js imports it.
+export const LARDER_MODELS = {
   start: 'chester',                // the larder the dropdown starts with (a link keeps its own)
   list: {
     // Cotswold Company, Chester double larder: H 195 × W 110 × D 51 cm, in

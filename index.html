@@ -6,8 +6,8 @@
 <title>Cupboard options in 3D</title>
 <!-- The cupboard options page: the living room in 3D, its cupboard options
      and the settings drawers. Its look is room_3d.css; what it draws and
-     does is living_room.js, loaded at the end after its data files
-     (dressers.js, larders.js, sofas.js, the views and the scenes). room_dimensions.md has the room's sizes and the address
+     does is living_room.js, loaded at the end after its views and scenes
+     (it imports dressers.js, larders.js and sofas.js). room_dimensions.md has the room's sizes and the address
      format; room_3d_ui_guide.md maps the files. -->
 <!-- Installable as an app on phones: Add to Home Screen -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -395,11 +395,8 @@
   <div id="garageBlock"></div>
 </div>
 
-<!-- The room's views, dressers, larders, sofas and scenes, for editing; the module after them imports the kits that show the views and scenes -->
+<!-- The room's views and scenes, for editing; the module after them imports the kits that show them, and the dressers, larders and sofas -->
 <script src="living_room.views.js"></script>
-<script src="dressers.js"></script>
-<script src="larders.js"></script>
-<script src="sofas.js"></script>
 <script src="living_room.scenes.js"></script>
 <script type="module" src="living_room.js"></script>
 </body>
