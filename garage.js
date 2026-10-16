@@ -89,8 +89,9 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 }
 
 // ---------------------------------------------------------------------------
-// What's in it: Sean and Billy, each drawn as a bookcase, a box of shelves
-// (other_room.js's bookcase()), and BillyChest, a plain box (the user's, 16
+// What's in it: Sean, timber shelving: a frame at each end holding up
+// shelves of scaffold boards (the user's photo, 16 Oct 2026); Billy, drawn
+// as a bookcase, a box of shelves (other_room.js's bookcase()); BillyChest, a plain box (the user's, 16
 // Oct 2026); then (also 16 Oct 2026) Metal, a table; Yellow, a cupboard;
 // the scaffold bench, a scaffold board on legs; Small Billy, a cupboard;
 // Potters, open shelves; and Biltong and Trellis, boxes open at the top;
@@ -105,13 +106,15 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 // ---------------------------------------------------------------------------
 const white = material(0xf4f3ef);                  // as IKEA's Billy
 const steel = material(0x7d8288);                  // grey, as steel shelving
+const newPine = material(0xe3c48f);                // pale, as new construction timber
+const scaffoldBoard = material(0xc9a66b);          // a scaffold board's sandy pine
 const PIECES = {
-  sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: steel, shape: 'shelves' },
+  sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: newPine, shape: 'timber shelves' },
   billy: { label: 'Billy', w: 800, d: 280, h: 2020, mat: white, shape: 'shelves' },
   billyChest: { label: 'BillyChest', w: 805, d: 484, h: 780, mat: white, shape: 'box' },
   metal: { label: 'Metal', w: 710, d: 670, h: 895, mat: steel, shape: 'table' },
   yellow: { label: 'Yellow', w: 875, d: 310, h: 700, mat: material(0xe2b93b), shape: 'box', lifted: true },
-  scaffoldBench: { label: 'Scaffold bench', w: 1820, d: 220, h: 438, mat: material(0xc9a66b), shape: 'bench' },   // a scaffold board's sandy pine
+  scaffoldBench: { label: 'Scaffold bench', w: 1820, d: 220, h: 438, mat: scaffoldBoard, shape: 'bench' },
   smallBilly: { label: 'Small Billy', w: 600, d: 290, h: 1540, mat: white, shape: 'box', offWall: true },
   potters: { label: 'Potters', w: 430, d: 390, h: 1535, mat: material(0x9a7b55), shape: 'shelves', offWall: true },   // a mid wood
   biltong: { label: 'Biltong', w: 940, d: 445, h: 460, mat: material(0x8a6a4a), shape: 'open box', lifted: true },
@@ -127,6 +130,29 @@ const PIECE_KEYS = Object.keys(PIECES);
 const TABLE = { top: 30, leg: 40 };
 const BENCH = { board: 38, leg: 50, legIn: 100 };  // legIn: the legs in from the board's ends
 const OPEN_BOX_SIDE = 18;
+// Sean's make, read off the user's photo (16 Oct 2026) and agreed with them,
+// none measured: a frame at each end, two uprights (front and back) joined
+// across the depth by a rail under each shelf, all 38 by 89 construction
+// timber (CLS, the usual "2 by 4"), the 89 along the depth and upright on
+// the rails; one brace on the back, from the top at one end to the bottom
+// at the other; and three shelves, each two scaffold boards (225 wide and
+// 38 thick, the standard) side by side, flush to the front, so 85 of the
+// frame's 535 is spare at the back, by the wall. `shelfTops` are the top
+// of each shelf's boards, estimated from the photo, the last Sean's top.
+// Each board's ends are bound with a blue steel band, `band` along it.
+// It stands on a castor under each upright (the user's, 16 Oct 2026: their
+// wheels about 60 across); a castor's height, wheel, swivel and plate, is
+// estimated, and Sean's 1575 is taken as to its top from the floor, castors
+// and all, so the bottom shelf sits just over a rail on the castors
+const TIMBER_SHELVES = {
+  timber: { thin: 38, wide: 89 },
+  board: { wide: 225, thick: 38, perShelf: 2 },
+  shelfTops: [210, 820, 1575],
+  band: 40,
+  castor: { wheel: 60, wheelThick: 25, high: 80 },
+};
+const castorMat = material(0x2b2b2b);              // black rubber and dark steel
+const bandMat = material(0x3f6fa8);                // the blue of the bands in the photo
 // The most a piece can stand off the wall behind it (chosen: room to spare)
 const MOST_OFF_WALL = 200;
 
@@ -225,6 +251,7 @@ function drawn({ w, d, h, mat, shape }) {
   const g = new THREE.Group();
   if (shape === 'table') table(w, d, h, mat, g);
   else if (shape === 'bench') bench(w, d, h, mat, g);
+  else if (shape === 'timber shelves') timberShelves(w, d, h, mat, g);
   else if (shape === 'open box') openBox(w, d, h, mat, g);
   else box({ from: [-w / 2, 0, 0], to: [w / 2, d, h] }, mat, g);
   return g;
@@ -246,6 +273,63 @@ function bench(w, d, h, mat, g) {
   const { board, leg: size, legIn } = BENCH;
   box({ from: [-w / 2, 0, h - board], to: [w / 2, d, h] }, mat, g);
   for (const x of [-w / 2 + legIn, w / 2 - legIn]) for (const y of [0, d]) leg(x, y, size, h - board, mat, g);
+}
+// Sean: timber shelving (TIMBER_SHELVES), the frames in `mat`
+function timberShelves(w, d, h, mat, g) {
+  const { timber: { thin }, shelfTops } = TIMBER_SHELVES;
+  for (const end of [-1, 1]) endFrame(end * (w / 2 - thin / 2), d, h, mat, g);
+  backBrace(w, h, mat, g);
+  const inside = w / 2 - thin;                   // the boards run between the frames' uprights
+  for (const top of shelfTops) shelfBoards(inside, d, top, g);
+}
+// One end's frame, its middle across at x: an upright at the front and the
+// back, and a rail between them under each shelf, on the uprights' inside
+function endFrame(x, d, h, mat, g) {
+  const { timber: { thin, wide }, board, shelfTops, castor } = TIMBER_SHELVES;
+  for (const [y0, y1] of [[0, wide], [d - wide, d]]) {
+    box({ from: [x - thin / 2, y0, castor.high], to: [x + thin / 2, y1, h] }, mat, g);
+    castorUnder(x, (y0 + y1) / 2, g);
+  }
+  const railX = x - Math.sign(x) * thin;         // one timber in, towards the middle
+  for (const top of shelfTops) {
+    const under = top - board.thick;
+    box({ from: [railX - thin / 2, wide, under - wide], to: [railX + thin / 2, d - wide, under] }, mat, g);
+  }
+}
+// A castor under the upright whose foot's middle is (x, y): its wheel, on
+// edge and running along the depth, and above it the swivel and plate as
+// one block, up to the upright
+function castorUnder(x, y, g) {
+  const { wheel, wheelThick, high } = TIMBER_SHELVES.castor;
+  const tyre = new THREE.Mesh(new THREE.CylinderGeometry(wheel / 2 * MM, wheel / 2 * MM, wheelThick * MM, 24), castorMat);
+  tyre.rotation.z = Math.PI / 2;                 // its axle across, along the width
+  tyre.position.set(x * MM, wheel / 2 * MM, y * MM);
+  g.add(tyre);
+  box({ from: [x - wheelThick / 2, y - wheel / 2, wheel], to: [x + wheelThick / 2, y + wheel / 2, high] }, castorMat, g);
+}
+// The brace: one timber flat on the back, from the top at the left-hand end
+// to the bottom at the right, between the uprights, as on the photo
+function backBrace(w, h, mat, g) {
+  const { timber: { thin, wide } } = TIMBER_SHELVES;
+  const { castor } = TIMBER_SHELVES, bottom = castor.high, mid = (bottom + h) / 2;
+  const run = w - 2 * thin - wide, rise = h - bottom - wide;   // its middle line's ends, kept a timber in
+  const half = Math.hypot(run, rise) / 2;
+  const brace = box({ from: [-half, 0, mid - wide / 2], to: [half, thin, mid + wide / 2] }, mat, g);
+  brace.rotation.z = -Math.atan2(rise, run);      // about the depth: down to the right
+}
+// One shelf: its boards side by side from the front, `inside` each way of
+// the middle, their tops at `top`, each end bound with a band
+function shelfBoards(inside, d, top, g) {
+  const { board: { wide, thick, perShelf }, band } = TIMBER_SHELVES;
+  const BAND_PROUD = 1;                          // the band's steel, standing just off the board all round
+  for (let i = 0; i < perShelf; i++) {
+    const y1 = d - i * wide, y0 = y1 - wide;
+    box({ from: [-inside, y0, top - thick], to: [inside, y1, top] }, scaffoldBoard, g);
+    for (const end of [-1, 1]) {
+      const [x0, x1] = end < 0 ? [-inside - BAND_PROUD, -inside + band] : [inside - band, inside + BAND_PROUD];
+      box({ from: [x0, y0 - BAND_PROUD, top - thick - BAND_PROUD], to: [x1, y1 + BAND_PROUD, top + BAND_PROUD] }, bandMat, g);
+    }
+  }
 }
 // A box open at the top: a bottom and four sides
 function openBox(w, d, h, mat, g) {

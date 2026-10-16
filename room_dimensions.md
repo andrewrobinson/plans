@@ -193,7 +193,7 @@ out from it; the user's "long" is the width, except the scaffold bench's
 
 | | Width | Depth | Height | What it is, and how it's drawn |
 |---|---|---|---|---|
-| Sean | 2500 | 535 | 1575 | steel shelving: a bookcase, grey |
+| Sean | 2500 | 535 | 1575 | timber shelving: a frame at each end of 38 by 89 timber (uprights front and back, a rail under each shelf), a brace on the back, and three shelves of two scaffold boards (225 by 38), flush to the front, their tops at 210, 820 and 1575 (estimated from a photo), the boards' ends banded blue; on a castor under each upright, its wheel 60 across (the user's), 80 high (estimated) |
 | Billy | 800 | 280 | 2020 | an IKEA Billy: a bookcase, white |
 | BillyChest | 805 | 484 | 780 | a chest: a plain box, white |
 | Metal | 710 | 670 | 895 | a table: a 30 top on four 40-square legs (chosen), grey |
