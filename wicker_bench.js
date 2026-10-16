@@ -6,11 +6,12 @@
 // bench along its back wall.
 //
 // living_room.js holds the settings (state.wickerBench, starting as
-// WICKER_BENCH_START) and puts them in its address (WICKER_BENCH_ADDRESS);
-// this file says how it looks, draws it in each room (drawWickerBench()) and
+// WICKER_BENCH_START) and puts them in its address (WICKER_BENCH_ADDRESS)
+// and its configuration (WICKER_BENCH_SCHEMA); this file says how it looks, draws it in each room (drawWickerBench()) and
 // makes its menu block (wickerBenchControls()).
 import * as THREE from 'three';
 import { MM, material, box, valueAt } from './kit/floor_kit.js';
+import * as Config from './kit/config_kit.js';
 import { floor, hallway, otherRoom, HALLWAY, OUTER, OTHER_ROOM, ROOM_WIDTH, ROOM_DEPTH } from './floor.js';
 import { OTHER_ROOM_START, BED_FOOT, QUARTER_TURN, SIZE_LABEL, slider } from './other_room.js';
 
@@ -124,6 +125,19 @@ export const WICKER_BENCH_ADDRESS = [
       return { ...b, ...Object.fromEntries(SIZE_KEYS.map((k, i) => [k, held(k, parts[i], b[k])])) };
     }],
   ...ROOM_KEYS.map(roomField),
+];
+
+// The configuration's entries (kit/config_kit.js): its design, then for each
+// room whether it's there and its place, each held to its slider's range,
+// its turn to quarter turns
+function sliderEntry([path, , lo, hi, step]) {
+  const [room, key] = path.includes('.') ? path.split('.') : [null, path];
+  const at = room ? `pieces.wickerBench.in.${room}.${key}` : `pieces.wickerBench.design.${key}`;
+  return Config.number(at, `wickerBench.${path}`, lo, hi, step, { onSteps: key === 'turn' });
+}
+export const WICKER_BENCH_SCHEMA = [
+  ...SIZE_SLIDERS.map(sliderEntry),
+  ...ROOM_KEYS.flatMap(room => [Config.onOff(`pieces.wickerBench.in.${room}.on`, `wickerBench.${room}.on`), ...placeSliders(room).map(sliderEntry)]),
 ];
 
 // ---------------------------------------------------------------------------

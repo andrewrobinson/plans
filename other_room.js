@@ -6,11 +6,13 @@
 // v from the hallway wall).
 //
 // living_room.js holds the settings (state.otherRoom, starting as
-// OTHER_ROOM_START) and their address; this file says how each piece looks,
+// OTHER_ROOM_START) and their address and configuration (OTHER_ROOM_SCHEMA);
+// this file says how each piece looks,
 // draws them (drawOtherRoom()), and makes the menu's sliders for them
 // (otherRoomControls()).
 import * as THREE from 'three';
 import { MM, material, box } from './kit/floor_kit.js';
+import * as Config from './kit/config_kit.js';
 import { OTHER_ROOM, otherRoom } from './floor.js';
 
 // ---------------------------------------------------------------------------
@@ -229,6 +231,33 @@ export const CUPBOARD_ON_ADDRESS = [['otherRoom.cupboardOn', on => (on ? 1 : 0),
 export const MIRROR_ON_ADDRESS = [['otherRoom.mirrorOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
 // And the new cupboard's (16 Oct 2026)
 export const NEW_CUPBOARD_ON_ADDRESS = [['otherRoom.newCupboardOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
+
+// The configuration's entries (kit/config_kit.js): each piece's design and
+// its place in the bedroom, each number held to its slider's range, turns
+// to quarter turns. The pine cupboard is `cupboard` here, `pineCupboard`
+// there, as it goes to other rooms too; the bedroom's copy of the corner
+// cupboard is `bedroomCupboard`
+const CONFIG_NAME = { cupboard: 'pineCupboard' };
+const pieceAt = piece => `pieces.${CONFIG_NAME[piece] ?? piece}`;
+function sliderEntry(at, path) {
+  const [, , lo, hi, step] = SLIDERS.find(([p]) => p === path);
+  return Config.number(at, `otherRoom.${path}`, lo, hi, step, { onSteps: path.endsWith('.turn') });
+}
+const designEntries = piece => SIZES[piece].map(([k]) => sliderEntry(`${pieceAt(piece)}.design.${k}`, `${piece}.${k}`));
+const placeEntries = (piece, keys = ['u', 'v', 'turn']) => keys.map(k => sliderEntry(`${pieceAt(piece)}.in.bedroom.${k}`, `${piece}.${k}`));
+const inBedroom = (piece, on) => Config.onOff(`${pieceAt(piece)}.in.bedroom.on`, `otherRoom.${on}`);
+export const OTHER_ROOM_SCHEMA = [
+  Config.onOff('pieces.bedroomCupboard.in.bedroom.on', 'otherRoom.newCupboardOn'),
+  ...placeEntries('bed'),
+  ...designEntries('bookcase'), inBedroom('bookcase', 'bookcaseOn'), ...placeEntries('bookcase'),
+  ...designEntries('cupboard'), inBedroom('cupboard', 'cupboardOn'), ...placeEntries('cupboard'),
+  sliderEntry('pieces.recessCupboards.design.lowerD', 'lowerD'),
+  Config.onOff('pieces.recessCupboards.design.upperDrawers', 'otherRoom.upperDrawers'),
+  Config.onOff('pieces.recessCupboards.design.upperMirrors', 'otherRoom.upperMirrors'),
+  ...designEntries('mirror'), inBedroom('mirror', 'mirrorOn'),
+  Config.choice('pieces.mirror.in.bedroom.wall', 'otherRoom.mirror.wall', WALL_KEYS),
+  ...placeEntries('mirror', ['along', 'bottom']),
+];
 
 // ---------------------------------------------------------------------------
 // Drawing. Each movable piece is drawn in its own group, its back's middle

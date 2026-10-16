@@ -6,11 +6,13 @@
 // so its shelves slope down towards the window.
 //
 // living_room.js holds the settings (state.shoeRack, starting as
-// SHOE_RACK_START) and puts them in its address (SHOE_RACK_ADDRESS); this
+// SHOE_RACK_START) and puts them in its address (SHOE_RACK_ADDRESS) and its
+// configuration (SHOE_RACK_SCHEMA); this
 // file says how it looks, draws it (drawShoeRack()) and makes its menu block
 // (shoeRackControls()).
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
+import * as Config from './kit/config_kit.js';
 import { hallway, HALLWAY, ENTRANCE } from './floor.js';
 import { QUARTER_TURN, SIZE_LABEL, slider } from './other_room.js';
 
@@ -182,6 +184,17 @@ export const SHOE_RACK_ADDRESS = [
       }));
     }],
 ];
+
+// The configuration's entries (kit/config_kit.js): the rack's design, each
+// size held to its slider's range. It always stands in the same place
+// downstairs, so it has no `in`
+const designEntry = key => {
+  const at = `pieces.shoeRack.design.${key}`, setting = `shoeRack.${key}`;
+  if (SWITCHES.includes(key)) return Config.onOff(at, setting);
+  const [, , lo, hi, step] = SLIDERS.find(([k]) => k === key);
+  return Config.number(at, setting, lo, hi, step);
+};
+export const SHOE_RACK_SCHEMA = ADDRESS_KEYS.map(designEntry);
 
 // ---------------------------------------------------------------------------
 // Drawing: the rack in its own group, its back's middle at the origin, its

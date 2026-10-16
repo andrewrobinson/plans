@@ -1,0 +1,140 @@
+// The configuration kit: a page's settings as JSON, organised by piece,
+// read and written through a schema, and packed small for the page's
+// address (REFACTOR_PLAN.md, step 6b). Nothing here needs the page, the DOM
+// or three.js, so Node can use it too.
+//
+// A schema is a list of entries, one per setting, in the order the
+// configuration lists them (and reads them: a setting checked against
+// another comes after it). Each entry:
+//   path     where it is in the configuration, as 'pieces.shoeRack.design.w'
+//   state    where it is in the page's own settings (living_room.js's
+//            state), as 'shoeRack.w'. To start, the configuration is a
+//            two-way map onto state, so the drawing code needn't change yet
+//   kind     what it holds, and how it's checked (the makers below):
+//            'number'  with min, max and step (the step isn't checked:
+//                      saved designs have sizes off it, as option 7's leg
+//                      at 582), unless onSteps, as turns are
+//            'onOff'   true or false
+//            'choice'  one of `choices`, words for the page's own values
+//            'colour'  a colour code, checked by the room's `isColour`
+//            'other'   anything else, with the entry's own read and write
+//   default  the configuration's value as the page starts, filled in by
+//            withDefaults()
+// A value missing from a configuration, or failing its check, leaves the
+// setting as it was: as the page starts.
+// ---------------------------------------------------------------------------
+
+// The value at `path` in `object` (undefined if it isn't there), and
+// setting it, making the objects on the way
+export const valueAt = (object, path) => path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), object);
+export function setValueAt(object, path, value) {
+  const keys = path.split('.'), last = keys.pop();
+  const parent = keys.reduce((o, k) => (o[k] ??= {}), object);
+  parent[last] = value;
+}
+
+// ---------------------------------------------------------------------------
+// The entries' makers
+// ---------------------------------------------------------------------------
+// A number from min to max. more: { onSteps } to hold it to its steps from
+// min; { clamp } to bring one outside the range to its nearer end, rather
+// than leave the setting as it was; { also: v => true } for a check of the
+// room's own
+export const number = (path, state, min, max, step, more = {}) => ({ path, state, kind: 'number', min, max, step, ...more });
+export const onOff = (path, state) => ({ path, state, kind: 'onOff' });
+// choices: the configuration's word for each of the page's values, as
+// { nothing: 0, shelves: 1 }; or a list, where they're the same (numbers
+// stay numbers). Kept as [configuration's, page's] pairs
+export const choice = (path, state, choices) => ({
+  path, state, kind: 'choice',
+  choices: Array.isArray(choices) ? choices.map(c => [c, c]) : Object.entries(choices),
+});
+export const colour = (path, state, isColour) => ({ path, state, kind: 'colour', isColour });
+// read(value, was, settings): the page's value, or undefined to leave it as
+// it was; write(value): the configuration's
+export const other = (path, state, read, write = v => structuredClone(v)) => ({ path, state, kind: 'other', read, write });
+
+// ---------------------------------------------------------------------------
+// Reading and writing
+// ---------------------------------------------------------------------------
+const finite = v => typeof v === 'number' && Number.isFinite(v);
+// A configuration's value as the page's, or undefined if it fails its check
+function readValue(entry, value, was, settings) {
+  switch (entry.kind) {
+    case 'number': {
+      if (!finite(value)) return undefined;
+      const { min, max, step, onSteps, clamp, also } = entry;
+      const v = clamp ? Math.min(max, Math.max(min, value)) : value;
+      if (v < min || v > max) return undefined;
+      if (onSteps && (v - min) % step !== 0) return undefined;
+      return !also || also(v) ? v : undefined;
+    }
+    case 'onOff': return typeof value === 'boolean' ? value : undefined;
+    case 'choice': return entry.choices.find(([word]) => word === value)?.[1];
+    case 'colour': return finite(value) && entry.isColour(value) ? value : undefined;
+    case 'other': return entry.read(value, was, settings);
+    default: throw new Error(`no such kind of setting: ${entry.kind}`);
+  }
+}
+// The page's value as the configuration's
+function writeValue(entry, value) {
+  switch (entry.kind) {
+    case 'choice': return entry.choices.find(([, page]) => page === value)?.[0];
+    case 'other': return entry.write(value);
+    default: return value;
+  }
+}
+
+// The configuration of `settings`: every entry's value, in the schema's
+// order, after `head` (as its version)
+export function writeConfiguration(schema, settings, head = {}) {
+  const configuration = structuredClone(head);
+  for (const entry of schema) setValueAt(configuration, entry.path, writeValue(entry, valueAt(settings, entry.state)));
+  return configuration;
+}
+// A configuration read into `settings`, entry by entry, in the schema's
+// order. Anything not in the schema is ignored
+export function readConfiguration(schema, configuration, settings) {
+  for (const entry of schema) {
+    const value = valueAt(configuration, entry.path);
+    if (value === undefined) continue;
+    const was = valueAt(settings, entry.state);
+    const read = readValue(entry, value, was, settings);
+    if (read !== undefined) setValueAt(settings, entry.state, read);
+  }
+}
+// Each entry with its default: its value in `settings` as the page starts
+export const withDefaults = (schema, settings) => schema.map(entry => ({ ...entry, default: structuredClone(writeValue(entry, valueAt(settings, entry.state))) }));
+// The configuration of every default, after `head`
+export function defaultConfiguration(schema, head = {}) {
+  const configuration = structuredClone(head);
+  for (const entry of schema) setValueAt(configuration, entry.path, structuredClone(entry.default));
+  return configuration;
+}
+
+// ---------------------------------------------------------------------------
+// Packing: JSON deflated and written in base64url (A to Z, a to z, 0 to 9,
+// - and _), so it can go in an address as it is. With the browser's and
+// Node's own CompressionStream, so it's asynchronous
+// ---------------------------------------------------------------------------
+const PACKING = 'deflate-raw';
+const toBase64url = bytes => {
+  let binary = '';
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+const fromBase64url = text => Uint8Array.from(atob(text.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+const through = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+
+export async function pack(json) {
+  return toBase64url(await through(new TextEncoder().encode(JSON.stringify(json)), new CompressionStream(PACKING)));
+}
+// The JSON packed in `text`, or null if it isn't any
+export async function unpack(text) {
+  if (!text || !/^[A-Za-z0-9_-]+$/.test(text)) return null;
+  try {
+    return JSON.parse(new TextDecoder().decode(await through(fromBase64url(text), new DecompressionStream(PACKING))));
+  } catch (e) {
+    return null;
+  }
+}

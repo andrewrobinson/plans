@@ -10,6 +10,7 @@
 //
 // REFACTOR_PLAN.md step 4 moves the general code here a piece at a time.
 import * as THREE from 'three';
+import { valueAt, setValueAt } from './config_kit.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export const MM = 0.001;
@@ -296,12 +297,9 @@ export const sizes = (sliders, strict = false) => [
   },
 ];
 
-// The value at `path` in `settings`, and setting it
-export const valueAt = (settings, path) => path.split('.').reduce((o, k) => o[k], settings);
-export function setValueAt(settings, path, value) {
-  const keys = path.split('.'), last = keys.pop();
-  keys.reduce((o, k) => o[k], settings)[last] = value;
-}
+// The value at a path in the settings, and setting it: the configuration
+// kit's (kit/config_kit.js)
+export { valueAt, setValueAt };
 // Every field written, joined with "-"
 export const writeFields = (fields, settings) => fields.map(([path, write]) => write(valueAt(settings, path))).join('-');
 // The fields in `text` read into `settings`, those whose paths are in

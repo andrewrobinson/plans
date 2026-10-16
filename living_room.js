@@ -26,10 +26,11 @@ import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakB
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
-import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, CUPBOARD_ON_ADDRESS, MIRROR_ON_ADDRESS, NEW_CUPBOARD_ON_ADDRESS, showNewCupboard, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
-import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_ADDRESS } from './wicker_bench.js';
-import { drawShoeRack, shoeRack, shoeRackControls, SHOE_RACK_START, SHOE_RACK_ADDRESS } from './shoe_rack.js';
-import { drawGarage, garagePieces, garageControls, GARAGE, GARAGE_CORNER, GARAGE_START, GARAGE_ADDRESS } from './garage.js';
+import * as Config from './kit/config_kit.js';
+import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, CUPBOARD_ON_ADDRESS, MIRROR_ON_ADDRESS, NEW_CUPBOARD_ON_ADDRESS, showNewCupboard, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS, OTHER_ROOM_SCHEMA } from './other_room.js';
+import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_ADDRESS, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
+import { drawShoeRack, shoeRack, shoeRackControls, SHOE_RACK_START, SHOE_RACK_ADDRESS, SHOE_RACK_SCHEMA } from './shoe_rack.js';
+import { drawGarage, garagePieces, garageControls, GARAGE, GARAGE_CORNER, GARAGE_START, GARAGE_ADDRESS, GARAGE_SCHEMA } from './garage.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
@@ -2312,9 +2313,10 @@ function writeSpot(m, home = AT_HOME) {
 function readSpot(text, home = AT_HOME) {
   if (text === home) return null;
   const [x, y, turn] = text.split('.').map(v => (v ? Number(v) : NaN));
-  const fits = x >= 0 && x <= ROOM_WIDTH && y >= 0 && y <= ROOM_DEPTH && turn >= 0 && turn < 360 && turn % QUARTER_TURN === 0;
-  return fits ? { x, y, turn } : undefined;
+  return spotFits({ x, y, turn }) ? { x, y, turn } : undefined;
 }
+// A spot in the living room, its turn in quarter turns
+const spotFits = ({ x, y, turn }) => x >= 0 && x <= ROOM_WIDTH && y >= 0 && y <= ROOM_DEPTH && turn >= 0 && turn < 360 && turn % QUARTER_TURN === 0;
 // The settings: everything on show bar the view, as text (a scene's address)
 function settingsAddress() {
   return `${writeFields(ADDRESS, state)}~${storedAddress()}`;
@@ -2659,7 +2661,10 @@ function showBookshelfSizes() {
 // Option 7's shelves: a list of tops for each leg, 100 up to just under the
 // ceiling (none is fine)
 const shelfInputs = { back: document.getElementById('shelvesBack'), left: document.getElementById('shelvesLeft') };
-const readShelves = text => [...new Set(String(text).split(/[^0-9]+/).map(Number).filter(v => v >= 100 && v <= CEILING_HEIGHT - 2 * state.BOARD))].sort((a, b) => a - b);
+// Shelf tops from 100 up to under the top board, each once, in order: as
+// typed, any numbers in the text, and from a configuration
+const shelfTopsOf = tops => [...new Set(tops.filter(v => v >= 100 && v <= CEILING_HEIGHT - 2 * state.BOARD))].sort((a, b) => a - b);
+const readShelves = text => shelfTopsOf(String(text).split(/[^0-9]+/).map(Number));
 function showShelves() {
   for (const k of ['back', 'left']) shelfInputs[k].value = state.L_SHELVES[k].join(', ');
 }
@@ -3047,10 +3052,125 @@ function syncControls() {
 }
 
 // ---------------------------------------------------------------------------
+// The configuration: every setting as JSON, by piece, each piece with its
+// design and the rooms it's in (`in`), with the doors, the colours and the
+// things to store (REFACTOR_PLAN.md, step 6; room_dimensions.md has its
+// format). SCHEMA has an entry for each setting (kit/config_kit.js), the
+// living room's here and the other rooms' from their modules; to start,
+// it's a two-way map onto state, which the drawing code still reads.
+// Ranges are the sliders' in index.html, unless an entry says.
+// ---------------------------------------------------------------------------
+const CONFIGURATION_VERSION = 1;   // up only when a setting changes its path or meaning
+// A number held to the range of the slider with this id
+function fromSlider(path, setting, id, more) {
+  const { min, max, step } = document.getElementById(id);
+  return Config.number(path, setting, Number(min), Number(max), Number(step || 1), more);
+}
+const cupboard = key => `pieces.cornerCupboard.design.${key}`;
+const isColour = code => code === 0 || Boolean(colourOf(code));
+// A place moved to in the living room, or null where it starts
+const spotOrHome = (path, setting) => Config.other(path, setting, v => (v === null ? null : v && spotFits(v) ? { x: v.x, y: v.y, turn: v.turn } : undefined));
+// The things to store's places are read only when they've been moved by
+// hand; otherwise they're worked out from the packing (placeStored())
+function readStoredSpots(spots, was, settings) {
+  if (settings.stored.where !== 2 || !Array.isArray(spots)) return undefined;
+  const finite = v => typeof v === 'number' && Number.isFinite(v);
+  return was.map((spot, k) => {
+    const { x, y, turned, z } = spots[k] ?? {};
+    if (!finite(x) || !finite(y)) return spot;
+    return { x, y, turned: turned === true, z: finite(z) && z >= 0 && z <= CEILING_HEIGHT ? z : 0 };
+  });
+}
+const LIVING_ROOM_SCHEMA = [
+  ...Object.keys(state.doors).map(name => fromSlider(`doors.${name}`, `doors.${name}`, DOOR_SLIDERS[name].id)),
+  ...['floor', 'cupboard', 'wall', 'woodwork', 'dresser', 'carpet'].map(key => Config.colour(`colours.${key}`, `colours.${key}`, isColour)),
+  Config.number('colours.shelves', 'shelfWood', 0, SHELF_WOODS.length - 1, 1, { onSteps: true }),
+  Config.choice('livingRoom.frontWall', 'frontPiece', FRONT_PIECES),
+  // The corner cupboard, by option number (state has its place in OPTIONS);
+  // the boards' thickness before option 7's shelves, checked against it
+  Config.other(cupboard('option'), 'option', no => (optionAt(no) >= 0 ? optionAt(no) : undefined), i => OPTIONS[i].no),
+  Config.number(cupboard('T'), 'T', 0, 800, 10, { also: t => t === 0 || t >= 300 }),   // none, or 300 to 800
+  fromSlider(cupboard('R'), 'R', 'rear'),
+  Config.choice(cupboard('F'), 'F', [1200, 1329]),
+  fromSlider(cupboard('BOARD'), 'BOARD', 'board'),
+  fromSlider(cupboard('LEG'), 'LEG', 'leg'),
+  fromSlider(cupboard('LEG_D'), 'LEG_D', 'legD'),
+  ...['back', 'left'].map(leg => Config.other(cupboard(`L_SHELVES.${leg}`), `L_SHELVES.${leg}`,
+    tops => (Array.isArray(tops) ? shelfTopsOf(tops.filter(Number.isFinite)) : undefined), tops => [...tops])),
+  fromSlider(cupboard('WARD'), 'WARD', 'ward'),
+  fromSlider(cupboard('WARD_D'), 'WARD_D', 'wardD'),
+  fromSlider(cupboard('TOWER'), 'TOWER', 'tower'),
+  fromSlider(cupboard('CORNER_W'), 'CORNER_W', 'cornerW'),
+  fromSlider(cupboard('CORNER_D'), 'CORNER_D', 'cornerD'),
+  Config.onOff(cupboard('SIDE_SHELF'), 'SIDE_SHELF'),
+  fromSlider(cupboard('SIDE_W'), 'SIDE_W', 'sideW'),
+  fromSlider(cupboard('SIDE_D'), 'SIDE_D', 'sideD'),
+  // The bench along the back wall, and what's above it
+  Config.choice('pieces.bench.design.height', 'BENCH', [700, 780, 800, 900]),
+  Config.onOff('pieces.bench.in.livingRoom.on', 'benchOn'),
+  Config.choice('pieces.aboveBench.design.what', 'above', { nothing: 0, shelves: 1, tv: 2, tvAndShelves: 3, tvAndTopShelf: 4 }),
+  fromSlider('pieces.aboveBench.design.shelfDepth', 'shelfDepth', 'shelfDepth'),
+  Config.choice('pieces.aboveBench.design.tv', 'tv', TV_SIZES.map(([inches]) => inches)),
+  // The dresser, the larder and the sofa: each a model from dressers.js,
+  // larders.js or sofas.js, and its sizes (the larder's and the sofa's held
+  // to their sliders' ends)
+  ...DRESSER_SLIDERS.map(([key, id]) => fromSlider(`pieces.dresser.design.${key}`, `dresser.${key}`, id)),
+  Config.choice('pieces.larder.design.model', 'larder.key', Object.keys(LARDERS)),
+  ...LARDER_SLIDERS.map(([key, id]) => fromSlider(`pieces.larder.design.${key}`, `larder.size.${key}`, id, { clamp: true })),
+  Config.choice('pieces.island.in.livingRoom.at', 'island.at', ISLAND_AT),
+  Config.number('pieces.island.in.livingRoom.x', 'island.move.x', 0, ROOM_WIDTH, 5),
+  Config.number('pieces.island.in.livingRoom.y', 'island.move.y', 0, ROOM_DEPTH, 5),
+  fromSlider('pieces.island.in.livingRoom.turn', 'island.move.turn', 'islandTurn'),
+  Config.choice('pieces.sofa.design.model', 'sofa.key', { none: '', ...Object.fromEntries(Object.keys(SOFAS).map(key => [key, key])) }),
+  ...SOFA_SLIDERS.map(([key, id]) => fromSlider(`pieces.sofa.design.${key}`, `sofa.size.${key}`, id, { clamp: true })),
+  fromSlider('pieces.sofa.in.livingRoom.front', 'sofa.front', 'sofaFront'),
+  spotOrHome('pieces.sofa.in.livingRoom.move', 'sofa.move'),
+  // The bedroom's pieces (other_room.js), then the bookcase and the pine
+  // cupboard in the living room, in place of the bench
+  ...OTHER_ROOM_SCHEMA,
+  Config.onOff('pieces.bookcase.in.livingRoom.on', 'bookshelfOn'),
+  spotOrHome('pieces.bookcase.in.livingRoom.move', 'bookshelfMove'),
+  Config.onOff('pieces.pineCupboard.in.livingRoom.on', 'pineOn'),
+  spotOrHome('pieces.pineCupboard.in.livingRoom.move', 'pineMove'),
+];
+const SCHEMA = Config.withDefaults([
+  ...LIVING_ROOM_SCHEMA,
+  ...WICKER_BENCH_SCHEMA,
+  ...SHOE_RACK_SCHEMA,
+  ...GARAGE_SCHEMA,
+  // The things to store: shown or not, which packing, and where
+  Config.onOff('thingsToStore.shown', 'stored.shown'),
+  Config.number('thingsToStore.packing', 'stored.packing', 0, PACKINGS.length - 1, 1, { onSteps: true }),
+  Config.choice('thingsToStore.where', 'stored.where', { window: 0, cupboard: 1, byHand: 2 }),
+  Config.other('thingsToStore.spots', 'stored.spots', readStoredSpots),
+], state);
+// The settings as a configuration, and a configuration read into them
+const configurationNow = () => Config.writeConfiguration(SCHEMA, state, { version: CONFIGURATION_VERSION });
+function readConfiguration(configuration) {
+  if (configuration?.version !== CONFIGURATION_VERSION) {
+    console.warn(`A configuration of version ${configuration?.version}, not ${CONFIGURATION_VERSION}: the page starts as it is`);
+    return;
+  }
+  Config.readConfiguration(SCHEMA, configuration, state);
+}
+// Show a configuration in place of the settings on show: everything it
+// leaves out as the page starts. The view stays, bar following what moves
+const DEFAULT_CONFIGURATION = Config.defaultConfiguration(SCHEMA, { version: CONFIGURATION_VERSION });
+function loadConfiguration(configuration) {
+  readConfiguration(DEFAULT_CONFIGURATION);
+  readConfiguration(configuration);
+  syncControls();
+  show(state.option);
+  viewKit.refresh();
+}
+
+// ---------------------------------------------------------------------------
 // window.plans: the settings and what's made of them, for the tests and the
-// browser console (REFACTOR_PLAN.md, step 6a). Read-only: nothing here
-// changes the page.
+// browser console (REFACTOR_PLAN.md, steps 6a and 6b). Only load() changes
+// the page.
 //   get()       the settings: state, as JSON, the doors' angles with them
+//   export()    the settings as a configuration (SCHEMA, above)
+//   load(json)  shows a configuration, keeping the view
 //   snapshot()  the settings, each corner cupboard's cutting list, the
 //               dimension figures on show and the description, which the
 //               tests save beside each address (tests/snapshots/)
@@ -3073,6 +3193,8 @@ function dimensionFigures() {
 }
 window.plans = {
   get: settingsNow,
+  export: configurationNow,
+  load: loadConfiguration,
   snapshot: () => ({
     settings: settingsNow(),
     cupboards: {

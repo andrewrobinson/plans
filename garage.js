@@ -9,6 +9,7 @@
 // makes Garage options' block (garageControls()).
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
+import * as Config from './kit/config_kit.js';
 import { hallway, HALLWAY, ENTRANCE, ceilingMat, insideFace, faceAround } from './floor.js';
 import { bookcase, pineCupboard, OTHER_ROOM_START, QUARTER_TURN, slider } from './other_room.js';
 
@@ -217,6 +218,23 @@ export const GARAGE_ADDRESS = PIECE_KEYS.map(piece => {
       return { on, ...Object.fromEntries(keys.map((k, i) => [k, held(`${piece}.${k}`, parts[i], p[k])])) };
     }];
 });
+
+// The configuration's entries (kit/config_kit.js): for each piece, whether
+// it's in the garage and its place there, each held to its slider's range,
+// its turn to quarter turns. Their sizes are fixed, so they've no design
+// here; the pine cupboard is the bedroom's, under its name there
+const PIECE_NAME = { pine: 'pineCupboard' };
+function pieceEntries(piece) {
+  const at = `pieces.${PIECE_NAME[piece] ?? piece}.in.garage`;
+  return [
+    Config.onOff(`${at}.on`, `garage.${piece}.on`),
+    ...placeSliders(piece).map(([path, , lo, hi, step]) => {
+      const key = path.split('.')[1];
+      return Config.number(`${at}.${key}`, `garage.${path}`, lo, hi, step, { onSteps: key === 'turn' });
+    }),
+  ];
+}
+export const GARAGE_SCHEMA = PIECE_KEYS.flatMap(pieceEntries);
 
 // ---------------------------------------------------------------------------
 // Drawing: each piece in its own group, its back's middle at the origin,
