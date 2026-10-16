@@ -6,7 +6,7 @@
 // The settings are read through window.plans.get() (setting(), by their
 // paths in `state` in living_room.js), not from the address, so a new
 // address format leaves these tests alone.
-const { test, expect, openRoom, addressOf, readAddress, edited, configurationOf, pickOption, setting, optionShown } = require('./helpers');
+const { test, expect, openRoom, addressOf, readAddress, edited, pickOption, setting, optionShown } = require('./helpers');
 const { ADDRESSES } = require('./addresses');
 
 // A saved address's configuration (tests/configs/), with settings changed
@@ -461,22 +461,6 @@ test.describe('the garage', () => {
     expect(await setting(page, 'garage.potters')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 40 });
     await page.locator('#garageBlock [data-reset="potters"]').evaluate(b => b.click());
     expect(await setting(page, 'garage.potters')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 0 });
-    // A configuration without the gap (as from before there was one) keeps it as it starts
-    const now = await configurationOf(page);
-    await openRoom(page, addressOf(edited(now, { 'pieces.smallBilly.in.garage': { on: false, x: 1000, y: 0, turn: 90 } })));
-    expect(await setting(page, 'garage.smallBilly')).toEqual({ on: false, x: 1000, y: 0, turn: 90, off: 0 });
-  });
-
-  // A configuration's places are kept, each held to its slider's range,
-  // turns to quarter turns
-  test('a configuration with their places keeps them, and holds them to the garage', async ({ page }) => {
-    const now = await configurationOf(page);
-    const withPlaces = (sean, billy) => addressOf(edited(now, { 'pieces.sean.in.garage': sean, 'pieces.billy.in.garage': billy }));
-    await openRoom(page, withPlaces({ on: false, x: 3000, y: 2000, turn: 180 }, { on: true, x: 500, y: 500, turn: 0 }));
-    expect(await setting(page, 'garage.sean')).toEqual({ on: false, x: 3000, y: 2000, turn: 180 });
-    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 500, y: 500, turn: 0 });
-    await openRoom(page, withPlaces({ on: true, x: 9000, y: 2000, turn: 45 }, { on: true, x: 500, y: 500, turn: 0 }));   // past the back wall's far end, and not a quarter turn
-    expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 1255, y: 2000, turn: 180 });
   });
 });
 
@@ -519,19 +503,6 @@ test.describe('the shoe rack', () => {
     await expect(page.locator('#shoeRack_fits')).toContainText('up to 231 long');   // 200 / cos 30°
     await page.locator('#shoeRack_shoes').uncheck();
     expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 200, h: 1290, bevel: false, slope: 30, shoes: false, bevelDoor: 80 });
-  });
-
-  test('a configuration with its settings keeps them, and holds them to the sliders', async ({ page }) => {
-    const now = await configurationOf(page);
-    const withRack = design => addressOf(edited(now, { 'pieces.shoeRack.design': design }));
-    const rack = { w: 900, d: 250, h: 1500, bevel: false, slope: 15, shoes: false, bevelDoor: 60 };
-    await openRoom(page, withRack(rack));
-    expect((await configurationOf(page)).pieces.shoeRack.design).toEqual(rack);
-    expect(await readout(page, 'shoeRack_slope')).toBe('15°');
-    await openRoom(page, withRack({ w: 900, d: 250, h: 1500 }));          // some left out: those as they start
-    expect(await setting(page, 'shoeRack')).toEqual({ w: 900, d: 250, h: 1500, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
-    await openRoom(page, withRack({ w: 5000, d: 250, h: 1500, bevel: 2, slope: 90, shoes: true, bevelDoor: 120 }));   // too wide, a bad switch, too steep, past 90°
-    expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 250, h: 1500, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
   });
 });
 

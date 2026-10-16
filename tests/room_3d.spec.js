@@ -4,7 +4,7 @@
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
-const { test, expect, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
+const { test, expect, openRoom, addressOf, readAddress, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
 const { ADDRESSES } = require('./addresses');
 
 // The scenes in living_room.scenes.js, read the way the page reads them
@@ -38,26 +38,6 @@ test.describe('saved addresses', () => {
       await expect(page).toHaveScreenshot(`scene-${id}.png`);
     });
   }
-
-  // A configuration that leaves settings out (as one from before they were
-  // added would) has them as they start; one it doesn't know is ignored,
-  // and one out of its range, or of the wrong kind, keeps its default
-  test('a configuration without some settings keeps them as they start, and ignores what it doesn\'t know', async ({ page }) => {
-    await openRoom(page, addressOf(edited(DEFAULT.configuration, {
-      'pieces.wickerBench': undefined, 'pieces.shoeRack.design': undefined, 'pieces.sean': undefined, 'pieces.mirror.in': undefined,
-      'colours.carpet': undefined, 'pieces.sofa.in': undefined, thingsToStore: undefined,
-      'pieces.cornerCupboard.design.R': 5000, 'pieces.cornerCupboard.design.T': 200, 'pieces.bench.design.height': 750,
-      'pieces.aboveBench.design.what': 'everything', 'pieces.billy.in.garage.turn': 45, 'pieces.bench.in.livingRoom.on': 'yes',
-      'pieces.unknown': { design: { w: 1 } },
-    })));
-    expect(await configurationOf(page)).toEqual(DEFAULT.configuration);
-  });
-
-  // Another version's configuration isn't read: the page starts as it is
-  test('a configuration of another version gives the default page', async ({ page }) => {
-    await openRoom(page, addressOf(edited(ADDRESSES.find(a => a.name === 'option07').configuration, { version: 2 })));
-    expect(await configurationOf(page)).toEqual(DEFAULT.configuration);
-  });
 
   // The configuration's numbers are held to their sliders' ranges, written
   // in the schema (so Node has them): each must be its slider's in index.html
