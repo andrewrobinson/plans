@@ -384,6 +384,36 @@ test.describe('the wicker bench', () => {
   });
 });
 
+// The garage: Sean's place (field 58) and Billy's (59), each x.y.turn
+test.describe('the garage', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+
+  test('Sean and Billy can be moved and turned, and put back', async ({ page }) => {
+    expect(await field(page, 58)).toBe('1250.0.0');
+    expect(await field(page, 59)).toBe('0.2466.270');
+    await slide(page, 'garage_sean_x', 2000);
+    await slide(page, 'garage_sean_y', 1000);
+    await slide(page, 'garage_sean_turn', 90);
+    await slide(page, 'garage_billy_x', 4000);
+    expect(await field(page, 58)).toBe('2000.1000.90');
+    expect(await field(page, 59)).toBe('4000.2466.270');
+    expect(await readout(page, 'garage_sean_turn')).toBe('90°');
+    await page.locator('#garageBlock [data-reset="sean"]').evaluate(b => b.click());
+    expect(await field(page, 58)).toBe('1250.0.0');
+    expect(await field(page, 59)).toBe('4000.2466.270');           // Billy stays where he was put
+  });
+
+  test('a link with their places keeps them, and holds them to the garage', async ({ page }) => {
+    const [settings, ...rest] = (await hash(page)).split('~');
+    const withPlaces = (sean, billy) => [settings.split('-').map((f, k) => (k === 58 ? sean : k === 59 ? billy : f)).join('-'), ...rest].join('~');
+    await openRoom(page, withPlaces('3000.2000.180', '500.500.0'));
+    expect(await field(page, 58)).toBe('3000.2000.180');
+    expect(await field(page, 59)).toBe('500.500.0');
+    await openRoom(page, withPlaces('9000.2000.45', '500.500.0'));   // past the back wall's far end, and not a quarter turn
+    expect(await field(page, 58)).toBe('1250.2000.0');
+  });
+});
+
 // The shoe rack, downstairs: w.d.h.bevel.slope.shoes.bevelDoor (field 55)
 test.describe('the shoe rack', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page); });
@@ -549,6 +579,14 @@ test.describe('the Views and Look menus', () => {
     expect(await offered()).toEqual(['Looking at the foot of the stairs', 'Looking at the window at the foot of the stairs', 'Looking at the internal door', 'Looking at the shoe rack']);
     await page.selectOption('#where', 'outsideFlatDoor');
     await expect.poll(() => view(page)).toMatch(/^look:outsideFlatDoor:\w+\.stand-tall\..*\.downstairs$/);
+    // The garage: in at its door, looking in at Sean; Looking in and Looking
+    // out, each not offering the wall you stand at
+    await page.selectOption('#room', 'garage');
+    await expect.poll(() => view(page)).toMatch(/^look:garageLookingIn:sean\.stand-tall\..*\.garage$/);
+    expect(await options('where')).toEqual(['Looking in', 'Looking out']);
+    expect(await offered()).toEqual(['Looking at Sean', 'Looking at Billy', 'Looking at the back wall']);
+    await page.selectOption('#where', 'garageLookingOut');
+    expect(await offered()).toEqual(['Looking at Sean', 'Looking at Billy', 'Looking at the entrance']);
   });
 
   test('saving and deleting a view', async ({ page }) => {

@@ -29,6 +29,7 @@ import * as SceneKit from './kit/scene_kit.js';
 import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, CUPBOARD_ON_ADDRESS, MIRROR_ON_ADDRESS, NEW_CUPBOARD_ON_ADDRESS, showNewCupboard, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS } from './other_room.js';
 import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_ADDRESS } from './wicker_bench.js';
 import { drawShoeRack, shoeRack, shoeRackControls, SHOE_RACK_START, SHOE_RACK_ADDRESS } from './shoe_rack.js';
+import { drawGarage, garagePieces, garageControls, GARAGE, GARAGE_CORNER, GARAGE_START, GARAGE_ADDRESS } from './garage.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
@@ -250,6 +251,7 @@ const state = {
   otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
   wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
   shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
+  garage: structuredClone(GARAGE_START),              // Sean and Billy, in the garage: where each stands (garage.js)
 };
 
 const baseDoorCount = () => Math.max(1, Math.round((ROOM_WIDTH - state.T - state.WARD - state.TOWER) / 450));
@@ -1311,6 +1313,8 @@ function updateDims() {
     hallwayPlanDims(dims);
   } else if (flatView === 'plan' && flatRoom === 'downstairs') {
     entrancePlanDims(dims);
+  } else if (flatView === 'plan' && flatRoom === 'garage') {
+    garagePlanDims(dims);
   } else if (flatView === 'plan') {
     chain(alongBack, (v, off) => P(v, -250 - off, CEILING_HEIGHT), dims);
     chain([...alongLeft, RECESS_FROM, ROOM_DEPTH], (v, off) => P(KITCHEN_RECESS_BACK_WALL_X - 300 - off, v, CEILING_HEIGHT), dims);
@@ -1368,6 +1372,15 @@ function entrancePlanDims(g) {
   const { xBack, flatDoorHingeX: f0, flatDoor, yLobby0, yLobby1, outsideDoorHingeY: o1, outsideDoor } = ENTRANCE;
   chain([xBack, f0, f0 + flatDoor.width, xFoot, xTurn, x0], (v, off) => P(v, yWellOut - 250 - off, CEILING_HEIGHT), g);
   chain([yWellOut, yWellIn, yLobby0, o1 - outsideDoor.width, o1, yLobby1], (v, off) => P(xBack - 250 - off, v, CEILING_HEIGHT), g);
+}
+
+// The garage's plan, from its corner (garage.js): along its right-hand
+// wall, looking in (its length), and across its door's end (the door)
+function garagePlanDims(g) {
+  const { length, width, height, door } = GARAGE, { x, y } = GARAGE_CORNER, top = ENTRANCE.floor + height;
+  const d0 = (width - door.width) / 2;
+  chain([0, length], (v, off) => P(x + v, y - 250 - off, top), g);
+  chain([0, d0, d0 + door.width, width], (v, off) => P(x + length + 250 + off, y + v, top), g);
 }
 
 // In the wall views, anything wholly on the camera's side of the view's cut
@@ -2184,6 +2197,7 @@ function redrawAround() {
   drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
   drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
   drawShoeRack(state.shoeRack);                                 // the shoe rack, downstairs
+  drawGarage(state.garage);                                     // Sean and Billy, in the garage
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2263,6 +2277,7 @@ const ADDRESS = [
   ...SHOE_RACK_ADDRESS,                                         // the shoe rack's sizes and place, downstairs
   ...NEW_CUPBOARD_ON_ADDRESS,                                   // the corner cupboard copied into the bedroom, or not
   ['sofa.move', m => writeSpot(m, SOFA_HOME), text => readSpot(text, SOFA_HOME)],   // the sofa moved and turned, or where it starts
+  ...GARAGE_ADDRESS,                                            // where Sean and Billy stand in the garage
 ];
 // A piece in place of the bench moved, as `x.y.turn`, or AT_HOME where it
 // starts (as links from before the bookshelf could move keep it); the sofa
@@ -2692,6 +2707,9 @@ const HALLWAY_AREA = { x: (HALLWAY.x0 + HALLWAY.xEnd) / 2 * MM, y: HALLWAY.ySetB
 // building's back wall, and from the stairs' outside wall across the lobby
 const ENTRANCE_AREA = { x: (HALLWAY.x0 + ENTRANCE.xBack) / 2 * MM, y: ENTRANCE.yLobby1 / 2 * MM, w: (HALLWAY.x0 - ENTRANCE.xBack) * MM, d: ENTRANCE.yLobby1 * MM };
 const BEDROOM_WINDOW_WALL = OTHER_ROOM_CORNER.x * MM;
+// The garage (garage.js), likewise, and its floor's level
+const GARAGE_AREA = { x: (GARAGE_CORNER.x + GARAGE.length / 2) * MM, y: (GARAGE_CORNER.y + GARAGE.width / 2) * MM, w: GARAGE.length * MM, d: GARAGE.width * MM };
+const GARAGE_FLOOR = ENTRANCE.floor * MM;
 // A room's plan: straight down on its middle, the back wall's side at the
 // top as in the living room's, with room round it for its dimensions
 const PLAN_MARGIN = 1.4;                                        // metres, chosen
@@ -2710,6 +2728,7 @@ const builtInViews = {
       bedroom: { position: [BEDROOM_WINDOW_WALL - 0.66, 7.5, BEDROOM_AREA.y], target: [BEDROOM_WINDOW_WALL + 2.6, 0, BEDROOM_AREA.y] },
       hallway: { position: [HALLWAY_AREA.x, 6.0, -1.8], target: [HALLWAY_AREA.x, 0, 1.6] },
       downstairs: { position: [ENTRANCE_AREA.x, 3.6, -3.4], target: [ENTRANCE_AREA.x, ENTRANCE.floor / 2 * MM, 1.2] },   // aimed halfway down the stairs, chosen to fit
+      garage: { position: [GARAGE_AREA.x + 4.5, GARAGE_FLOOR + 6.5, GARAGE_AREA.y], target: [GARAGE_AREA.x - 0.6, GARAGE_FLOOR, GARAGE_AREA.y] },   // above its door, looking in (chosen to fit)
     } },
   // The wall views leave out what's on the camera's side of their cut (see
   // applyCut): the back wall view everything past the return wall, the left
@@ -2717,7 +2736,7 @@ const builtInViews = {
   // everything short of the island's far end, the right wall view everything
   // left of the desk recess
   plan:   { label: 'Plan (2D)', position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9],    // back wall at the top
-    rooms: { bedroom: planOf(BEDROOM_AREA), hallway: planOf(HALLWAY_AREA), downstairs: planOf(ENTRANCE_AREA) } },
+    rooms: { bedroom: planOf(BEDROOM_AREA), hallway: planOf(HALLWAY_AREA), downstairs: planOf(ENTRANCE_AREA), garage: planOf(GARAGE_AREA) } },
   back:   { label: 'Back wall (2D)', position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1] },        // facing the back wall
   left:   { label: 'Left wall (2D)', position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 700, 1] },         // facing the left wall, back wall on the right
   front:  { label: 'Front wall (2D)', position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
@@ -2829,6 +2848,9 @@ const anchors = {
   livingBench: () => middleOf(wickerBenches.livingRoom),
   // The shoe rack (shoe_rack.js), wherever it stands at the foot of the stairs
   shoeRack: () => middleOf(shoeRack),
+  // Sean and Billy (garage.js), wherever they stand in the garage
+  sean: () => middleOf(garagePieces.sean),
+  billy: () => middleOf(garagePieces.billy),
 };
 const DOORS = [roomSlider, tallSlider, secondSlider, bedroomSlider, flatDoorSlider, outsideDoorSlider];   // newer doors last, so older links leave them as they start
 const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
@@ -2837,7 +2859,7 @@ const viewKit = ViewKit.create({
   room: 'room_3d',
   config: ROOM_VIEWS,
   builtIn: builtInViews,
-  origins: { bedroom: [OTHER_ROOM_CORNER.x, OTHER_ROOM_CORNER.y] },     // its places and things are in its own mm
+  origins: { bedroom: [OTHER_ROOM_CORNER.x, OTHER_ROOM_CORNER.y], garage: [GARAGE_CORNER.x, GARAGE_CORNER.y] },   // their places and things are in their own mm
   anchors,
   computed: { packing: packingView },
   actions: {
@@ -2957,6 +2979,12 @@ const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), 
   for (const [key, value] of edits) s.shoeRack[key] = value;
 }, { look: true }));
 
+// The garage's (garage.js): each sets its setting in state.garage, a path
+// such as 'sean.x'
+const syncGarage = garageControls(document.getElementById('garageBlock'), edits => changeSettings(s => {
+  for (const [path, value] of edits) setValueAt(s.garage, path, value);
+}, { look: true }));
+
 function syncControls() {
   const { T, R, F, BOARD, BENCH, above, shelfDepth, tv, frontPiece, island } = state;
   const slide = (id, value, text = value) => {
@@ -2993,6 +3021,7 @@ function syncControls() {
   syncOtherRoom(state.otherRoom);
   syncWickerBench(state.wickerBench);
   syncShoeRack(state.shoeRack);
+  syncGarage(state.garage);
 }
 
 // Start on the settings in the address (room_dimensions.md has their

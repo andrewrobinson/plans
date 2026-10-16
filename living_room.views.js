@@ -37,6 +37,7 @@ window.ROOM_VIEWS = {
     hallway: { label: 'Hallway', enter: { place: 'hallLivingDoor', thing: 'bedroomDoor' } },
     bedroom: { label: 'Bedroom', enter: { place: 'bedroomDoorway', thing: 'bedroomWindow' } },
     downstairs: { label: 'Downstairs', enter: { place: 'outsideFlatDoor', thing: 'flatDoor' } },
+    garage: { label: 'Garage', enter: { place: 'garageLookingIn', thing: 'sean' } },
   },
 
   // Where you can be (the Look menu's Where): a spot on the floor [x, y], and
@@ -92,6 +93,12 @@ window.ROOM_VIEWS = {
     bed:            { room: 'bedroom', label: 'Lying on the bed', anchor: 'bedPillow', posture: 'lie', cannotSee: ['bed'] },
     bedSide:        { room: 'bedroom', label: 'Standing beside the bed', anchor: 'bedSide', posture: 'stand' },
     bedroomWindow:  { room: 'bedroom', label: 'Standing at the bedroom window', at: [450, 1425], posture: 'stand', cannotSee: ['bedroomWindow'] },
+    // In the garage (garage.js), in its own mm: x from its back wall (0) to
+    // its door (5327), y across it (2866), its floor at the lobby's level
+    // (2850 down): just in from its door, looking in, and just out from its
+    // back wall, looking out, each 300 in and across its middle (chosen)
+    garageLookingIn:  { room: 'garage', label: 'Looking in', at: [5027, 1433], floor: -2850, posture: 'stand', cannotSee: ['garageEntrance'] },
+    garageLookingOut: { room: 'garage', label: 'Looking out', at: [300, 1433], floor: -2850, posture: 'stand', cannotSee: ['garageBackWall'] },
   },
 
   // What you can look at (the Look menu's Looking at): the point to aim at,
@@ -145,6 +152,13 @@ window.ROOM_VIEWS = {
     bedroomWindow:   { room: 'bedroom', label: 'the window', at: [0, 1425, 1630] },
     bed:             { room: 'bedroom', label: 'the bed', anchor: 'bed' },
     mirror:          { room: 'bedroom', label: 'the mirror', anchor: 'mirror' },
+    // In the garage, heights from the hallway floor (its floor 2850 down):
+    // Sean and Billy, wherever they stand; its door's middle (1981 high);
+    // and the back wall's middle
+    sean:           { room: 'garage', label: 'Sean', anchor: 'sean' },
+    billy:          { room: 'garage', label: 'Billy', anchor: 'billy' },
+    garageEntrance: { room: 'garage', label: 'the entrance', at: [5327, 1433, -1860] },
+    garageBackWall: { room: 'garage', label: 'the back wall', at: [0, 1433, -1634] },
   },
   look: { place: 'desk', thing: 'dresser' },   // Where and Looking at, until chosen
   hfov: 79,                        // the angle across, in degrees, looking from a place

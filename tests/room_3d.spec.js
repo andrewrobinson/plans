@@ -37,15 +37,17 @@ test.describe('saved addresses', () => {
   // From before the bookshelf could move, the bedroom's bookcase be taken
   // out, the wicker bench be drawn, the pine cupboard be moved about, the
   // mirror be taken out, the carpet's colour chosen or the shoe rack be
-  // drawn, the new cupboard be copied into the bedroom, or the sofa be moved
-  // and turned: their fourteen fields left off the end, so the bookshelf's against the wall, the
+  // drawn, the new cupboard be copied into the bedroom, the sofa be moved
+  // and turned, or Sean and Billy be placed in the garage: their sixteen
+  // fields left off the end, so the bookshelf's against the wall, the
   // bookcase, the pine cupboard and the mirror in the bedroom, the bench in
   // the hallway, no pine cupboard in the living room, the carpet as in the
   // doorway photo, the shoe rack at the foot of the stairs and no new
-  // cupboard in the bedroom, and the sofa where it starts, as they start
-  test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench, the pine cupboard, the mirror, the carpet, the shoe rack, the new cupboard or the sofa\'s place keeps them as they start', async ({ page }) => {
+  // cupboard in the bedroom, the sofa where it starts, and Sean and Billy
+  // where they start, as they start
+  test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench, the pine cupboard, the mirror, the carpet, the shoe rack, the new cupboard, the sofa\'s place or the garage\'s keeps them as they start', async ({ page }) => {
     const [settings, ...rest] = DEFAULT.split('~');
-    await openRoom(page, [settings.split('-').slice(0, -14).join('-'), ...rest].join('~'));
+    await openRoom(page, [settings.split('-').slice(0, -16).join('-'), ...rest].join('~'));
     expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
   });
 
