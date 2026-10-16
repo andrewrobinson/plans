@@ -1,6 +1,6 @@
 # Room dimensions
 
-The room, door, door frame and ceiling as modelled in [floor.js](floor.js) and [living_room.js](living_room.js), followed by every dimension the model uses. All sizes are in mm.
+The room, door, door frame and ceiling as modelled in [floor.js](floor.js) and [flat_model.js](flat_model.js) (the model; [living_room.js](living_room.js) is the page), followed by every dimension the model uses. All sizes are in mm.
 
 ## How positions are given
 
@@ -194,7 +194,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
   - The bedroom's `bed`, `bookcase`, `pineCupboard`, `recessCupboards` and `mirror`; the `wickerBench`; the `shoeRack`; and the garage's things, by their names in `garage.js` (`sean`, `billy`, `billyChest`, `metal`, `yellow`, `scaffoldBench`, `smallBilly`, `potters`, `biltong`, `trellis`). The bookcase and the pine cupboard can be in the living room too, in place of the bench, and the pine cupboard in the garage.
 - **`thingsToStore`**: `shown`, `packing` (0 to 3, as listed), `where` (`window`, `cupboard` or `byHand`) and each thing's place, `{ "x", "y", "turned", "z" }`, in the order of the table below. Their places are read only when `where` is `byHand`; otherwise they follow the packing.
 
-Each setting has an entry in the schema (`SCHEMA` in `living_room.js`, with the other rooms' entries from their modules, `OTHER_ROOM_SCHEMA` and so on): its path in the configuration, its place in the page's settings (`state`), its kind (a number with its range and step, on or off, a choice, a colour) and its default. Reading a configuration, a setting left out takes its default, one not in the schema is ignored, and one out of its range or of the wrong kind keeps its default. Steps aren't checked (saved designs have sizes between them), bar quarter turns. A new setting needs its entry; new pieces go in `pieces`.
+Each setting has an entry in the schema (`SCHEMA` in `flat_model.js`, with the other rooms' entries from their modules, `OTHER_ROOM_SCHEMA` and so on): its path in the configuration, its place in the page's settings (`state`), its kind (a number with its range and step, on or off, a choice, a colour) and its default. Reading a configuration, a setting left out takes its default, one not in the schema is ignored, and one out of its range or of the wrong kind keeps its default. Steps aren't checked (saved designs have sizes between them), bar quarter turns. A new setting needs its entry; new pieces go in `pieces`.
 
 The view:
 
@@ -521,7 +521,7 @@ The wall spec mentions "Indulgence", but Crown's Indulgence is a blue (CRAFTED b
 
 ### Every colour in the model
 
-The screen colours each part is drawn in, as set in [living_room.js](living_room.js) and [floor.js](floor.js). The room's light is slightly warm, so on screen they show a little darker and warmer than these values.
+The screen colours each part is drawn in, as set in [flat_model.js](flat_model.js) and [floor.js](floor.js). The room's light is slightly warm, so on screen they show a little darker and warmer than these values.
 
 | Part | Colour | Notes |
 | --- | --- | --- |

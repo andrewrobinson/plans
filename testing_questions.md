@@ -9,6 +9,17 @@ tests that read settings rather than the address (6a), and most
 combinations of settings tested in Node in seconds (6c), leaving fewer and
 shorter browser runs. The questions below are still open either way.
 
+**16 Oct 2026, after 6c**, as measured: `npm run test:model` (Node) about
+30 seconds: the 33 saved configurations' snapshots in half a second, 4
+tests of reading configurations, and 1,728 generated configurations (6
+options × 288: each, plus 273 single-setting changes, plus 14 board
+thicknesses) in about 28 seconds. The phone suite (`npm run test:quick`,
+138 tests) about 1.3 minutes; the full browser suite (225 tests) about 5.5
+minutes, of which the desktop's about 4. Five browser tests of reading
+configurations moved to Node. Suggested, not decided: the desktop project
+only at "deploy to main", and a quicker `test:model` (one option of the
+generated ones) for everyday runs, all 1,728 at deploy.
+
 ## Findings
 
 1. **The tests take too much of each session.** On 15 Oct there were 13

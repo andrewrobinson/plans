@@ -421,9 +421,9 @@ snapshot.
 | Step | Size | Risk |
 |---|---|---|
 | 5 | Medium to large: a file at a time, a session or two each for the room and the options | Low to medium: renames and splits, each checked by the screenshots |
-| 6a | Medium: 1 session. Mostly mechanical: 49 controls tests rewritten, a hook, snapshot files | Low: nothing on the page changes |
-| 6b | Large: 2 sessions. Every setting gets a schema entry (about 75, across five files); the URL, its tests and scenes converted | Medium: the snapshots and the old reader as converter catch mistakes |
-| 6c | Large: 2 to 3 sessions. Pulling the drawing in `living_room.js` (3000 lines) apart from the page | Medium to high: the most code moved; the snapshots must match throughout |
+| 6a | Done (16 Oct 2026). Medium: 1 session. Mostly mechanical: 49 controls tests rewritten, a hook, snapshot files | Low: nothing on the page changes |
+| 6b | Done in 1 session (16 Oct 2026). Large. Every setting gets a schema entry (about 75, across five files); the URL, its tests and scenes converted | Medium: the snapshots and the old reader as converter catch mistakes |
+| 6c | Done in 1 session (16 Oct 2026): the drawing moved into `flat_model.js` (2,200 lines), `living_room.js` now the page (1,160) | The snapshots, with each piece's box, matched throughout |
 | 6d | Medium to large: 2 sessions. The corner cupboard's module, builders with arguments, the bench apart, the instance, the bedroom's | Medium: the cutting lists in the snapshots must not change, bar the bedroom's 2 mm |
 
 ### Usage, estimated
@@ -439,7 +439,12 @@ uses the most:
   6a adds snapshot checks to tests that already run, not new page loads.
 - **After 6c**, most checks run in Node in seconds, and the browser suite
   is smaller, so each later change (6d, and work after step 6) needs
-  fewer browser runs.
+  fewer browser runs. As measured on 16 Oct 2026: `npm run test:model`
+  about 30 seconds (the 33 saved snapshots half a second of it, the 1,728
+  generated configurations the rest); the phone suite about 1.3 minutes;
+  the full browser suite about 5.5 minutes, 4 of them the desktop's.
+- **6d** reads `flat_model.js` (2,200 lines) rather than all of
+  `living_room.js`.
 
 6a is the cheapest and the one to start with: it's worth having even if
 the rest waits.

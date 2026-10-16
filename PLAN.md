@@ -136,15 +136,17 @@ the two .md files, still `room_dimensions.md`.
 ```
 index.html                  the floor app: one page for the whole floor
 floor.js                    the floor plan: walls, doors and windows, where each room's corner is
-living_room.js              the living room's fittings: kitchen, island, desk, its cupboard options
+flat_model.js               the model (16 Oct 2026): the living room's fittings, its cupboard options, the configuration's schema, buildFlat()
+living_room.js              the page: menus, controls, views, scenes, the address
 living_room.views.js        its places, things to look at, looks, preset views
 living_room.scenes.js       its scenes
 living_room.designs.js      (later) its cupboard designs: the finished design and prototypes
-dressers.js                 furniture catalogues, for any room
+dressers.js                 furniture catalogues, for any room (ES modules)
 larders.js
 sofas.js
 kit/
-  floor_kit.js              the engine: builds the floor and its rooms, cameras, menus, the address
+  floor_kit.js              the engine: builds the floor and its rooms, cameras, menus
+  config_kit.js             the configuration: its schema's reading and writing, and packing it for the address
   view_kit.js
   scene_kit.js
 room_3d.html                a redirect into index.html, focused on the living room, for old links
