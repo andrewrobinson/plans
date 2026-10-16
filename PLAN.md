@@ -16,7 +16,9 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    `REFACTOR_PLAN.md` step 6 (agreed 16 Oct 2026), a configuration
    between the menus and what's drawn, the URL as that configuration
    compressed, the model built and tested in Node, and the corner
-   cupboard as an instance, the bedroom getting a second one.
+   cupboard as an instance, the bedroom getting a second one. 6a (the
+   safety net) and 6b (the configuration and its URL) are done; 6c (the
+   model in Node) is next.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).

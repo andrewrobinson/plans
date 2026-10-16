@@ -4,7 +4,8 @@ Two steps are left. Step 5, readable code, is all but done. Step 6, one
 configuration as JSON (agreed 16 Oct 2026), puts a configuration between
 the menus and what's drawn, makes the URL that configuration, compressed,
 and lets the model be built and tested without a browser; its first
-piece, 6a, the safety net, is done. Both change how
+pieces, 6a, the safety net, and 6b, the configuration and its URL, are
+done. Both change how
 the code is organised, not what the page does: the page must look and
 behave exactly as before, which the Playwright tests check (`tests/`).
 Step 6 changes the URL's format; old links needn't work.
@@ -272,6 +273,41 @@ views they open. Before anything moves:
    (agreed 12 Oct 2026).
 5. **`room_dimensions.md`**: its address format becomes the
    configuration's.
+
+**Done (16 Oct 2026)**, on the `configuration` branch, a commit each. The
+user's choices, put to them first:
+
+| Question | Chosen |
+|---|---|
+| Names inside a piece | `state`'s (`T`, `R`, `LEG_D`, `L_SHELVES`, …), renamed only where the piece says it (`BENCH` → `bench.design.height`), so the map to `state` is exact |
+| Places | Flat, in each room's own axes, as the sliders: `{ on, x, y, turn }` in the living room and garage, `u, v` in the bedroom, `along, across` in the hallway |
+| Choices | Words (`above: "tvAndShelves"`, `where: "byHand"`); options by number (7 to 11, 16); colours stay codes; sizes in mm |
+| `version` | 1; up only when a setting changes its path or meaning. Missing settings take their defaults, unknown ones are ignored, another version is ignored with a warning |
+| Waiting for the URL | A top-level `await` before `syncControls()` and `show()`; each write numbered, so only the latest lands |
+| Schema entries | Each module's list (`OTHER_ROOM_SCHEMA`, …), ranges from its sliders, defaults from its `…_START`; the general code in `kit/config_kit.js`. Ranges are checked, steps not (saved designs have sizes between steps), bar quarter turns |
+| `window.plans` | `export()`, `view()`, `load(json)` (in place, keeping the view) |
+| Saved addresses and scenes | Full JSON: `tests/configs/<name>.json` (`{ configuration, view }`), and each scene's configuration in `living_room.scenes.js` |
+| The view | `version`, `room`, `view` (or `camera`: kind, position, target, fov), `eye`, `dimensions`, `doorSizes`, `cupboardOnly`, `seeThrough` |
+| Snapshots | `settings` stays `state`, so all 36 matched unchanged |
+| Menus | Still `changeSettings()` on `state`; `set(path, value)` comes with 6c |
+| Room names | `livingRoom`, `hallway`, `bedroom`, `downstairs`, `garage` everywhere (the views file's `living` renamed) |
+
+What went in: the doors' angles in `state.doors`; `kit/config_kit.js`
+and the schema; the view as JSON, its display switches each set by a
+function; the URL `#<configuration>~<view>`; the saved addresses and the
+scene converted by the old reader (kept for that one commit), every
+snapshot unchanged and every screenshot passing; then the old reader,
+the `ADDRESS` lists, the kit's field readers and the view kit's address
+gone. Pieces always in one place have no `in` (the corner cupboard, what's
+above the bench, the recess cupboards, the shoe rack). Scenes saved in a
+browser before are dropped (agreed 12 Oct 2026); saved views and looks
+are kept, as they were never addresses.
+
+Left for 6c: the configuration is still a map onto `state`, so the drawing
+code reads `state`; `buildFlat(config)` reads the configuration itself.
+The tests compare what the page reads back (`plans.export()`,
+`plans.view()`), not the address's text, as Node's deflate needn't give
+the browser's bytes.
 
 ### 6c. The model without the page
 

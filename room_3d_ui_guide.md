@@ -66,8 +66,8 @@ The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `
 
 The bedroom's bed, bookcase, pine cupboard and recess cupboards, drawn
 into `floor.js`'s `otherRoom` group in the room's own u, v mm. It exports
-`OTHER_ROOM_START` (the settings as they start), `OTHER_ROOM_ADDRESS` (their
-address fields), `drawOtherRoom(settings)` (called from `redrawAround()`)
+`OTHER_ROOM_START` (the settings as they start), `OTHER_ROOM_SCHEMA` (their
+entries in the configuration), `drawOtherRoom(settings)` (called from `redrawAround()`)
 (the bookcase hidden while it's in the living room) and `bookcase(sizes)`
 (drawn in the living room by `bookcaseOnBenchWall()` when the back wall's
 Bookshelf is on), and `otherRoomControls(container, change)`, which writes
@@ -90,19 +90,20 @@ The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 | 22–29 | `import` three.js, the engine's pieces from `kit/floor_kit.js`, the view and scene kits as `ViewKit` and `SceneKit`, and the room's measurements from `floor.js` | |
 | 31–62 | Set-up | `createStage()` for the scene, renderer, cameras and controls, the cupboards' materials, the handles' heights (`HANDLE_BOTTOM`, `HANDLE_TOP`), `DOOR_GAP`, and `board()` (a named board, for the cutting list) |
 | 63–191 | The fixed room's fittings | `KITCHEN` (with its worktop's sizes), front-wall faces, desk, chair, island, room door. The walls, floor, recesses, door frame, ceiling and windows are in `floor.js` |
-| 193–245 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls change and the address saves |
+| 193–245 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls change and the configuration maps onto; `doors`, the doors' angles, last |
 | 247–335 | Corner-cupboard shelves | `cupShelf()` records them; `drawCupShelves()` draws them, cut back over things stored under them |
 | 337–486 | Parts of options 7 to 9 | `tallDoor()`, `fullHeightL()` (option 7); `diagonal()`, `roomDoorGap()`, `diagonalCarcass()`, `diagonalShelves()`, `diagonalDoors()` (option 8); `wardCarcass()`, `wardDoors()` (option 9) |
 | 488–573 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
 | 575–645 | Colours | The room's `FINISHES`, `COLOUR_TARGETS`, `setRal()` (the RAL table and the oak floor are in the kit) |
 | 647–929 | Option 9's base cupboards, dresser, larders, island, sofa, front wall | Includes `baseCupboards()` (655), `DRESSER_SLIDERS` (690), `placeIsland()` (848), `sofa()` (886), `frontWall()` (903) |
 | 930–1049 | Option 9's shelving tower, options 10 and 11's corner cupboard, option 10's side bookshelf | `shelvingTower()`, `cornerCupboard()` with `cornerCarcass()`, `cornerDoorsToKitchen()` and `cornerDoorsToWindows()`, `sideBookshelf()` |
-| 1051–1184 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` and the address codes |
+| 1051–1184 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` |
 | 1186–1368 | 2D dimensions | `updateDims()`, the kit's `cutViews()` giving `applyCut()`, the cupboard-only view, `cupboardDims()`, `doorDims()` (the kit draws the lines, labels and chains) |
 | 1370–1435 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards), `showCuttingList()` |
 | 1437–1858 | Things to store | Packing, `cupboardSpaces()` (each option's inside), `insideText()`, drawing, and dragging in plan view |
 | **1860–1988** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5): `show()` calls `buildOption()`, `takeOutBench()`, `showInMenus()` and `redrawAround()` |
-| 1990–2071 | **The address**: `ADDRESS`, `settingsAddress()`, `readAddress()`, `writeAddress()` | The room's list of fields; the kit's `writeFields()` and `readFields()` write `state` into the URL `#hash` and read it back (section 5) |
+| 2209–2236 | **The address**: `writeAddress()` | The configuration and the view, packed into the URL `#hash` (section 5) |
+| 2967–3079 | **The configuration**: `SCHEMA`, `configurationNow()`, `readConfiguration()`, `loadConfiguration()` | Each setting's entry, with the other rooms' from their modules; the two-way map onto `state` (section 5) |
 | **2073–2371** | **Control wiring** | `changeSettings()` (2078), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5) |
 | 2373–2482 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | At 2442–2461 the 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()`, which gives `setFlat()`, `resize()` and `startLoop()` |
 | 2483–2535 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `kit/view_kit.js` |
@@ -111,8 +112,8 @@ The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 | **2562–2568** | **The two drawers** (`DRAWERS`, the kit's `createDrawers()`) | |
 | 2570–2576 | Reset, Share and offline support (the kit's `resetButton()`, `shareButton()`, `workOffline()`) | |
 | 2578–2613 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
-| 3035–3073 | **`window.plans`** (step 6a) | `get()` and `snapshot()`, read-only, for the tests and the browser console (section 5) |
-| 2615–2624 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
+| 3081–3122 | **`window.plans`** (steps 6a and 6b) | `get()`, `export()`, `load()`, `view()` and `snapshot()`, for the tests and the browser console (section 5) |
+| 3124–3140 | **Startup** | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, then `show(state.option)`, then the view |
 | 2625 | **Render loop** | The kit's `startLoop()`: `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
 
 ### kit/floor_kit.js (541 lines)
@@ -124,15 +125,25 @@ The engine, an ES module: what any room needs, and nothing about this one.
 | The stage | `MM`, `createStage(container)`: the scene, renderer, 3D and 2D cameras with their controls, the lights |
 | Drawing in mm | `material()`, `box()`, `slab()`, `part()`, `hinge()`, `skewHinge()` |
 | Colours | `RAL` (the RAL Classic table), `oakBoards()` (the oak floor's texture) |
-| The address | `number()`, `within()`, `radio()`, `sizes()` (readers for a room's fields), `valueAt()`, `setValueAt()`, `writeFields()`, `readFields()` |
+| Settings by path | `valueAt()`, `setValueAt()` (from `kit/config_kit.js`) |
 | Menus and buttons | `narrow()`, `popMenus()`, `createDrawers()`, `resetButton()`, `shareButton()`, `workOffline()` |
 | The 2D/3D switch | `flatViews(stage, view)`: `setFlat()`, `resize()` (fitting the 3D and 2D views to the screen) and `startLoop()` (the render loop), reading the room's framing (`flat`, `flatFit`, `flatPerM`), the view kit's `hfov` and the drawers through `view` |
 | 2D dimensions | `dimLine()`, `dimLabel()`, `chain()` (a chain of dimensions), `cutViews(scene, view)`: `applyCut()`, reading the view's cut and what alone to show through `view` |
 
-### kit/view_kit.js (532 lines) and kit/scene_kit.js (93 lines)
+### kit/view_kit.js (532 lines) and kit/scene_kit.js (97 lines)
 
 The Views and Look menus, and the Scenes menu: ES modules too, each
 exporting `create()`, which the room imports as `ViewKit` and `SceneKit`.
+The view kit's `view()` gives the view as JSON for the address, and
+`start()` reads one; a scene is a configuration.
+
+### kit/config_kit.js (140 lines)
+
+The configuration: a schema's entries (`number()`, `onOff()`, `choice()`,
+`colour()`, `other()`), `writeConfiguration()` and `readConfiguration()`
+through them, `withDefaults()` and `defaultConfiguration()`, and `pack()` and
+`unpack()` for the address (JSON deflated, in base64url). It needs no page,
+DOM or three.js, so Node can use it too (step 6c).
 
 ### room_3d.css (125 lines)
 
@@ -448,7 +459,7 @@ It's the single place where settings become 3D objects, in named steps:
 4. `showInMenus()` **updates the UI to match**: enables or disables dropdown
    options, writes the description, and shows or hides the slider blocks.
 5. `redrawAround()` calls `updateDims()`, `updatePalette()`, the stored-things
-   code and `writeAddress()` (saves the state into the URL), then `update()`.
+   code and `writeAddress()` (saves the configuration and view into the URL), then `update()`.
 
 The approach is simple: **rebuild everything** whenever something changes. It's
 fast enough for a model of this size, and it means the 3D model always matches
@@ -456,11 +467,13 @@ fast enough for a model of this size, and it means the 3D model always matches
 
 ### The faster path for doors
 
-The three door sliders don't rebuild. `update()` only rotates
-the existing hinge objects:
+The door sliders don't rebuild. Each sets its angle in `state.doors`
+(they're in the configuration, so a scene keeps them) and calls
+`update()`, which only rotates the existing hinge objects and puts the
+sliders in step:
 
 ```js
-roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomSlider.value));
+roomHinge.rotation.y = turn(doors.room);
 ```
 
 ### Colours
@@ -477,24 +490,45 @@ The Views and Look dropdowns don't change the model. They move the **camera**.
 `hooks.place()` function, which sets `camera.position` and
 `controls.target`.
 
-### The URL holds the state
+### The URL holds the configuration and the view
 
-`ADDRESS` lists the settings' fields in their order in the
-`#hash`, each as `[its place in state, how to write it, how to read it back]`,
-e.g. `['R', String, within(300, 800)]`. `settingsAddress()` writes
-every field and joins them with `-`. At startup
-`readAddress()` splits the hash again and reads each field into
-`state`, skipping any that fail their check; then `syncControls()`
-sets every slider and radio from `state`, e.g. the radio found with
-`document.querySelector('input[name=front][value="1329"]')`. This is how Share
-links and Scenes work. Reset simply loads the page with no hash.
+The address is `#<configuration>~<view>`: the settings as a
+**configuration**, JSON by piece, and the **view**, each deflated and in
+base64url (`pack()` and `unpack()` in `kit/config_kit.js`;
+`room_dimensions.md` has the format). `SCHEMA` (near the end of
+`living_room.js`) has an entry for each setting: its path in the
+configuration, its place in `state`, its kind and range and its default,
+e.g. `fromSlider(cupboard('R'), 'R', 'rear')`, the back-wall depth held
+to the `#rear` slider's range. The other rooms' modules give their own
+entries (`OTHER_ROOM_SCHEMA`, `WICKER_BENCH_SCHEMA`, `SHOE_RACK_SCHEMA`,
+`GARAGE_SCHEMA`). For now the configuration is a two-way map onto `state`,
+which the drawing code still reads: `configurationNow()` writes it,
+`readConfiguration()` reads one into `state`. The view is the view kit's
+`view()` (the room, a listed view's id or the camera, the eye height) and
+the Dimensions, Door sizes, Cupboard only and See-through switches
+(`viewNow()`, `readDisplay()`).
+
+`writeAddress()` packs both, which is asynchronous, so each write is
+numbered and only the latest lands. At startup the page unpacks the
+address before it builds anything (a top-level `await`), reads the
+configuration into `state`, then `syncControls()` sets every slider and
+radio from `state`, e.g. the radio found with
+`document.querySelector('input[name=front][value="1329"]')`, `show()`
+builds it, and the view is applied. This is how Share links and Scenes
+work (a scene is a configuration). Reset simply loads the page with no
+hash.
 
 ### `window.plans`: the settings, for the tests and the console
 
-Read-only; nothing in it changes the page (REFACTOR_PLAN.md, step 6a).
-Try it in the browser console:
+For the tests and the browser console (REFACTOR_PLAN.md, steps 6a and
+6b); only `load()` changes the page. Try it in the console:
 
-- `plans.get()`: the settings, `state` as JSON, and the doors' angles as
+- `plans.export()`: the configuration, as the address holds it.
+- `plans.view()`: the view, as the address holds it.
+- `plans.load(configuration)`: shows a configuration, everything it leaves
+  out as the page starts, keeping the view.
+
+- `plans.get()`: the settings, `state` as JSON, with the doors' angles as
   `doors` (`room`, `tall`, `second`, `bedroom`, `flat`, `outside`, in
   degrees). The tests read settings through it (`setting(page, 'garage.sean')`
   in `tests/helpers.js`), not from the address, so a new address format
@@ -562,9 +596,13 @@ and every HTML element above it is in the DOM.
   to `state`, with a comment. Add an `input` listener that calls
   `changeSettings(s => { s.X = Number(slider.value); })`, and set the slider
   and its span in `syncControls()`. Use `X` in a `build()`
-  (`const { X } = state;`). To keep it in links, add a field to the end of
-  `ADDRESS`. Its value is then in `plans.get()` and the snapshots, so run
-  `npm run test:update` once and check the snapshots' diff adds only it.
+  (`const { X } = state;`). To keep it in links, give it an entry in
+  `SCHEMA` (or its module's list), under its piece's `design` or `in`, as
+  `fromSlider(cupboard('X'), 'X', 'x')`. Its value is then in
+  `plans.get()`, `plans.export()` and the snapshots, so run
+  `npm run test:update` once and check the snapshots' diff adds only it;
+  the saved configurations in `tests/configs/` go without it, so they show
+  its default.
 - **To change how something looks**: find its id or class in the HTML, then search
   `room_3d.css` for that `#id` or `.class`.
 - **To find what happens when a control is used**: search for its id in quotes,
