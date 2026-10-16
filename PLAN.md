@@ -28,10 +28,9 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    not ones scaled off the drawing.
 3. **The other room, the hallway and the stairs**, drawn from
    `drawings/second_floor_plan.png` and `drawings/first_floor_plan.png`
-   (below), into `floor.js`. This is when the engine takes each room's
-   `build(group)` and the address gets a room's name in front of each part
-   (`REFACTOR_PLAN.md`, "When a second room comes", now replaced by its
-   step 6: `buildFlat(config)` and a configuration by piece).
+   (below), into `floor.js`. Step 6 (`REFACTOR_PLAN.md`) made room for
+   them: `buildFlat(config)` builds every room, and the configuration is
+   by piece, each saying which rooms it's in.
    Its furniture ("The other room's furniture", below) comes with it.
    **Started 15 Oct 2026**: the other room (the bedroom) is drawn, its shell
    in `floor.js` (`OTHER_ROOM`, its own u, v coordinates) and its furniture
