@@ -6,9 +6,9 @@
 // bench along its back wall.
 //
 // living_room.js holds the settings (state.wickerBench, starting as
-// WICKER_BENCH_START) and puts them in its address (WICKER_BENCH_ADDRESS)
-// and its configuration (WICKER_BENCH_SCHEMA); this file says how it looks, draws it in each room (drawWickerBench()) and
-// makes its menu block (wickerBenchControls()).
+// WICKER_BENCH_START); this file gives their entries in the configuration
+// (WICKER_BENCH_SCHEMA), says how it looks, draws it in each room
+// (drawWickerBench()) and makes its menu block (wickerBenchControls()).
 import * as THREE from 'three';
 import { MM, material, box, valueAt } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
@@ -96,37 +96,7 @@ const placeSliders = room => [
 ];
 const SLIDERS = [...SIZE_SLIDERS, ...ROOM_KEYS.flatMap(placeSliders)];
 
-// ---------------------------------------------------------------------------
-// The address: its sizes as `w.d.h.legs`, then each room's `on.a.b.turn`
-// (on 1 or 0), each number held to its slider's range
-// ---------------------------------------------------------------------------
-const RANGES = Object.fromEntries(SLIDERS.map(([path, , lo, hi]) => [path, [lo, hi]]));
-function held(path, text, was) {
-  const [lo, hi] = RANGES[path], n = text ? Number(text) : NaN;
-  if (path.endsWith('.turn') && n % QUARTER_TURN !== 0) return was;   // only quarter turns
-  return n >= lo && n <= hi ? n : was;
-}
-const onOff = (text, was) => (text === '1' ? true : text === '0' ? false : was);
 const SIZE_KEYS = SIZE_SLIDERS.map(([k]) => k);
-const roomField = room => {
-  const keys = [...ROOMS[room].place.map(([k]) => k), 'turn'];
-  return [`wickerBench.${room}`,
-    r => [r.on ? 1 : 0, ...keys.map(k => r[k])].join('.'),
-    (text, r) => {
-      const [on, ...parts] = text.split('.');
-      return { on: onOff(on, r.on), ...Object.fromEntries(keys.map((k, i) => [k, held(`${room}.${k}`, parts[i], r[k])])) };
-    }];
-};
-export const WICKER_BENCH_ADDRESS = [
-  ['wickerBench',
-    b => SIZE_KEYS.map(k => b[k]).join('.'),
-    (text, b) => {
-      const parts = text.split('.');
-      return { ...b, ...Object.fromEntries(SIZE_KEYS.map((k, i) => [k, held(k, parts[i], b[k])])) };
-    }],
-  ...ROOM_KEYS.map(roomField),
-];
-
 // The configuration's entries (kit/config_kit.js): its design, then for each
 // room whether it's there and its place, each held to its slider's range,
 // its turn to quarter turns

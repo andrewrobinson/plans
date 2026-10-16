@@ -6,10 +6,9 @@
 // so its shelves slope down towards the window.
 //
 // living_room.js holds the settings (state.shoeRack, starting as
-// SHOE_RACK_START) and puts them in its address (SHOE_RACK_ADDRESS) and its
-// configuration (SHOE_RACK_SCHEMA); this
-// file says how it looks, draws it (drawShoeRack()) and makes its menu block
-// (shoeRackControls()).
+// SHOE_RACK_START); this file gives their entries in the configuration
+// (SHOE_RACK_SCHEMA), says how it looks, draws it (drawShoeRack()) and
+// makes its menu block (shoeRackControls()).
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
@@ -160,31 +159,9 @@ const BEVEL_SLIDER = ['bevelDoor', 'Bevel for internal door angle', 0, 90, 1, 'Â
 const SLIDERS = [...SIZE_SLIDERS, BEVEL_SLIDER];
 const SIZE_KEYS = SIZE_SLIDERS.map(([k]) => k);
 
-// ---------------------------------------------------------------------------
-// The address: `w.d.h.bevel.slope.shoes.bevelDoor`, each number held to its
-// slider's range, the bevel and the shoes 1 or 0. A link from before has
-// fewer: the rest as they start
-// ---------------------------------------------------------------------------
-const RANGES = Object.fromEntries(SLIDERS.map(([k, , lo, hi]) => [k, [lo, hi]]));
-function held(key, text, was) {
-  const [lo, hi] = RANGES[key], n = text ? Number(text) : NaN;
-  return n >= lo && n <= hi ? n : was;
-}
-const ADDRESS_KEYS = ['w', 'd', 'h', 'bevel', 'slope', 'shoes', 'bevelDoor'];
+// The rack's design in the configuration, in order, and which are switches
+const DESIGN_KEYS = ['w', 'd', 'h', 'bevel', 'slope', 'shoes', 'bevelDoor'];
 const SWITCHES = ['bevel', 'shoes'];
-const onOff = (text, was) => (text === '1' ? true : text === '0' ? false : was);
-export const SHOE_RACK_ADDRESS = [
-  ['shoeRack',
-    r => ADDRESS_KEYS.map(k => (SWITCHES.includes(k) ? (r[k] ? 1 : 0) : r[k])).join('.'),
-    (text, r) => {
-      const parts = text.split('.');
-      return Object.fromEntries(ADDRESS_KEYS.map((k, i) => {
-        if (parts[i] === undefined) return [k, SHOE_RACK_START[k]];        // an older link: as it starts
-        return [k, SWITCHES.includes(k) ? onOff(parts[i], r[k]) : held(k, parts[i], r[k])];
-      }));
-    }],
-];
-
 // The configuration's entries (kit/config_kit.js): the rack's design, each
 // size held to its slider's range. It always stands in the same place
 // downstairs, so it has no `in`
@@ -194,7 +171,7 @@ const designEntry = key => {
   const [, , lo, hi, step] = SLIDERS.find(([k]) => k === key);
   return Config.number(at, setting, lo, hi, step);
 };
-export const SHOE_RACK_SCHEMA = ADDRESS_KEYS.map(designEntry);
+export const SHOE_RACK_SCHEMA = DESIGN_KEYS.map(designEntry);
 
 // ---------------------------------------------------------------------------
 // Drawing: the rack in its own group, its back's middle at the origin, its

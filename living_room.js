@@ -1,15 +1,17 @@
 // The living room: its fittings (kitchen, desk, chair, island), its cupboard
 // options, their 2D dimensions and cutting list, the things to store, its
-// settings and address, its controls and views. Its walls, door frame and
-// windows are in floor.js; the engine is in kit/. index.html loads it.
+// settings, its configuration and address, its controls and views. Its
+// walls, door frame and windows are in floor.js; the engine is in kit/.
+// index.html loads it.
 //
 // How it works: `state` holds every setting. The controls change it through
 // changeSettings(), which puts every control in step (syncControls()) and
 // calls show(). show() builds the option chosen (its build() in OPTIONS),
 // then the bench, what's above it, the dresser or larder and the sofa round
 // it; redrawAround() then redraws the dimensions, colours, things to store,
-// cutting list and the address. The address (ADDRESS) is read at the start
-// and written on every change, so a link brings the same settings back.
+// cutting list and the address. The address, the settings as a
+// configuration (SCHEMA) and the view, is read at the start and written on
+// every change, so a link brings the same settings back.
 //
 // In order, below: the materials and the room's fittings (kitchen, desk,
 // chair, island); the settings (state); the corner cupboard's shelves; the
@@ -18,19 +20,19 @@
 // front wall; options 10 and 11's corner cupboard and side bookshelf; the
 // options (OPTIONS); the 2D dimensions, cuts and cutting list; the things to
 // store; switching options, the address and the controls; the views and
-// scenes; and starting the page.
+// scenes; the configuration; and starting the page.
 import * as THREE from 'three';
 import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
-  number, within, radio, sizes, writeFields, readFields, setValueAt,
+  setValueAt,
   narrow, popMenus, createDrawers, resetButton, shareButton, screenshotButton, workOffline, flatViews,
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
 import * as Config from './kit/config_kit.js';
-import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, BOOKCASE_ON_ADDRESS, CUPBOARD_ON_ADDRESS, MIRROR_ON_ADDRESS, NEW_CUPBOARD_ON_ADDRESS, showNewCupboard, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, OTHER_ROOM_ADDRESS, MIRROR_ADDRESS, RECESS_FRONTS_ADDRESS, BED_SPOTS, OTHER_ROOM_SCHEMA } from './other_room.js';
-import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_ADDRESS, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
-import { drawShoeRack, shoeRack, shoeRackControls, SHOE_RACK_START, SHOE_RACK_ADDRESS, SHOE_RACK_SCHEMA } from './shoe_rack.js';
-import { drawGarage, garagePieces, garageControls, GARAGE, GARAGE_CORNER, GARAGE_START, GARAGE_ADDRESS, GARAGE_SCHEMA } from './garage.js';
+import { drawOtherRoom, bookcase, pineCupboard, otherRoomControls, otherRoomPieces, OTHER_ROOM_START, showNewCupboard, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, BED_SPOTS, OTHER_ROOM_SCHEMA } from './other_room.js';
+import { drawWickerBench, wickerBenches, wickerBenchControls, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
+import { drawShoeRack, shoeRack, shoeRackControls, SHOE_RACK_START, SHOE_RACK_SCHEMA } from './shoe_rack.js';
+import { drawGarage, garagePieces, garageControls, GARAGE, GARAGE_CORNER, GARAGE_START, GARAGE_SCHEMA } from './garage.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge } from './floor.js';
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
@@ -598,7 +600,7 @@ function benchWallItems(x0, span, g) {
 // kit/floor_kit.js.
 // What each colour box changes, and the model's own colours when it's empty
 // The room's own finishes, chosen by name. Numbered below 1000 so they share
-// the address with RAL codes. Their screen colours are approximate too.
+// the configuration's colour codes with RAL's. Their screen colours are approximate too.
 const FINISHES = {
   1: { name: 'Crown Gallery White', hex: '#DCDEDB' },              // Crown K9710C
   2: { name: 'Dulux Pure Brilliant White', hex: '#F8F8F6' },       // shown as a clean white, as it looks in the room
@@ -844,8 +846,7 @@ function placePiece(g) {
 }
 // On the front wall between the sink and the desk: the dresser, a larder,
 // a bookcase like the bedroom's or nothing, in every option but the current room.
-// Their order is their code in the address, so the bookshelf, added later,
-// is last.
+// The configuration names them as here.
 const FRONT_PIECES = ['dresser', 'larder', 'none', 'bookshelf'];
 const pieces = { dresser: null, larder: null, sofa: null };   // where each is drawn now, to look at
 const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;
@@ -858,7 +859,7 @@ const widerThanFrontGap = w => (w > frontGap() ? ` It's ${w - frontGap()} wider 
 // larder: its end against the wall and its long side running out into the
 // room, against the end of the kitchen counter ('out', long side out), or
 // its long side along the wall, centred there ('along', short side out); or
-// not there at all ('none'). Their order is their code in the address.
+// not there at all ('none'), as the configuration names them.
 const ISLAND_AT = ['room', 'along', 'out', 'none'];
 const islandOnWall = () => state.island.at === 'along' || state.island.at === 'out';   // in the dresser or larder's place
 // Out there, the island can be moved and turned from its sliders: where its
@@ -1253,15 +1254,6 @@ for (const o of OPTIONS) o.no = parseInt(o.name, 10);
 const optionAt = no => OPTIONS.findIndex(o => o.no === no);
 const CURRENT = OPTIONS.length - 1;
 state.option = optionAt(10);
-// In the address each option keeps the code it was first given, so links made
-// before options 10 and on still work: 1 to 9 as numbered, 10 for the current
-// room (it was option 10), then 11 on for options 10 on. A code for an option
-// taken out (1 to 6) reads as none (undefined), so the page keeps its own.
-const optionCode = i => i === CURRENT ? 10 : OPTIONS[i].no <= 9 ? OPTIONS[i].no : OPTIONS[i].no + 1;
-const optionIndex = code => {
-  const i = code === 10 ? CURRENT : optionAt(code <= 9 ? code : code - 1);
-  return i >= 0 ? i : undefined;
-};
 
 // ---------------------------------------------------------------------------
 // Dimensions for the 2D views, drawn from the current option and settings
@@ -1594,7 +1586,7 @@ const STORED = [
   { name: 'Mop', label: 'Mop', w: 380, d: 310, h: 290, colour: 0x4f86b8 },
   { name: 'Dustpan and hoover', label: 'Hoover', w: 320, d: 280, h: 1000, colour: 0xb8473a },
   { name: 'Yellow tub', label: 'Tub', w: 550, d: 550, h: 450, colour: 0xf2c230, round: true },   // 550 across
-  // Last, so addresses from when the two racks were one block (first) still read right
+  // Last, as it was added last (the two racks were one block, first)
   { name: 'Rack 2', label: 'Rack 2', w: 740, d: 100, h: 630, colour: 0x9b7fd0 },   // the other drying rack, the same size, a lighter purple
 ];
 // The tightest packings, found by trying every order and turn: [x, y, turned]
@@ -1844,29 +1836,6 @@ function drawStored() {
   document.querySelectorAll('input[name=storedWhere]').forEach(r => { r.checked = Number(r.value) === placed; });
 }
 
-// In the address: shown.packing.where, then x.y.turned for each (used when
-// they've been moved by hand), and .z when it stands off the floor. Older
-// links have only shown, and positions.
-const storedAddress = ({ shown, packing, where, spots } = state.stored) => `${shown ? 1 : 0}.${packing}.${where}_` +
-  spots.map(({ x, y, turned, z }) => `${x}.${y}.${turned ? 1 : 0}${z ? `.${z}` : ''}`).join('_');
-function readStoredAddress(text) {
-  if (!text) return;
-  const [head, ...spots] = text.split('_');
-  const [on, packing, where = 2] = head.split('.').map(Number), stored = state.stored;
-  stored.shown = on !== 0;
-  if (PACKINGS[packing]) stored.packing = packing;
-  if ([0, 1, 2].includes(where)) stored.where = where;
-  if (stored.where === 2) spots.forEach((spot, k) => {
-    const [x, y, turned, z = 0] = spot.split('.').map(Number);
-    if (stored.spots[k] && Number.isFinite(x) && Number.isFinite(y)) Object.assign(stored.spots[k], { x, y, turned: turned === 1, z: z >= 0 && z <= CEILING_HEIGHT ? z : 0 });
-  });
-  // From when the two racks were one 800 × 300 block: rack 2 stands beside
-  // rack 1, 150 on, within it
-  if (stored.where === 2 && spots.length < STORED.length) {
-    const r = stored.spots[0];
-    Object.assign(stored.spots[STORED.length - 1], { x: r.x + (r.turned ? 150 : 0), y: r.y + (r.turned ? 0 : 150), turned: r.turned });
-  }
-}
 // Each thing's height off the floor, as on a shelf: 0 on the floor
 const storedLifts = document.getElementById('storedLifts');
 storedLifts.append(Object.assign(document.createElement('div'), { textContent: 'Off the floor (mm)', className: 'colhead' }), document.createElement('div'));
@@ -2232,110 +2201,19 @@ function redrawAround() {
   update();
 }
 
-// ---------------------------------------------------------------------------
-// The address: the settings, one field each in this order, joined with "-"
-// (room_dimensions.md has them all), then "~" and where the things to store
-// are. Each field is [its place in state, how to write it, how to read it
-// back]. Reading checks the text and gives the new value, or undefined to
-// leave the setting as it was; it's given the value as it is, for fields of
-// several parts. Adding a setting means adding it to state and here. The
-// readers (number, within, radio, sizes) and the loops that write and read
-// the fields are in kit/floor_kit.js.
-// ---------------------------------------------------------------------------
-const colour = number(code => (code === 0 || colourOf(code) ? code : undefined));
-const ADDRESS = [
-  ['option', optionCode, number(code => (code >= 1 ? optionIndex(code) : undefined))],
-  ['T', String, number(t => (t === 0 || (t >= 300 && t <= 800) ? t : undefined))],
-  ['R', String, within(300, 800)],
-  ['F', String, radio('front')],
-  ['above', String, radio('above')],
-  ['shelfDepth', String, within(150, 400)],
-  ['BENCH', String, radio('bench')],
-  ['LEG', String, within(400, 1200)],
-  ['WARD', String, within(600, 1400)],
-  ['TOWER', String, within(0, 600)],
-  ['WARD_D', String, within(330, 1000)],
-  ['colours.floor', String, colour],
-  ['colours.cupboard', String, colour],
-  ['colours.wall', String, colour],
-  ['colours.woodwork', String, colour],
-  ['shelfWood', String, number(i => (SHELF_WOODS[i] ? i : undefined))],
-  ['tv', String, number(t => (TV_SIZES.some(([inches]) => inches === t) ? t : undefined))],
-  ['colours.dresser', String, colour],
-  ['dresser', ...sizes(DRESSER_SLIDERS, true)],
-  ['frontPiece', p => FRONT_PIECES.indexOf(p), number(i => FRONT_PIECES[i])],
-  // A larder or sofa chosen comes at its own size, unless its sizes follow
-  ['larder', l => l.key, (key, l) => (Object.hasOwn(LARDERS, key) ? { ...l, key, size: larderOwnSize(LARDERS[key]) } : undefined)],
-  ['island.at', at => ISLAND_AT.indexOf(at), number(i => ISLAND_AT[i])],
-  ['sofa', s => s.key || 'none', (key, s) => key === 'none' ? { ...s, key: '' }
-    : Object.hasOwn(SOFAS, key) ? { ...s, key, size: sofaOwnSize(SOFAS[key]) } : undefined],
-  ['sofa.front', String, within(1000, 3500)],
-  ['larder.size', ...sizes(LARDER_SLIDERS)],
-  ['sofa.size', ...sizes(SOFA_SLIDERS)],
-  ['benchOn', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],
-  ['LEG_D', String, within(330, 1000)],
-  ['L_SHELVES.back', tops => tops.join('.') || 0, text => readShelves(text)],
-  ['L_SHELVES.left', tops => tops.join('.') || 0, text => readShelves(text)],
-  ['island.move', m => `${m.x}.${m.y}.${m.turn}`, (text, m) => {
-    const [x, y, turn] = text.split('.').map(v => (v ? Number(v) : NaN));
-    return { x: x >= 0 && x <= ROOM_WIDTH ? x : m.x, y: y >= 0 && y <= ROOM_DEPTH ? y : m.y, turn: turn >= 0 && turn <= 180 ? turn : m.turn };
-  }],
-  ['BOARD', String, within(12, 25)],
-  ['CORNER_W', String, within(500, 1200)],
-  ['CORNER_D', String, within(0, 1329)],
-  ['SIDE_SHELF', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],
-  ['SIDE_W', String, within(200, 800)],
-  ['SIDE_D', String, within(150, 800)],
-  ...OTHER_ROOM_ADDRESS,                                        // the bedroom's furniture
-  ['bookshelfOn', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],
-  ...MIRROR_ADDRESS,                                            // the bedroom's mirror
-  ...RECESS_FRONTS_ADDRESS,                                     // the upper recess cupboard's drawers and mirrors
-  ['bookshelfMove', writeSpot, readSpot],
-  ...BOOKCASE_ON_ADDRESS,                                       // the bedroom's bookcase there or not
-  ...WICKER_BENCH_ADDRESS,                                      // the wicker bench's sizes, then where it is in each room
-  ...CUPBOARD_ON_ADDRESS,                                       // the bedroom's pine cupboard there or not
-  ['pineOn', on => (on ? 1 : 0), t => (t === '1' ? true : t === '0' ? false : undefined)],   // the pine cupboard in the living room
-  ['pineMove', writeSpot, readSpot],
-  ...MIRROR_ON_ADDRESS,                                         // the bedroom's mirror there or not
-  ['colours.carpet', String, colour],                           // the carpet's colour (bedroom and stairs)
-  ...SHOE_RACK_ADDRESS,                                         // the shoe rack's sizes and place, downstairs
-  ...NEW_CUPBOARD_ON_ADDRESS,                                   // the corner cupboard copied into the bedroom, or not
-  ['sofa.move', m => writeSpot(m, SOFA_HOME), text => readSpot(text, SOFA_HOME)],   // the sofa moved and turned, or where it starts
-  ...GARAGE_ADDRESS,                                            // where Sean, Billy, BillyChest and the rest stand in the garage (the later ones added later)
-];
-// A piece in place of the bench moved, as `x.y.turn`, or AT_HOME where it
-// starts (as links from before the bookshelf could move keep it); the sofa
-// likewise, SOFA_HOME where it starts, facing the TV
-const AT_HOME = 'wall', SOFA_HOME = 'tv';
-function writeSpot(m, home = AT_HOME) {
-  return m ? `${m.x}.${m.y}.${m.turn}` : home;
-}
-function readSpot(text, home = AT_HOME) {
-  if (text === home) return null;
-  const [x, y, turn] = text.split('.').map(v => (v ? Number(v) : NaN));
-  return spotFits({ x, y, turn }) ? { x, y, turn } : undefined;
-}
-// A spot in the living room, its turn in quarter turns
+// A piece moved in the living room: a spot that fits in it, its turn in
+// quarter turns
 const spotFits = ({ x, y, turn }) => x >= 0 && x <= ROOM_WIDTH && y >= 0 && y <= ROOM_DEPTH && turn >= 0 && turn < 360 && turn % QUARTER_TURN === 0;
-// The settings: everything on show bar the view, as text (a scene's address)
-function settingsAddress() {
-  return `${writeFields(ADDRESS, state)}~${storedAddress()}`;
-}
-// Read a settings address (the part of the page's address before the
-// view) into state. The boards' thickness goes first, as option 7's shelves
-// are checked against it.
-function readAddress(text) {
-  const [settings, stored] = text.split('~');
-  readFields(ADDRESS, state, settings, ['BOARD']);
-  readStoredAddress(stored);
-}
+
+// ---------------------------------------------------------------------------
+// The address: the configuration (below, with SCHEMA), then "~" and the
+// view, each packed (kit/config_kit.js), so a link shows just what was on
+// screen. room_dimensions.md has the format.
+// ---------------------------------------------------------------------------
 // replace: change the address without adding to the history, as when
-// looking round
+// looking round. Packing is asynchronous, so each write is numbered, and
+// one overtaken by a later write is dropped
 let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
-//
-// The address is the configuration, then "~" and the view, each packed
-// (kit/config_kit.js). Packing is asynchronous, so each write is numbered,
-// and one overtaken by a later write is dropped
 // Nothing's written till the page has read its own address, at the start
 let addressWrites = 0;
 let addressRead = false;
@@ -2943,18 +2821,9 @@ const viewKit = ViewKit.create({
     isFlat: () => flat,
     resize: () => resize(),
     writeAddress: () => writeAddress(true),
-    // The doors' angles: the room door's, the left-wall cupboard's, the
-    // option's own, the bedroom's and the entrance's two, as some views open or shut them
-    sceneState: {
-      get: () => Object.values(state.doors).join('-'),          // state.doors' order: newer doors last, so older links leave them as they start
-      set(text) {
-        const names = Object.keys(state.doors);
-        text.split('-').map(Number).forEach((a, k) => { if (names[k] && a >= 0 && a <= Number(DOOR_SLIDERS[names[k]].max)) state.doors[names[k]] = a; });
-        update();
-      },
-    },
   },
 });
+// The doors' angles into the address a moment after they stop, as the view's
 Object.values(DOOR_SLIDERS).forEach(d => d.addEventListener('input', viewKit.writeView));
 // Scenes: everything on show bar the view, from living_room.scenes.js or saved
 // here. Showing one loads the page again with its settings, keeping the view.
@@ -3256,12 +3125,10 @@ window.plans = {
 // Start on the configuration and the view in the address (room_dimensions.md
 // has their format), unpacked first. Anything the configuration leaves out,
 // and everything with no address, starts as in state: option 10, TV and
-// shelves above the bench, and AI Olive cupboards. An address in the old
-// format, the settings' fields joined by "-", is read the old way, for now
+// shelves above the bench, and AI Olive cupboards.
 const [configurationText, viewText] = startingAddress.split('~');
 const [startingConfiguration, startingView] = await Promise.all([Config.unpack(configurationText), Config.unpack(viewText)]);
 if (startingConfiguration) readConfiguration(startingConfiguration);
-else readAddress(startingAddress);
 addressRead = true;
 syncControls();
 show(state.option);
@@ -3269,5 +3136,5 @@ show(state.option);
 // some views are worked out from the option; the switches for what's shown
 // first, as Cupboard only frames the view
 readDisplay(startingView);
-viewKit.start(startingView ?? startingAddress.split('~')[2]);
+viewKit.start(startingView);
 startLoop();

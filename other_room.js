@@ -6,9 +6,9 @@
 // v from the hallway wall).
 //
 // living_room.js holds the settings (state.otherRoom, starting as
-// OTHER_ROOM_START) and their address and configuration (OTHER_ROOM_SCHEMA);
-// this file says how each piece looks,
-// draws them (drawOtherRoom()), and makes the menu's sliders for them
+// OTHER_ROOM_START); this file gives their entries in the configuration
+// (OTHER_ROOM_SCHEMA), says how each piece looks, draws them
+// (drawOtherRoom()), and makes the menu's sliders for them
 // (otherRoomControls()).
 import * as THREE from 'three';
 import { MM, material, box } from './kit/floor_kit.js';
@@ -183,54 +183,6 @@ const PIECES = [
 ];
 const SLIDERS = PIECES.flatMap(p => [...p.sizes, ...p.place]);
 const SWITCHES = PIECES.flatMap(p => p.switches ?? []);
-
-// The settings' address fields, for living_room.js's ADDRESS: each piece as
-// its numbers joined by '.', each held to its slider's range
-const RANGES = Object.fromEntries(SLIDERS.map(([path, , lo, hi]) => [path, [lo, hi]]));
-const held = (path, text, was) => {
-  const [lo, hi] = RANGES[path], n = text ? Number(text) : NaN;
-  if (path.endsWith('.turn') && n % QUARTER_TURN !== 0) return was;   // only quarter turns
-  return n >= lo && n <= hi ? n : was;
-};
-const pieceField = (piece, keys) => [`otherRoom.${piece}`,
-  p => keys.map(k => p[k]).join('.'),
-  (text, p) => {
-    const parts = text.split('.');
-    return Object.fromEntries(keys.map((k, i) => [k, held(`${piece}.${k}`, parts[i], p[k])]));
-  }];
-export const OTHER_ROOM_ADDRESS = [
-  pieceField('bed', ['u', 'v', 'turn']),
-  pieceField('bookcase', ['u', 'v', 'turn', 'w', 'd', 'h']),
-  pieceField('cupboard', ['u', 'v', 'turn', 'w', 'd', 'h']),
-  ['otherRoom.lowerD', String, (text, was) => held('lowerD', text, was)],
-];
-// The mirror's, added later, so at the end of ADDRESS: its wall (as its
-// place in WALLS), then along, bottom, w and h
-export const MIRROR_ADDRESS = [['otherRoom.mirror',
-  m => [WALL_KEYS.indexOf(m.wall), m.along, m.bottom, m.w, m.h].join('.'),
-  (text, m) => {
-    const [wall, ...parts] = text.split('.');
-    const read = Object.fromEntries(['along', 'bottom', 'w', 'h'].map((k, i) => [k, held(`mirror.${k}`, parts[i], m[k])]));
-    return { ...read, wall: WALL_KEYS[Number(wall)] ?? m.wall };
-  }]];
-// Then the upper recess cupboard's drawers and mirrors, as `drawers.mirrors`,
-// each 1 or 0
-const onOff = (text, was) => (text === '1' ? true : text === '0' ? false : was);
-export const RECESS_FRONTS_ADDRESS = [['otherRoom',
-  r => `${r.upperDrawers ? 1 : 0}.${r.upperMirrors ? 1 : 0}`,
-  (text, r) => {
-    const [drawers, mirrors] = text.split('.');
-    return { ...r, upperDrawers: onOff(drawers, r.upperDrawers), upperMirrors: onOff(mirrors, r.upperMirrors) };
-  }]];
-// Then whether the bookcase is in the bedroom, 1 or 0 (added later; links
-// from before have it there)
-export const BOOKCASE_ON_ADDRESS = [['otherRoom.bookcaseOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
-// And the pine cupboard's, added later still
-export const CUPBOARD_ON_ADDRESS = [['otherRoom.cupboardOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
-// And the mirror's, added later again (15 Oct 2026)
-export const MIRROR_ON_ADDRESS = [['otherRoom.mirrorOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
-// And the new cupboard's (16 Oct 2026)
-export const NEW_CUPBOARD_ON_ADDRESS = [['otherRoom.newCupboardOn', on => (on ? 1 : 0), (text, was) => onOff(text, was)]];
 
 // The configuration's entries (kit/config_kit.js): each piece's design and
 // its place in the bedroom, each number held to its slider's range, turns

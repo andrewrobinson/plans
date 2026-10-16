@@ -53,8 +53,7 @@ const person = key => key.split('-').slice(1).join('-');
 //     place(view, id, room)   put the cameras at the view (2D or 3D), then resize and update
 //     isFlat()          in a 2D view
 //     resize()          after the lens changes
-//     writeAddress()    write the page address, with address() as its view part
-//     sceneState        optional { get(), set(text) }: more of the scene for the address, as door angles
+//     writeAddress()    write the page address, with view() as its view
 //   }
 export function create(o) {
   const { THREE, camera, controls, canvas, config, builtIn = {}, origins = {}, anchors = {}, computed = {}, actions = {}, chair = null, el, hints, hooks } = o;
@@ -473,47 +472,14 @@ export function create(o) {
     writeView();
   });
 
-  // The view's part of the page address, so a link shows just what was on
-  // screen: a view from the lists by its id, or anywhere else (moved by
-  // hand, or saved on a device) as 'cam' (orbiting), 'walk' (as a person)
-  // or 'seat' (in the chair) and seven numbers, joined by ':': the camera's
-  // place and aim in mm, and the angle across in degrees. Then '.' and the
-  // eye height, '.' and the room's sceneState, if it has one, and '.' and
-  // the room chosen, unless it's the first. 2D views keep their id only,
-  // not any panning or zooming.
+  // Writing the view into the page's address (hooks.writeAddress), a
+  // moment after it stops changing
   let ready = false;               // the address's own view has been read, so it can be written
   let timer = null;
   function writeView() {
     if (!ready) return;
     clearTimeout(timer);
     timer = setTimeout(hooks.writeAddress, 250);
-  }
-  function address() {
-    const tail = [eye, hooks.sceneState ? hooks.sceneState.get() : '', room === firstRoom ? '' : room];
-    while (tail.at(-1) === '') tail.pop();
-    if (hooks.isFlat() || (viewId && !viewId.startsWith('saved:'))) return [viewId, ...tail].join('.');
-    const kind = inChair ? 'seat' : asPerson ? 'walk' : 'cam';
-    const mm = p => p.toArray().map(n => Math.round(n * 1000));
-    return [[kind, ...mm(camera.position), ...mm(asPerson ? aimOut() : controls.target), Math.round(hfov || 0)].join(':'), ...tail].join('.');
-  }
-  // Returns whether there was a view to show
-  function readAddress(text) {
-    if (!text) return false;
-    const [what, eyeIn, extra, roomIn] = text.split('.');
-    if (Object.hasOwn(EYES, eyeIn ?? '')) eye = eyeIn;
-    if (Object.hasOwn(ROOMS, roomIn ?? '')) setRoom(roomIn);
-    if (hooks.sceneState && extra) hooks.sceneState.set(extra);   // first, as the view may then change it
-    const [kind, ...numbers] = what.split(':');
-    if (['cam', 'walk', 'seat'].includes(kind)) {
-      const n = numbers.map(Number);
-      if (n.length !== 7 || n.some(Number.isNaN)) return false;
-      applyView({ exact: true, posture: kind === 'cam' ? undefined : posture(eye), seat: kind === 'seat',
-        position: n.slice(0, 3).map(v => v * MM), target: n.slice(3, 6).map(v => v * MM), hfov: n[6] || null }, '', true);
-      return true;
-    }
-    if (!is3dView(what) && !Object.hasOwn(builtIn, what)) return false;
-    setView(what, true);
-    return true;
   }
   // The view as JSON, for the page's address: the room chosen; a view from
   // the lists by its id, or for anywhere else (moved by hand, or saved on a
@@ -546,17 +512,16 @@ export function create(o) {
     setView(v.view, true);
     return true;
   }
-  // After the room is built: the address's view (as view() gives it, or
-  // as text, as address() gives it), else the room's own starting view
-  // (config.startView)
+  // After the room is built: the address's view (as view() gives it), else
+  // the room's own starting view (config.startView)
   function start(given) {
-    if (!(typeof given === 'string' ? readAddress(given) : readView(given))) setView(firstView);
+    if (!readView(given)) setView(firstView);
     ready = true;
     writeView();
   }
 
   return {
-    setView, start, address, view, writeView,
+    setView, start, view, writeView,
     // The room changed: work the view out again, if it's worked out from it
     refresh() { if (follows) setView(viewId); },
     get viewId() { return viewId; },

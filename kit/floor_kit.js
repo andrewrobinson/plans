@@ -10,7 +10,6 @@
 //
 // REFACTOR_PLAN.md step 4 moves the general code here a piece at a time.
 import * as THREE from 'three';
-import { valueAt, setValueAt } from './config_kit.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export const MM = 0.001;
@@ -269,52 +268,9 @@ export function oakBoards() {
   return oakTexture;
 }
 
-// ---------------------------------------------------------------------------
-// The address: a room's settings as fields joined with "-". A room lists its
-// fields, each [its place in the settings as a path like 'sofa.front', how to
-// write it, how to read it back]. Reading checks the text and gives the new
-// value, or undefined to leave the setting as it was; it's given the value as
-// it is, for fields of several parts. These are the usual readers.
-// ---------------------------------------------------------------------------
-// A number, checked by `check`; one in [lo, hi]; the value of one of the
-// radio buttons called `name`
-export const number = check => text => check(Number(text));
-export const within = (lo, hi) => number(v => (v >= lo && v <= hi ? v : undefined));
-export const radio = name => number(v => (document.querySelector(`input[name=${name}][value="${v}"]`) ? v : undefined));
-// Sizes as a.b.c, in their sliders' order ([key, id, lowest, highest]): each
-// held to its slider's range, or with `strict`, left as it was outside it
-export const sizes = (sliders, strict = false) => [
-  s => sliders.map(([k]) => s[k]).join('.'),
-  (text, s) => {
-    const out = { ...s };
-    text.split('.').forEach((part, k) => {
-      const [key, , lo, hi] = sliders[k] ?? [], v = part ? Number(part) : NaN;
-      if (!key || !Number.isFinite(v)) return;
-      if (!strict) out[key] = Math.min(hi, Math.max(lo, v));
-      else if (v >= lo && v <= hi) out[key] = v;
-    });
-    return out;
-  },
-];
-
 // The value at a path in the settings, and setting it: the configuration
-// kit's (kit/config_kit.js)
-export { valueAt, setValueAt };
-// Every field written, joined with "-"
-export const writeFields = (fields, settings) => fields.map(([path, write]) => write(valueAt(settings, path))).join('-');
-// The fields in `text` read into `settings`, those whose paths are in
-// `first` before the rest (as others are checked against them); a field left
-// empty, or that fails its check, leaves its setting as it was
-export function readFields(fields, settings, text, first = []) {
-  const parts = text.split('-');
-  const early = first.map(path => fields.findIndex(([p]) => p === path)).filter(k => k >= 0);
-  for (const k of [...early, ...[...fields.keys()].filter(k => !early.includes(k))]) {
-    const [path, , read] = fields[k], part = parts[k];
-    if (part === undefined || part === '') continue;
-    const value = read(part, valueAt(settings, path));
-    if (value !== undefined) setValueAt(settings, path, value);
-  }
-}
+// kit's (kit/config_kit.js), for the rooms' modules
+export { valueAt, setValueAt } from './config_kit.js';
 
 // ---------------------------------------------------------------------------
 // Menus and buttons

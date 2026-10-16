@@ -7,6 +7,12 @@
 // paths in `state` in living_room.js), not from the address, so a new
 // address format leaves these tests alone.
 const { test, expect, openRoom, addressOf, readAddress, edited, configurationOf, pickOption, setting, optionShown } = require('./helpers');
+const { ADDRESSES } = require('./addresses');
+
+// A saved address's configuration (tests/configs/), with settings changed
+// (as edited() takes them), seen in the plan
+const saved = name => ADDRESSES.find(a => a.name === name);
+const inPlan = (name, changes = {}) => addressOf(edited(saved(name).configuration, changes), saved('view-plan').view);
 
 const hash = page => page.evaluate(() => location.hash);
 // The things to store: whether they're shown, which packing, where (state.stored)
@@ -562,7 +568,7 @@ test.describe('things to store', () => {
   // that fits 6.0 × 6.9 m there (index.html's built-in plan view, and
   // resize()). Rack 1 starts at x 2550, y 2640, turned: 100 × 800.
   test('in the plan: named under the pointer, dragged, and turned', async ({ page }) => {
-    await openRoom(page, '#9-0-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18~1.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~plan.sit-tall.90-0-0');
+    await openRoom(page, inPlan('view-plan', { 'thingsToStore.shown': true }));   // option 9, the things to store shown
     const { width, height } = page.viewportSize();
     const below = Math.min(await page.locator('#bar').evaluate(el => el.getBoundingClientRect().bottom), height / 3);
     const perMm = Math.min(width / 6.0, (height - below) / 6.9) / 1000;
@@ -721,7 +727,7 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
 });
 
 test.describe('the 2D views\' door sizes and cutting list', () => {
-  const PLAN = '#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18~0.0.0_2550.2640.1_2100.2360.0_2000.2360.1_2100.2580.0_2500.2360.0_2000.2900.0_2700.2640.1~plan.sit-tall.90-0-0';
+  const PLAN = inPlan('option07');                             // option 7, in the plan
 
   test('the cutting list opens, follows the boards\' thickness, and closes', async ({ page }) => {
     await openRoom(page, PLAN);
@@ -753,7 +759,7 @@ test.describe('the 2D views\' door sizes and cutting list', () => {
   // sides, top, bottom and five shelves are in the cutting list, sized by its
   // sliders
   test('option 10\'s side bookshelf is in the cutting list', async ({ page }) => {
-    await openRoom(page, `#11-0-${PLAN.slice(PLAN.indexOf('-330-') + 1, PLAN.indexOf('~'))}-800-650-1-400-330${PLAN.slice(PLAN.indexOf('~'))}`);
+    await openRoom(page, inPlan('option10', { 'pieces.cornerCupboard.design.SIDE_SHELF': true }));
     const list = page.locator('#cutList');
     await page.locator('#cutToggle').click();
     await expect(list).toContainText('2443 × 312');                 // its own side, full height, in front of its rear panel

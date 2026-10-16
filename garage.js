@@ -4,8 +4,8 @@
 // out, and the other things the user keeps there.
 //
 // living_room.js holds the settings (state.garage, starting as
-// GARAGE_START) and puts them in its address (GARAGE_ADDRESS); this file
-// says where the garage is, draws it and what's in it (drawGarage()), and
+// GARAGE_START); this file gives their entries in the configuration
+// (GARAGE_SCHEMA), says where the garage is, draws it and what's in it (drawGarage()), and
 // makes Garage options' block (garageControls()).
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
@@ -189,35 +189,6 @@ const placeSliders = piece => [
   ...(PIECES[piece].offWall ? [[`${piece}.off`, 'Gap from the wall behind', 0, MOST_OFF_WALL, 1, '']] : []),
 ];
 const SLIDERS = PIECE_KEYS.flatMap(placeSliders);
-
-// ---------------------------------------------------------------------------
-// The address: each piece as `on.x.y.turn`, on 1 or 0, its place held to
-// its slider's range, in quarter turns; Yellow and Biltong `on.x.y.turn.z`,
-// and Small Billy and Potters `on.x.y.turn.off`.
-// Sean's and Billy's were `x.y.turn` before they could be taken out, which
-// still reads, with them in (though Billy now starts out)
-// ---------------------------------------------------------------------------
-const RANGES = Object.fromEntries(SLIDERS.map(([path, , lo, hi]) => [path, [lo, hi]]));
-function held(path, text, was) {
-  const [lo, hi] = RANGES[path], n = text ? Number(text) : NaN;
-  if (path.endsWith('.turn') && n % QUARTER_TURN !== 0) return was;   // only quarter turns
-  return n >= lo && n <= hi ? n : was;
-}
-// Sean's and Billy's places before they could be taken out; a gap from the
-// wall left off the end (from before there was one) keeps it as it starts
-const OLD_PLACE = ['x', 'y', 'turn'];
-const placeKeys = piece => placeSliders(piece).map(([path]) => path.split('.')[1]);
-const onOff = (text, was) => (text === '1' ? true : text === '0' ? false : was);
-export const GARAGE_ADDRESS = PIECE_KEYS.map(piece => {
-  const keys = placeKeys(piece);
-  return [`garage.${piece}`,
-    p => [p.on ? 1 : 0, ...keys.map(k => p[k])].join('.'),
-    (text, p) => {
-      const parts = text.split('.');
-      const on = parts.length > OLD_PLACE.length ? onOff(parts.shift(), p.on) : true;   // they were always in then
-      return { on, ...Object.fromEntries(keys.map((k, i) => [k, held(`${piece}.${k}`, parts[i], p[k])])) };
-    }];
-});
 
 // The configuration's entries (kit/config_kit.js): for each piece, whether
 // it's in the garage and its place there, each held to its slider's range,
