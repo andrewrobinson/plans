@@ -61,6 +61,8 @@ const SOFA_PLACE = 'tv';
 // Trellis), Trellis and the pine cupboard (added later that day). Where
 // the user put them, BillyChest out
 const GARAGE = '1.1255.2865.180-1.0.1920.270-0.0.1100.270-1.670.360.90-1.3390.2550.0.438-1.3430.2650.0-1.2480.0.0.0-1.3090.0.0.0-1.580.1070.90.750-1.730.1160.90-1.1425.0.0';
+// The garage's things moved, raised and taken out (garage-moved-plan, below)
+const GARAGE_MOVED = '1.2000.1000.90-0.0.1920.270-1.3000.1100.0-1.670.360.90-1.2300.2550.0.0-1.3430.2650.0-1.2480.0.0.25-1.3090.0.0.0-1.580.1070.90.1200-1.730.1160.90-0.1425.0.0';
 // The default settings after the option and the left-wall depth, the default
 // places of the things to store, and the default view
 const REST = `330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1370.1940.410.830.340-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-${BEDROOM}-${BOOKSHELF}-${MIRROR}-${RECESS_FRONTS}-${BOOKSHELF_PLACE}-${BOOKCASE_ON}-${WICKER_BENCH}-${PINE}-${MIRROR_ON}-${CARPET}-${SHOE_RACK}-${NEW_CUPBOARD}-${SOFA_PLACE}-${GARAGE}`;
@@ -124,6 +126,15 @@ const ADDRESSES = [
   { name: 'shoe-rack-stairs', address: `#9-0-${REST}~${STORED}~look:stairsHalfway:shoeRack.stand-tall.90-0-0-90-0-0.downstairs` },
   { name: 'wicker-bench-hallway', address: `#9-0-${REST}~${STORED}~look:hallLivingDoor:hallBench.stand-tall.90-0-0-90-0-0.hallway` },
   { name: 'wicker-bench-every-room', address: `#9-0-${REST.replace(`-${WICKER_BENCH}`, '-1200.410.450.150-1.1800.1800.90-1.200.1425.270-1.2000.2500.0')}~${STORED}~${VIEW}` },
+  // The garage's plan, its things moved, raised and taken out: Sean moved
+  // and turned, Billy out, BillyChest in and moved, Yellow down off the
+  // scaffold bench onto the floor beside it, Biltong raised above Trellis,
+  // Small Billy 25 off the wall and the pine cupboard out
+  { name: 'garage-moved-plan', address: `#9-0-${REST.replace(`-${GARAGE}`, `-${GARAGE_MOVED}`)}~${STORED}~plan.sit-tall.90-0-0-90-0-0.garage` },
+  // The living room's corner cupboard copied into the bedroom, from above:
+  // option 7, then option 10, as the page opens
+  { name: 'bedroom-new-cupboard-option07', address: `#7-600-${REST.replace(`-${NEW_CUPBOARD}-${SOFA_PLACE}-`, `-1-${SOFA_PLACE}-`)}~${STORED}~birdseye.sit-tall.90-0-0-90-0-0.bedroom` },
+  { name: 'bedroom-new-cupboard-option10', address: `#11-600-${START.replace(`-${NEW_CUPBOARD}-${SOFA_PLACE}-`, `-1-${SOFA_PLACE}-`)}~${STORED}~birdseye.sit-tall.90-0-0-90-0-0.bedroom` },
   // The sofa in plan, moved towards the left wall (its middle at x 1500,
   // y 2000) and turned 90° to face the right-hand (window) wall
   { name: 'sofa-moved-turned-plan', address: `#9-0-${REST.replace('-none-1900-', '-merton-1900-').replace(`-tv-${GARAGE}`, `-1500.2000.90-${GARAGE}`)}~${STORED}~plan.sit-tall.90-0-0-90-0-0` },
