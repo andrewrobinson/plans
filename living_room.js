@@ -252,6 +252,13 @@ const state = {
   wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
   shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
   garage: structuredClone(GARAGE_START),              // Sean, Billy, BillyChest and the rest, in the garage: where each stands (garage.js)
+  // How far each door is open, in degrees, up to its slider's most
+  // (index.html): the room door, the left-wall cupboard's tall door, the
+  // option's other door or doors, the bedroom's, and downstairs the flat's
+  // own door and the lobby's outside door. Set by the door sliders and by
+  // some views (the room door shut on walking in, the cupboard's open for
+  // packing); the doors are turned by update(), without rebuilding
+  doors: { room: 90, tall: 0, second: 0, bedroom: 90, flat: 0, outside: 0 },
 };
 
 const baseDoorCount = () => Math.max(1, Math.round((ROOM_WIDTH - state.T - state.WARD - state.TOWER) / 450));
@@ -1995,33 +2002,38 @@ for (const type of ['pointerup', 'pointercancel']) {
 // ---------------------------------------------------------------------------
 // Switching options, and the controls
 // ---------------------------------------------------------------------------
-const tallSlider = document.getElementById('tallDoor');
-const secondSlider = document.getElementById('secondDoor');
-const roomSlider = document.getElementById('roomDoor');
-const bedroomSlider = document.getElementById('bedroomDoor');
-// The entrance's two doors (floor.js's ENTRANCE): the flat's own, into the
-// stairs' foot, and the shared lobby's outside door
-const flatDoorSlider = document.getElementById('flatDoor');
-const outsideDoorSlider = document.getElementById('outsideDoor');
+// The door sliders, by their names in state.doors. The entrance's two
+// doors (floor.js's ENTRANCE) are the flat's own, into the stairs' foot,
+// and the shared lobby's outside door
+const DOOR_SLIDERS = {
+  room: document.getElementById('roomDoor'),
+  tall: document.getElementById('tallDoor'),
+  second: document.getElementById('secondDoor'),
+  bedroom: document.getElementById('bedroomDoor'),
+  flat: document.getElementById('flatDoor'),
+  outside: document.getElementById('outsideDoor'),
+};
 let current = null;          // { group, tall, second }
 let bedroomCopy = null;      // the bedroom's copy of the corner cupboard, while it's there (copyCupboardToBedroom())
 
+// The doors turned to their angles in state.doors, and their sliders put in
+// step with them
 function update() {
+  const { doors } = state;
+  const turn = degrees => THREE.MathUtils.degToRad(degrees);
   if (current) {
-    if (current.tall) current.tall.rotation.y = -THREE.MathUtils.degToRad(Number(tallSlider.value));
-    for (const s of [].concat(current.second ?? [])) s.rotation.y = (s.userData.dir ?? 1) * THREE.MathUtils.degToRad(Number(secondSlider.value));
+    if (current.tall) current.tall.rotation.y = -turn(doors.tall);
+    for (const s of [].concat(current.second ?? [])) s.rotation.y = (s.userData.dir ?? 1) * turn(doors.second);
   }
-  roomHinge.rotation.y = THREE.MathUtils.degToRad(Number(roomSlider.value));
-  bedroomHinge.rotation.y = -THREE.MathUtils.degToRad(Number(bedroomSlider.value));   // it opens the other way, into the bedroom
-  for (const [h, s] of [[flatDoorHinge, flatDoorSlider], [outsideDoorHinge, outsideDoorSlider]]) h.rotation.y = (h.userData.dir ?? 1) * THREE.MathUtils.degToRad(Number(s.value));
+  roomHinge.rotation.y = turn(doors.room);
+  bedroomHinge.rotation.y = -turn(doors.bedroom);              // it opens the other way, into the bedroom
+  for (const [h, name] of [[flatDoorHinge, 'flat'], [outsideDoorHinge, 'outside']]) h.rotation.y = (h.userData.dir ?? 1) * turn(doors[name]);
   if (dims) updateDims();                                       // the doors' labels go with them
   applyCut();                                                   // the doors may have moved across a cut
-  document.getElementById('tallDoorValue').textContent = `${tallSlider.value}°`;
-  document.getElementById('secondDoorValue').textContent = `${secondSlider.value}°`;
-  document.getElementById('roomDoorValue').textContent = `${roomSlider.value}°`;
-  document.getElementById('bedroomDoorValue').textContent = `${bedroomSlider.value}°`;
-  document.getElementById('flatDoorValue').textContent = `${flatDoorSlider.value}°`;
-  document.getElementById('outsideDoorValue').textContent = `${outsideDoorSlider.value}°`;
+  for (const [name, slider] of Object.entries(DOOR_SLIDERS)) {
+    slider.value = String(doors[name]);
+    document.getElementById(`${slider.id}Value`).textContent = `${doors[name]}°`;
+  }
   copyCupboardToBedroom();                                      // with its doors as they now stand
 }
 
@@ -2039,7 +2051,10 @@ function copyCupboardToBedroom() {
   showNewCupboard(copy);
   bedroomCopy = copy;
 }
-[tallSlider, secondSlider, roomSlider, bedroomSlider, flatDoorSlider, outsideDoorSlider].forEach(s => s.addEventListener('input', update));
+for (const [name, slider] of Object.entries(DOOR_SLIDERS)) slider.addEventListener('input', () => {
+  state.doors[name] = Number(slider.value);
+  update();
+});
 
 // The top bar's dropdown of options, kept in step by show()
 const currentSelect = document.getElementById('current');
@@ -2130,7 +2145,7 @@ function show(i) {
     : onBackWall().map(key => pieceOnBenchWall(key, option.clearFrom(), group)).join('');
   const aboveText = backWall + frontWall(group, i) + sofa(group);
   showInMenus(option, i, aboveText);
-  if (!same) secondSlider.value = 0;
+  if (!same) state.doors.second = 0;
   if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
   redrawAround();
 }
@@ -2786,9 +2801,8 @@ function packingView() {
   // Its doors open wide, all of them, folded back out of the way (at 90° one
   // can stand across the front of the other; an option with only one has
   // the other slider unused)
-  tallSlider.value = 170;
-  secondSlider.value = 170;
-  roomSlider.value = 0;                                          // the room door shut, as it can hide the cupboard
+  Object.assign(state.doors, { tall: 170, second: 170 });
+  state.doors.room = 0;                                          // the room door shut, as it can hide the cupboard
   update();
   const { x, y, nx, ny } = at, m = v => v / 1000;
   return { posture: 'stand', position: [m(x + PACK_BACK * nx), 1.6, m(y + PACK_BACK * ny)], target: [m(x - 300 * nx), 0.9, m(y - 300 * ny)], hfov: 95 };
@@ -2859,7 +2873,6 @@ const anchors = {
   // Sean, Billy, BillyChest and the rest (garage.js), wherever they stand in the garage
   ...Object.fromEntries(Object.keys(garagePieces).map(piece => [piece, () => middleOf(garagePieces[piece])])),
 };
-const DOORS = [roomSlider, tallSlider, secondSlider, bedroomSlider, flatDoorSlider, outsideDoorSlider];   // newer doors last, so older links leave them as they start
 const addressView = location.hash.split('~')[2];               // read before anything rewrites the address
 const viewKit = ViewKit.create({
   THREE, camera, controls, canvas: renderer.domElement,
@@ -2871,7 +2884,7 @@ const viewKit = ViewKit.create({
   computed: { packing: packingView },
   actions: {
     shutRoomDoor() {
-      roomSlider.value = 0;
+      state.doors.room = 0;
       update();
     },
   },
@@ -2907,15 +2920,16 @@ const viewKit = ViewKit.create({
     // The doors' angles: the room door's, the left-wall cupboard's, the
     // option's own, the bedroom's and the entrance's two, as some views open or shut them
     sceneState: {
-      get: () => DOORS.map(d => d.value).join('-'),
+      get: () => Object.values(state.doors).join('-'),          // state.doors' order: newer doors last, so older links leave them as they start
       set(text) {
-        text.split('-').map(Number).forEach((a, k) => { if (DOORS[k] && a >= 0 && a <= Number(DOORS[k].max)) DOORS[k].value = a; });
+        const names = Object.keys(state.doors);
+        text.split('-').map(Number).forEach((a, k) => { if (names[k] && a >= 0 && a <= Number(DOOR_SLIDERS[names[k]].max)) state.doors[names[k]] = a; });
         update();
       },
     },
   },
 });
-DOORS.forEach(d => d.addEventListener('input', viewKit.writeView));
+Object.values(DOOR_SLIDERS).forEach(d => d.addEventListener('input', viewKit.writeView));
 // Scenes: everything on show bar the view, from living_room.scenes.js or saved
 // here. Showing one loads the page again with its settings, keeping the view.
 // The pop-up menus: the views list and look at the top right, the scenes at
@@ -3036,15 +3050,13 @@ function syncControls() {
 // window.plans: the settings and what's made of them, for the tests and the
 // browser console (REFACTOR_PLAN.md, step 6a). Read-only: nothing here
 // changes the page.
-//   get()       the settings: state, as JSON, and the doors' angles
+//   get()       the settings: state, as JSON, the doors' angles with them
 //   snapshot()  the settings, each corner cupboard's cutting list, the
 //               dimension figures on show and the description, which the
 //               tests save beside each address (tests/snapshots/)
 // ---------------------------------------------------------------------------
-const DOOR_NAMES = ['room', 'tall', 'second', 'bedroom', 'flat', 'outside'];   // DOORS' order
 function settingsNow() {
-  const doors = Object.fromEntries(DOOR_NAMES.map((name, k) => [name, Number(DOORS[k].value)]));
-  return { ...JSON.parse(JSON.stringify(state)), doors };
+  return JSON.parse(JSON.stringify(state));
 }
 // A cupboard's cutting list as rows, in the order the page lists them
 function cuttingRows(cupboard) {
