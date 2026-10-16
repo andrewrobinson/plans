@@ -4,7 +4,7 @@
 // in each room it can be in too. Each must build without error, with no
 // size that isn't a number, no board in the cutting lists of no size, the
 // corner cupboard and what stands on the front wall inside the living room
-// (with its doors as they start),
+// (with its doors at each end of their sliders too: they stop at the walls),
 // and the same configuration back after a trip through the address. A
 // failure names the setting and gives its link, to open and look at.
 import { test } from 'node:test';
@@ -58,10 +58,9 @@ function* configurations() {
 
 // What's wrong with what's built, if anything
 const inLivingRoom = ({ from, to }) => from.every(v => v >= 0) && to[0] <= ROOM_WIDTH && to[1] <= ROOM_DEPTH && to[2] <= CEILING_HEIGHT;
-// The cupboard's doors can open past the walls (option 8's and 10's second
-// door at 180°, through the wall: the model as it is), so with a door
-// opened the room's not checked
-function problems(flat, doorsOpened) {
+// The cupboard's doors stop at the walls (flat_model.js's opensTo()), so the
+// room's checked with them opened too
+function problems(flat) {
   const found = [];
   flat.world.traverse(o => {
     if (o.isMesh && o.geometry.attributes.position.array.some(v => !Number.isFinite(v))) found.push(`a shape with a size that isn't a number (${o.userData.part ?? 'unnamed'})`);
@@ -69,7 +68,7 @@ function problems(flat, doorsOpened) {
   for (const [cupboard, rows] of Object.entries(flat.cupboards)) {
     for (const row of rows ?? []) if (!(row.length > 0 && row.width > 0 && row.count > 0)) found.push(`the ${cupboard} cutting list has ${JSON.stringify(row)}`);
   }
-  for (const piece of doorsOpened ? [] : ['cornerCupboard', 'dresser', 'larder']) {
+  for (const piece of ['cornerCupboard', 'dresser', 'larder']) {
     const box = flat.boxes[piece];
     if (box?.shown && !inLivingRoom(box)) found.push(`the ${piece} reaches out of the living room: ${JSON.stringify(box)}`);
   }
@@ -89,7 +88,7 @@ test('generated configurations build, fit and round-trip', async () => {
       await fail(e.stack.split('\n').slice(0, 3).join(' '));
       continue;
     }
-    for (const p of problems(flat, what.includes('doors.'))) await fail(p);
+    for (const p of problems(flat)) await fail(p);
     // Through the address and back: what it read, read again the same
     const read = structuredClone(flat.configuration);
     const again = buildFlat(await unpack(await pack(read))).configuration;

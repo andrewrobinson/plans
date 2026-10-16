@@ -2113,15 +2113,41 @@ export function build(i) {
   return { option, same, aboveText };
 }
 
-// The doors turned to their angles in state.doors (they don't rebuild), then
-// the bedroom's copy of the cupboard made again, with its doors as they now
+const turn = degrees => THREE.MathUtils.degToRad(degrees);
+
+// Whether a door on its hinge lies inside the living room's walls, floor and
+// ceiling (boxOf()'s mm)
+function insideLivingRoom(hinge) {
+  const { from, to } = boxOf(hinge);
+  return from.every(v => v >= 0) && to[0] <= ROOM_WIDTH && to[1] <= ROOM_DEPTH && to[2] <= CEILING_HEIGHT;
+}
+
+// How far a cupboard door can open before it meets a wall, in degrees, up
+// to the slider's 180: option 10's left door stops at the left wall, near
+// 90°, and option 8's right door at the back wall when the diagonal's deep.
+// Found by turning it a degree at a time, once for each build of the door.
+function opensTo(hinge) {
+  if (hinge.userData.opensTo === undefined) {
+    let degrees = 0;
+    while (degrees < 180) {
+      hinge.rotation.y = (hinge.userData.dir ?? 1) * turn(degrees + 1);
+      if (!insideLivingRoom(hinge)) break;
+      degrees++;
+    }
+    hinge.userData.opensTo = degrees;
+  }
+  return hinge.userData.opensTo;
+}
+
+// The doors turned to their angles in state.doors (they don't rebuild), the
+// cupboard's second doors each stopping at the wall (opensTo()), then the
+// bedroom's copy of the cupboard made again, with its doors as they now
 // stand
 export function turnDoors() {
   const { doors } = state;
-  const turn = degrees => THREE.MathUtils.degToRad(degrees);
   if (current) {
     if (current.tall) current.tall.rotation.y = -turn(doors.tall);
-    for (const s of [].concat(current.second ?? [])) s.rotation.y = (s.userData.dir ?? 1) * turn(doors.second);
+    for (const s of [].concat(current.second ?? [])) s.rotation.y = (s.userData.dir ?? 1) * turn(Math.min(doors.second, opensTo(s)));
   }
   roomHinge.rotation.y = turn(doors.room);
   bedroomHinge.rotation.y = -turn(doors.bedroom);              // it opens the other way, into the bedroom
