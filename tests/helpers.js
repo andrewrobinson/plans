@@ -79,7 +79,7 @@ async function pickOption(page, n) {
 }
 
 // What the page makes of its settings (window.plans.snapshot(): the
-// settings, each corner cupboard's cutting list, the dimension figures and
+// configuration, each corner cupboard's cutting list, the dimension figures and
 // the description) against tests/snapshots/<name>.json, exactly. The
 // screenshots let through a board 2 mm out or one fewer; this doesn't
 // (REFACTOR_PLAN.md, step 6a). One file for both devices, so they must

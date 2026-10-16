@@ -3086,7 +3086,7 @@ function loadConfiguration(configuration) {
 //   export()    the settings as a configuration (SCHEMA, above)
 //   load(json)  shows a configuration, keeping the view
 //   view()      the view, as JSON
-//   snapshot()  the settings, each corner cupboard's cutting list, the
+//   snapshot()  the configuration, each corner cupboard's cutting list, the
 //               dimension figures on show and the description, which the
 //               tests save beside each address (tests/snapshots/)
 // ---------------------------------------------------------------------------
@@ -3112,7 +3112,7 @@ window.plans = {
   load: loadConfiguration,
   view: viewNow,
   snapshot: () => ({
-    settings: settingsNow(),
+    configuration: configurationNow(),
     cupboards: {
       livingRoom: state.option === CURRENT ? null : cuttingRows(current?.cupboard),   // the current room has no cupboard
       bedroom: bedroomCopy ? cuttingRows(bedroomCopy) : null,
