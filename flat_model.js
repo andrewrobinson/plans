@@ -71,15 +71,15 @@ const HANDLE_BOTTOM = 950, HANDLE_TOP = 1250;
 const DOOR_GAP = 3;
 const benchMat = material(0xe8d9bf);
 
-// A named board from room corner (x0, y0, z0) to (x1, y1, z1), in mm: a box
-// for the cutting list. Every cupboard is built of these, with rear panels
+// A named board from room corner `from` [x, y, z] to corner `to`, in mm, as
+// box() takes them: a box for the cutting list. Every cupboard is built of these, with rear panels
 // against the walls, so its inside doesn't lean on them. The rule (see
 // CUT_RULE): rear panels and ends run full height; in a corner the back-wall
 // rear panel runs through and the left-wall one stops at it; tops, bottoms
 // and dividers fit between them; shelves fit inside; doors cover the front
 // edges, DOOR_GAP clear.
-function board(name, x0, y0, z0, x1, y1, z1, g, mat = carcassMat) {
-  return part(name, box({ from: [x0, y0, z0], to: [x1, y1, z1] }, mat, g));
+function board(name, { from, to }, g, mat = carcassMat) {
+  return part(name, box({ from, to }, mat, g));
 }
 
 world.add(floor);
@@ -396,14 +396,14 @@ function fullHeightL(g) {
   const { T, R, F, BOARD: B, BENCH, LEG, LEG_D, L_SHELVES } = state;
   const E = T + LEG, Dl = LEG_D;                                 // Dl: the back-wall leg's depth
   box({ from: [E, 0, 0], to: [ROOM_WIDTH, R, BENCH] }, benchMat, g);
-  board('Back-wall rear panel', 0, 0, 0, E, B, CEILING_HEIGHT, g);                    // runs through the corner
-  board('Left-wall rear panel', 0, B, 0, B, T ? F : Dl, CEILING_HEIGHT, g);            // stops at it; with no left-wall leg, the back-wall leg's side
-  board('Left-wall leg front end', B, F - B, 0, T, F, CEILING_HEIGHT, g);
-  board('Back-wall leg end', E - B, B, 0, E, Dl, CEILING_HEIGHT, g);
-  board('Back-wall leg top', B, B, CEILING_HEIGHT - B, E - B, Dl, CEILING_HEIGHT, g);              // tops and bottoms, between them
-  board('Left-wall leg top', B, Dl, CEILING_HEIGHT - B, T, F - B, CEILING_HEIGHT, g);
-  board('Back-wall leg bottom', B, B, 0, E - B, Dl, B, g);
-  board('Left-wall leg bottom', B, Dl, 0, T, F - B, B, g);
+  board('Back-wall rear panel', { from: [0, 0, 0], to: [E, B, CEILING_HEIGHT] }, g);                    // runs through the corner
+  board('Left-wall rear panel', { from: [0, B, 0], to: [B, T ? F : Dl, CEILING_HEIGHT] }, g);            // stops at it; with no left-wall leg, the back-wall leg's side
+  board('Left-wall leg front end', { from: [B, F - B, 0], to: [T, F, CEILING_HEIGHT] }, g);
+  board('Back-wall leg end', { from: [E - B, B, 0], to: [E, Dl, CEILING_HEIGHT] }, g);
+  board('Back-wall leg top', { from: [B, B, CEILING_HEIGHT - B], to: [E - B, Dl, CEILING_HEIGHT] }, g);              // tops and bottoms, between them
+  board('Left-wall leg top', { from: [B, Dl, CEILING_HEIGHT - B], to: [T, F - B, CEILING_HEIGHT] }, g);
+  board('Back-wall leg bottom', { from: [B, B, 0], to: [E - B, Dl, B] }, g);
+  board('Left-wall leg bottom', { from: [B, Dl, 0], to: [T, F - B, B] }, g);
   for (const top of L_SHELVES.back) cupShelf(rectPoly(B, B, E - B, Dl - B), top, carcassMat);
   if (T) for (const top of L_SHELVES.left) cupShelf(rectPoly(B, Dl - B, T - B, F - B), top, carcassMat);
   const second = hinge(E, Dl + B, g);
@@ -445,10 +445,10 @@ function roomDoorGap() {
 function diagonalCarcass(g) {
   const { T, R, F, BOARD: B } = state;
   const E = T + 700;
-  board('Back-wall rear panel', 0, 0, 0, E, B, CEILING_HEIGHT, g);                // runs through the corner
-  board('Left-wall rear panel', 0, B, 0, B, F, CEILING_HEIGHT, g);                // stops at it
-  board('Left-wall end', B, F - B, 0, T, F, CEILING_HEIGHT, g);
-  board('Back-wall end', E - B, B, 0, E, R, CEILING_HEIGHT, g);
+  board('Back-wall rear panel', { from: [0, 0, 0], to: [E, B, CEILING_HEIGHT] }, g);                // runs through the corner
+  board('Left-wall rear panel', { from: [0, B, 0], to: [B, F, CEILING_HEIGHT] }, g);                // stops at it
+  board('Left-wall end', { from: [B, F - B, 0], to: [T, F, CEILING_HEIGHT] }, g);
+  board('Back-wall end', { from: [E - B, B, 0], to: [E, R, CEILING_HEIGHT] }, g);
   const across = (x, y) => [[x, R + (E - x) * (F - R) / 700], [T + (F - y) * 700 / (F - R), y]];   // where x and y meet the front
   const outline = [[B, B], [E - B, B], ...across(E - B, F - B), [B, F - B]];
   part('Top', slab(outline, CEILING_HEIGHT - B, CEILING_HEIGHT, carcassMat, g));
@@ -490,17 +490,17 @@ function wardCarcass(g) {
   const E = T + WARD;
   // Rear panels: the back wall's runs through the corner, the left wall's
   // stops at it (and with no left-wall leg, is the cupboard's side)
-  board('Back-wall rear panel', 0, 0, 0, E, B, CEILING_HEIGHT, g);
-  board('Left-wall rear panel', 0, B, 0, B, T ? F : Dw, CEILING_HEIGHT, g);
+  board('Back-wall rear panel', { from: [0, 0, 0], to: [E, B, CEILING_HEIGHT] }, g);
+  board('Left-wall rear panel', { from: [0, B, 0], to: [B, T ? F : Dw, CEILING_HEIGHT] }, g);
   // The left-wall leg, as in option 7, behind the deeper cupboard; with no
   // left-wall cupboard these draw nothing
-  board('Left-wall leg front end', B, F - B, 0, T, F, CEILING_HEIGHT, g);
-  board('Left-wall leg top', B, Dw, CEILING_HEIGHT - B, T, F - B, CEILING_HEIGHT, g);
-  board('Left-wall leg bottom', B, Dw, 0, T, F - B, B, g);
+  board('Left-wall leg front end', { from: [B, F - B, 0], to: [T, F, CEILING_HEIGHT] }, g);
+  board('Left-wall leg top', { from: [B, Dw, CEILING_HEIGHT - B], to: [T, F - B, CEILING_HEIGHT] }, g);
+  board('Left-wall leg bottom', { from: [B, Dw, 0], to: [T, F - B, B] }, g);
   // The double-door cupboard on the back wall
-  board('Cupboard end', E - B, B, 0, E, Dw, CEILING_HEIGHT, g);
-  board('Cupboard top', B, B, CEILING_HEIGHT - B, E - B, Dw, CEILING_HEIGHT, g);
-  board('Cupboard bottom', B, B, 0, E - B, Dw, B, g);
+  board('Cupboard end', { from: [E - B, B, 0], to: [E, Dw, CEILING_HEIGHT] }, g);
+  board('Cupboard top', { from: [B, B, CEILING_HEIGHT - B], to: [E - B, Dw, CEILING_HEIGHT] }, g);
+  board('Cupboard bottom', { from: [B, B, 0], to: [E - B, Dw, B] }, g);
   for (const top of [600, 1200, 1800]) {
     cupShelf(rectPoly(B, B, E - B, Dw - B), top, carcassMat);
     if (T) cupShelf(rectPoly(B, Dw - B, T - B, F - B), top, carcassMat);   // none with no left-wall leg
@@ -1024,9 +1024,9 @@ function frontSpan() {
 function shelvingTower(x0, x1, g) {
   if (x1 - x0 < 100) return;
   const { R, BOARD: B } = state;
-  board('Shelving tower rear panel', x0, 0, 0, x1, B, CEILING_HEIGHT, g);                 // against the back wall
-  board('Shelving tower side', x1 - B, B, 0, x1, R, CEILING_HEIGHT, g);
-  board('Shelving tower top', x0, B, CEILING_HEIGHT - B, x1 - B, R, CEILING_HEIGHT, g);
+  board('Shelving tower rear panel', { from: [x0, 0, 0], to: [x1, B, CEILING_HEIGHT] }, g);                 // against the back wall
+  board('Shelving tower side', { from: [x1 - B, B, 0], to: [x1, R, CEILING_HEIGHT] }, g);
+  board('Shelving tower top', { from: [x0, B, CEILING_HEIGHT - B], to: [x1 - B, R, CEILING_HEIGHT] }, g);
   part('Shelving tower plinth', box({ from: [x0, B, 0], to: [x1 - B, R, PLINTH] }, carcassMat, g));   // a block, not a board
   const step = (CEILING_HEIGHT - B - PLINTH) / 6;
   for (let k = 1; k <= 5; k++) {
@@ -1054,12 +1054,12 @@ function cornerCupboard(g, facing, benchFrom = state.CORNER_W) {   // benchFrom:
 function cornerCarcass(g) {
   const { CORNER_D: F, BOARD: B, CORNER_W: X } = state;
   const E = X - B;
-  board('Back-wall rear panel', 0, 0, 0, X, B, CEILING_HEIGHT, g);                   // runs through the corner
+  board('Back-wall rear panel', { from: [0, 0, 0], to: [X, B, CEILING_HEIGHT] }, g);                   // runs through the corner
   // The left-wall rear panel stops at it, and at the front: behind option
   // 10's doors, or behind option 11's end, which runs across it
-  board('Left-wall rear panel', 0, B, 0, B, F - B, CEILING_HEIGHT, g);
-  board('Top', B, B, CEILING_HEIGHT - B, E, F - B, CEILING_HEIGHT, g);                            // top and bottom, between them
-  board('Bottom', B, B, 0, E, F - B, B, g);
+  board('Left-wall rear panel', { from: [0, B, 0], to: [B, F - B, CEILING_HEIGHT] }, g);
+  board('Top', { from: [B, B, CEILING_HEIGHT - B], to: [E, F - B, CEILING_HEIGHT] }, g);                            // top and bottom, between them
+  board('Bottom', { from: [B, B, 0], to: [E, F - B, B] }, g);
   for (const top of [600, 1200, 1800]) cupShelf(rectPoly(B, B, E, F - B), top, shelfMat);
 }
 
@@ -1068,7 +1068,7 @@ function cornerCarcass(g) {
 function cornerDoorsToKitchen(g) {
   const { CORNER_D: F, BOARD: B, CORNER_W: X } = state;
   const E = X - B;
-  board('Side facing the windows', E, B, 0, X, F, CEILING_HEIGHT, g);
+  board('Side facing the windows', { from: [E, B, 0], to: [X, F, CEILING_HEIGHT] }, g);
   const w = (E - 3 * DOOR_GAP) / 2;                              // a pair, DOOR_GAP from the wall, each other and the side
   const left = hinge(DOOR_GAP, F, g);
   left.userData.dir = -1;
@@ -1086,8 +1086,8 @@ function cornerDoorsToKitchen(g) {
 function cornerDoorsToWindows(g) {
   const { R, CORNER_D: F, BOARD: B, CORNER_W: X } = state;
   const E = X - B;
-  board('End facing the kitchen', 0, F - B, 0, X, F, CEILING_HEIGHT, g);
-  board('Side by the bench', E, B, 0, X, R, CEILING_HEIGHT, g);
+  board('End facing the kitchen', { from: [0, F - B, 0], to: [X, F, CEILING_HEIGHT] }, g);
+  board('Side by the bench', { from: [E, B, 0], to: [X, R, CEILING_HEIGHT] }, g);
   const w = (F - R - B - 3 * DOOR_GAP) / 2;                       // a pair on the side beyond the bench
   const back = hinge(E, R + DOOR_GAP, g);                         // hinged at the bench end
   part('Cupboard door', box({ from: [0, 0, DOOR_GAP], to: [B, w, CEILING_HEIGHT - DOOR_GAP] }, doorMat, back));
@@ -1113,13 +1113,13 @@ function sideBookshelf(g) {
   const { CORNER_W: X, CORNER_D, BOARD: B, SIDE_W, SIDE_D: d } = state;
   const alone = cornerTooShallow('kitchen');                     // no cupboard beside it, nor its rear panel
   const x1 = X + SIDE_W, shared = alone ? B : Math.max(B, Math.min(CORNER_D, d));   // y the cupboard's side covers
-  board('Bookshelf rear panel', alone ? X - B : X, 0, 0, x1, B, CEILING_HEIGHT, g);     // against the back wall, on from the cupboard's
-  board('Bookshelf side', x1 - B, B, 0, x1, d, CEILING_HEIGHT, g);
-  board('Bookshelf side, past the cupboard', X - B, shared, 0, X, d, CEILING_HEIGHT, g);
-  board('Bookshelf top', X, B, CEILING_HEIGHT - B, x1 - B, d, CEILING_HEIGHT, g);
-  board('Bookshelf bottom', X, B, 0, x1 - B, d, B, g);
+  board('Bookshelf rear panel', { from: [alone ? X - B : X, 0, 0], to: [x1, B, CEILING_HEIGHT] }, g);     // against the back wall, on from the cupboard's
+  board('Bookshelf side', { from: [x1 - B, B, 0], to: [x1, d, CEILING_HEIGHT] }, g);
+  board('Bookshelf side, past the cupboard', { from: [X - B, shared, 0], to: [X, d, CEILING_HEIGHT] }, g);
+  board('Bookshelf top', { from: [X, B, CEILING_HEIGHT - B], to: [x1 - B, d, CEILING_HEIGHT] }, g);
+  board('Bookshelf bottom', { from: [X, B, 0], to: [x1 - B, d, B] }, g);
   for (const top of sideShelfTops()) {
-    board('Bookshelf shelf', X, B, top - B, x1 - B, d, top, g, shelfMat);
+    board('Bookshelf shelf', { from: [X, B, top - B], to: [x1 - B, d, top] }, g, shelfMat);
     box({ from: [X + 20, d - 40, top - B - 7], to: [x1 - B - 20, d - 30, top - B] }, glowMat, g, false);
   }
 }
