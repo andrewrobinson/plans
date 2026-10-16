@@ -1,5 +1,9 @@
-// Shared by the test files: a `test` that fails on any console error, and
-// openRoom(), which loads index.html and waits until it's drawn.
+// Shared by the test files: a `test` that fails on any console error;
+// openRoom(), which loads index.html and waits until it's drawn; and
+// expectSnapshot(), which checks what the page makes of its settings
+// against the one saved.
+const fs = require('fs');
+const path = require('path');
 const base = require('@playwright/test');
 
 // Every test gets this automatically (auto: true): it listens for console
@@ -43,7 +47,30 @@ async function pickOption(page, n) {
   await page.selectOption('#current', value);
 }
 
+// What the page makes of its settings (window.plans.snapshot(): the
+// settings, each corner cupboard's cutting list, the dimension figures and
+// the description) against tests/snapshots/<name>.json, exactly. The
+// screenshots let through a board 2 mm out or one fewer; this doesn't
+// (REFACTOR_PLAN.md, step 6a). One file for both devices, so they must
+// agree. It's written when it's missing, and again when it's changed with
+// `npm run test:update`, as the screenshots are.
+const SNAPSHOTS = path.join(__dirname, 'snapshots');
+async function expectSnapshot(page, name) {
+  const actual = await page.evaluate(() => window.plans.snapshot());
+  const file = path.join(SNAPSHOTS, `${name}.json`);
+  const mode = base.test.info().config.updateSnapshots;           // 'default' normally, 'changed' with --update-snapshots
+  const saved = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : undefined;
+  const write = mode === 'all' || mode === 'changed' || (mode !== 'none' && saved === undefined);
+  if (write) {
+    if (JSON.stringify(actual) === JSON.stringify(saved)) return;
+    fs.mkdirSync(SNAPSHOTS, { recursive: true });
+    fs.writeFileSync(file, `${JSON.stringify(actual, null, 2)}\n`);
+    return;
+  }
+  base.expect(actual, `what the page makes of it, as saved in tests/snapshots/${name}.json`).toEqual(saved);
+}
+
 // The parts of the address: settings ~ things to store ~ view
 const settingsField = (hash, k) => hash.slice(1).split('~')[0].split('-')[k];
 
-module.exports = { test, expect: base.expect, openRoom, pickOption, settingsField };
+module.exports = { test, expect: base.expect, openRoom, pickOption, settingsField, expectSnapshot };

@@ -1,10 +1,10 @@
-// index.html: saved addresses look the same and round-trip, and the menus
-// work. See REFACTOR_PLAN.md. Every test also fails on a console error
+// index.html: saved addresses look the same, give the same snapshot
+// (tests/snapshots/) and round-trip, and the menus work. See REFACTOR_PLAN.md. Every test also fails on a console error
 // (helpers.js).
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
-const { test, expect, openRoom, pickOption, settingsField } = require('./helpers');
+const { test, expect, openRoom, pickOption, settingsField, expectSnapshot } = require('./helpers');
 const { ADDRESSES, VIEW } = require('./addresses');
 
 // The scenes in living_room.scenes.js, read the way the page reads them
@@ -21,6 +21,7 @@ test.describe('saved addresses', () => {
     test(`${name} looks the same and round-trips`, async ({ page }) => {
       await openRoom(page, address);
       expect(await page.evaluate(() => location.hash)).toBe(address);
+      await expectSnapshot(page, name);
       await expect(page).toHaveScreenshot(`${name}.png`);
     });
   }
@@ -30,6 +31,7 @@ test.describe('saved addresses', () => {
       await openRoom(page, `#${address}`);
       // A scene leaves out the view, so the page adds its default one
       expect(await page.evaluate(() => location.hash)).toBe(`#${address}~${VIEW}`);
+      await expectSnapshot(page, `scene-${id}`);
       await expect(page).toHaveScreenshot(`scene-${id}.png`);
     });
   }

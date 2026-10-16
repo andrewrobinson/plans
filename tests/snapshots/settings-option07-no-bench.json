@@ -1,0 +1,442 @@
+{
+  "settings": {
+    "option": 0,
+    "T": 500,
+    "R": 450,
+    "F": 1200,
+    "BOARD": 25,
+    "LEG": 900,
+    "LEG_D": 900,
+    "L_SHELVES": {
+      "back": [
+        300,
+        900,
+        1500
+      ],
+      "left": []
+    },
+    "WARD": 900,
+    "WARD_D": 600,
+    "TOWER": 400,
+    "CORNER_W": 1200,
+    "CORNER_D": 900,
+    "SIDE_SHELF": false,
+    "SIDE_W": 800,
+    "SIDE_D": 150,
+    "benchOn": false,
+    "bookshelfOn": false,
+    "bookshelfMove": {
+      "x": 1200,
+      "y": 300,
+      "turn": 180
+    },
+    "pineOn": true,
+    "pineMove": {
+      "x": 500,
+      "y": 300,
+      "turn": 90
+    },
+    "BENCH": 700,
+    "above": 1,
+    "shelfDepth": 200,
+    "tv": 43,
+    "colours": {
+      "floor": 0,
+      "cupboard": 5,
+      "wall": 0,
+      "woodwork": 0,
+      "dresser": 0,
+      "carpet": 12
+    },
+    "shelfWood": 3,
+    "frontPiece": "none",
+    "dresser": {
+      "w": 1000,
+      "h": 1800,
+      "baseD": 350,
+      "baseH": 800,
+      "upperD": 250,
+      "drawer": 160,
+      "x0": 1008,
+      "x1": 2008
+    },
+    "larder": {
+      "key": "chester",
+      "size": {
+        "w": 1100,
+        "h": 1950,
+        "d": 510
+      }
+    },
+    "sofa": {
+      "key": "",
+      "front": 1900,
+      "size": {
+        "w": 1690,
+        "d": 1000,
+        "h": 920
+      },
+      "move": {
+        "x": 1200,
+        "y": 3000,
+        "turn": 270
+      }
+    },
+    "island": {
+      "at": "out",
+      "move": {
+        "x": 1000,
+        "y": 2000,
+        "turn": 170
+      }
+    },
+    "stored": {
+      "shown": true,
+      "packing": 3,
+      "where": 2,
+      "spots": [
+        {
+          "x": 100,
+          "y": 100,
+          "turned": true,
+          "z": 0
+        },
+        {
+          "x": 200,
+          "y": 900,
+          "turned": false,
+          "z": 0
+        },
+        {
+          "x": 300,
+          "y": 1000,
+          "turned": false,
+          "z": 400
+        },
+        {
+          "x": 400,
+          "y": 400,
+          "turned": true,
+          "z": 0
+        },
+        {
+          "x": 500,
+          "y": 500,
+          "turned": false,
+          "z": 0
+        },
+        {
+          "x": 600,
+          "y": 600,
+          "turned": false,
+          "z": 0
+        },
+        {
+          "x": 700,
+          "y": 700,
+          "turned": true,
+          "z": 0
+        }
+      ]
+    },
+    "otherRoom": {
+      "bed": {
+        "u": 2000,
+        "v": 500,
+        "turn": 90
+      },
+      "bookcase": {
+        "u": 1000,
+        "v": 2000,
+        "turn": 0,
+        "w": 1000,
+        "d": 250,
+        "h": 1000
+      },
+      "cupboard": {
+        "u": 500,
+        "v": 500,
+        "turn": 270,
+        "w": 1000,
+        "d": 400,
+        "h": 2000
+      },
+      "bookcaseOn": true,
+      "cupboardOn": false,
+      "mirrorOn": false,
+      "newCupboardOn": false,
+      "lowerD": 450,
+      "upperDrawers": true,
+      "upperMirrors": false,
+      "mirror": {
+        "along": 1500,
+        "bottom": 900,
+        "w": 600,
+        "h": 1200,
+        "wall": "window"
+      }
+    },
+    "wickerBench": {
+      "w": 1000,
+      "d": 500,
+      "h": 500,
+      "legs": 100,
+      "hallway": {
+        "on": false,
+        "along": 2000,
+        "across": 2000,
+        "turn": 180
+      },
+      "bedroom": {
+        "on": false,
+        "u": 1000,
+        "v": 1500,
+        "turn": 90
+      },
+      "livingRoom": {
+        "on": false,
+        "x": 1000,
+        "y": 3000,
+        "turn": 270
+      }
+    },
+    "shoeRack": {
+      "w": 900,
+      "d": 300,
+      "h": 1500,
+      "bevel": false,
+      "slope": 30,
+      "shoes": true,
+      "bevelDoor": 78
+    },
+    "garage": {
+      "sean": {
+        "on": true,
+        "x": 2000,
+        "y": 1000,
+        "turn": 90
+      },
+      "billy": {
+        "on": true,
+        "x": 4000,
+        "y": 500,
+        "turn": 180
+      },
+      "billyChest": {
+        "on": false,
+        "x": 3000,
+        "y": 200,
+        "turn": 0
+      },
+      "metal": {
+        "on": true,
+        "x": 670,
+        "y": 360,
+        "turn": 90
+      },
+      "yellow": {
+        "on": true,
+        "x": 3390,
+        "y": 2550,
+        "turn": 0,
+        "z": 438
+      },
+      "scaffoldBench": {
+        "on": true,
+        "x": 3430,
+        "y": 2650,
+        "turn": 0
+      },
+      "smallBilly": {
+        "on": true,
+        "x": 2480,
+        "y": 0,
+        "turn": 0,
+        "off": 0
+      },
+      "potters": {
+        "on": true,
+        "x": 3090,
+        "y": 0,
+        "turn": 0,
+        "off": 0
+      },
+      "biltong": {
+        "on": true,
+        "x": 580,
+        "y": 1070,
+        "turn": 90,
+        "z": 750
+      },
+      "trellis": {
+        "on": true,
+        "x": 730,
+        "y": 1160,
+        "turn": 90
+      },
+      "pine": {
+        "on": true,
+        "x": 1425,
+        "y": 0,
+        "turn": 0
+      }
+    },
+    "doors": {
+      "room": 90,
+      "tall": 0,
+      "second": 0,
+      "bedroom": 90,
+      "flat": 0,
+      "outside": 0
+    }
+  },
+  "cupboards": {
+    "livingRoom": [
+      {
+        "kind": "Panels",
+        "length": 2443,
+        "width": 1400,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Back-wall rear panel"
+        ]
+      },
+      {
+        "kind": "Panels",
+        "length": 2443,
+        "width": 1175,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Left-wall rear panel"
+        ]
+      },
+      {
+        "kind": "Panels",
+        "length": 2443,
+        "width": 875,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Back-wall leg end"
+        ]
+      },
+      {
+        "kind": "Panels",
+        "length": 2443,
+        "width": 475,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Left-wall leg front end"
+        ]
+      },
+      {
+        "kind": "Panels",
+        "length": 1350,
+        "width": 875,
+        "shaped": false,
+        "count": 2,
+        "parts": [
+          "Back-wall leg top",
+          "Back-wall leg bottom"
+        ]
+      },
+      {
+        "kind": "Panels",
+        "length": 475,
+        "width": 275,
+        "shaped": false,
+        "count": 2,
+        "parts": [
+          "Left-wall leg top",
+          "Left-wall leg bottom"
+        ]
+      },
+      {
+        "kind": "Doors",
+        "length": 2437,
+        "width": 869,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Back-wall leg door"
+        ]
+      },
+      {
+        "kind": "Doors",
+        "length": 2437,
+        "width": 294,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Left-wall leg door"
+        ]
+      },
+      {
+        "kind": "Shelves",
+        "length": 1350,
+        "width": 850,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Shelf at 1500"
+        ]
+      },
+      {
+        "kind": "Shelves",
+        "length": 850,
+        "width": 545,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Shelf at 900, cut back"
+        ]
+      },
+      {
+        "kind": "Shelves",
+        "length": 850,
+        "width": 465,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Shelf at 900, cut back"
+        ]
+      },
+      {
+        "kind": "Shelves",
+        "length": 850,
+        "width": 215,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Shelf at 300, cut back"
+        ]
+      }
+    ],
+    "bedroom": null
+  },
+  "dimensions": [
+    "500",
+    "900",
+    "2438",
+    "450",
+    "750",
+    "129",
+    "71",
+    "760",
+    "71",
+    "155",
+    "2993",
+    "590",
+    "405",
+    "3838",
+    "200",
+    "250",
+    "4929",
+    "Door 294 × 2437",
+    "Door 869 × 2437"
+  ],
+  "description": "Both legs of the L run floor to ceiling, 900 inside along the back wall (900 deep) and 300 along the left wall, one space round the corner. Doors 2437 high, 25 thick: 869 wide on the back-wall leg, 294 wide on the left-wall leg (it covers the corner). No bench: the pine cupboard stands there instead. Inside, within its 25 boards (rear panels against the walls included): 1350 × 850 along the back wall and 450 × 300 along the left wall, 2393 high. The bedroom's pine cupboard (1000 wide, 400 deep, 2000 high) in place of the bench, moved: the middle of its back at x 500, y 300, facing the left wall. The kitchen island against the front wall between the sink and the desk, its long side out (x 800-1570), coming 1260 out from the wall to y 4119.From plan3/room_3d.html"
+}
