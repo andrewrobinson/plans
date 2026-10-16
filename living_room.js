@@ -772,7 +772,7 @@ state.larder.key = Object.hasOwn(LARDERS, LARDER_MODELS.start ?? '') ? LARDER_MO
 const partHeight = p => p.legs ?? p.plinth ?? p.top ?? p.cornice ?? p.h ?? 0;
 const larderHeight = L => L.parts.reduce((t, p) => t + partHeight(p), 0);
 const larderDepth = L => Math.max(L.d, ...L.parts.map(p => p.d ?? 0));
-const LARDER_SLIDERS = [['w', 'larderW', 400, 1500], ['h', 'larderH', 1500, 2400], ['d', 'larderD', 300, 700]];
+const LARDER_SLIDERS = [['w', 'larderW', 400, 1500, 10], ['h', 'larderH', 1500, 2400, 10], ['d', 'larderD', 300, 700, 10]];
 const larderOwnSize = L => ({ w: L.w, h: larderHeight(L), d: L.d });
 if (LARDERS[state.larder.key]) state.larder.size = larderOwnSize(LARDERS[state.larder.key]);
 // The larder chosen, at the sliders' sizes: a change of height goes on (or
@@ -900,7 +900,7 @@ state.sofa.key = Object.hasOwn(SOFAS, SOFA_MODELS.start ?? '') ? SOFA_MODELS.sta
 state.sofa.front = SOFA_MODELS.front ?? 1900;
 // The sofa's sizes can be changed from its sliders: [key, slider id,
 // lowest, highest]. Choosing a sofa sets them to its own.
-const SOFA_SLIDERS = [['w', 'sofaW', 1200, 2600], ['d', 'sofaD', 700, 1200], ['h', 'sofaH', 700, 1100]];
+const SOFA_SLIDERS = [['w', 'sofaW', 1200, 2600, 10], ['d', 'sofaD', 700, 1200, 10], ['h', 'sofaH', 700, 1100, 10]];
 const sofaOwnSize = S => ({ w: S.w, d: S.d, h: S.h });
 if (SOFAS[state.sofa.key]) state.sofa.size = sofaOwnSize(SOFAS[state.sofa.key]);
 // The sofa chosen, at the sliders' sizes: the seat keeps its depth (the back
@@ -2978,10 +2978,23 @@ function syncControls() {
 // Ranges are the sliders' in index.html, unless an entry says.
 // ---------------------------------------------------------------------------
 const CONFIGURATION_VERSION = 1;   // up only when a setting changes its path or meaning
-// A number held to the range of the slider with this id
+// The ranges of the sliders the schema's numbers follow, chosen, as in
+// index.html: [lowest, highest, step], by the slider's id. A test checks
+// they agree with index.html's (room_3d.spec.js). The dresser's, larder's
+// and sofa's are in DRESSER_SLIDERS, LARDER_SLIDERS and SOFA_SLIDERS
+const SLIDER_RANGES = {
+  roomDoor: [0, 110, 1], tallDoor: [0, 180, 1], secondDoor: [0, 180, 1], bedroomDoor: [0, 180, 1], flatDoor: [0, 90, 1], outsideDoor: [0, 90, 1],
+  rear: [300, 800, 10], board: [12, 25, 1], leg: [400, 1200, 1], legD: [330, 1000, 1],
+  ward: [600, 1400, 50], wardD: [330, 1000, 10], tower: [0, 600, 50],
+  cornerW: [500, 1200, 10], cornerD: [0, 1329, 1], sideW: [200, 800, 10], sideD: [150, 800, 10],
+  shelfDepth: [150, 400, 10], islandTurn: [0, 180, 5], sofaFront: [1000, 3500, 50],
+};
+for (const [, id, lo, hi, step] of [...DRESSER_SLIDERS, ...LARDER_SLIDERS, ...SOFA_SLIDERS]) SLIDER_RANGES[id] = [lo, hi, step];
+// A number held to the range of the slider with this id, which it keeps
+// (`slider`), for the test
 function fromSlider(path, setting, id, more) {
-  const { min, max, step } = document.getElementById(id);
-  return Config.number(path, setting, Number(min), Number(max), Number(step || 1), more);
+  const [min, max, step] = SLIDER_RANGES[id];
+  return { ...Config.number(path, setting, min, max, step, more), slider: id };
 }
 const cupboard = key => `pieces.cornerCupboard.design.${key}`;
 const isColour = code => code === 0 || Boolean(colourOf(code));
@@ -3089,6 +3102,7 @@ function loadConfiguration(configuration) {
 //   export()    the settings as a configuration (SCHEMA, above)
 //   load(json)  shows a configuration, keeping the view
 //   view()      the view, as JSON
+//   schema()    the configuration's entries, bar their functions
 //   snapshot()  the configuration, each corner cupboard's cutting list, the
 //               dimension figures on show, the description and each piece's
 //               box, which the
@@ -3140,6 +3154,7 @@ window.plans = {
   export: configurationNow,
   load: loadConfiguration,
   view: viewNow,
+  schema: () => SCHEMA.map(({ read, write, isColour, also, ...entry }) => structuredClone(entry)),
   snapshot: () => ({
     configuration: configurationNow(),
     cupboards: {

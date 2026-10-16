@@ -59,6 +59,18 @@ test.describe('saved addresses', () => {
     expect(await configurationOf(page)).toEqual(DEFAULT.configuration);
   });
 
+  // The configuration's numbers are held to their sliders' ranges, written
+  // in the schema (so Node has them): each must be its slider's in index.html
+  test('the configuration\'s ranges are the sliders\'', async ({ page }) => {
+    await openRoom(page);
+    const entries = (await page.evaluate(() => window.plans.schema())).filter(e => e.slider);
+    expect(entries.length).toBeGreaterThan(30);
+    for (const { path, slider, min, max, step } of entries) {
+      const html = await page.locator(`#${slider}`).evaluate(el => [Number(el.min), Number(el.max), Number(el.step || 1)]);
+      expect(html, `${path}'s slider, #${slider}`).toEqual([min, max, step]);
+    }
+  });
+
   test('no address gives the default page', async ({ page }) => {
     await openRoom(page);
     expect(await configurationOf(page)).toEqual(DEFAULT.configuration);
