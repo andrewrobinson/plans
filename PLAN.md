@@ -17,8 +17,8 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    between the menus and what's drawn, the URL as that configuration
    compressed, the model built and tested in Node, and the corner
    cupboard as an instance, the bedroom getting a second one. 6a (the
-   safety net) and 6b (the configuration and its URL) are done; 6c (the
-   model in Node) is next.
+   safety net), 6b (the configuration and its URL) and 6c (the model in
+   Node) are done; 6d (the corner cupboards) is next.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).

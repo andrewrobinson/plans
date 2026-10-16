@@ -14,10 +14,11 @@ The page uses ES modules, so it needs a server:
 python3 serve.py
 ```
 
-then open http://localhost:8765/index.html. The browser tests (Playwright):
+then open http://localhost:8765/index.html. The model's tests, in Node:
+`npm run test:model` (about half a minute). The browser tests (Playwright):
 `npm run test:quick` (a phone, about a minute) after each change, and the
 full `npm test` before anything goes to `main`. `npm run test:update`
-takes new screenshots when a change is meant to show.
+takes new screenshots and snapshots when a change is meant to show.
 
 ## Where things are
 
@@ -25,13 +26,16 @@ takes new screenshots when a change is meant to show.
 | --- | --- |
 | `index.html` | The page and its menus |
 | `floor.js` | The walls, doors and windows: the living room's, the hallway's (`HALLWAY`, with the stairs), downstairs (`ENTRANCE`) and the bedroom's (`OTHER_ROOM`, in its own u, v mm) |
-| `living_room.js` | The living room's fittings and cupboard options, the settings and the page address, and the built-in views |
+| `flat_model.js` | The model: the living room's fittings and cupboard options, the settings and the configuration's schema, the dimensions, cutting list and things to store, with no page, so Node builds it too (`buildFlat()`) |
+| `living_room.js` | The page: the menus and controls, the built-in views, the scenes and the page address |
 | `other_room.js` | The bedroom's furniture and fitted cupboards, and their sliders |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
 | `garage.js` | The garage (off the site plan, in its own x, y mm), what's in it, and Garage options' sliders |
 | `living_room.views.js` | The rooms, places (Where), things (Looking at), eye heights and config-defined views, for editing |
 | `living_room.scenes.js`, `dressers.js`, `larders.js`, `sofas.js` | Scenes and furniture catalogues, for editing |
+| `kit/config_kit.js` | The configuration: reading and writing it through a schema, and packing it for the address |
+| `tests/` | The browser tests, the saved configurations (`configs/`) and snapshots (`snapshots/`), and the model's tests in Node (`model/`) |
 | `kit/` | The engine: `floor_kit.js`, `view_kit.js` (views, rooms, Where and Looking at), `scene_kit.js` |
 | `drawings/` | The floor plans, and `measure_sheet.html` for sending measurements |
 
@@ -39,7 +43,7 @@ The notes:
 
 - `CLAUDE.md`: how to write the code.
 - `PLAN.md`: what's done and what's next.
-- `room_dimensions.md`: every dimension the model uses, and the page address's format.
+- `room_dimensions.md`: every dimension the model uses, and the configuration's and the page address's format.
 - `MEASUREMENTS_NEEDED.md`: what's measured and what's still to measure, in "Where it's got to".
 - `REFACTOR_PLAN.md`: tidying the code.
 - `room_3d_ui_guide.md`: where each part of the page is.

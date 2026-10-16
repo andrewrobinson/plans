@@ -3,9 +3,9 @@
 Two steps are left. Step 5, readable code, is all but done. Step 6, one
 configuration as JSON (agreed 16 Oct 2026), puts a configuration between
 the menus and what's drawn, makes the URL that configuration, compressed,
-and lets the model be built and tested without a browser; its first
-pieces, 6a, the safety net, and 6b, the configuration and its URL, are
-done. Both change how
+and lets the model be built and tested without a browser; 6a, the safety
+net, 6b, the configuration and its URL, and 6c, the model without the
+page, are done. Both change how
 the code is organised, not what the page does: the page must look and
 behave exactly as before, which the Playwright tests check (`tests/`).
 Step 6 changes the URL's format; old links needn't work.
@@ -326,6 +326,43 @@ the browser's bytes.
    A failing configuration is a link, to open and look at.
 3. **The browser tests shrink** to what needs a browser: that each control
    changes the configuration as it should, and the screenshots.
+
+**Done (16 Oct 2026)**, on the `model` branch, a commit each. The user's
+choices, put to them first:
+
+| Question | Chosen |
+|---|---|
+| Where the model goes | One `flat_model.js`, with `buildFlat(config, view)`; `living_room.js` keeps the page |
+| Its working state | Module state, one flat: `buildFlat()` starts again and rebuilds. Instances come with 6d's cupboards |
+| `set(path, value)` | After 6d: the menus keep `changeSettings()` on `state` |
+| `dressers.js`, `larders.js`, `sofas.js` | ES modules, imported by the model |
+| Canvases in Node | A stand-in, the kit's `makeCanvas()`: same shapes and text, no pictures |
+| The schema's ranges | Written in it (`SLIDER_RANGES`); a browser test checks each against its slider |
+| Dimensions | `buildFlat()` takes the view (`setDisplay()`'s fields) and gives the figures the page would show |
+| Bounding boxes | Each piece's, to the mm, in the snapshots (`boxes`) |
+| Generated configurations | For every option, each setting at its ends and each board thickness: 1,728 |
+| Snapshots | Hold the configuration in place of `state` |
+| The browser tests | Keep the screenshots and snapshots; the tests of reading a configuration moved to Node |
+| Runner | `node --test`: `npm run test:model` |
+
+What went in: the snapshots' configuration and boxes; the data files as
+modules; the schema's ranges written in it; `makeCanvas()`; then
+`flat_model.js`, drawing into `world`, with `setDisplay()`, `settle()`,
+`build()`, `turnDoors()`, `describe()`, `buildFlat()` and `startAgain()`
+(all the settings back as the page starts, before a configuration's read:
+`plans.load()` had left the things to store's places and the dresser's
+place from the configuration before); and `tests/model/`, where every
+saved configuration gives its saved snapshot exactly, in about half a
+second, and the generated ones in about 30 seconds.
+
+Found by the generated configurations, not fixed (the model as it is):
+option 8's and option 10's second door, opened to 180° (its slider's
+end), swings out through the wall. The room check skips configurations
+with a door opened.
+
+Left for 6d: the model still keeps one flat in module state, and
+`living_room.js` still reaches into it for much (its export list); the
+corner cupboard's module and instance are 6d's.
 
 ### 6d. The corner cupboards
 

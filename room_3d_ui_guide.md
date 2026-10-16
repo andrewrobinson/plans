@@ -1,7 +1,8 @@
 # index.html — how the page is put together
 
-A guide to the HTML, CSS and JS in `index.html` (321 lines), the living
-room's `living_room.js` (2,696 lines) and `floor.js` (341 lines),
+A guide to the HTML, CSS and JS in `index.html` (321 lines), the page's
+`living_room.js` (1,159 lines), the model's `flat_model.js` (2,194 lines),
+`floor.js` (341 lines),
 `kit/floor_kit.js` (541 lines) and `room_3d.css` (125 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers in the
 map below are as of 15 Oct 2026, after step 5 of `REFACTOR_PLAN.md` (longer
@@ -55,7 +56,7 @@ The HTML only lays out the controls. It contains no logic.
 
 | Lines | What |
 |---|---|
-| 309–313 | **Plain data scripts**: `living_room.views.js`, `dressers.js`, `larders.js`, `sofas.js`, `living_room.scenes.js`. Each one sets a global such as `window.ROOM_SOFAS = {…}` |
+| | **Plain data scripts**: `living_room.views.js` and `living_room.scenes.js`, each setting a global (`window.ROOM_VIEWS`, `window.ROOM_SCENES`). The dressers, larders and sofas are ES modules (`DRESSER_MODELS`, …) the model imports |
 | 314 | `<script type="module" src="living_room.js">`: the room's module, which imports the floor plan from `floor.js`, the engine from `kit/floor_kit.js` and the view and scene kits from `kit/view_kit.js` and `kit/scene_kit.js` |
 
 ### floor.js (341 lines)
@@ -82,39 +83,49 @@ whenever it, its doors or its shelves change, and hands it to
 `showNewCupboard()`.
 The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 
-### living_room.js (2,696 lines)
+### flat_model.js (2,194 lines): the model
+
+Everything drawn, from the settings, with no DOM, so Node builds it too
+(`tests/model/`, step 6c of `REFACTOR_PLAN.md`). It draws into `world`, a
+group the page adds to its scene.
 
 | Lines | Section | Notes |
 |---|---|---|
-| 1–20 | What the file is for | How a change flows through the page, and its sections in order |
-| 22–29 | `import` three.js, the engine's pieces from `kit/floor_kit.js`, the view and scene kits as `ViewKit` and `SceneKit`, and the room's measurements from `floor.js` | |
-| 31–62 | Set-up | `createStage()` for the scene, renderer, cameras and controls, the cupboards' materials, the handles' heights (`HANDLE_BOTTOM`, `HANDLE_TOP`), `DOOR_GAP`, and `board()` (a named board, for the cutting list) |
-| 63–191 | The fixed room's fittings | `KITCHEN` (with its worktop's sizes), front-wall faces, desk, chair, island, room door. The walls, floor, recesses, door frame, ceiling and windows are in `floor.js` |
-| 193–245 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, … These are the values the controls change and the configuration maps onto; `doors`, the doors' angles, last |
-| 247–335 | Corner-cupboard shelves | `cupShelf()` records them; `drawCupShelves()` draws them, cut back over things stored under them |
-| 337–486 | Parts of options 7 to 9 | `tallDoor()`, `fullHeightL()` (option 7); `diagonal()`, `roomDoorGap()`, `diagonalCarcass()`, `diagonalShelves()`, `diagonalDoors()` (option 8); `wardCarcass()`, `wardDoors()` (option 9) |
-| 488–573 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
-| 575–645 | Colours | The room's `FINISHES`, `COLOUR_TARGETS`, `setRal()` (the RAL table and the oak floor are in the kit) |
-| 647–929 | Option 9's base cupboards, dresser, larders, island, sofa, front wall | Includes `baseCupboards()` (655), `DRESSER_SLIDERS` (690), `placeIsland()` (848), `sofa()` (886), `frontWall()` (903) |
-| 930–1049 | Option 9's shelving tower, options 10 and 11's corner cupboard, option 10's side bookshelf | `shelvingTower()`, `cornerCupboard()` with `cornerCarcass()`, `cornerDoorsToKitchen()` and `cornerDoorsToWindows()`, `sideBookshelf()` |
-| 1051–1184 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` |
-| 1186–1368 | 2D dimensions | `updateDims()`, the kit's `cutViews()` giving `applyCut()`, the cupboard-only view, `cupboardDims()`, `doorDims()` (the kit draws the lines, labels and chains) |
-| 1370–1435 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards), `showCuttingList()` |
-| 1437–1858 | Things to store | Packing, `cupboardSpaces()` (each option's inside), `insideText()`, drawing, and dragging in plan view |
-| **1860–1988** | **`update()` and `show(i)`** | **The heart of the UI-to-3D link** (section 5): `show()` calls `buildOption()`, `takeOutBench()`, `showInMenus()` and `redrawAround()` |
-| 2209–2236 | **The address**: `writeAddress()` | The configuration and the view, packed into the URL `#hash` (section 5) |
-| 2967–3079 | **The configuration**: `SCHEMA`, `configurationNow()`, `readConfiguration()`, `loadConfiguration()` | Each setting's entry, with the other rooms' from their modules; the two-way map onto `state` (section 5) |
-| **2073–2371** | **Control wiring** | `changeSettings()` (2078), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5) |
-| 2373–2482 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | At 2442–2461 the 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()`, which gives `setFlat()`, `resize()` and `startLoop()` |
-| 2483–2535 | `ViewKit.create({...})` | Hands the Views and Look dropdowns to `kit/view_kit.js` |
-| **2536–2549** | **Pop-up menus** (the kit's `popMenus()`) and `SceneKit.create` | |
-| 2551–2560 | The Dimensions and Door sizes buttons | |
-| **2562–2568** | **The two drawers** (`DRAWERS`, the kit's `createDrawers()`) | |
-| 2570–2576 | Reset, Share and offline support (the kit's `resetButton()`, `shareButton()`, `workOffline()`) | |
-| 2578–2613 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
-| 3081–3122 | **`window.plans`** (steps 6a and 6b) | `get()`, `export()`, `load()`, `view()` and `snapshot()`, for the tests and the browser console (section 5) |
-| 3124–3140 | **Startup** | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, then `show(state.option)`, then the view |
-| 2625 | **Render loop** | The kit's `startLoop()`: `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
+| 1–35 | What the file is for, `import`s | three.js, the kit's drawing helpers, the configuration kit, the data modules (`dressers.js`, `larders.js`, `sofas.js`), the other rooms' modules and `floor.js` |
+| 36–55 | **`world`** and **`setDisplay()`** | What the page shows that the drawing follows: 2D or not, which view and room, Cupboard only, the Dimensions and Door sizes buttons (the hallway's hidden in the wall views) |
+| 57–214 | Materials and the fixed room's fittings | `KITCHEN`, the front wall's faces, desk, chair, island, room door; `board()` (a named board, for the cutting list) |
+| 215–284 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, `doors` … These are the values the controls change and the configuration maps onto |
+| 285–375 | Corner-cupboard shelves | `cupShelf()` records them; `drawCupShelves()` draws them, cut back over things stored under them |
+| 376–526 | Parts of options 7 to 9 | |
+| 527–613 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
+| 614–693 | Colours | `FINISHES`, `COLOUR_TARGETS`, `setRal()` (the materials) |
+| 694–1143 | Option 9's parts, the dresser, larders, island, sofa, front wall, options 10 and 11's corner cupboard | `placeDresser()`, `placeIsland()`, `sofa()`, `frontWall()`, `cornerCupboard()` |
+| 1144–1270 | **`OPTIONS`** | An array of cupboard designs, each with `name`, `summary` and `build(group)`; then `optionAt()` |
+| 1271–1484 | 2D dimensions | `updateDims()` (following `setDisplay()`), the other rooms' plans, `cupboardPart()`, `cupboardDims()`, `doorDims()` |
+| 1485–1517 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the model's named boards) |
+| 1518–1787 | Things to store | `STORED`, `PACKINGS`, `placeStored()`, `drawStored()` (which gives the menu's text) |
+| 1788–1910 | The bedroom's copy, the back wall's pieces, building an option | `copyCupboardToBedroom()`, `BACK_WALL_PIECES`, `withoutBench()`, `buildOption()`, `takeOutBench()` |
+| 1912–2068 | **The configuration** | `SLIDER_RANGES`, `SCHEMA` (with the other rooms' entries from their modules), `configurationNow()`, `readConfiguration()`; each piece's box (`pieceBoxes()`) and the cutting list's rows |
+| 2069–2172 | **Building** | `settle()` (what's worked out first), **`build(i)`**, `turnDoors()`, `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
+| 2173–2194 | `startAgain()` and what the page reads | The settings as the page starts, put back before a configuration's read |
+
+### living_room.js (1,159 lines): the page
+
+| Lines | Section | Notes |
+|---|---|---|
+| 1–21 | What the file is for | How a change flows through the page, and its sections in order |
+| 22–46 | `import`s | The kits, the other rooms' controls, the model's pieces from `flat_model.js`, `floor.js` |
+| 47–86 | The stage, the 2D views' cuts and Cupboard only's framing | `createStage()`, `scene.add(world)`, the kit's `cutViews()` giving `applyCut()`, `frameCupboard()` |
+| 87–257 | The cutting list's menu, the things to store's controls and dragging in plan | `showCuttingList()`, `showStored()` (the model's `drawStored()`, then the menu) |
+| 258–360 | **Door sliders, the option list, `show(i)`** | `update()` (the model's `turnDoors()`, then the sliders); **`show(i)`**: the model's `build(i)`, then `showInMenus()` and `redrawAround()` |
+| 361–394 | **The address**: `writeAddress()` | The configuration and the view, packed into the URL `#hash` (section 5) |
+| **395–782** | **Control wiring** | `changeSettings()` (395), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5); the colour pickers (`colourPicker()`) |
+| 783–919 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
+| 920–1004 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
+| 1005–1065 | The view as JSON, the drawers, Reset, Share and offline support | `viewNow()`, `readDisplay()` |
+| 1066–1101 | `syncControls()` | The model's `settle()`, then every slider, radio, switch and dropdown in step with `state` |
+| 1103–1145 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
+| 1146–1159 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show(state.option)`, the view; the kit's `startLoop()` |
 
 ### kit/floor_kit.js (541 lines)
 
@@ -461,6 +472,10 @@ It's the single place where settings become 3D objects, in named steps:
 5. `redrawAround()` calls `updateDims()`, `updatePalette()`, the stored-things
    code and `writeAddress()` (saves the configuration and view into the URL), then `update()`.
 
+Steps 1 to 3 are the model's `build(i)` (`flat_model.js`), which also draws
+the other rooms' furniture and places the things to store; `show(i)` on the
+page calls it, then does 4 and 5.
+
 The approach is simple: **rebuild everything** whenever something changes. It's
 fast enough for a model of this size, and it means the 3D model always matches
 `state`.
@@ -527,21 +542,35 @@ For the tests and the browser console (REFACTOR_PLAN.md, steps 6a and
 - `plans.view()`: the view, as the address holds it.
 - `plans.load(configuration)`: shows a configuration, everything it leaves
   out as the page starts, keeping the view.
-
+- `plans.schema()`: the configuration's entries, bar their functions.
 - `plans.get()`: the settings, `state` as JSON, with the doors' angles as
   `doors` (`room`, `tall`, `second`, `bedroom`, `flat`, `outside`, in
   degrees). The tests read settings through it (`setting(page, 'garage.sean')`
   in `tests/helpers.js`), not from the address, so a new address format
   leaves them alone.
-- `plans.snapshot()`: what the page makes of them: `settings` (as `get()`),
-  `cupboards` (the living room's corner cupboard's cutting list as rows,
+- `plans.snapshot()`: what the page makes of them: `configuration` (as
+  `export()`), `cupboards` (the living room's corner cupboard's cutting list as rows,
   `{ kind, length, width, shaped, count, parts }`, and the bedroom's copy's,
   or `null` when there isn't one), `dimensions` (the figures on show, in a
-  2D view or with Cupboard only) and `description` (the text under the
-  option). Each saved address and scene has its snapshot in
+  2D view or with Cupboard only), `description` (the text under the
+  option) and `boxes` (where each piece is drawn, to the mm, and whether
+  it's on show). Each saved address and scene has its snapshot in
   `tests/snapshots/<name>.json`, compared exactly beside its screenshot, so a
   board 2 mm out or one fewer fails even when the picture passes.
   `npm run test:update` writes them again, with the screenshots.
+
+### The model in Node
+
+`flat_model.js` needs no page, so `npm run test:model` (Node's own test
+runner, about half a minute) builds it there with `buildFlat(configuration,
+view)`: every saved configuration must give its saved snapshot, exactly
+(`tests/model/snapshots.test.mjs`); about 1,700 generated configurations
+(every option, each setting at its ends, each board thickness) must build
+with sensible sizes, the cupboard inside the room, and come back the same
+through the address (`generated.test.mjs`, which gives a failure's link);
+and reading a configuration keeps defaults and ranges as it should
+(`configuration.test.mjs`). What a page needs, in Node, is stood in for:
+canvases by the kit's `makeCanvas()`, which draws nothing there.
 
 ---
 
@@ -573,15 +602,14 @@ It works like `node_modules` resolution, but in the browser and without a build
 step. The second entry maps a whole prefix, so
 `'three/addons/controls/OrbitControls.js'` resolves to a file under `examples/jsm/`.
 
-### Why the data files are classic scripts
+### Why two data files are classic scripts
 
 They were written to work when the page was opened from a file, which it no
-longer can be (see above); they become modules as the room moves into
-`living_room.js` (`REFACTOR_PLAN.md`). The kits (`kit/floor_kit.js`, `kit/view_kit.js`, `kit/scene_kit.js`)
-are modules already, which the room's module imports. For now the data files
-load as classic scripts before the module and hand over their contents
-through globals (`window.ROOM_SOFAS`, …). The module then reads those
-globals, e.g. `window.ROOM_DRESSERS?.list`.
+longer can be (see above). `dressers.js`, `larders.js` and `sofas.js` are ES
+modules now (step 6c), as the model needs them in Node too. The views and
+scenes, which only the page needs, still load as classic scripts before the
+module and hand over their contents through globals (`window.ROOM_VIEWS`,
+`window.ROOM_SCENES`).
 
 The order matters, and it works out as follows: the classic scripts run first, as
 they're parsed. The module is deferred, so by the time it runs the globals exist
