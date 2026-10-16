@@ -28,12 +28,13 @@
 <body>
 <div id="view"></div>
 <!-- The top bar: ☰ for Other options, the option on show (always to hand),
-     Cupboard options, Bedroom options, Share, Screenshot and Reset -->
+     Cupboard options, Bedroom options, Garage options, Share, Screenshot and Reset -->
 <div id="bar">
   <button id="menu" aria-label="Other options" title="Other options" aria-controls="panel" aria-expanded="false">☰</button>
   <select id="current" class="pick" aria-label="Cupboard option"></select>
   <button id="cupMenu" class="chip" aria-controls="cupPanel" aria-expanded="false">Cupboard options</button>
   <button id="bedMenu" class="chip" aria-controls="bedPanel" aria-expanded="false">Bedroom options</button>
+  <button id="garageMenu" class="chip" aria-controls="garagePanel" aria-expanded="false">Garage options</button>
   <button id="share" class="chip">Share</button>
   <button id="screenshot" class="chip" title="Copy a picture of the view on show">Screenshot</button>
   <button id="reset" class="chip">Reset</button>
@@ -229,11 +230,6 @@
     <div class="hint">An open rack of shelves at the foot of the stairs, on its floor between the bottom step and the back wall.</div>
     <div id="shoeRackBlock"></div>
   </details>
-  <details class="sec" id="secGarage">
-    <summary>The garage</summary>
-    <div class="hint">Sean and Billy, each a set of shelves, and BillyChest, moved about the garage and turned.</div>
-    <div id="garageBlock"></div>
-  </details>
   <details class="sec" id="secDoors" open>
     <summary>Doors</summary>
     <div id="tallBlock">
@@ -386,6 +382,17 @@
     <button id="bedClose" class="close" aria-label="Close bedroom options">✕</button>
   </div>
   <div id="otherRoomBlock"></div>
+</div>
+
+<!-- Garage options: Sean, Billy and BillyChest, whether each is in the
+     garage and where it stands, a drawer of its own; the sliders are
+     garage.js's -->
+<div id="garagePanel" class="drawer">
+  <div class="head">
+    <h1>Garage options</h1>
+    <button id="garageClose" class="close" aria-label="Close garage options">✕</button>
+  </div>
+  <div id="garageBlock"></div>
 </div>
 
 <!-- The room's views, dressers, larders, sofas and scenes, for editing; the module after them imports the kits that show the views and scenes -->

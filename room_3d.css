@@ -14,7 +14,7 @@ html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetic
   box-shadow: 2px 0 14px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45;
   transform: translateX(-105%); transition: transform 0.25s ease;
 }
-body.menu-open #panel, body.cup-open #cupPanel, body.bed-open #bedPanel { transform: none; }
+body.menu-open #panel, body.cup-open #cupPanel, body.bed-open #bedPanel, body.garage-open #garagePanel { transform: none; }
 .drawer h1 { font-size: 15px; margin: 0; }
 .drawer .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
 .drawer .close { font-size: 18px; line-height: 1; padding: 4px 10px; }
@@ -67,7 +67,7 @@ body.menu-open #panel, body.cup-open #cupPanel, body.bed-open #bedPanel { transf
 #current { flex: 1 1 200px; max-width: 340px; }
 /* On phones the open drawer dims the model; tapping there closes it */
 #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
-@media (max-width: 900px) { body.menu-open #scrim, body.cup-open #scrim, body.bed-open #scrim { display: block; } }
+@media (max-width: 900px) { body.menu-open #scrim, body.cup-open #scrim, body.bed-open #scrim, body.garage-open #scrim { display: block; } }
 .drawer label { display: block; margin: 8px 0 2px; }
 /* The drawer's sections, each opening and closing (remembered here) */
 .drawer details.sec { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; }

@@ -2938,11 +2938,12 @@ document.getElementById('doorDims').addEventListener('click', e => {
 });
 
 // The settings drawers, one open at a time, all closed to start on every
-// screen: Other options, opened by ☰, and Cupboard options and Bedroom
-// options by their buttons.
+// screen: Other options, opened by ☰, and Cupboard options, Bedroom
+// options and Garage options by their buttons.
 // Each: [its button, the class on <body> while it's open]. The 2D views
 // move clear of the drawer as it opens and closes.
-const DRAWERS = { panel: ['menu', 'menu-open'], cupPanel: ['cupMenu', 'cup-open'], bedPanel: ['bedMenu', 'bed-open'] };
+const DRAWERS = { panel: ['menu', 'menu-open'], cupPanel: ['cupMenu', 'cup-open'], bedPanel: ['bedMenu', 'bed-open'],
+  garagePanel: ['garageMenu', 'garage-open'] };
 const drawers = createDrawers(DRAWERS, () => resize(true));
 drawers.setMenu(null);
 

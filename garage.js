@@ -1,11 +1,12 @@
 // The garage: away from the flat, outdoors, at the ground's level (asked
 // for, 16 Oct 2026). Its walls, its door, and two sets of shelves in it,
-// Sean and Billy, which can be moved about and turned.
+// Sean, Billy and BillyChest, which can be moved about, turned and taken
+// out.
 //
 // living_room.js holds the settings (state.garage, starting as
 // GARAGE_START) and puts them in its address (GARAGE_ADDRESS); this file
 // says where the garage is, draws it and what's in it (drawGarage()), and
-// makes its menu block (garageControls()).
+// makes Garage options' block (garageControls()).
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
 import { hallway, HALLWAY, ENTRANCE, ceilingMat, insideFace, faceAround } from './floor.js';
@@ -89,15 +90,15 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 
 // ---------------------------------------------------------------------------
 // What's in it: Sean and Billy, each drawn as a bookcase, a box of shelves
-// (other_room.js's bookcase()), and BillyChest, a plain box that can be
-// taken out (`optional`). Their sizes are the user's (16 Oct 2026); their
-// colours chosen
+// (other_room.js's bookcase()), and BillyChest, a plain box. Each can be
+// taken out, as the bedroom's furniture. Their sizes are the user's (16 Oct
+// 2026); their colours chosen
 // ---------------------------------------------------------------------------
 const white = material(0xf4f3ef);                  // as IKEA's Billy
 const PIECES = {
   sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: material(0x7d8288), shape: 'shelves' },   // grey, as steel shelving
   billy: { label: 'Billy', w: 800, d: 280, h: 2020, mat: white, shape: 'shelves' },
-  billyChest: { label: 'BillyChest', w: 805, d: 484, h: 780, mat: white, shape: 'box', optional: true },
+  billyChest: { label: 'BillyChest', w: 805, d: 484, h: 780, mat: white, shape: 'box' },
 };
 const PIECE_KEYS = Object.keys(PIECES);
 
@@ -106,14 +107,14 @@ const PIECE_KEYS = Object.keys(PIECES);
 // wall, 90° the back wall, 180° the left-hand wall, 270° the door. They
 // start where the user put them (16 Oct 2026): Sean's back to the
 // left-hand wall, near the back, and Billy's to the back wall, facing the
-// door, nearer the left-hand wall than the right. BillyChest starts in,
-// its back to the back wall beside Billy, on his right-hand-wall side,
+// door, nearer the left-hand wall than the right. All start in; BillyChest
+// with its back to the back wall beside Billy, on his right-hand-wall side,
 // CHEST_GAP from him (chosen)
 const CHEST_GAP = 20;
 const besideBilly = 1920 - PIECES.billy.w / 2 - CHEST_GAP - PIECES.billyChest.w / 2;
 export const GARAGE_START = {
-  sean: { x: 1255, y: 2865, turn: 180 },
-  billy: { x: 0, y: 1920, turn: 270 },
+  sean: { on: true, x: 1255, y: 2865, turn: 180 },
+  billy: { on: true, x: 0, y: 1920, turn: 270 },
   billyChest: { on: true, x: 0, y: Math.round(besideBilly / 5) * 5, turn: 270 },   // onto the sliders' 5s
 };
 
@@ -127,8 +128,9 @@ const placeSliders = piece => [
 const SLIDERS = PIECE_KEYS.flatMap(placeSliders);
 
 // ---------------------------------------------------------------------------
-// The address: each piece's place as `x.y.turn`, each held to its slider's
-// range, in quarter turns; one that can be taken out `on.x.y.turn`, on 1 or 0
+// The address: each piece as `on.x.y.turn`, on 1 or 0, its place held to
+// its slider's range, in quarter turns. Sean's and Billy's were `x.y.turn`
+// before they could be taken out, which still reads, with them in
 // ---------------------------------------------------------------------------
 const RANGES = Object.fromEntries(SLIDERS.map(([path, , lo, hi]) => [path, [lo, hi]]));
 function held(path, text, was) {
@@ -139,11 +141,11 @@ function held(path, text, was) {
 const PLACE_KEYS = ['x', 'y', 'turn'];
 const onOff = (text, was) => (text === '1' ? true : text === '0' ? false : was);
 export const GARAGE_ADDRESS = PIECE_KEYS.map(piece => [`garage.${piece}`,
-  p => [...(PIECES[piece].optional ? [p.on ? 1 : 0] : []), ...PLACE_KEYS.map(k => p[k])].join('.'),
+  p => [p.on ? 1 : 0, ...PLACE_KEYS.map(k => p[k])].join('.'),
   (text, p) => {
     const parts = text.split('.');
-    const on = PIECES[piece].optional ? { on: onOff(parts.shift(), p.on) } : {};
-    return { ...on, ...Object.fromEntries(PLACE_KEYS.map((k, i) => [k, held(`${piece}.${k}`, parts[i], p[k])])) };
+    const on = parts.length > PLACE_KEYS.length ? onOff(parts.shift(), p.on) : p.on;
+    return { on, ...Object.fromEntries(PLACE_KEYS.map((k, i) => [k, held(`${piece}.${k}`, parts[i], p[k])])) };
   }]);
 
 // ---------------------------------------------------------------------------
@@ -162,7 +164,7 @@ export function drawGarage(s) {
     const g = drawn(PIECES[piece]), { x, y, turn } = s[piece];
     g.position.set(x * MM, 0, y * MM);
     g.rotation.y = THREE.MathUtils.degToRad(-turn);
-    g.visible = s[piece].on ?? true;
+    g.visible = s[piece].on;
     furniture.add(g);
     garagePieces[piece] = g;
   }
@@ -175,25 +177,24 @@ function drawn({ w, d, h, mat, shape }) {
 }
 
 // ---------------------------------------------------------------------------
-// The menu's block, built into `container`: for each piece its sizes, a
-// switch if it can be taken out, the sliders that place it and a button to
-// put it back. change(edits) is
+// Garage options' block, built into `container`, laid out as Bedroom
+// options: for each piece its name and sizes, its In the garage switch, the
+// sliders that place it and a button to put it back. change(edits) is
 // called with a list of [path, value]; the function returned puts the
 // controls in step with the settings `s`
 // ---------------------------------------------------------------------------
 export function garageControls(container, change) {
   const id = path => `garage_${path.replace('.', '_')}`;
   container.innerHTML = PIECE_KEYS.map(piece => {
-    const { label, w, d, h, optional } = PIECES[piece];
-    const onSwitch = optional ? `<label class="switch"><input type="checkbox" id="${id(`${piece}.on`)}"> In the garage</label>` : '';
-    return `<div class="depth"><div><b>${label}</b> (${w} wide, ${d} deep, ${h} high)</div>${onSwitch}` +
-      `<div id="${id(piece)}">${placeSliders(piece).map(slider(id)).join('')}` +
-      `<div class="row"><button data-reset="${piece}">Reset location</button></div></div></div>`;
+    const { label, w, d, h } = PIECES[piece];
+    return `<div class="depth"><div><b>${label}</b> (${w} wide, ${d} deep, ${h} high)</div>` +
+      `<label class="switch"><input type="checkbox" id="${id(`${piece}.on`)}"> In the garage</label>` +
+      placeSliders(piece).map(slider(id)).join('') +
+      `<div class="row"><button data-reset="${piece}">Reset location</button></div></div>`;
   }).join('');
-  const OPTIONAL = PIECE_KEYS.filter(piece => PIECES[piece].optional);
 
   for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
-  for (const piece of OPTIONAL) document.getElementById(id(`${piece}.on`)).addEventListener('change', e => change([[`${piece}.on`, e.target.checked]]));
+  for (const piece of PIECE_KEYS) document.getElementById(id(`${piece}.on`)).addEventListener('change', e => change([[`${piece}.on`, e.target.checked]]));
   container.querySelectorAll('button[data-reset]').forEach(b => b.addEventListener('click', () => {
     change(placeSliders(b.dataset.reset).map(([path]) => [path, valueAt(GARAGE_START, path)]));
   }));
@@ -204,9 +205,6 @@ export function garageControls(container, change) {
       document.getElementById(id(path)).value = String(value);
       document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
     }
-    for (const piece of OPTIONAL) {
-      document.getElementById(id(`${piece}.on`)).checked = s[piece].on;
-      document.getElementById(id(piece)).hidden = !s[piece].on;      // its sliders only while it's in
-    }
+    for (const piece of PIECE_KEYS) document.getElementById(id(`${piece}.on`)).checked = s[piece].on;
   };
 }

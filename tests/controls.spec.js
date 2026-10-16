@@ -384,32 +384,39 @@ test.describe('the wicker bench', () => {
   });
 });
 
-// The garage: Sean's place (field 58) and Billy's (59), each x.y.turn, and BillyChest's (60)
+// The garage, in Garage options: Sean (field 58), Billy (59) and
+// BillyChest (60), each on.x.y.turn
 test.describe('the garage', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#garageMenu'); });
 
   test('Sean and Billy can be moved and turned, and put back', async ({ page }) => {
-    expect(await field(page, 58)).toBe('1255.2865.180');
-    expect(await field(page, 59)).toBe('0.1920.270');
+    expect(await field(page, 58)).toBe('1.1255.2865.180');
+    expect(await field(page, 59)).toBe('1.0.1920.270');
     await slide(page, 'garage_sean_x', 2000);
     await slide(page, 'garage_sean_y', 1000);
     await slide(page, 'garage_sean_turn', 90);
     await slide(page, 'garage_billy_x', 4000);
-    expect(await field(page, 58)).toBe('2000.1000.90');
-    expect(await field(page, 59)).toBe('4000.1920.270');
+    expect(await field(page, 58)).toBe('1.2000.1000.90');
+    expect(await field(page, 59)).toBe('1.4000.1920.270');
     expect(await readout(page, 'garage_sean_turn')).toBe('90°');
     await page.locator('#garageBlock [data-reset="sean"]').evaluate(b => b.click());
-    expect(await field(page, 58)).toBe('1255.2865.180');
-    expect(await field(page, 59)).toBe('4000.1920.270');           // Billy stays where he was put
+    expect(await field(page, 58)).toBe('1.1255.2865.180');
+    expect(await field(page, 59)).toBe('1.4000.1920.270');         // Billy stays where he was put
   });
 
-  // BillyChest (field 60), on.x.y.turn: in to start, beside Billy; taken
-  // out, its sliders hide
-  test('BillyChest can be taken out, moved and put back', async ({ page }) => {
+  // Each has its In the garage switch; taken out, its sliders stay, as the
+  // bedroom's
+  test('each can be taken out, moved and put back', async ({ page }) => {
+    for (const [piece, k] of [['sean', 58], ['billy', 59]]) {
+      await toggle(page, `garage_${piece}_on`, false);
+      expect((await field(page, k)).split('.')[0]).toBe('0');
+      await expect(page.locator(`#garage_${piece}_x`)).toBeVisible();
+      await toggle(page, `garage_${piece}_on`, true);
+      expect((await field(page, k)).split('.')[0]).toBe('1');
+    }
     expect(await field(page, 60)).toBe('1.0.1100.270');
     await toggle(page, 'garage_billyChest_on', false);
     expect(await field(page, 60)).toBe('0.0.1100.270');
-    await expect(page.locator('#garage_billyChest')).toBeHidden();
     await toggle(page, 'garage_billyChest_on', true);
     await slide(page, 'garage_billyChest_x', 3000);
     await slide(page, 'garage_billyChest_turn', 0);
@@ -418,14 +425,16 @@ test.describe('the garage', () => {
     expect(await field(page, 60)).toBe('1.0.1100.270');
   });
 
+  // Links from before Sean and Billy could be taken out, x.y.turn, keep
+  // them in
   test('a link with their places keeps them, and holds them to the garage', async ({ page }) => {
     const [settings, ...rest] = (await hash(page)).split('~');
     const withPlaces = (sean, billy) => [settings.split('-').map((f, k) => (k === 58 ? sean : k === 59 ? billy : f)).join('-'), ...rest].join('~');
-    await openRoom(page, withPlaces('3000.2000.180', '500.500.0'));
-    expect(await field(page, 58)).toBe('3000.2000.180');
-    expect(await field(page, 59)).toBe('500.500.0');
-    await openRoom(page, withPlaces('9000.2000.45', '500.500.0'));   // past the back wall's far end, and not a quarter turn
-    expect(await field(page, 58)).toBe('1255.2000.180');
+    await openRoom(page, withPlaces('0.3000.2000.180', '500.500.0'));
+    expect(await field(page, 58)).toBe('0.3000.2000.180');
+    expect(await field(page, 59)).toBe('1.500.500.0');
+    await openRoom(page, withPlaces('1.9000.2000.45', '500.500.0'));   // past the back wall's far end, and not a quarter turn
+    expect(await field(page, 58)).toBe('1.1255.2000.180');
   });
 });
 
