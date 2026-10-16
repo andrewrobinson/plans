@@ -3,6 +3,12 @@
 For tomorrow. Nothing has changed yet. The session's run-by-run log is
 `test_runs_15_oct_2026.md`.
 
+**16 Oct 2026:** `REFACTOR_PLAN.md` step 6 changes the testing: saved
+snapshots (JSON) checked exactly beside the screenshots (6a), controls
+tests that read settings rather than the address (6a), and most
+combinations of settings tested in Node in seconds (6c), leaving fewer and
+shorter browser runs. The questions below are still open either way.
+
 ## Findings
 
 1. **The tests take too much of each session.** On 15 Oct there were 13

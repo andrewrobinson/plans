@@ -1,8 +1,12 @@
 # Tidying the code: what's left
 
-One step is left: readable code (step 5). It changes how the code is
-organised, not what the page does: the page must look and behave exactly as
-before, which the Playwright tests check (`tests/`).
+Two steps are left. Step 5, readable code, is all but done. Step 6, one
+configuration as JSON (agreed 16 Oct 2026), puts a configuration between
+the menus and what's drawn, makes the URL that configuration, compressed,
+and lets the model be built and tested without a browser. Both change how
+the code is organised, not what the page does: the page must look and
+behave exactly as before, which the Playwright tests check (`tests/`).
+Step 6 changes the URL's format; old links needn't work.
 
 Done, and in git history: the browser tests; one `state` object; the
 address read and written from one list (`ADDRESS`); and the engine, the
@@ -51,6 +55,11 @@ place and thing's `room`, built-in views with `rooms` that frame whichever
 is chosen) and puts the room chosen at the end of the view's part of the
 address, unless it's the living room, so the living room's addresses
 didn't change. The settings' part still has no room names.
+
+**Replaced by step 6 (16 Oct 2026).** The two parts above become step 6's:
+`buildFlat(config)` (6c) in place of each room's `build(group)`, and a
+configuration by piece, each piece saying which rooms it's in (6b), in
+place of room names in front of the address's parts.
 
 ---
 
@@ -140,7 +149,8 @@ load and pass when run again.
 
 ### Not to change
 
-- What the page does, or the address format.
+- What the page does, or the address format (step 6 changes the format,
+  not step 5).
 - The short cupboard names in drawing code (above).
 
 ### Check
@@ -149,6 +159,152 @@ load and pass when run again.
 live, with no screenshot changes.
 
 ---
+
+## Step 6: one configuration, as JSON
+
+### Why
+
+Settings, menus, drawing and the address all reach into one global
+`state` in `living_room.js`, with blocks of their own for the bedroom
+(`otherRoom`), the wicker bench, the shoe rack and the garage. The
+address is about 75 values joined by `-`, in the order they were added,
+with no names, so a field can't be moved or taken out, and the controls
+tests read it by position (`settingsField(hash, k)`). Which rooms a piece
+is in is said a different way for each piece (`otherRoom.cupboardOn`,
+`pineOn`, `garage.pine.on`, `wickerBench.hallway.on`). The flat can only
+be built inside the page, so every test drives a browser, and trying many
+combinations of settings is slow.
+
+Step 6 puts a configuration between the menus and what's drawn, and makes
+everything else follow from it.
+
+### Decided (16 Oct 2026)
+
+| Question | Decided |
+|---|---|
+| The menus | Stay exactly as they are, in look and behaviour. They change the configuration through one `set(path, value)` instead of `state` directly |
+| The configuration's shape | **By piece**: each piece once, with its design (sizes, option, colours) and `in: { room: { on, place, turn } }`. The two corner cupboards are two pieces |
+| The view | **A file of its own**: the room you're in, where you stand and look, eye height. Not part of the configuration, so configuring rooms and looking at one stay apart |
+| Door angles | In the configuration (they're the flat's state), so scenes keep them. Today they're in the view's part of the address |
+| Dimensions, Door sizes, Cupboard only, See-through | In the view, so links show them. Today they're in no address |
+| The URL | `#<configuration>~<view>`, each the full JSON, deflated and base64url'd (the browser's and Node's own `CompressionStream`). The full configuration, not changes from defaults, so a link never changes meaning when a default does. Old links needn't work |
+| JSON in and out of the page | Only `window.plans` for now: `export()`, `load(json)`, `snapshot()`, for the tests and the browser console. No buttons |
+| Testing the model | Node's own test runner, with `three@0.160.0` (the version the page loads) as a devDependency: `npm run test:model` |
+| Order | 6a safety net, 6b configuration and URL, 6c model API and Node tests, 6d corner cupboards. Each on main before the next starts |
+| The corner cupboard | All of 6d below. The bedroom gets **a second instance** built from the living room's settings (A, a copy, for now), not a clone of what's drawn |
+| Where it fits | Each cupboard is built against its room's `place`: ceiling height, wall lengths, and the fits options need (option 8's diagonal clear of the room door, `CORNER_D` up to the door frame). The bedroom's ceiling is 2445, so its copy is 2 mm taller than the living room's (2443) |
+| Cupboard colours | Each cupboard has its own materials and its boards tagged by kind, which separate cutting lists need. The bedroom's copies the living room's colour; a picker of its own comes when it's wanted |
+
+### Two JSON documents
+
+- **The configuration** (input): everything chosen. Each piece, its design,
+  which rooms it's in and where; colours; doors; the things to store.
+  Written by the menus, by tests, and by generators of test cases. The
+  URL's first part is this, compressed. It has a `version`.
+- **The snapshot** (output): what the model makes of a configuration. The
+  configuration as resolved, each cupboard's cutting list, the dimension
+  figures, the description text, what fits where. Never written by hand.
+  Saved beside each test configuration and compared exactly; later the
+  source for engineering drawings.
+
+The view's JSON is the URL's second part.
+
+### 6a. A safety net (nothing on the page changes)
+
+The screenshots pass if under 0.2% of pixels differ, so a board moved by
+2 mm or a board fewer in the cutting list can pass, and they only see the
+views they open. Before anything moves:
+
+1. **`window.plans.snapshot()`**: `state` as JSON, each cupboard's cutting
+   list, the dimension figures and the description text.
+2. **Saved snapshots**: `tests/snapshots/<name>.json` for each saved
+   address and scene, compared exactly. More addresses for what none
+   covers yet: the garage (pieces moved, raised, taken out), the
+   bedroom's copy of the cupboard, the wicker bench in every room.
+3. **The controls tests read settings, not the address**: through
+   `window.plans`, not `settingsField(hash, k)`, so a new URL format
+   leaves them alone.
+
+### 6b. The configuration and its URL
+
+1. **The schema**: one entry per setting, with its path in the
+   configuration, kind (a number with its range and step, on/off, a
+   choice, a colour) and default. Each module gives its own pieces'
+   entries. To start, a two-way map between `state` and the configuration,
+   so the drawing code needn't change yet.
+2. **Doors into the configuration; the display switches into the view.**
+3. **The URL**: written and read through the schema. The page reads it
+   before building (decompressing is asynchronous).
+4. **Converting the tests**: the old reader stays for one commit, as a
+   converter: each saved address is read the old way and written the new.
+   Its snapshot must match exactly and its screenshot pass. Then the old
+   reader, the `ADDRESS` lists and `settingsField` go. `living_room.scenes.js`
+   is converted the same way; scenes and views saved in a browser are lost
+   (agreed 12 Oct 2026).
+5. **`room_dimensions.md`**: its address format becomes the
+   configuration's.
+
+### 6c. The model without the page
+
+1. **`buildFlat(config)`**: the flat's groups, each cupboard's cutting
+   list and dimensions, and the description, with no DOM, camera or
+   menus. The page calls it; `living_room.js` keeps the page's work
+   (menus, views, the address). This is the biggest piece: the drawing in
+   `living_room.js` is mixed with page work today.
+2. **`tests/model/`**, run by `npm run test:model`:
+   - every configuration in `tests/configs/` gives its saved snapshot;
+   - generated configurations (every option, each board thickness, sizes
+     at the ends of their ranges, each piece in each room it can be in)
+     build without error, have no board of zero or negative size, keep
+     pieces inside their rooms, and round-trip through the URL.
+
+   A failing configuration is a link, to open and look at.
+3. **The browser tests shrink** to what needs a browser: that each control
+   changes the configuration as it should, and the screenshots.
+
+### 6d. The corner cupboards
+
+1. **Their own module**: `corner_cupboard.js`, with `OPTIONS`, the
+   builders, the shelves, the cutting list and the cupboard's dimensions,
+   out of `living_room.js`.
+2. **One settings record**: `option`, `T`, `R`, `F`, `BOARD`, `LEG`,
+   `LEG_D`, `L_SHELVES`, `WARD`, `WARD_D`, `TOWER`, `CORNER_W`,
+   `CORNER_D`, `SIDE_*`, the living room cupboard's piece in the
+   configuration.
+3. **Builders take arguments**: `buildCupboard(settings, place,
+   materials)`, reading neither `state` nor the living room's constants
+   (`CEILING_HEIGHT` 46 times, `ROOM_WIDTH`, `DOOR_HINGE_AT`,
+   `roomDoorGap()`).
+4. **The bench out of the options**: the living room draws its bench
+   beside the cupboard, so a cupboard's build is the cupboard only;
+   `isBench()` and `takeOutBench()` go.
+5. **An instance**: `makeCupboard(settings, place, materials)` gives
+   `{ group, shelves, cuttingList(), dims(), doors }`. `current`,
+   `cupShelves`, `cupCuts` and `cupShelfGroup` become its fields; each
+   board is tagged with its kind (`userData.kind`), so the cutting list no
+   longer finds parts by material.
+6. **The bedroom's instance**: built from the living room's settings,
+   against the bedroom's `place`, in place of `copyCupboardToBedroom()`'s
+   clone.
+
+Later, not in step 6: the bedroom cupboard's own design and Options list,
+its own colour picker, and engineering drawings from each cupboard's
+snapshot.
+
+### Elsewhere, reconciled (16 Oct 2026)
+
+- **"When a second room comes"**, above: replaced by 6b and 6c.
+- **Step 5**: unaffected; its one optional item (`board()` taking
+  `{ from, to }`) is best done before 6d moves the builders.
+- **`PLAN.md`'s "Designs"** (a cupboard design as data, a printable spec
+  for the maker): 6d's settings record and instance are the start of it;
+  a design becomes a cupboard piece's configuration.
+- **`PLAN.md`'s "Other parts in the cutting list"**: easier after 6d, as
+  the cutting list belongs to an instance and reads `userData.kind`.
+- **`testing_questions.md`**: still open (phone or desktop, window size,
+  how often). 6c moves most combinations into Node, so browser runs get
+  fewer whichever way they're answered.
+- **`room_3d_ui_guide.md`**: updated at the end of each of 6a to 6d.
 
 ---
 
@@ -163,3 +319,25 @@ live, with no screenshot changes.
 | Step | Size | Risk |
 |---|---|---|
 | 5 | Medium to large: a file at a time, a session or two each for the room and the options | Low to medium: renames and splits, each checked by the screenshots |
+| 6a | Medium: 1 session. Mostly mechanical: 49 controls tests rewritten, a hook, snapshot files | Low: nothing on the page changes |
+| 6b | Large: 2 sessions. Every setting gets a schema entry (about 75, across five files); the URL, its tests and scenes converted | Medium: the snapshots and the old reader as converter catch mistakes |
+| 6c | Large: 2 to 3 sessions. Pulling the drawing in `living_room.js` (3000 lines) apart from the page | Medium to high: the most code moved; the snapshots must match throughout |
+| 6d | Medium to large: 2 sessions. The corner cupboard's module, builders with arguments, the bench apart, the instance, the bedroom's | Medium: the cutting lists in the snapshots must not change, bar the bedroom's 2 mm |
+
+### Usage, estimated
+
+About 7 to 8 sessions for step 6, each a sitting of a few hours. What
+uses the most:
+
+- **Reading `living_room.js`.** At about 3000 lines it's the biggest
+  thing each session loads, and 6b, 6c and 6d all work in it. It shrinks
+  as 6c and 6d move code out, so later sessions cost less.
+- **Browser test runs.** The full suite is about 4.5 minutes. One full run
+  per piece, at "deploy to main", and targeted runs (`-g`) while working.
+  6a adds snapshot checks to tests that already run, not new page loads.
+- **After 6c**, most checks run in Node in seconds, and the browser suite
+  is smaller, so each later change (6d, and work after step 6) needs
+  fewer browser runs.
+
+6a is the cheapest and the one to start with: it's worth having even if
+the rest waits.

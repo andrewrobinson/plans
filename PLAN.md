@@ -12,7 +12,11 @@ it on GitHub Pages. Two sessions testing at once need separate ports
 ## Next steps
 
 1. **Readable code**: `REFACTOR_PLAN.md` step 5, in the style of
-   `menu_demo/`.
+   `menu_demo/` (all but done). Then **one configuration, as JSON**:
+   `REFACTOR_PLAN.md` step 6 (agreed 16 Oct 2026), a configuration
+   between the menus and what's drawn, the URL as that configuration
+   compressed, the model built and tested in Node, and the corner
+   cupboard as an instance, the bedroom getting a second one.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).
@@ -22,7 +26,8 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    `drawings/second_floor_plan.png` and `drawings/first_floor_plan.png`
    (below), into `floor.js`. This is when the engine takes each room's
    `build(group)` and the address gets a room's name in front of each part
-   (`REFACTOR_PLAN.md`, "When a second room comes").
+   (`REFACTOR_PLAN.md`, "When a second room comes", now replaced by its
+   step 6: `buildFlat(config)` and a configuration by piece).
    Its furniture ("The other room's furniture", below) comes with it.
    **Started 15 Oct 2026**: the other room (the bedroom) is drawn, its shell
    in `floor.js` (`OTHER_ROOM`, its own u, v coordinates) and its furniture
@@ -61,13 +66,15 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    bathroom and WC; walls drawn from above in the bedroom's and hallway's
    plans (they're faces seen from inside, so the plan shows only floors);
    looking from the hallway into a room; stopping furniture at the walls;
-   and the engine refactor below.
+   and the engine refactor below, now `REFACTOR_PLAN.md` step 6.
 
 Smaller pieces, any time:
 
 - **Other parts in the cutting list**: parts not `BOARD` thick (option 9's
   tower plinth and its 25-thick oak shelves) are left out today; list them
-  under "other parts".
+  under "other parts". Easier after `REFACTOR_PLAN.md` 6d, when the
+  cutting list belongs to a cupboard instance and its boards are tagged by
+  kind.
 - **An overlap check** between things to store: today each is checked only
   against the cupboard's walls, so two can overlap and still show green.
 - **Turning things to store by 45°**, so the racks can be shown diagonally
@@ -78,7 +85,9 @@ Smaller pieces, any time:
   in Cupboard options. Scenes would then refer to a design, plus the
   packing, furniture and view. Later, the L-shaped cupboard built from the
   data alone, so prototypes need no code, and a printable spec for the maker
-  from the finished design.
+  from the finished design. `REFACTOR_PLAN.md` step 6 starts this: a
+  cupboard's settings become a piece in the JSON configuration (6b), built
+  by an instance with its own cutting list (6d).
 - **`menu_demo/`** keeps its own copy of the room; its `room.js` could load
   the walls from `floor.js`.
 
