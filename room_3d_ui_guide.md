@@ -1,7 +1,7 @@
 # index.html — how the page is put together
 
 A guide to the HTML, CSS and JS in `index.html` (321 lines), the page's
-`living_room.js` (1,159 lines), the model's `flat_model.js` (2,194 lines),
+`living_room.js` (1,159 lines), the model's `flat_model.js` (2,220 lines),
 `floor.js` (341 lines),
 `kit/floor_kit.js` (541 lines) and `room_3d.css` (125 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers in the
@@ -106,8 +106,8 @@ group the page adds to its scene.
 | 1518–1787 | Things to store | `STORED`, `PACKINGS`, `placeStored()`, `drawStored()` (which gives the menu's text) |
 | 1788–1910 | The bedroom's copy, the back wall's pieces, building an option | `copyCupboardToBedroom()`, `BACK_WALL_PIECES`, `withoutBench()`, `buildOption()`, `takeOutBench()` |
 | 1912–2068 | **The configuration** | `SLIDER_RANGES`, `SCHEMA` (with the other rooms' entries from their modules), `configurationNow()`, `readConfiguration()`; each piece's box (`pieceBoxes()`) and the cutting list's rows |
-| 2069–2172 | **Building** | `settle()` (what's worked out first), **`build(i)`**, `turnDoors()`, `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
-| 2173–2194 | `startAgain()` and what the page reads | The settings as the page starts, put back before a configuration's read |
+| 2069–2198 | **Building** | `settle()` (what's worked out first), **`build(i)`**, `turnDoors()` (the cupboard's doors stopping at the walls: `opensTo()`), `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
+| 2199–2220 | `startAgain()` and what the page reads | The settings as the page starts, put back before a configuration's read |
 
 ### living_room.js (1,159 lines): the page
 
@@ -637,6 +637,7 @@ and every HTML element above it is in the DOM.
   e.g. `'sofaW'`, or for `name=bench` for a radio group.
 - **To hide a control for some options**: add a condition in `showInMenus()`,
   where it sets the blocks' `style.display`.
-- **To add a board to a cupboard**: draw it with `board(name, x0, y0, z0, x1, y1, z1, g)`
+- **To add a board to a cupboard**: draw it with `board(name, { from: [x0, y0, z0], to: [x1, y1, z1] }, g)`,
+  as `box()` takes its corners,
   in the option's `build()`. Its name is what the cutting list shows; boards
   `BOARD` thick are listed, anything else is left out.

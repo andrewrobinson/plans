@@ -12,13 +12,15 @@ it on GitHub Pages. Two sessions testing at once need separate ports
 ## Next steps
 
 1. **Readable code**: `REFACTOR_PLAN.md` step 5, in the style of
-   `menu_demo/` (all but done). Then **one configuration, as JSON**:
+   `menu_demo/` (done, its last item, `board()` taking `{ from, to }`, on
+   16 Oct 2026). Then **one configuration, as JSON**:
    `REFACTOR_PLAN.md` step 6 (agreed 16 Oct 2026), a configuration
    between the menus and what's drawn, the URL as that configuration
    compressed, the model built and tested in Node, and the corner
    cupboard as an instance, the bedroom getting a second one. 6a (the
    safety net), 6b (the configuration and its URL) and 6c (the model in
-   Node) are done; 6d (the corner cupboards) is next.
+   Node) are done, with 6c's loose end (the cupboard's doors opening
+   through the wall) fixed; 6d (the corner cupboards) is next.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).

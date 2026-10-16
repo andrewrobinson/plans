@@ -108,8 +108,9 @@ heights named":
   `floor.js` say what they hold, and `room_3d.css` names its page.
   `room_3d_ui_guide.md` has the new names, line numbers and
   `changeSettings()`.
-- Left (optional): `board()` could take `{ from, to }` as `box()` now
-  does.
+- Done (16 Oct 2026, on the `loose-ends` branch): `board()` takes
+  `{ from, to }` as `box()` does (all 36 calls, by script; the snapshots
+  unchanged).
 
 Scripts that rename only in code (not comments or strings) and rewrite
 calls by their arguments made the first two safe; write one again for
@@ -357,8 +358,13 @@ second, and the generated ones in about 30 seconds.
 
 Found by the generated configurations, not fixed (the model as it is):
 option 8's and option 10's second door, opened to 180° (its slider's
-end), swings out through the wall. The room check skips configurations
-with a door opened.
+end), swings out through the wall. The room check skipped configurations
+with a door opened. **Fixed (16 Oct 2026, `loose-ends`)**: each of the
+cupboard's second doors stops where it would meet a wall (`opensTo()`,
+found a degree at a time, once per build), and the room check now
+includes the doors opened. It also stopped option 9's left door, with no
+left-wall cupboard, 409 into the left wall in `view-packing` (its snapshot
+and screenshots updated).
 
 Left for 6d: the model still keeps one flat in module state, and
 `living_room.js` still reaches into it for much (its export list); the
@@ -397,7 +403,7 @@ snapshot.
 
 - **"When a second room comes"**, above: replaced by 6b and 6c.
 - **Step 5**: unaffected; its one optional item (`board()` taking
-  `{ from, to }`) is best done before 6d moves the builders.
+  `{ from, to }`) is done (16 Oct 2026), before 6d moves the builders.
 - **`PLAN.md`'s "Designs"** (a cupboard design as data, a printable spec
   for the maker): 6d's settings record and instance are the start of it;
   a design becomes a cupboard piece's configuration.
