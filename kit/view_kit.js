@@ -515,16 +515,48 @@ export function create(o) {
     setView(what, true);
     return true;
   }
-  // After the room is built: the address's view, else the room's own
-  // starting view (config.startView)
-  function start(text) {
-    if (!readAddress(text)) setView(firstView);
+  // The view as JSON, for the page's address: the room chosen; a view from
+  // the lists by its id, or for anywhere else (moved by hand, or saved on a
+  // device) null and the camera: `kind` 'cam' (orbiting), 'walk' (as a
+  // person) or 'seat' (in the chair), its place and aim in mm, and its
+  // angle across in degrees (null if the view doesn't set one); and the eye
+  // height. 2D views keep their id only, not any panning or zooming.
+  function view() {
+    const listed = hooks.isFlat() || Boolean(viewId && !viewId.startsWith('saved:'));
+    const mm = p => p.toArray().map(n => Math.round(n * 1000));
+    const at = listed ? null : {
+      kind: inChair ? 'seat' : asPerson ? 'walk' : 'cam',
+      position: mm(camera.position), target: mm(asPerson ? aimOut() : controls.target), fov: hfov ? Math.round(hfov) : null,
+    };
+    return { room, view: listed ? viewId : null, camera: at, eye };
+  }
+  // A view as view() gives it. Returns whether there was a view to show
+  function readView(v) {
+    if (!v || typeof v !== 'object') return false;
+    if (Object.hasOwn(EYES, v.eye ?? '')) eye = v.eye;
+    if (Object.hasOwn(ROOMS, v.room ?? '')) setRoom(v.room);
+    const point = p => Array.isArray(p) && p.length === 3 && p.every(Number.isFinite);
+    const { kind, position, target, fov } = v.camera ?? {};
+    if (['cam', 'walk', 'seat'].includes(kind) && point(position) && point(target)) {
+      applyView({ exact: true, posture: kind === 'cam' ? undefined : posture(eye), seat: kind === 'seat',
+        position: position.map(n => n * MM), target: target.map(n => n * MM), hfov: Number.isFinite(fov) ? fov : null }, '', true);
+      return true;
+    }
+    if (typeof v.view !== 'string' || (!is3dView(v.view) && !Object.hasOwn(builtIn, v.view))) return false;
+    setView(v.view, true);
+    return true;
+  }
+  // After the room is built: the address's view (as view() gives it, or
+  // as text, as address() gives it), else the room's own starting view
+  // (config.startView)
+  function start(given) {
+    if (!(typeof given === 'string' ? readAddress(given) : readView(given))) setView(firstView);
     ready = true;
     writeView();
   }
 
   return {
-    setView, start, address, writeView,
+    setView, start, address, view, writeView,
     // The room changed: work the view out again, if it's worked out from it
     refresh() { if (follows) setView(viewId); },
     get viewId() { return viewId; },

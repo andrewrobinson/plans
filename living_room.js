@@ -1268,7 +1268,7 @@ const optionIndex = code => {
 // ---------------------------------------------------------------------------
 let showDims = true;
 let flatView = null;               // 'plan', 'back' or 'left' while 2D
-let flatRoom = 'living';           // the room the plan is of (the Look menu's Room)
+let flatRoom = 'livingRoom';           // the room the plan is of (the Look menu's Room)
 let dims = null;                   // the group of dimensions on show
 
 // Room (x, y, z) in mm to a scene point
@@ -2587,11 +2587,16 @@ sofaPick.addEventListener('change', () => changeSettings(s => {
 }, { look: true }));
 sofaSlider.addEventListener('input', () => changeSettings(s => { s.sofa.front = Number(sofaSlider.value); }, { look: true }));
 // Cupboard only: the rest of the room hidden, and the cupboard's dimensions shown
-document.getElementById('cupboardOnly').addEventListener('change', e => {
-  cupboardOnly = e.target.checked;
+const cupboardOnlySwitch = document.getElementById('cupboardOnly');
+function setCupboardOnly(on) {
+  cupboardOnly = cupboardOnlySwitch.checked = on;
   applyCut();
   updateDims();
   if (flat) viewKit.setView(viewKit.viewId || 'plan');          // framed for it, or for the room again
+}
+cupboardOnlySwitch.addEventListener('change', () => {
+  setCupboardOnly(cupboardOnlySwitch.checked);
+  viewKit.writeView();
 });
 // The bench: drawn, or not (and nothing above it)
 const benchSwitch = document.getElementById('benchOn');
@@ -2709,13 +2714,18 @@ document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('
 document.querySelectorAll('input[name=front]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.F = Number(r.value); })));
 
 let xray = false;
-document.getElementById('xray').addEventListener('click', e => {
-  xray = !xray;
+const xrayButton = document.getElementById('xray');
+function setSeeThrough(on) {
+  xray = on;
   carcassMat.transparent = xray;
   carcassMat.opacity = xray ? 0.25 : 1;
   carcassMat.depthWrite = !xray;
   carcassMat.needsUpdate = true;
-  e.target.textContent = `See-through cupboards: ${xray ? 'on' : 'off'}`;
+  xrayButton.textContent = `See-through cupboards: ${xray ? 'on' : 'off'}`;
+}
+xrayButton.addEventListener('click', () => {
+  setSeeThrough(!xray);
+  viewKit.writeView();
 });
 
 // The room's own views, in scene metres: [x, height, y], so room (x, y, z)
@@ -2951,16 +2961,40 @@ sceneKit = SceneKit.create({
   },
 });
 
-document.getElementById('dims').addEventListener('click', e => {
-  showDims = !showDims;
-  e.target.textContent = `Dimensions: ${showDims ? 'on' : 'off'}`;
+// The 2D views' Dimensions and Door sizes buttons
+const dimsButton = document.getElementById('dims'), doorDimsButton = document.getElementById('doorDims');
+function setDims(on) {
+  showDims = on;
+  dimsButton.textContent = `Dimensions: ${showDims ? 'on' : 'off'}`;
   updateDims();
-});
-document.getElementById('doorDims').addEventListener('click', e => {
-  showDoorDims = !showDoorDims;
-  e.target.textContent = `Door sizes: ${showDoorDims ? 'on' : 'off'}`;
+}
+function setDoorDims(on) {
+  showDoorDims = on;
+  doorDimsButton.textContent = `Door sizes: ${showDoorDims ? 'on' : 'off'}`;
   updateDims();
+}
+dimsButton.addEventListener('click', () => {
+  setDims(!showDims);
+  viewKit.writeView();
 });
+doorDimsButton.addEventListener('click', () => {
+  setDoorDims(!showDoorDims);
+  viewKit.writeView();
+});
+
+// The view, as JSON: the view kit's (the room, the view or the camera, the
+// eye height), then the switches for what's shown, so a link shows them
+// too. Reading one sets the switches it has, then the view
+const VIEW_VERSION = 1;            // up only when a field changes its meaning
+const viewNow = () => ({ version: VIEW_VERSION, ...viewKit.view(),
+  dimensions: showDims, doorSizes: showDoorDims, cupboardOnly, seeThrough: xray });
+function readDisplay(view) {
+  const given = key => typeof view?.[key] === 'boolean';
+  if (given('dimensions')) setDims(view.dimensions);
+  if (given('doorSizes')) setDoorDims(view.doorSizes);
+  if (given('cupboardOnly')) setCupboardOnly(view.cupboardOnly);
+  if (given('seeThrough')) setSeeThrough(view.seeThrough);
+}
 
 // The settings drawers, one open at a time, all closed to start on every
 // screen: Other options, opened by ☰, and Cupboard options, Bedroom
@@ -3171,6 +3205,7 @@ function loadConfiguration(configuration) {
 //   get()       the settings: state, as JSON, the doors' angles with them
 //   export()    the settings as a configuration (SCHEMA, above)
 //   load(json)  shows a configuration, keeping the view
+//   view()      the view, as JSON
 //   snapshot()  the settings, each corner cupboard's cutting list, the
 //               dimension figures on show and the description, which the
 //               tests save beside each address (tests/snapshots/)
@@ -3195,6 +3230,7 @@ window.plans = {
   get: settingsNow,
   export: configurationNow,
   load: loadConfiguration,
+  view: viewNow,
   snapshot: () => ({
     settings: settingsNow(),
     cupboards: {

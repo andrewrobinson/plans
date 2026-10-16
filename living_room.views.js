@@ -33,7 +33,7 @@ window.ROOM_VIEWS = {
   // Looking at offer its own. Places and things are in the living room
   // unless they say (`room`).
   rooms: {
-    living:  { label: 'Living room', enter: { place: 'door', thing: 'monitors' } },
+    livingRoom: { label: 'Living room', enter: { place: 'door', thing: 'monitors' } },
     hallway: { label: 'Hallway', enter: { place: 'hallLivingDoor', thing: 'bedroomDoor' } },
     bedroom: { label: 'Bedroom', enter: { place: 'bedroomDoorway', thing: 'bedroomWindow' } },
     downstairs: { label: 'Downstairs', enter: { place: 'outsideFlatDoor', thing: 'flatDoor' } },

@@ -620,7 +620,7 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#viewPick', 'plan');
     await expect.poll(() => view(page)).toMatch(/^plan\..*\.hallway$/);
     await page.locator('#viewMenu .popToggle').click();             // one menu open at a time
-    await page.selectOption('#room', 'living');
+    await page.selectOption('#room', 'livingRoom');
     await expect.poll(() => view(page)).toMatch(/^plan\.stand-tall\.[\d-]+$/);
     // Downstairs: its plan, and a place on the first floor's level
     await page.selectOption('#room', 'downstairs');
