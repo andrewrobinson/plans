@@ -4,7 +4,7 @@
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
-const { test, expect, openRoom, pickOption, settingsField, expectSnapshot } = require('./helpers');
+const { test, expect, openRoom, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
 const { ADDRESSES, VIEW } = require('./addresses');
 
 // The scenes in living_room.scenes.js, read the way the page reads them
@@ -111,7 +111,7 @@ test.describe('the settings drawers', () => {
     await page.click('#cupMenu');
     await pickOption(page, 9);
     await expect(page.locator('#wardBlock')).toBeVisible();        // its sliders, in the drawer
-    expect(settingsField(await page.evaluate(() => location.hash), 0)).toBe('9');
+    expect(await optionShown(page)).toBe(9);
   });
 });
 
@@ -126,14 +126,14 @@ test.describe('the controls', () => {
     await page.click('#cupMenu');
     await page.locator('#rear').fill('500');
     await expect(page.locator('#rearValue')).toHaveText('500');
-    expect(settingsField(await hash(page), 2)).toBe('500');
+    expect(await setting(page, 'R')).toBe(500);
   });
 
   test('the board thickness slider updates its number and the address', async ({ page }) => {
     await page.click('#cupMenu');
     await page.locator('#board').fill('22');
     await expect(page.locator('#boardValue')).toHaveText('22');
-    expect(settingsField(await hash(page), 31)).toBe('22');
+    expect(await setting(page, 'BOARD')).toBe(22);
   });
 
   test('the left-wall depth slider shows "none" below 300', async ({ page }) => {
@@ -141,10 +141,10 @@ test.describe('the controls', () => {
     await pickOption(page, 7);                                   // option 10, as the page opens, has no left-wall cupboard
     await page.locator('#depth').fill('450');
     await expect(page.locator('#depthValue')).toHaveText('450');
-    expect(settingsField(await hash(page), 1)).toBe('450');
+    expect(await setting(page, 'T')).toBe(450);
     await page.locator('#depth').fill('290');
     await expect(page.locator('#depthValue')).toHaveText('none');
-    expect(settingsField(await hash(page), 1)).toBe('0');
+    expect(await setting(page, 'T')).toBe(0);
   });
 
   test('each option shows its own slider blocks', async ({ page }) => {
@@ -170,7 +170,7 @@ test.describe('the controls', () => {
     await page.locator('#depth').fill('600');
     await expect(option8).toBeEnabled();
     await pickOption(page, 8);
-    expect(settingsField(await hash(page), 0)).toBe('8');
+    expect(await optionShown(page)).toBe(8);
   });
 
   test('"Above the bench" shows the TV and shelf sliders that apply', async ({ page }) => {
@@ -180,40 +180,40 @@ test.describe('the controls', () => {
       await page.check(`input[name=above][value="${value}"]`);
       await expect(tv).toBeVisible({ visible: tvShown });
       await expect(shelf).toBeVisible({ visible: shelfShown });
-      expect(settingsField(await hash(page), 4)).toBe(value);
+      expect(await setting(page, 'above')).toBe(Number(value));
     }
   });
 
   test('the bench switch hides the bench settings', async ({ page }) => {
     await page.locator('#benchOn').uncheck();
     await expect(page.locator('#benchDetails')).toBeHidden();
-    expect(settingsField(await hash(page), 26)).toBe('0');
+    expect(await setting(page, 'benchOn')).toBe(false);
     await page.locator('#benchOn').check();
     await expect(page.locator('#benchDetails')).toBeVisible();
-    expect(settingsField(await hash(page), 26)).toBe('1');
+    expect(await setting(page, 'benchOn')).toBe(true);
   });
 
-  // The bedroom's lower recess cupboard (field 40) and mirror (field 42)
+  // The bedroom's lower recess cupboard (otherRoom.lowerD) and mirror (otherRoom.mirror)
   test('the bedroom\'s reset buttons, and the mirror\'s wall', async ({ page }) => {
     await page.click('#bedMenu');
     const recess = page.locator('#otherRoomBlock .depth', { hasText: 'Recess cupboards' });
     const mirror = page.locator('#otherRoomBlock .depth').last();             // the mirror's, last
     await page.locator('#otherRoom_lowerD').fill('800');
-    expect(settingsField(await hash(page), 40)).toBe('800');
+    expect(await setting(page, 'otherRoom.lowerD')).toBe(800);
     await recess.getByRole('button', { name: 'Reset dimensions' }).click();
-    expect(settingsField(await hash(page), 40)).toBe('301');
-    await page.locator('#otherRoom_upperDrawers').check();             // the upper cupboard's drawers and mirrors (field 43)
-    expect(settingsField(await hash(page), 43)).toBe('1.0');
+    expect(await setting(page, 'otherRoom.lowerD')).toBe(301);
+    await page.locator('#otherRoom_upperDrawers').check();             // the upper cupboard's drawers and mirrors
+    expect(await setting(page, 'otherRoom')).toMatchObject({ upperDrawers: true, upperMirrors: false });
     await page.locator('#otherRoom_upperMirrors').check();
-    expect(settingsField(await hash(page), 43)).toBe('1.1');
+    expect(await setting(page, 'otherRoom')).toMatchObject({ upperDrawers: true, upperMirrors: true });
     await page.selectOption('#otherRoom_mirror_wall', 'kitchen');
     await expect(page.locator('#otherRoom_mirror_alongLabel')).toHaveText('Middle from the hallway wall');
-    expect(settingsField(await hash(page), 42)).toBe('3.2569.1400.1000.800');
+    expect(await setting(page, 'otherRoom.mirror')).toEqual({ wall: 'kitchen', along: 2569, bottom: 1400, w: 1000, h: 800 });
     await page.locator('#otherRoom_mirror_w').fill('600');
     await mirror.getByRole('button', { name: 'Reset location' }).click();
-    expect(settingsField(await hash(page), 42)).toBe('0.2569.1400.600.800');   // its size kept
+    expect(await setting(page, 'otherRoom.mirror')).toEqual({ wall: 'breast', along: 2569, bottom: 1400, w: 600, h: 800 });   // its size kept
     await mirror.getByRole('button', { name: 'Reset dimensions' }).click();
-    expect(settingsField(await hash(page), 42)).toBe('0.2569.1400.1000.800');
+    expect(await setting(page, 'otherRoom.mirror')).toEqual({ wall: 'breast', along: 2569, bottom: 1400, w: 1000, h: 800 });
   });
 
   test('the bookshelf takes the bench\'s place and turns its switch off', async ({ page }) => {
@@ -221,61 +221,61 @@ test.describe('the controls', () => {
     await expect(page.locator('#benchOn')).toBeDisabled();
     await expect(page.locator('#benchOn')).not.toBeChecked();
     await expect(page.locator('#benchDetails')).toBeHidden();
-    expect(settingsField(await hash(page), 41)).toBe('1');
+    expect(await setting(page, 'bookshelfOn')).toBe(true);
     await page.locator('#bookshelfOn').uncheck();
     await expect(page.locator('#benchOn')).toBeEnabled();
     await expect(page.locator('#benchOn')).toBeChecked();             // the bench as it was
-    expect(settingsField(await hash(page), 41)).toBe('0');
+    expect(await setting(page, 'bookshelfOn')).toBe(false);
   });
 
-  // The bedroom's pine cupboard in the living room (pineOn, field 51; its
-  // place, field 52) and in the bedroom (cupboardOn, field 50), each on its
+  // The bedroom's pine cupboard in the living room (pineOn; its place,
+  // pineMove) and in the bedroom (otherRoom.cupboardOn), each on its
   // own; in the bench's place, with the bookshelf too if it's on
   test('the pine cupboard can be on the back wall and in the bedroom, each on its own', async ({ page }) => {
     await expect(page.locator('#pineMoveBlock')).toBeHidden();
     await page.locator('#pineOn').check();
     await expect(page.locator('#benchOn')).toBeDisabled();
     await expect(page.locator('#pineMoveBlock')).toBeVisible();
-    expect(settingsField(await hash(page), 51)).toBe('1');
-    expect(settingsField(await hash(page), 52)).toBe('wall');
+    expect(await setting(page, 'pineOn')).toBe(true);
+    expect(await setting(page, 'pineMove')).toBe(null);                    // where it starts
     await page.locator('#pineY').fill('1000');
-    expect(settingsField(await hash(page), 52)).toMatch(/^\d+\.1000\.0$/);
+    expect(await setting(page, 'pineMove')).toMatchObject({ y: 1000, turn: 0 });
     await page.locator('#pineHome').click();
-    expect(settingsField(await hash(page), 52)).toBe('wall');
+    expect(await setting(page, 'pineMove')).toBe(null);                    // where it starts
     await page.locator('#bookshelfOn').check();
     await page.locator('#pineOn').uncheck();
     await expect(page.locator('#benchOn')).toBeDisabled();            // the bookshelf's still there
-    expect(settingsField(await hash(page), 50)).toBe('1');
+    expect(await setting(page, 'otherRoom.cupboardOn')).toBe(true);
     await page.click('#bedMenu');
     await page.locator('#otherRoom_cupboardOn').uncheck();
-    expect(settingsField(await hash(page), 50)).toBe('0');
-    expect(settingsField(await hash(page), 41)).toBe('1');           // the living room's kept
+    expect(await setting(page, 'otherRoom.cupboardOn')).toBe(false);
+    expect(await setting(page, 'bookshelfOn')).toBe(true);           // the living room's kept
   });
 
-  // The living room's corner cupboard copied into the bedroom (newCupboardOn,
-  // field 56): the pine cupboard's switch (field 50) can't be used while it's
-  // there, and keeps its setting for when it's gone
+  // The living room's corner cupboard copied into the bedroom
+  // (otherRoom.newCupboardOn): the pine cupboard's switch (cupboardOn) can't
+  // be used while it's there, and keeps its setting for when it's gone
   test('the new cupboard takes the bedroom pine cupboard\'s place', async ({ page }) => {
-    expect(settingsField(await hash(page), 56)).toBe('0');
+    expect(await setting(page, 'otherRoom.newCupboardOn')).toBe(false);
     await page.click('#bedMenu');
     await expect(page.locator('#otherRoom_cupboardOn')).toBeEnabled();
     await page.locator('#otherRoom_newCupboardOn').check();
-    expect(settingsField(await hash(page), 56)).toBe('1');
+    expect(await setting(page, 'otherRoom.newCupboardOn')).toBe(true);
     await expect(page.locator('#otherRoom_cupboardOn')).toBeDisabled();
-    expect(settingsField(await hash(page), 50)).toBe('1');
+    expect(await setting(page, 'otherRoom.cupboardOn')).toBe(true);
     await page.locator('#otherRoom_newCupboardOn').uncheck();
-    expect(settingsField(await hash(page), 56)).toBe('0');
+    expect(await setting(page, 'otherRoom.newCupboardOn')).toBe(false);
     await expect(page.locator('#otherRoom_cupboardOn')).toBeEnabled();
   });
 
-  // The bedroom's mirror (mirrorOn, field 53) switched off and on again
+  // The bedroom's mirror (otherRoom.mirrorOn) switched off and on again
   test('the bedroom mirror can be switched off', async ({ page }) => {
-    expect(settingsField(await hash(page), 53)).toBe('1');
+    expect(await setting(page, 'otherRoom.mirrorOn')).toBe(true);
     await page.click('#bedMenu');
     await page.locator('#otherRoom_mirrorOn').uncheck();
-    expect(settingsField(await hash(page), 53)).toBe('0');
+    expect(await setting(page, 'otherRoom.mirrorOn')).toBe(false);
     await page.locator('#otherRoom_mirrorOn').check();
-    expect(settingsField(await hash(page), 53)).toBe('1');
+    expect(await setting(page, 'otherRoom.mirrorOn')).toBe(true);
   });
 
   test('the front-wall piece shows the dresser or larder settings', async ({ page }) => {
@@ -288,56 +288,56 @@ test.describe('the controls', () => {
     await page.check('input[name=frontPiece][value="bookshelf"]');
     await expect(page.locator('#bookshelfBlock')).toBeVisible();
     await expect(page.locator('#dresserBlock')).toBeHidden();
-    expect(settingsField(await hash(page), 19)).toBe('3');
-    await page.locator('#bookshelfW').fill('1200');             // the bedroom's bookcase's width (field 38's fourth)
-    expect(settingsField(await hash(page), 38).split('.')[3]).toBe('1200');
+    expect(await setting(page, 'frontPiece')).toBe('bookshelf');
+    await page.locator('#bookshelfW').fill('1200');             // the bedroom's bookcase's width
+    expect(await setting(page, 'otherRoom.bookcase.w')).toBe(1200);
     await page.check('input[name=frontPiece][value="dresser"]');
     await expect(page.locator('#dresserBlock')).toBeVisible();
     await expect(page.locator('#bookshelfBlock')).toBeHidden();
   });
 
-  // A bookcase on the front wall (front piece, field 19), the back wall
-  // (bookshelfOn, field 41) and in the bedroom (field 45), each on its own
+  // A bookcase on the front wall (frontPiece), the back wall (bookshelfOn)
+  // and in the bedroom (otherRoom.bookcaseOn), each on its own
   test('a bookcase can be on either wall and in the bedroom, each on its own', async ({ page }) => {
     await page.check('input[name=frontPiece][value="bookshelf"]');
     await page.locator('#bookshelfOn').check();
-    expect(settingsField(await hash(page), 19)).toBe('3');
-    expect(settingsField(await hash(page), 41)).toBe('1');
-    expect(settingsField(await hash(page), 45)).toBe('1');
+    expect(await setting(page, 'frontPiece')).toBe('bookshelf');
+    expect(await setting(page, 'bookshelfOn')).toBe(true);
+    expect(await setting(page, 'otherRoom.bookcaseOn')).toBe(true);
     await page.click('#bedMenu');
     await page.locator('#otherRoom_bookcaseOn').uncheck();
-    expect(settingsField(await hash(page), 45)).toBe('0');
-    expect(settingsField(await hash(page), 19)).toBe('3');           // the living room's kept
-    expect(settingsField(await hash(page), 41)).toBe('1');
+    expect(await setting(page, 'otherRoom.bookcaseOn')).toBe(false);
+    expect(await setting(page, 'frontPiece')).toBe('bookshelf');           // the living room's kept
+    expect(await setting(page, 'bookshelfOn')).toBe(true);
   });
 
-  // Its place, field 44: `wall` where it starts, else x.y.turn
+  // Its place, bookshelfMove: null where it starts, else { x, y, turn }
   test('the bookshelf in the bench\'s place can be moved and turned', async ({ page }) => {
     await expect(page.locator('#bookshelfMoveBlock')).toBeHidden();
     await page.locator('#bookshelfOn').check();
     await expect(page.locator('#bookshelfMoveBlock')).toBeVisible();
-    expect(settingsField(await hash(page), 44)).toBe('wall');
+    expect(await setting(page, 'bookshelfMove')).toBe(null);                    // where it starts
     await page.locator('#bookshelfY').fill('1000');
     await expect(page.locator('#bookshelfYValue')).toHaveText('1000');
-    expect(settingsField(await hash(page), 44)).toMatch(/^\d+\.1000\.0$/);
+    expect(await setting(page, 'bookshelfMove')).toMatchObject({ y: 1000, turn: 0 });
     await page.locator('#bookshelfTurn').fill('90');
     await expect(page.locator('#bookshelfTurnValue')).toHaveText('90°');
-    expect(settingsField(await hash(page), 44)).toMatch(/^\d+\.1000\.90$/);
+    expect(await setting(page, 'bookshelfMove')).toMatchObject({ y: 1000, turn: 90 });
     await page.click('#bookshelfHome');
-    expect(settingsField(await hash(page), 44)).toBe('wall');
+    expect(await setting(page, 'bookshelfMove')).toBe(null);                    // where it starts
     await expect(page.locator('#bookshelfTurnValue')).toHaveText('0°');
   });
 
-  // The sofa's place, field 57: `tv` where it starts, centred on the TV,
-  // else its middle's x.y and how far it's turned, in quarter turns
+  // The sofa's place, sofa.move: null where it starts, centred on the TV,
+  // else its middle's x and y and how far it's turned, in quarter turns
   test('the sofa can be moved and turned, and its place round-trips through the address', async ({ page }) => {
     await page.selectOption('#sofaPick', 'merton');
-    expect(settingsField(await hash(page), 57)).toBe('tv');
+    expect(await setting(page, 'sofa.move')).toBe(null);               // where it starts, facing the TV
     await expect(page.locator('#sofaFront')).toBeVisible();
     await page.locator('#sofaX').fill('1500');
     await page.locator('#sofaY').fill('2000');
     await page.selectOption('#sofaTurn', '90');
-    expect(settingsField(await hash(page), 57)).toBe('1500.2000.90');
+    expect(await setting(page, 'sofa.move')).toEqual({ x: 1500, y: 2000, turn: 90 });
     await expect(page.locator('#sofaFront')).toBeHidden();         // moved, its sliders say where
     // Turned a quarter, its 1690 width runs along the room and its 1000 depth across
     await expect(page.locator('#summary')).toContainText('its middle at x 1500, y 2000, facing the right-hand wall (x 1000-2000, y 1155-2845)');
@@ -349,7 +349,7 @@ test.describe('the controls', () => {
     await expect(page.locator('#sofaTurn')).toHaveValue('90');
     await page.click('#menu');
     await page.click('#sofaHome');
-    expect(settingsField(await hash(page), 57)).toBe('tv');
+    expect(await setting(page, 'sofa.move')).toBe(null);               // where it starts, facing the TV
     await expect(page.locator('#sofaTurn')).toHaveValue('0');
     await expect(page.locator('#summary')).toContainText('Its front is 1900 from the TV wall');
   });
@@ -365,7 +365,7 @@ test.describe('the controls', () => {
     await page.click('#close');
     await page.keyboard.press('9');
     await expect(page.locator('#current option:checked')).toHaveText(/^9\. /);
-    expect(settingsField(await hash(page), 0)).toBe('9');
+    expect(await optionShown(page)).toBe(9);
   });
 });
 
@@ -456,7 +456,7 @@ test.describe('Share and Reset', () => {
     // Cancelled: nothing changes
     page.once('dialog', d => d.dismiss());
     await page.click('#reset');
-    expect(settingsField(await page.evaluate(() => location.hash), 0)).toBe('7');
+    expect(await optionShown(page)).toBe(7);
     // Accepted
     page.once('dialog', d => {
       expect(d.message()).toBe('Reset all settings?');

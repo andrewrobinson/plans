@@ -1,7 +1,7 @@
 // Shared by the test files: a `test` that fails on any console error;
-// openRoom(), which loads index.html and waits until it's drawn; and
+// openRoom(), which loads index.html and waits until it's drawn;
 // expectSnapshot(), which checks what the page makes of its settings
-// against the one saved.
+// against the one saved; and setting(), which reads one.
 const fs = require('fs');
 const path = require('path');
 const base = require('@playwright/test');
@@ -70,7 +70,13 @@ async function expectSnapshot(page, name) {
   base.expect(actual, `what the page makes of it, as saved in tests/snapshots/${name}.json`).toEqual(saved);
 }
 
-// The parts of the address: settings ~ things to store ~ view
-const settingsField = (hash, k) => hash.slice(1).split('~')[0].split('-')[k];
+// A setting, by its path in window.plans.get() (`state` in living_room.js,
+// and the doors' angles as `doors`), as 'garage.sean' or 'dresser.w'. The
+// tests read the settings this way rather than from the address, so a new
+// address format leaves them alone (REFACTOR_PLAN.md, step 6a).
+const setting = (page, path) => page.evaluate(p => p.split('.').reduce((o, k) => o?.[k], window.plans.get()), path);
+// The option on show: its number, from the option list (state.option is its
+// place in OPTIONS)
+const optionShown = page => page.locator('#current option:checked').evaluate(o => parseInt(o.textContent, 10));
 
-module.exports = { test, expect: base.expect, openRoom, pickOption, settingsField, expectSnapshot };
+module.exports = { test, expect: base.expect, openRoom, pickOption, setting, optionShown, expectSnapshot };
