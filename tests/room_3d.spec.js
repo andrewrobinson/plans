@@ -403,6 +403,24 @@ test.describe('Share and Reset', () => {
     await expect.poll(() => page.evaluate(() => window.sent)).toEqual([`https://andrewrobinson.github.io/plans/index.html${hash}`]);
   });
 
+  test('Screenshot copies a PNG of the view', async ({ page }) => {
+    // A stand-in for the clipboard, as for Share, keeping the picture's type
+    // and size
+    await page.addInitScript(() => {
+      window.copied = [];
+      Object.defineProperty(navigator, 'clipboard', { value: { write: async items => {
+        const png = await items[0].getType('image/png');
+        window.copied.push({ type: png.type, size: png.size });
+      } } });
+    });
+    await openRoom(page, ADDRESSES.find(a => a.name === 'option07').address);
+    await page.click('#screenshot');
+    await expect(page.locator('#screenshot')).toHaveText('Copied');
+    const [copied] = await page.evaluate(() => window.copied);
+    expect(copied.type).toBe('image/png');
+    expect(copied.size).toBeGreaterThan(10000);                 // a picture, not a blank canvas (a few hundred bytes)
+  });
+
   test('Reset asks first, then goes back to the default page', async ({ page }) => {
     await openRoom(page, ADDRESSES.find(a => a.name === 'option07').address);
     // Cancelled: nothing changes

@@ -22,7 +22,7 @@
 import * as THREE from 'three';
 import { MM, createStage, material, box, slab, part, hinge, skewHinge, RAL, oakBoards,
   number, within, radio, sizes, writeFields, readFields, setValueAt,
-  narrow, popMenus, createDrawers, resetButton, shareButton, workOffline, flatViews,
+  narrow, popMenus, createDrawers, resetButton, shareButton, screenshotButton, workOffline, flatViews,
   dimLine, dimLabel, chain, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
@@ -2711,7 +2711,7 @@ let flatFit = builtInViews.plan.fit;
 let flatPerM = null;               // the 2D views' scale, pixels per metre at zoom 1
 // The 2D/3D switch, fitting the views to the screen, and the render loop:
 // kit/floor_kit.js's, reading the views' framing from here
-const { setFlat, resize, startLoop } = flatViews({ scene, renderer, camera, controls, flatCamera, flatControls }, {
+const { setFlat, resize, startLoop, draw } = flatViews({ scene, renderer, camera, controls, flatCamera, flatControls }, {
   get flat() { return flat; },
   set flat(on) { flat = on; },
   get flatFit() { return flatFit; },
@@ -2868,6 +2868,7 @@ resetButton(document.getElementById('reset'));
 // Share: the link is always to the published page, so it works for others
 // even when this copy is on a local server
 shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => OPTIONS[state.option].name);
+screenshotButton(document.getElementById('screenshot'), renderer.domElement, draw, () => OPTIONS[state.option].name);
 resize();
 
 workOffline('sw.js');

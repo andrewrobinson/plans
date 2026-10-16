@@ -400,6 +400,32 @@ export function shareButton(button, publicUrl, text) {
   });
 }
 
+// Screenshot: the view on show as a PNG on the clipboard, to paste into a
+// message or a document. `canvas` is the renderer's; draw() draws it, since
+// the canvas is cleared after each frame reaches the screen, so it's drawn
+// again just before it's read. name() names the file when the clipboard
+// can't take pictures (some browsers) and it's downloaded instead.
+export function screenshotButton(button, canvas, draw, name) {
+  const said = words => {
+    button.textContent = words;
+    setTimeout(() => { button.textContent = 'Screenshot'; }, 2000);
+  };
+  const png = () => new Promise(done => { draw(); canvas.toBlob(done, 'image/png'); });
+  button.addEventListener('click', async () => {
+    try {
+      // The ClipboardItem is made in the click itself, with the picture to
+      // come, as Safari needs
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': png() })]);
+      said('Copied');
+    } catch (err) {
+      const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(await png()), download: `${name()}.png` });
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      said('Downloaded');
+    }
+  });
+}
+
 // Work offline once installed, with the service worker `worker`. Not on this
 // computer (localhost), where its saved copies would get in the way of
 // trying out changes: there any worker installed before is removed, with
@@ -461,14 +487,19 @@ export function flatViews(stage, view) {
   }
   window.addEventListener('resize', () => resize());
 
+  // Draw the view on show, 2D or 3D, once
+  function draw() {
+    renderer.render(scene, view.flat ? flatCamera : camera);
+  }
+
   function startLoop() {
     renderer.setAnimationLoop(() => {
       (view.flat ? flatControls : controls).update();
-      renderer.render(scene, view.flat ? flatCamera : camera);
+      draw();
     });
   }
 
-  return { setFlat, resize, startLoop };
+  return { setFlat, resize, startLoop, draw };
 }
 
 // ---------------------------------------------------------------------------
