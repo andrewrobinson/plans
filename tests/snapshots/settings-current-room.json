@@ -391,5 +391,309 @@
     "bedroom": null
   },
   "dimensions": [],
-  "description": "The room as it is now, with no cupboards. Bench 3838, the whole back wall, 330 deep. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk. Above the bench: an 86\" TV (1930 × 1110), centred on the 3838 of clear wall, from 1120 to 2230. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.), resized: 2600 wide, 1200 deep, 1100 high, its seat at 505. Its front is 3000 from the TV wall (x 619-3219, y 3000-4200).From the room as it is now"
+  "description": "The room as it is now, with no cupboards. Bench 3838, the whole back wall, 330 deep. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk. Above the bench: an 86\" TV (1930 × 1110), centred on the 3838 of clear wall, from 1120 to 2230. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.), resized: 2600 wide, 1200 deep, 1100 high, its seat at 505. Its front is 3000 from the TV wall (x 619-3219, y 3000-4200).From the room as it is now",
+  "boxes": {
+    "livingRoom": {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        3838,
+        4200,
+        2230
+      ],
+      "shown": true
+    },
+    "cornerCupboard": {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        3838,
+        330,
+        800
+      ],
+      "shown": true
+    },
+    "dresser": null,
+    "larder": null,
+    "sofa": {
+      "from": [
+        619,
+        3000,
+        0
+      ],
+      "to": [
+        3219,
+        4200,
+        1100
+      ],
+      "shown": true
+    },
+    "island": {
+      "from": [
+        800,
+        4119,
+        0
+      ],
+      "to": [
+        1570,
+        5379,
+        900
+      ],
+      "shown": false
+    },
+    "bedroomCupboard": null,
+    "bed": {
+      "from": [
+        -4147,
+        2521,
+        0
+      ],
+      "to": [
+        -2787,
+        4486,
+        950
+      ],
+      "shown": true
+    },
+    "bookcase": {
+      "from": [
+        -3003,
+        5072,
+        0
+      ],
+      "to": [
+        -1513,
+        5362,
+        1220
+      ],
+      "shown": true
+    },
+    "pineCupboard": {
+      "from": [
+        -1730,
+        3747,
+        0
+      ],
+      "to": [
+        -1205,
+        5097,
+        1790
+      ],
+      "shown": true
+    },
+    "mirror": {
+      "from": [
+        -2758,
+        5337,
+        1400
+      ],
+      "to": [
+        -1758,
+        5362,
+        2200
+      ],
+      "shown": true
+    },
+    "wickerBench.hallway": {
+      "from": [
+        -2080,
+        1372,
+        0
+      ],
+      "to": [
+        -1160,
+        1782,
+        450
+      ],
+      "shown": true
+    },
+    "wickerBench.bedroom": {
+      "from": [
+        -3927,
+        4506,
+        0
+      ],
+      "to": [
+        -3007,
+        4916,
+        450
+      ],
+      "shown": false
+    },
+    "wickerBench.livingRoom": {
+      "from": [
+        3276,
+        2450,
+        0
+      ],
+      "to": [
+        3686,
+        3370,
+        450
+      ],
+      "shown": false
+    },
+    "shoeRack": {
+      "from": [
+        -4827,
+        122,
+        -2850
+      ],
+      "to": [
+        -4514,
+        1022,
+        -1489
+      ],
+      "shown": true
+    },
+    "sean": {
+      "from": [
+        -35987,
+        -10358,
+        -2850
+      ],
+      "to": [
+        -33487,
+        -9822,
+        -1274
+      ],
+      "shown": true
+    },
+    "billy": {
+      "from": [
+        -35992,
+        -11167,
+        -2850
+      ],
+      "to": [
+        -35712,
+        -10367,
+        -830
+      ],
+      "shown": true
+    },
+    "billyChest": {
+      "from": [
+        -35992,
+        -11990,
+        -2850
+      ],
+      "to": [
+        -35508,
+        -11184,
+        -2070
+      ],
+      "shown": false
+    },
+    "metal": {
+      "from": [
+        -35992,
+        -12682,
+        -2850
+      ],
+      "to": [
+        -35322,
+        -11972,
+        -1955
+      ],
+      "shown": true
+    },
+    "yellow": {
+      "from": [
+        -33039,
+        -10137,
+        -2412
+      ],
+      "to": [
+        -32164,
+        -9827,
+        -1712
+      ],
+      "shown": true
+    },
+    "scaffoldBench": {
+      "from": [
+        -33472,
+        -10037,
+        -2850
+      ],
+      "to": [
+        -31652,
+        -9817,
+        -2412
+      ],
+      "shown": true
+    },
+    "smallBilly": {
+      "from": [
+        -33812,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -33212,
+        -12397,
+        -1310
+      ],
+      "shown": true
+    },
+    "potters": {
+      "from": [
+        -33117,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -32687,
+        -12297,
+        -1315
+      ],
+      "shown": true
+    },
+    "biltong": {
+      "from": [
+        -35857,
+        -12087,
+        -2100
+      ],
+      "to": [
+        -35412,
+        -11147,
+        -1640
+      ],
+      "shown": true
+    },
+    "trellis": {
+      "from": [
+        -35982,
+        -11957,
+        -2850
+      ],
+      "to": [
+        -35262,
+        -11097,
+        -2100
+      ],
+      "shown": true
+    },
+    "pineCupboard.garage": {
+      "from": [
+        -35242,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -33892,
+        -12162,
+        -1060
+      ],
+      "shown": true
+    }
+  }
 }

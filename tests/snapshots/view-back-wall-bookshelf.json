@@ -484,5 +484,309 @@
     "Door 437 × 2437",
     "Door 437 × 2437"
   ],
-  "description": "No left-wall cupboard. A full-height cupboard on the back wall (x 0-900, 600 deep) with a pair of 437 doors, then a 400-wide, 330-deep open shelving tower (to x 1300), floor to ceiling, with five lit shelves. No base cupboards (no bench), so nothing on the back wall beyond. Inside, within its 18 boards (rear panels against the walls included): 864 × 582, 2407 high. A bookcase like the bedroom's (1490 wide, 290 deep, 1220 high) on the back wall, centred on the 2538 of clear wall. A dresser on the front wall between the sink and the desk (x 823-2193): 1370 wide overall (its body 1330), 1940 high, 410 deep up to 830 (two drawers over two doors, under a wooden top), then 340 deep with three open shelves.From option 7 and the photo (new)"
+  "description": "No left-wall cupboard. A full-height cupboard on the back wall (x 0-900, 600 deep) with a pair of 437 doors, then a 400-wide, 330-deep open shelving tower (to x 1300), floor to ceiling, with five lit shelves. No base cupboards (no bench), so nothing on the back wall beyond. Inside, within its 18 boards (rear panels against the walls included): 864 × 582, 2407 high. A bookcase like the bedroom's (1490 wide, 290 deep, 1220 high) on the back wall, centred on the 2538 of clear wall. A dresser on the front wall between the sink and the desk (x 823-2193): 1370 wide overall (its body 1330), 1940 high, 410 deep up to 830 (two drawers over two doors, under a wooden top), then 340 deep with three open shelves.From option 7 and the photo (new)",
+  "boxes": {
+    "livingRoom": {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        3314,
+        5379,
+        2443
+      ],
+      "shown": true
+    },
+    "cornerCupboard": {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        1300,
+        640,
+        2443
+      ],
+      "shown": true
+    },
+    "dresser": {
+      "from": [
+        823,
+        4949,
+        0
+      ],
+      "to": [
+        2193,
+        5379,
+        1940
+      ],
+      "shown": true
+    },
+    "larder": null,
+    "sofa": null,
+    "island": {
+      "from": [
+        1010,
+        2941,
+        0
+      ],
+      "to": [
+        1780,
+        4201,
+        900
+      ],
+      "shown": true
+    },
+    "bedroomCupboard": null,
+    "bed": {
+      "from": [
+        -4147,
+        2521,
+        0
+      ],
+      "to": [
+        -2787,
+        4486,
+        950
+      ],
+      "shown": true
+    },
+    "bookcase": {
+      "from": [
+        -3003,
+        5072,
+        0
+      ],
+      "to": [
+        -1513,
+        5362,
+        1220
+      ],
+      "shown": true
+    },
+    "pineCupboard": {
+      "from": [
+        -1730,
+        3747,
+        0
+      ],
+      "to": [
+        -1205,
+        5097,
+        1790
+      ],
+      "shown": true
+    },
+    "mirror": {
+      "from": [
+        -2758,
+        5337,
+        1400
+      ],
+      "to": [
+        -1758,
+        5362,
+        2200
+      ],
+      "shown": true
+    },
+    "wickerBench.hallway": {
+      "from": [
+        -2080,
+        1372,
+        0
+      ],
+      "to": [
+        -1160,
+        1782,
+        450
+      ],
+      "shown": false
+    },
+    "wickerBench.bedroom": {
+      "from": [
+        -3927,
+        4506,
+        0
+      ],
+      "to": [
+        -3007,
+        4916,
+        450
+      ],
+      "shown": false
+    },
+    "wickerBench.livingRoom": {
+      "from": [
+        3276,
+        2450,
+        0
+      ],
+      "to": [
+        3686,
+        3370,
+        450
+      ],
+      "shown": false
+    },
+    "shoeRack": {
+      "from": [
+        -4827,
+        122,
+        -2850
+      ],
+      "to": [
+        -4514,
+        1022,
+        -1489
+      ],
+      "shown": false
+    },
+    "sean": {
+      "from": [
+        -35987,
+        -10358,
+        -2850
+      ],
+      "to": [
+        -33487,
+        -9822,
+        -1274
+      ],
+      "shown": false
+    },
+    "billy": {
+      "from": [
+        -35992,
+        -11167,
+        -2850
+      ],
+      "to": [
+        -35712,
+        -10367,
+        -830
+      ],
+      "shown": false
+    },
+    "billyChest": {
+      "from": [
+        -35992,
+        -11990,
+        -2850
+      ],
+      "to": [
+        -35508,
+        -11184,
+        -2070
+      ],
+      "shown": false
+    },
+    "metal": {
+      "from": [
+        -35992,
+        -12682,
+        -2850
+      ],
+      "to": [
+        -35322,
+        -11972,
+        -1955
+      ],
+      "shown": false
+    },
+    "yellow": {
+      "from": [
+        -33039,
+        -10137,
+        -2412
+      ],
+      "to": [
+        -32164,
+        -9827,
+        -1712
+      ],
+      "shown": false
+    },
+    "scaffoldBench": {
+      "from": [
+        -33472,
+        -10037,
+        -2850
+      ],
+      "to": [
+        -31652,
+        -9817,
+        -2412
+      ],
+      "shown": false
+    },
+    "smallBilly": {
+      "from": [
+        -33812,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -33212,
+        -12397,
+        -1310
+      ],
+      "shown": false
+    },
+    "potters": {
+      "from": [
+        -33117,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -32687,
+        -12297,
+        -1315
+      ],
+      "shown": false
+    },
+    "biltong": {
+      "from": [
+        -35857,
+        -12087,
+        -2100
+      ],
+      "to": [
+        -35412,
+        -11147,
+        -1640
+      ],
+      "shown": false
+    },
+    "trellis": {
+      "from": [
+        -35982,
+        -11957,
+        -2850
+      ],
+      "to": [
+        -35262,
+        -11097,
+        -2100
+      ],
+      "shown": false
+    },
+    "pineCupboard.garage": {
+      "from": [
+        -35242,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -33892,
+        -12162,
+        -1060
+      ],
+      "shown": false
+    }
+  }
 }

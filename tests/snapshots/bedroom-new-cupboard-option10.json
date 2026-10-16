@@ -519,5 +519,321 @@
     ]
   },
   "dimensions": [],
-  "description": "A full-height cupboard in the corner, 800 along the back wall and 650 out along the left wall, with a pair of 387 doors on its end, facing the kitchen. Bench 3038, from x = 800, 330 deep. Inside, within its 18 boards (rear panels against the walls included): 764 × 614, 2407 high. Above the bench: a 75\" TV (1680 × 960), centred on the 3038 of clear wall, from 1100 to 2060. 250-deep shelves right across, 3038 long, below it at 1000 and above it at 2210. A middle shelf at 1550 either side, 529 long, 150 clear of the TV. A dresser on the front wall between the sink and the desk (x 1008-2008): 1000 wide overall (its body 960), 1930 high, 420 deep up to 830 (two drawers over two doors, under a wooden top), then 420 deep with three open shelves.From option 10 (new)"
+  "description": "A full-height cupboard in the corner, 800 along the back wall and 650 out along the left wall, with a pair of 387 doors on its end, facing the kitchen. Bench 3038, from x = 800, 330 deep. Inside, within its 18 boards (rear panels against the walls included): 764 × 614, 2407 high. Above the bench: a 75\" TV (1680 × 960), centred on the 3038 of clear wall, from 1100 to 2060. 250-deep shelves right across, 3038 long, below it at 1000 and above it at 2210. A middle shelf at 1550 either side, 529 long, 150 clear of the TV. A dresser on the front wall between the sink and the desk (x 1008-2008): 1000 wide overall (its body 960), 1930 high, 420 deep up to 830 (two drawers over two doors, under a wooden top), then 420 deep with three open shelves.From option 10 (new)",
+  "boxes": {
+    "livingRoom": {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        3838,
+        5379,
+        2443
+      ],
+      "shown": true
+    },
+    "cornerCupboard": {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        3838,
+        672,
+        2443
+      ],
+      "shown": true
+    },
+    "dresser": {
+      "from": [
+        1008,
+        4939,
+        0
+      ],
+      "to": [
+        2008,
+        5379,
+        1930
+      ],
+      "shown": true
+    },
+    "larder": null,
+    "sofa": null,
+    "island": {
+      "from": [
+        1010,
+        2941,
+        0
+      ],
+      "to": [
+        1780,
+        4201,
+        900
+      ],
+      "shown": true
+    },
+    "bedroomCupboard": {
+      "from": [
+        -1945,
+        4690,
+        0
+      ],
+      "to": [
+        -1145,
+        5362,
+        2443
+      ],
+      "shown": true
+    },
+    "bed": {
+      "from": [
+        -4147,
+        2521,
+        0
+      ],
+      "to": [
+        -2787,
+        4486,
+        950
+      ],
+      "shown": true
+    },
+    "bookcase": {
+      "from": [
+        -3003,
+        5072,
+        0
+      ],
+      "to": [
+        -1513,
+        5362,
+        1220
+      ],
+      "shown": true
+    },
+    "pineCupboard": {
+      "from": [
+        -1730,
+        3747,
+        0
+      ],
+      "to": [
+        -1205,
+        5097,
+        1790
+      ],
+      "shown": false
+    },
+    "mirror": {
+      "from": [
+        -2758,
+        5337,
+        1400
+      ],
+      "to": [
+        -1758,
+        5362,
+        2200
+      ],
+      "shown": true
+    },
+    "wickerBench.hallway": {
+      "from": [
+        -2080,
+        1372,
+        0
+      ],
+      "to": [
+        -1160,
+        1782,
+        450
+      ],
+      "shown": true
+    },
+    "wickerBench.bedroom": {
+      "from": [
+        -3927,
+        4506,
+        0
+      ],
+      "to": [
+        -3007,
+        4916,
+        450
+      ],
+      "shown": false
+    },
+    "wickerBench.livingRoom": {
+      "from": [
+        3276,
+        2450,
+        0
+      ],
+      "to": [
+        3686,
+        3370,
+        450
+      ],
+      "shown": false
+    },
+    "shoeRack": {
+      "from": [
+        -4827,
+        122,
+        -2850
+      ],
+      "to": [
+        -4514,
+        1022,
+        -1489
+      ],
+      "shown": true
+    },
+    "sean": {
+      "from": [
+        -35987,
+        -10358,
+        -2850
+      ],
+      "to": [
+        -33487,
+        -9822,
+        -1274
+      ],
+      "shown": true
+    },
+    "billy": {
+      "from": [
+        -35992,
+        -11167,
+        -2850
+      ],
+      "to": [
+        -35712,
+        -10367,
+        -830
+      ],
+      "shown": true
+    },
+    "billyChest": {
+      "from": [
+        -35992,
+        -11990,
+        -2850
+      ],
+      "to": [
+        -35508,
+        -11184,
+        -2070
+      ],
+      "shown": false
+    },
+    "metal": {
+      "from": [
+        -35992,
+        -12682,
+        -2850
+      ],
+      "to": [
+        -35322,
+        -11972,
+        -1955
+      ],
+      "shown": true
+    },
+    "yellow": {
+      "from": [
+        -33039,
+        -10137,
+        -2412
+      ],
+      "to": [
+        -32164,
+        -9827,
+        -1712
+      ],
+      "shown": true
+    },
+    "scaffoldBench": {
+      "from": [
+        -33472,
+        -10037,
+        -2850
+      ],
+      "to": [
+        -31652,
+        -9817,
+        -2412
+      ],
+      "shown": true
+    },
+    "smallBilly": {
+      "from": [
+        -33812,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -33212,
+        -12397,
+        -1310
+      ],
+      "shown": true
+    },
+    "potters": {
+      "from": [
+        -33117,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -32687,
+        -12297,
+        -1315
+      ],
+      "shown": true
+    },
+    "biltong": {
+      "from": [
+        -35857,
+        -12087,
+        -2100
+      ],
+      "to": [
+        -35412,
+        -11147,
+        -1640
+      ],
+      "shown": true
+    },
+    "trellis": {
+      "from": [
+        -35982,
+        -11957,
+        -2850
+      ],
+      "to": [
+        -35262,
+        -11097,
+        -2100
+      ],
+      "shown": true
+    },
+    "pineCupboard.garage": {
+      "from": [
+        -35242,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -33892,
+        -12162,
+        -1060
+      ],
+      "shown": true
+    }
+  }
 }

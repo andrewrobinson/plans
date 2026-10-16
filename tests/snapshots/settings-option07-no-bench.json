@@ -542,5 +542,297 @@
     "Door 294 × 2437",
     "Door 869 × 2437"
   ],
-  "description": "Both legs of the L run floor to ceiling, 900 inside along the back wall (900 deep) and 300 along the left wall, one space round the corner. Doors 2437 high, 25 thick: 869 wide on the back-wall leg, 294 wide on the left-wall leg (it covers the corner). No bench: the pine cupboard stands there instead. Inside, within its 25 boards (rear panels against the walls included): 1350 × 850 along the back wall and 450 × 300 along the left wall, 2393 high. The bedroom's pine cupboard (1000 wide, 400 deep, 2000 high) in place of the bench, moved: the middle of its back at x 500, y 300, facing the left wall. The kitchen island against the front wall between the sink and the desk, its long side out (x 800-1570), coming 1260 out from the wall to y 4119.From plan3/room_3d.html"
+  "description": "Both legs of the L run floor to ceiling, 900 inside along the back wall (900 deep) and 300 along the left wall, one space round the corner. Doors 2437 high, 25 thick: 869 wide on the back-wall leg, 294 wide on the left-wall leg (it covers the corner). No bench: the pine cupboard stands there instead. Inside, within its 25 boards (rear panels against the walls included): 1350 × 850 along the back wall and 450 × 300 along the left wall, 2393 high. The bedroom's pine cupboard (1000 wide, 400 deep, 2000 high) in place of the bench, moved: the middle of its back at x 500, y 300, facing the left wall. The kitchen island against the front wall between the sink and the desk, its long side out (x 800-1570), coming 1260 out from the wall to y 4119.From plan3/room_3d.html",
+  "boxes": {
+    "livingRoom": {
+      "from": [
+        0,
+        -225,
+        0
+      ],
+      "to": [
+        1400,
+        1200,
+        2443
+      ],
+      "shown": true
+    },
+    "cornerCupboard": {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        1400,
+        1200,
+        2443
+      ],
+      "shown": true
+    },
+    "dresser": null,
+    "larder": null,
+    "sofa": null,
+    "island": {
+      "from": [
+        800,
+        4119,
+        0
+      ],
+      "to": [
+        1570,
+        5379,
+        900
+      ],
+      "shown": true
+    },
+    "bedroomCupboard": null,
+    "bed": {
+      "from": [
+        -4792,
+        2341,
+        0
+      ],
+      "to": [
+        -2827,
+        3701,
+        950
+      ],
+      "shown": true
+    },
+    "bookcase": {
+      "from": [
+        -4327,
+        4521,
+        0
+      ],
+      "to": [
+        -3327,
+        4771,
+        1000
+      ],
+      "shown": true
+    },
+    "pineCupboard": {
+      "from": [
+        -4267,
+        2496,
+        0
+      ],
+      "to": [
+        -3842,
+        3546,
+        2000
+      ],
+      "shown": false
+    },
+    "mirror": {
+      "from": [
+        -4827,
+        3721,
+        900
+      ],
+      "to": [
+        -4802,
+        4321,
+        2100
+      ],
+      "shown": false
+    },
+    "wickerBench.hallway": {
+      "from": [
+        -2650,
+        1500,
+        0
+      ],
+      "to": [
+        -1650,
+        2000,
+        500
+      ],
+      "shown": false
+    },
+    "wickerBench.bedroom": {
+      "from": [
+        -4327,
+        3521,
+        0
+      ],
+      "to": [
+        -3827,
+        4521,
+        500
+      ],
+      "shown": false
+    },
+    "wickerBench.livingRoom": {
+      "from": [
+        1000,
+        2500,
+        0
+      ],
+      "to": [
+        1500,
+        3500,
+        500
+      ],
+      "shown": false
+    },
+    "shoeRack": {
+      "from": [
+        -4850,
+        122,
+        -2850
+      ],
+      "to": [
+        -4518,
+        1022,
+        -1263
+      ],
+      "shown": true
+    },
+    "sean": {
+      "from": [
+        -34528,
+        -12937,
+        -2850
+      ],
+      "to": [
+        -33992,
+        -10437,
+        -1274
+      ],
+      "shown": true
+    },
+    "billy": {
+      "from": [
+        -32392,
+        -12467,
+        -2850
+      ],
+      "to": [
+        -31592,
+        -12187,
+        -830
+      ],
+      "shown": true
+    },
+    "billyChest": {
+      "from": [
+        -33395,
+        -12487,
+        -2850
+      ],
+      "to": [
+        -32589,
+        -12003,
+        -2070
+      ],
+      "shown": false
+    },
+    "metal": {
+      "from": [
+        -35992,
+        -12682,
+        -2850
+      ],
+      "to": [
+        -35322,
+        -11972,
+        -1955
+      ],
+      "shown": true
+    },
+    "yellow": {
+      "from": [
+        -33039,
+        -10137,
+        -2412
+      ],
+      "to": [
+        -32164,
+        -9827,
+        -1712
+      ],
+      "shown": true
+    },
+    "scaffoldBench": {
+      "from": [
+        -33472,
+        -10037,
+        -2850
+      ],
+      "to": [
+        -31652,
+        -9817,
+        -2412
+      ],
+      "shown": true
+    },
+    "smallBilly": {
+      "from": [
+        -33812,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -33212,
+        -12397,
+        -1310
+      ],
+      "shown": true
+    },
+    "potters": {
+      "from": [
+        -33117,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -32687,
+        -12297,
+        -1315
+      ],
+      "shown": true
+    },
+    "biltong": {
+      "from": [
+        -35857,
+        -12087,
+        -2100
+      ],
+      "to": [
+        -35412,
+        -11147,
+        -1640
+      ],
+      "shown": true
+    },
+    "trellis": {
+      "from": [
+        -35982,
+        -11957,
+        -2850
+      ],
+      "to": [
+        -35262,
+        -11097,
+        -2100
+      ],
+      "shown": true
+    },
+    "pineCupboard.garage": {
+      "from": [
+        -35092,
+        -12687,
+        -2850
+      ],
+      "to": [
+        -34042,
+        -12262,
+        -850
+      ],
+      "shown": true
+    }
+  }
 }

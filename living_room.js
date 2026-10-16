@@ -3087,7 +3087,8 @@ function loadConfiguration(configuration) {
 //   load(json)  shows a configuration, keeping the view
 //   view()      the view, as JSON
 //   snapshot()  the configuration, each corner cupboard's cutting list, the
-//               dimension figures on show and the description, which the
+//               dimension figures on show, the description and each piece's
+//               box, which the
 //               tests save beside each address (tests/snapshots/)
 // ---------------------------------------------------------------------------
 function settingsNow() {
@@ -3106,6 +3107,31 @@ function dimensionFigures() {
   dims?.traverse(o => { if (o.userData.text) figures.push(o.userData.text); });
   return figures;
 }
+// Where each piece is drawn: its box in the living room's mm (x along its
+// back wall, y out from it, z up; the other rooms lie round it), to the mm,
+// and whether it's on show (a piece taken out is still placed), so a piece
+// moved even 2 mm changes the snapshot. null for one not drawn
+function boxOf(object) {
+  if (!object) return null;
+  object.updateWorldMatrix(true, true);
+  const box = new THREE.Box3().setFromObject(object);
+  if (box.isEmpty()) return null;
+  const round = n => Math.round(n / MM) || 0;                  // || 0: no -0, which the tests tell from 0
+  const mm = v => [round(v.x), round(v.z), round(v.y)];
+  let shown = true;
+  for (let o = object; o; o = o.parent) shown &&= o.visible;
+  return { from: mm(box.min), to: mm(box.max), shown };
+}
+const pieceBoxes = () => Object.fromEntries(Object.entries({
+  livingRoom: current?.group,                                   // the option and all round it: the bench wall, the front wall, the sofa
+  cornerCupboard: current?.cupboard,                            // the option's own build, its bench too
+  dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup,
+  bedroomCupboard: otherRoomPieces.newCupboard,
+  bed: otherRoomPieces.bed, bookcase: otherRoomPieces.bookcase, pineCupboard: otherRoomPieces.cupboard, mirror: otherRoomPieces.mirror,
+  ...Object.fromEntries(Object.entries(wickerBenches).map(([room, bench]) => [`wickerBench.${room}`, bench])),
+  shoeRack,
+  ...Object.fromEntries(Object.entries(garagePieces).map(([key, piece]) => [key === 'pine' ? 'pineCupboard.garage' : key, piece])),
+}).map(([name, object]) => [name, boxOf(object)]));
 window.plans = {
   get: settingsNow,
   export: configurationNow,
@@ -3119,6 +3145,7 @@ window.plans = {
     },
     dimensions: dimensionFigures(),
     description: document.getElementById('summary').textContent,
+    boxes: pieceBoxes(),
   }),
 };
 
