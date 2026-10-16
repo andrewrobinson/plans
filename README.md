@@ -29,6 +29,7 @@ takes new screenshots when a change is meant to show.
 | `other_room.js` | The bedroom's furniture and fitted cupboards, and their sliders |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
+| `garage.js` | The garage (off the site plan, in its own x, y mm), what's in it, and Garage options' sliders |
 | `living_room.views.js` | The rooms, places (Where), things (Looking at), eye heights and config-defined views, for editing |
 | `living_room.scenes.js`, `dressers.js`, `larders.js`, `sofas.js` | Scenes and furniture catalogues, for editing |
 | `kit/` | The engine: `floor_kit.js`, `view_kit.js` (views, rooms, Where and Looking at), `scene_kit.js` |
@@ -43,7 +44,7 @@ The notes:
 - `REFACTOR_PLAN.md`: tidying the code.
 - `room_3d_ui_guide.md`: where each part of the page is.
 
-## Where it's got to (15 Oct 2026)
+## Where it's got to (16 Oct 2026)
 
 - **The living room**, measured, with the corner cupboard options, dresser,
   larders, sofa, island and things to store.
@@ -81,8 +82,18 @@ The notes:
   corrected for the photo's warm light by the woodwork's white (the
   maker's swatch came out too brown); its colour can be changed under
   **Carpet** in the Colours menu.
+- **The garage**, 5327 long, 2866 wide and 2432 high (measured), placed
+  off the site plan about 28 m out past the back wall, its door
+  (estimated) drawn open. In it, in **Garage options**, each with an **In
+  the garage** switch, a place and a quarter turn: Sean, Billy,
+  BillyChest, Metal (a table), Yellow (a cupboard), the scaffold bench,
+  Small Billy (a cupboard), Potters (open shelves), Biltong and Trellis
+  (boxes open at the top) and the bedroom's pine cupboard. Yellow and
+  Biltong have a height above the floor, as they sit on the bench and on
+  Trellis; Small Billy and Potters a gap from the wall behind. Sizes and
+  where each starts in `room_dimensions.md`, "The garage".
 - **The Look menu** chooses the **Room** (living room, hallway, bedroom,
-  downstairs):
+  downstairs, garage):
   Where and Looking at offer that room's, and Bird's eye and Plan (2D)
   frame it.
 

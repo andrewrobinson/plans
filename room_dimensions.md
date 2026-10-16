@@ -177,22 +177,56 @@ door, 2134 wide and 1981 high, centred, drawn open (up inside, flat). Its own co
 back wall (0) to its door (5327), **y** from the right-hand wall looking in
 (0) to the left-hand wall (2866); its corner is `GARAGE_CORNER`.
 
-In it, each placed by the middle of its back, in
-quarter turns (0° faces the left-hand wall, 90° the back wall), each with its own **In the garage** switch in Garage options (BillyChest out to start). Yellow and Biltong also have a **Height above the floor**, as they sit on the scaffold bench and Trellis; Small Billy and Potters a **Gap from the wall behind** (up to 200), as the floor's and walls' slopes hold them off it. All start where the user put them (16 Oct 2026):
+In it, each placed by the middle of its back, in quarter turns (0° faces
+the left-hand wall, 90° the back wall, 180° the right-hand wall, 270° the
+door), each with its own **In the garage** switch in Garage options
+(BillyChest out to start). Yellow and Biltong also have a **Height above
+the floor**, as they sit on the scaffold bench and Trellis (up to the
+ceiling less the piece, in 1s); Small Billy and Potters a **Gap from the
+wall behind** (0 to 200, in 1s, chosen), as the slopes of the floor and
+walls hold them off it. All are in **Looking at** when the room is the
+garage.
 
-| | Width | Depth | Height | Starts (the user's) |
+Their sizes, all the user's (16 Oct 2026). Width is along its back, depth
+out from it; the user's "long" is the width, except the scaffold bench's
+1820, and "wide" or "deep" the depth:
+
+| | Width | Depth | Height | What it is, and how it's drawn |
 |---|---|---|---|---|
-| Sean | 2500 | 535 | 1575 | a bookcase: its back to the left-hand wall, near the back (`1.1255.2865.180`) |
-| Billy | 800 | 280 | 2020 | a bookcase: its back to the back wall, facing the door (`1.0.1920.270`) |
-| BillyChest | 805 | 484 | 780 | a plain box: its back to the back wall beside Billy, 20 from him, out (`0.0.1100.270`) |
-| Metal | 710 | 670 | 895 | a table, near the back on the right (`1.670.360.90`) |
-| Yellow | 875 | 310 | 700 | a plain box (a cupboard), on the scaffold bench (`1.3390.2550.0.438`) |
-| Scaffold bench | 1820 | 220 | 438 | a 38-thick board on four legs, against the left-hand wall past Sean (`1.3430.2650.0`) |
-| Small Billy | 600 | 290 | 1540 | a plain box (a cupboard), against the right-hand wall (`1.2480.0.0.0`) |
-| Potters | 430 | 390 | 1535 | drawn as a bookcase (open shelves), against the right-hand wall (`1.3090.0.0.0`) |
-| Biltong | 940 | 445 | 460 | a box open at the top, on Trellis (`1.580.1070.90.750`) |
-| Trellis | 860 | 720 | 750 | a box open at the top, under Biltong near the back (`1.730.1160.90`) |
-| Pine cupboard | as in Bedroom options | | | the bedroom's, drawn the same but flush to the wall (the bedroom's stands 60 off), against the right-hand wall (`1.1425.0.0`) |
+| Sean | 2500 | 535 | 1575 | steel shelving: a bookcase, grey |
+| Billy | 800 | 280 | 2020 | an IKEA Billy: a bookcase, white |
+| BillyChest | 805 | 484 | 780 | a chest: a plain box, white |
+| Metal | 710 | 670 | 895 | a table: a 30 top on four 40-square legs (chosen), grey |
+| Yellow | 875 | 310 | 700 | a cupboard: a plain box, yellow |
+| Scaffold bench | 1820 | 220 | 438 | a scaffold board with legs: a 38-thick board (a scaffold board's) on four 50-square legs, 100 in from its ends (chosen), sandy pine |
+| Small Billy | 600 | 290 | 1540 | a small white cupboard: a plain box, white |
+| Potters | 430 | 390 | 1535 | an open-shelved cupboard: a bookcase, mid wood |
+| Biltong | 940 | 445 | 460 | a rectangle open at the top: a bottom and four sides, 18 thick (chosen), brown |
+| Trellis | 860 | 720 | 750 | a box open at the top: as Biltong, green |
+| Pine cupboard | as in Bedroom options | | | the bedroom's (1300 × 500 × 1790 to start), drawn the same, flush to the wall (the bedroom's stands 60 off for the carpet and skirting) |
+
+The colours are chosen. Where each starts, all where the user put them (16
+Oct 2026, sent as links). In the address, each is `on.x.y.turn`, Yellow's
+and Biltong's `on.x.y.turn.z`, Small Billy's and Potters' `on.x.y.turn.off`
+(fields 58 to 68 counting from 0, in this order):
+
+| | Starts | Address |
+|---|---|---|
+| Sean | its back to the left-hand wall, near the back | `1.1255.2865.180` |
+| Billy | its back to the back wall, facing the door | `1.0.1920.270` |
+| BillyChest | out; its back to the back wall beside Billy | `0.0.1100.270` |
+| Metal | near the back on the right | `1.670.360.90` |
+| Yellow | on the scaffold bench, 438 up (the bench's height) | `1.3390.2550.0.438` |
+| Scaffold bench | against the left-hand wall past Sean | `1.3430.2650.0` |
+| Small Billy | against the right-hand wall, no gap | `1.2480.0.0.0` |
+| Potters | against the right-hand wall, no gap | `1.3090.0.0.0` |
+| Biltong | on Trellis, 750 up (Trellis's height) | `1.580.1070.90.750` |
+| Trellis | near the back, under Biltong | `1.730.1160.90` |
+| Pine cupboard | against the right-hand wall, between Metal and Small Billy | `1.1425.0.0` |
+
+Links from before a field was added keep it as it starts: Sean's and
+Billy's `x.y.turn` from before they could be taken out read with them in,
+and Small Billy's and Potters' `on.x.y.turn` with no gap.
 
 ## The other room (the bedroom)
 
