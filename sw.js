@@ -2,7 +2,7 @@
 // there's a connection, so updates come through, and the saved copy is used
 // when there isn't. The 3D library's files never change at a given version,
 // so they're served from the saved copy once fetched.
-const CACHE = 'cupboards-v20';
+const CACHE = 'cupboards-v21';
 const THREE = 'https://cdn.jsdelivr.net/npm/three@0.160.0/';
 const FILES = [
   './index.html',
@@ -22,6 +22,7 @@ const FILES = [
   './kit/floor_kit.js',
   './kit/view_kit.js',
   './kit/scene_kit.js',
+  './kit/config_kit.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
