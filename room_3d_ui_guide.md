@@ -111,6 +111,7 @@ The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 | **2562–2568** | **The two drawers** (`DRAWERS`, the kit's `createDrawers()`) | |
 | 2570–2576 | Reset, Share and offline support (the kit's `resetButton()`, `shareButton()`, `workOffline()`) | |
 | 2578–2613 | `syncControls()` | Puts every slider, radio, switch and dropdown in step with `state` |
+| 3035–3073 | **`window.plans`** (step 6a) | `get()` and `snapshot()`, read-only, for the tests and the browser console (section 5) |
 | 2615–2624 | **Startup** | `readAddress()` from the URL hash into `state`, then `syncControls()`, then `show(state.option)`, then the view |
 | 2625 | **Render loop** | The kit's `startLoop()`: `renderer.setAnimationLoop(...)` draws a frame about 60 times a second |
 
@@ -488,6 +489,26 @@ sets every slider and radio from `state`, e.g. the radio found with
 `document.querySelector('input[name=front][value="1329"]')`. This is how Share
 links and Scenes work. Reset simply loads the page with no hash.
 
+### `window.plans`: the settings, for the tests and the console
+
+Read-only; nothing in it changes the page (REFACTOR_PLAN.md, step 6a).
+Try it in the browser console:
+
+- `plans.get()`: the settings, `state` as JSON, and the doors' angles as
+  `doors` (`room`, `tall`, `second`, `bedroom`, `flat`, `outside`, in
+  degrees). The tests read settings through it (`setting(page, 'garage.sean')`
+  in `tests/helpers.js`), not from the address, so a new address format
+  leaves them alone.
+- `plans.snapshot()`: what the page makes of them: `settings` (as `get()`),
+  `cupboards` (the living room's corner cupboard's cutting list as rows,
+  `{ kind, length, width, shaped, count, parts }`, and the bedroom's copy's,
+  or `null` when there isn't one), `dimensions` (the figures on show, in a
+  2D view or with Cupboard only) and `description` (the text under the
+  option). Each saved address and scene has its snapshot in
+  `tests/snapshots/<name>.json`, compared exactly beside its screenshot, so a
+  board 2 mm out or one fewer fails even when the picture passes.
+  `npm run test:update` writes them again, with the screenshots.
+
 ---
 
 ## 6. What is `<script type="module">`?
@@ -542,7 +563,8 @@ and every HTML element above it is in the DOM.
   `changeSettings(s => { s.X = Number(slider.value); })`, and set the slider
   and its span in `syncControls()`. Use `X` in a `build()`
   (`const { X } = state;`). To keep it in links, add a field to the end of
-  `ADDRESS`.
+  `ADDRESS`. Its value is then in `plans.get()` and the snapshots, so run
+  `npm run test:update` once and check the snapshots' diff adds only it.
 - **To change how something looks**: find its id or class in the HTML, then search
   `room_3d.css` for that `#id` or `.class`.
 - **To find what happens when a control is used**: search for its id in quotes,

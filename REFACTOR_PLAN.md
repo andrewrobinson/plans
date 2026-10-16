@@ -3,7 +3,8 @@
 Two steps are left. Step 5, readable code, is all but done. Step 6, one
 configuration as JSON (agreed 16 Oct 2026), puts a configuration between
 the menus and what's drawn, makes the URL that configuration, compressed,
-and lets the model be built and tested without a browser. Both change how
+and lets the model be built and tested without a browser; its first
+piece, 6a, the safety net, is done. Both change how
 the code is organised, not what the page does: the page must look and
 behave exactly as before, which the Playwright tests check (`tests/`).
 Step 6 changes the URL's format; old links needn't work.
@@ -224,6 +225,34 @@ views they open. Before anything moves:
 3. **The controls tests read settings, not the address**: through
    `window.plans`, not `settingsField(hash, k)`, so a new URL format
    leaves them alone.
+
+**Done (16 Oct 2026)**, on the `safety-net` branch, a commit each:
+
+- `window.plans.get()` gives `state` as JSON and the doors' angles
+  (`doors`: `room`, `tall`, `second`, `bedroom`, `flat`, `outside`), as
+  6b puts them in the configuration. `snapshot()` gives `settings` (as
+  `get()`), `cupboards` (`livingRoom` and `bedroom`, each a cutting list
+  as rows `{ kind, length, width, shaped, count, parts }`, or `null`),
+  `dimensions` (the labels on show, so only 2D views have any) and
+  `description` (`#summary`'s text). `cuttingList()` takes the cupboard to
+  read, so the bedroom's copy has its own list (the same as the living
+  room's until 6d's 2 mm).
+- `expectSnapshot()` in `tests/helpers.js` compares them with `toEqual`,
+  beside each screenshot: one file for both devices, which must agree;
+  written when missing, or changed with `npm run test:update`.
+- New addresses: `garage-moved-plan`, `bedroom-new-cupboard-option07` and
+  `-option10`. The wicker bench in every room was already saved.
+- The controls tests in `controls.spec.js` and `room_3d.spec.js` read
+  `setting(page, path)` by `state`'s paths, and the option's number from
+  the option list; `settingsField()` is gone.
+- Left for 6b: the tests of older links (the shoe rack's, the garage's,
+  and room_3d.spec.js's link without the last 25 fields) still write the
+  address's fields by number, and the Views and Look tests read the
+  view's part of the address (its id, eye height and room). Both change
+  with the URL.
+- Later, at 6c's start: a bounding box for each piece drawn in the
+  snapshot, so a 2 mm move of anything is caught, not only the
+  cupboard's boards (agreed 16 Oct 2026).
 
 ### 6b. The configuration and its URL
 

@@ -6,8 +6,9 @@
 // 6's upper cupboard and second bay (EXTRA, UPPER) taken out of them.
 // The address format is in room_dimensions.md.
 //
-// Each entry: a name (also the screenshot's file name) and the address to
-// load, which must come back unchanged. Old share links needn't keep working
+// Each entry: a name (also the file name of its screenshot and of its
+// snapshot, tests/snapshots/<name>.json) and the address to load, which
+// must come back unchanged. Old share links needn't keep working
 // (agreed 12 Oct 2026), so none are tested.
 //
 // Scenes from living_room.scenes.js are added by room_3d.spec.js itself, so a new
