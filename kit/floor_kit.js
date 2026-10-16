@@ -529,6 +529,7 @@ export function dimLabel(text, at, g, colour = '#9b1c1c', size = 0.13) {
   sprite.scale.set(size * canvas.width / canvas.height, size, 1);
   sprite.position.copy(at);
   sprite.renderOrder = 11;
+  sprite.userData.text = text;                  // for window.plans.snapshot()'s dimension figures
   g.add(sprite);
 }
 

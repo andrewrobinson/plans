@@ -266,6 +266,7 @@ const LIFT = 50;                   // clear above a stored thing, to lift it in 
 let cupShelves = [];               // { poly, top, mat }: plan outline and top, BOARD thick
 let cupCuts = [];                  // what drawCupShelves() last cut: { top, from, to, axis, things }
 const cupShelfGroup = new THREE.Group();
+cupShelfGroup.userData.cupShelves = true;   // so the cutting list knows them in the bedroom's copy too
 const spanOf = (poly, axis) => [Math.min(...poly.map(p => p[axis])), Math.max(...poly.map(p => p[axis]))];
 const rectPoly = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
 function cupShelf(poly, top, mat) {
@@ -1506,6 +1507,8 @@ function doorDims(g) {
 // parts that aren't boards (option 9's oak shelves and plinth), are left out.
 // Each size of board lists what it's for, from the names part() gives them.
 // CUT_RULE, at its head, says which boards are shortened where they meet.
+// cuttingList() reads the living room's cupboard, or the one given (the
+// bedroom's copy, for window.plans.snapshot()).
 const CUT_RULE = 'Rear panels (against the walls) and ends run full height. In a corner the back-wall rear panel runs through; ' +
   'the left-wall rear panel stops at it. Tops, bottoms and dividers fit between them. Shelves fit inside; doors cover the front edges, 3 clear.';
 const CUT_EXCEPTIONS = {
@@ -1513,14 +1516,14 @@ const CUT_EXCEPTIONS = {
   11: "Option 11's end facing the kitchen runs across the left-wall rear panel.",
 };
 const BOARD_KINDS = new Map([[carcassMat, 'Panels'], [doorMat, 'Doors'], [shelfMat, 'Shelves']]);
-function cuttingList() {
+function cuttingList(cupboard = current?.cupboard) {
   const { BOARD } = state, kinds = new Map();               // kind -> Map of 'l×w×shaped' -> { l, w, shaped, n, parts }
-  current?.cupboard?.traverse(o => {
+  cupboard?.traverse(o => {
     if (!o.isMesh || !BOARD_KINDS.has(o.material)) return;
     let kind = BOARD_KINDS.get(o.material);
     for (let p = o; p; p = p.parent) {
       if (p.userData.bench) return;
-      if (p === cupShelfGroup) kind = 'Shelves';                // the cupboard's shelves, whatever their colour
+      if (p.userData.cupShelves) kind = 'Shelves';              // the cupboard's shelves, whatever their colour
     }
     o.geometry.computeBoundingBox();
     const [t, w, l] = o.geometry.boundingBox.getSize(new THREE.Vector3()).toArray().map(v => Math.round(v / MM)).sort((a, b) => a - b);
@@ -1534,6 +1537,9 @@ function cuttingList() {
   });
   return kinds;
 }
+// Its kinds in the order listed, and each kind's sizes, largest first
+const CUT_KINDS = ['Panels', 'Doors', 'Shelves'];
+const sizesInOrder = sizes => [...sizes.values()].sort((a, b) => b.l - a.l || b.w - a.w);
 const cutList = document.getElementById('cutList'), cutToggle = document.getElementById('cutToggle');
 function showCuttingList() {
   const option = OPTIONS[state.option];
@@ -1541,11 +1547,10 @@ function showCuttingList() {
     cutList.innerHTML = '<b>No cutting list</b>: no cupboard in this option.';
     return;
   }
-  const kinds = cuttingList(), order = ['Panels', 'Doors', 'Shelves'];
+  const kinds = cuttingList();
   let boards = 0, area = 0;
-  const rows = order.filter(k => kinds.has(k)).map(kind => {
-    const sizes = [...kinds.get(kind).values()].sort((a, b) => b.l - a.l || b.w - a.w);
-    return `<div class="cutKind">${kind}</div>` + sizes.map(({ l, w, shaped, n, parts }) => {
+  const rows = CUT_KINDS.filter(k => kinds.has(k)).map(kind => {
+    return `<div class="cutKind">${kind}</div>` + sizesInOrder(kinds.get(kind)).map(({ l, w, shaped, n, parts }) => {
       boards += n;
       area += n * l * w;
       const what = [[...parts].map((p, i) => i ? p[0].toLowerCase() + p.slice(1) : p).join(', '), shaped ? 'shaped' : ''].filter(Boolean).join('; ');
@@ -1999,6 +2004,7 @@ const bedroomSlider = document.getElementById('bedroomDoor');
 const flatDoorSlider = document.getElementById('flatDoor');
 const outsideDoorSlider = document.getElementById('outsideDoor');
 let current = null;          // { group, tall, second }
+let bedroomCopy = null;      // the bedroom's copy of the corner cupboard, while it's there (copyCupboardToBedroom())
 
 function update() {
   if (current) {
@@ -2024,12 +2030,14 @@ function update() {
 // (other_room.js). Copied again whenever the cupboard, its doors or its
 // shelves change; the copy shares their shapes and colours.
 function copyCupboardToBedroom() {
+  bedroomCopy = null;
   if (!state.otherRoom.newCupboardOn || !current) return showNewCupboard(null);
   const copy = current.cupboard.clone();
   const benches = [];
   copy.traverse(o => { if (isBench(o)) benches.push(o); });
   for (const o of benches) o.parent?.remove(o);
   showNewCupboard(copy);
+  bedroomCopy = copy;
 }
 [tallSlider, secondSlider, roomSlider, bedroomSlider, flatDoorSlider, outsideDoorSlider].forEach(s => s.addEventListener('input', update));
 
@@ -3023,6 +3031,46 @@ function syncControls() {
   syncShoeRack(state.shoeRack);
   syncGarage(state.garage);
 }
+
+// ---------------------------------------------------------------------------
+// window.plans: the settings and what's made of them, for the tests and the
+// browser console (REFACTOR_PLAN.md, step 6a). Read-only: nothing here
+// changes the page.
+//   get()       the settings: state, as JSON, and the doors' angles
+//   snapshot()  the settings, each corner cupboard's cutting list, the
+//               dimension figures on show and the description, which the
+//               tests save beside each address (tests/snapshots/)
+// ---------------------------------------------------------------------------
+const DOOR_NAMES = ['room', 'tall', 'second', 'bedroom', 'flat', 'outside'];   // DOORS' order
+function settingsNow() {
+  const doors = Object.fromEntries(DOOR_NAMES.map((name, k) => [name, Number(DOORS[k].value)]));
+  return { ...JSON.parse(JSON.stringify(state)), doors };
+}
+// A cupboard's cutting list as rows, in the order the page lists them
+function cuttingRows(cupboard) {
+  const kinds = cuttingList(cupboard);
+  return CUT_KINDS.filter(k => kinds.has(k)).flatMap(kind => sizesInOrder(kinds.get(kind)).map(({ l, w, shaped, n, parts }) =>
+    ({ kind, length: l, width: w, shaped, count: n, parts: [...parts] })));
+}
+// The dimensions' figures on show (only in a 2D view, or with the cupboard
+// on its own), in the order they're drawn
+function dimensionFigures() {
+  const figures = [];
+  dims?.traverse(o => { if (o.userData.text) figures.push(o.userData.text); });
+  return figures;
+}
+window.plans = {
+  get: settingsNow,
+  snapshot: () => ({
+    settings: settingsNow(),
+    cupboards: {
+      livingRoom: state.option === CURRENT ? null : cuttingRows(current?.cupboard),   // the current room has no cupboard
+      bedroom: bedroomCopy ? cuttingRows(bedroomCopy) : null,
+    },
+    dimensions: dimensionFigures(),
+    description: document.getElementById('summary').textContent,
+  }),
+};
 
 // Start on the settings in the address (room_dimensions.md has their
 // order). Anything it leaves out, and everything with no address, starts as
