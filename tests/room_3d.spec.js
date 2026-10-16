@@ -38,7 +38,7 @@ test.describe('saved addresses', () => {
   // out, the wicker bench be drawn, the pine cupboard be moved about, the
   // mirror be taken out, the carpet's colour chosen or the shoe rack be
   // drawn, the new cupboard be copied into the bedroom, the sofa be moved
-  // and turned, or Sean and Billy be placed in the garage: their sixteen
+  // and turned, or Sean, Billy and BillyChest be placed in the garage: their seventeen
   // fields left off the end, so the bookshelf's against the wall, the
   // bookcase, the pine cupboard and the mirror in the bedroom, the bench in
   // the hallway, no pine cupboard in the living room, the carpet as in the
@@ -47,7 +47,7 @@ test.describe('saved addresses', () => {
   // where they start, as they start
   test('a link without the bookshelf\'s place, the bedroom bookcase, the wicker bench, the pine cupboard, the mirror, the carpet, the shoe rack, the new cupboard, the sofa\'s place or the garage\'s keeps them as they start', async ({ page }) => {
     const [settings, ...rest] = DEFAULT.split('~');
-    await openRoom(page, [settings.split('-').slice(0, -16).join('-'), ...rest].join('~'));
+    await openRoom(page, [settings.split('-').slice(0, -17).join('-'), ...rest].join('~'));
     expect(await page.evaluate(() => location.hash)).toBe(DEFAULT);
   });
 

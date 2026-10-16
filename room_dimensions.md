@@ -159,7 +159,7 @@ Then (added 15 Oct 2026) the shoe rack downstairs, `w.d.h.along.across.turn` (se
 
 Then (added 16 Oct 2026) the **New cupboard** in the bedroom, 1 or 0 (off to start): whatever the option list and Cupboard options build in the living room's corner, bar its bench, copied into the bedroom's corner where the chimney breast's face meets the kitchen-side wall (where the pine cupboard and the bookcase meet). It's turned half round, so the living room's back wall runs along the chimney breast and its left wall along the kitchen-side wall: the only way into that corner without mirroring it. It takes the pine cupboard's place: while it's on, the pine cupboard is hidden and its **In the bedroom** switch can't be used, keeping its setting for when the New cupboard goes. It doesn't move the bookcase, which it can overlap. "The new cupboard" is in Looking at.
 
-Then (added 16 Oct 2026) where Sean and Billy stand in the garage, each `x.y.turn` (see "The garage" below).
+Then (added 16 Oct 2026) where Sean and Billy stand in the garage, each `x.y.turn`, and BillyChest, `on.x.y.turn` (see "The garage" below).
 
 Sizes of one thing are joined by `.` (dresserSizes `w.h.baseD.baseH.upperD`, larderSizes and sofaSizes `w.d.h`, shelves as their tops, islandMove `x.y.turn`, sofaMove `x.y.turn` (its middle, quarter turns) or `tv` where it starts; the bedroom's bed `u.v.turn`, bookcase and pineCupboard `u.v.turn.w.d.h`, see below). For example, option 7 with a 600-deep left-wall cupboard and everything else as it starts: `#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1000.1930.420.830.420-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301-0-0.2569.1400.1000.800-0.0-wall-1`. After the first `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, with a fourth number for its height off the floor when it isn't 0; they're used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 12 are the room's finishes, the named cupboard colours below and the carpet's two, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, `.` and the room door's, left-wall cupboard's, option's own, bedroom's, internal (downstairs) and external door angles, joined by `-` (links without the later ones leave those doors as they start), and, unless it's the living room, `.` and the room chosen (`hallway`, `bedroom` or `downstairs`). For example `~look:desk:dresser.sit-tall.90-0-0`, or `~birdseye.sit-tall.90-0-0.bedroom`. Old links needn't keep working (agreed 12 Oct 2026).
 
@@ -171,17 +171,18 @@ square to the flat (the plan has it turned about 20°), its door on the end
 facing the driveway, towards the flat: its middle about 28 m out past the
 back wall and 11 m to the right looking out (`SITE_PLAN` in garage.js),
 its floor at the lobby's level. Its door is estimated: a standard single up-and-over
-door, 2134 wide and 1981 high, centred. Its own coordinates: **x** from its
+door, 2134 wide and 1981 high, centred, drawn open (up inside, flat). Its own coordinates: **x** from its
 back wall (0) to its door (5327), **y** from the right-hand wall looking in
 (0) to the left-hand wall (2866); its corner is `GARAGE_CORNER`.
 
 In it, each drawn as a bookcase and placed by the middle of its back, in
 quarter turns (0° faces the left-hand wall, 90° the back wall):
 
-| | Width | Depth | Height | Starts (chosen) |
+| | Width | Depth | Height | Starts (the user's) |
 |---|---|---|---|---|
-| Sean | 2500 | 535 | 1575 | along the right-hand wall, in the back corner (`1250.0.0`) |
-| Billy | 800 | 280 | 2020 | against the back wall, in the other corner (`0.2466.270`) |
+| Sean | 2500 | 535 | 1575 | its back to the left-hand wall, near the back (`1255.2865.180`) |
+| Billy | 800 | 280 | 2020 | its back to the back wall, facing the door (`0.1920.270`) |
+| BillyChest | 805 | 484 | 780 | a plain box, in to start (its own switch): its back to the back wall beside Billy, 20 from him (`1.0.1100.270`, on first) |
 
 ## The other room (the bedroom)
 

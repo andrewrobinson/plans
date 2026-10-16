@@ -384,23 +384,38 @@ test.describe('the wicker bench', () => {
   });
 });
 
-// The garage: Sean's place (field 58) and Billy's (59), each x.y.turn
+// The garage: Sean's place (field 58) and Billy's (59), each x.y.turn, and BillyChest's (60)
 test.describe('the garage', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page); });
 
   test('Sean and Billy can be moved and turned, and put back', async ({ page }) => {
-    expect(await field(page, 58)).toBe('1250.0.0');
-    expect(await field(page, 59)).toBe('0.2466.270');
+    expect(await field(page, 58)).toBe('1255.2865.180');
+    expect(await field(page, 59)).toBe('0.1920.270');
     await slide(page, 'garage_sean_x', 2000);
     await slide(page, 'garage_sean_y', 1000);
     await slide(page, 'garage_sean_turn', 90);
     await slide(page, 'garage_billy_x', 4000);
     expect(await field(page, 58)).toBe('2000.1000.90');
-    expect(await field(page, 59)).toBe('4000.2466.270');
+    expect(await field(page, 59)).toBe('4000.1920.270');
     expect(await readout(page, 'garage_sean_turn')).toBe('90°');
     await page.locator('#garageBlock [data-reset="sean"]').evaluate(b => b.click());
-    expect(await field(page, 58)).toBe('1250.0.0');
-    expect(await field(page, 59)).toBe('4000.2466.270');           // Billy stays where he was put
+    expect(await field(page, 58)).toBe('1255.2865.180');
+    expect(await field(page, 59)).toBe('4000.1920.270');           // Billy stays where he was put
+  });
+
+  // BillyChest (field 60), on.x.y.turn: in to start, beside Billy; taken
+  // out, its sliders hide
+  test('BillyChest can be taken out, moved and put back', async ({ page }) => {
+    expect(await field(page, 60)).toBe('1.0.1100.270');
+    await toggle(page, 'garage_billyChest_on', false);
+    expect(await field(page, 60)).toBe('0.0.1100.270');
+    await expect(page.locator('#garage_billyChest')).toBeHidden();
+    await toggle(page, 'garage_billyChest_on', true);
+    await slide(page, 'garage_billyChest_x', 3000);
+    await slide(page, 'garage_billyChest_turn', 0);
+    expect(await field(page, 60)).toBe('1.3000.1100.0');
+    await page.locator('#garageBlock [data-reset="billyChest"]').evaluate(b => b.click());
+    expect(await field(page, 60)).toBe('1.0.1100.270');
   });
 
   test('a link with their places keeps them, and holds them to the garage', async ({ page }) => {
@@ -410,7 +425,7 @@ test.describe('the garage', () => {
     expect(await field(page, 58)).toBe('3000.2000.180');
     expect(await field(page, 59)).toBe('500.500.0');
     await openRoom(page, withPlaces('9000.2000.45', '500.500.0'));   // past the back wall's far end, and not a quarter turn
-    expect(await field(page, 58)).toBe('1250.2000.0');
+    expect(await field(page, 58)).toBe('1255.2000.180');
   });
 });
 
@@ -583,10 +598,12 @@ test.describe('the Views and Look menus', () => {
     // out, each not offering the wall you stand at
     await page.selectOption('#room', 'garage');
     await expect.poll(() => view(page)).toMatch(/^look:garageLookingIn:sean\.stand-tall\..*\.garage$/);
-    expect(await options('where')).toEqual(['Looking in', 'Looking out']);
-    expect(await offered()).toEqual(['Looking at Sean', 'Looking at Billy', 'Looking at the back wall']);
+    expect(await options('where')).toEqual(['Looking in', 'Looking out', 'Looking in from outside']);
+    expect(await offered()).toEqual(['Looking at Sean', 'Looking at Billy', 'Looking at BillyChest', 'Looking at the back wall']);
     await page.selectOption('#where', 'garageLookingOut');
-    expect(await offered()).toEqual(['Looking at Sean', 'Looking at Billy', 'Looking at the entrance']);
+    expect(await offered()).toEqual(['Looking at Sean', 'Looking at Billy', 'Looking at BillyChest', 'Looking at the entrance']);
+    await page.selectOption('#where', 'garageOutside');
+    await expect.poll(() => view(page)).toMatch(/^look:garageOutside:\w+\.stand-tall\..*\.garage$/);
   });
 
   test('saving and deleting a view', async ({ page }) => {

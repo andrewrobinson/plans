@@ -63,8 +63,10 @@ const garageWallMat = material(0xdcd8d0);          // painted block, off-white (
 const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 
 // The floor, the walls (seen from inside only, so the views from above look
-// in), the door, shut, in the end wall facing the flat, and the ceiling,
-// facing down
+// in), the door in the end wall facing the flat, and the ceiling, facing
+// down. The door's drawn open, as the user asked (16 Oct 2026), to look in
+// from outside: up and over, lying flat inside, its outer face down, its
+// edge at the opening's head
 {
   const { length: L, width: W, height: H, door } = GARAGE;
   const face = (w, h, at, facing) => insideFace(w, h, garageWallMat, at, facing, garage);
@@ -74,7 +76,11 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
   face(L, H, [L / 2, W, H / 2], '-v');                          // the left-hand wall
   const d0 = (W - door.width) / 2, d1 = d0 + door.width;
   faceAround(W, [d0, d1], [0, door.height], H, garageWallMat, a => [L, a], '-u', garage);
-  box({ from: [L - door.thick, d0, 0], to: [L, d1, door.height] }, garageDoorMat, garage);
+  // ...and its outside face, in the same plane (its thickness isn't known),
+  // so looking in from outside shows the wall round the doorway; from
+  // above the door it hides a little of the floor (the user's choice)
+  faceAround(W, [d0, d1], [0, door.height], H, garageWallMat, a => [L, a], '+u', garage);
+  box({ from: [L - door.height, d0, door.height], to: [L, d1, door.height + door.thick] }, garageDoorMat, garage);
   const top = new THREE.Mesh(new THREE.PlaneGeometry(L * MM, W * MM), ceilingMat);
   top.rotation.x = Math.PI / 2;
   top.position.set(L / 2 * MM, H * MM, W / 2 * MM);
@@ -83,23 +89,32 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 
 // ---------------------------------------------------------------------------
 // What's in it: Sean and Billy, each drawn as a bookcase, a box of shelves
-// (other_room.js's bookcase()). Their sizes are the user's (16 Oct 2026);
-// their colours chosen
+// (other_room.js's bookcase()), and BillyChest, a plain box that can be
+// taken out (`optional`). Their sizes are the user's (16 Oct 2026); their
+// colours chosen
 // ---------------------------------------------------------------------------
+const white = material(0xf4f3ef);                  // as IKEA's Billy
 const PIECES = {
-  sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: material(0x7d8288) },    // grey, as steel shelving
-  billy: { label: 'Billy', w: 800, d: 280, h: 2020, mat: material(0xf4f3ef) },   // white, as IKEA's Billy
+  sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: material(0x7d8288), shape: 'shelves' },   // grey, as steel shelving
+  billy: { label: 'Billy', w: 800, d: 280, h: 2020, mat: white, shape: 'shelves' },
+  billyChest: { label: 'BillyChest', w: 805, d: 484, h: 780, mat: white, shape: 'box', optional: true },
 };
 const PIECE_KEYS = Object.keys(PIECES);
 
 // Where each stands: the middle of its back, and which way it faces, in
 // quarter turns as the bedroom's furniture: 0° away from the right-hand
 // wall, 90° the back wall, 180° the left-hand wall, 270° the door. They
-// start, as chosen, Sean along the right-hand wall in the back corner, and
-// Billy against the back wall in the other corner
+// start where the user put them (16 Oct 2026): Sean's back to the
+// left-hand wall, near the back, and Billy's to the back wall, facing the
+// door, nearer the left-hand wall than the right. BillyChest starts in,
+// its back to the back wall beside Billy, on his right-hand-wall side,
+// CHEST_GAP from him (chosen)
+const CHEST_GAP = 20;
+const besideBilly = 1920 - PIECES.billy.w / 2 - CHEST_GAP - PIECES.billyChest.w / 2;
 export const GARAGE_START = {
-  sean: { x: PIECES.sean.w / 2, y: 0, turn: 0 },
-  billy: { x: 0, y: GARAGE.width - PIECES.billy.w / 2, turn: 270 },
+  sean: { x: 1255, y: 2865, turn: 180 },
+  billy: { x: 0, y: 1920, turn: 270 },
+  billyChest: { on: true, x: 0, y: Math.round(besideBilly / 5) * 5, turn: 270 },   // onto the sliders' 5s
 };
 
 // The sliders, as other_room.js's: [path in state.garage, label, lowest,
@@ -113,7 +128,7 @@ const SLIDERS = PIECE_KEYS.flatMap(placeSliders);
 
 // ---------------------------------------------------------------------------
 // The address: each piece's place as `x.y.turn`, each held to its slider's
-// range, in quarter turns
+// range, in quarter turns; one that can be taken out `on.x.y.turn`, on 1 or 0
 // ---------------------------------------------------------------------------
 const RANGES = Object.fromEntries(SLIDERS.map(([path, , lo, hi]) => [path, [lo, hi]]));
 function held(path, text, was) {
@@ -122,11 +137,13 @@ function held(path, text, was) {
   return n >= lo && n <= hi ? n : was;
 }
 const PLACE_KEYS = ['x', 'y', 'turn'];
+const onOff = (text, was) => (text === '1' ? true : text === '0' ? false : was);
 export const GARAGE_ADDRESS = PIECE_KEYS.map(piece => [`garage.${piece}`,
-  p => PLACE_KEYS.map(k => p[k]).join('.'),
+  p => [...(PIECES[piece].optional ? [p.on ? 1 : 0] : []), ...PLACE_KEYS.map(k => p[k])].join('.'),
   (text, p) => {
     const parts = text.split('.');
-    return Object.fromEntries(PLACE_KEYS.map((k, i) => [k, held(`${piece}.${k}`, parts[i], p[k])]));
+    const on = PIECES[piece].optional ? { on: onOff(parts.shift(), p.on) } : {};
+    return { ...on, ...Object.fromEntries(PLACE_KEYS.map((k, i) => [k, held(`${piece}.${k}`, parts[i], p[k])])) };
   }]);
 
 // ---------------------------------------------------------------------------
@@ -135,35 +152,48 @@ export const GARAGE_ADDRESS = PIECE_KEYS.map(piece => [`garage.${piece}`,
 // ---------------------------------------------------------------------------
 const furniture = new THREE.Group();
 garage.add(furniture);
-export const garagePieces = { sean: null, billy: null };      // each piece as drawn now, to look at
+// Each piece as drawn now, to look at: one taken out is hidden, but still
+// placed, so Looking at it aims at its spot
+export const garagePieces = { sean: null, billy: null, billyChest: null };
 
 export function drawGarage(s) {
   furniture.clear();
   for (const piece of PIECE_KEYS) {
-    const { w, d, h, mat } = PIECES[piece], g = bookcase({ w, d, h }, mat), { x, y, turn } = s[piece];
+    const g = drawn(PIECES[piece]), { x, y, turn } = s[piece];
     g.position.set(x * MM, 0, y * MM);
     g.rotation.y = THREE.MathUtils.degToRad(-turn);
+    g.visible = s[piece].on ?? true;
     furniture.add(g);
     garagePieces[piece] = g;
   }
 }
+function drawn({ w, d, h, mat, shape }) {
+  if (shape === 'shelves') return bookcase({ w, d, h }, mat);
+  const g = new THREE.Group();
+  box({ from: [-w / 2, 0, 0], to: [w / 2, d, h] }, mat, g);
+  return g;
+}
 
 // ---------------------------------------------------------------------------
-// The menu's block, built into `container`: for each piece its sizes, the
-// sliders that place it and a button to put it back. change(edits) is
+// The menu's block, built into `container`: for each piece its sizes, a
+// switch if it can be taken out, the sliders that place it and a button to
+// put it back. change(edits) is
 // called with a list of [path, value]; the function returned puts the
 // controls in step with the settings `s`
 // ---------------------------------------------------------------------------
 export function garageControls(container, change) {
   const id = path => `garage_${path.replace('.', '_')}`;
   container.innerHTML = PIECE_KEYS.map(piece => {
-    const { label, w, d, h } = PIECES[piece];
-    return `<div class="depth"><div><b>${label}</b> (${w} wide, ${d} deep, ${h} high)</div>` +
-      `${placeSliders(piece).map(slider(id)).join('')}` +
-      `<div class="row"><button data-reset="${piece}">Reset location</button></div></div>`;
+    const { label, w, d, h, optional } = PIECES[piece];
+    const onSwitch = optional ? `<label class="switch"><input type="checkbox" id="${id(`${piece}.on`)}"> In the garage</label>` : '';
+    return `<div class="depth"><div><b>${label}</b> (${w} wide, ${d} deep, ${h} high)</div>${onSwitch}` +
+      `<div id="${id(piece)}">${placeSliders(piece).map(slider(id)).join('')}` +
+      `<div class="row"><button data-reset="${piece}">Reset location</button></div></div></div>`;
   }).join('');
+  const OPTIONAL = PIECE_KEYS.filter(piece => PIECES[piece].optional);
 
   for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
+  for (const piece of OPTIONAL) document.getElementById(id(`${piece}.on`)).addEventListener('change', e => change([[`${piece}.on`, e.target.checked]]));
   container.querySelectorAll('button[data-reset]').forEach(b => b.addEventListener('click', () => {
     change(placeSliders(b.dataset.reset).map(([path]) => [path, valueAt(GARAGE_START, path)]));
   }));
@@ -173,6 +203,10 @@ export function garageControls(container, change) {
       const value = valueAt(s, path);
       document.getElementById(id(path)).value = String(value);
       document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
+    }
+    for (const piece of OPTIONAL) {
+      document.getElementById(id(`${piece}.on`)).checked = s[piece].on;
+      document.getElementById(id(piece)).hidden = !s[piece].on;      // its sliders only while it's in
     }
   };
 }
