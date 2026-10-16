@@ -251,7 +251,7 @@ const state = {
   otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
   wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
   shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
-  garage: structuredClone(GARAGE_START),              // Sean, Billy and BillyChest, in the garage: where each stands (garage.js)
+  garage: structuredClone(GARAGE_START),              // Sean, Billy, BillyChest and the rest, in the garage: where each stands (garage.js)
 };
 
 const baseDoorCount = () => Math.max(1, Math.round((ROOM_WIDTH - state.T - state.WARD - state.TOWER) / 450));
@@ -2197,7 +2197,7 @@ function redrawAround() {
   drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
   drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
   drawShoeRack(state.shoeRack);                                 // the shoe rack, downstairs
-  drawGarage(state.garage);                                     // Sean, Billy and BillyChest, in the garage
+  drawGarage(state.garage, state.otherRoom.cupboard);                                     // Sean, Billy, BillyChest and the rest, in the garage
   updateDims();
   updatePalette();
   placeStored();                                                // the cupboard they go in may have changed
@@ -2277,7 +2277,7 @@ const ADDRESS = [
   ...SHOE_RACK_ADDRESS,                                         // the shoe rack's sizes and place, downstairs
   ...NEW_CUPBOARD_ON_ADDRESS,                                   // the corner cupboard copied into the bedroom, or not
   ['sofa.move', m => writeSpot(m, SOFA_HOME), text => readSpot(text, SOFA_HOME)],   // the sofa moved and turned, or where it starts
-  ...GARAGE_ADDRESS,                                            // where Sean, Billy and BillyChest stand in the garage (BillyChest's added later)
+  ...GARAGE_ADDRESS,                                            // where Sean, Billy, BillyChest and the rest stand in the garage (the later ones added later)
 ];
 // A piece in place of the bench moved, as `x.y.turn`, or AT_HOME where it
 // starts (as links from before the bookshelf could move keep it); the sofa
@@ -2848,10 +2848,8 @@ const anchors = {
   livingBench: () => middleOf(wickerBenches.livingRoom),
   // The shoe rack (shoe_rack.js), wherever it stands at the foot of the stairs
   shoeRack: () => middleOf(shoeRack),
-  // Sean, Billy and BillyChest (garage.js), wherever they stand in the garage
-  sean: () => middleOf(garagePieces.sean),
-  billy: () => middleOf(garagePieces.billy),
-  billyChest: () => middleOf(garagePieces.billyChest),
+  // Sean, Billy, BillyChest and the rest (garage.js), wherever they stand in the garage
+  ...Object.fromEntries(Object.keys(garagePieces).map(piece => [piece, () => middleOf(garagePieces[piece])])),
 };
 const DOORS = [roomSlider, tallSlider, secondSlider, bedroomSlider, flatDoorSlider, outsideDoorSlider];   // newer doors last, so older links leave them as they start
 const addressView = location.hash.split('~')[2];               // read before anything rewrites the address

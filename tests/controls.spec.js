@@ -385,7 +385,10 @@ test.describe('the wicker bench', () => {
 });
 
 // The garage, in Garage options: Sean (field 58), Billy (59) and
-// BillyChest (60), each on.x.y.turn
+// BillyChest (60), each on.x.y.turn; then Metal (61), Yellow (62, with its
+// height above the floor, on.x.y.turn.z), the scaffold bench (63), Small
+// Billy (64, with its gap from the wall, on.x.y.turn.off), Potters (65, likewise), Biltong (66, with its height), Trellis (67)
+// and the bedroom's pine cupboard (68, its sizes the bedroom's)
 test.describe('the garage', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#garageMenu'); });
 
@@ -407,22 +410,53 @@ test.describe('the garage', () => {
   // Each has its In the garage switch; taken out, its sliders stay, as the
   // bedroom's
   test('each can be taken out, moved and put back', async ({ page }) => {
-    for (const [piece, k] of [['sean', 58], ['billy', 59]]) {
-      await toggle(page, `garage_${piece}_on`, false);
-      expect((await field(page, k)).split('.')[0]).toBe('0');
-      await expect(page.locator(`#garage_${piece}_x`)).toBeVisible();
-      await toggle(page, `garage_${piece}_on`, true);
-      expect((await field(page, k)).split('.')[0]).toBe('1');
-    }
-    expect(await field(page, 60)).toBe('1.0.1100.270');
-    await toggle(page, 'garage_billyChest_on', false);
-    expect(await field(page, 60)).toBe('0.0.1100.270');
+    await toggle(page, 'garage_sean_on', false);
+    expect(await field(page, 58)).toBe('0.1255.2865.180');
+    await expect(page.locator('#garage_sean_x')).toBeVisible();
+    await toggle(page, 'garage_sean_on', true);
+    expect(await field(page, 58)).toBe('1.1255.2865.180');
+    expect(await field(page, 60)).toBe('0.0.1100.270');            // out to start
     await toggle(page, 'garage_billyChest_on', true);
     await slide(page, 'garage_billyChest_x', 3000);
     await slide(page, 'garage_billyChest_turn', 0);
     expect(await field(page, 60)).toBe('1.3000.1100.0');
     await page.locator('#garageBlock [data-reset="billyChest"]').evaluate(b => b.click());
-    expect(await field(page, 60)).toBe('1.0.1100.270');
+    expect(await field(page, 60)).toBe('1.0.1100.270');            // put back, still in
+  });
+
+  // Yellow starts on the scaffold bench and Biltong on Trellis, each
+  // raised by the height of what it's on; the others have no height
+  test('Yellow and Biltong can be raised and lowered, and put back', async ({ page }) => {
+    expect(await field(page, 62)).toBe('1.3390.2550.0.438');
+    expect(await field(page, 63)).toBe('1.3430.2650.0');
+    expect(await field(page, 66)).toBe('1.580.1070.90.750');
+    expect(await page.locator('#garage_metal_z').count()).toBe(0);
+    expect(await field(page, 68)).toBe('1.1425.0.0');
+    await toggle(page, 'garage_pine_on', false);
+    await slide(page, 'garage_pine_turn', 90);
+    expect(await field(page, 68)).toBe('0.1425.0.90');
+    await slide(page, 'garage_yellow_z', 0);
+    await toggle(page, 'garage_biltong_on', false);
+    expect(await field(page, 62)).toBe('1.3390.2550.0.0');
+    expect(await field(page, 66)).toBe('0.580.1070.90.750');
+    await page.locator('#garageBlock [data-reset="yellow"]').evaluate(b => b.click());
+    expect(await field(page, 62)).toBe('1.3390.2550.0.438');
+  });
+
+  // Small Billy and Potters can stand off the wall behind them; the others can't
+  test('Small Billy and Potters can stand off the wall, and be put back', async ({ page }) => {
+    expect(await field(page, 64)).toBe('1.2480.0.0.0');
+    expect(await field(page, 65)).toBe('1.3090.0.0.0');
+    expect(await page.locator('#garage_sean_off').count()).toBe(0);
+    await slide(page, 'garage_smallBilly_off', 25);
+    await slide(page, 'garage_potters_off', 40);
+    expect(await field(page, 64)).toBe('1.2480.0.0.25');
+    expect(await field(page, 65)).toBe('1.3090.0.0.40');
+    await page.locator('#garageBlock [data-reset="potters"]').evaluate(b => b.click());
+    expect(await field(page, 65)).toBe('1.3090.0.0.0');    // a link from before there was a gap keeps it as it starts
+    const [settings, ...rest] = (await hash(page)).split('~');
+    await openRoom(page, [settings.split('-').map((f, k) => (k === 64 ? '0.1000.0.90' : f)).join('-'), ...rest].join('~'));
+    expect(await field(page, 64)).toBe('0.1000.0.90.0');
   });
 
   // Links from before Sean and Billy could be taken out, x.y.turn, keep
@@ -608,9 +642,10 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#room', 'garage');
     await expect.poll(() => view(page)).toMatch(/^look:garageLookingIn:sean\.stand-tall\..*\.garage$/);
     expect(await options('where')).toEqual(['Looking in', 'Looking out', 'Looking in from outside']);
-    expect(await offered()).toEqual(['Looking at Sean', 'Looking at Billy', 'Looking at BillyChest', 'Looking at the back wall']);
+    const garageThings = ['Looking at Sean', 'Looking at Billy', 'Looking at BillyChest', 'Looking at Metal', 'Looking at Yellow', 'Looking at the scaffold bench', 'Looking at Small Billy', 'Looking at Potters', 'Looking at Biltong', 'Looking at Trellis', 'Looking at the pine cupboard'];
+    expect(await offered()).toEqual([...garageThings, 'Looking at the back wall']);
     await page.selectOption('#where', 'garageLookingOut');
-    expect(await offered()).toEqual(['Looking at Sean', 'Looking at Billy', 'Looking at BillyChest', 'Looking at the entrance']);
+    expect(await offered()).toEqual([...garageThings, 'Looking at the entrance']);
     await page.selectOption('#where', 'garageOutside');
     await expect.poll(() => view(page)).toMatch(/^look:garageOutside:\w+\.stand-tall\..*\.garage$/);
   });

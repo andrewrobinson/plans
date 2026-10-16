@@ -155,11 +155,19 @@ window.ROOM_VIEWS = {
     bed:             { room: 'bedroom', label: 'the bed', anchor: 'bed' },
     mirror:          { room: 'bedroom', label: 'the mirror', anchor: 'mirror' },
     // In the garage, heights from the hallway floor (its floor 2850 down):
-    // Sean, Billy and BillyChest, wherever they stand; its doorway's middle (1981 high);
+    // Sean, Billy, BillyChest and the rest (garage.js), wherever they stand; its doorway's middle (1981 high);
     // and the back wall's middle
     sean:           { room: 'garage', label: 'Sean', anchor: 'sean' },
     billy:          { room: 'garage', label: 'Billy', anchor: 'billy' },
     billyChest:     { room: 'garage', label: 'BillyChest', anchor: 'billyChest' },
+    metal:          { room: 'garage', label: 'Metal', anchor: 'metal' },
+    yellow:         { room: 'garage', label: 'Yellow', anchor: 'yellow' },
+    scaffoldBench:  { room: 'garage', label: 'the scaffold bench', anchor: 'scaffoldBench' },
+    smallBilly:     { room: 'garage', label: 'Small Billy', anchor: 'smallBilly' },
+    potters:        { room: 'garage', label: 'Potters', anchor: 'potters' },
+    biltong:        { room: 'garage', label: 'Biltong', anchor: 'biltong' },
+    trellis:        { room: 'garage', label: 'Trellis', anchor: 'trellis' },
+    garagePine:     { room: 'garage', label: 'the pine cupboard', anchor: 'pine' },
     garageEntrance: { room: 'garage', label: 'the entrance', at: [5327, 1433, -1860] },
     garageBackWall: { room: 'garage', label: 'the back wall', at: [0, 1433, -1634] },
   },

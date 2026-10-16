@@ -321,8 +321,9 @@ export function bookcase({ w, d, h }, mat = bookcaseMat) {
 // The pine cupboard: its body, held offWall off the wall behind, a cornice
 // standing out over it, and on its front two rows of drawers (two, then
 // three) under three doors, each with a knob
-export function pineCupboard({ w, d, h }) {
-  const g = new THREE.Group(), half = w / 2, { offWall, plinth, cornice, corniceProud, drawerRows, front, gap } = PINE;
+// (`offWall` how far off the wall it stands: the bedroom's lean to start)
+export function pineCupboard({ w, d, h }, offWall = PINE.offWall) {
+  const g = new THREE.Group(), half = w / 2, { plinth, cornice, corniceProud, drawerRows, front, gap } = PINE;
   const y0 = offWall, y1 = offWall + d, body = y1 - front;
   box({ from: [-half, y0, 0], to: [half, body, h - cornice] }, pineMat, g);
   box({ from: [-half - corniceProud, y0, h - cornice], to: [half + corniceProud, y1 + corniceProud, h] }, pineMat, g);

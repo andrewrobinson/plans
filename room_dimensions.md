@@ -161,6 +161,8 @@ Then (added 16 Oct 2026) the **New cupboard** in the bedroom, 1 or 0 (off to sta
 
 Then (added 16 Oct 2026) Sean, Billy and BillyChest in the garage, each `on.x.y.turn`, on 1 or 0 (Sean's and Billy's links from before they could be taken out, `x.y.turn`, still read, with them in) (see "The garage" below).
 
+Then (added 16 Oct 2026) Metal, Yellow, the scaffold bench, Small Billy, Potters, Biltong, Trellis and the bedroom's pine cupboard in the garage, each `on.x.y.turn`, Yellow and Biltong `on.x.y.turn.z` with their height above the floor, Small Billy and Potters `on.x.y.turn.off` with their gap from the wall behind (see "The garage" below).
+
 Sizes of one thing are joined by `.` (dresserSizes `w.h.baseD.baseH.upperD`, larderSizes and sofaSizes `w.d.h`, shelves as their tops, islandMove `x.y.turn`, sofaMove `x.y.turn` (its middle, quarter turns) or `tv` where it starts; the bedroom's bed `u.v.turn`, bookcase and pineCupboard `u.v.turn.w.d.h`, see below). For example, option 7 with a 600-deep left-wall cupboard and everything else as it starts: `#7-600-330-1200-3-250-780-600-900-400-600-0-4-0-0-0-75-0-1000.1930.420.830.420-0-chester-0-none-1900-1100.1950.510-1690.1000.920-1-600-600.1200.1800-600.1200.1800-1395.3571.0-18-800-650-0-400-330-1360.0.0-2569.2841.180.1490.290.1220-3682.1901.90.1300.500.1790-301-0-0.2569.1400.1000.800-0.0-wall-1`. After the first `~` are the things to store: `shown.packing.where` (shown 1 or 0; packing 0 to 3 as listed; where 0 by the window, 1 in the corner cupboard, 2 moved by hand), then `x.y.turned` for each, in the order of the table below, with a fourth number for its height off the floor when it isn't 0; they're used when they've been moved by hand. A colour code of 0 means the default (the room as it is now); 1 to 12 are the room's finishes, the named cupboard colours below and the carpet's two, and four-figure codes are RAL colours. After a second `~` is the view, so a shared link shows just what was on screen: a view's id (as `desk`, `plan` or `look:desk:tv`), or for anywhere else `cam`, `walk` or `seat` and the camera's place and aim in mm and its angle across, joined by `:`; then `.` and the eye height, `.` and the room door's, left-wall cupboard's, option's own, bedroom's, internal (downstairs) and external door angles, joined by `-` (links without the later ones leave those doors as they start), and, unless it's the living room, `.` and the room chosen (`hallway`, `bedroom` or `downstairs`). For example `~look:desk:dresser.sit-tall.90-0-0`, or `~birdseye.sit-tall.90-0-0.bedroom`. Old links needn't keep working (agreed 12 Oct 2026).
 
 ## The garage
@@ -175,14 +177,22 @@ door, 2134 wide and 1981 high, centred, drawn open (up inside, flat). Its own co
 back wall (0) to its door (5327), **y** from the right-hand wall looking in
 (0) to the left-hand wall (2866); its corner is `GARAGE_CORNER`.
 
-In it, each drawn as a bookcase and placed by the middle of its back, in
-quarter turns (0° faces the left-hand wall, 90° the back wall), each with its own **In the garage** switch in Garage options (all in to start):
+In it, each placed by the middle of its back, in
+quarter turns (0° faces the left-hand wall, 90° the back wall), each with its own **In the garage** switch in Garage options (BillyChest out to start). Yellow and Biltong also have a **Height above the floor**, as they sit on the scaffold bench and Trellis; Small Billy and Potters a **Gap from the wall behind** (up to 200), as the floor's and walls' slopes hold them off it. All start where the user put them (16 Oct 2026):
 
 | | Width | Depth | Height | Starts (the user's) |
 |---|---|---|---|---|
-| Sean | 2500 | 535 | 1575 | its back to the left-hand wall, near the back (`1.1255.2865.180`) |
-| Billy | 800 | 280 | 2020 | its back to the back wall, facing the door (`1.0.1920.270`) |
-| BillyChest | 805 | 484 | 780 | a plain box: its back to the back wall beside Billy, 20 from him (`1.0.1100.270`) |
+| Sean | 2500 | 535 | 1575 | a bookcase: its back to the left-hand wall, near the back (`1.1255.2865.180`) |
+| Billy | 800 | 280 | 2020 | a bookcase: its back to the back wall, facing the door (`1.0.1920.270`) |
+| BillyChest | 805 | 484 | 780 | a plain box: its back to the back wall beside Billy, 20 from him, out (`0.0.1100.270`) |
+| Metal | 710 | 670 | 895 | a table, near the back on the right (`1.670.360.90`) |
+| Yellow | 875 | 310 | 700 | a plain box (a cupboard), on the scaffold bench (`1.3390.2550.0.438`) |
+| Scaffold bench | 1820 | 220 | 438 | a 38-thick board on four legs, against the left-hand wall past Sean (`1.3430.2650.0`) |
+| Small Billy | 600 | 290 | 1540 | a plain box (a cupboard), against the right-hand wall (`1.2480.0.0.0`) |
+| Potters | 430 | 390 | 1535 | drawn as a bookcase (open shelves), against the right-hand wall (`1.3090.0.0.0`) |
+| Biltong | 940 | 445 | 460 | a box open at the top, on Trellis (`1.580.1070.90.750`) |
+| Trellis | 860 | 720 | 750 | a box open at the top, under Biltong near the back (`1.730.1160.90`) |
+| Pine cupboard | as in Bedroom options | | | the bedroom's, drawn the same but flush to the wall (the bedroom's stands 60 off), against the right-hand wall (`1.1425.0.0`) |
 
 ## The other room (the bedroom)
 

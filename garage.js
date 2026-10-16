@@ -1,7 +1,7 @@
 // The garage: away from the flat, outdoors, at the ground's level (asked
 // for, 16 Oct 2026). Its walls, its door, and two sets of shelves in it,
 // Sean, Billy and BillyChest, which can be moved about, turned and taken
-// out.
+// out, and the other things the user keeps there.
 //
 // living_room.js holds the settings (state.garage, starting as
 // GARAGE_START) and puts them in its address (GARAGE_ADDRESS); this file
@@ -10,7 +10,7 @@
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
 import { hallway, HALLWAY, ENTRANCE, ceilingMat, insideFace, faceAround } from './floor.js';
-import { bookcase, QUARTER_TURN, slider } from './other_room.js';
+import { bookcase, pineCupboard, OTHER_ROOM_START, QUARTER_TURN, slider } from './other_room.js';
 
 // ---------------------------------------------------------------------------
 // Its sizes, in mm (the user's, 16 Oct 2026): 5327 long, from its door to
@@ -90,47 +90,85 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 
 // ---------------------------------------------------------------------------
 // What's in it: Sean and Billy, each drawn as a bookcase, a box of shelves
-// (other_room.js's bookcase()), and BillyChest, a plain box. Each can be
-// taken out, as the bedroom's furniture. Their sizes are the user's (16 Oct
-// 2026); their colours chosen
+// (other_room.js's bookcase()), and BillyChest, a plain box (the user's, 16
+// Oct 2026); then (also 16 Oct 2026) Metal, a table; Yellow, a cupboard;
+// the scaffold bench, a scaffold board on legs; Small Billy, a cupboard;
+// Potters, open shelves; and Biltong and Trellis, boxes open at the top;
+// and the bedroom's pine cupboard (other_room.js's pineCupboard()), at the
+// sizes set in Bedroom options (`bedroomSizes`), as its copy in the living
+// room. Each can be taken out, as the bedroom's furniture. Their sizes are the
+// user's: w along its back, d out from it, h high; their colours chosen.
+// Yellow sits on the scaffold bench and Biltong on Trellis, so those two
+// have a height above the floor (`lifted`); Small Billy and Potters stand
+// a little off the wall behind them, held off by the floor's and the
+// walls' slopes, so those two have a gap from it (`offWall`)
 // ---------------------------------------------------------------------------
 const white = material(0xf4f3ef);                  // as IKEA's Billy
+const steel = material(0x7d8288);                  // grey, as steel shelving
 const PIECES = {
-  sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: material(0x7d8288), shape: 'shelves' },   // grey, as steel shelving
+  sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: steel, shape: 'shelves' },
   billy: { label: 'Billy', w: 800, d: 280, h: 2020, mat: white, shape: 'shelves' },
   billyChest: { label: 'BillyChest', w: 805, d: 484, h: 780, mat: white, shape: 'box' },
+  metal: { label: 'Metal', w: 710, d: 670, h: 895, mat: steel, shape: 'table' },
+  yellow: { label: 'Yellow', w: 875, d: 310, h: 700, mat: material(0xe2b93b), shape: 'box', lifted: true },
+  scaffoldBench: { label: 'Scaffold bench', w: 1820, d: 220, h: 438, mat: material(0xc9a66b), shape: 'bench' },   // a scaffold board's sandy pine
+  smallBilly: { label: 'Small Billy', w: 600, d: 290, h: 1540, mat: white, shape: 'box', offWall: true },
+  potters: { label: 'Potters', w: 430, d: 390, h: 1535, mat: material(0x9a7b55), shape: 'shelves', offWall: true },   // a mid wood
+  biltong: { label: 'Biltong', w: 940, d: 445, h: 460, mat: material(0x8a6a4a), shape: 'open box', lifted: true },
+  trellis: { label: 'Trellis', w: 860, d: 720, h: 750, mat: material(0x6f8a5a), shape: 'open box' },   // a garden green
+  pine: { label: 'Pine cupboard', ...sizesOf(OTHER_ROOM_START.cupboard), shape: 'pine', bedroomSizes: true },
 };
+function sizesOf({ w, d, h }) { return { w, d, h }; }
 const PIECE_KEYS = Object.keys(PIECES);
+
+// Their make, chosen as typical, none measured: the table's top and legs,
+// the bench's board (a scaffold board's 38 thick) and legs, and the open
+// boxes' sides and bottom
+const TABLE = { top: 30, leg: 40 };
+const BENCH = { board: 38, leg: 50, legIn: 100 };  // legIn: the legs in from the board's ends
+const OPEN_BOX_SIDE = 18;
+// The most a piece can stand off the wall behind it (chosen: room to spare)
+const MOST_OFF_WALL = 200;
 
 // Where each stands: the middle of its back, and which way it faces, in
 // quarter turns as the bedroom's furniture: 0° away from the right-hand
-// wall, 90° the back wall, 180° the left-hand wall, 270° the door. They
-// start where the user put them (16 Oct 2026): Sean's back to the
-// left-hand wall, near the back, and Billy's to the back wall, facing the
-// door, nearer the left-hand wall than the right. All start in; BillyChest
-// with its back to the back wall beside Billy, on his right-hand-wall side,
-// CHEST_GAP from him (chosen)
-const CHEST_GAP = 20;
-const besideBilly = 1920 - PIECES.billy.w / 2 - CHEST_GAP - PIECES.billyChest.w / 2;
+// wall, 90° the back wall, 180° the left-hand wall, 270° the door; and,
+// for Yellow and Biltong, how high off the floor its bottom is: on the
+// scaffold bench and on Trellis. All start where the user put them (16 Oct
+// 2026, sent as links), with BillyChest out
 export const GARAGE_START = {
   sean: { on: true, x: 1255, y: 2865, turn: 180 },
   billy: { on: true, x: 0, y: 1920, turn: 270 },
-  billyChest: { on: true, x: 0, y: Math.round(besideBilly / 5) * 5, turn: 270 },   // onto the sliders' 5s
+  billyChest: { on: false, x: 0, y: 1100, turn: 270 },
+  metal: { on: true, x: 670, y: 360, turn: 90 },
+  yellow: { on: true, x: 3390, y: 2550, turn: 0, z: PIECES.scaffoldBench.h },
+  scaffoldBench: { on: true, x: 3430, y: 2650, turn: 0 },
+  smallBilly: { on: true, x: 2480, y: 0, turn: 0, off: 0 },   // flush to start, for the user to set
+  potters: { on: true, x: 3090, y: 0, turn: 0, off: 0 },
+  biltong: { on: true, x: 580, y: 1070, turn: 90, z: PIECES.trellis.h },
+  trellis: { on: true, x: 730, y: 1160, turn: 90 },
+  pine: { on: true, x: 1425, y: 0, turn: 0 },
 };
 
 // The sliders, as other_room.js's: [path in state.garage, label, lowest,
-// highest, step, unit]
+// highest, step, unit]. The height above the floor goes up to the ceiling
+// less the piece, in 1s so it can sit on what's under it exactly; the gap
+// from the wall in 1s too, as it's small
 const placeSliders = piece => [
   [`${piece}.x`, 'Back’s middle from the back wall', 0, GARAGE.length, 5, ''],
   [`${piece}.y`, 'Back’s middle from the right-hand wall (looking in)', 0, GARAGE.width, 5, ''],
   [`${piece}.turn`, 'Turned (0° faces the left-hand wall, 90° the back wall)', 0, 360 - QUARTER_TURN, QUARTER_TURN, '°'],
+  ...(PIECES[piece].lifted ? [[`${piece}.z`, 'Height above the floor', 0, GARAGE.height - PIECES[piece].h, 1, '']] : []),
+  ...(PIECES[piece].offWall ? [[`${piece}.off`, 'Gap from the wall behind', 0, MOST_OFF_WALL, 1, '']] : []),
 ];
 const SLIDERS = PIECE_KEYS.flatMap(placeSliders);
 
 // ---------------------------------------------------------------------------
 // The address: each piece as `on.x.y.turn`, on 1 or 0, its place held to
-// its slider's range, in quarter turns. Sean's and Billy's were `x.y.turn`
-// before they could be taken out, which still reads, with them in
+// its slider's range, in quarter turns; Yellow and Biltong `on.x.y.turn.z`,
+// and Small Billy and Potters `on.x.y.turn.off`.
+// Sean's and Billy's were `x.y.turn` before they could be taken out, which
+// still reads, with them in (though Billy now starts out)
 // ---------------------------------------------------------------------------
 const RANGES = Object.fromEntries(SLIDERS.map(([path, , lo, hi]) => [path, [lo, hi]]));
 function held(path, text, was) {
@@ -138,31 +176,43 @@ function held(path, text, was) {
   if (path.endsWith('.turn') && n % QUARTER_TURN !== 0) return was;   // only quarter turns
   return n >= lo && n <= hi ? n : was;
 }
-const PLACE_KEYS = ['x', 'y', 'turn'];
+// Sean's and Billy's places before they could be taken out; a gap from the
+// wall left off the end (from before there was one) keeps it as it starts
+const OLD_PLACE = ['x', 'y', 'turn'];
+const placeKeys = piece => placeSliders(piece).map(([path]) => path.split('.')[1]);
 const onOff = (text, was) => (text === '1' ? true : text === '0' ? false : was);
-export const GARAGE_ADDRESS = PIECE_KEYS.map(piece => [`garage.${piece}`,
-  p => [p.on ? 1 : 0, ...PLACE_KEYS.map(k => p[k])].join('.'),
-  (text, p) => {
-    const parts = text.split('.');
-    const on = parts.length > PLACE_KEYS.length ? onOff(parts.shift(), p.on) : p.on;
-    return { on, ...Object.fromEntries(PLACE_KEYS.map((k, i) => [k, held(`${piece}.${k}`, parts[i], p[k])])) };
-  }]);
+export const GARAGE_ADDRESS = PIECE_KEYS.map(piece => {
+  const keys = placeKeys(piece);
+  return [`garage.${piece}`,
+    p => [p.on ? 1 : 0, ...keys.map(k => p[k])].join('.'),
+    (text, p) => {
+      const parts = text.split('.');
+      const on = parts.length > OLD_PLACE.length ? onOff(parts.shift(), p.on) : true;   // they were always in then
+      return { on, ...Object.fromEntries(keys.map((k, i) => [k, held(`${piece}.${k}`, parts[i], p[k])])) };
+    }];
+});
 
 // ---------------------------------------------------------------------------
 // Drawing: each piece in its own group, its back's middle at the origin,
-// its width along x and its depth out along y, then placed and turned
+// its width along x and its depth out along y, then placed (and raised)
+// and turned; one standing off the wall is moved out by its gap inside that
+// group, so its place stays its spot on the wall
 // ---------------------------------------------------------------------------
 const furniture = new THREE.Group();
 garage.add(furniture);
 // Each piece as drawn now, to look at: one taken out is hidden, but still
 // placed, so Looking at it aims at its spot
-export const garagePieces = { sean: null, billy: null, billyChest: null };
+export const garagePieces = Object.fromEntries(PIECE_KEYS.map(piece => [piece, null]));
 
-export function drawGarage(s) {
+// `pineSizes`: the pine cupboard's sizes as set in Bedroom options
+export function drawGarage(s, pineSizes) {
   furniture.clear();
   for (const piece of PIECE_KEYS) {
-    const g = drawn(PIECES[piece]), { x, y, turn } = s[piece];
-    g.position.set(x * MM, 0, y * MM);
+    const sizes = PIECES[piece].bedroomSizes ? sizesOf(pineSizes) : {};
+    const { x, y, turn, z = 0, off = 0 } = s[piece], g = new THREE.Group(), body = drawn({ ...PIECES[piece], ...sizes });
+    body.position.z = off * MM;                   // its depth, out from the wall, is the group's z
+    g.add(body);
+    g.position.set(x * MM, z * MM, y * MM);
     g.rotation.y = THREE.MathUtils.degToRad(-turn);
     g.visible = s[piece].on;
     furniture.add(g);
@@ -171,9 +221,40 @@ export function drawGarage(s) {
 }
 function drawn({ w, d, h, mat, shape }) {
   if (shape === 'shelves') return bookcase({ w, d, h }, mat);
+  if (shape === 'pine') return pineCupboard({ w, d, h }, 0);   // flush: no carpet or skirting to hold it off
   const g = new THREE.Group();
-  box({ from: [-w / 2, 0, 0], to: [w / 2, d, h] }, mat, g);
+  if (shape === 'table') table(w, d, h, mat, g);
+  else if (shape === 'bench') bench(w, d, h, mat, g);
+  else if (shape === 'open box') openBox(w, d, h, mat, g);
+  else box({ from: [-w / 2, 0, 0], to: [w / 2, d, h] }, mat, g);
   return g;
+}
+// A leg, square, `size` across, its corner at (x, y) and the rest towards
+// the middle, from the floor to `top`
+function leg(x, y, size, top, mat, g) {
+  const x1 = x + Math.sign(-x) * size, y1 = y + (y === 0 ? size : -size);
+  box({ from: [Math.min(x, x1), Math.min(y, y1), 0], to: [Math.max(x, x1), Math.max(y, y1), top] }, mat, g);
+}
+// A table: a top on a leg at each corner
+function table(w, d, h, mat, g) {
+  const { top, leg: size } = TABLE;
+  box({ from: [-w / 2, 0, h - top], to: [w / 2, d, h] }, mat, g);
+  for (const x of [-w / 2, w / 2]) for (const y of [0, d]) leg(x, y, size, h - top, mat, g);
+}
+// The scaffold bench: a board on four legs, each BENCH.legIn in from its ends
+function bench(w, d, h, mat, g) {
+  const { board, leg: size, legIn } = BENCH;
+  box({ from: [-w / 2, 0, h - board], to: [w / 2, d, h] }, mat, g);
+  for (const x of [-w / 2 + legIn, w / 2 - legIn]) for (const y of [0, d]) leg(x, y, size, h - board, mat, g);
+}
+// A box open at the top: a bottom and four sides
+function openBox(w, d, h, mat, g) {
+  const t = OPEN_BOX_SIDE;
+  box({ from: [-w / 2, 0, 0], to: [w / 2, d, t] }, mat, g);
+  box({ from: [-w / 2, 0, t], to: [-w / 2 + t, d, h] }, mat, g);
+  box({ from: [w / 2 - t, 0, t], to: [w / 2, d, h] }, mat, g);
+  box({ from: [-w / 2 + t, 0, t], to: [w / 2 - t, t, h] }, mat, g);
+  box({ from: [-w / 2 + t, d - t, t], to: [w / 2 - t, d, h] }, mat, g);
 }
 
 // ---------------------------------------------------------------------------
@@ -186,8 +267,9 @@ function drawn({ w, d, h, mat, shape }) {
 export function garageControls(container, change) {
   const id = path => `garage_${path.replace('.', '_')}`;
   container.innerHTML = PIECE_KEYS.map(piece => {
-    const { label, w, d, h } = PIECES[piece];
-    return `<div class="depth"><div><b>${label}</b> (${w} wide, ${d} deep, ${h} high)</div>` +
+    const { label, w, d, h, bedroomSizes } = PIECES[piece];
+    const sizes = bedroomSizes ? 'its sizes as in Bedroom options' : `${w} wide, ${d} deep, ${h} high`;
+    return `<div class="depth"><div><b>${label}</b> (${sizes})</div>` +
       `<label class="switch"><input type="checkbox" id="${id(`${piece}.on`)}"> In the garage</label>` +
       placeSliders(piece).map(slider(id)).join('') +
       `<div class="row"><button data-reset="${piece}">Reset location</button></div></div>`;
