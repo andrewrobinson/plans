@@ -6,7 +6,8 @@
 // the engine is in kit/. index.html loads it.
 //
 // How it works: `state` (the model's) holds every setting. The controls
-// change it through changeSettings(), which puts every control in step
+// change it through change(edits), by the settings' paths in the
+// configuration (the model's set()), which puts every control in step
 // (syncControls()) and calls show(). show() has the model build the option
 // chosen and everything round it (build()), shows it in the menus, then
 // redrawAround() redraws the dimensions, colours, things to store, cutting
@@ -20,7 +21,7 @@
 // controls; the colours; the views and scenes; the display switches and the
 // view; window.plans; and starting the page.
 import * as THREE from 'three';
-import { MM, createStage, RAL, setValueAt, popMenus, createDrawers, resetButton,
+import { MM, createStage, RAL, popMenus, createDrawers, resetButton,
   shareButton, screenshotButton, workOffline, flatViews, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
@@ -37,7 +38,7 @@ import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims
   cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
-  placeDresser, placeStored, readConfiguration, readShelves, screenMat, setRal, shelfMat, setAll, get,
+  placeStored, readConfiguration, readShelves, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, state, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
@@ -118,13 +119,10 @@ const liftInputs = STORED.map((s, k) => {
   const input = Object.assign(document.createElement('input'), { type: 'number', min: 0, max: CEILING_HEIGHT, step: 10, value: 0 });
   input.setAttribute('aria-label', `${s.name}: off the floor`);
   input.addEventListener('change', () => {
-    const { stored } = state;
-    stored.spots[k].z = Math.min(CEILING_HEIGHT, Math.max(0, Number(input.value) || 0));
-    input.value = stored.spots[k].z;
-    if (stored.where !== 2) {                                   // as placed by hand, now
-      stored.where = 2;
-      document.querySelectorAll('input[name=storedWhere]').forEach(r => { r.checked = false; });
-    }
+    const z = Math.min(CEILING_HEIGHT, Math.max(0, Number(input.value) || 0));
+    input.value = z;
+    if (storedValue('where') !== BY_HAND) document.querySelectorAll('input[name=storedWhere]').forEach(r => { r.checked = false; });
+    moveStored(k, { z });
     showStored();
     writeAddress();
   });
@@ -132,6 +130,23 @@ const liftInputs = STORED.map((s, k) => {
   return input;
 });
 function showLifts() { liftInputs.forEach((input, k) => { input.value = state.stored.spots[k].z; }); }
+// The things to store's settings, by their keys in the configuration's
+// thingsToStore: changing them (without building the flat again: their own
+// redraw follows), and one's value. Where they are, as the configuration
+// words it: by the window, in the cupboard, or moved by hand
+const storedAt = key => `thingsToStore.${key}`;
+const setStored = edits => setAll(edits.map(([key, value]) => [storedAt(key), value]));
+const storedValue = key => get(storedAt(key));
+const BY_HAND = 'byHand', BY_THE_WINDOW = 'window';
+// Thing k moved by hand: its spot changed by `change` ({ x, y }, { z } or
+// { turned }), the others kept where they are
+function moveStored(k, change) {
+  const spots = storedValue('spots');
+  spots[k] = { ...spots[k], ...change };
+  setStored([['where', BY_HAND], ['spots', spots]]);           // by hand first, as only then are the spots read
+}
+// Moved by hand, they go back to the window when packed again
+const unlessByHand = () => (storedValue('where') === BY_HAND ? [['where', BY_THE_WINDOW]] : []);
 // The things to store drawn (the model's showStored()), and their part of
 // the menu put in step
 function showStored() {
@@ -143,7 +158,7 @@ function showStored() {
   document.querySelectorAll('input[name=storedWhere]').forEach(r => { r.checked = Number(r.value) === where; });
 }
 document.getElementById('storedToggle').addEventListener('click', () => {
-  state.stored.shown = !state.stored.shown;
+  setStored([['shown', !storedValue('shown')]]);
   showStored();
   updatePalette();
   writeAddress();
@@ -154,17 +169,16 @@ function restow() {
   writeAddress();
 }
 document.getElementById('storedPack').addEventListener('click', () => {
-  if (state.stored.where === 2) state.stored.where = 0;          // back to the window from wherever they were moved
+  setStored(unlessByHand());                                    // back to the window from wherever they were moved
   restow();
 });
 document.getElementById('storedPacking').innerHTML = PACKINGS.map((p, i) => `<option value="${i}">${p.name}</option>`).join('');
 document.getElementById('storedPacking').addEventListener('change', e => {
-  state.stored.packing = Number(e.target.value);
-  if (state.stored.where === 2) state.stored.where = 0;
+  setStored([['packing', Number(e.target.value)], ...unlessByHand()]);
   restow();
 });
 document.querySelectorAll('input[name=storedWhere]').forEach(r => r.addEventListener('change', () => {
-  state.stored.where = Number(r.value);
+  setStored([['where', wordAt(storedAt('where'), Number(r.value))]]);   // the radios hold the page's 0 to 2
   restow();
 }));
 
@@ -189,9 +203,7 @@ renderer.domElement.addEventListener('pointerdown', e => {
   e.stopImmediatePropagation();
   const now = performance.now();
   if (lastTap.k === k && now - lastTap.t < 350) {                // a double-click or double-tap turns it round
-    const { stored } = state;
-    stored.spots[k].turned = !stored.spots[k].turned;
-    stored.where = 2;
+    moveStored(k, { turned: !state.stored.spots[k].turned });
     lastTap = { k: -1, t: 0 };
     showStored();
     writeAddress();
@@ -210,10 +222,8 @@ renderer.domElement.addEventListener('pointermove', e => {
   }
   e.stopImmediatePropagation();
   renderer.domElement.style.cursor = 'grabbing';
-  const spot = state.stored.spots[storedDrag.k];
-  spot.x = Math.round((x - storedDrag.dx) / 10) * 10;           // to the nearest 10
-  spot.y = Math.round((y - storedDrag.dy) / 10) * 10;
-  state.stored.where = 2;
+  const round = v => Math.round(v / 10) * 10;                   // to the nearest 10
+  moveStored(storedDrag.k, { x: round(x - storedDrag.dx), y: round(y - storedDrag.dy) });
   showStored();
 }, { capture: true });
 // The name and size of the thing under the pointer, in any view: on hover
@@ -391,19 +401,13 @@ window.addEventListener('keydown', e => {
   if (n >= 1 && optionAt(n) >= 0) chooseOption(optionAt(n));
 });
 
-// Every settings control changes the settings through here: edit(state)
-// changes them, then every control is put in step with them
-// (syncControls()), the option is built again round them (show()), and, with
-// look, the view follows anything looked at that's moved. option: the option
-// to show, when one is chosen.
-function changeSettings(edit, { option = state.cornerCupboard.option, look = false } = {}) {
-  edit(state);
-  syncControls();
-  show(option);
-  if (look) viewKit.refresh();
-}
-// ...or, by their paths in the configuration, setAll(edits) changes them:
-// [path, value] pairs, each value the configuration's (the model's set())
+// Every settings control changes the settings through here, by their paths
+// in the configuration: the model's setAll(edits) changes them ([path,
+// value] pairs, each value the configuration's), then every control is put
+// in step with them (syncControls()), the option is built again round them
+// (show()), and, with look, the view follows anything looked at that's
+// moved. (The things to store and the doors change theirs with set() too,
+// but redraw only themselves.)
 function change(edits, { look = false } = {}) {
   const onShow = state.cornerCupboard.option;
   setAll(edits);
@@ -436,7 +440,7 @@ for (const [id, key] of CUPBOARD_SLIDERS) {
   const slider = document.getElementById(id);
   slider.addEventListener('input', () => setCupboard(key, Number(slider.value)));
 }
-document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.BENCH = Number(r.value); })));
+document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => change([['pieces.bench.design.height', Number(r.value)]])));
 // The description starts folded away; remember if the viewer opens it
 const about = document.getElementById('about');
 try { about.open = localStorage.getItem('aboutOpen') === '1'; } catch (e) { /* not important */ }
@@ -496,7 +500,7 @@ function colourPicker(target, [selectId, otherId, otherRowId, prevId, nextId, sw
     const colour = colourOf(shownCode(target));
     document.getElementById(swatchId).style.background = colour ? colour.hex : 'transparent';
   });
-  const pick = code => changeSettings(() => setRal(target, code));   // anything following it changes too
+  const pick = code => change([[`colours.${target}`, code]]);   // anything following it changes too (settle())
   // "Other colours…" starts on the other dropdown's current choice
   select.addEventListener('change', () => pick(select.value === OTHER ? Number(other.value) : Number(select.value)));
   other.addEventListener('change', () => pick(Number(other.value)));
@@ -530,7 +534,7 @@ function showShelfWood() {
   document.getElementById('shelfSwatch').style.background = [].concat(SHELF_WOODS[state.shelfWood].hex)[0];
 }
 showShelfWood();
-shelfSelect.addEventListener('change', () => changeSettings(s => { s.shelfWood = Number(shelfSelect.value); }));
+shelfSelect.addEventListener('change', () => change([['colours.shelves', Number(shelfSelect.value)]]));
 
 // "Colours in this view" in the menu: a colour square for each part on show,
 // read from the model's own materials so it follows the choices above. Parts
@@ -574,15 +578,16 @@ palette.addEventListener('toggle', () => {
 });
 
 const shelfSlider = document.getElementById('shelfDepth');
-shelfSlider.addEventListener('input', () => changeSettings(s => { s.shelfDepth = Number(shelfSlider.value); }));
+shelfSlider.addEventListener('input', () => change([['pieces.aboveBench.design.shelfDepth', Number(shelfSlider.value)]]));
 // The TV size, one of TV_SIZES by its place in the list
 const tvSlider = document.getElementById('tvSize');
-// The dresser's sliders
-// sizes: { key: mm } for any of the slider keys, each held to its slider's range
-function setDresser(sizes) {
-  for (const [k, , lo, hi] of DRESSER_SLIDERS) if (Number.isFinite(sizes[k])) state.dresser[k] = Math.min(hi, Math.max(lo, sizes[k]));
-  placeDresser();
-}
+// A piece's sizes as edits: { key: mm } for any of its sliders' keys
+// (DRESSER_SLIDERS and the like, [key, id, lowest, highest]), each held to
+// its slider's range, at its path in the piece's design
+const sizeEdits = (design, sliders, sizes) => sliders.filter(([k]) => Number.isFinite(sizes[k]))
+  .map(([k, , lo, hi]) => [`${design}.${k}`, Math.min(hi, Math.max(lo, sizes[k]))]);
+// The dresser's sliders (it's placed again from its sizes by settle())
+const setDresser = sizes => sizeEdits('pieces.dresser.design', DRESSER_SLIDERS, sizes);
 function showDresser() {
   for (const [k, id] of DRESSER_SLIDERS) {                       // the upper depth may have been held to the base's
     document.getElementById(id).value = String(state.dresser[k]);
@@ -591,7 +596,7 @@ function showDresser() {
   showDresserPick();
 }
 for (const [key, id] of DRESSER_SLIDERS) {
-  document.getElementById(id).addEventListener('input', e => changeSettings(() => setDresser({ [key]: Number(e.target.value) })));
+  document.getElementById(id).addEventListener('input', e => change(setDresser({ [key]: Number(e.target.value) })));
 }
 // The Dresser dropdown: the dressers in dressers.js, or Custom when
 // the sliders match none of them
@@ -604,7 +609,7 @@ function showDresserPick() {
   dresserPick.value = match ? match[0] : '';
 }
 // Looking at the dresser: at it as it is now
-dresserPick.addEventListener('change', () => changeSettings(() => setDresser(DRESSERS[dresserPick.value]), { look: true }));
+dresserPick.addEventListener('change', () => change(setDresser(DRESSERS[dresserPick.value]), { look: true }));
 // The sofa: none, or one from the list, and how far its front is from the TV wall
 const sofaPick = document.getElementById('sofaPick'), sofaSlider = document.getElementById('sofaFront');
 sofaPick.append(Object.assign(document.createElement('option'), { value: '', textContent: 'None' }),
@@ -625,18 +630,17 @@ function showSofa() {
   document.getElementById('sofaFrontBlock').style.display = key ? '' : 'none';
   document.getElementById('sofaFrontRow').style.display = state.sofa.move ? 'none' : '';   // moved, its sliders say where
 }
-// sizes: { key: mm } for any of the slider keys, each held to its slider's range
-function setSofaSize(sizes) {
-  for (const [k, , lo, hi] of SOFA_SLIDERS) if (Number.isFinite(sizes[k])) state.sofa.size[k] = Math.min(hi, Math.max(lo, sizes[k]));
-}
+const setSofaSize = sizes => sizeEdits('pieces.sofa.design', SOFA_SLIDERS, sizes);
 for (const [key, id] of SOFA_SLIDERS) {
-  document.getElementById(id).addEventListener('input', e => changeSettings(() => setSofaSize({ [key]: Number(e.target.value) }), { look: true }));
+  document.getElementById(id).addEventListener('input', e => change(setSofaSize({ [key]: Number(e.target.value) }), { look: true }));
 }
-sofaPick.addEventListener('change', () => changeSettings(s => {
-  s.sofa.key = sofaPick.value;
-  if (SOFAS[s.sofa.key]) s.sofa.size = sofaOwnSize(SOFAS[s.sofa.key]);
-}, { look: true }));
-sofaSlider.addEventListener('input', () => changeSettings(s => { s.sofa.front = Number(sofaSlider.value); }, { look: true }));
+// A sofa chosen comes in its own sizes ('' is none, the configuration's 'none')
+sofaPick.addEventListener('change', () => {
+  const S = SOFAS[sofaPick.value];
+  change([['pieces.sofa.design.model', wordAt('pieces.sofa.design.model', sofaPick.value)], ...(S ? setSofaSize(sofaOwnSize(S)) : [])], { look: true });
+});
+const SOFA_PLACE = 'pieces.sofa.in.livingRoom';
+sofaSlider.addEventListener('input', () => change([[`${SOFA_PLACE}.front`, Number(sofaSlider.value)]], { look: true }));
 // Cupboard only: the rest of the room hidden, and the cupboard's dimensions shown
 const cupboardOnlySwitch = document.getElementById('cupboardOnly');
 function setCupboardOnly(on) {
@@ -652,7 +656,7 @@ cupboardOnlySwitch.addEventListener('change', () => {
 });
 // The bench: drawn, or not (and nothing above it)
 const benchSwitch = document.getElementById('benchOn');
-benchSwitch.addEventListener('change', () => changeSettings(s => { s.benchOn = benchSwitch.checked; }, { look: true }));
+benchSwitch.addEventListener('change', () => change([['pieces.bench.in.livingRoom.on', benchSwitch.checked]], { look: true }));
 // The bookshelf and the pine cupboard, in place of the bench. While either
 // is on, the Bench switch is off and can't be changed; benchOn is kept, for
 // when they're off again. Moving one, and turning it in quarter turns: the
@@ -661,14 +665,17 @@ benchSwitch.addEventListener('change', () => changeSettings(s => { s.benchOn = b
 const PLACE_SLIDERS = [['x', 'X', ROOM_WIDTH, 5, ''], ['y', 'Y', ROOM_DEPTH, 5, ''], ['turn', 'Turn', 360 - QUARTER_TURN, QUARTER_TURN, '°']];
 const roundedSpot = ({ x, y, turn }) => ({ x: Math.round(x), y: Math.round(y), turn });
 const backWallSwitches = {};
+// Each one's place in the living room in the configuration, by its key
+const BACK_WALL_PLACES = { bookshelf: 'pieces.bookcase.in.livingRoom', pine: 'pieces.pineCupboard.in.livingRoom' };
 for (const key of BACK_WALL_KEYS) {
+  const place = BACK_WALL_PLACES[key];
   const onSwitch = backWallSwitches[key] = document.getElementById(`${key}On`);
-  onSwitch.addEventListener('change', () => changeSettings(s => { s[`${key}On`] = onSwitch.checked; }, { look: true }));
+  onSwitch.addEventListener('change', () => change([[`${place}.on`, onSwitch.checked]], { look: true }));
   for (const [k, suffix, max, step] of PLACE_SLIDERS) {
     const input = Object.assign(document.getElementById(`${key}${suffix}`), { min: '0', max: String(max), step: String(step) });
-    input.addEventListener('input', () => changeSettings(s => { s[`${key}Move`] = { ...roundedSpot(spotOf(key)), [k]: Number(input.value) }; }));
+    input.addEventListener('input', () => change([[`${place}.move`, { ...roundedSpot(spotOf(key)), [k]: Number(input.value) }]]));
   }
-  document.getElementById(`${key}Home`).addEventListener('click', () => changeSettings(s => { s[`${key}Move`] = null; }));
+  document.getElementById(`${key}Home`).addEventListener('click', () => change([[`${place}.move`, null]]));
 }
 function showPlace(key) {
   const spot = roundedSpot(spotOf(key));
@@ -683,10 +690,10 @@ function showPlace(key) {
 const sofaTurn = document.getElementById('sofaTurn');
 for (const [k, suffix, max, step] of PLACE_SLIDERS.filter(([k]) => k !== 'turn')) {
   const input = Object.assign(document.getElementById(`sofa${suffix}`), { min: '0', max: String(max), step: String(step) });
-  input.addEventListener('input', () => changeSettings(s => { s.sofa.move = { ...sofaPlace(), [k]: Number(input.value) }; }, { look: true }));
+  input.addEventListener('input', () => change([[`${SOFA_PLACE}.move`, { ...sofaPlace(), [k]: Number(input.value) }]], { look: true }));
 }
-sofaTurn.addEventListener('change', () => changeSettings(s => { s.sofa.move = { ...sofaPlace(), turn: Number(sofaTurn.value) }; }, { look: true }));
-document.getElementById('sofaHome').addEventListener('click', () => changeSettings(s => { s.sofa.move = null; }, { look: true }));
+sofaTurn.addEventListener('change', () => change([[`${SOFA_PLACE}.move`, { ...sofaPlace(), turn: Number(sofaTurn.value) }]], { look: true }));
+document.getElementById('sofaHome').addEventListener('click', () => change([[`${SOFA_PLACE}.move`, null]], { look: true }));
 // Where the sofa is, to the nearest mm (the TV's middle may fall on a half)
 function sofaPlace() {
   return roundedSpot(state.sofa.move ?? sofaHome(currentSofa()));
@@ -707,7 +714,7 @@ document.getElementById('bookshelfSizes').innerHTML = BOOKCASE_SIZES.map(([k, lo
   `<label for="${bookshelfSizeId(k)}">Bookshelf ${SIZE_LABEL[k].toLowerCase()}: <span id="${bookshelfSizeId(k)}Value"></span></label>` +
   `<input id="${bookshelfSizeId(k)}" type="range" min="${lo}" max="${hi}" step="10">`).join('');
 for (const [k] of BOOKCASE_SIZES) {
-  document.getElementById(bookshelfSizeId(k)).addEventListener('input', e => changeSettings(s => { s.otherRoom.bookcase[k] = Number(e.target.value); }, { look: true }));
+  document.getElementById(bookshelfSizeId(k)).addEventListener('input', e => change([[`pieces.bookcase.design.${k}`, Number(e.target.value)]], { look: true }));
 }
 function showBookshelfSizes() {
   for (const [k] of BOOKCASE_SIZES) {
@@ -723,23 +730,21 @@ function showShelves() {
 }
 for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => setCupboard(`L_SHELVES.${k}`, readShelves(shelfInputs[k].value)));
 // The island: where it is, or against the front wall
-document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.island.at = r.value; }, { look: true })));
+const ISLAND_PLACE = 'pieces.island.in.livingRoom';
+document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListener('change', () => change([[`${ISLAND_PLACE}.at`, r.value]], { look: true })));
 // Out there: the island's middle, and how far it's turned
 for (const [k, id] of [['x', 'islandX'], ['y', 'islandY'], ['turn', 'islandTurn']]) {
-  document.getElementById(id).addEventListener('input', e => changeSettings(s => { s.island.move[k] = Number(e.target.value); }));
+  document.getElementById(id).addEventListener('input', e => change([[`${ISLAND_PLACE}.${k}`, Number(e.target.value)]]));
 }
 // On the front wall: the dresser, a larder or nothing; and which larder
-document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.frontPiece = r.value; }, { look: true })));
+document.querySelectorAll('input[name=frontPiece]').forEach(r => r.addEventListener('change', () => change([['livingRoom.frontWall', r.value]], { look: true })));
 // The Larder dropdown: the larders in larders.js, or Custom when the
 // sliders have changed its sizes (it keeps that larder's front)
 const larderPick = document.getElementById('larderPick');
 const larderCustom = Object.assign(document.createElement('option'), { value: '', disabled: true });
 larderPick.append(larderCustom, ...Object.entries(LARDERS).map(([id, L]) =>
   Object.assign(document.createElement('option'), { value: id, textContent: `${L.label} (${L.w} × ${larderHeight(L)})` })));
-// sizes: { key: mm } for any of the slider keys, each held to its slider's range
-function setLarderSize(sizes) {
-  for (const [k, , lo, hi] of LARDER_SLIDERS) if (Number.isFinite(sizes[k])) state.larder.size[k] = Math.min(hi, Math.max(lo, sizes[k]));
-}
+const setLarderSize = sizes => sizeEdits('pieces.larder.design', LARDER_SLIDERS, sizes);
 function showLarder() {
   const { key, size } = state.larder;
   for (const [k, id] of LARDER_SLIDERS) {
@@ -750,15 +755,16 @@ function showLarder() {
   larderCustom.textContent = `Custom: the ${L?.label ?? 'larder'}, resized`;
   larderPick.value = own && LARDER_SLIDERS.every(([k]) => own[k] === size[k]) ? key : '';
 }
-larderPick.addEventListener('change', () => changeSettings(s => {
-  s.larder.key = larderPick.value;
-  s.larder.size = larderOwnSize(LARDERS[s.larder.key]);
-}, { look: true }));
+// A larder chosen comes in its own sizes
+larderPick.addEventListener('change', () => change([['pieces.larder.design.model', larderPick.value],
+  ...setLarderSize(larderOwnSize(LARDERS[larderPick.value]))], { look: true }));
 for (const [key, id] of LARDER_SLIDERS) {
-  document.getElementById(id).addEventListener('input', e => changeSettings(() => setLarderSize({ [key]: Number(e.target.value) }), { look: true }));
+  document.getElementById(id).addEventListener('input', e => change(setLarderSize({ [key]: Number(e.target.value) }), { look: true }));
 }
-tvSlider.addEventListener('input', () => changeSettings(s => { s.tv = TV_SIZES[Number(tvSlider.value)][0]; }));
-document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.above = Number(r.value); })));
+tvSlider.addEventListener('input', () => change([['pieces.aboveBench.design.tv', TV_SIZES[Number(tvSlider.value)][0]]]));
+// The radios hold the page's 0 to 4
+const ABOVE = 'pieces.aboveBench.design.what';
+document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => change([[ABOVE, wordAt(ABOVE, Number(r.value))]])));
 document.querySelectorAll('input[name=front]').forEach(r => r.addEventListener('change', () => setCupboard('F', Number(r.value))));
 
 let xray = false;
@@ -1049,36 +1055,26 @@ resize();
 
 workOffline('sw.js');
 
-// Every control in step with state: the sliders, radio buttons, switches
-// and dropdowns, the reverse of their listeners above, which all go through
-// changeSettings(). The colours, the shelves' wood, the dresser's place and
+// Every control in step with the settings: the sliders, radio buttons,
+// switches and dropdowns, the reverse of their listeners above, which all go
+// through change(). The colours, the shelves' wood, the dresser's place and
 // the island go on the model too. The option's own controls, and the things
 // to store's, are show()'s.
-// The bedroom's sliders (other_room.js): each sets its setting in
-// state.otherRoom, a path such as 'bed.u'
-const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomBlock'), edits => changeSettings(s => {
-  for (const [path, value] of edits) {
-    const keys = path.split('.'), last = keys.pop();
-    keys.reduce((o, k) => o[k], s.otherRoom)[last] = value;
-  }
-}));
-
-// The wicker bench's (wicker_bench.js): each sets its setting in
-// state.wickerBench, a path such as 'hallway.along'
-const syncWickerBench = wickerBenchControls(document.getElementById('wickerBenchBlock'), edits => changeSettings(s => {
-  for (const [path, value] of edits) setValueAt(s.wickerBench, path, value);
-}, { look: true }));
-
-// The shoe rack's (shoe_rack.js): each sets its setting in state.shoeRack
-const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), edits => changeSettings(s => {
-  for (const [key, value] of edits) s.shoeRack[key] = value;
-}, { look: true }));
-
-// The garage's (garage.js): each sets its setting in state.garage, a path
-// such as 'sean.x'
-const syncGarage = garageControls(document.getElementById('garageBlock'), edits => changeSettings(s => {
-  for (const [path, value] of edits) setValueAt(s.garage, path, value);
-}, { look: true }));
+// The rooms' modules' controls name each setting by its path in their own
+// part of state (`within`), as 'bed.u' in state.otherRoom, each value the
+// page's: as edits, by their paths in the configuration
+const roomEdits = (within, edits) => edits.map(([path, value]) => {
+  const at = pathOfSetting(`${within}.${path}`);
+  return [at, wordAt(at, value)];
+});
+// The bedroom's sliders (other_room.js), in state.otherRoom
+const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomBlock'), edits => change(roomEdits('otherRoom', edits)));
+// The wicker bench's (wicker_bench.js), in state.wickerBench, as 'hallway.along'
+const syncWickerBench = wickerBenchControls(document.getElementById('wickerBenchBlock'), edits => change(roomEdits('wickerBench', edits), { look: true }));
+// The shoe rack's (shoe_rack.js), in state.shoeRack
+const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), edits => change(roomEdits('shoeRack', edits), { look: true }));
+// The garage's (garage.js), in state.garage, as 'sean.x'
+const syncGarage = garageControls(document.getElementById('garageBlock'), edits => change(roomEdits('garage', edits), { look: true }));
 
 function syncControls() {
   settle();                                                     // the TV's size, the colours and the dresser's place, worked out
