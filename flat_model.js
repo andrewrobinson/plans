@@ -390,12 +390,10 @@ function tallDoor(g, back = state.R) {                          // back: where t
 
 // The full-height L of option 7: legs inside LEG along the back wall (x 0 to
 // T + LEG, LEG_D deep) and F - LEG_D along the left wall (y LEG_D to F), one
-// space round the corner, bench from x = T + LEG, R deep. Returns the
-// back-wall leg door's hinge.
+// space round the corner. Returns the back-wall leg door's hinge.
 function fullHeightL(g) {
-  const { T, R, F, BOARD: B, BENCH, LEG, LEG_D, L_SHELVES } = state;
+  const { T, F, BOARD: B, LEG, LEG_D, L_SHELVES } = state;
   const E = T + LEG, Dl = LEG_D;                                 // Dl: the back-wall leg's depth
-  box({ from: [E, 0, 0], to: [ROOM_WIDTH, R, BENCH] }, benchMat, g);
   board('Back-wall rear panel', { from: [0, 0, 0], to: [E, B, CEILING_HEIGHT] }, g);                    // runs through the corner
   board('Left-wall rear panel', { from: [0, B, 0], to: [B, T ? F : Dl, CEILING_HEIGHT] }, g);            // stops at it; with no left-wall leg, the back-wall leg's side
   board('Left-wall leg front end', { from: [B, F - B, 0], to: [T, F, CEILING_HEIGHT] }, g);
@@ -699,11 +697,8 @@ const PLINTH = 100, TOP_T = 30;                                  // kick plinth 
 
 // Base cupboards along the bench, x0 to W: a recessed plinth, doors about 450
 // wide hinged in pairs, and an oak top at BENCH. Returns how many doors.
-function baseCupboards(x0, parent) {
+function baseCupboards(x0, g) {
   const { R, BOARD, BENCH } = state;
-  const g = new THREE.Group();                                   // the bench, to leave out when it's off
-  g.userData.bench = true;
-  parent.add(g);
   box({ from: [x0, 0, PLINTH], to: [ROOM_WIDTH, R - BOARD, BENCH - TOP_T] }, carcassMat, g);   // carcass behind the doors
   box({ from: [x0, 0, 0], to: [ROOM_WIDTH, R - 60, PLINTH] }, carcassMat, g);              // plinth, set back 60
   box({ from: [x0, 0, BENCH - TOP_T], to: [ROOM_WIDTH, R, BENCH] }, oakMat, g);            // top
@@ -1037,13 +1032,11 @@ function shelvingTower(x0, x1, g) {
 }
 
 // Options 10 and 11: a full-height cupboard in the corner, CORNER_W along the
-// back wall and CORNER_D (F here) out along the left wall, with the bench
-// from it to the right-hand wall. Its pair of doors face the kitchen (on its
-// end, at y = F) or the windows (on its side, where it's clear of the bench,
-// y R to F). Returns the doors' hinges, none if it's too shallow to build.
-function cornerCupboard(g, facing, benchFrom = state.CORNER_W) {   // benchFrom: past option 10's side bookshelf
-  const { R, BENCH } = state;
-  box({ from: [benchFrom, 0, 0], to: [ROOM_WIDTH, R, BENCH] }, benchMat, g);                // bench, to the right-hand wall
+// back wall and CORNER_D (F here) out along the left wall. Its pair of doors
+// face the kitchen (on its end, at y = F) or the windows (on its side, where
+// it's clear of the bench, y R to F). Returns the doors' hinges, none if
+// it's too shallow to build.
+function cornerCupboard(g, facing) {
   if (cornerTooShallow(facing)) return [];
   cornerCarcass(g);
   return facing === 'kitchen' ? cornerDoorsToKitchen(g) : cornerDoorsToWindows(g);
@@ -1176,8 +1169,6 @@ const OPTIONS = [
     },
     second: 'Double doors',
     build(g) {
-      const { T, R, BENCH } = state;
-      box({ from: [T + 700, 0, 0], to: [ROOM_WIDTH, R, BENCH] }, benchMat, g);   // bench, to the right-hand wall
       diagonalCarcass(g);
       diagonalShelves();
       return { second: diagonalDoors(g) };
@@ -1195,10 +1186,9 @@ const OPTIONS = [
     second: 'Cupboard doors',
     build(g) {
       const { T, WARD, WARD_D, TOWER } = state;
-      const E = T + WARD, S = E + TOWER;
-      baseCupboards(S, g);
+      const E = T + WARD;
       wardCarcass(g);
-      shelvingTower(E, S, g);
+      shelvingTower(E, E + TOWER, g);
       const second = wardDoors(g);
       return { tall: tallDoor(g, WARD_D), second };
     },
@@ -1223,7 +1213,7 @@ const OPTIONS = [
     },
     second: 'Cupboard doors',
     build(g) {
-      const doors = cornerCupboard(g, 'kitchen', state.CORNER_W + sideShelfW());
+      const doors = cornerCupboard(g, 'kitchen');
       if (sideShelfOn()) sideBookshelf(g);
       return { second: doors };
     },
@@ -1251,9 +1241,7 @@ const OPTIONS = [
     clearFrom: () => 0,                                           // what's above the bench goes on the bare back wall
     benchFrom: () => 0,
     summary: ({ R } = state) => `The room as it is now, with no cupboards. Bench ${ROOM_WIDTH}, the whole back wall, ${R} deep. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk.`,
-    build(g) {
-      const { R, BENCH } = state;
-      box({ from: [0, 0, 0], to: [ROOM_WIDTH, R, BENCH] }, benchMat, g);                    // bench, the whole back wall (left out with the bench off)
+    build() {
       return {};
     },
   },
@@ -1394,12 +1382,12 @@ function garagePlanDims(g) {
 }
 
 
-// Cupboard only: the corner cupboard on its own (the option's build, bar its
-// bench), with its dimensions, in the 3D and 2D views alike
+// Cupboard only: the corner cupboard on its own (the option's build), with
+// its dimensions, in the 3D and 2D views alike
 function cupboardPart(o, withDoors = true) {
-  if (!current?.cupboard || o.material === benchMat) return false;
+  if (!current?.cupboard) return false;
   for (let p = o; p; p = p.parent) {
-    if (p.userData.bench || (!withDoors && p.userData.hinge)) return false;
+    if (!withDoors && p.userData.hinge) return false;
     if (p === current.cupboard) return true;
   }
   return false;
@@ -1454,15 +1442,13 @@ function cupboardDims(g) {
 // The corner cupboard's doors, each labelled with its size, width × height
 // in mm, from the door as built (so it follows the boards' thickness): in
 // the plan all of them, in a wall view those facing it, and with the
-// cupboard on its own in 3D, all of them. The bench's base cupboards are
-// left out.
+// cupboard on its own in 3D, all of them.
 function doorDims(g) {
   if (!current?.cupboard || !showDoorDims) return;
   world.updateMatrixWorld(true);
   const facing = { back: 'z', front: 'z', left: 'x', right: 'x' }[flatView];   // in a wall view, the scene axis a door facing it is thin along
   current.cupboard.traverse(o => {
     if (!o.isMesh || o.material !== doorMat) return;
-    for (let p = o; p; p = p.parent) if (p.userData.bench) return;
     const b = new THREE.Box3().setFromObject(o), size = b.getSize(new THREE.Vector3()), at = b.getCenter(new THREE.Vector3());
     if (flat && facing && size[facing] > size[facing === 'x' ? 'z' : 'x']) return;   // side on to this view
     const { width, height, depth } = o.geometry.parameters;
@@ -1476,8 +1462,8 @@ function doorDims(g) {
 // model, so it follows every setting, the boards' thickness included. A
 // board's size is its length × width, its two larger sides; its thickness is
 // BOARD. A shaped board (option 8's top and bottom, a shelf cut round a bay)
-// is given as the rectangle it's cut from. The bench's base cupboards, and
-// parts that aren't boards (option 9's oak shelves and plinth), are left out.
+// is given as the rectangle it's cut from. Parts that aren't boards
+// (option 9's oak shelves and plinth) are left out.
 // Each size of board lists what it's for, from the names part() gives them.
 // CUT_RULE, at its head, says which boards are shortened where they meet.
 // cuttingList() reads the living room's cupboard, or the one given (the
@@ -1494,10 +1480,7 @@ function cuttingList(cupboard = current?.cupboard) {
   cupboard?.traverse(o => {
     if (!o.isMesh || !BOARD_KINDS.has(o.material)) return;
     let kind = BOARD_KINDS.get(o.material);
-    for (let p = o; p; p = p.parent) {
-      if (p.userData.bench) return;
-      if (p.userData.cupShelves) kind = 'Shelves';              // the cupboard's shelves, whatever their colour
-    }
+    for (let p = o; p; p = p.parent) if (p.userData.cupShelves) kind = 'Shelves';   // the cupboard's shelves, whatever their colour
     o.geometry.computeBoundingBox();
     const [t, w, l] = o.geometry.boundingBox.getSize(new THREE.Vector3()).toArray().map(v => Math.round(v / MM)).sort((a, b) => a - b);
     if (t !== BOARD) return;
@@ -1782,16 +1765,13 @@ let bedroomCopy = null;      // the bedroom's copy of the corner cupboard, while
 
 
 // The bedroom's New cupboard switch: a copy of the option's cupboard as
-// built, doors, shelves and all, bar its bench, in the bedroom's corner
-// (other_room.js). Copied again whenever the cupboard, its doors or its
-// shelves change; the copy shares their shapes and colours.
+// built, doors, shelves and all, in the bedroom's corner (other_room.js).
+// Copied again whenever the cupboard, its doors or its shelves change; the
+// copy shares their shapes and colours.
 function copyCupboardToBedroom() {
   bedroomCopy = null;
   if (!state.otherRoom.newCupboardOn || !current) return showNewCupboard(null);
   const copy = current.cupboard.clone();
-  const benches = [];
-  copy.traverse(o => { if (isBench(o)) benches.push(o); });
-  for (const o of benches) o.parent?.remove(o);
   showNewCupboard(copy);
   bedroomCopy = copy;
 }
@@ -1863,30 +1843,34 @@ function withoutBench(text) {
 
 
 // The option's own build, in a new group in place of the last: its
-// cupboard (and bench), and its cupboard shelves
+// cupboard and its cupboard shelves
 function buildOption(option) {
   if (current) world.remove(current.group);
   const group = new THREE.Group();
   world.add(group);
   cupShelves = [];                                              // the option records its cupboard shelves as it's built
   pieces.dresser = pieces.larder = pieces.sofa = null;
-  const cupboard = new THREE.Group();                           // the option's own build: its cupboard (and bench)
+  const cupboard = new THREE.Group();                           // the option's own build: its cupboard
   group.add(cupboard);
   current = { group, cupboard, ...option.build(cupboard) };
   cupboard.add(cupShelfGroup);                                  // its shelves, drawn by drawStored(), round the things to store
   return group;
 }
 
-// The bench, as an option draws it: a bench top, or base cupboards
-const isBench = o => o.userData.bench || (o.isMesh && o.material === benchMat);
+// The bench beside the option's cupboard, from where the option says it
+// starts to the right-hand wall, R deep and BENCH high: base cupboards for
+// option 9, a bench top for the rest
+function drawBench(option, group) {
+  const { R, BENCH } = state;
+  const bench = new THREE.Group();
+  group.add(bench);
+  if (option.no === 9) baseCupboards(option.benchFrom(), bench);
+  else box({ from: [option.benchFrom(), 0, 0], to: [ROOM_WIDTH, R, BENCH] }, benchMat, bench);
+}
 
-// The bench off: the options draw it (a bench top, or base cupboards), so
-// it's taken out again, with nothing above it; the TV's place is kept for
+// The bench off: nothing above it either, but the TV's place is kept for
 // the sofa to face
-function takeOutBench(group, option) {
-  const benches = [];
-  group.traverse(o => { if (isBench(o)) benches.push(o); });
-  for (const o of benches) o.parent?.remove(o);
+function keepTvPlace(option) {
   tvAt = [(option.clearFrom() + ROOM_WIDTH) / 2, 0, TV_BOTTOM + TV_H / 2];
 }
 
@@ -2056,7 +2040,7 @@ function boxOf(object) {
 }
 const pieceBoxes = () => Object.fromEntries(Object.entries({
   livingRoom: current?.group,                                   // the option and all round it: the bench wall, the front wall, the sofa
-  cornerCupboard: current?.cupboard,                            // the option's own build, its bench too
+  cornerCupboard: current?.cupboard,                            // the option's own build, without the bench
   dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup,
   bedroomCupboard: otherRoomPieces.newCupboard,
   bed: otherRoomPieces.bed, bookcase: otherRoomPieces.bookcase, pineCupboard: otherRoomPieces.cupboard, mirror: otherRoomPieces.mirror,
@@ -2100,7 +2084,8 @@ export function build(i) {
   const same = i === state.option && Boolean(current);
   state.option = i;
   const group = buildOption(option);
-  if (!benchDrawn()) takeOutBench(group, option);
+  if (benchDrawn()) drawBench(option, group);
+  else keepTvPlace(option);
   const backWall = benchDrawn() ? benchWall(option.clearFrom(), group)
     : onBackWall().map(key => pieceOnBenchWall(key, option.clearFrom(), group)).join('');
   const aboveText = backWall + frontWall(group, i) + sofa(group);

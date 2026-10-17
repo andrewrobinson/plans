@@ -406,19 +406,7 @@
       ],
       "shown": true
     },
-    "cornerCupboard": {
-      "from": [
-        0,
-        0,
-        0
-      ],
-      "to": [
-        3838,
-        330,
-        780
-      ],
-      "shown": true
-    },
+    "cornerCupboard": null,
     "dresser": null,
     "larder": null,
     "sofa": null,
