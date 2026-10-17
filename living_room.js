@@ -34,7 +34,7 @@ import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims
   CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES,
   LARDERS, LARDER_SLIDERS, OPTIONS, PACKINGS, SCHEMA, SHELF_WOODS, SOFAS, SOFA_SLIDERS, STORED,
   TV_H, TV_SIZES, TV_W, benchDrawn, carcassMat, colourOf, configurationNow, cornerTooShallow,
-  cupboardPart, current, currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
+  cupboardPart, cupboardSettings, current, currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
   placeDresser, placeStored, readConfiguration, readShelves, screenMat, setRal, shelfMat,
@@ -824,15 +824,15 @@ function packingSpot() {
     case 7:                                                      // an L: in front of its inside corner; else the back-wall leg's door
       return T ? lCorner(LEG_D) : mid(T + LEG / 2, LEG_D, 0, 1);
     case 8: {                                                    // the diagonal doors
-      const { ux, uy } = diagonal();
+      const { ux, uy } = diagonal(cupboardSettings());
       return mid(T + 350, (F + R) / 2, -uy, ux);
     }
     case 9:                                                      // likewise an L, else the double doors
       return T ? lCorner(WARD_D) : mid(T + WARD / 2, WARD_D, 0, 1);
     case 10:                                                     // doors on its end, facing the kitchen
-      return cornerTooShallow('kitchen') ? null : mid(CORNER_W / 2, CORNER_D, 0, 1);
+      return cornerTooShallow(cupboardSettings(), 'kitchen') ? null : mid(CORNER_W / 2, CORNER_D, 0, 1);
     case 11:                                                     // doors on its side, facing the windows
-      return cornerTooShallow('windows') ? null : mid(CORNER_W, (R + CORNER_D) / 2, 1, 0);
+      return cornerTooShallow(cupboardSettings(), 'windows') ? null : mid(CORNER_W, (R + CORNER_D) / 2, 1, 0);
     default:
       return null;
   }
