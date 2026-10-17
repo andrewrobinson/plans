@@ -10,8 +10,8 @@
 // (REFACTOR_PLAN.md, step 6c). Nothing here reads the DOM: textures are
 // drawn on the kit's makeCanvas().
 //
-// The page changes `state` through its menus (changeSettings()) and calls
-// build(), then drawStored() and turnDoors(); what the page shows that the
+// The page's menus change the settings by their paths in the configuration
+// (set(), setAll()) and it calls build(), then drawStored() and turnDoors(); what the page shows that the
 // drawing follows (2D or 3D, which view, Cupboard only, the dimension
 // buttons) it sets with setDisplay().
 import * as THREE from 'three';

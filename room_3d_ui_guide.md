@@ -6,10 +6,11 @@ and its corner cupboard's `corner_cupboard.js` (805 lines),
 `floor.js` (341 lines),
 `kit/floor_kit.js` (541 lines) and `room_3d.css` (125 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers in the
-map below are as of 15 Oct 2026 (`flat_model.js`'s and `corner_cupboard.js`'s
-as of 17 Oct 2026, step 6d), after step 5 of `REFACTOR_PLAN.md` (longer
-names, named steps, and one function, `changeSettings()`, for every
-settings control). They go stale with
+map below are as of 15 Oct 2026 (`corner_cupboard.js`'s as of 17 Oct 2026,
+step 6d; `flat_model.js`'s and `living_room.js`'s as of 17 Oct 2026, after
+`set(path, value)`), after step 5 of `REFACTOR_PLAN.md` (longer names,
+named steps, and one function, `change()`, for every settings control).
+They go stale with
 every change, so the sections after the map name functions and ids instead:
 search for those.
 
@@ -85,7 +86,7 @@ bedroom (`BEDROOM_PLACE`) in its own materials, from the living room's
 settings and colours for now, and hands its group to `showNewCupboard()`.
 The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 
-### flat_model.js (1,568 lines): the model
+### flat_model.js (1,645 lines): the model
 
 Everything drawn, from the settings, with no DOM, so Node builds it too
 (`tests/model/`, step 6c of `REFACTOR_PLAN.md`). It draws into `world`, a
@@ -98,15 +99,17 @@ group the page adds to its scene. The corner cupboard itself is
 | 1–39 | What the file is for, `import`s | three.js, the kit's drawing helpers, the configuration kit, `corner_cupboard.js`, the data modules (`dressers.js`, `larders.js`, `sofas.js`), the other rooms' modules and `floor.js` |
 | 40–59 | **`world`** and **`setDisplay()`** | What the page shows that the drawing follows: 2D or not, which view and room, Cupboard only, the Dimensions and Door sizes buttons (the hallway's hidden in the wall views) |
 | 61–196 | Materials and the fixed room's fittings | The cupboard's materials (from `CUPBOARD_MATERIALS`), the bench's; `KITCHEN`, the front wall's faces, desk, chair, island, room door |
-| 197–265 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, `doors` … These are the values the controls change and the configuration maps onto |
-| 266–310 | The corner cupboards, as the rooms have them | `cupboardSettings()` (its piece, picked from `state`), `LIVING_ROOM_PLACE`, `BEDROOM_PLACE` and `BEDROOM_MATERIALS`, `storedThings()` (for the living room's shelves to be cut round) |
-| 287–780 | Bench, TV and shelves; colours; the base cupboards, dresser, larders, island, sofa, front wall | `benchWall()`, `setRal()`, `baseCupboards()`, `placeDresser()`, `placeIsland()`, `sofa()`, `frontWall()` |
-| 781–918 | 2D dimensions | `updateDims()` (following `setDisplay()`), the other rooms' plans, `cupboardPart()`, `doorDims()`, `cuttingList()` (the instance's, for the page) |
-| 919–1157 | Things to store | `STORED`, `PACKINGS`, `placeStored()`, `drawStored()` (which gives the menu's text) |
-| 1158–1288 | The cupboards, the back wall's pieces, the option and its bench | `cupboard`, `livingGroup`, `bedroomCupboard`, `buildBedroomCupboard()`, `BACK_WALL_PIECES`, `withoutBench()`, `buildOption()` (`makeCupboard()`), `drawBench()` |
-| 1289–1439 | **The configuration** | `SLIDER_RANGES`, `SCHEMA` (with the other rooms' entries from their modules), `configurationNow()`, `readConfiguration()`; each piece's box (`pieceBoxes()`) |
-| 1440–1545 | **Building** | `settle()` (what's worked out first), **`build(i)`**, `turnDoors()` (the cupboard's through its `turnDoors()`), `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
-| 1546–1568 | `startAgain()` and what the page reads | The settings as the page starts, put back before a configuration's read |
+| 202–276 | **`state`, the settings** | One object holding every setting: the corner cupboard's in `cornerCupboard` (`option`, `T`, `R`, `F`, `BOARD`, `LEG`, …), then `BENCH`, `above`, `colours`, `sofa`, `stored`, `doors` … The drawing code reads it; the menus change it only through `set()` |
+| 277–315 | The corner cupboards, as the rooms have them | `cupboardSettings(piece)` (a copy of `state[piece]`, as `state.cornerCupboard`), `LIVING_ROOM_PLACE`, `BEDROOM_PLACE` and `BEDROOM_MATERIALS`, `storedThings()` (for the living room's shelves to be cut round) |
+| 316–809 | Bench, TV and shelves; colours; the base cupboards, dresser, larders, island, sofa, front wall | `benchWall()`, `setRal()`, `baseCupboards()`, `placeDresser()`, `placeIsland()`, `sofa()`, `frontWall()` |
+| 810–948 | 2D dimensions | `updateDims()` (following `setDisplay()`), the other rooms' plans, `cupboardPart()`, `doorDims()`, `cuttingList()` (the instance's, for the page) |
+| 949–1185 | Things to store | `STORED`, `PACKINGS`, `placeStored()`, `drawStored()` (which gives the menu's text) |
+| 1186–1317 | The cupboards, the back wall's pieces, the option and its bench | `cupboard`, `livingGroup`, `bedroomCupboard`, `buildBedroomCupboard()`, `BACK_WALL_PIECES`, `withoutBench()`, `buildOption()` (`makeCupboard()`), `drawBench()` |
+| 1318–1443 | **The configuration** | `SLIDER_RANGES`, `cupboardEntries(design, setting)` (a corner cupboard's entries), `SCHEMA` (with the other rooms' entries from their modules), `configurationNow()`, `readConfiguration()` |
+| 1444–1481 | **Changing the settings, by path** | **`set(path, value)`**, `setAll(edits)`, `get(path)`, `wordAt()` (the configuration's word for a page's value), `pathOfSetting()` (a path from a place in `state`) |
+| 1482–1515 | What's shown, for the snapshot | `dimensionFigures()`, each piece's box (`pieceBoxes()`) |
+| 1516–1617 | **Building** | `settle()` (what's worked out first), **`build(i, onShow)`**, `turnDoors()` (the cupboard's through its `turnDoors()`), `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
+| 1618–1645 | `startAgain()` and what the page reads | The settings as the page starts, put back before a configuration's read |
 
 ### corner_cupboard.js (805 lines): the corner cupboard
 
@@ -126,23 +129,23 @@ door) and its **materials**, and gives an instance (step 6d of
 | 677–757 | Dimensions | `partOfCupboard()`, `cupboardDims()`, `doorDims()` |
 | 758–805 | **The cutting list** | `CUT_RULE`, `cuttingList()` (each board by its `userData.kind`), `cuttingRows()` |
 
-### living_room.js (1,159 lines): the page
+### living_room.js (1,172 lines): the page
 
 | Lines | Section | Notes |
 |---|---|---|
 | 1–21 | What the file is for | How a change flows through the page, and its sections in order |
 | 22–46 | `import`s | The kits, the other rooms' controls, the model's pieces from `flat_model.js`, `floor.js` |
 | 47–86 | The stage, the 2D views' cuts and Cupboard only's framing | `createStage()`, `scene.add(world)`, the kit's `cutViews()` giving `applyCut()`, `frameCupboard()` |
-| 87–257 | The cutting list's menu, the things to store's controls and dragging in plan | `showCuttingList()`, `showStored()` (the model's `drawStored()`, then the menu) |
-| 258–360 | **Door sliders, the option list, `show(i)`** | `update()` (the model's `turnDoors()`, then the sliders); **`show(i)`**: the model's `build(i)`, then `showInMenus()` and `redrawAround()` |
-| 361–394 | **The address**: `writeAddress()` | The configuration and the view, packed into the URL `#hash` (section 5) |
-| **395–782** | **Control wiring** | `changeSettings()` (395), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5); the colour pickers (`colourPicker()`) |
-| 783–919 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
-| 920–1004 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
-| 1005–1065 | The view as JSON, the drawers, Reset, Share and offline support | `viewNow()`, `readDisplay()` |
-| 1066–1101 | `syncControls()` | The model's `settle()`, then every slider, radio, switch and dropdown in step with `state` |
-| 1103–1145 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
-| 1146–1159 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show(state.option)`, the view; the kit's `startLoop()` |
+| 87–265 | The cutting list's menu, the things to store's controls and dragging in plan | `showCuttingList()`, `showStored()` (the model's `drawStored()`, then the menu); `setStored()` and `moveStored()`, their settings by path |
+| 266–378 | **Door sliders, the option list, `show(i)`** | `update()` (the model's `turnDoors()`, then the sliders), `turnDoorsTo()`; `chooseOption()`; **`show(i, onShow)`**: the model's `build()`, then `showInMenus()` and `redrawAround()` |
+| 379–407 | **The address**: `writeAddress()` | The configuration and the view, packed into the URL `#hash` (section 5) |
+| **408–809** | **Control wiring** | **`change(edits, { look })`** (408), the cupboard's controls by **`cupboardPath`** (`cupboardAt()`, `setCupboard()`, `cupboardValue()`, `CUPBOARD_SLIDERS`), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5); the colour pickers (`colourPicker()`); `sizeEdits()` |
+| 810–945 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
+| 946–1030 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
+| 1031–1059 | The view as JSON, the drawers, Reset, Share and offline support | `viewNow()`, `readDisplay()` |
+| 1060–1115 | The rooms' modules' controls and `syncControls()` | `roomEdits()` (their settings' places in `state` as the configuration's paths); the model's `settle()`, then every slider, radio, switch and dropdown in step with the settings |
+| 1116–1156 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
+| 1157–1172 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show()`, the view; the kit's `startLoop()` |
 
 ### kit/floor_kit.js (541 lines)
 
@@ -165,11 +168,13 @@ exporting `create()`, which the room imports as `ViewKit` and `SceneKit`.
 The view kit's `view()` gives the view as JSON for the address, and
 `start()` reads one; a scene is a configuration.
 
-### kit/config_kit.js (140 lines)
+### kit/config_kit.js (156 lines)
 
 The configuration: a schema's entries (`number()`, `onOff()`, `choice()`,
 `colour()`, `other()`), `writeConfiguration()` and `readConfiguration()`
-through them, `withDefaults()` and `defaultConfiguration()`, and `pack()` and
+through them, one entry at a time for `set()` (`readEntry()`,
+`configurationValue()`, `wordFor()`, found by `entryAt()` or
+`entryOfSetting()`), `withDefaults()` and `defaultConfiguration()`, and `pack()` and
 `unpack()` for the address (JSON deflated, in base64url). It needs no page,
 DOM or three.js, so Node can use it too (step 6c).
 
@@ -398,17 +403,19 @@ JS selects it when the sliders no longer match any preset (`showDresserPick()`).
 ### The pattern
 
 Every settings control follows the same pattern, through one function,
-`changeSettings(edit, { option, look })`:
+`change(edits, { look })`. Each edit is `[path, value]`: the setting's path
+in the configuration, and its value as the configuration holds it (an
+option's number, `above`'s word, sizes in mm):
 
 ```
 user moves control
   → browser fires an event ('input' or 'change')
   → listener reads element.value (always a STRING, so Number(...) it)
-  → calls changeSettings() with an edit that stores it in state
-       (state.T, state.R, state.BENCH, state.sofa.size...)
-  → changeSettings() runs the edit, then
-       syncControls(): every control and readout <span> in step with state
-       show(state.option): rebuilds the current option's 3D objects from state,
+  → calls change() with the edits, as [['pieces.bench.design.height', 900]]
+  → change() has the model's setAll(edits) check each against its schema
+       entry and put it in state (one it refuses is a console error), then
+       syncControls(): every control and readout <span> in step with the settings
+       show(): rebuilds the current option's 3D objects from state,
          which also updates the visible blocks, the description, the dimensions and the URL
        with look: viewKit.refresh(), so a view of the dresser, sofa… follows it
   → the render loop draws the new scene on the next frame
@@ -421,51 +428,55 @@ forget one of them.
 **Example: a slider**:
 
 ```js
-const legSlider = document.getElementById('leg');
-legSlider.addEventListener('input', () => changeSettings(s => { s.LEG = Number(legSlider.value); }));
+shelfSlider.addEventListener('input', () => change([['pieces.aboveBench.design.shelfDepth', Number(shelfSlider.value)]]));
 ```
 
-`changeSettings()` passes `state` to the edit as `s`. `syncControls()` then
-writes the new value into `#legValue`, the slider's readout.
+`syncControls()` then writes the new value into `#shelfDepthValue`, the
+slider's readout.
 
 **Example: a radio group**. The code listens on each radio in the group:
 
 ```js
-document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.BENCH = Number(r.value); })));
+document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => change([['pieces.bench.design.height', Number(r.value)]])));
 ```
+
+A radio holding the page's own value, not the configuration's (`above`'s
+0 to 4), gives the word through the model's `wordAt(path, value)`.
 
 **Example: a dropdown**, which also moves the view to follow (`look`):
 
 ```js
-dresserPick.addEventListener('change', () => changeSettings(() => setDresser(DRESSERS[dresserPick.value]), { look: true }));
+dresserPick.addEventListener('change', () => change(setDresser(DRESSERS[dresserPick.value]), { look: true }));
 ```
 
-`setDresser()` holds the sizes to their sliders' ranges and places the
-dresser; like `setSofaSize()` and `setLarderSize()`, it only changes `state`.
+`setDresser(sizes)` gives the sizes as edits, each held to its slider's
+range (`sizeEdits()`), as `setSofaSize()` and `setLarderSize()` do.
 
-**Example: choosing an option** passes the option to show:
-
-```js
-currentSelect.addEventListener('change', () => chooseOption(Number(currentSelect.value)));
-// chooseOption(i): changeSettings(s => { …a left-wall depth, if it needs one… }, { option: i })
-```
-
-**Example: a loop over several similar sliders**. This avoids
-repeating the same line for each slider:
+**Example: the corner cupboard's controls** name their cupboard by one
+path, `cupboardPath` (`'pieces.cornerCupboard.design'`), so the same
+controls can change the bedroom's cupboard
+(`'pieces.bedroomCupboard.design'`). They change a setting with
+`setCupboard(key, value)` and are put in step from `cupboardValue(key)`
+(the model's `get()`), looping over `CUPBOARD_SLIDERS`:
 
 ```js
-for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ...]) {
+for (const [id, key] of CUPBOARD_SLIDERS) {
   const slider = document.getElementById(id);
-  slider.addEventListener('input', () => changeSettings(s => { s[key] = Number(slider.value); }));
+  slider.addEventListener('input', () => setCupboard(key, Number(slider.value)));
 }
 ```
 
-The dresser, larder and sofa sliders do the same, driven by arrays such as
-`DRESSER_SLIDERS`: `[key, sliderId, min, max, step]`.
+Choosing an option is one change with several edits: the option's number,
+and a left-wall depth if it needs one (`chooseOption()`). The dresser,
+larder and sofa sliders loop the same way, driven by arrays such as
+`DRESSER_SLIDERS`: `[key, sliderId, min, max, step]`. The rooms' modules'
+controls (`otherRoomControls()` and the rest) name their settings by their
+place in `state`; `roomEdits()` turns those into the configuration's paths.
 
-Not every control changes a setting. The door sliders, the view switches
-(Dimensions, Cupboard only, See-through) and the things to store don't go
-through `changeSettings()`; see below.
+Not every control rebuilds. The door sliders and the things to store set
+theirs through the model's `set()` too, but redraw only themselves; the
+view switches (Dimensions, Cupboard only, See-through) aren't settings.
+See below.
 
 ### `input` vs `change`
 
@@ -503,10 +514,11 @@ fast enough for a model of this size, and it means the 3D model always matches
 
 ### The faster path for doors
 
-The door sliders don't rebuild. Each sets its angle in `state.doors`
-(they're in the configuration, so a scene keeps them) and calls
-`update()`, which only rotates the existing hinge objects and puts the
-sliders in step:
+The door sliders don't rebuild. Each sets its angle through
+`turnDoorsTo({ name: degrees })`, which `set()`s `doors.<name>` (they're
+in the configuration, so a scene keeps them) and calls `update()`, which
+only rotates the existing hinge objects and puts the sliders in step.
+Packing and walking in turn them the same way:
 
 ```js
 roomHinge.rotation.y = turn(doors.room);
@@ -515,9 +527,9 @@ roomHinge.rotation.y = turn(doors.room);
 ### Colours
 
 `colourPicker()` builds each colour dropdown and its ◀ ▶
-buttons. A choice goes through `changeSettings(() => setRal(target, code))`.
-`setRal()` sets `.color` on the three.js **materials** shared by those
-objects, and anything that follows that colour.
+buttons. A choice goes through `change([[`colours.${target}`, code]])`;
+`settle()` then has `setRal()` set `.color` on the three.js **materials**
+shared by those objects, and anything that follows that colour.
 
 ### Views and Look
 
@@ -534,12 +546,13 @@ base64url (`pack()` and `unpack()` in `kit/config_kit.js`;
 `room_dimensions.md` has the format). `SCHEMA` (near the end of
 `living_room.js`) has an entry for each setting: its path in the
 configuration, its place in `state`, its kind and range and its default,
-e.g. `fromSlider(cupboard('R'), 'R', 'rear')`, the back-wall depth held
-to the `#rear` slider's range. The other rooms' modules give their own
+e.g. `fromSlider(at('R'), of('R'), 'rear')` in `cupboardEntries()`, the
+back-wall depth held to the `#rear` slider's range. The other rooms' modules give their own
 entries (`OTHER_ROOM_SCHEMA`, `WICKER_BENCH_SCHEMA`, `SHOE_RACK_SCHEMA`,
 `GARAGE_SCHEMA`). For now the configuration is a two-way map onto `state`,
 which the drawing code still reads: `configurationNow()` writes it,
-`readConfiguration()` reads one into `state`. The view is the view kit's
+`readConfiguration()` reads one into `state`, and the menus' `set()`
+changes one setting by its path, through its entry. The view is the view kit's
 `view()` (the room, a listed view's id or the camera, the eye height) and
 the Dimensions, Door sizes, Cupboard only and See-through switches
 (`viewNow()`, `readDisplay()`).
@@ -642,12 +655,13 @@ and every HTML element above it is in the DOM.
 
 - **To add a slider**: add the `<label>`, `<span id="xValue">` and
   `<input id="x" type="range">` inside a block in a drawer's HTML (`#cupPanel` for a cupboard size). Add `X`
-  to `state`, with a comment. Add an `input` listener that calls
-  `changeSettings(s => { s.X = Number(slider.value); })`, and set the slider
-  and its span in `syncControls()`. Use `X` in a `build()`
-  (`const { X } = state;`). To keep it in links, give it an entry in
-  `SCHEMA` (or its module's list), under its piece's `design` or `in`, as
-  `fromSlider(cupboard('X'), 'X', 'x')`. Its value is then in
+  to `state` (a cupboard's to `state.cornerCupboard`), with a comment. Give
+  it an entry in `SCHEMA` (or its module's list), under its piece's
+  `design` or `in`, as `fromSlider(at('X'), of('X'), 'x')` in
+  `cupboardEntries()`: `set()` needs it. Add an `input` listener that calls
+  `change([[path, Number(slider.value)]])` (a cupboard's: add it to
+  `CUPBOARD_SLIDERS`), and set the slider and its span in `syncControls()`.
+  Use `X` in a `build()` (`const { X } = state.cornerCupboard;`). Its value is then in
   `plans.get()`, `plans.export()` and the snapshots, so run
   `npm run test:update` once and check the snapshots' diff adds only it;
   the saved configurations in `tests/configs/` go without it, so they show

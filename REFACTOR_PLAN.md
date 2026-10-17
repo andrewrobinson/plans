@@ -3,8 +3,9 @@
 Step 6 (one configuration, as JSON) finished with **6d, the corner
 cupboards**, on 17 Oct 2026 (below, until it's on main and this is pruned
 again). It changed how the code is organised, not what the page does,
-which the tests check (`tests/`), bar the bedroom cupboard's 2 mm. What's
-left is "Left over, after 6d".
+which the tests check (`tests/`), bar the bedroom cupboard's 2 mm. Then
+the first left-over, `set(path, value)`, the same day. What's left is
+"Left over, after 6d".
 
 What's done is in git history: the browser tests, one `state`, the kit,
 the rooms' files (steps 1 to 4); readable code in the style of
@@ -74,11 +75,41 @@ screenshots unchanged bar the first):
 2445, so its boards came out 2 mm taller than the living room's (2443),
 its doors 2439. 6d is done.
 
+## `set(path, value)` (17 Oct 2026)
+
+The menus change the settings by their paths in the configuration, in
+place of `changeSettings()` writing `state` (decided in 6b, put off to
+after 6d in 6c). Decided first (17 Oct 2026):
+
+| Question | Decided |
+|---|---|
+| `state` | Stays, for now, as the store the drawing code reads, but the menus no longer write it: `set()` is the only way in. The configuration becomes the store, and `state` goes, later (below) |
+| The value | The configuration's (an option's number, `above: 'shelves'`, sizes in mm), checked by its schema entry as a link's are; one refused is a console error, so the tests catch a control and its entry disagreeing. Controls holding the page's own values give the word through `wordAt()` |
+| Several at once | `setAll([[path, value], …])`, one rebuild: an option with its default left-wall depth, a model with its sizes |
+| The cupboard | Its settings gathered in `state.cornerCupboard` (`cupboardSettings(piece)`); its schema entries from `cupboardEntries(design, setting)`; its controls write and read through `cupboardPath`, so they can be pointed at the bedroom's |
+| The doors | Through `set()` too, but only turning them (`turnDoorsTo()`, `update()`), nothing built again |
+| Where | The model's `set`, `setAll`, `get`; the page's `change(edits, { look })` builds again round them. `plans.get()` still gives `state` |
+
+**Done** (one commit each; every snapshot and screenshot unchanged): the
+kit's one-setting steps (`readEntry()`, `configurationValue()`,
+`wordFor()`, `entryAt()`, `entryOfSetting()`); the cupboard's settings in
+`state.cornerCupboard` (the tests read them there); the model's `set()`,
+`setAll()`, `get()`, `wordAt()` and `pathOfSetting()`, with a model test;
+the cupboard's controls by `cupboardPath`, `build()` told the option on
+show till then (`onShow`), as `set()` writes the new one first; every
+other menu through `change()` (the rooms' modules' edits by
+`roomEdits()`, the things to store by `setStored()`); the doors through
+`turnDoorsTo()`. Nothing in `living_room.js` writes `state` now.
+
 ## Left over, after 6d
 
-- **`set(path, value)`**: the menus change the configuration through it,
-  in place of `changeSettings()` on `state` (decided in 6b, put off to
-  after 6d in 6c).
+- **The configuration as the store**, `state` going
+  (`ui_paradigm_analysis.md`, recommendation 1's second half): the
+  drawing code reads the configuration (or a cupboard's settings from it)
+  in place of `state`. Easier after the door angles move into the view and
+  what `settle()` and `placeStored()` work out leaves `state`
+  (recommendation 5), as `configurationNow()` writes the things to
+  store's worked-out places and `build()` turns option 8 into 7.
 - **The handles' 20s and 22s** (a bar's width and how far it stands off
   the door) could be named, as `HANDLE_BOTTOM` and `HANDLE_TOP` are.
 - **The bedroom cupboard's own design**: its own piece in the
@@ -91,7 +122,10 @@ its doors 2439. 6d is done.
   a second Options dropdown with its sliders in the bedroom's menu, always
   there whatever room's in view (not the living room's menu switching
   with the room). Best built straight after `set(path, value)`, so both
-  menus write their cupboard's design by path. Then engineering drawings
+  menus write their cupboard's design by path: `cupboardPath` in
+  `living_room.js` is the one to point at `pieces.bedroomCupboard.design`,
+  its settings `state.bedroomCupboard`, its entries a second
+  `cupboardEntries()`. Then engineering drawings
   from each cupboard's snapshot.
 - **`PLAN.md`'s "Designs"** (a cupboard design as data, a printable spec
   for the maker) starts from 6d's settings record and instance: a design

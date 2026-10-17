@@ -64,7 +64,10 @@ not coordinates, so it follows the furniture when it moves.
 1. **The configuration as the store**: `set(path, value)` (on
    `REFACTOR_PLAN.md`'s list). `state` goes, and with it the second source
    of truth and the menus' 73 uses of its flat names. Undo then comes
-   nearly free, as a stack of configurations.
+   nearly free, as a stack of configurations. **Half done, 17 Oct 2026**:
+   the menus write only through `set(path, value)` (REFACTOR_PLAN.md);
+   `state` stays as what the drawing code reads, till the configuration
+   is the store.
 2. **Views don't write the doors**: the door angles move into the view
    (decided, below).
 3. **The display switches out of the model's module state**: give the view

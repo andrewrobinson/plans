@@ -23,7 +23,11 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    through the wall) fixed; 6d (the corner cupboards) is under way: the
    bench out of the options and the cupboard in `corner_cupboard.js`,
    built from arguments, the cupboard as an instance and the bedroom's own
-   instance, all done 17 Oct 2026, so step 6 is done.
+   instance, all done 17 Oct 2026, so step 6 is done. After it,
+   `set(path, value)` (17 Oct 2026): the menus change the settings by
+   their paths in the configuration, the cupboard's controls by one path
+   (`cupboardPath`), ready for the bedroom cupboard's own design and menu,
+   next.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).
