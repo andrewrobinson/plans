@@ -72,10 +72,12 @@ const viewOf = page => page.evaluate(() => window.plans.view());
 
 // Choose option n (its number, as in its name) from the option list. Its
 // place in the list isn't n - 1, as the list starts at option 7.
-async function pickOption(page, n) {
-  const value = await page.locator('#current option').evaluateAll((os, n) => os.find(o => parseInt(o.textContent, 10) === n)?.value, n);
+// `list`: the list's id, the lounge cupboard's unless given (the bedroom's
+// is 'bedroomCupboardCurrent')
+async function pickOption(page, n, list = 'current') {
+  const value = await page.locator(`#${list} option`).evaluateAll((os, n) => os.find(o => parseInt(o.textContent, 10) === n)?.value, n);
   if (value === undefined) throw new Error(`option ${n} isn't in the option list`);
-  await page.selectOption('#current', value);
+  await page.selectOption(`#${list}`, value);
 }
 
 // What the page makes of its settings (window.plans.snapshot(): the

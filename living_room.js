@@ -30,7 +30,7 @@ import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, SIZE_LABEL, QUARTER
 import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
 import { shoeRack, shoeRackControls } from './shoe_rack.js';
 import { garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
-import { cupboardControls } from './cupboard_controls.js';
+import { cupboardControls, copyControls, idIn } from './cupboard_controls.js';
 import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims, build,
   drawStored, turnDoors, describe, settle, cupboardRows, startAgain, BACK_WALL_KEYS, CHAIR_TURN, CURRENT,
   CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES,
@@ -85,14 +85,13 @@ function frameCupboard() {
   flatControls.update();
 }
 
-const cutList = document.getElementById('cutList'), cutToggle = document.getElementById('cutToggle');
-function showCuttingList() {
-  const option = OPTIONS[state.cornerCupboard.option];
-  if (state.cornerCupboard.option === CURRENT) {
-    cutList.innerHTML = '<b>No cutting list</b>: no cupboard in this option.';
-    return;
-  }
-  const kinds = cuttingList();
+// A corner cupboard's cutting list as HTML, by its piece's name: the living
+// room's, in the 2D views' box, or the bedroom's, in Bedroom options
+function cuttingListHtml(piece) {
+  const design = key => get(`pieces.${piece}.design.${key}`);
+  const option = OPTIONS[optionAt(design('option'))];
+  if (option === OPTIONS[CURRENT]) return '<b>No cutting list</b>: no cupboard in this option.';
+  const kinds = cuttingList(piece);
   let boards = 0, area = 0;
   const rows = CUT_KINDS.filter(k => kinds.has(k)).map(kind => {
     return `<div class="cutKind">${kind}</div>` + sizesInOrder(kinds.get(kind)).map(({ l, w, shaped, n, parts }) => {
@@ -102,10 +101,18 @@ function showCuttingList() {
       return `<div class="cutRow"><span>${n} ×</span><span>${l} × ${w}</span><span>${what}</span></div>`;
     }).join('');
   }).join('');
-  cutList.innerHTML = `<div class="cutHead">${option.name}: boards ${state.cornerCupboard.BOARD} thick, length × width in mm</div>` +
+  return `<div class="cutHead">${option.name}: boards ${design('BOARD')} thick, length × width in mm</div>` +
     `<div class="cutRule">${CUT_RULE}${CUT_EXCEPTIONS[option.no] ? ` ${CUT_EXCEPTIONS[option.no]}` : ''}</div>${rows}` +
     `<div class="cutTotal">${boards} boards, ${(area / 1e6).toFixed(2)} m² in all</div>`;
 }
+const cutList = document.getElementById('cutList'), cutToggle = document.getElementById('cutToggle');
+function showCuttingList() { cutList.innerHTML = cuttingListHtml('cornerCupboard'); }
+// The bedroom cupboard's, shown when it's unfolded
+const bedroomCutting = document.getElementById('bedroomCutting');
+function showBedroomCuttingList() {
+  if (bedroomCutting.open) document.getElementById('bedroomCutList').innerHTML = cuttingListHtml('bedroomCupboard');
+}
+bedroomCutting.addEventListener('toggle', showBedroomCuttingList);
 cutToggle.addEventListener('click', () => {
   cutList.hidden = !cutList.hidden;
   cutToggle.textContent = cutList.hidden ? 'Show cutting list' : 'Hide cutting list';
@@ -268,9 +275,19 @@ for (const type of ['pointerup', 'pointercancel']) {
 // ---------------------------------------------------------------------------
 // Switching options, and the controls
 // ---------------------------------------------------------------------------
+// The bedroom cupboard's controls: a copy of the lounge cupboard's sliders
+// (bar See-through, which is both cupboards') and of its door sliders, in
+// Bedroom options, each id with 'bedroomCupboard' before it
+// (cupboard_controls.js)
+const BEDROOM_CUPBOARD = 'bedroomCupboard';
+document.getElementById('bedroomCupboardControls').append(...copyControls([...document.getElementById('cupboardControls').children], BEDROOM_CUPBOARD));
+document.getElementById(idIn(BEDROOM_CUPBOARD)('xray')).closest('.row').remove();
+document.getElementById('bedroomCupboardDoors').append(...copyControls(['tallBlock', 'secondBlock'].map(id => document.getElementById(id)), BEDROOM_CUPBOARD));
+
 // The door sliders, by their names in the configuration's doors. The entrance's two
 // doors (floor.js's ENTRANCE) are the flat's own, into the stairs' foot,
-// and the shared lobby's outside door
+// and the shared lobby's outside door; the bedroom cupboard's are copies of
+// the lounge cupboard's
 const DOOR_SLIDERS = {
   room: document.getElementById('roomDoor'),
   tall: document.getElementById('tallDoor'),
@@ -278,6 +295,8 @@ const DOOR_SLIDERS = {
   bedroom: document.getElementById('bedroomDoor'),
   flat: document.getElementById('flatDoor'),
   outside: document.getElementById('outsideDoor'),
+  bedroomCupboardTall: document.getElementById('bedroomCupboardTallDoor'),
+  bedroomCupboardSecond: document.getElementById('bedroomCupboardSecondDoor'),
 };
 // The doors turned to their angles in the configuration's doors (the
 // model's turnDoors()), and their sliders put in step with them
@@ -317,6 +336,7 @@ function show(i, onShow) {
 function showInMenus(option, i, aboveText) {
   const { above } = state;
   loungeCupboard.showBlocks();
+  showBedroomCupboard();
   document.getElementById('summary').innerHTML = describe(option, aboveText);
   const shown = (id, yes) => { document.getElementById(id).style.display = yes ? '' : 'none'; };
   shown('tvBlock', above >= 2);
@@ -400,6 +420,19 @@ function change(edits, { look = false } = {}) {
 // (cupboard_controls.js): its option list, sizes, shelves and front, by
 // its design's path in the configuration
 const loungeCupboard = cupboardControls({ piece: 'cornerCupboard', change });
+// ...and the bedroom's, in Bedroom options: every option bar the current
+// room (no cupboard), and no left-wall front to the door frame (there's no
+// door on its walls)
+const bedroomCupboardControls = cupboardControls({ piece: BEDROOM_CUPBOARD, id: idIn(BEDROOM_CUPBOARD), change,
+  options: OPTIONS.map((o, i) => i).filter(i => i !== CURRENT), front: false });
+// Its block shown only while it's there (Bedroom options' New cupboard switch)
+function showBedroomCupboard() {
+  const on = state.otherRoom.newCupboardOn;
+  document.getElementById('bedroomCupboardBlock').hidden = !on;
+  document.getElementById('bedroomCupboardOff').hidden = on;
+  if (on) bedroomCupboardControls.showBlocks();
+  showBedroomCuttingList();
+}
 document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => change([['pieces.bench.design.height', Number(r.value)]])));
 // The description starts folded away; remember if the viewer opens it
 const about = document.getElementById('about');
@@ -473,6 +506,10 @@ colourPicker('cupboard', ['ral-cupboard', 'ral-other', 'otherRow', 'colPrev', 'c
   [[0, 'Same colour as the door'], [1, 'Same colour as the walls']]);
 colourPicker('dresser', ['ral-dresser', 'ral-dresser-other', 'dresserOtherRow', 'dresserPrev', 'dresserNext', 'dresserSwatch'],
   [[0, 'Same as the cupboards'], [2, 'Same colour as the door'], [1, 'Same colour as the walls']]);
+// The bedroom cupboard's own colour (in Bedroom options): the lounge
+// cupboard's to start, as the dresser's
+colourPicker('bedroomCupboard', ['ral-bedroomCupboard', 'ral-bedroomCupboard-other', 'bedroomCupboardOtherRow', 'bedroomCupboardColPrev', 'bedroomCupboardColNext', 'bedroomCupboardSwatch'],
+  [[0, 'Same as the lounge cupboard'], [2, 'Same colour as the door'], [1, 'Same colour as the walls']]);
 // The carpet: from the doorway photo (0, its default), the first photos'
 // colour made lighter, or as it was, or Dormouse from the maker's swatch;
 // none of the cupboards' named colours
@@ -1032,6 +1069,7 @@ function syncControls() {
   };
   const check = (name, value) => { document.querySelector(`input[name=${name}][value="${value}"]`).checked = true; };
   loungeCupboard.sync();
+  bedroomCupboardControls.sync();
   benchSwitch.checked = benchDrawn();
   benchSwitch.disabled = onBackWall().length > 0;
   for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = state[`${key}On`];

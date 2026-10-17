@@ -15,6 +15,17 @@ const saved = name => ADDRESSES.find(a => a.name === name);
 const inPlan = (name, changes = {}) => addressOf(edited(saved(name).configuration, changes), saved('view-plan').view);
 
 const hash = page => page.evaluate(() => location.hash);
+// ...once it's settled: the page packs it after each change, asynchronously,
+// so the last change's may not be written yet. The same twice, a moment
+// apart (SETTLE_MS, chosen: longer than a write takes under load)
+const SETTLE_MS = 300;
+async function settledHash(page) {
+  for (;;) {
+    const was = await hash(page);
+    await page.waitForTimeout(SETTLE_MS);
+    if (await hash(page) === was) return was;
+  }
+}
 // The things to store: whether they're shown, which packing, where (state.stored)
 const storedHead = async page => { const { shown, packing, where } = await setting(page, 'stored'); return { shown, packing, where }; };
 // The view in the address: the room, the view's id (or the camera), the eye
@@ -63,7 +74,7 @@ const readout = (page, id) => page.locator(`#${id}Value`).evaluate(el => el.text
 // must be as it was, so it changed nothing else. `back: false` for a slider
 // that can't get back exactly (see where it's used).
 async function endsAndBack(page, id, place, { text = v => v, setting = v => v, back = true } = {}) {
-  const before = await hash(page);
+  const before = await settledHash(page);
   const { min, max, value: start } = await page.locator(`#${id}`).evaluate(el => ({ min: el.min, max: el.max, value: el.value }));
   for (const [end, value] of [['lowest', min], ['highest', max]]) {
     const v = await slide(page, id, value);
@@ -318,6 +329,33 @@ test.describe('dropdowns', () => {
     await page.selectOption('#sofaPick', '');
     expect(await setting(page, 'sofa.key')).toBe('');            // none
     await expect(page.locator('#sofaFrontBlock')).toBeHidden();
+  });
+});
+
+// The bedroom's own corner cupboard, in Bedroom options: its option, sizes,
+// doors and colour its own, the lounge's left as they were
+test.describe('the bedroom\'s cupboard', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#bedMenu'); });
+
+  test('its controls show once it\'s on, and change only it', async ({ page }) => {
+    await expect(page.locator('#bedroomCupboardBlock')).toBeHidden();
+    await page.locator('#otherRoom_newCupboardOn').check();
+    await expect(page.locator('#bedroomCupboardBlock')).toBeVisible();
+    await expect(page.locator('#bedroomCupboardFront')).toBeHidden();       // no door frame to go up to
+    await pickOption(page, 7, 'bedroomCupboardCurrent');
+    await expect(page.locator('#bedroomCupboardLegBlock')).toBeVisible();
+    expect(await optionShown(page)).toBe(10);                               // the lounge's as it was
+    expect(await at('bedroomCupboard.option')(page)).not.toBe(await at('cornerCupboard.option')(page));
+    await endsAndBack(page, 'bedroomCupboardRear', at('bedroomCupboard.R'));
+    await endsAndBack(page, 'bedroomCupboardLeg', at('bedroomCupboard.LEG'));
+    await endsAndBack(page, 'bedroomCupboardTallDoor', at('doors.bedroomCupboardTall'), { text: v => `${v}°` });
+    expect(await setting(page, 'cornerCupboard.R')).toBe(330);
+    await page.selectOption('#ral-bedroomCupboard', 'other');
+    await page.selectOption('#ral-bedroomCupboard-other', '7016');
+    expect(await setting(page, 'colours.bedroomCupboard')).toBe(7016);
+    expect(await setting(page, 'colours.cupboard')).toBe(4);
+    await page.locator('#bedroomCutting summary').click();
+    await expect(page.locator('#bedroomCutList')).toContainText('7. ');
   });
 });
 

@@ -80,7 +80,7 @@
 </div>
 <!-- The cutting list, in the 2D views: a button at the bottom left that opens it -->
 <div id="cutBox" data-mode="2d">
-  <div id="cutList" hidden></div>
+  <div id="cutList" class="cutList" hidden></div>
   <button id="cutToggle" class="chip" aria-controls="cutList" aria-expanded="false">Show cutting list</button>
 </div>
 <div id="scrim"></div>
@@ -382,6 +382,34 @@
     <button id="bedClose" class="close" aria-label="Close bedroom options">✕</button>
   </div>
   <div id="otherRoomBlock"></div>
+  <details class="sec" id="secBedroomCupboard" open>
+    <summary>The new cupboard</summary>
+    <div class="hint" id="bedroomCupboardOff">Its own corner cupboard, by the chimney breast: switch on New cupboard (above) to see it.</div>
+    <div id="bedroomCupboardBlock">
+      <label for="bedroomCupboardCurrent">Option</label>
+      <select id="bedroomCupboardCurrent" class="pick" aria-label="Bedroom cupboard option"></select>
+      <!-- The lounge cupboard's sliders and its door sliders, copied by
+           living_room.js (cupboard_controls.js's copyControls()) -->
+      <div id="bedroomCupboardControls"></div>
+      <div id="bedroomCupboardDoors"></div>
+      <div class="colours">
+        <div class="colhead">Its colour</div>
+        <div class="colrow">
+          <button id="bedroomCupboardColPrev" aria-label="Previous named bedroom cupboard colour">◀</button>
+          <select id="ral-bedroomCupboard" aria-label="Bedroom cupboard colour"></select>
+          <button id="bedroomCupboardColNext" aria-label="Next named bedroom cupboard colour">▶</button>
+          <span class="swatch" id="bedroomCupboardSwatch"></span>
+        </div>
+        <div class="colrow" id="bedroomCupboardOtherRow" hidden>
+          <select id="ral-bedroomCupboard-other" aria-label="Other bedroom cupboard colour"></select>
+        </div>
+      </div>
+      <details id="bedroomCutting">
+        <summary>Cutting list</summary>
+        <div id="bedroomCutList" class="cutList"></div>
+      </details>
+    </div>
+  </details>
   <details class="sec" id="secBedroomDoors" open>
     <summary>Doors</summary>
     <label for="bedroomDoor">Bedroom door: <span id="bedroomDoorValue">90°</span></label>

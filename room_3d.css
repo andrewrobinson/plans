@@ -116,9 +116,9 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 #cutList { pointer-events: auto; max-height: 50vh; max-width: min(460px, calc(100vw - 92px)); overflow: auto; box-sizing: border-box; padding: 8px 12px;
   background: rgba(255, 255, 255, 0.95); border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45; }
 #cutList[hidden] { display: none; }
-#cutList .cutHead { font-weight: bold; margin-bottom: 4px; }
-#cutList .cutRule { color: #555; font-size: 12px; margin-bottom: 2px; }
-#cutList .cutKind { font-weight: bold; color: #1f4e79; margin-top: 6px; }
-#cutList .cutRow { display: grid; grid-template-columns: 3em 9em auto; }
-#cutList .cutRow span:first-child { text-align: right; padding-right: 6px; }
-#cutList .cutTotal { margin-top: 6px; border-top: 1px solid #ddd; padding-top: 4px; }
+.cutList .cutHead { font-weight: bold; margin-bottom: 4px; }
+.cutList .cutRule { color: #555; font-size: 12px; margin-bottom: 2px; }
+.cutList .cutKind { font-weight: bold; color: #1f4e79; margin-top: 6px; }
+.cutList .cutRow { display: grid; grid-template-columns: 3em 9em auto; }
+.cutList .cutRow span:first-child { text-align: right; padding-right: 6px; }
+.cutList .cutTotal { margin-top: 6px; border-top: 1px solid #ddd; padding-top: 4px; }
