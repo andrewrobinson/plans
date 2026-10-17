@@ -50,20 +50,22 @@ screenshots unchanged bar the first):
    the living room is `LIVING_ROOM_PLACE` (width, depth, ceiling, its
    door). `opensTo()` checks against the cupboard's own room.
 
-**Left**:
+5. **An instance** (17 Oct 2026): `makeCupboard(settings, place,
+   materials)` gives `{ group, doors, shelves, drawShelves(),
+   shelfCutText(), turnDoors(), cuttingList(), cuttingRows(), partOf(),
+   dims(), doorDims() }`; `current`, `cupShelves`, `cupCuts` and
+   `cupShelfGroup` went, the living room keeping `cupboard` and
+   `livingGroup`. Each board is marked with its kind (`userData.kind`), so
+   the cutting list and door sizes no longer find parts by material.
 
-5. **An instance**: `makeCupboard(settings, place, materials)` gives
-   `{ group, shelves, cuttingList(), dims(), doors }`. `current`,
-   `cupShelves`, `cupCuts` and `cupShelfGroup` become its fields; each
-   board is tagged with its kind (`userData.kind`), so the cutting list no
-   longer finds parts by material.
+**Left**:
 6. **The bedroom's instance**: built from the living room's settings,
    against the bedroom's `place`, in place of `copyCupboardToBedroom()`'s
    clone.
 
 **Check**: the cutting lists in the snapshots must not change, bar the
 bedroom's: its ceiling is 2445, so its copy comes out 2 mm taller than
-the living room's (2443). About a session left.
+the living room's (2443). About half a session left.
 
 ## Left over, after 6d
 

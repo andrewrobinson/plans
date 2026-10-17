@@ -1,8 +1,8 @@
 # index.html — how the page is put together
 
 A guide to the HTML, CSS and JS in `index.html` (321 lines), the page's
-`living_room.js` (1,159 lines), the model's `flat_model.js` (1,582 lines)
-and its corner cupboard's `corner_cupboard.js` (767 lines),
+`living_room.js` (1,159 lines), the model's `flat_model.js` (1,568 lines)
+and its corner cupboard's `corner_cupboard.js` (805 lines),
 `floor.js` (341 lines),
 `kit/floor_kit.js` (541 lines) and `room_3d.css` (125 lines), focused on the UI: the menus, the controls, and how
 they drive three.js. The room modelling is only sketched. Line numbers in the
@@ -85,12 +85,13 @@ whenever it, its doors or its shelves change, and hands it to
 `showNewCupboard()`.
 The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 
-### flat_model.js (1,582 lines): the model
+### flat_model.js (1,568 lines): the model
 
 Everything drawn, from the settings, with no DOM, so Node builds it too
 (`tests/model/`, step 6c of `REFACTOR_PLAN.md`). It draws into `world`, a
 group the page adds to its scene. The corner cupboard itself is
-`corner_cupboard.js`'s (below).
+`corner_cupboard.js`'s (below): the living room keeps its instance in
+`cupboard`, and everything round it in `livingGroup`.
 
 | Lines | Section | Notes |
 |---|---|---|
@@ -98,33 +99,32 @@ group the page adds to its scene. The corner cupboard itself is
 | 40–59 | **`world`** and **`setDisplay()`** | What the page shows that the drawing follows: 2D or not, which view and room, Cupboard only, the Dimensions and Door sizes buttons (the hallway's hidden in the wall views) |
 | 61–196 | Materials and the fixed room's fittings | The cupboard's materials (from `CUPBOARD_MATERIALS`), the bench's; `KITCHEN`, the front wall's faces, desk, chair, island, room door |
 | 197–265 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, `doors` … These are the values the controls change and the configuration maps onto |
-| 266–294 | The corner cupboard, as the living room has it | `cupboardSettings()` (its piece, picked from `state`), `LIVING_ROOM_PLACE`, its shelves drawn round the things to store (`drawCupShelves()`) |
-| 295–381 | Bench, TV and shelves | `TV_SIZES`, `benchHeights()`, `benchWall()` |
-| 382–460 | Colours | `FINISHES`, `COLOUR_TARGETS`, `setRal()` (the materials) |
-| 461–788 | The base cupboards, the dresser, larders, island, sofa, front wall | `baseCupboards()`, `placeDresser()`, `placeIsland()`, `sofa()`, `frontWall()` |
-| 789–928 | 2D dimensions | `updateDims()` (following `setDisplay()`), the other rooms' plans, `cupboardPart()`, `doorDims()`, `cuttingList()` (the cupboard's, from its module) |
-| 929–1168 | Things to store | `STORED`, `PACKINGS`, `placeStored()`, `drawStored()` (which gives the menu's text) |
-| 1169–1300 | The bedroom's copy, the back wall's pieces, the option and its bench | `copyCupboardToBedroom()`, `BACK_WALL_PIECES`, `withoutBench()`, `buildOption()`, `drawBench()` |
-| 1301–1451 | **The configuration** | `SLIDER_RANGES`, `SCHEMA` (with the other rooms' entries from their modules), `configurationNow()`, `readConfiguration()`; each piece's box (`pieceBoxes()`) |
-| 1452–1560 | **Building** | `settle()` (what's worked out first), **`build(i)`**, `turnDoors()` (the cupboard's doors stopping at the walls), `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
-| 1561–1582 | `startAgain()` and what the page reads | The settings as the page starts, put back before a configuration's read |
+| 266–286 | The corner cupboard, as the living room has it | `cupboardSettings()` (its piece, picked from `state`), `LIVING_ROOM_PLACE`, `storedThings()` (for its shelves to be cut round) |
+| 287–780 | Bench, TV and shelves; colours; the base cupboards, dresser, larders, island, sofa, front wall | `benchWall()`, `setRal()`, `baseCupboards()`, `placeDresser()`, `placeIsland()`, `sofa()`, `frontWall()` |
+| 781–918 | 2D dimensions | `updateDims()` (following `setDisplay()`), the other rooms' plans, `cupboardPart()`, `doorDims()`, `cuttingList()` (the instance's, for the page) |
+| 919–1157 | Things to store | `STORED`, `PACKINGS`, `placeStored()`, `drawStored()` (which gives the menu's text) |
+| 1158–1288 | The cupboard, the bedroom's copy, the back wall's pieces, the option and its bench | `cupboard`, `livingGroup`, `copyCupboardToBedroom()`, `BACK_WALL_PIECES`, `withoutBench()`, `buildOption()` (`makeCupboard()`), `drawBench()` |
+| 1289–1439 | **The configuration** | `SLIDER_RANGES`, `SCHEMA` (with the other rooms' entries from their modules), `configurationNow()`, `readConfiguration()`; each piece's box (`pieceBoxes()`) |
+| 1440–1545 | **Building** | `settle()` (what's worked out first), **`build(i)`**, `turnDoors()` (the cupboard's through its `turnDoors()`), `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
+| 1546–1568 | `startAgain()` and what the page reads | The settings as the page starts, put back before a configuration's read |
 
-### corner_cupboard.js (767 lines): the corner cupboard
+### corner_cupboard.js (805 lines): the corner cupboard
 
 Its options and everything about it, reading neither `state` nor a room's
-constants: each builder is given the cupboard's **settings** (its piece of
-the configuration), its **place** (the room's width, depth, ceiling and
-door) and its **materials** (step 6d of `REFACTOR_PLAN.md`).
+constants: `makeCupboard()` is given the cupboard's **settings** (its piece
+of the configuration), its **place** (the room's width, depth, ceiling and
+door) and its **materials**, and gives an instance (step 6d of
+`REFACTOR_PLAN.md`).
 
 | Lines | Section | Notes |
 |---|---|---|
-| 1–72 | What it's given, materials, sizes | `CUPBOARD_MATERIALS`, `CUPBOARD_SETTINGS`, `DOOR_GAP`, `HANDLE_BOTTOM`, `DIAGONAL_RUN`, `board()` (a named board, for the cutting list) |
-| 73–164 | Shelves | `cupShelf()` records them as the boards go up; `drawShelves()` draws them, cut back over things stored under them; `shelfCutText()` |
-| 165–437 | The options' parts | `fullHeightL()`, `diagonal()`, `diagonalCarcass()`, `wardCarcass()`, `wardDoors()`, `shelvingTower()`, `cornerCupboard()`, `sideBookshelf()`, `cornerTooShallow()` |
-| 438–570 | **`OPTIONS`** and **`buildCupboard()`** | Each option's `name`, `clearFrom(s)`, `benchFrom(s)`, `summary(s, place, around)` and `build(job, group)`; `optionAt()`; `buildCupboard(settings, place, materials)` gives `{ group, tall, second, shelves }` |
-| 571–636 | The inside and the doors | `insideSpaces()` (for the things to store), `opensTo()` (a door stopping at its room's walls) |
-| 637–718 | Dimensions | `partOfCupboard()`, `cupboardDims()`, `doorDims()` |
-| 719–767 | **The cutting list** | `CUT_RULE`, `cuttingList()` (read from the named boards), `cuttingRows()` |
+| 1–81 | What it's given, materials, sizes | `CUPBOARD_MATERIALS`, `CUPBOARD_SETTINGS`, `DOOR_GAP`, `HANDLE_BOTTOM`, `DIAGONAL_RUN`, `board()` and `ofKind()` (a named board marked with its kind, for the cutting list) |
+| 82–173 | Shelves | `cupShelf()` records them as the boards go up; `drawShelves()` draws them, cut back over things stored under them; `shelfCutText()` |
+| 174–446 | The options' parts | `fullHeightL()`, `diagonal()`, `diagonalCarcass()`, `wardCarcass()`, `wardDoors()`, `shelvingTower()`, `cornerCupboard()`, `sideBookshelf()`, `cornerTooShallow()` |
+| 447–609 | **`OPTIONS`** and **`makeCupboard()`** | Each option's `name`, `clearFrom(s)`, `benchFrom(s)`, `summary(s, place, around)` and `build(job, group)`; `optionAt()`; `makeCupboard(settings, place, materials)` gives `{ group, doors, shelves, drawShelves(), shelfCutText(), turnDoors(), cuttingList(), cuttingRows(), partOf(), dims(), doorDims() }` |
+| 610–676 | The inside and the doors | `insideSpaces()` (for the things to store), `opensTo()` (a door stopping at its room's walls) |
+| 677–757 | Dimensions | `partOfCupboard()`, `cupboardDims()`, `doorDims()` |
+| 758–805 | **The cutting list** | `CUT_RULE`, `cuttingList()` (each board by its `userData.kind`), `cuttingRows()` |
 
 ### living_room.js (1,159 lines): the page
 
@@ -479,7 +479,7 @@ through `changeSettings()`; see below.
 It's the single place where settings become 3D objects, in named steps:
 
 1. `buildOption()` removes the old option's `THREE.Group` from the scene,
-   creates a new group and adds the cupboard `buildCupboard()` builds
+   creates a new group and adds the cupboard `makeCupboard()` makes
    (`corner_cupboard.js`), from the cupboard's settings (`cupboardSettings()`),
    the living room as its place and its materials. Each option's
    `build(job, group)` reads the sizes it needs from `job.s`
