@@ -85,11 +85,30 @@ function writeValue(entry, value) {
   }
 }
 
+// One setting, by its entry: its value in `settings` as the configuration
+// writes it, and a configuration's value read into `settings`, if it passes
+// its check (true if it did)
+export const configurationValue = (entry, settings) => writeValue(entry, valueAt(settings, entry.state));
+export function readEntry(entry, value, settings) {
+  const read = readValue(entry, value, valueAt(settings, entry.state), settings);
+  if (read === undefined) return false;
+  setValueAt(settings, entry.state, read);
+  return true;
+}
+// The configuration's word for one of the page's values, as a control that
+// holds the page's (an option's index, `above`'s 0 to 4) gives it to set()
+export const wordFor = (entry, pageValue) => writeValue(entry, pageValue);
+
+// A schema's entry by its path in the configuration, and by its setting's
+// place in the page's own settings (as the rooms' controls name them)
+export const entryAt = (schema, path) => schema.find(entry => entry.path === path);
+export const entryOfSetting = (schema, setting) => schema.find(entry => entry.state === setting);
+
 // The configuration of `settings`: every entry's value, in the schema's
 // order, after `head` (as its version)
 export function writeConfiguration(schema, settings, head = {}) {
   const configuration = structuredClone(head);
-  for (const entry of schema) setValueAt(configuration, entry.path, writeValue(entry, valueAt(settings, entry.state)));
+  for (const entry of schema) setValueAt(configuration, entry.path, configurationValue(entry, settings));
   return configuration;
 }
 // A configuration read into `settings`, entry by entry, in the schema's
@@ -97,14 +116,11 @@ export function writeConfiguration(schema, settings, head = {}) {
 export function readConfiguration(schema, configuration, settings) {
   for (const entry of schema) {
     const value = valueAt(configuration, entry.path);
-    if (value === undefined) continue;
-    const was = valueAt(settings, entry.state);
-    const read = readValue(entry, value, was, settings);
-    if (read !== undefined) setValueAt(settings, entry.state, read);
+    if (value !== undefined) readEntry(entry, value, settings);
   }
 }
 // Each entry with its default: its value in `settings` as the page starts
-export const withDefaults = (schema, settings) => schema.map(entry => ({ ...entry, default: structuredClone(writeValue(entry, valueAt(settings, entry.state))) }));
+export const withDefaults = (schema, settings) => schema.map(entry => ({ ...entry, default: structuredClone(configurationValue(entry, settings)) }));
 // The configuration of every default, after `head`
 export function defaultConfiguration(schema, head = {}) {
   const configuration = structuredClone(head);
