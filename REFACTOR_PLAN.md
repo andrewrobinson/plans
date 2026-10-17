@@ -83,10 +83,16 @@ its doors 2439. 6d is done.
   the door) could be named, as `HANDLE_BOTTOM` and `HANDLE_TOP` are.
 - **The bedroom cupboard's own design**: its own piece in the
   configuration (`pieces.bedroomCupboard.design`, in place of
-  `bedroomCupboardSettings()`), its own Options list and colours (in place
-  of `copyColours()`), and, with the door angles in the view
-  (`ui_paradigm_analysis.md`, decision C), its own door angles. Then
-  engineering drawings from each cupboard's snapshot.
+  `bedroomCupboardSettings()`), its own colours (in place of
+  `copyColours()`), and, with the door angles in the view
+  (`ui_paradigm_analysis.md`, decision C), its own door angles. Decided
+  17 Oct 2026: the two cupboards can have completely separate Options
+  selected (and sizes and colours), and the bedroom's has **its own menu**:
+  a second Options dropdown with its sliders in the bedroom's menu, always
+  there whatever room's in view (not the living room's menu switching
+  with the room). Best built straight after `set(path, value)`, so both
+  menus write their cupboard's design by path. Then engineering drawings
+  from each cupboard's snapshot.
 - **`PLAN.md`'s "Designs"** (a cupboard design as data, a printable spec
   for the maker) starts from 6d's settings record and instance: a design
   becomes a cupboard piece's configuration. **"Other parts in the cutting
