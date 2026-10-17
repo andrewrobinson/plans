@@ -85,8 +85,8 @@ function frameCupboard() {
 
 const cutList = document.getElementById('cutList'), cutToggle = document.getElementById('cutToggle');
 function showCuttingList() {
-  const option = OPTIONS[state.option];
-  if (state.option === CURRENT) {
+  const option = OPTIONS[state.cornerCupboard.option];
+  if (state.cornerCupboard.option === CURRENT) {
     cutList.innerHTML = '<b>No cutting list</b>: no cupboard in this option.';
     return;
   }
@@ -100,7 +100,7 @@ function showCuttingList() {
       return `<div class="cutRow"><span>${n} ×</span><span>${l} × ${w}</span><span>${what}</span></div>`;
     }).join('');
   }).join('');
-  cutList.innerHTML = `<div class="cutHead">${option.name}: boards ${state.BOARD} thick, length × width in mm</div>` +
+  cutList.innerHTML = `<div class="cutHead">${option.name}: boards ${state.cornerCupboard.BOARD} thick, length × width in mm</div>` +
     `<div class="cutRule">${CUT_RULE}${CUT_EXCEPTIONS[option.no] ? ` ${CUT_EXCEPTIONS[option.no]}` : ''}</div>${rows}` +
     `<div class="cutTotal">${boards} boards, ${(area / 1e6).toFixed(2)} m² in all</div>`;
 }
@@ -293,7 +293,7 @@ currentSelect.addEventListener('change', () => chooseOption(Number(currentSelect
 // Choosing an option (not a link to one): with no left-wall cupboard, an
 // option with a default for it gets one
 function chooseOption(i) {
-  changeSettings(s => { if (s.T === 0 && OPTIONS[i].defaultLeft) s.T = OPTIONS[i].defaultLeft; }, { option: i });
+  changeSettings(s => { if (s.cornerCupboard.T === 0 && OPTIONS[i].defaultLeft) s.cornerCupboard.T = OPTIONS[i].defaultLeft; }, { option: i });
 }
 
 
@@ -301,7 +301,7 @@ function chooseOption(i) {
 // and everything drawn round it follow
 function show(i) {
   const { option, same, aboveText } = build(i);
-  showInMenus(option, state.option, aboveText);
+  showInMenus(option, state.cornerCupboard.option, aboveText);
   if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
   redrawAround();
 }
@@ -309,7 +309,7 @@ function show(i) {
 // The menus for option i: the option list, the description, and only the
 // blocks of controls that apply to it
 function showInMenus(option, i, aboveText) {
-  const { T, above } = state;
+  const { above } = state, { T } = state.cornerCupboard;
   [...currentSelect.options].forEach((o, j) => { o.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft); });
   currentSelect.value = String(i);
   document.getElementById('summary').innerHTML = describe(option, aboveText);
@@ -320,7 +320,7 @@ function showInMenus(option, i, aboveText) {
   shown('wardBlock', no === 9);
   shown('cornerBlock', no === 10 || no === 11);
   shown('sideShelfBlock', no === 10);                           // option 11's doors open where it would stand
-  shown('sideShelfDetails', state.SIDE_SHELF);
+  shown('sideShelfDetails', state.cornerCupboard.SIDE_SHELF);
   shown('front', !option.front);                                // options 10 and 11 have their own depth (cornerD)
   shown('depthBlock', !option.fixedWidth);
   shown('secondBlock', option.second);
@@ -392,7 +392,7 @@ window.addEventListener('keydown', e => {
 // (syncControls()), the option is built again round them (show()), and, with
 // look, the view follows anything looked at that's moved. option: the option
 // to show, when one is chosen.
-function changeSettings(edit, { option = state.option, look = false } = {}) {
+function changeSettings(edit, { option = state.cornerCupboard.option, look = false } = {}) {
   edit(state);
   syncControls();
   show(option);
@@ -404,12 +404,12 @@ function changeSettings(edit, { option = state.option, look = false } = {}) {
 const depthSlider = document.getElementById('depth');
 depthSlider.addEventListener('input', () => {
   const v = Number(depthSlider.value);
-  changeSettings(s => { s.T = v < 300 ? 0 : v; });
+  changeSettings(s => { s.cornerCupboard.T = v < 300 ? 0 : v; });
 });
 const rearSlider = document.getElementById('rear');
-rearSlider.addEventListener('input', () => changeSettings(s => { s.R = Number(rearSlider.value); }));
+rearSlider.addEventListener('input', () => changeSettings(s => { s.cornerCupboard.R = Number(rearSlider.value); }));
 const boardSlider = document.getElementById('board');
-boardSlider.addEventListener('input', () => changeSettings(s => { s.BOARD = Number(boardSlider.value); }));
+boardSlider.addEventListener('input', () => changeSettings(s => { s.cornerCupboard.BOARD = Number(boardSlider.value); }));
 document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.BENCH = Number(r.value); })));
 // The description starts folded away; remember if the viewer opens it
 const about = document.getElementById('about');
@@ -427,13 +427,13 @@ for (const sec of document.querySelectorAll('#panel details.sec[id^=sec]')) {
 
 for (const [id, key] of [['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['legD', 'LEG_D'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']]) {
   const slider = document.getElementById(id);
-  slider.addEventListener('input', () => changeSettings(s => { s[key] = Number(slider.value); }));
+  slider.addEventListener('input', () => changeSettings(s => { s.cornerCupboard[key] = Number(slider.value); }));
 }
 // Option 10's side bookshelf: drawn, or not
 const sideShelfSwitch = document.getElementById('sideShelfOn');
-sideShelfSwitch.addEventListener('change', () => changeSettings(s => { s.SIDE_SHELF = sideShelfSwitch.checked; }));
+sideShelfSwitch.addEventListener('change', () => changeSettings(s => { s.cornerCupboard.SIDE_SHELF = sideShelfSwitch.checked; }));
 const legSlider = document.getElementById('leg');
-legSlider.addEventListener('input', () => changeSettings(s => { s.LEG = Number(legSlider.value); }));
+legSlider.addEventListener('input', () => changeSettings(s => { s.cornerCupboard.LEG = Number(legSlider.value); }));
 // The cupboard and dresser colours: named colours to compare, or "Other
 // colours…", which shows a second dropdown of popular cupboard colours and
 // every RAL colour by family. ◀ and ▶ step between the named ones.
@@ -516,7 +516,7 @@ shelfSelect.addEventListener('change', () => changeSettings(s => { s.shelfWood =
 // read from the model's own materials so it follows the choices above. Parts
 // whose materials are local to their drawing code are listed by value.
 function updatePalette() {
-  const { option, shelfWood, above } = state;
+  const { shelfWood, above } = state, { option } = state.cornerCupboard;
   const current = option === OPTIONS.length - 1;                // the room as it is, no cupboards
   const hex = m => `#${m.color.getHexString().toUpperCase()}`;
   const rows = [
@@ -699,9 +699,9 @@ function showBookshelfSizes() {
 // ceiling (none is fine)
 const shelfInputs = { back: document.getElementById('shelvesBack'), left: document.getElementById('shelvesLeft') };
 function showShelves() {
-  for (const k of ['back', 'left']) shelfInputs[k].value = state.L_SHELVES[k].join(', ');
+  for (const k of ['back', 'left']) shelfInputs[k].value = state.cornerCupboard.L_SHELVES[k].join(', ');
 }
-for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => changeSettings(s => { s.L_SHELVES[k] = readShelves(shelfInputs[k].value); }));
+for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => changeSettings(s => { s.cornerCupboard.L_SHELVES[k] = readShelves(shelfInputs[k].value); }));
 // The island: where it is, or against the front wall
 document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.island.at = r.value; }, { look: true })));
 // Out there: the island's middle, and how far it's turned
@@ -739,7 +739,7 @@ for (const [key, id] of LARDER_SLIDERS) {
 }
 tvSlider.addEventListener('input', () => changeSettings(s => { s.tv = TV_SIZES[Number(tvSlider.value)][0]; }));
 document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.above = Number(r.value); })));
-document.querySelectorAll('input[name=front]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.F = Number(r.value); })));
+document.querySelectorAll('input[name=front]').forEach(r => r.addEventListener('change', () => changeSettings(s => { s.cornerCupboard.F = Number(r.value); })));
 
 let xray = false;
 const xrayButton = document.getElementById('xray');
@@ -812,12 +812,12 @@ const builtInViews = {
 // Returns the middle of the door opening (or for an L, its inside corner)
 // and the way out of it.
 function packingSpot() {
-  const { T, R, F, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = state;
+  const { T, R, F, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = state.cornerCupboard;
   const mid = (x, y, nx, ny) => ({ x, y, nx, ny });
   // An L (back-wall leg Dl deep, left-wall leg T deep): standing diagonally
   // in front of its inside corner, looking into it, to see into both legs
   const lCorner = Dl => mid(T, Dl, Math.SQRT1_2, Math.SQRT1_2);
-  switch (OPTIONS[state.option].no) {
+  switch (OPTIONS[state.cornerCupboard.option].no) {
     case 7:                                                      // an L: in front of its inside corner; else the back-wall leg's door
       return T ? lCorner(LEG_D) : mid(T + LEG / 2, LEG_D, 0, 1);
     case 8: {                                                    // the diagonal doors
@@ -1023,8 +1023,8 @@ drawers.setMenu(null);
 resetButton(document.getElementById('reset'));
 // Share: the link is always to the published page, so it works for others
 // even when this copy is on a local server
-shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => OPTIONS[state.option].name);
-screenshotButton(document.getElementById('screenshot'), renderer.domElement, draw, () => OPTIONS[state.option].name);
+shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => OPTIONS[state.cornerCupboard.option].name);
+screenshotButton(document.getElementById('screenshot'), renderer.domElement, draw, () => OPTIONS[state.cornerCupboard.option].name);
 resize();
 
 workOffline('sw.js');
@@ -1062,7 +1062,7 @@ const syncGarage = garageControls(document.getElementById('garageBlock'), edits 
 
 function syncControls() {
   settle();                                                     // the TV's size, the colours and the dresser's place, worked out
-  const { T, R, F, BOARD, BENCH, above, shelfDepth, tv, frontPiece, island } = state;
+  const { BENCH, above, shelfDepth, tv, frontPiece, island } = state, { T, R, F, BOARD } = state.cornerCupboard;
   const slide = (id, value, text = value) => {
     document.getElementById(id).value = String(value);
     document.getElementById(`${id}Value`).textContent = text;
@@ -1071,8 +1071,8 @@ function syncControls() {
   slide('depth', T || 290, T || 'none');
   slide('rear', R);
   slide('board', BOARD);
-  for (const [id, key] of [['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']]) slide(id, state[key]);
-  sideShelfSwitch.checked = state.SIDE_SHELF;
+  for (const [id, key] of [['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'], ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']]) slide(id, state.cornerCupboard[key]);
+  sideShelfSwitch.checked = state.cornerCupboard.SIDE_SHELF;
   check('front', F);
   benchSwitch.checked = benchDrawn();
   benchSwitch.disabled = onBackWall().length > 0;
@@ -1119,7 +1119,7 @@ function loadConfiguration(configuration) {
   startAgain();
   readConfiguration(configuration);
   syncControls();
-  show(state.option);
+  show(state.cornerCupboard.option);
   viewKit.refresh();
 }
 
@@ -1147,7 +1147,7 @@ const [startingConfiguration, startingView] = await Promise.all([Config.unpack(c
 if (startingConfiguration) readConfiguration(startingConfiguration);
 addressRead = true;
 syncControls();
-show(state.option);
+show(state.cornerCupboard.option);
 // The view: the address's, else the last chosen here. After show(), as
 // some views are worked out from the option; the switches for what's shown
 // first, as Cupboard only frames the view

@@ -19,7 +19,7 @@ import { MM, material, box, slab, part, hinge, skewHinge, RAL, oakBoards, makeCa
   dimLabel, chain } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import * as Cupboard from './corner_cupboard.js';
-import { CUPBOARD_MATERIALS, CUPBOARD_SETTINGS, makeCupboard, makeMaterials, seeThrough, OPTIONS, optionAt, CURRENT, DOOR_GAP, PLINTH, baseDoorCount,
+import { CUPBOARD_MATERIALS, makeCupboard, makeMaterials, seeThrough, OPTIONS, optionAt, CURRENT, DOOR_GAP, PLINTH, baseDoorCount,
   spanOf, CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, sizesInOrder, diagonal, cornerTooShallow } from './corner_cupboard.js';
 import { DRESSER_MODELS } from './dressers.js';
 import { LARDER_MODELS } from './larders.js';
@@ -201,36 +201,42 @@ box({ from: [0, 600, 1000], to: [60, 720, 1020] }, handleMat, roomHinge, false);
 
 // ---------------------------------------------------------------------------
 // The settings: everything the menus set and the address saves, in one
-// place. The cupboards' sizes keep the short names the drawing code and
+// place. The cupboard's sizes keep the short names the drawing code and
 // room_dimensions.md use; a function that draws reads the ones it needs at
-// its top, as `const { T, R, BOARD } = state;`. What's worked out from the
+// its top, as
+// `const { T, R, BOARD } = state.cornerCupboard;`. What's worked out from the
 // settings isn't kept here (the heights above the bench, the TV's width and
 // height, where the dresser stands), and nor is the view (kit/view_kit.js).
 // ---------------------------------------------------------------------------
 const state = {
-  option: 0,                       // the option on show, its index in OPTIONS (not its number, as the list starts at 7): option 10 to start, set below OPTIONS
-  // The left-wall cupboard's depth from the wall: 0 (none), or 300 to 800 in
-  // 10s. Option 8 needs it, so it's unavailable at 0. Everything
-  // along the back wall starts from it. 600 to start, as option 7 has when
-  // chosen.
-  T: 600,
-  R: 330,                          // the rear-wall cupboards' and bench's depth from the back wall: 300 to 800
-  F: 1200,                         // the left-wall cupboard's front: 1200, or 1329 right up to the door frame. Its inside leg along the left wall is F - R
-  // The thickness of the boards (MDF or chipboard) every cupboard is built
-  // from, 12 to 25: the same for all of them. Cupboards' outside sizes stay
-  // as set, so thicker boards take room from the inside.
-  BOARD: 18,
-  LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200. Its door is LEG - BOARD - 2 * DOOR_GAP wide. Option 8 keeps 700
-  LEG_D: 600,                      // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench, which stays R deep
-  L_SHELVES: { back: [600, 1200, 1800], left: [600, 1200, 1800] },   // ...and its shelf tops in the back-wall leg (with the inside corner) and the left-wall leg
-  WARD: 900,                       // option 9's full-height double-door cupboard on the back wall: 600 to 1400 wide
-  WARD_D: 600,                     // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench and tower, which stay R deep
-  TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)
-  CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200. Option 10's doors are (CORNER_W - BOARD - 3 * DOOR_GAP) / 2 wide each
-  CORNER_D: 650,                   // ...and out along the left wall, in place of F: 0 to 1329 (the door frame). Too shallow (cornerTooShallow()), it isn't built
-  SIDE_SHELF: false,               // option 10's full-height side bookshelf, between the corner cupboard and the TV: drawn or not
-  SIDE_W: 400,                     // ...its width along the back wall, 200 to 800, the cupboard's side included (it shares it)
-  SIDE_D: 330,                     // ...and its depth from the back wall, 150 to 800
+  // The living room's corner cupboard: its piece of the configuration
+  // (pieces.cornerCupboard.design), as corner_cupboard.js's
+  // CUPBOARD_SETTINGS, which cupboardSettings() gives makeCupboard()
+  cornerCupboard: {
+    option: 0,                       // the option on show, its index in OPTIONS (not its number, as the list starts at 7): option 10 to start, set below OPTIONS
+    // The left-wall cupboard's depth from the wall: 0 (none), or 300 to 800 in
+    // 10s. Option 8 needs it, so it's unavailable at 0. Everything
+    // along the back wall starts from it. 600 to start, as option 7 has when
+    // chosen.
+    T: 600,
+    R: 330,                          // the rear-wall cupboards' and bench's depth from the back wall: 300 to 800
+    F: 1200,                         // the left-wall cupboard's front: 1200, or 1329 right up to the door frame. Its inside leg along the left wall is F - R
+    // The thickness of the boards (MDF or chipboard) every cupboard is built
+    // from, 12 to 25: the same for all of them. Cupboards' outside sizes stay
+    // as set, so thicker boards take room from the inside.
+    BOARD: 18,
+    LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200. Its door is LEG - BOARD - 2 * DOOR_GAP wide. Option 8 keeps 700
+    LEG_D: 600,                      // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench, which stays R deep
+    L_SHELVES: { back: [600, 1200, 1800], left: [600, 1200, 1800] },   // ...and its shelf tops in the back-wall leg (with the inside corner) and the left-wall leg
+    WARD: 900,                       // option 9's full-height double-door cupboard on the back wall: 600 to 1400 wide
+    WARD_D: 600,                     // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench and tower, which stay R deep
+    TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)
+    CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200. Option 10's doors are (CORNER_W - BOARD - 3 * DOOR_GAP) / 2 wide each
+    CORNER_D: 650,                   // ...and out along the left wall, in place of F: 0 to 1329 (the door frame). Too shallow (cornerTooShallow()), it isn't built
+    SIDE_SHELF: false,               // option 10's full-height side bookshelf, between the corner cupboard and the TV: drawn or not
+    SIDE_W: 400,                     // ...its width along the back wall, 200 to 800, the cupboard's side included (it shares it)
+    SIDE_D: 330,                     // ...and its depth from the back wall, 150 to 800
+  },
   benchOn: true,                   // the bench drawn, with what's above it; off, the back wall's bare
   bookshelfOn: false,              // the bedroom's bookcase on the back wall in place of the bench (and what's above it), which is then off whatever benchOn says
   bookshelfMove: null,             // ...and moved round the room from there: { x, y, turn } (see BACK_WALL_PIECES), or null where it starts
@@ -270,12 +276,14 @@ const state = {
 
 // ---------------------------------------------------------------------------
 // The corner cupboard: corner_cupboard.js's makeCupboard() makes it from its
-// settings (its piece of the configuration, picked from state), the living
+// settings (its piece of the configuration, state.cornerCupboard), the living
 // room as its place, and its materials; buildOption() keeps it in
 // `cupboard`. Its shelves are drawn round the things to store (from
 // drawStored()).
 // ---------------------------------------------------------------------------
-const cupboardSettings = () => Object.fromEntries(CUPBOARD_SETTINGS.map(key => [key, state[key]]));
+// A corner cupboard's settings, by its piece's name in state: a copy, so a
+// cupboard built from them isn't changed by the menus till it's built again
+const cupboardSettings = (piece = 'cornerCupboard') => ({ ...state[piece] });
 // The living room, as the cupboard stands in it: its back-left corner,
 // and the room door it can meet (760 x 44, hinged at y 1400 on the left wall)
 const LIVING_ROOM_PLACE = {
@@ -346,7 +354,7 @@ function shelves(x0, x1, g, tops = SHELF_TOPS) {
 
 let tvAt = null;                   // the TV's middle, room [x, y, height], or where it would be
 function benchWall(x0, g) {
-  const { R, above, shelfDepth } = state;
+  const { above, shelfDepth } = state, { R } = state.cornerCupboard;
   const span = ROOM_WIDTH - x0;
   tvAt = [(x0 + ROOM_WIDTH) / 2, 0, TV_BOTTOM + TV_H / 2];
   if (above === 0 || span <= 0) return '';                         // nothing, or no bench (the current room)
@@ -480,7 +488,7 @@ const TOP_T = 30;                                               // the bench top
 // Base cupboards along the bench, x0 to W: a recessed plinth, doors about 450
 // wide hinged in pairs, and an oak top at BENCH. Returns how many doors.
 function baseCupboards(x0, g) {
-  const { R, BOARD, BENCH } = state;
+  const { BENCH } = state, { R, BOARD } = state.cornerCupboard;
   box({ from: [x0, 0, PLINTH], to: [ROOM_WIDTH, R - BOARD, BENCH - TOP_T] }, carcassMat, g);   // carcass behind the doors
   box({ from: [x0, 0, 0], to: [ROOM_WIDTH, R - 60, PLINTH] }, carcassMat, g);              // plinth, set back 60
   box({ from: [x0, 0, BENCH - TOP_T], to: [ROOM_WIDTH, R, BENCH] }, oakMat, g);            // top
@@ -786,7 +794,7 @@ function frontSpan() {
     const { x0, x1 } = islandSpot();
     return { x0, x1, heights: [0, KITCHEN.island.top] };
   }
-  if (state.option === CURRENT) return null;
+  if (state.cornerCupboard.option === CURRENT) return null;
   if (state.frontPiece === 'dresser') return { x0: state.dresser.x0, x1: state.dresser.x1, heights: [0, state.dresser.baseH, state.dresser.h] };
   if (state.frontPiece === 'bookshelf') {
     const { w, h } = state.otherRoom.bookcase;
@@ -796,7 +804,7 @@ function frontSpan() {
   if (state.frontPiece !== 'larder' || !L) return null;
   return { x0: larderFrontX0(L), x1: larderFrontX0(L) + L.w, heights: [0, larderHeight(L)] };
 }
-state.option = optionAt(10);
+state.cornerCupboard.option = optionAt(10);
 
 
 // ---------------------------------------------------------------------------
@@ -845,8 +853,8 @@ function updateDims() {
   if (!flat || !showDims || !flatView) return;
   dims = new THREE.Group();
   world.add(dims);
-  const { T, R, F, BENCH, above, shelfDepth } = state;
-  const option = OPTIONS[state.option], settings = cupboardSettings();
+  const { BENCH, above, shelfDepth } = state, { T, R, F } = state.cornerCupboard;
+  const option = OPTIONS[state.cornerCupboard.option], settings = cupboardSettings();
   const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks(settings) : []), option.benchFrom(settings), option.clearFrom(settings), ROOM_WIDTH];
   const alongLeft = [0, R, ...(option.front ? [option.front(settings)] : T || option.fixedWidth ? [F] : []), DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, DOOR_HINGE_AT + ROOM_DOOR, FRAME_END];
   if (flatView === 'plan' && flatRoom === 'bedroom') {
@@ -1015,7 +1023,7 @@ function insideText() {
     const [x0, x1] = spanOf(poly, 0), [y0, y1] = spanOf(poly, 1);
     return `${Math.round(x1 - x0)} × ${Math.round(y1 - y0)}${poly.length > 4 ? ' at most' : ''}`;
   });
-  return ` Inside, within its ${state.BOARD} boards (rear panels against the walls included): ${sizes.join(spaces.length > 1 ? ' along the back wall and ' : '')}` +
+  return ` Inside, within its ${state.cornerCupboard.BOARD} boards (rear panels against the walls included): ${sizes.join(spaces.length > 1 ? ' along the back wall and ' : '')}` +
     `${spaces.length > 1 ? ' along the left wall' : ''}, ${spaces[0].h} high.`;
 }
 function inPoly([px, py], poly) {
@@ -1167,7 +1175,7 @@ function drawStored() {
   const where = !spaces.length
     ? (placed === 1 ? ' This option has no corner cupboard, so they stay by the middle window.' : '')
     : placed === 1 || inCupboard
-      ? ` In option ${OPTIONS[state.option].no}'s corner cupboard: ${fits.filter(f => f === 'fits').length} of ${STORED.length} fit` +
+      ? ` In option ${OPTIONS[state.cornerCupboard.option].no}'s corner cupboard: ${fits.filter(f => f === 'fits').length} of ${STORED.length} fit` +
         (misfits.length ? `; not ${misfits.join(', ')}.` : '.') + (cupboard.shelfCutText(storedThings()) || ' No shelves need cutting back.')
       : '';
   return `Standing on the floor they take ${area} (${((x1 - x0) * (y1 - y0) / 1e6).toFixed(2)} m², for ` +
@@ -1229,7 +1237,7 @@ const FACING = { 0: 'the front wall', 90: 'the left wall', 180: 'the back wall',
 const onBackWall = () => BACK_WALL_KEYS.filter(key => state[`${key}On`]);
 // The bench is drawn when it's on and nothing stands in its place
 const benchDrawn = () => state.benchOn && onBackWall().length === 0;
-const spotOf = key => state[`${key}Move`] ?? BACK_WALL_PIECES[key].home(OPTIONS[state.option].clearFrom(cupboardSettings()), BACK_WALL_PIECES[key].sizes().w);
+const spotOf = key => state[`${key}Move`] ?? BACK_WALL_PIECES[key].home(OPTIONS[state.cornerCupboard.option].clearFrom(cupboardSettings()), BACK_WALL_PIECES[key].sizes().w);
 // Draw one, clear of the bench wall from x0. Returns a sentence for the summary.
 function pieceOnBenchWall(key, x0, g) {
   const { sizes, draw, name, homeText } = BACK_WALL_PIECES[key], { w, d, h } = sizes();
@@ -1275,7 +1283,7 @@ function buildOption() {
 // starts to the right-hand wall, R deep and BENCH high: base cupboards for
 // option 9, a bench top for the rest
 function drawBench(option, group) {
-  const { R, BENCH } = state, from = option.benchFrom(cupboardSettings());
+  const { BENCH } = state, { R } = state.cornerCupboard, from = option.benchFrom(cupboardSettings());
   const bench = new THREE.Group();
   group.add(bench);
   if (option.no === 9) baseCupboards(from, bench);
@@ -1301,9 +1309,10 @@ const SHELF_WOODS = [
   { name: 'Walnut', hex: '#5C3D26' },
 ];
 
-// Shelf tops from 100 up to under the top board, each once, in order: as
-// typed, any numbers in the text, and from a configuration
-const shelfTopsOf = tops => [...new Set(tops.filter(v => v >= 100 && v <= CEILING_HEIGHT - 2 * state.BOARD))].sort((a, b) => a - b);
+// Shelf tops from 100 up to under the top board (of `board` thickness, the
+// living room cupboard's unless given), each once, in order: as typed, any
+// numbers in the text, and from a configuration
+const shelfTopsOf = (tops, board = state.cornerCupboard.BOARD) => [...new Set(tops.filter(v => v >= 100 && v <= CEILING_HEIGHT - 2 * board))].sort((a, b) => a - b);
 const readShelves = text => shelfTopsOf(String(text).split(/[^0-9]+/).map(Number));
 
 // ---------------------------------------------------------------------------
@@ -1334,7 +1343,6 @@ function fromSlider(path, setting, id, more) {
   const [min, max, step] = SLIDER_RANGES[id];
   return { ...Config.number(path, setting, min, max, step, more), slider: id };
 }
-const cupboardPath = key => `pieces.cornerCupboard.design.${key}`;
 const isColour = code => code === 0 || Boolean(colourOf(code));
 // A place moved to in the living room, or null where it starts
 const spotOrHome = (path, setting) => Config.other(path, setting, v => (v === null ? null : v && spotFits(v) ? { x: v.x, y: v.y, turn: v.turn } : undefined));
@@ -1349,30 +1357,40 @@ function readStoredSpots(spots, was, settings) {
     return { x, y, turned: turned === true, z: finite(z) && z >= 0 && z <= CEILING_HEIGHT ? z : 0 };
   });
 }
+// A corner cupboard's entries: its design at `design` in the configuration
+// (as 'pieces.cornerCupboard.design'), its settings at `setting` in state
+// (as 'cornerCupboard'). The option by its number (state has its place in
+// OPTIONS); the boards' thickness before option 7's shelves, checked
+// against it
+function cupboardEntries(design, setting) {
+  const at = key => `${design}.${key}`, of = key => `${setting}.${key}`;
+  return [
+    Config.other(at('option'), of('option'), no => (optionAt(no) >= 0 ? optionAt(no) : undefined), i => OPTIONS[i].no),
+    Config.number(at('T'), of('T'), 0, 800, 10, { also: t => t === 0 || t >= 300 }),   // none, or 300 to 800
+    fromSlider(at('R'), of('R'), 'rear'),
+    Config.choice(at('F'), of('F'), [1200, 1329]),
+    fromSlider(at('BOARD'), of('BOARD'), 'board'),
+    fromSlider(at('LEG'), of('LEG'), 'leg'),
+    fromSlider(at('LEG_D'), of('LEG_D'), 'legD'),
+    ...['back', 'left'].map(leg => Config.other(at(`L_SHELVES.${leg}`), of(`L_SHELVES.${leg}`),
+      (tops, was, settings) => (Array.isArray(tops) ? shelfTopsOf(tops.filter(Number.isFinite), Config.valueAt(settings, of('BOARD'))) : undefined),
+      tops => [...tops])),
+    fromSlider(at('WARD'), of('WARD'), 'ward'),
+    fromSlider(at('WARD_D'), of('WARD_D'), 'wardD'),
+    fromSlider(at('TOWER'), of('TOWER'), 'tower'),
+    fromSlider(at('CORNER_W'), of('CORNER_W'), 'cornerW'),
+    fromSlider(at('CORNER_D'), of('CORNER_D'), 'cornerD'),
+    Config.onOff(at('SIDE_SHELF'), of('SIDE_SHELF')),
+    fromSlider(at('SIDE_W'), of('SIDE_W'), 'sideW'),
+    fromSlider(at('SIDE_D'), of('SIDE_D'), 'sideD'),
+  ];
+}
 const LIVING_ROOM_SCHEMA = [
   ...Object.keys(state.doors).map(name => fromSlider(`doors.${name}`, `doors.${name}`, `${name}Door`)),   // the sliders roomDoor, tallDoor and so on
   ...['floor', 'cupboard', 'wall', 'woodwork', 'dresser', 'carpet'].map(key => Config.colour(`colours.${key}`, `colours.${key}`, isColour)),
   Config.number('colours.shelves', 'shelfWood', 0, SHELF_WOODS.length - 1, 1, { onSteps: true }),
   Config.choice('livingRoom.frontWall', 'frontPiece', FRONT_PIECES),
-  // The corner cupboard, by option number (state has its place in OPTIONS);
-  // the boards' thickness before option 7's shelves, checked against it
-  Config.other(cupboardPath('option'), 'option', no => (optionAt(no) >= 0 ? optionAt(no) : undefined), i => OPTIONS[i].no),
-  Config.number(cupboardPath('T'), 'T', 0, 800, 10, { also: t => t === 0 || t >= 300 }),   // none, or 300 to 800
-  fromSlider(cupboardPath('R'), 'R', 'rear'),
-  Config.choice(cupboardPath('F'), 'F', [1200, 1329]),
-  fromSlider(cupboardPath('BOARD'), 'BOARD', 'board'),
-  fromSlider(cupboardPath('LEG'), 'LEG', 'leg'),
-  fromSlider(cupboardPath('LEG_D'), 'LEG_D', 'legD'),
-  ...['back', 'left'].map(leg => Config.other(cupboardPath(`L_SHELVES.${leg}`), `L_SHELVES.${leg}`,
-    tops => (Array.isArray(tops) ? shelfTopsOf(tops.filter(Number.isFinite)) : undefined), tops => [...tops])),
-  fromSlider(cupboardPath('WARD'), 'WARD', 'ward'),
-  fromSlider(cupboardPath('WARD_D'), 'WARD_D', 'wardD'),
-  fromSlider(cupboardPath('TOWER'), 'TOWER', 'tower'),
-  fromSlider(cupboardPath('CORNER_W'), 'CORNER_W', 'cornerW'),
-  fromSlider(cupboardPath('CORNER_D'), 'CORNER_D', 'cornerD'),
-  Config.onOff(cupboardPath('SIDE_SHELF'), 'SIDE_SHELF'),
-  fromSlider(cupboardPath('SIDE_W'), 'SIDE_W', 'sideW'),
-  fromSlider(cupboardPath('SIDE_D'), 'SIDE_D', 'sideD'),
+  ...cupboardEntries('pieces.cornerCupboard.design', 'cornerCupboard'),
   // The bench along the back wall, and what's above it
   Config.choice('pieces.bench.design.height', 'BENCH', [700, 780, 800, 900]),
   Config.onOff('pieces.bench.in.livingRoom.on', 'benchOn'),
@@ -1487,10 +1505,10 @@ function applyShelfWood() {
 // description of what's round it (describe())
 export function build(i) {
   settle();
-  if (state.T === 0 && OPTIONS[i].needsLeft) i = optionAt(7);
+  if (state.cornerCupboard.T === 0 && OPTIONS[i].needsLeft) i = optionAt(7);
   const option = OPTIONS[i];
-  const same = i === state.option && Boolean(cupboard);
-  state.option = i;
+  const same = i === state.cornerCupboard.option && Boolean(cupboard);
+  state.cornerCupboard.option = i;
   const group = buildOption();
   if (benchDrawn()) drawBench(option, group);
   else keepTvPlace(option);
@@ -1527,7 +1545,7 @@ export function turnDoors() {
 // it's off), where the things to store go, what's round it, and its source,
 // as HTML
 export function describe(option, aboveText) {
-  const summary = state.T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary;
+  const summary = state.cornerCupboard.T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary;
   return `${withoutBench(summary(cupboardSettings(), LIVING_ROOM_PLACE, { BENCH: state.BENCH }))}${insideText()}${aboveText}<div class="src">From ${option.source}</div>`;
 }
 
@@ -1539,7 +1557,7 @@ export function buildFlat(configuration, view = {}) {
   startAgain();
   readConfiguration(configuration);
   setDisplay({ flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true, ...view });
-  const { option, aboveText } = build(state.option);
+  const { option, aboveText } = build(state.cornerCupboard.option);
   drawStored();
   turnDoors();
   updateDims();
@@ -1555,7 +1573,7 @@ export function buildFlat(configuration, view = {}) {
 // Each corner cupboard's cutting list as rows: the living room's (none for
 // the current room) and the bedroom's own, while it's there
 export const cupboardRows = () => ({
-  livingRoom: state.option === CURRENT ? null : cupboard.cuttingRows(),
+  livingRoom: state.cornerCupboard.option === CURRENT ? null : cupboard.cuttingRows(),
   bedroom: bedroomCupboard ? bedroomCupboard.cuttingRows() : null,
 });
 

@@ -106,8 +106,8 @@ async function expectSnapshot(page, name) {
 // tests read the settings this way rather than from the address, so a new
 // address format leaves them alone (REFACTOR_PLAN.md, step 6a).
 const setting = (page, path) => page.evaluate(p => p.split('.').reduce((o, k) => o?.[k], window.plans.get()), path);
-// The option on show: its number, from the option list (state.option is its
-// place in OPTIONS)
+// The option on show: its number, from the option list
+// (state.cornerCupboard.option is its place in OPTIONS)
 const optionShown = page => page.locator('#current option:checked').evaluate(o => parseInt(o.textContent, 10));
 
 module.exports = { test, expect: base.expect, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot };

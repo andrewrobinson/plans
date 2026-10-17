@@ -79,22 +79,22 @@ test.describe('sliders, to each end and back', () => {
 
   test('the corner cupboard\'s sizes', async ({ page }) => {
     await OPTION(7)(page);                                       // for the left-wall depth slider
-    await endsAndBack(page, 'depth', at('T'), { text: v => (v < 300 ? 'none' : v), setting: v => (v < 300 ? 0 : v) });
-    await endsAndBack(page, 'rear', at('R'));
-    await endsAndBack(page, 'board', at('BOARD'));
+    await endsAndBack(page, 'depth', at('cornerCupboard.T'), { text: v => (v < 300 ? 'none' : v), setting: v => (v < 300 ? 0 : v) });
+    await endsAndBack(page, 'rear', at('cornerCupboard.R'));
+    await endsAndBack(page, 'board', at('cornerCupboard.BOARD'));
   });
 
   test('option 7\'s sliders', async ({ page }) => {
     await OPTION(7)(page);
-    await endsAndBack(page, 'leg', at('LEG'));
-    await endsAndBack(page, 'legD', at('LEG_D'));
+    await endsAndBack(page, 'leg', at('cornerCupboard.LEG'));
+    await endsAndBack(page, 'legD', at('cornerCupboard.LEG_D'));
   });
 
   test('option 9\'s sliders', async ({ page }) => {
     await OPTION(9)(page);
-    await endsAndBack(page, 'ward', at('WARD'));
-    await endsAndBack(page, 'wardD', at('WARD_D'));
-    await endsAndBack(page, 'tower', at('TOWER'));
+    await endsAndBack(page, 'ward', at('cornerCupboard.WARD'));
+    await endsAndBack(page, 'wardD', at('cornerCupboard.WARD_D'));
+    await endsAndBack(page, 'tower', at('cornerCupboard.TOWER'));
   });
 
   // Their depth replaces the left-wall cupboard front's radio buttons. At its
@@ -103,8 +103,8 @@ test.describe('sliders, to each end and back', () => {
     for (const n of [10, 11]) {
       await OPTION(n)(page);
       await expect(page.locator('#front')).toBeHidden();
-      await endsAndBack(page, 'cornerW', at('CORNER_W'));
-      await endsAndBack(page, 'cornerD', at('CORNER_D'));
+      await endsAndBack(page, 'cornerW', at('cornerCupboard.CORNER_W'));
+      await endsAndBack(page, 'cornerD', at('cornerCupboard.CORNER_D'));
       await slide(page, 'cornerD', 0);
       await expect(page.locator('#summary')).toContainText('too shallow to build');
       await slide(page, 'cornerD', 1200);
@@ -119,12 +119,12 @@ test.describe('sliders, to each end and back', () => {
     await OPTION(10)(page);
     await expect(page.locator('#sideShelfDetails')).toBeHidden();
     await toggle(page, 'sideShelfOn', true);
-    await expect.poll(() => setting(page, 'SIDE_SHELF')).toBe(true);
+    await expect.poll(() => setting(page, 'cornerCupboard.SIDE_SHELF')).toBe(true);
     await expect(page.locator('#summary')).toContainText('Bench 2638, from x = 1200');
-    await endsAndBack(page, 'sideW', at('SIDE_W'));
-    await endsAndBack(page, 'sideD', at('SIDE_D'));
+    await endsAndBack(page, 'sideW', at('cornerCupboard.SIDE_W'));
+    await endsAndBack(page, 'sideD', at('cornerCupboard.SIDE_D'));
     await toggle(page, 'sideShelfOn', false);
-    await expect.poll(() => setting(page, 'SIDE_SHELF')).toBe(false);
+    await expect.poll(() => setting(page, 'cornerCupboard.SIDE_SHELF')).toBe(false);
     await expect(page.locator('#summary')).toContainText('Bench 3038, from x = 800');
     await OPTION(11)(page);
     await expect(page.locator('#sideShelfBlock')).toBeHidden();
@@ -193,7 +193,7 @@ test.describe('radio buttons', () => {
     await OPTION(7)(page);                                       // option 10, as the page opens, has its own depth instead
     const before = await hash(page);
     await page.check('input[name=front][value="1329"]');
-    expect(await setting(page, 'F')).toBe(1329);
+    expect(await setting(page, 'cornerCupboard.F')).toBe(1329);
     await page.check('input[name=front][value="1200"]');
     expect(await hash(page)).toBe(before);
   });
@@ -330,17 +330,17 @@ test.describe('option 7\'s shelves', () => {
     await page.locator('#shelvesBack').fill('1000 500');
     await page.locator('#shelvesBack').press('Tab');                    // the list is read once you leave the box
     await expect(page.locator('#shelvesBack')).toHaveValue('500, 1000');   // sorted, and written back tidily
-    expect(await setting(page, 'L_SHELVES.back')).toEqual([500, 1000]);
+    expect(await setting(page, 'cornerCupboard.L_SHELVES.back')).toEqual([500, 1000]);
     await page.locator('#shelvesLeft').fill('700');
     await page.locator('#shelvesLeft').press('Tab');
-    expect(await setting(page, 'L_SHELVES.left')).toEqual([700]);
+    expect(await setting(page, 'cornerCupboard.L_SHELVES.left')).toEqual([700]);
   });
 
   test('tops too low, too high or not numbers are left out', async ({ page }) => {
     await page.locator('#shelvesBack').fill('50, shelf, 2500');
     await page.locator('#shelvesBack').press('Tab');
     await expect(page.locator('#shelvesBack')).toHaveValue('');
-    expect(await setting(page, 'L_SHELVES.back')).toEqual([]);         // no shelves
+    expect(await setting(page, 'cornerCupboard.L_SHELVES.back')).toEqual([]);         // no shelves
   });
 });
 
@@ -671,7 +671,7 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   const start = await hash(page);
   const step = async (what, path, value) => expect(await setting(page, path), what).toBe(value);
   expect(await optionShown(page), 'option 10, as the page opens').toBe(10);
-  await step('...with a left-wall cupboard', 'T', 600);
+  await step('...with a left-wall cupboard', 'cornerCupboard.T', 600);
   await page.check('input[name=islandAt][value="out"]');              // the island in the corner, against the counter
   await step('the island in the corner', 'island.at', 'out');
   await expect(page.locator('#frontBlock'), 'no dresser or larder with the island there').toBeHidden();

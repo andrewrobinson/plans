@@ -127,14 +127,14 @@ test.describe('the controls', () => {
     await page.click('#cupMenu');
     await page.locator('#rear').fill('500');
     await expect(page.locator('#rearValue')).toHaveText('500');
-    expect(await setting(page, 'R')).toBe(500);
+    expect(await setting(page, 'cornerCupboard.R')).toBe(500);
   });
 
   test('the board thickness slider updates its number and the address', async ({ page }) => {
     await page.click('#cupMenu');
     await page.locator('#board').fill('22');
     await expect(page.locator('#boardValue')).toHaveText('22');
-    expect(await setting(page, 'BOARD')).toBe(22);
+    expect(await setting(page, 'cornerCupboard.BOARD')).toBe(22);
   });
 
   test('the left-wall depth slider shows "none" below 300', async ({ page }) => {
@@ -142,10 +142,10 @@ test.describe('the controls', () => {
     await pickOption(page, 7);                                   // option 10, as the page opens, has no left-wall cupboard
     await page.locator('#depth').fill('450');
     await expect(page.locator('#depthValue')).toHaveText('450');
-    expect(await setting(page, 'T')).toBe(450);
+    expect(await setting(page, 'cornerCupboard.T')).toBe(450);
     await page.locator('#depth').fill('290');
     await expect(page.locator('#depthValue')).toHaveText('none');
-    expect(await setting(page, 'T')).toBe(0);
+    expect(await setting(page, 'cornerCupboard.T')).toBe(0);
   });
 
   test('each option shows its own slider blocks', async ({ page }) => {
