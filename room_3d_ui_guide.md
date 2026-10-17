@@ -78,11 +78,11 @@ the **Bedroom options** drawer's sliders into `#otherRoomBlock` from
 `PIECES` (each piece's size and place sliders, its reset buttons, and the
 mirror's choice of wall, `WALLS`) and returns the function `syncControls()` calls to put
 them in step. Unlike the other sections, its sliders aren't in the HTML.
-The **New cupboard** switch puts a copy of the living room's corner
-cupboard in the bedroom (`NEW_CUPBOARD`, its corner): `living_room.js`'s
-`copyCupboardToBedroom()` clones the option's cupboard, bar its bench,
-whenever it, its doors or its shelves change, and hands it to
-`showNewCupboard()`.
+The **New cupboard** switch puts a corner cupboard of its own in the
+bedroom (`NEW_CUPBOARD`, its corner): `flat_model.js`'s
+`buildBedroomCupboard()` makes it with `makeCupboard()`, against the
+bedroom (`BEDROOM_PLACE`) in its own materials, from the living room's
+settings and colours for now, and hands its group to `showNewCupboard()`.
 The bedroom's walls, door and window are in `floor.js` (`OTHER_ROOM`).
 
 ### flat_model.js (1,568 lines): the model
@@ -99,11 +99,11 @@ group the page adds to its scene. The corner cupboard itself is
 | 40–59 | **`world`** and **`setDisplay()`** | What the page shows that the drawing follows: 2D or not, which view and room, Cupboard only, the Dimensions and Door sizes buttons (the hallway's hidden in the wall views) |
 | 61–196 | Materials and the fixed room's fittings | The cupboard's materials (from `CUPBOARD_MATERIALS`), the bench's; `KITCHEN`, the front wall's faces, desk, chair, island, room door |
 | 197–265 | **`state`, the settings** | One object holding every setting: `T`, `R`, `F`, `BOARD`, `BENCH`, `LEG`, …, `above`, `colours`, `sofa`, `stored`, `doors` … These are the values the controls change and the configuration maps onto |
-| 266–286 | The corner cupboard, as the living room has it | `cupboardSettings()` (its piece, picked from `state`), `LIVING_ROOM_PLACE`, `storedThings()` (for its shelves to be cut round) |
+| 266–310 | The corner cupboards, as the rooms have them | `cupboardSettings()` (its piece, picked from `state`), `LIVING_ROOM_PLACE`, `BEDROOM_PLACE` and `BEDROOM_MATERIALS`, `storedThings()` (for the living room's shelves to be cut round) |
 | 287–780 | Bench, TV and shelves; colours; the base cupboards, dresser, larders, island, sofa, front wall | `benchWall()`, `setRal()`, `baseCupboards()`, `placeDresser()`, `placeIsland()`, `sofa()`, `frontWall()` |
 | 781–918 | 2D dimensions | `updateDims()` (following `setDisplay()`), the other rooms' plans, `cupboardPart()`, `doorDims()`, `cuttingList()` (the instance's, for the page) |
 | 919–1157 | Things to store | `STORED`, `PACKINGS`, `placeStored()`, `drawStored()` (which gives the menu's text) |
-| 1158–1288 | The cupboard, the bedroom's copy, the back wall's pieces, the option and its bench | `cupboard`, `livingGroup`, `copyCupboardToBedroom()`, `BACK_WALL_PIECES`, `withoutBench()`, `buildOption()` (`makeCupboard()`), `drawBench()` |
+| 1158–1288 | The cupboards, the back wall's pieces, the option and its bench | `cupboard`, `livingGroup`, `bedroomCupboard`, `buildBedroomCupboard()`, `BACK_WALL_PIECES`, `withoutBench()`, `buildOption()` (`makeCupboard()`), `drawBench()` |
 | 1289–1439 | **The configuration** | `SLIDER_RANGES`, `SCHEMA` (with the other rooms' entries from their modules), `configurationNow()`, `readConfiguration()`; each piece's box (`pieceBoxes()`) |
 | 1440–1545 | **Building** | `settle()` (what's worked out first), **`build(i)`**, `turnDoors()` (the cupboard's through its `turnDoors()`), `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
 | 1546–1568 | `startAgain()` and what the page reads | The settings as the page starts, put back before a configuration's read |
@@ -571,7 +571,7 @@ For the tests and the browser console (REFACTOR_PLAN.md, steps 6a and
   leaves them alone.
 - `plans.snapshot()`: what the page makes of them: `configuration` (as
   `export()`), `cupboards` (the living room's corner cupboard's cutting list as rows,
-  `{ kind, length, width, shaped, count, parts }`, and the bedroom's copy's,
+  `{ kind, length, width, shaped, count, parts }`, and the bedroom's own cupboard's,
   or `null` when there isn't one), `dimensions` (the figures on show, in a
   2D view or with Cupboard only), `description` (the text under the
   option) and `boxes` (where each piece is drawn, to the mm, and whether

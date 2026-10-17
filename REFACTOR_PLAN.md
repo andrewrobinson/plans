@@ -1,9 +1,10 @@
 # Tidying the code: what's left
 
-One step is left: **6d, the corner cupboards**, the last part of step 6
-(one configuration, as JSON). It changes how the code is organised, not
-what the page does: the page must look and behave exactly as before,
-which the tests check (`tests/`), bar the bedroom cupboard's 2 mm (below).
+Step 6 (one configuration, as JSON) finished with **6d, the corner
+cupboards**, on 17 Oct 2026 (below, until it's on main and this is pruned
+again). It changed how the code is organised, not what the page does,
+which the tests check (`tests/`), bar the bedroom cupboard's 2 mm. What's
+left is "Left over, after 6d".
 
 What's done is in git history: the browser tests, one `state`, the kit,
 the rooms' files (steps 1 to 4); readable code in the style of
@@ -58,14 +59,20 @@ screenshots unchanged bar the first):
    `livingGroup`. Each board is marked with its kind (`userData.kind`), so
    the cutting list and door sizes no longer find parts by material.
 
-**Left**:
-6. **The bedroom's instance**: built from the living room's settings,
-   against the bedroom's `place`, in place of `copyCupboardToBedroom()`'s
-   clone.
+6. **The bedroom's instance** (17 Oct 2026): `buildBedroomCupboard()`
+   makes its own, against `BEDROOM_PLACE` (3682 along the chimney breast,
+   2841 out, 2445 high) in its own materials (`makeMaterials()`), its
+   shelves whole (nothing's stored in it) and its cutting list its own,
+   in place of `copyCupboardToBedroom()`'s clone. The two are to evolve
+   apart (agreed 17 Oct 2026): for now it takes the living room's settings
+   and colours through one seam each (`bedroomCupboardSettings()`,
+   `copyColours()`), and its doors follow the living room's sliders.
+   See-through became a display setting (`setDisplay({ seeThrough })`),
+   set on every cupboard's materials.
 
-**Check**: the cutting lists in the snapshots must not change, bar the
-bedroom's: its ceiling is 2445, so its copy comes out 2 mm taller than
-the living room's (2443). About half a session left.
+**Checked**: every snapshot unchanged bar the bedroom's: its ceiling is
+2445, so its boards came out 2 mm taller than the living room's (2443),
+its doors 2439. 6d is done.
 
 ## Left over, after 6d
 
@@ -74,8 +81,12 @@ the living room's (2443). About half a session left.
   after 6d in 6c).
 - **The handles' 20s and 22s** (a bar's width and how far it stands off
   the door) could be named, as `HANDLE_BOTTOM` and `HANDLE_TOP` are.
-- **The bedroom cupboard's own design** and Options list, its own colour
-  picker, and engineering drawings from each cupboard's snapshot.
+- **The bedroom cupboard's own design**: its own piece in the
+  configuration (`pieces.bedroomCupboard.design`, in place of
+  `bedroomCupboardSettings()`), its own Options list and colours (in place
+  of `copyColours()`), and, with the door angles in the view
+  (`ui_paradigm_analysis.md`, decision C), its own door angles. Then
+  engineering drawings from each cupboard's snapshot.
 - **`PLAN.md`'s "Designs"** (a cupboard design as data, a printable spec
   for the maker) starts from 6d's settings record and instance: a design
   becomes a cupboard piece's configuration. **"Other parts in the cutting

@@ -22,8 +22,8 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    Node) are done, with 6c's loose end (the cupboard's doors opening
    through the wall) fixed; 6d (the corner cupboards) is under way: the
    bench out of the options and the cupboard in `corner_cupboard.js`,
-   built from arguments, and the cupboard as an instance, done 17 Oct
-   2026; the bedroom's own instance is next.
+   built from arguments, the cupboard as an instance and the bedroom's own
+   instance, all done 17 Oct 2026, so step 6 is done.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).

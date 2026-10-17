@@ -71,9 +71,10 @@ const RECESS_CUPBOARDS = {
   mirrorInset: 60, mirrorThick: 4,
 };
 
-// The new cupboard: whatever Cupboard options and the option list build in
-// the living room's corner (the back wall and the left wall), copied into
-// the corner where the chimney breast's face meets the kitchen-side wall,
+// The new cupboard: a corner cupboard of its own (flat_model.js's
+// buildBedroomCupboard()), built as a living room cupboard is in that
+// room's corner (the back wall and the left wall), stood in the corner
+// where the chimney breast's face meets the kitchen-side wall,
 // where the pine cupboard and the bookcase meet (asked for, 16 Oct 2026).
 // Turned half round, the living room's back wall runs along the chimney
 // breast and its left wall along the kitchen-side wall: the only way into
@@ -135,7 +136,7 @@ export const OTHER_ROOM_START = {
   bookcaseOn: true,                // the bookcase there, or not (whatever's in the living room)
   cupboardOn: true,                // the pine cupboard likewise
   mirrorOn: true,                  // the mirror likewise
-  newCupboardOn: false,            // the living room's corner cupboard copied in (NEW_CUPBOARD), in place of the pine cupboard
+  newCupboardOn: false,            // a corner cupboard of its own (NEW_CUPBOARD), in place of the pine cupboard
   lowerD: RECESS_CUPBOARDS.lowerD,
   upperDrawers: false,             // the upper recess cupboard: drawers over its open shelves
   upperMirrors: false,             // ...and mirrors on its two tall doors
@@ -187,7 +188,7 @@ const SWITCHES = PIECES.flatMap(p => p.switches ?? []);
 // The configuration's entries (kit/config_kit.js): each piece's design and
 // its place in the bedroom, each number held to its slider's range, turns
 // to quarter turns. The pine cupboard is `cupboard` here, `pineCupboard`
-// there, as it goes to other rooms too; the bedroom's copy of the corner
+// there, as it goes to other rooms too; the bedroom's own corner
 // cupboard is `bedroomCupboard`
 const CONFIG_NAME = { cupboard: 'pineCupboard' };
 const pieceAt = piece => `pieces.${CONFIG_NAME[piece] ?? piece}`;
@@ -242,8 +243,8 @@ export function drawOtherRoom(s) {
   otherRoomPieces.mirror.visible = s.mirrorOn;
 }
 
-// The new cupboard: `cupboard`, a copy of the living room's, drawn in the
-// living room's mm from its corner, put in the bedroom's corner; or none
+// The new cupboard: `cupboard`, its group, drawn in its own mm from its
+// corner, put in the bedroom's corner; or none
 export function showNewCupboard(cupboard) {
   newCupboardSpot.clear();
   if (cupboard) newCupboardSpot.add(cupboard);

@@ -1553,7 +1553,7 @@ export function buildFlat(configuration, view = {}) {
   };
 }
 // Each corner cupboard's cutting list as rows: the living room's (none for
-// the current room) and the bedroom's copy, while it's there
+// the current room) and the bedroom's own, while it's there
 export const cupboardRows = () => ({
   livingRoom: state.option === CURRENT ? null : cupboard.cuttingRows(),
   bedroom: bedroomCupboard ? bedroomCupboard.cuttingRows() : null,
