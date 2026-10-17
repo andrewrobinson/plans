@@ -267,7 +267,7 @@ for (const type of ['pointerup', 'pointercancel']) {
 // ---------------------------------------------------------------------------
 // Switching options, and the controls
 // ---------------------------------------------------------------------------
-// The door sliders, by their names in state.doors. The entrance's two
+// The door sliders, by their names in the configuration's doors. The entrance's two
 // doors (floor.js's ENTRANCE) are the flat's own, into the stairs' foot,
 // and the shared lobby's outside door
 const DOOR_SLIDERS = {
@@ -278,23 +278,27 @@ const DOOR_SLIDERS = {
   flat: document.getElementById('flatDoor'),
   outside: document.getElementById('outsideDoor'),
 };
-// The doors turned to their angles in state.doors (the model's
-// turnDoors()), and their sliders put in step with them
+// The doors turned to their angles in the configuration's doors (the
+// model's turnDoors()), and their sliders put in step with them
+const doorAt = name => `doors.${name}`;
 function update() {
-  const { doors } = state;
   turnDoors();
   if (dims) updateDims();                                       // the doors' labels go with them
   applyCut();                                                   // the doors may have moved across a cut
   for (const [name, slider] of Object.entries(DOOR_SLIDERS)) {
-    slider.value = String(doors[name]);
-    document.getElementById(`${slider.id}Value`).textContent = `${doors[name]}°`;
+    const angle = get(doorAt(name));
+    slider.value = String(angle);
+    document.getElementById(`${slider.id}Value`).textContent = `${angle}°`;
   }
 }
-
-for (const [name, slider] of Object.entries(DOOR_SLIDERS)) slider.addEventListener('input', () => {
-  state.doors[name] = Number(slider.value);
+// Doors turned, { name: degrees }: set() like any setting, but nothing's
+// built again, as a door's angle changes nothing that's made (the fast path)
+function turnDoorsTo(angles) {
+  setAll(Object.entries(angles).map(([name, angle]) => [doorAt(name), angle]));
   update();
-});
+}
+
+for (const [name, slider] of Object.entries(DOOR_SLIDERS)) slider.addEventListener('input', () => turnDoorsTo({ [name]: Number(slider.value) }));
 
 // The top bar's dropdown of options, kept in step by show()
 const currentSelect = document.getElementById('current');
@@ -861,15 +865,14 @@ function packingSpot() {
   }
 }
 const PACK_BACK = 1250;             // mm out from the cupboard's door: arm's reach (750) and half a metre
+const PACKING_DOORS = 170;          // degrees: the cupboard's doors folded back, out of the way (chosen; the sliders go to 180)
 function packingView() {
   const at = packingSpot();
   if (!at) return builtInViews.corner;                                  // no corner cupboard: the corner view
   // Its doors open wide, all of them, folded back out of the way (at 90° one
   // can stand across the front of the other; an option with only one has
   // the other slider unused)
-  Object.assign(state.doors, { tall: 170, second: 170 });
-  state.doors.room = 0;                                          // the room door shut, as it can hide the cupboard
-  update();
+  turnDoorsTo({ tall: PACKING_DOORS, second: PACKING_DOORS, room: 0 });   // the room door shut, as it can hide the cupboard
   const { x, y, nx, ny } = at, m = v => v / 1000;
   return { posture: 'stand', position: [m(x + PACK_BACK * nx), 1.6, m(y + PACK_BACK * ny)], target: [m(x - 300 * nx), 0.9, m(y - 300 * ny)], hfov: 95 };
 }
@@ -950,8 +953,7 @@ const viewKit = ViewKit.create({
   computed: { packing: packingView },
   actions: {
     shutRoomDoor() {
-      state.doors.room = 0;
-      update();
+      turnDoorsTo({ room: 0 });
     },
   },
   chair: { object: deskChair, rest: CHAIR_TURN, eyes: 150 },
