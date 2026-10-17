@@ -95,7 +95,7 @@ The inside of each cupboard therefore starts a board out from each wall; the des
 
 **A sofa** can be added in any option (the menu's **Sofa, facing the TV**), from `sofas.js`, for editing: the Habitat x Morris & Co. **Merton 2 Seater** (1690 wide, 1000 deep, 920 high, seat 505 high and 650 deep; its arm and leg heights estimated). Sliders resize it (width 1200 to 2600, depth 700 to 1200, height 700 to 1100), the seat keeping its depth and height; the dropdown then says Custom. It's centred on the TV, facing it, its front a slider's distance from the TV wall (1000 to 3500, starting at 1900, where its back is 41 short of the island's end). Its **X** and **Y** sliders move it about the room (its middle, in mm from the left wall and the TV wall) and **Sofa turned** turns it about its middle in quarter turns: 0° faces the TV wall, 90° the right-hand (window) wall, 180° the front wall, 270° the left wall (360° is 0° again). The first move starts from where it stands; once moved, the front slider hides, and **Reset location** puts it back centred on the TV. **Sitting on the sofa** is in Where, and "the sofa" in Looking at.
 
-**Scenes**, to show people the options: everything on show bar where you're looking from: a configuration (the option, the dresser, larder, island and sofa, what's above the bench, sizes, colours and the doors). The **Scenes** menu (the green ☰ at the bottom right; at the top right, the views list in the purple ☰ and where you are and what you look at in the blue ☰ under it; the option is in the settings drawer's corner cupboard section; and the page opens on Bird's eye unless its address has a view) has those in `living_room.scenes.js` (the same on every device; it says how to add one) and those kept with **Save scene** (on that device only; **Delete scene** removes one). Choosing a scene loads the page again with its configuration, keeping the view. The list shows the scene on screen, or "Your scene (not saved)" once anything's changed. `kit/scene_kit.js` does this and is meant to serve other rooms too. On the front wall between the sink and the desk, a bit like the Cotswold Company's Chester Dove Grey large dresser. Drawn in options 7 to 11, not in the current room. Painted parts are in the dresser colour, which is the cupboards' unless you choose another; the top and shelves are in the shelf colour.
+**Scenes**, to show people the options: everything on show bar where you're looking from: a configuration (the option, the dresser, larder, island and sofa, what's above the bench, sizes, colours and the doors). The **Scenes** menu (the green ☰ at the bottom right; at the top right, the views list in the purple ☰ and where you are and what you look at in the blue ☰ under it; the option is in Lounge options' corner cupboard section; and the page opens on Bird's eye unless its address has a view) has those in `living_room.scenes.js` (the same on every device; it says how to add one) and those kept with **Save scene** (on that device only; **Delete scene** removes one). Choosing a scene loads the page again with its configuration, keeping the view. The list shows the scene on screen, or "Your scene (not saved)" once anything's changed. `kit/scene_kit.js` does this and is meant to serve other rooms too. On the front wall between the sink and the desk, a bit like the Cotswold Company's Chester Dove Grey large dresser. Drawn in options 7 to 11, not in the current room. Painted parts are in the dresser colour, which is the cupboards' unless you choose another; the top and shelves are in the shelf colour.
 
 | What | Size or position | Notes |
 | --- | --- | --- |
@@ -149,7 +149,7 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 
 The **Pine cupboard** switch under The back wall stands the bedroom's pine cupboard on the living room's back wall in place of the bench, as the Bookshelf does: its back to the back wall, in the corner by the right-hand wall, at its bedroom sizes, until it's moved. With both it and the bookshelf on, the bookshelf starts centred on the clear wall up to the pine cupboard, or against the cupboards if it's wider than that.
 
-The **New cupboard** in the bedroom (off to start): a corner cupboard of its own, built for now from the living room's option and Cupboard options and in its colours, under the bedroom's 2445 ceiling (so 2 mm taller than the living room's), its shelves whole and its cutting list its own, in the bedroom's corner where the chimney breast's face meets the kitchen-side wall (where the pine cupboard and the bookcase meet). It's turned half round, so the living room's back wall runs along the chimney breast and its left wall along the kitchen-side wall: the only way into that corner without mirroring it. It takes the pine cupboard's place: while it's on, the pine cupboard is hidden and its **In the bedroom** switch can't be used, keeping its setting for when the New cupboard goes. It doesn't move the bookcase, which it can overlap. "The new cupboard" is in Looking at.
+The **New cupboard** in the bedroom (off to start): a corner cupboard of its own, with its own option, sizes, doors, colour and cutting list, in Bedroom options' **The new cupboard** section (decided 17 Oct 2026: the two cupboards can be quite different). It starts as the living room's (option 10, the same sizes) and in its colour until given one of its own, under the bedroom's 2445 ceiling (so 2 mm taller than the living room's), its shelves whole, in the bedroom's corner where the chimney breast's face meets the kitchen-side wall (where the pine cupboard and the bookcase meet). Its option list has every option bar the current room; there's no 1200 / 1329 front, as there's no door frame on its walls. It's turned half round, so the living room's back wall runs along the chimney breast and its left wall along the kitchen-side wall: the only way into that corner without mirroring it. It takes the pine cupboard's place: while it's on, the pine cupboard is hidden and its **In the bedroom** switch can't be used, keeping its setting for when the New cupboard goes. It doesn't move the bookcase, which it can overlap. "The new cupboard" is in Looking at.
 
 ## The configuration and the address
 
@@ -160,17 +160,17 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
 ```json
 {
   "version": 1,
-  "doors": { "room": 90, "tall": 0, "second": 0, "bedroom": 90, "flat": 0, "outside": 0 },
-  "colours": { "floor": 0, "cupboard": 4, "wall": 0, "woodwork": 0, "dresser": 0, "carpet": 0, "shelves": 0 },
+  "doors": { "room": 90, "tall": 0, "second": 0, "bedroom": 90, "flat": 0, "outside": 0, "bedroomCupboardTall": 0, "bedroomCupboardSecond": 0 },
+  "colours": { "floor": 0, "cupboard": 4, "wall": 0, "woodwork": 0, "dresser": 0, "carpet": 0, "bedroomCupboard": 0, "shelves": 0 },
   "livingRoom": { "frontWall": "dresser" },
   "pieces": {
     "cornerCupboard": { "design": { "option": 10, "T": 600, "R": 330, "F": 1200, "BOARD": 18, "LEG": 600, "LEG_D": 600,
       "L_SHELVES": { "back": [600, 1200, 1800], "left": [600, 1200, 1800] }, "WARD": 900, "WARD_D": 600, "TOWER": 400,
       "CORNER_W": 800, "CORNER_D": 650, "SIDE_SHELF": false, "SIDE_W": 400, "SIDE_D": 330 } },
+    "bedroomCupboard": { "design": { "option": 10, "…": "as the cornerCupboard's" }, "in": { "bedroom": { "on": false } } },
     "bench": { "design": { "height": 780 }, "in": { "livingRoom": { "on": true } } },
     "aboveBench": { "design": { "what": "tvAndShelves", "shelfDepth": 250, "tv": 75 } },
     "sofa": { "design": { "model": "none", "w": 1690, "d": 1000, "h": 920 }, "in": { "livingRoom": { "front": 1900, "move": null } } },
-    "bedroomCupboard": { "in": { "bedroom": { "on": false } } },
     "pineCupboard": { "design": { "w": 1300, "d": 500, "h": 1790 },
       "in": { "bedroom": { "on": true, "u": 3682, "v": 1901, "turn": 90 },
               "livingRoom": { "on": false, "move": null },
@@ -182,12 +182,12 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
 ```
 
 - **`version`**: 1. It goes up only when a setting changes its path or meaning (not when one is added). A configuration of another version isn't read: the page says so in the console and starts as it is.
-- **`doors`**: how far each door is open, in degrees (the door sliders above): the room door, the left-wall cupboard's tall door, the option's other door or doors, the bedroom's, and downstairs the flat's own door and the lobby's outside door.
+- **`doors`**: how far each door is open, in degrees (the door sliders above): the room door, the left-wall cupboard's tall door, the option's other door or doors, the bedroom's, downstairs the flat's own door and the lobby's outside door, and the bedroom cupboard's tall door and other door or doors.
 - **`colours`**: a code for each colour box. 0 is the default (the room as it is now); 1 to 13 are the room's finishes, the named cupboard colours and the carpet's (see "The room's finishes"); four-figure codes are RAL colours. `shelves` is the shelf colour, 0 to 3 as listed in the table above.
 - **`livingRoom.frontWall`**: what's on the front wall between the sink and the desk: `dresser`, `larder`, `none` or `bookshelf`.
 - **`pieces`**: each piece once, with its **`design`** (its sizes and choices) and **`in`**: for each room it can be in, whether it's there (`on`) and where, in that room's own mm, as its sliders give it: `x` and `y` in the living room and the garage, `u` and `v` in the bedroom, `along` and `across` in the hallway, and `turn`, in quarter turns. A piece that only ever stands in one place has no `in`. A `move` of `null` is where the piece starts (against the back wall, or facing the TV), else `{ "x", "y", "turn" }`.
   - `cornerCupboard`: the living room's corner cupboard. `option` is its number (7 to 11, or 16 for the current room); the rest are the settings in the table above, by their names in the code, `L_SHELVES` being option 7's shelf tops in each leg.
-  - `bedroomCupboard`: the New cupboard, its copy in the bedroom: only whether it's there, as its design is the living room's for now.
+  - `bedroomCupboard`: the New cupboard in the bedroom: its own `design`, with the same settings as the `cornerCupboard`'s (bar the current room, 16, which its option list doesn't offer), and whether it's there. Its colour is `colours.bedroomCupboard`: 0 follows the living room's cupboards, else a code as theirs.
   - `bench` (its `height`, and whether it's drawn) and `aboveBench` (`what`: `nothing`, `shelves`, `tv`, `tvAndShelves` or `tvAndTopShelf`; `shelfDepth`; `tv` in inches).
   - `dresser`, `larder` and `sofa`: their sizes, and the larder's and sofa's `model`, its key in `larders.js` or `sofas.js` (`none` for no sofa). The sofa's `front` is its front from the TV wall, where it starts.
   - `island`: in the living room, `at` (`room`, `along`, `out` or `none`) and its middle and turn out there.
@@ -295,7 +295,7 @@ along y. Measured and estimated sizes are in `MEASUREMENTS_NEEDED.md`
 Its furniture, each with sliders in the **Bedroom options** drawer (its
 button in the top bar; the bookcase and pine cupboard resized as well as
 moved, and each piece turned in quarter turns, 0° to 270°). The back
-wall's **Bookshelf** switch (in Other options, beside **Bench**) stands a
+wall's **Bookshelf** switch (in Lounge options, beside **Bench**) stands a
 bookcase like the bedroom's on the living room's back wall in place of the
 bench and what's above it, centred on the clear wall as the TV is, at the
 bedroom one's sizes; the Bench switch is then off and can't be changed

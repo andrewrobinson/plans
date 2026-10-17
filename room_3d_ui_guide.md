@@ -32,30 +32,35 @@ and control patterns this explains stay the same.
 | **20** | `<link rel="stylesheet" href="room_3d.css">`: **all the CSS**, in its own file (see section 2) |
 | 21–26 | The **import map**: tells the browser that `import … from 'three'` means the three.js file on the jsDelivr CDN (see section 6) |
 
-### The `<body>` HTML (lines 28–307)
+### The `<body>` HTML (lines 28–451)
 
-The HTML only lays out the controls. It contains no logic.
+The HTML only lays out the controls. It contains no logic. The settings are
+in four drawers, one for the hallway and stairs and one for each room (17
+Oct 2026), each made of `<details>` sections that remember being open.
 
 | Lines | Element | What it is on screen |
 |---|---|---|
 | 29 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
-| 32–38 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), the **option list** (`#current`), **Cupboard options** (`#cupMenu`, opens its drawer), **Bedroom options** (`#bedMenu`, opens `#bedPanel`), Share and Reset |
-| 41–65 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
-| 67–77 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
-| 79–82 | `#cutBox` | The **cutting list** (`#cutList`) and its Show/Hide button (`#cutToggle`), bottom left, in the 2D views only |
-| 83 | `#scrim` | A grey see-through overlay. On phones it dims the model while a drawer is open |
-| 84 | `#tip` | A tooltip that follows the pointer over things to store |
-| **85–251** | `#panel` | **Other options**, a drawer that slides in from the left. It is made of `<details>` sections: |
-| 90–135 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
-| 136–152 | `#secSofa` | Sofa dropdown plus sliders |
-| 153–179 | `#secBench` | Bench switch, bench-height radios, "above the bench" radios, TV and shelf sliders |
-| 180–192 | `#secDoors` | Four door-angle sliders (the bedroom's last) |
-| 193–227 | `#secColours` | Colour dropdowns with ◀ ▶ buttons and swatches, plus a nested `<details>` palette |
-| 228–243 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
-| 244–250 | `#about` | The description text (`#summary`), which JS fills in |
-| **252–307** | `#cupPanel` | **Cupboard options**, the other drawer: the cupboard-only switch, board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7) |
+| 32–40 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), **Lounge options** (`#loungeMenu`), **Bedroom options** (`#bedMenu`), **Garage options** (`#garageMenu`), Share, Screenshot and Reset |
+| 43–68 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
+| 70–80 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
+| 82–85 | `#cutBox` | The lounge cupboard's **cutting list** (`#cutList`) and its Show/Hide button (`#cutToggle`), bottom left, in the 2D views only |
+| 86 | `#scrim` | A grey see-through overlay. On phones it dims the model while a drawer is open |
+| 87 | `#tip` | A tooltip that follows the pointer over things to store |
+| **88–115** | `#panel` | **Other options**: the hallway and stairs. `#secWickerBench` and `#secShoeRack` (their modules fill them), `#secDownstairsDoors` (the flat's door and the lobby's), and `#palette`, the colours in this view |
+| **120–377** | `#loungePanel` | **Lounge options**, the living room: |
+| 125–180 | `#secCupboard` | The corner cupboard: its **option list** (`#current`), Cupboard only, and `#cupboardControls`: board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7). The bedroom's cupboard copies these |
+| 181–231 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
+| 232–262 | `#secSofa` | Sofa dropdown plus sliders |
+| 263–309 | `#secBench` | Bench switch, the bookshelf and pine cupboard in its place, bench-height radios, "above the bench" radios, TV and shelf sliders |
+| 310–322 | `#secDoors` | The cupboard's tall and second doors (`#tallBlock`, `#secondBlock`) and the room door |
+| 323–353 | `#secColours` | The cupboard, dresser and shelf colours: dropdowns with ◀ ▶ buttons and swatches (`.colours`) |
+| 354–369 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
+| 370–376 | `#about` | The description text (`#summary`), which JS fills in |
+| **379–437** | `#bedPanel` | **Bedroom options**: the furniture (`#otherRoomBlock`, other_room.js's), then `#secBedroomCupboard`, the new cupboard's own option list (`#bedroomCupboardCurrent`), its copied sliders and door sliders (`#bedroomCupboardControls`, `#bedroomCupboardDoors`, filled by living_room.js), its colour and its cutting list (`#bedroomCutting`); `#secBedroomDoors` (the bedroom door) and `#secBedroomColours` (the carpet, the stairs' too) |
+| 439–446 | `#garagePanel` | **Garage options** (`#garageBlock`, garage.js's) |
 
-### Scripts (index.html, lines 309–314)
+### Scripts (index.html, lines 448–450)
 
 | Lines | What |
 |---|---|
@@ -129,23 +134,33 @@ door) and its **materials**, and gives an instance (step 6d of
 | 677–757 | Dimensions | `partOfCupboard()`, `cupboardDims()`, `doorDims()` |
 | 758–805 | **The cutting list** | `CUT_RULE`, `cuttingList()` (each board by its `userData.kind`), `cuttingRows()` |
 
-### living_room.js (1,172 lines): the page
+### cupboard_controls.js (103 lines): a corner cupboard's controls
+
+`cupboardControls({ piece, id, change, options, front })` wires one
+cupboard's option list, sizes, side bookshelf, shelves and front to its
+design's path (`pieces.<piece>.design`), and gives `choose(i)`, `sync()`
+and `showBlocks()` (only the blocks its option has, its door sliders' too).
+The lounge's are index.html's own; the bedroom's are a copy of them,
+`copyControls(elements, piece)`, each id with the piece's name before it
+(`idIn(piece)`: `depth` becomes `bedroomCupboardDepth`).
+
+### living_room.js (1,151 lines): the page
 
 | Lines | Section | Notes |
 |---|---|---|
 | 1–21 | What the file is for | How a change flows through the page, and its sections in order |
-| 22–46 | `import`s | The kits, the other rooms' controls, the model's pieces from `flat_model.js`, `floor.js` |
+| 22–46 | `import`s | The kits, the other rooms' controls, the cupboard controls, the model's pieces from `flat_model.js`, `floor.js` |
 | 47–86 | The stage, the 2D views' cuts and Cupboard only's framing | `createStage()`, `scene.add(world)`, the kit's `cutViews()` giving `applyCut()`, `frameCupboard()` |
-| 87–265 | The cutting list's menu, the things to store's controls and dragging in plan | `showCuttingList()`, `showStored()` (the model's `drawStored()`, then the menu); `setStored()` and `moveStored()`, their settings by path |
-| 266–378 | **Door sliders, the option list, `show(i)`** | `update()` (the model's `turnDoors()`, then the sliders), `turnDoorsTo()`; `chooseOption()`; **`show(i, onShow)`**: the model's `build()`, then `showInMenus()` and `redrawAround()` |
-| 379–407 | **The address**: `writeAddress()` | The configuration and the view, packed into the URL `#hash` (section 5) |
-| **408–809** | **Control wiring** | **`change(edits, { look })`** (408), the cupboard's controls by **`cupboardPath`** (`cupboardAt()`, `setCupboard()`, `cupboardValue()`, `CUPBOARD_SLIDERS`), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5); the colour pickers (`colourPicker()`); `sizeEdits()` |
-| 810–945 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
-| 946–1030 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
-| 1031–1059 | The view as JSON, the drawers, Reset, Share and offline support | `viewNow()`, `readDisplay()` |
-| 1060–1115 | The rooms' modules' controls and `syncControls()` | `roomEdits()` (their settings' places in `state` as the configuration's paths); the model's `settle()`, then every slider, radio, switch and dropdown in step with the settings |
-| 1116–1156 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
-| 1157–1172 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show()`, the view; the kit's `startLoop()` |
+| 87–275 | The cutting lists, the things to store's controls and dragging in plan | `cuttingListHtml(piece)` (the lounge's in the 2D views, the bedroom's in Bedroom options), `showStored()` (the model's `drawStored()`, then the menu); `setStored()` and `moveStored()`, their settings by path |
+| 276–385 | **The bedroom cupboard's copied controls, door sliders, `show(i)`** | `copyControls()` into Bedroom options; `update()` (the model's `turnDoors()`, then the sliders), `turnDoorsTo()`; **`show(i, onShow)`**: the model's `build()`, then `showInMenus()` and `redrawAround()` |
+| 386–403 | **The address**: `writeAddress()` | The configuration and the view, packed into the URL `#hash` (section 5) |
+| **404–791** | **Control wiring** | **`change(edits, { look })`** (404), the two cupboards' controls (`loungeCupboard`, `bedroomCupboardControls`, `showBedroomCupboard()`), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5); the colour pickers (`colourPicker()`, the bedroom cupboard's too); `sizeEdits()` |
+| 792–927 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
+| 928–1012 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
+| 1013–1041 | The view as JSON, the drawers (`DRAWERS`: Other, Lounge, Bedroom, Garage), Reset, Share and offline support | `viewNow()`, `readDisplay()` |
+| 1042–1094 | The rooms' modules' controls and `syncControls()` | `roomEdits()` (their settings' places in `state` as the configuration's paths); the model's `settle()`, then every slider, radio, switch and dropdown in step with the settings |
+| 1095–1135 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
+| 1136–1151 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show()`, the view; the kit's `startLoop()` |
 
 ### kit/floor_kit.js (541 lines)
 
@@ -183,7 +198,7 @@ DOM or three.js, so Node can use it too (step 6c).
 | Lines | What |
 |---|---|
 | 1–5 | Base: what the file is for, colour scheme, page background and font, `#view` filling the window |
-| 6–20 | The two drawers (`.drawer`, `#panel`, `#cupPanel`) and their open states |
+| 6–20 | The four drawers (`.drawer`: `#panel`, `#loungePanel`, `#bedPanel`, `#garagePanel`) and their open states |
 | 21–49 | `#bar`, `#corner` and the pop-up menus (`.pop`, `.group`, `.popToggle`, each menu's `--tint`), and the floating text buttons (`.chip`) |
 | 50–67 | The menus' groups, tags and dropdowns (`.group`, `.pick`), and the option list in the top bar |
 | 68–70 | The scrim, and the phone-only rule for it |
@@ -249,7 +264,7 @@ rule therefore gives each menu button its own colour.
 
 ### One class for many buttons
 
-The floating text buttons (Cupboard options, Share, Reset, Dimensions, Show
+The floating text buttons (Lounge options, Share, Reset, Dimensions, Show
 cutting list, and the menus' Save and Delete) all have `class="chip"` in the
 HTML, and one `.chip` rule styles them. To give a new button the same look, add `class="chip"` to it.
 
@@ -281,13 +296,13 @@ There are three kinds of menu. **All of them are HTML + CSS + a little JS.** The
 JS adds or removes a class or sets an attribute, and the CSS reacts to that.
 The one exception is `<details>`, which is pure HTML.
 
-### a) The two drawers (`#panel` and `#cupPanel`)
+### a) The four drawers (`#panel`, `#loungePanel`, `#bedPanel`, `#garagePanel`)
 
 | Part | Where |
 |---|---|
-| HTML | `<div id="panel" class="drawer">` (**Other options**, opened by ☰ `#menu`) `<div id="cupPanel" class="drawer">` (**Cupboard options**, opened by `#cupMenu` in the top bar) and `<div id="bedPanel" class="drawer">` (**Bedroom options**, opened by `#bedMenu`), each with a ✕ (`.close`) |
-| CSS | Normally moved off-screen to the left with `transform`. With `body.menu-open #panel` or `body.cup-open #cupPanel` it is back on screen. A `transition` on `transform` animates the slide |
-| JS | `DRAWERS` maps each drawer to its button and its class on `<body>`. `setMenu(id)` opens drawer `id` and closes the other (`setMenu(null)` closes both), so one is open at a time. Its button toggles it; ✕, the scrim and Escape close it |
+| HTML | `<div id="panel" class="drawer">` (**Other options**, the hallway and stairs, opened by ☰ `#menu`), `#loungePanel` (**Lounge options**, by `#loungeMenu`), `#bedPanel` (**Bedroom options**, by `#bedMenu`) and `#garagePanel` (**Garage options**, by `#garageMenu`), each with a ✕ (`.close`) |
+| CSS | Normally moved off-screen to the left with `transform`. With `body.menu-open #panel`, `body.lounge-open #loungePanel` and so on it is back on screen. A `transition` on `transform` animates the slide |
+| JS | `DRAWERS` maps each drawer to its button and its class on `<body>`. `setMenu(id)` opens drawer `id` and closes the others (`setMenu(null)` closes them all), so one is open at a time. Its button toggles it; ✕, the scrim and Escape close it |
 
 The JS doesn't move the drawers. It only switches a class on `<body>`, and the
 CSS does the movement and the animation.
@@ -452,18 +467,15 @@ dresserPick.addEventListener('change', () => change(setDresser(DRESSERS[dresserP
 `setDresser(sizes)` gives the sizes as edits, each held to its slider's
 range (`sizeEdits()`), as `setSofaSize()` and `setLarderSize()` do.
 
-**Example: the corner cupboard's controls** name their cupboard by one
-path, `cupboardPath` (`'pieces.cornerCupboard.design'`), so the same
-controls can change the bedroom's cupboard
-(`'pieces.bedroomCupboard.design'`). They change a setting with
-`setCupboard(key, value)` and are put in step from `cupboardValue(key)`
+**Example: the corner cupboards' controls** (`cupboard_controls.js`) are
+made once for each cupboard by its piece's name, so each changes its own
+design by path: the lounge's in Lounge options, the bedroom's (a copy, its
+ids with `bedroomCupboard` before them) in Bedroom options. Inside, a
+setting changes by `set(key, value)` and is put in step from `value(key)`
 (the model's `get()`), looping over `CUPBOARD_SLIDERS`:
 
 ```js
-for (const [id, key] of CUPBOARD_SLIDERS) {
-  const slider = document.getElementById(id);
-  slider.addEventListener('input', () => setCupboard(key, Number(slider.value)));
-}
+for (const [name, key] of CUPBOARD_SLIDERS) el(name).addEventListener('input', e => set(key, Number(e.target.value)));
 ```
 
 Choosing an option is one change with several edits: the option's number,
@@ -654,13 +666,14 @@ and every HTML element above it is in the DOM.
 ## 7. Quick reference: finding things
 
 - **To add a slider**: add the `<label>`, `<span id="xValue">` and
-  `<input id="x" type="range">` inside a block in a drawer's HTML (`#cupPanel` for a cupboard size). Add `X`
+  `<input id="x" type="range">` inside a block in a drawer's HTML (`#cupboardControls` in `#loungePanel` for a cupboard size, which the bedroom's copy then has too). Add `X`
   to `state` (a cupboard's to `state.cornerCupboard`), with a comment. Give
   it an entry in `SCHEMA` (or its module's list), under its piece's
   `design` or `in`, as `fromSlider(at('X'), of('X'), 'x')` in
   `cupboardEntries()`: `set()` needs it. Add an `input` listener that calls
   `change([[path, Number(slider.value)]])` (a cupboard's: add it to
-  `CUPBOARD_SLIDERS`), and set the slider and its span in `syncControls()`.
+  `cupboard_controls.js`'s `CUPBOARD_SLIDERS`, and give the bedroom's an
+  entry too, as `cupboardEntries()` makes both), and set the slider and its span in `syncControls()`.
   Use `X` in a `build()` (`const { X } = state.cornerCupboard;`). Its value is then in
   `plans.get()`, `plans.export()` and the snapshots, so run
   `npm run test:update` once and check the snapshots' diff adds only it;

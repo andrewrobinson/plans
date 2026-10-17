@@ -26,8 +26,10 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    instance, all done 17 Oct 2026, so step 6 is done. After it,
    `set(path, value)` (17 Oct 2026): the menus change the settings by
    their paths in the configuration, the cupboard's controls by one path
-   (`cupboardPath`), ready for the bedroom cupboard's own design and menu,
-   next.
+   (`cupboard_controls.js`). Then the bedroom cupboard's own design (its
+   own option, sizes, doors, colour and cutting list, in Bedroom options)
+   and the menus by room: Lounge, Bedroom and Garage options, Other
+   options keeping the hallway and stairs (17 Oct 2026).
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).
@@ -92,7 +94,7 @@ Smaller pieces, any time:
   gap is about 844 across at 45°, more than the racks' 800).
 - **Designs**: a cupboard design as data (its kind, sizes, doors, shelves per
   leg, notes), one marked the finished design, the others prototypes, chosen
-  in Cupboard options. Scenes would then refer to a design, plus the
+  in Lounge options. Scenes would then refer to a design, plus the
   packing, furniture and view. Later, the L-shaped cupboard built from the
   data alone, so prototypes need no code, and a printable spec for the maker
   from the finished design. `REFACTOR_PLAN.md` step 6 starts this: a

@@ -1,10 +1,11 @@
 # Tidying the code: what's left
 
 Step 6 (one configuration, as JSON) finished with **6d, the corner
-cupboards**, on 17 Oct 2026 (below, until it's on main and this is pruned
-again). It changed how the code is organised, not what the page does,
-which the tests check (`tests/`), bar the bedroom cupboard's 2 mm. Then
-the first left-over, `set(path, value)`, the same day. What's left is
+cupboards**, on 17 Oct 2026 (below, until this is pruned again). It
+changed how the code is organised, not what the page does, which the
+tests check (`tests/`), bar the bedroom cupboard's 2 mm. Then, the same
+day, `set(path, value)`, and the bedroom cupboard's own design with the
+menus by room. What's left is
 "Left over, after 6d".
 
 What's done is in git history: the browser tests, one `state`, the kit,
@@ -101,6 +102,34 @@ other menu through `change()` (the rooms' modules' edits by
 `roomEdits()`, the things to store by `setStored()`); the doors through
 `turnDoorsTo()`. Nothing in `living_room.js` writes `state` now.
 
+## The bedroom cupboard's own design, and the menus by room (17 Oct 2026)
+
+Decided first (17 Oct 2026): the two corner cupboards can have completely
+separate options, sizes, colours and doors; the bedroom's has its own
+controls in Bedroom options (not the living room's switching with the
+room), offering every option bar the current room, with no front to the
+door frame; it starts as the living room's; its colour follows the living
+room's until set; each has its own cutting list. And, asked for the same
+day, the menus by room: **Cupboard options became Lounge options**, taking
+the option list from the top bar and the living room's sections from
+Other options; Bedroom options took the bedroom door and the carpet's
+colour; Other options kept the hallway and stairs (the wicker bench, the
+shoe rack, the doors downstairs) and the colours in this view.
+
+**Done** (one commit each): the model's half (`state.bedroomCupboard`, a
+second `cupboardEntries()` against the bedroom's ceiling, its doors
+`doors.bedroomCupboardTall` and `Second`, its colour target
+`colours.bedroomCupboard`, `optionsOnShow()` so each cupboard knows a new
+option, `cupboardOf()` and `cuttingList(piece)`; `bedroomCupboardSettings()`
+and `copyColours()` went), with the generated tests building the bedroom's
+every option; the saved configurations and snapshots with its settings
+at their defaults (checked: nothing else changed; bedroom-new-cupboard-
+option07 set to option 7, as it showed); the menus by room (the
+screenshots changed with the top bar only, the 2D views having more room
+below it); the cupboard controls as a module, `cupboard_controls.js`
+(`cupboardControls()`, `copyControls()`); the bedroom's controls, a copy
+of the lounge's, with its colour, door sliders and cutting list.
+
 ## Left over, after 6d
 
 - **The configuration as the store**, `state` going
@@ -112,21 +141,8 @@ other menu through `change()` (the rooms' modules' edits by
   store's worked-out places and `build()` turns option 8 into 7.
 - **The handles' 20s and 22s** (a bar's width and how far it stands off
   the door) could be named, as `HANDLE_BOTTOM` and `HANDLE_TOP` are.
-- **The bedroom cupboard's own design**: its own piece in the
-  configuration (`pieces.bedroomCupboard.design`, in place of
-  `bedroomCupboardSettings()`), its own colours (in place of
-  `copyColours()`), and, with the door angles in the view
-  (`ui_paradigm_analysis.md`, decision C), its own door angles. Decided
-  17 Oct 2026: the two cupboards can have completely separate Options
-  selected (and sizes and colours), and the bedroom's has **its own menu**:
-  a second Options dropdown with its sliders in the bedroom's menu, always
-  there whatever room's in view (not the living room's menu switching
-  with the room). Best built straight after `set(path, value)`, so both
-  menus write their cupboard's design by path: `cupboardPath` in
-  `living_room.js` is the one to point at `pieces.bedroomCupboard.design`,
-  its settings `state.bedroomCupboard`, its entries a second
-  `cupboardEntries()`. Then engineering drawings
-  from each cupboard's snapshot.
+- **Engineering drawings** from each cupboard's snapshot, now each has
+  its own design.
 - **`PLAN.md`'s "Designs"** (a cupboard design as data, a printable spec
   for the maker) starts from 6d's settings record and instance: a design
   becomes a cupboard piece's configuration. **"Other parts in the cutting
