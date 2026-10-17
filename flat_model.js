@@ -1537,13 +1537,14 @@ function applyShelfWood() {
 // to 7 with no left-wall cupboard. A new option starts with its second door
 // shut; rebuilding the same one (a size changed) leaves the doors as they
 // were. Then the things to store are placed (drawStored() draws them).
-// Returns the option built, whether it's the one built before, and the
-// description of what's round it (describe())
-export function build(i) {
+// `onShow`: the option on show till now, when the menus have already set
+// the new one. Returns the option built, whether it's the one built before,
+// and the description of what's round it (describe())
+export function build(i, onShow = state.cornerCupboard.option) {
   settle();
   if (state.cornerCupboard.T === 0 && OPTIONS[i].needsLeft) i = optionAt(7);
   const option = OPTIONS[i];
-  const same = i === state.cornerCupboard.option && Boolean(cupboard);
+  const same = i === onShow && Boolean(cupboard);
   state.cornerCupboard.option = i;
   const group = buildOption();
   if (benchDrawn()) drawBench(option, group);
