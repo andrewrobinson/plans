@@ -5,7 +5,7 @@
 // the saved configurations' round trips through the page stay there.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildFlat } from '../../flat_model.js';
+import { buildFlat, configurationNow, get, set, setAll, startAgain } from '../../flat_model.js';
 import { setValueAt } from '../../kit/config_kit.js';
 
 const DEFAULT = structuredClone(buildFlat({ version: 1 }).configuration);
@@ -31,6 +31,25 @@ test('settings left out keep their defaults, and what isn\'t known, or is out of
     'pieces.aboveBench.design.what': 'everything', 'pieces.billy.in.garage.turn': 45, 'pieces.bench.in.livingRoom.on': 'yes',
     'pieces.unknown': { design: { w: 1 } },
   })), DEFAULT);
+});
+
+// Changing settings by their paths (the menus' set()): a value is the
+// configuration's, checked as a link's are, so one that fails changes
+// nothing; several at once in order
+test('set(path, value) changes the configuration at its path, and only with a value it takes', () => {
+  startAgain();
+  const before = configurationNow();                            // as it starts, before anything's built (as the things to store's places)
+  assert.equal(set('pieces.cornerCupboard.design.option', 7), true);
+  assert.equal(set('pieces.aboveBench.design.what', 'shelves'), true);
+  assert.equal(set('pieces.cornerCupboard.design.T', 200), false);       // under 300, and not 0
+  assert.equal(setAll([['pieces.cornerCupboard.design.R', 500], ['pieces.bench.design.height', 750]]), false);
+  assert.equal(get('pieces.cornerCupboard.design.option'), 7);
+  const expected = structuredClone(before);
+  for (const [path, value] of [['pieces.cornerCupboard.design.option', 7], ['pieces.aboveBench.design.what', 'shelves'],
+    ['pieces.cornerCupboard.design.R', 500]]) setValueAt(expected, path, value);
+  assert.deepStrictEqual(configurationNow(), expected);
+  assert.throws(() => set('pieces.cornerCupboard.design.nothing', 1));
+  startAgain();
 });
 
 test('a configuration of another version isn\'t read', () => {

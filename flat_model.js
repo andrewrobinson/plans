@@ -201,9 +201,9 @@ box({ from: [0, 600, 1000], to: [60, 720, 1020] }, handleMat, roomHinge, false);
 
 // ---------------------------------------------------------------------------
 // The settings: everything the menus set and the address saves, in one
-// place. The cupboard's sizes keep the short names the drawing code and
-// room_dimensions.md use; a function that draws reads the ones it needs at
-// its top, as
+// place, changed by the menus only through set() (below). The cupboard's
+// sizes keep the short names the drawing code and room_dimensions.md use; a
+// function that draws reads the ones it needs at its top, as
 // `const { T, R, BOARD } = state.cornerCupboard;`. What's worked out from the
 // settings isn't kept here (the heights above the bench, the TV's width and
 // height, where the dresser stands), and nor is the view (kit/view_kit.js).
@@ -1440,6 +1440,42 @@ function readConfiguration(configuration) {
   Config.readConfiguration(SCHEMA, configuration, state);
 }
 const DEFAULT_CONFIGURATION = Config.defaultConfiguration(SCHEMA, { version: CONFIGURATION_VERSION });
+
+// ---------------------------------------------------------------------------
+// Changing the settings, by their paths in the configuration: what the
+// menus do, in place of writing state (REFACTOR_PLAN.md, set(path, value)).
+// Each value is the configuration's (an option's number, `above`'s word,
+// sizes in mm), checked by its entry as a link's are, so one that fails
+// changes nothing. A cupboard's controls name its design's path, so the
+// same controls can change either cupboard. state stays, for the drawing
+// code to read, until the configuration is the store itself
+// ---------------------------------------------------------------------------
+function entryFor(path) {
+  const entry = Config.entryAt(SCHEMA, path);
+  if (!entry) throw new Error(`no setting at ${path}`);
+  return entry;
+}
+// Each [path, value] of `edits` in turn, as one change (a setting checked
+// against another comes after it, as the schema lists them). Returns
+// whether every one was taken
+export function setAll(edits) {
+  const refused = edits.filter(([path, value]) => !Config.readEntry(entryFor(path), value, state));
+  for (const [path, value] of refused) console.warn(`${JSON.stringify(value)} isn't a setting for ${path}: left as it was`);
+  return refused.length === 0;
+}
+export const set = (path, value) => setAll([[path, value]]);
+// A setting's value, as the configuration has it
+export const get = path => Config.configurationValue(entryFor(path), state);
+// For a control holding the page's own value (an option's place in OPTIONS,
+// `above`'s 0 to 4): the configuration's, for set()
+export const wordAt = (path, pageValue) => Config.wordFor(entryFor(path), pageValue);
+// A setting's path in the configuration, from its place in state, as the
+// rooms' modules name their controls' settings ('otherRoom.bed.u')
+export function pathOfSetting(setting) {
+  const entry = Config.entryOfSetting(SCHEMA, setting);
+  if (!entry) throw new Error(`no setting at state.${setting}`);
+  return entry.path;
+}
 
 
 // The dimensions' figures on show (only in a 2D view, or with the cupboard
