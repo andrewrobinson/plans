@@ -363,7 +363,7 @@ test.describe('the controls', () => {
 
   test('a number key chooses an option', async ({ page, isMobile }) => {
     test.skip(isMobile, 'no keyboard on a phone');
-    await page.click('#close');
+    await page.click('#loungeClose');
     await page.keyboard.press('9');
     await expect(page.locator('#current option:checked')).toHaveText(/^9\. /);
     expect(await optionShown(page)).toBe(9);
