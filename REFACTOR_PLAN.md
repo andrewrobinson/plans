@@ -26,24 +26,32 @@ again.
 
 ## 6d. The corner cupboards
 
-Where 6c left it: the model still keeps one flat in module state, and
+Where 6c left it: the model kept one flat in module state, and
 `living_room.js` reaches into it for much (its export list).
 
+**Done 17 Oct 2026** (items 4, then 1 to 3, as one step; snapshots and
+screenshots unchanged bar the first):
+
+4. **The bench out of the options**: the living room draws it beside the
+   cupboard (`drawBench()`, from the option's `benchFrom()`), so a
+   cupboard's build is the cupboard only; `isBench()` and `takeOutBench()`
+   went. The snapshots' `cornerCupboard` box became the cupboard alone.
 1. **Their own module**: `corner_cupboard.js`, with `OPTIONS`, the
-   builders, the shelves, the cutting list and the cupboard's dimensions,
-   out of `flat_model.js`.
-2. **One settings record**: `option`, `T`, `R`, `F`, `BOARD`, `LEG`,
-   `LEG_D`, `L_SHELVES`, `WARD`, `WARD_D`, `TOWER`, `CORNER_W`,
-   `CORNER_D`, `SIDE_*`, the living room cupboard's piece in the
-   configuration.
+   builders, the shelves, the inside spaces, `opensTo()`, the dimensions
+   and the cutting list; `flat_model.js` went from 2,220 lines to 1,582.
+2. **One settings record**: `CUPBOARD_SETTINGS` (`option`, `T`, `R`, `F`,
+   `BOARD`, `LEG`, `LEG_D`, `L_SHELVES`, `WARD`, `WARD_D`, `TOWER`,
+   `CORNER_W`, `CORNER_D`, `SIDE_*`), the cupboard's piece in the
+   configuration. For now `cupboardSettings()` picks it from `state`, which
+   keeps them flat (the menus use them in 73 places); gathering them in
+   `state` goes with `set(path, value)`, below.
 3. **Builders take arguments**: `buildCupboard(settings, place,
-   materials)`, reading neither `state` nor the living room's constants
-   (`CEILING_HEIGHT` 46 times, `ROOM_WIDTH`, `DOOR_HINGE_AT`,
-   `roomDoorGap()`). The doors' stop at the walls (`opensTo()`) checks
-   against the cupboard's own room.
-4. **The bench out of the options**: the living room draws its bench
-   beside the cupboard, so a cupboard's build is the cupboard only;
-   `isBench()` and `takeOutBench()` go.
+   materials)`, reading neither `state` nor the living room's constants;
+   the living room is `LIVING_ROOM_PLACE` (width, depth, ceiling, its
+   door). `opensTo()` checks against the cupboard's own room.
+
+**Left**:
+
 5. **An instance**: `makeCupboard(settings, place, materials)` gives
    `{ group, shelves, cuttingList(), dims(), doors }`. `current`,
    `cupShelves`, `cupCuts` and `cupShelfGroup` become its fields; each
@@ -55,7 +63,7 @@ Where 6c left it: the model still keeps one flat in module state, and
 
 **Check**: the cutting lists in the snapshots must not change, bar the
 bedroom's: its ceiling is 2445, so its copy comes out 2 mm taller than
-the living room's (2443). About 2 sessions.
+the living room's (2443). About a session left.
 
 ## Left over, after 6d
 

@@ -20,7 +20,10 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    cupboard as an instance, the bedroom getting a second one. 6a (the
    safety net), 6b (the configuration and its URL) and 6c (the model in
    Node) are done, with 6c's loose end (the cupboard's doors opening
-   through the wall) fixed; 6d (the corner cupboards) is next.
+   through the wall) fixed; 6d (the corner cupboards) is under way: the
+   bench out of the options and the cupboard in `corner_cupboard.js`,
+   built from arguments, done 17 Oct 2026; the instance and the bedroom's
+   own are next.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).
@@ -137,7 +140,8 @@ the two .md files, still `room_dimensions.md`.
 ```
 index.html                  the floor app: one page for the whole floor
 floor.js                    the floor plan: walls, doors and windows, where each room's corner is
-flat_model.js               the model (16 Oct 2026): the living room's fittings, its cupboard options, the configuration's schema, buildFlat()
+flat_model.js               the model (16 Oct 2026): the living room's fittings, the configuration's schema, buildFlat()
+corner_cupboard.js          the corner cupboard (17 Oct 2026): its options, builders, shelves, dimensions and cutting list, given settings, place and materials
 living_room.js              the page: menus, controls, views, scenes, the address
 living_room.views.js        its places, things to look at, looks, preset views
 living_room.scenes.js       its scenes

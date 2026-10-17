@@ -460,7 +460,7 @@ function setRal(target, code) {
 for (const target of Object.keys(COLOUR_TARGETS)) setRal(target, state.colours[target]);   // the room as it is now, with AI Olive cupboards
 
 // ---------------------------------------------------------------------------
-// Parts for option 9
+// The bench's base cupboards (option 9's), drawn by drawBench()
 // ---------------------------------------------------------------------------
 const TOP_T = 30;                                               // the bench top's thickness (chosen)
 
