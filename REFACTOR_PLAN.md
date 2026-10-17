@@ -81,6 +81,12 @@ the living room's (2443). About a session left.
   `userData.kind`.
 - **`testing_questions.md`**: still open (phone or desktop, window size,
   how often), with fewer browser runs now most combinations run in Node.
+- **The review of the abstractions** (17 Oct 2026),
+  `ui_paradigm_analysis.md`: the configuration, the view and the URL
+  against the usual UI patterns, and six recommendations, `set(path,
+  value)` first. Decided there: **the door angles move into the view**,
+  out of the configuration, so Packing and walking in no longer change
+  the flat (it reverses 6b's "Door angles" row, below). After 6d.
 
 ---
 
