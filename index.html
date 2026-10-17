@@ -27,12 +27,11 @@
 </head>
 <body>
 <div id="view"></div>
-<!-- The top bar: ☰ for Other options, the option on show (always to hand),
-     Cupboard options, Bedroom options, Garage options, Share, Screenshot and Reset -->
+<!-- The top bar: ☰ for Other options (the hallway and stairs), each room's
+     options (Lounge, Bedroom, Garage), Share, Screenshot and Reset -->
 <div id="bar">
   <button id="menu" aria-label="Other options" title="Other options" aria-controls="panel" aria-expanded="false">☰</button>
-  <select id="current" class="pick" aria-label="Cupboard option"></select>
-  <button id="cupMenu" class="chip" aria-controls="cupPanel" aria-expanded="false">Cupboard options</button>
+  <button id="loungeMenu" class="chip" aria-controls="loungePanel" aria-expanded="false">Lounge options</button>
   <button id="bedMenu" class="chip" aria-controls="bedPanel" aria-expanded="false">Bedroom options</button>
   <button id="garageMenu" class="chip" aria-controls="garagePanel" aria-expanded="false">Garage options</button>
   <button id="share" class="chip">Share</button>
@@ -91,6 +90,94 @@
     <h1>Other options</h1>
     <button id="close" class="close" aria-label="Close other options">✕</button>
   </div>
+  <details class="sec" id="secWickerBench">
+    <summary>The wicker bench</summary>
+    <div class="hint">One bench, at one set of sizes, that can be on in any of the rooms, each with its own place.</div>
+    <div id="wickerBenchBlock"></div>
+  </details>
+  <details class="sec" id="secShoeRack">
+    <summary>The shoe rack (downstairs)</summary>
+    <div class="hint">An open rack of shelves at the foot of the stairs, on its floor between the bottom step and the back wall.</div>
+    <div id="shoeRackBlock"></div>
+  </details>
+  <details class="sec" id="secDownstairsDoors" open>
+    <summary>Doors downstairs</summary>
+    <label for="flatDoor">Internal door (yours), downstairs: <span id="flatDoorValue">0°</span></label>
+    <input id="flatDoor" type="range" min="0" max="90" value="0">
+    <label for="outsideDoor">External door, downstairs: <span id="outsideDoorValue">0°</span></label>
+    <input id="outsideDoor" type="range" min="0" max="90" value="0">
+  </details>
+  <details class="sec" id="palette">
+    <summary>Colours in this view</summary>
+    <div class="colours"><div id="paletteList"></div></div>
+  </details>
+</div>
+
+<!-- Lounge options: the living room's, a drawer of its own: its corner
+     cupboard (the option and its settings), the front wall and the island,
+     the sofa, the back wall, its doors and colours, the things to store
+     and the description -->
+<div id="loungePanel" class="drawer">
+  <div class="head">
+    <h1>Lounge options</h1>
+    <button id="loungeClose" class="close" aria-label="Close lounge options">✕</button>
+  </div>
+  <details class="sec" id="secCupboard" open>
+    <summary>The corner cupboard</summary>
+    <label for="current">Option</label>
+    <select id="current" class="pick" aria-label="Cupboard option"></select>
+    <label class="switch" title="Hide the rest of the room and show the cupboard's dimensions"><input type="checkbox" id="cupboardOnly"> Cupboard only, with dimensions</label>
+    <div id="cupboardControls">
+      <div id="depthBlock">
+        <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
+        <input id="depth" type="range" min="290" max="800" step="1" value="290">
+      </div>
+      <div id="front" class="depth">Left-wall cupboard front:
+        <label><input type="radio" name="front" value="1200" checked> 1200</label>
+        <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
+      </div>
+      <label for="rear">Back-wall cupboard depth: <span id="rearValue">330</span></label>
+      <input id="rear" type="range" min="300" max="800" step="10" value="330">
+      <label for="board">Board thickness: <span id="boardValue">18</span></label>
+      <input id="board" type="range" min="12" max="25" step="1" value="18">
+      <div class="row">
+        <button id="xray">See-through cupboards: off</button>
+      </div>
+      <div id="wardBlock">
+        <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
+        <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
+        <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
+        <input id="ward" type="range" min="600" max="1400" step="50" value="900">
+        <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
+        <input id="tower" type="range" min="0" max="600" step="50" value="400">
+      </div>
+      <div id="cornerBlock">
+        <label for="cornerW">Corner cupboard width: <span id="cornerWValue">800</span></label>
+        <input id="cornerW" type="range" min="500" max="1200" step="10" value="800">
+        <label for="cornerD">Corner cupboard depth (out along the left wall): <span id="cornerDValue">650</span></label>
+        <input id="cornerD" type="range" min="0" max="1329" step="1" value="650">
+        <div id="sideShelfBlock">
+          <label class="switch"><input type="checkbox" id="sideShelfOn"> Show side bookshelf</label>
+          <div id="sideShelfDetails">
+            <label for="sideW">Side bookshelf width: <span id="sideWValue">400</span></label>
+            <input id="sideW" type="range" min="200" max="800" step="10" value="400">
+            <label for="sideD">Side bookshelf depth: <span id="sideDValue">330</span></label>
+            <input id="sideD" type="range" min="150" max="800" step="10" value="330">
+          </div>
+        </div>
+      </div>
+      <div id="legBlock">
+        <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
+        <input id="leg" type="range" min="400" max="1200" step="1" value="600">
+        <label for="legD">Single-door cupboard depth: <span id="legDValue">600</span></label>
+        <input id="legD" type="range" min="330" max="1000" step="1" value="600">
+        <label for="shelvesBack">Shelves in the back-wall leg and corner (tops, mm)</label>
+        <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
+        <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
+        <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
+      </div>
+    </div>
+  </details>
   <details class="sec" id="secFrontWall" open>
     <summary>The front wall and the island</summary>
     <div id="islandBlock" class="depth">Kitchen island:
@@ -220,16 +307,6 @@
     </div>
     </div>
   </details>
-  <details class="sec" id="secWickerBench">
-    <summary>The wicker bench</summary>
-    <div class="hint">One bench, at one set of sizes, that can be on in any of the rooms, each with its own place.</div>
-    <div id="wickerBenchBlock"></div>
-  </details>
-  <details class="sec" id="secShoeRack">
-    <summary>The shoe rack (downstairs)</summary>
-    <div class="hint">An open rack of shelves at the foot of the stairs, on its floor between the bottom step and the back wall.</div>
-    <div id="shoeRackBlock"></div>
-  </details>
   <details class="sec" id="secDoors" open>
     <summary>Doors</summary>
     <div id="tallBlock">
@@ -242,16 +319,10 @@
     </div>
     <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
     <input id="roomDoor" type="range" min="0" max="110" value="90">
-    <label for="bedroomDoor">Bedroom door: <span id="bedroomDoorValue">90°</span></label>
-    <input id="bedroomDoor" type="range" min="0" max="180" value="90">
-    <label for="flatDoor">Internal door (yours), downstairs: <span id="flatDoorValue">0°</span></label>
-    <input id="flatDoor" type="range" min="0" max="90" value="0">
-    <label for="outsideDoor">External door, downstairs: <span id="outsideDoorValue">0°</span></label>
-    <input id="outsideDoor" type="range" min="0" max="90" value="0">
   </details>
   <details class="sec" id="secColours">
     <summary>Colours</summary>
-    <div id="colours">
+    <div class="colours">
       <div class="colhead">Cupboards</div>
       <div class="colrow">
         <button id="colPrev" aria-label="Previous named colour">◀</button>
@@ -272,26 +343,12 @@
       <div class="colrow" id="dresserOtherRow" hidden>
         <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
       </div>
-      <div class="colhead" style="margin-top: 8px">Carpet (bedroom and stairs)</div>
-      <div class="colrow">
-        <button id="carpetPrev" aria-label="Previous named carpet colour">◀</button>
-        <select id="ral-carpet" aria-label="Carpet colour"></select>
-        <button id="carpetNext" aria-label="Next named carpet colour">▶</button>
-        <span class="swatch" id="carpetSwatch"></span>
-      </div>
-      <div class="colrow" id="carpetOtherRow" hidden>
-        <select id="ral-carpet-other" aria-label="Other carpet colour"></select>
-      </div>
-      <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. The carpet is Cormar's Hampstead in Dormouse, drawn in its colour in the photo from the bedroom doorway. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
-      <div class="colhead" style="margin-top: 8px">Shelves</div>
+      <div class="colhead" style="margin-top: 8px">Shelves (both cupboards)</div>
       <div class="colrow">
         <select id="shelfWood" aria-label="Shelf colour"></select>
         <span class="swatch" id="shelfSwatch"></span>
       </div>
-      <details id="palette">
-        <summary>Colours in this view</summary>
-        <div id="paletteList"></div>
-      </details>
+      <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
     </div>
   </details>
   <details class="sec" id="secStored">
@@ -316,72 +373,36 @@
   </details>
 </div>
 
-<!-- Cupboard options: the corner cupboard's settings, a drawer of its own
-     (the option itself is chosen in the top bar) -->
-<div id="cupPanel" class="drawer">
-  <div class="head">
-    <h1>Cupboard options</h1>
-    <button id="cupClose" class="close" aria-label="Close cupboard options">✕</button>
-  </div>
-  <label class="switch" title="Hide the rest of the room and show the cupboard's dimensions"><input type="checkbox" id="cupboardOnly"> Cupboard only, with dimensions</label>
-  <div id="depthBlock">
-    <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
-    <input id="depth" type="range" min="290" max="800" step="1" value="290">
-  </div>
-  <div id="front" class="depth">Left-wall cupboard front:
-    <label><input type="radio" name="front" value="1200" checked> 1200</label>
-    <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
-  </div>
-  <label for="rear">Back-wall cupboard depth: <span id="rearValue">330</span></label>
-  <input id="rear" type="range" min="300" max="800" step="10" value="330">
-  <label for="board">Board thickness: <span id="boardValue">18</span></label>
-  <input id="board" type="range" min="12" max="25" step="1" value="18">
-  <div class="row">
-    <button id="xray">See-through cupboards: off</button>
-  </div>
-  <div id="wardBlock">
-    <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
-    <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
-    <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
-    <input id="ward" type="range" min="600" max="1400" step="50" value="900">
-    <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
-    <input id="tower" type="range" min="0" max="600" step="50" value="400">
-  </div>
-  <div id="cornerBlock">
-    <label for="cornerW">Corner cupboard width: <span id="cornerWValue">800</span></label>
-    <input id="cornerW" type="range" min="500" max="1200" step="10" value="800">
-    <label for="cornerD">Corner cupboard depth (out along the left wall): <span id="cornerDValue">650</span></label>
-    <input id="cornerD" type="range" min="0" max="1329" step="1" value="650">
-    <div id="sideShelfBlock">
-      <label class="switch"><input type="checkbox" id="sideShelfOn"> Show side bookshelf</label>
-      <div id="sideShelfDetails">
-        <label for="sideW">Side bookshelf width: <span id="sideWValue">400</span></label>
-        <input id="sideW" type="range" min="200" max="800" step="10" value="400">
-        <label for="sideD">Side bookshelf depth: <span id="sideDValue">330</span></label>
-        <input id="sideD" type="range" min="150" max="800" step="10" value="330">
-      </div>
-    </div>
-  </div>
-  <div id="legBlock">
-    <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
-    <input id="leg" type="range" min="400" max="1200" step="1" value="600">
-    <label for="legD">Single-door cupboard depth: <span id="legDValue">600</span></label>
-    <input id="legD" type="range" min="330" max="1000" step="1" value="600">
-    <label for="shelvesBack">Shelves in the back-wall leg and corner (tops, mm)</label>
-    <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
-    <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
-    <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
-  </div>
-</div>
-
 <!-- Bedroom options: the bedroom's furniture, where each piece stands and
-     its sizes, a drawer of its own; the sliders are other_room.js's -->
+     its sizes, a drawer of its own (the sliders are other_room.js's); its
+     door and the carpet's colour -->
 <div id="bedPanel" class="drawer">
   <div class="head">
     <h1>Bedroom options</h1>
     <button id="bedClose" class="close" aria-label="Close bedroom options">✕</button>
   </div>
   <div id="otherRoomBlock"></div>
+  <details class="sec" id="secBedroomDoors" open>
+    <summary>Doors</summary>
+    <label for="bedroomDoor">Bedroom door: <span id="bedroomDoorValue">90°</span></label>
+    <input id="bedroomDoor" type="range" min="0" max="180" value="90">
+  </details>
+  <details class="sec" id="secBedroomColours">
+    <summary>Colours</summary>
+    <div class="colours">
+      <div class="colhead">Carpet (bedroom and stairs)</div>
+      <div class="colrow">
+        <button id="carpetPrev" aria-label="Previous named carpet colour">◀</button>
+        <select id="ral-carpet" aria-label="Carpet colour"></select>
+        <button id="carpetNext" aria-label="Next named carpet colour">▶</button>
+        <span class="swatch" id="carpetSwatch"></span>
+      </div>
+      <div class="colrow" id="carpetOtherRow" hidden>
+        <select id="ral-carpet-other" aria-label="Other carpet colour"></select>
+      </div>
+      <div class="hint">The carpet, the bedroom's and the stairs', is Cormar's Hampstead in Dormouse, drawn in its colour in the photo from the bedroom doorway. Screen colours are approximate.</div>
+    </div>
+  </details>
 </div>
 
 <!-- Garage options: Sean, Billy, BillyChest and the rest, whether each is in the

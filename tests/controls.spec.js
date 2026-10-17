@@ -22,12 +22,13 @@ const storedHead = async page => { const { shown, packing, where } = await setti
 const view = async page => readAddress(await hash(page)).view;
 const any = expect.stringMatching;
 
-// The page with a drawer open (Other options, or with '#cupMenu' Cupboard
-// options), and every section in it unfolded
-async function openDrawer(page, address, button = '#menu') {
+// The page with a drawer open (Lounge options, or with '#menu' Other
+// options, '#bedMenu' Bedroom options or '#garageMenu' Garage options), and
+// every section in every drawer unfolded
+async function openDrawer(page, address, button = '#loungeMenu') {
   await openRoom(page, address);
   await page.click(button);
-  await page.evaluate(() => document.querySelectorAll('#panel details').forEach(d => { d.open = true; }));
+  await page.evaluate(() => document.querySelectorAll('.drawer details').forEach(d => { d.open = true; }));
 }
 
 // What to do first, so a slider is on show
@@ -189,7 +190,6 @@ test.describe('radio buttons', () => {
   });
 
   test('the left-wall cupboard\'s front', async ({ page }) => {
-    await page.click('#cupMenu');
     await OPTION(7)(page);                                       // option 10, as the page opens, has its own depth instead
     const before = await hash(page);
     await page.check('input[name=front][value="1329"]');
@@ -255,6 +255,7 @@ test.describe('dropdowns', () => {
   // the first photos' colour lighter (13), as it was (12), Dormouse's
   // swatch (11), or any RAL colour
   test('the carpet colour, ◀ ▶, and other colours', async ({ page }) => {
+    await page.click('#bedMenu');                                // the carpet's in Bedroom options
     expect(await setting(page, 'colours.carpet')).toBe(0);
     await expect(page.locator('#carpetSwatch')).toHaveCSS('background-color', 'rgb(181, 164, 153)');   // #B5A499, from the doorway photo
     await page.click('#carpetNext');
@@ -283,9 +284,9 @@ test.describe('dropdowns', () => {
   });
 
   test('the colours in this view', async ({ page }) => {
-    await page.evaluate(() => { document.getElementById('palette').open = true; });
-    await expect(page.locator('#paletteList .colrow').first()).toBeVisible();
     await page.selectOption('#shelfWood', '3');
+    await page.click('#menu');                                   // they're in Other options
+    await expect(page.locator('#paletteList .colrow').first()).toBeVisible();
     await expect(page.locator('#paletteList')).toContainText('Walnut');
   });
 
@@ -322,7 +323,7 @@ test.describe('dropdowns', () => {
 
 test.describe('option 7\'s shelves', () => {
   test.beforeEach(async ({ page }) => {
-    await openDrawer(page, undefined, '#cupMenu');
+    await openDrawer(page);
     await OPTION(7)(page);
   });
 
@@ -345,7 +346,7 @@ test.describe('option 7\'s shelves', () => {
 });
 
 test.describe('switches and buttons', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#cupMenu'); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page); });
 
   test('see-through cupboards', async ({ page }) => {
     await page.click('#xray');
@@ -356,12 +357,12 @@ test.describe('switches and buttons', () => {
 
   test('cupboard only, in 3D and in the plan', async ({ page }) => {
     await page.locator('#cupboardOnly').check();
-    await page.click('#cupClose');
+    await page.click('#loungeClose');
     await page.locator('#viewsMenu .popToggle').click();
     await page.selectOption('#viewPick', 'plan');
     await expect(page.locator('#dims')).toHaveText('Dimensions: on');
     await page.keyboard.press('Escape');                             // the Views menu shut: on a phone it reaches the top bar
-    await page.click('#cupMenu');
+    await page.click('#loungeMenu');
     await page.locator('#cupboardOnly').uncheck();
   });
 });
@@ -369,7 +370,7 @@ test.describe('switches and buttons', () => {
 // The wicker bench (state.wickerBench): its sizes, then whether it's on and
 // where in the hallway, the bedroom and the living room, each on its own
 test.describe('the wicker bench', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#menu'); });
 
   test('it can be on in each room, resized and moved', async ({ page }) => {
     await expect(page.locator('#wickerBench_bedroom')).toBeHidden();
@@ -467,7 +468,7 @@ test.describe('the garage', () => {
 // The shoe rack, downstairs (state.shoeRack): its sizes, bevel, shelves'
 // slope, shoes and the door angle its bevel's cut for
 test.describe('the shoe rack', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#menu'); });
 
   test('it can be resized and put back', async ({ page }) => {
     expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });

@@ -89,27 +89,27 @@ test.describe('the settings drawers', () => {
     await expect(scrim).toBeHidden();
   });
 
-  // Cupboard options and Other options (☰), one open at a time; they open
-  // below the top bar, so its buttons and option list still work
-  test('Cupboard options has its own drawer, and one drawer is open at a time', async ({ page }) => {
-    const other = page.locator('#panel'), cupboard = page.locator('#cupPanel');
+  // Lounge options and Other options (☰), one open at a time; they open
+  // below the top bar, so its buttons still work
+  test('Lounge options has its own drawer, and one drawer is open at a time', async ({ page }) => {
+    const other = page.locator('#panel'), cupboard = page.locator('#loungePanel');
     await expect(cupboard).not.toBeInViewport();
-    await page.click('#cupMenu');
+    await page.click('#loungeMenu');
     await expect(cupboard).toBeInViewport();
-    await expect(page.locator('#cupMenu')).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('#loungeMenu')).toHaveAttribute('aria-expanded', 'true');
     await page.click('#menu');
     await expect(other).toBeInViewport();
     await expect(cupboard).not.toBeInViewport();
-    await expect(page.locator('#cupMenu')).toHaveAttribute('aria-expanded', 'false');
-    await page.click('#cupMenu');
+    await expect(page.locator('#loungeMenu')).toHaveAttribute('aria-expanded', 'false');
+    await page.click('#loungeMenu');
     await expect(cupboard).toBeInViewport();
     await expect(other).not.toBeInViewport();
-    await page.click('#cupClose');
+    await page.click('#loungeClose');
     await expect(cupboard).not.toBeInViewport();
   });
 
-  test('the option list is in the top bar, and works with a drawer open', async ({ page }) => {
-    await page.click('#cupMenu');
+  test('the option list is in Lounge options, with its sliders', async ({ page }) => {
+    await page.click('#loungeMenu');
     await pickOption(page, 9);
     await expect(page.locator('#wardBlock')).toBeVisible();        // its sliders, in the drawer
     expect(await optionShown(page)).toBe(9);
@@ -119,26 +119,26 @@ test.describe('the settings drawers', () => {
 test.describe('the controls', () => {
   test.beforeEach(async ({ page }) => {
     await openRoom(page);
-    await page.click('#menu');
+    await page.click('#loungeMenu');
   });
   const hash = page => page.evaluate(() => location.hash);
 
   test('a slider updates its number and the address', async ({ page }) => {
-    await page.click('#cupMenu');
+    await page.click('#loungeMenu');
     await page.locator('#rear').fill('500');
     await expect(page.locator('#rearValue')).toHaveText('500');
     expect(await setting(page, 'cornerCupboard.R')).toBe(500);
   });
 
   test('the board thickness slider updates its number and the address', async ({ page }) => {
-    await page.click('#cupMenu');
+    await page.click('#loungeMenu');
     await page.locator('#board').fill('22');
     await expect(page.locator('#boardValue')).toHaveText('22');
     expect(await setting(page, 'cornerCupboard.BOARD')).toBe(22);
   });
 
   test('the left-wall depth slider shows "none" below 300', async ({ page }) => {
-    await page.click('#cupMenu');
+    await page.click('#loungeMenu');
     await pickOption(page, 7);                                   // option 10, as the page opens, has no left-wall cupboard
     await page.locator('#depth').fill('450');
     await expect(page.locator('#depthValue')).toHaveText('450');
@@ -149,7 +149,7 @@ test.describe('the controls', () => {
   });
 
   test('each option shows its own slider blocks', async ({ page }) => {
-    await page.click('#cupMenu');
+    await page.click('#loungeMenu');
     const blocks = ['legBlock', 'wardBlock', 'cornerBlock'];
     // option number → the blocks shown (show() in index.html)
     const cases = [[7, ['legBlock']], [8, []], [9, ['wardBlock']], [10, ['cornerBlock']], [11, ['cornerBlock']], [16, []]];
@@ -163,7 +163,7 @@ test.describe('the controls', () => {
   });
 
   test('option 8 needs a left-wall cupboard', async ({ page }) => {
-    await page.click('#cupMenu');
+    await page.click('#loungeMenu');
     await pickOption(page, 7);                                   // for the left-wall depth slider
     await page.locator('#depth').fill('290');                    // none
     const option8 = page.locator('#current option', { hasText: /^8\. / });
@@ -348,7 +348,7 @@ test.describe('the controls', () => {
     await expect(page.locator('#sofaXValue')).toHaveText('1500');
     await expect(page.locator('#sofaYValue')).toHaveText('2000');
     await expect(page.locator('#sofaTurn')).toHaveValue('90');
-    await page.click('#menu');
+    await page.click('#loungeMenu');
     await page.click('#sofaHome');
     expect(await setting(page, 'sofa.move')).toBe(null);               // where it starts, facing the TV
     await expect(page.locator('#sofaTurn')).toHaveValue('0');

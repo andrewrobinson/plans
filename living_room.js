@@ -300,7 +300,7 @@ function turnDoorsTo(angles) {
 
 for (const [name, slider] of Object.entries(DOOR_SLIDERS)) slider.addEventListener('input', () => turnDoorsTo({ [name]: Number(slider.value) }));
 
-// The top bar's dropdown of options, kept in step by show()
+// Lounge options' dropdown of options, kept in step by show()
 const currentSelect = document.getElementById('current');
 currentSelect.innerHTML = OPTIONS.map((o, i) => `<option value="${i}">${o.name}</option>`).join('');
 currentSelect.addEventListener('change', () => chooseOption(Number(currentSelect.value)));
@@ -451,8 +451,8 @@ try { about.open = localStorage.getItem('aboutOpen') === '1'; } catch (e) { /* n
 about.addEventListener('toggle', () => {
   try { localStorage.setItem('aboutOpen', about.open ? '1' : '0'); } catch (e) { /* not important */ }
 });
-// The drawer's other sections open or closed as they were left here
-for (const sec of document.querySelectorAll('#panel details.sec[id^=sec]')) {
+// The drawers' sections open or closed as they were left here
+for (const sec of document.querySelectorAll('.drawer details.sec[id^=sec]')) {
   try { const was = localStorage.getItem(`room_3d:${sec.id}`); if (was) sec.open = was === '1'; } catch (e) { /* not important */ }
   sec.addEventListener('toggle', () => {
     try { localStorage.setItem(`room_3d:${sec.id}`, sec.open ? '1' : '0'); } catch (e) { /* not important */ }
@@ -1039,11 +1039,11 @@ function readDisplay(view) {
 }
 
 // The settings drawers, one open at a time, all closed to start on every
-// screen: Other options, opened by ☰, and Cupboard options, Bedroom
+// screen: Other options, opened by ☰, and Lounge options, Bedroom
 // options and Garage options by their buttons.
 // Each: [its button, the class on <body> while it's open]. The 2D views
 // move clear of the drawer as it opens and closes.
-const DRAWERS = { panel: ['menu', 'menu-open'], cupPanel: ['cupMenu', 'cup-open'], bedPanel: ['bedMenu', 'bed-open'],
+const DRAWERS = { panel: ['menu', 'menu-open'], loungePanel: ['loungeMenu', 'lounge-open'], bedPanel: ['bedMenu', 'bed-open'],
   garagePanel: ['garageMenu', 'garage-open'] };
 const drawers = createDrawers(DRAWERS, () => resize(true));
 drawers.setMenu(null);
