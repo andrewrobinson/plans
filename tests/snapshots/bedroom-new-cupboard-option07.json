@@ -489,7 +489,7 @@
     "bedroom": [
       {
         "kind": "Panels",
-        "length": 2443,
+        "length": 2445,
         "width": 1200,
         "shaped": false,
         "count": 1,
@@ -499,7 +499,7 @@
       },
       {
         "kind": "Panels",
-        "length": 2443,
+        "length": 2445,
         "width": 1182,
         "shaped": false,
         "count": 1,
@@ -509,7 +509,7 @@
       },
       {
         "kind": "Panels",
-        "length": 2443,
+        "length": 2445,
         "width": 582,
         "shaped": false,
         "count": 2,
@@ -542,7 +542,7 @@
       },
       {
         "kind": "Doors",
-        "length": 2437,
+        "length": 2439,
         "width": 594,
         "shaped": false,
         "count": 1,
@@ -552,7 +552,7 @@
       },
       {
         "kind": "Doors",
-        "length": 2437,
+        "length": 2439,
         "width": 576,
         "shaped": false,
         "count": 1,
@@ -652,7 +652,7 @@
       "to": [
         -1145,
         5362,
-        2443
+        2445
       ],
       "shown": true
     },

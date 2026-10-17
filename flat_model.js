@@ -19,7 +19,7 @@ import { MM, material, box, slab, part, hinge, skewHinge, RAL, oakBoards, makeCa
   dimLabel, chain } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import * as Cupboard from './corner_cupboard.js';
-import { CUPBOARD_MATERIALS, CUPBOARD_SETTINGS, makeCupboard, OPTIONS, optionAt, CURRENT, DOOR_GAP, PLINTH, baseDoorCount,
+import { CUPBOARD_MATERIALS, CUPBOARD_SETTINGS, makeCupboard, makeMaterials, seeThrough, OPTIONS, optionAt, CURRENT, DOOR_GAP, PLINTH, baseDoorCount,
   spanOf, CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, sizesInOrder, diagonal, cornerTooShallow } from './corner_cupboard.js';
 import { DRESSER_MODELS } from './dressers.js';
 import { LARDER_MODELS } from './larders.js';
@@ -42,11 +42,16 @@ export const world = new THREE.Group();
 // What the page shows, which the dimensions and the things to store's labels
 // follow: a 2D view or not (flat), which (flatView: 'plan', 'back', …) and
 // the room the plan is of (flatRoom); the cupboard on its own (Cupboard
-// only); and the Dimensions and Door sizes buttons. The hallway is hidden in
-// the wall views, which are the living room's: its stairwell would hang
-// below their floor
+// only); the Dimensions and Door sizes buttons; and See-through, every
+// corner cupboard's boards drawn faint. The hallway is hidden in the wall
+// views, which are the living room's: its stairwell would hang below their
+// floor
+// See-through is set on the cupboards' materials, which keep it, and isn't
+// kept here (ui_paradigm_analysis.md: the view's switches are to leave this
+// module's state)
 let flat = false, flatView = null, flatRoom = 'livingRoom', cupboardOnly = false, showDims = true, showDoorDims = true;
 export function setDisplay(shown) {
+  if ('seeThrough' in shown) for (const materials of [CUPBOARD_MATERIALS, BEDROOM_MATERIALS]) seeThrough(materials, shown.seeThrough);
   if ('flat' in shown) flat = shown.flat;
   if ('flatView' in shown) flatView = shown.flatView;
   if ('flatRoom' in shown) flatRoom = shown.flatRoom;
@@ -277,6 +282,22 @@ const LIVING_ROOM_PLACE = {
   width: ROOM_WIDTH, depth: ROOM_DEPTH, ceiling: CEILING_HEIGHT,
   door: { frameFrom: DOOR_FRAME_STARTS_AT, hingeAt: DOOR_HINGE_AT, width: ROOM_DOOR, thickness: 44 },
 };
+
+// The bedroom's New cupboard: a corner cupboard of its own, in the corner
+// where the chimney breast meets the kitchen-side wall (other_room.js's
+// NEW_CUPBOARD), turned half round, so its back wall runs along the breast
+// (3682 to the window wall) and its left wall along the kitchen-side wall
+// (2841 out to the hallway wall), under the bedroom's 2445 ceiling. No door
+// on its walls (the bedroom's is in the far one). Its settings and colours
+// are the living room cupboard's for now (bedroomCupboardSettings(),
+// copyColours()), until it has its own design (REFACTOR_PLAN.md); its
+// materials, shelves and cutting list are its own.
+const BEDROOM_PLACE = { width: OTHER_ROOM.length, depth: OTHER_ROOM.breastFace, ceiling: OTHER_ROOM.ceiling, door: null };
+const BEDROOM_MATERIALS = makeMaterials();
+const bedroomCupboardSettings = () => cupboardSettings();
+function copyColours(from, to) {
+  for (const key of Object.keys(from)) to[key].color.copy(from[key].color);
+}
 // The things to store, for the shelves to be cut round: each { name, h, x,
 // y, z, w, d }, in STORED's order, none while they're not shown
 const storedThings = () => (!state.stored.shown ? [] : STORED.map((s, k) => {
@@ -1107,7 +1128,6 @@ function drawStored() {
   storedGroup.clear();
   storedGroup.visible = shown;
   cupboard?.drawShelves(storedThings());                        // cut back round where they now stand
-  copyCupboardToBedroom();                                      // with those shelves
   const plan = flat && flatView === 'plan';
   const spaces = cupboardSpaces(), fits = STORED.map((s, k) => fitOf(k, stored[k], spaces));
   if (plan && spaces.length) planFit(spaces, fits);
@@ -1158,19 +1178,19 @@ function drawStored() {
 
 let cupboard = null;         // the living room's corner cupboard (makeCupboard())
 let livingGroup = null;      // the cupboard and everything round it that the option's build draws: the bench wall, the front wall, the sofa
-let bedroomCopy = null;      // the bedroom's copy of the corner cupboard, while it's there (copyCupboardToBedroom())
+let bedroomCupboard = null;  // the bedroom's own corner cupboard (BEDROOM_PLACE), while its New cupboard switch is on
 
 
-// The bedroom's New cupboard switch: a copy of the option's cupboard as
-// built, doors, shelves and all, in the bedroom's corner (other_room.js).
-// Copied again whenever the cupboard, its doors or its shelves change; the
-// copy shares their shapes and colours.
-function copyCupboardToBedroom() {
-  bedroomCopy = null;
-  if (!state.otherRoom.newCupboardOn || !cupboard) return showNewCupboard(null);
-  const copy = cupboard.group.clone();
-  showNewCupboard(copy);
-  bedroomCopy = copy;
+// The bedroom's New cupboard switch: its own cupboard, built against the
+// bedroom (BEDROOM_PLACE) in its own materials, its shelves whole (nothing's
+// stored in it), or none
+function buildBedroomCupboard() {
+  bedroomCupboard = null;
+  if (!state.otherRoom.newCupboardOn) return showNewCupboard(null);
+  copyColours(CUPBOARD_MATERIALS, BEDROOM_MATERIALS);
+  bedroomCupboard = makeCupboard(bedroomCupboardSettings(), BEDROOM_PLACE, BEDROOM_MATERIALS);
+  bedroomCupboard.drawShelves([]);
+  showNewCupboard(bedroomCupboard.group);
 }
 
 // The bedroom's pieces that can stand in the living room in place of the
@@ -1480,6 +1500,7 @@ export function build(i) {
   const aboveText = backWall + frontWall(group, i) + sofa(group);
   if (!same) state.doors.second = 0;
   drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
+  buildBedroomCupboard();                                       // and its own corner cupboard
   drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
   drawShoeRack(state.shoeRack);                                 // the shoe rack, downstairs
   drawGarage(state.garage, state.otherRoom.cupboard);           // Sean, Billy, BillyChest and the rest, in the garage
@@ -1490,17 +1511,16 @@ export function build(i) {
 const turn = degrees => THREE.MathUtils.degToRad(degrees);
 
 
-// The doors turned to their angles in state.doors (they don't rebuild), the
-// cupboard's second doors each stopping at the wall (opensTo()), then the
-// bedroom's copy of the cupboard made again, with its doors as they now
-// stand
+// The doors turned to their angles in state.doors (they don't rebuild),
+// each corner cupboard's second doors stopping at its room's walls. The
+// bedroom's cupboard's doors follow the living room's sliders, for now.
 export function turnDoors() {
   const { doors } = state;
   cupboard?.turnDoors(doors);
+  bedroomCupboard?.turnDoors(doors);
   roomHinge.rotation.y = turn(doors.room);
   bedroomHinge.rotation.y = -turn(doors.bedroom);              // it opens the other way, into the bedroom
   for (const [h, name] of [[flatDoorHinge, 'flat'], [outsideDoorHinge, 'outside']]) h.rotation.y = (h.userData.dir ?? 1) * turn(doors[name]);
-  copyCupboardToBedroom();
 }
 
 // The description of the option built: its summary (without the bench, if
@@ -1536,7 +1556,7 @@ export function buildFlat(configuration, view = {}) {
 // the current room) and the bedroom's copy, while it's there
 export const cupboardRows = () => ({
   livingRoom: state.option === CURRENT ? null : cupboard.cuttingRows(),
-  bedroom: bedroomCopy ? Cupboard.cuttingRows(bedroomCopy, state.BOARD) : null,
+  bedroom: bedroomCupboard ? bedroomCupboard.cuttingRows() : null,
 });
 
 // The settings as the page starts, and putting them back so: everything,

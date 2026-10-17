@@ -12,7 +12,8 @@
 //              back wall, `depth` out from it, `ceiling`, and its `door`
 //              (frameFrom, hingeAt, width, thickness), which option 8's
 //              left door and option 10's doors can meet
-//   materials  CUPBOARD_MATERIALS, or another cupboard's own
+//   materials  its own, from makeMaterials(): the living room's is
+//              CUPBOARD_MATERIALS
 //
 // makeCupboard() builds the chosen option into a group, the cupboard
 // standing in its room's back-left corner (x along the back wall, y out
@@ -20,17 +21,30 @@
 import * as THREE from 'three';
 import { MM, material, box, slab, part, hinge, skewHinge, dimLabel, chain } from './kit/floor_kit.js';
 
-// The living room cupboard's materials: its boards (carcass), shelves and
-// doors, the handles, and option 9's and 10's oak shelves and light strips
-// (the flat's colour picker and shelf wood recolour them)
-export const CUPBOARD_MATERIALS = {
+// A cupboard's own materials: its boards (carcass), shelves and doors, the
+// handles, and option 9's and 10's oak shelves and light strips. Each
+// cupboard has its own set, so each can be coloured on its own.
+export const makeMaterials = () => ({
   carcass: material(0xc9a877),
   shelf: material(0xd6bc8f),
   door: material(0xd8bd92),
   handle: material(0x333333),
   oak: material(0xc8a26b),
   glow: new THREE.MeshStandardMaterial({ color: 0xfff1d0, emissive: 0xffd28a, emissiveIntensity: 1.2 }),
-};
+});
+// The living room cupboard's (the flat's colour picker and shelf wood
+// recolour them)
+export const CUPBOARD_MATERIALS = makeMaterials();
+
+// See-through: a cupboard's boards drawn faint, so what's inside shows (a
+// way of looking, set from the view)
+export function seeThrough(materials, on) {
+  const { carcass } = materials;
+  carcass.transparent = on;
+  carcass.opacity = on ? 0.25 : 1;
+  carcass.depthWrite = !on;
+  carcass.needsUpdate = true;
+}
 
 // The settings a cupboard is built from: its piece of the configuration
 export const CUPBOARD_SETTINGS = ['option', 'T', 'R', 'F', 'BOARD', 'LEG', 'LEG_D', 'L_SHELVES', 'WARD', 'WARD_D',

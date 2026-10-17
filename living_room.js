@@ -745,10 +745,7 @@ let xray = false;
 const xrayButton = document.getElementById('xray');
 function setSeeThrough(on) {
   xray = on;
-  carcassMat.transparent = xray;
-  carcassMat.opacity = xray ? 0.25 : 1;
-  carcassMat.depthWrite = !xray;
-  carcassMat.needsUpdate = true;
+  setDisplay({ seeThrough: xray });
   xrayButton.textContent = `See-through cupboards: ${xray ? 'on' : 'off'}`;
 }
 xrayButton.addEventListener('click', () => {
