@@ -34,7 +34,7 @@ import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims
   CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES,
   LARDERS, LARDER_SLIDERS, OPTIONS, PACKINGS, SCHEMA, SHELF_WOODS, SOFAS, SOFA_SLIDERS, STORED,
   TV_H, TV_SIZES, TV_W, benchDrawn, carcassMat, colourOf, configurationNow, cornerTooShallow,
-  cupboardPart, cupboardSettings, current, currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
+  cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
   placeDresser, placeStored, readConfiguration, readShelves, screenMat, setRal, shelfMat,
@@ -59,10 +59,10 @@ const applyCut = cutViews(scene, {
 // In a 2D view, the cupboard on its own fills the screen, with room for its
 // dimensions round it
 function frameCupboard() {
-  if (!flat || !cupboardOnly || !current?.cupboard) return;
+  if (!flat || !cupboardOnly || !cupboard) return;
   scene.updateMatrixWorld(true);
   const b = new THREE.Box3();
-  current.cupboard.traverse(o => { if (o.isMesh && cupboardPart(o, false)) b.expandByObject(o); });
+  cupboard.group.traverse(o => { if (o.isMesh && cupboardPart(o, false)) b.expandByObject(o); });
   if (b.isEmpty()) return;
   const c = b.getCenter(new THREE.Vector3()), size = b.getSize(new THREE.Vector3()), margin = 1.6;
   const t = flatControls.target, shift = new THREE.Vector3();
@@ -314,7 +314,7 @@ function showInMenus(option, i, aboveText) {
   currentSelect.value = String(i);
   document.getElementById('summary').innerHTML = describe(option, aboveText);
   const shown = (id, yes) => { document.getElementById(id).style.display = yes ? '' : 'none'; };
-  shown('tallBlock', current.tall);
+  shown('tallBlock', cupboard.doors.tall);
   const { no } = option;
   shown('legBlock', no === 7);
   shown('wardBlock', no === 9);

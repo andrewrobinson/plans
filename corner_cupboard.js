@@ -14,9 +14,9 @@
 //              left door and option 10's doors can meet
 //   materials  CUPBOARD_MATERIALS, or another cupboard's own
 //
-// buildCupboard() builds the chosen option into a group, the cupboard
+// makeCupboard() builds the chosen option into a group, the cupboard
 // standing in its room's back-left corner (x along the back wall, y out
-// from it, z up). REFACTOR_PLAN.md step 6d.
+// from it, z up), and gives what's asked of it. REFACTOR_PLAN.md step 6d.
 import * as THREE from 'three';
 import { MM, material, box, slab, part, hinge, skewHinge, dimLabel, chain } from './kit/floor_kit.js';
 
@@ -60,14 +60,23 @@ export const baseDoorCount = span => Math.max(1, Math.round(span / BASE_DOOR_W))
 const cupboardJob = (settings, place, materials) => ({ s: settings, place, H: place.ceiling, mats: materials, shelves: [] });
 
 // A named board from room corner `from` [x, y, z] to corner `to`, in mm, as
-// box() takes them: a box for the cutting list. Every cupboard is built of
+// box() takes them, of a kind in the cutting list (CUT_KINDS: 'Panels',
+// 'Doors' or 'Shelves'), in that kind's material. Every cupboard is built of
 // these, with rear panels against the walls, so its inside doesn't lean on
 // them. The rule (see CUT_RULE): rear panels and ends run full height; in a
 // corner the back-wall rear panel runs through and the left-wall one stops
 // at it; tops, bottoms and dividers fit between them; shelves fit inside;
 // doors cover the front edges, DOOR_GAP clear.
-function board(job, name, { from, to }, g, mat = job.mats.carcass) {
-  return part(name, box({ from, to }, mat, g));
+function board(job, name, { from, to }, g, kind = 'Panels') {
+  const mat = { Panels: job.mats.carcass, Doors: job.mats.door, Shelves: job.mats.shelf }[kind];
+  return ofKind(kind, part(name, box({ from, to }, mat, g)));
+}
+// A board marked with its kind, for the cutting list (a shaped one, from
+// slab(), is marked so too); none when there's nothing to draw (box() gives
+// null for a board with no size, as the left-wall leg's with no leg)
+function ofKind(kind, mesh) {
+  if (mesh) mesh.userData.kind = kind;
+  return mesh;
 }
 
 // ---------------------------------------------------------------------------
@@ -108,7 +117,7 @@ function clipPoly(poly, axis, at, below) {
 // within LIFT of its underside (a 10 gap either side); what's left under 100
 // long is left out. Returns the cuts: { top, from, to, axis, things }, the
 // things by their place in `things`.
-export function drawShelves(shelves, things, BOARD, group) {
+function drawShelves(shelves, things, BOARD, group) {
   group.traverse(o => o.geometry?.dispose());
   group.clear();
   const cuts = [];
@@ -120,7 +129,7 @@ export function drawShelves(shelves, things, BOARD, group) {
       return z < top - BOARD && Math.max(z, BOARD) + h + LIFT > top - BOARD && x < sx1 && x + w > sx0 && y < sy1 && y + d > sy0;
     });
     if (!clash.length) {
-      part(`Shelf at ${top}`, slab(poly, top - BOARD, top, mat, group));
+      ofKind('Shelves', part(`Shelf at ${top}`, slab(poly, top - BOARD, top, mat, group)));
       continue;
     }
     const axis = sx1 - sx0 >= sy1 - sy0 ? 0 : 1;                // along the shelf's long way
@@ -131,7 +140,7 @@ export function drawShelves(shelves, things, BOARD, group) {
     for (const piece of [clipPoly(poly, axis, from, true), clipPoly(poly, axis, to, false)]) {
       if (piece.length < 3) continue;
       const [a, b] = spanOf(piece, axis);
-      if (b - a >= 100) part(`Shelf at ${top}, cut back`, slab(piece, top - BOARD, top, mat, group));
+      if (b - a >= 100) ofKind('Shelves', part(`Shelf at ${top}, cut back`, slab(piece, top - BOARD, top, mat, group)));
     }
   }
   return cuts;
@@ -139,7 +148,7 @@ export function drawShelves(shelves, things, BOARD, group) {
 
 // What the cuts come to, for the menu: which shelves are cut back, over
 // what, and the lowest shelf left over the bay
-export function shelfCutText(cuts, shelves, things, BOARD) {
+function shelfCutText(cuts, shelves, things, BOARD) {
   if (!cuts.length) return '';
   const lower = name => name.charAt(0).toLowerCase() + name.slice(1).replace(/ \(\d\)$/, '');
   const tops = [...new Set(cuts.map(c => c.top))].sort((a, b) => a - b);
@@ -173,7 +182,7 @@ function tallDoor(job, g, back) {                                 // back: where
   if (T === 0) return null;
   const h = hinge(T, F, g);
   const w = F - back - 2 * DOOR_GAP;
-  part('Left-wall leg door', box({ from: [0, -w - DOOR_GAP, DOOR_GAP], to: [BOARD, -DOOR_GAP, H - DOOR_GAP] }, mats.door, h));
+  board(job, 'Left-wall leg door', { from: [0, -w - DOOR_GAP, DOOR_GAP], to: [BOARD, -DOOR_GAP, H - DOOR_GAP] }, h, 'Doors');
   box({ from: [BOARD, -w + 17, HANDLE_BOTTOM], to: [BOARD + 22, -w + 37, HANDLE_TOP] }, mats.handle, h, false); // handle near the free edge
   return h;
 }
@@ -195,7 +204,7 @@ function fullHeightL(job, g) {
   for (const top of L_SHELVES.back) cupShelf(job, rectPoly(B, B, E - B, Dl - B), top, mats.carcass);
   if (T) for (const top of L_SHELVES.left) cupShelf(job, rectPoly(B, Dl - B, T - B, F - B), top, mats.carcass);
   const second = hinge(E, Dl + B, g);
-  part('Back-wall leg door', box({ from: [T + B + DOOR_GAP - E, -B, DOOR_GAP], to: [-DOOR_GAP, 0, H - DOOR_GAP] }, mats.door, second));
+  board(job, 'Back-wall leg door', { from: [T + B + DOOR_GAP - E, -B, DOOR_GAP], to: [-DOOR_GAP, 0, H - DOOR_GAP] }, second, 'Doors');
   box({ from: [T + B + 20 - E, 0, HANDLE_BOTTOM], to: [T + B + 40 - E, 22, HANDLE_TOP] }, mats.handle, second, false);
   return second;
 }
@@ -240,8 +249,8 @@ function diagonalCarcass(job, g) {
   board(job, 'Back-wall end', { from: [E - B, B, 0], to: [E, R, H] }, g);
   const across = (x, y) => [[x, R + (E - x) * (F - R) / DIAGONAL_RUN], [T + (F - y) * DIAGONAL_RUN / (F - R), y]];   // where x and y meet the front
   const outline = [[B, B], [E - B, B], ...across(E - B, F - B), [B, F - B]];
-  part('Top', slab(outline, H - B, H, mats.carcass, g));
-  part('Bottom', slab(outline, 0, B, mats.carcass, g));
+  ofKind('Panels', part('Top', slab(outline, H - B, H, mats.carcass, g)));
+  ofKind('Panels', part('Bottom', slab(outline, 0, B, mats.carcass, g)));
 }
 
 // Option 8's inside, SHELF_SETBACK behind the diagonal front: that line
@@ -262,10 +271,10 @@ function diagonalDoors(job, g) {
   const { T, R, F, BOARD: B } = job.s, { H, mats } = job;
   const E = T + DIAGONAL_RUN, { door, angle } = diagonal(job.s);
   const left = skewHinge(T, F, angle, -1, g);
-  part('Diagonal door', box({ from: [DOOR_GAP, 0, DOOR_GAP], to: [DOOR_GAP + door, B, H - DOOR_GAP] }, mats.door, left));
+  board(job, 'Diagonal door', { from: [DOOR_GAP, 0, DOOR_GAP], to: [DOOR_GAP + door, B, H - DOOR_GAP] }, left, 'Doors');
   box({ from: [door - 40, B, HANDLE_BOTTOM], to: [door - 20, B + 22, HANDLE_TOP] }, mats.handle, left, false);
   const right = skewHinge(E, R, angle - 180, 1, g);
-  part('Diagonal door', box({ from: [DOOR_GAP, -B, DOOR_GAP], to: [DOOR_GAP + door, 0, H - DOOR_GAP] }, mats.door, right));
+  board(job, 'Diagonal door', { from: [DOOR_GAP, -B, DOOR_GAP], to: [DOOR_GAP + door, 0, H - DOOR_GAP] }, right, 'Doors');
   box({ from: [door - 40, -B - 22, HANDLE_BOTTOM], to: [door - 20, -B, HANDLE_TOP] }, mats.handle, right, false);
   return [left, right];
 }
@@ -303,10 +312,10 @@ function wardDoors(job, g) {
   const w = (WARD - B - 3 * DOOR_GAP) / 2;
   const left = hinge(T + B + DOOR_GAP, Dw + B, g);
   left.userData.dir = -1;
-  part('Cupboard door', box({ from: [0, -B, DOOR_GAP], to: [w, 0, H - DOOR_GAP] }, mats.door, left));
+  board(job, 'Cupboard door', { from: [0, -B, DOOR_GAP], to: [w, 0, H - DOOR_GAP] }, left, 'Doors');
   box({ from: [w - 40, 0, HANDLE_BOTTOM], to: [w - 20, 22, HANDLE_TOP] }, mats.handle, left, false);
   const right = hinge(E - DOOR_GAP, Dw + B, g);
-  part('Cupboard door', box({ from: [-w, -B, DOOR_GAP], to: [0, 0, H - DOOR_GAP] }, mats.door, right));
+  board(job, 'Cupboard door', { from: [-w, -B, DOOR_GAP], to: [0, 0, H - DOOR_GAP] }, right, 'Doors');
   box({ from: [20 - w, 0, HANDLE_BOTTOM], to: [40 - w, 22, HANDLE_TOP] }, mats.handle, right, false);
   return [left, right];
 }
@@ -366,10 +375,10 @@ function cornerDoorsToKitchen(job, g) {
   const w = (E - 3 * DOOR_GAP) / 2;                              // a pair, DOOR_GAP from the wall, each other and the side
   const left = hinge(DOOR_GAP, F, g);
   left.userData.dir = -1;
-  part('Cupboard door', box({ from: [0, -B, DOOR_GAP], to: [w, 0, H - DOOR_GAP] }, mats.door, left));
+  board(job, 'Cupboard door', { from: [0, -B, DOOR_GAP], to: [w, 0, H - DOOR_GAP] }, left, 'Doors');
   box({ from: [w - 40, 0, HANDLE_BOTTOM], to: [w - 20, 22, HANDLE_TOP] }, mats.handle, left, false);
   const right = hinge(E - DOOR_GAP, F, g);
-  part('Cupboard door', box({ from: [-w, -B, DOOR_GAP], to: [0, 0, H - DOOR_GAP] }, mats.door, right));
+  board(job, 'Cupboard door', { from: [-w, -B, DOOR_GAP], to: [0, 0, H - DOOR_GAP] }, right, 'Doors');
   box({ from: [20 - w, 0, HANDLE_BOTTOM], to: [40 - w, 22, HANDLE_TOP] }, mats.handle, right, false);
   return [left, right];
 }
@@ -384,11 +393,11 @@ function cornerDoorsToWindows(job, g) {
   board(job, 'Side by the bench', { from: [E, B, 0], to: [X, R, H] }, g);
   const w = (F - R - B - 3 * DOOR_GAP) / 2;                       // a pair on the side beyond the bench
   const back = hinge(E, R + DOOR_GAP, g);                         // hinged at the bench end
-  part('Cupboard door', box({ from: [0, 0, DOOR_GAP], to: [B, w, H - DOOR_GAP] }, mats.door, back));
+  board(job, 'Cupboard door', { from: [0, 0, DOOR_GAP], to: [B, w, H - DOOR_GAP] }, back, 'Doors');
   box({ from: [B, w - 40, HANDLE_BOTTOM], to: [B + 22, w - 20, HANDLE_TOP] }, mats.handle, back, false);
   const front = hinge(E, F - B - DOOR_GAP, g);                    // hinged at the kitchen end
   front.userData.dir = -1;
-  part('Cupboard door', box({ from: [0, -w, DOOR_GAP], to: [B, 0, H - DOOR_GAP] }, mats.door, front));
+  board(job, 'Cupboard door', { from: [0, -w, DOOR_GAP], to: [B, 0, H - DOOR_GAP] }, front, 'Doors');
   box({ from: [B, 20 - w, HANDLE_BOTTOM], to: [B + 22, 40 - w, HANDLE_TOP] }, mats.handle, front, false);
   return [back, front];
 }
@@ -413,7 +422,7 @@ function sideBookshelf(job, g) {
   board(job, 'Bookshelf top', { from: [X, B, H - B], to: [x1 - B, d, H] }, g);
   board(job, 'Bookshelf bottom', { from: [X, B, 0], to: [x1 - B, d, B] }, g);
   for (const top of sideShelfTops(job.s, H)) {
-    board(job, 'Bookshelf shelf', { from: [X, B, top - B], to: [x1 - B, d, top] }, g, mats.shelf);
+    board(job, 'Bookshelf shelf', { from: [X, B, top - B], to: [x1 - B, d, top] }, g, 'Shelves');
     box({ from: [X + 20, d - 40, top - B - 7], to: [x1 - B - 20, d - 30, top - B] }, mats.glow, g, false);
   }
 }
@@ -558,14 +567,44 @@ for (const o of OPTIONS) o.no = parseInt(o.name, 10);
 export const optionAt = no => OPTIONS.findIndex(o => o.no === no);
 export const CURRENT = OPTIONS.length - 1;
 
-// The chosen option (settings.option) built into a new group, standing in
-// place's back-left corner: { group, tall, second, shelves }, the left-wall
-// leg's door (options 7 and 9), the option's other door or doors, and the
-// shelves recorded for drawShelves() to draw
-export function buildCupboard(settings, place, materials) {
+// A corner cupboard: the chosen option (settings.option) built into a new
+// group, standing in place's back-left corner, and what's asked of it.
+//   group             everything it's built of, its shelves included
+//   doors             { tall, second }: the left-wall leg's door (options 7
+//                     and 9) and the option's other door or doors, hinges
+//   shelves           what it recorded as it was built, for drawShelves()
+//   drawShelves(things), shelfCutText(things)
+//                     its shelves drawn round the things to store (each
+//                     { name, h, x, y, z, w, d }), and what's cut back
+//   turnDoors(angles) its doors opened to angles.tall and angles.second, in
+//                     degrees, each second door stopping at its room's walls
+//   cuttingList(), cuttingRows()
+//   partOf(o, withDoors), dims(view, g), doorDims(view, g)
+//                     what Cupboard only shows, and its dimensions in a view
+//                     ({ flat, flatView })
+export function makeCupboard(settings, place, materials) {
   const job = cupboardJob(settings, place, materials);
   const group = new THREE.Group();
-  return { group, ...OPTIONS[settings.option].build(job, group), shelves: job.shelves };
+  const { tall = null, second = null } = OPTIONS[settings.option].build(job, group);
+  const shelfGroup = new THREE.Group();                          // drawn into by drawShelves()
+  shelfGroup.userData.cupShelves = true;                         // so its dimensions know the shelves from an open tower's
+  group.add(shelfGroup);
+  let cuts = [];                                                 // what drawShelves() last cut
+  const turn = degrees => THREE.MathUtils.degToRad(degrees);
+  return {
+    group, doors: { tall, second }, shelves: job.shelves,
+    drawShelves(things) { cuts = drawShelves(job.shelves, things, settings.BOARD, shelfGroup); },
+    shelfCutText: things => shelfCutText(cuts, job.shelves, things, settings.BOARD),
+    turnDoors(angles) {
+      if (tall) tall.rotation.y = -turn(angles.tall);
+      for (const h of [].concat(second ?? [])) h.rotation.y = (h.userData.dir ?? 1) * turn(Math.min(angles.second, opensTo(h, group, place)));
+    },
+    cuttingList: () => cuttingList(group, settings.BOARD),
+    cuttingRows: () => cuttingRows(group, settings.BOARD),
+    partOf: (o, withDoors = true) => partOfCupboard(o, group, withDoors),
+    dims: (view, g) => cupboardDims(group, materials, view, g),
+    doorDims: (view, g) => doorDims(group, place, view, g),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -607,7 +646,7 @@ export function insideSpaces(settings, place) {
 // diagonal's deep. Found by turning it a degree at a time, once for each
 // build of the door; the door's box is taken in the cupboard's own mm, which
 // are its room's (cupboard: its group).
-export function opensTo(hinge, cupboard, place) {
+function opensTo(hinge, cupboard, place) {
   if (hinge.userData.opensTo === undefined) {
     let degrees = 0;
     while (degrees < 180) {
@@ -643,7 +682,7 @@ const P = (x, y, z) => new THREE.Vector3(x * MM, z * MM, y * MM);
 
 // Whether o is part of the cupboard (its group), its doors left out unless
 // withDoors: what Cupboard only shows
-export function partOfCupboard(o, cupboard, withDoors = true) {
+function partOfCupboard(o, cupboard, withDoors = true) {
   for (let p = o; p; p = p.parent) {
     if (!withDoors && p.userData.hinge) return false;
     if (p === cupboard) return true;
@@ -655,7 +694,7 @@ export function partOfCupboard(o, cupboard, withDoors = true) {
 // open): along the back wall and out from it, the edges of its outline in
 // plan, and up, its height and its shelves'. view: { flat, flatView }, as
 // the page shows it.
-export function cupboardDims(cupboard, materials, { flat, flatView }, g) {
+function cupboardDims(cupboard, materials, { flat, flatView }, g) {
   cupboard.updateWorldMatrix(true, true);
   const boxes = [], shelfTops = [];
   cupboard.traverse(o => {
@@ -702,11 +741,11 @@ export function cupboardDims(cupboard, materials, { flat, flatView }, g) {
 // from the door as built (so it follows the boards' thickness): in the plan
 // all of them (over the cupboard, under the room's ceiling), in a wall view
 // those facing it, and with the cupboard on its own in 3D, all of them.
-export function doorDims(cupboard, materials, place, { flat, flatView }, g) {
+function doorDims(cupboard, place, { flat, flatView }, g) {
   cupboard.updateWorldMatrix(true, true);
   const facing = { back: 'z', front: 'z', left: 'x', right: 'x' }[flatView];   // in a wall view, the scene axis a door facing it is thin along
   cupboard.traverse(o => {
-    if (!o.isMesh || o.material !== materials.door) return;
+    if (!o.isMesh || o.userData.kind !== 'Doors') return;
     const b = new THREE.Box3().setFromObject(o), size = b.getSize(new THREE.Vector3()), at = b.getCenter(new THREE.Vector3());
     if (flat && facing && size[facing] > size[facing === 'x' ? 'z' : 'x']) return;   // side on to this view
     const { width, height, depth } = o.geometry.parameters;
@@ -734,15 +773,14 @@ export const CUT_EXCEPTIONS = {
   10: "Option 10's left-wall rear panel stops behind its doors.",
   11: "Option 11's end facing the kitchen runs across the left-wall rear panel.",
 };
-// cupboard: its group, or a copy of it (the bedroom's). Returns a Map of
-// kind -> Map of 'l×w×shaped' -> { l, w, shaped, n, parts }
-export function cuttingList(cupboard, BOARD, materials) {
-  const boardKinds = new Map([[materials.carcass, 'Panels'], [materials.door, 'Doors'], [materials.shelf, 'Shelves']]);
+// group: the cupboard's, or a copy of it (the bedroom's). Each board is
+// listed under the kind board() or ofKind() marked it with. Returns a Map
+// of kind -> Map of 'l×w×shaped' -> { l, w, shaped, n, parts }
+export function cuttingList(group, BOARD) {
   const kinds = new Map();
-  cupboard?.traverse(o => {
-    if (!o.isMesh || !boardKinds.has(o.material)) return;
-    let kind = boardKinds.get(o.material);
-    for (let p = o; p; p = p.parent) if (p.userData.cupShelves) kind = 'Shelves';   // the cupboard's shelves, whatever their colour
+  group?.traverse(o => {
+    const { kind } = o.userData;
+    if (!o.isMesh || !kind) return;
     o.geometry.computeBoundingBox();
     const [t, w, l] = o.geometry.boundingBox.getSize(new THREE.Vector3()).toArray().map(v => Math.round(v / MM)).sort((a, b) => a - b);
     if (t !== BOARD) return;
@@ -760,8 +798,8 @@ export const CUT_KINDS = ['Panels', 'Doors', 'Shelves'];
 export const sizesInOrder = sizes => [...sizes.values()].sort((a, b) => b.l - a.l || b.w - a.w);
 
 // The cutting list as rows, in the order the page lists them
-export function cuttingRows(cupboard, BOARD, materials) {
-  const kinds = cuttingList(cupboard, BOARD, materials);
+export function cuttingRows(group, BOARD) {
+  const kinds = cuttingList(group, BOARD);
   return CUT_KINDS.filter(k => kinds.has(k)).flatMap(kind => sizesInOrder(kinds.get(kind)).map(({ l, w, shaped, n, parts }) =>
     ({ kind, length: l, width: w, shaped, count: n, parts: [...parts] })));
 }
