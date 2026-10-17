@@ -1457,10 +1457,12 @@ function entryFor(path) {
 }
 // Each [path, value] of `edits` in turn, as one change (a setting checked
 // against another comes after it, as the schema lists them). Returns
-// whether every one was taken
+// whether every one was taken. One refused is an error in the console, as
+// it means a control and its setting's entry disagree (the browser tests
+// fail on one)
 export function setAll(edits) {
   const refused = edits.filter(([path, value]) => !Config.readEntry(entryFor(path), value, state));
-  for (const [path, value] of refused) console.warn(`${JSON.stringify(value)} isn't a setting for ${path}: left as it was`);
+  for (const [path, value] of refused) console.error(`${JSON.stringify(value)} isn't a setting for ${path}: left as it was`);
   return refused.length === 0;
 }
 export const set = (path, value) => setAll([[path, value]]);
