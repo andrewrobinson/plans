@@ -30,6 +30,7 @@ import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, SIZE_LABEL, QUARTER
 import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
 import { shoeRack, shoeRackControls } from './shoe_rack.js';
 import { garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
+import { cupboardControls } from './cupboard_controls.js';
 import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims, build,
   drawStored, turnDoors, describe, settle, cupboardRows, startAgain, BACK_WALL_KEYS, CHAIR_TURN, CURRENT,
   CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES,
@@ -38,7 +39,7 @@ import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims
   cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
-  placeStored, readConfiguration, readShelves, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow, cupboardOf,
+  placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, state, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
@@ -300,19 +301,6 @@ function turnDoorsTo(angles) {
 
 for (const [name, slider] of Object.entries(DOOR_SLIDERS)) slider.addEventListener('input', () => turnDoorsTo({ [name]: Number(slider.value) }));
 
-// Lounge options' dropdown of options, kept in step by show()
-const currentSelect = document.getElementById('current');
-currentSelect.innerHTML = OPTIONS.map((o, i) => `<option value="${i}">${o.name}</option>`).join('');
-currentSelect.addEventListener('change', () => chooseOption(Number(currentSelect.value)));
-// Choosing an option (not a link to one): with no left-wall cupboard, an
-// option with a default for it gets one
-function chooseOption(i) {
-  const { no, defaultLeft } = OPTIONS[i];
-  const edits = [[cupboardAt('option'), no]];
-  if (cupboardValue('T') === 0 && defaultLeft) edits.push([cupboardAt('T'), defaultLeft]);
-  change(edits);
-}
-
 
 // Show option i: the model builds it (build()), then the menus, the view
 // and everything drawn round it follow. onShow: the option on show till
@@ -327,21 +315,10 @@ function show(i, onShow) {
 // The menus for option i: the option list, the description, and only the
 // blocks of controls that apply to it
 function showInMenus(option, i, aboveText) {
-  const { above } = state, T = cupboardValue('T');
-  [...currentSelect.options].forEach((o, j) => { o.disabled = T === 0 && Boolean(OPTIONS[j].needsLeft); });
-  currentSelect.value = String(i);
+  const { above } = state;
+  loungeCupboard.showBlocks();
   document.getElementById('summary').innerHTML = describe(option, aboveText);
   const shown = (id, yes) => { document.getElementById(id).style.display = yes ? '' : 'none'; };
-  shown('tallBlock', cupboard.doors.tall);
-  const { no } = option;
-  shown('legBlock', no === 7);
-  shown('wardBlock', no === 9);
-  shown('cornerBlock', no === 10 || no === 11);
-  shown('sideShelfBlock', no === 10);                           // option 11's doors open where it would stand
-  shown('sideShelfDetails', cupboardValue('SIDE_SHELF'));
-  shown('front', !option.front);                                // options 10 and 11 have their own depth (cornerD)
-  shown('depthBlock', !option.fixedWidth);
-  shown('secondBlock', option.second);
   shown('tvBlock', above >= 2);
   shown('shelfBlock', above === 1 || above >= 3);               // only with shelves above the bench
   shown('benchDetails', benchDrawn());
@@ -360,7 +337,6 @@ function showInMenus(option, i, aboveText) {
     showPlace(key);                                             // where it starts follows the option's clear wall
   }
   showSofaPlace();                                              // where it starts follows the TV
-  document.getElementById('secondLabel').textContent = option.second || '';
 }
 
 // Everything drawn round the option: dimensions, colours, the things to
@@ -402,7 +378,7 @@ async function writeAddress(replace = false) {
 
 window.addEventListener('keydown', e => {
   const n = Number(e.key);
-  if (n >= 1 && optionAt(n) >= 0) chooseOption(optionAt(n));
+  if (n >= 1 && optionAt(n) >= 0) loungeCupboard.choose(optionAt(n));
 });
 
 // Every settings control changes the settings through here, by their paths
@@ -420,30 +396,10 @@ function change(edits, { look = false } = {}) {
   if (look) viewKit.refresh();
 }
 
-// The corner cupboard the cupboard controls change, by its design's path in
-// the configuration (the living room's; the bedroom's to come, at
-// pieces.bedroomCupboard.design): its settings' paths, changing one, and
-// one's value
-const cupboardPath = 'pieces.cornerCupboard.design';
-const cupboardAt = key => `${cupboardPath}.${key}`;
-const setCupboard = (key, value) => change([[cupboardAt(key), value]]);
-const cupboardValue = key => get(cupboardAt(key));
-// Its sliders, by their ids, and the settings they change, bar the left-wall
-// cupboard's depth (with its "none")
-const CUPBOARD_SLIDERS = [['rear', 'R'], ['board', 'BOARD'], ['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'],
-  ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']];
-
-// The left-wall cupboard's depth: none at the far left (290 on the slider),
-// then 300 to 800
-const depthSlider = document.getElementById('depth');
-depthSlider.addEventListener('input', () => {
-  const v = Number(depthSlider.value);
-  setCupboard('T', v < 300 ? 0 : v);
-});
-for (const [id, key] of CUPBOARD_SLIDERS) {
-  const slider = document.getElementById(id);
-  slider.addEventListener('input', () => setCupboard(key, Number(slider.value)));
-}
+// The living room's corner cupboard's controls, in Lounge options
+// (cupboard_controls.js): its option list, sizes, shelves and front, by
+// its design's path in the configuration
+const loungeCupboard = cupboardControls({ piece: 'cornerCupboard', change });
 document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => change([['pieces.bench.design.height', Number(r.value)]])));
 // The description starts folded away; remember if the viewer opens it
 const about = document.getElementById('about');
@@ -459,9 +415,6 @@ for (const sec of document.querySelectorAll('.drawer details.sec[id^=sec]')) {
   });
 }
 
-// Option 10's side bookshelf: drawn, or not
-const sideShelfSwitch = document.getElementById('sideShelfOn');
-sideShelfSwitch.addEventListener('change', () => setCupboard('SIDE_SHELF', sideShelfSwitch.checked));
 // The cupboard and dresser colours: named colours to compare, or "Other
 // colours…", which shows a second dropdown of popular cupboard colours and
 // every RAL colour by family. ◀ and ▶ step between the named ones.
@@ -726,13 +679,6 @@ function showBookshelfSizes() {
     document.getElementById(`${bookshelfSizeId(k)}Value`).textContent = state.otherRoom.bookcase[k];
   }
 }
-// Option 7's shelves: a list of tops for each leg, 100 up to just under the
-// ceiling (none is fine)
-const shelfInputs = { back: document.getElementById('shelvesBack'), left: document.getElementById('shelvesLeft') };
-function showShelves() {
-  for (const k of ['back', 'left']) shelfInputs[k].value = cupboardValue(`L_SHELVES.${k}`).join(', ');
-}
-for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => setCupboard(`L_SHELVES.${k}`, readShelves(shelfInputs[k].value)));
 // The island: where it is, or against the front wall
 const ISLAND_PLACE = 'pieces.island.in.livingRoom';
 document.querySelectorAll('input[name=islandAt]').forEach(r => r.addEventListener('change', () => change([[`${ISLAND_PLACE}.at`, r.value]], { look: true })));
@@ -769,7 +715,6 @@ tvSlider.addEventListener('input', () => change([['pieces.aboveBench.design.tv',
 // The radios hold the page's 0 to 4
 const ABOVE = 'pieces.aboveBench.design.what';
 document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => change([[ABOVE, wordAt(ABOVE, Number(r.value))]])));
-document.querySelectorAll('input[name=front]').forEach(r => r.addEventListener('change', () => setCupboard('F', Number(r.value))));
 
 let xray = false;
 const xrayButton = document.getElementById('xray');
@@ -1080,16 +1025,13 @@ const syncGarage = garageControls(document.getElementById('garageBlock'), edits 
 
 function syncControls() {
   settle();                                                     // the TV's size, the colours and the dresser's place, worked out
-  const { BENCH, above, shelfDepth, tv, frontPiece, island } = state, T = cupboardValue('T');
+  const { BENCH, above, shelfDepth, tv, frontPiece, island } = state;
   const slide = (id, value, text = value) => {
     document.getElementById(id).value = String(value);
     document.getElementById(`${id}Value`).textContent = text;
   };
   const check = (name, value) => { document.querySelector(`input[name=${name}][value="${value}"]`).checked = true; };
-  slide('depth', T || 290, T || 'none');
-  for (const [id, key] of CUPBOARD_SLIDERS) slide(id, cupboardValue(key));
-  sideShelfSwitch.checked = cupboardValue('SIDE_SHELF');
-  check('front', cupboardValue('F'));
+  loungeCupboard.sync();
   benchSwitch.checked = benchDrawn();
   benchSwitch.disabled = onBackWall().length > 0;
   for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = state[`${key}On`];
@@ -1098,7 +1040,6 @@ function syncControls() {
   check('above', above);
   slide('shelfDepth', shelfDepth);
   slide('tvSize', TV_SIZES.findIndex(([inches]) => inches === tv), `${tv}" (${TV_W} × ${TV_H})`);
-  showShelves();
   refreshColours();
   showShelfWood();
   check('frontPiece', frontPiece);

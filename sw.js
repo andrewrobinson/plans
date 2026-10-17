@@ -12,6 +12,7 @@ const FILES = [
   './living_room.js',
   './flat_model.js',
   './corner_cupboard.js',
+  './cupboard_controls.js',
   './living_room.views.js',
   './living_room.scenes.js',
   './other_room.js',
