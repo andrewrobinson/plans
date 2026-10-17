@@ -237,6 +237,10 @@ const state = {
     SIDE_W: 400,                     // ...its width along the back wall, 200 to 800, the cupboard's side included (it shares it)
     SIDE_D: 330,                     // ...and its depth from the back wall, 150 to 800
   },
+  // The bedroom's corner cupboard (its New cupboard): its own settings, as
+  // the living room's, its piece pieces.bedroomCupboard.design. To start, a
+  // copy of the living room's (set below OPTIONS)
+  bedroomCupboard: null,
   benchOn: true,                   // the bench drawn, with what's above it; off, the back wall's bare
   bookshelfOn: false,              // the bedroom's bookcase on the back wall in place of the bench (and what's above it), which is then off whatever benchOn says
   bookshelfMove: null,             // ...and moved round the room from there: { x, y, turn } (see BACK_WALL_PIECES), or null where it starts
@@ -246,7 +250,7 @@ const state = {
   above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
   shelfDepth: 250,                 // the shelves above the bench: 150 to 400 deep
   tv: 75,                          // the TV's size in inches, one of TV_SIZES
-  colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0 },   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards
+  colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0 },   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
   shelfWood: 0,                    // the shelves' wood, which of SHELF_WOODS
   frontPiece: 'dresser',           // on the front wall between the sink and the desk: one of FRONT_PIECES
   // The dresser's, larder's and sofa's sizes, and which larder and sofa:
@@ -266,11 +270,12 @@ const state = {
   garage: structuredClone(GARAGE_START),              // Sean, Billy, BillyChest and the rest, in the garage: where each stands (garage.js)
   // How far each door is open, in degrees, up to its slider's most
   // (index.html): the room door, the left-wall cupboard's tall door, the
-  // option's other door or doors, the bedroom's, and downstairs the flat's
-  // own door and the lobby's outside door. Set by the door sliders and by
-  // some views (the room door shut on walking in, the cupboard's open for
-  // packing); the doors are turned by update(), without rebuilding
-  doors: { room: 90, tall: 0, second: 0, bedroom: 90, flat: 0, outside: 0 },
+  // option's other door or doors, the bedroom's, downstairs the flat's
+  // own door and the lobby's outside door, and the bedroom cupboard's tall
+  // and other doors. Set by the door sliders and by some views (the room
+  // door shut on walking in, the cupboard's open for packing); the doors are
+  // turned by update(), without rebuilding
+  doors: { room: 90, tall: 0, second: 0, bedroom: 90, flat: 0, outside: 0, bedroomCupboardTall: 0, bedroomCupboardSecond: 0 },
 };
 
 
@@ -296,16 +301,12 @@ const LIVING_ROOM_PLACE = {
 // NEW_CUPBOARD), turned half round, so its back wall runs along the breast
 // (3682 to the window wall) and its left wall along the kitchen-side wall
 // (2841 out to the hallway wall), under the bedroom's 2445 ceiling. No door
-// on its walls (the bedroom's is in the far one). Its settings and colours
-// are the living room cupboard's for now (bedroomCupboardSettings(),
-// copyColours()), until it has its own design (REFACTOR_PLAN.md); its
-// materials, shelves and cutting list are its own.
+// on its walls (the bedroom's is in the far one). Its settings
+// (state.bedroomCupboard), colour (colours.bedroomCupboard, following the
+// living room's unless set), doors, materials, shelves and cutting list are
+// its own; its shelves' wood is the flat's.
 const BEDROOM_PLACE = { width: OTHER_ROOM.length, depth: OTHER_ROOM.breastFace, ceiling: OTHER_ROOM.ceiling, door: null };
 const BEDROOM_MATERIALS = makeMaterials();
-const bedroomCupboardSettings = () => cupboardSettings();
-function copyColours(from, to) {
-  for (const key of Object.keys(from)) to[key].color.copy(from[key].color);
-}
 // The things to store, for the shelves to be cut round: each { name, h, x,
 // y, z, w, d }, in STORED's order, none while they're not shown
 const storedThings = () => (!state.stored.shown ? [] : STORED.map((s, k) => {
@@ -447,6 +448,7 @@ const COLOUR_TARGETS = {
   woodwork: { mats: [frameMat, roomDoorMat], room: 2 },
   dresser: { mats: [dresserMat, dresserDoorMat], follows: 'cupboard' },
   carpet: { mats: [carpetMat], room: 14 },
+  bedroomCupboard: { mats: [BEDROOM_MATERIALS.carcass, BEDROOM_MATERIALS.door], follows: 'cupboard' },
 };
 
 
@@ -805,6 +807,7 @@ function frontSpan() {
   return { x0: larderFrontX0(L), x1: larderFrontX0(L) + L.w, heights: [0, larderHeight(L)] };
 }
 state.cornerCupboard.option = optionAt(10);
+state.bedroomCupboard = structuredClone(state.cornerCupboard);
 
 
 // ---------------------------------------------------------------------------
@@ -942,8 +945,9 @@ function doorDims(g) {
   if (cupboard && showDoorDims) cupboard.doorDims({ flat, flatView }, g);
 }
 
-// The living room cupboard's cutting list, for the page
-const cuttingList = () => (cupboard ? cupboard.cuttingList() : new Map());
+// A corner cupboard's cutting list, by its piece's name (the living room's
+// unless given), for the page
+const cuttingList = (piece = 'cornerCupboard') => cupboardOf(piece)?.cuttingList() ?? new Map();
 
 // ---------------------------------------------------------------------------
 // Things to store, eventually in the corner cupboard: bulky things standing
@@ -1189,17 +1193,28 @@ let livingGroup = null;      // the cupboard and everything round it that the op
 let bedroomCupboard = null;  // the bedroom's own corner cupboard (BEDROOM_PLACE), while its New cupboard switch is on
 
 
-// The bedroom's New cupboard switch: its own cupboard, built against the
-// bedroom (BEDROOM_PLACE) in its own materials, its shelves whole (nothing's
-// stored in it), or none
-function buildBedroomCupboard() {
+// The bedroom's New cupboard switch: its own cupboard, built from its own
+// settings against the bedroom (BEDROOM_PLACE) in its own materials, its
+// shelves whole (nothing's stored in it), or none. As the living room's
+// (build()), option 8 falls back to 7 with no left-wall cupboard, and a new
+// option starts with its second door shut (`onShow`: the option on show
+// till now)
+function buildBedroomCupboard(onShow) {
   bedroomCupboard = null;
+  const settings = state.bedroomCupboard;
+  if (settings.T === 0 && OPTIONS[settings.option].needsLeft) settings.option = optionAt(7);
+  if (settings.option !== onShow) state.doors.bedroomCupboardSecond = 0;
   if (!state.otherRoom.newCupboardOn) return showNewCupboard(null);
-  copyColours(CUPBOARD_MATERIALS, BEDROOM_MATERIALS);
-  bedroomCupboard = makeCupboard(bedroomCupboardSettings(), BEDROOM_PLACE, BEDROOM_MATERIALS);
+  bedroomCupboard = makeCupboard(cupboardSettings('bedroomCupboard'), BEDROOM_PLACE, BEDROOM_MATERIALS);
   bedroomCupboard.drawShelves([]);
   showNewCupboard(bedroomCupboard.group);
 }
+// Each corner cupboard as built (makeCupboard()), by its piece's name, or
+// null while there's none
+export const cupboardOf = piece => ({ cornerCupboard: cupboard, bedroomCupboard })[piece] ?? null;
+// The options on show, each cupboard's, as build() is told them when the
+// menus have already set new ones
+export const optionsOnShow = () => ({ cornerCupboard: state.cornerCupboard.option, bedroomCupboard: state.bedroomCupboard.option });
 
 // The bedroom's pieces that can stand in the living room in place of the
 // bench (the back wall's Bookshelf and Pine cupboard switches), each at its
@@ -1309,10 +1324,11 @@ const SHELF_WOODS = [
   { name: 'Walnut', hex: '#5C3D26' },
 ];
 
-// Shelf tops from 100 up to under the top board (of `board` thickness, the
-// living room cupboard's unless given), each once, in order: as typed, any
-// numbers in the text, and from a configuration
-const shelfTopsOf = (tops, board = state.cornerCupboard.BOARD) => [...new Set(tops.filter(v => v >= 100 && v <= CEILING_HEIGHT - 2 * board))].sort((a, b) => a - b);
+// Shelf tops from 100 up to under the top board (of `board` thickness,
+// under `ceiling`: the living room cupboard's unless given), each once, in
+// order: as typed, any numbers in the text, and from a configuration
+const shelfTopsOf = (tops, board = state.cornerCupboard.BOARD, ceiling = CEILING_HEIGHT) =>
+  [...new Set(tops.filter(v => v >= 100 && v <= ceiling - 2 * board))].sort((a, b) => a - b);
 const readShelves = text => shelfTopsOf(String(text).split(/[^0-9]+/).map(Number));
 
 // ---------------------------------------------------------------------------
@@ -1331,6 +1347,7 @@ const CONFIGURATION_VERSION = 1;   // up only when a setting changes its path or
 // and sofa's are in DRESSER_SLIDERS, LARDER_SLIDERS and SOFA_SLIDERS
 const SLIDER_RANGES = {
   roomDoor: [0, 110, 1], tallDoor: [0, 180, 1], secondDoor: [0, 180, 1], bedroomDoor: [0, 180, 1], flatDoor: [0, 90, 1], outsideDoor: [0, 90, 1],
+  bedroomCupboardTallDoor: [0, 180, 1], bedroomCupboardSecondDoor: [0, 180, 1],
   rear: [300, 800, 10], board: [12, 25, 1], leg: [400, 1200, 1], legD: [330, 1000, 1],
   ward: [600, 1400, 50], wardD: [330, 1000, 10], tower: [0, 600, 50],
   cornerW: [500, 1200, 10], cornerD: [0, 1329, 1], sideW: [200, 800, 10], sideD: [150, 800, 10],
@@ -1359,10 +1376,10 @@ function readStoredSpots(spots, was, settings) {
 }
 // A corner cupboard's entries: its design at `design` in the configuration
 // (as 'pieces.cornerCupboard.design'), its settings at `setting` in state
-// (as 'cornerCupboard'). The option by its number (state has its place in
-// OPTIONS); the boards' thickness before option 7's shelves, checked
-// against it
-function cupboardEntries(design, setting) {
+// (as 'cornerCupboard'), under its room's `ceiling`. The option by its
+// number (state has its place in OPTIONS); the boards' thickness before
+// option 7's shelves, checked against it and the ceiling
+function cupboardEntries(design, setting, ceiling) {
   const at = key => `${design}.${key}`, of = key => `${setting}.${key}`;
   return [
     Config.other(at('option'), of('option'), no => (optionAt(no) >= 0 ? optionAt(no) : undefined), i => OPTIONS[i].no),
@@ -1373,7 +1390,7 @@ function cupboardEntries(design, setting) {
     fromSlider(at('LEG'), of('LEG'), 'leg'),
     fromSlider(at('LEG_D'), of('LEG_D'), 'legD'),
     ...['back', 'left'].map(leg => Config.other(at(`L_SHELVES.${leg}`), of(`L_SHELVES.${leg}`),
-      (tops, was, settings) => (Array.isArray(tops) ? shelfTopsOf(tops.filter(Number.isFinite), Config.valueAt(settings, of('BOARD'))) : undefined),
+      (tops, was, settings) => (Array.isArray(tops) ? shelfTopsOf(tops.filter(Number.isFinite), Config.valueAt(settings, of('BOARD')), ceiling) : undefined),
       tops => [...tops])),
     fromSlider(at('WARD'), of('WARD'), 'ward'),
     fromSlider(at('WARD_D'), of('WARD_D'), 'wardD'),
@@ -1387,10 +1404,11 @@ function cupboardEntries(design, setting) {
 }
 const LIVING_ROOM_SCHEMA = [
   ...Object.keys(state.doors).map(name => fromSlider(`doors.${name}`, `doors.${name}`, `${name}Door`)),   // the sliders roomDoor, tallDoor and so on
-  ...['floor', 'cupboard', 'wall', 'woodwork', 'dresser', 'carpet'].map(key => Config.colour(`colours.${key}`, `colours.${key}`, isColour)),
+  ...Object.keys(COLOUR_TARGETS).map(key => Config.colour(`colours.${key}`, `colours.${key}`, isColour)),
   Config.number('colours.shelves', 'shelfWood', 0, SHELF_WOODS.length - 1, 1, { onSteps: true }),
   Config.choice('livingRoom.frontWall', 'frontPiece', FRONT_PIECES),
-  ...cupboardEntries('pieces.cornerCupboard.design', 'cornerCupboard'),
+  ...cupboardEntries('pieces.cornerCupboard.design', 'cornerCupboard', CEILING_HEIGHT),
+  ...cupboardEntries('pieces.bedroomCupboard.design', 'bedroomCupboard', BEDROOM_PLACE.ceiling),
   // The bench along the back wall, and what's above it
   Config.choice('pieces.bench.design.height', 'BENCH', [700, 780, 800, 900]),
   Config.onOff('pieces.bench.in.livingRoom.on', 'benchOn'),
@@ -1531,22 +1549,25 @@ export function settle() {
 // or the shelves' and the oak's
 function applyShelfWood() {
   const [shelves, oak = shelves] = [].concat(SHELF_WOODS[state.shelfWood].hex);
-  shelfMat.color.set(shelves);
-  oakMat.color.set(oak);
+  for (const materials of [CUPBOARD_MATERIALS, BEDROOM_MATERIALS]) {    // both cupboards'
+    materials.shelf.color.set(shelves);
+    materials.oak.color.set(oak);
+  }
 }
 
 // Build option i and everything round it, in every room. Option 8 falls back
 // to 7 with no left-wall cupboard. A new option starts with its second door
 // shut; rebuilding the same one (a size changed) leaves the doors as they
 // were. Then the things to store are placed (drawStored() draws them).
-// `onShow`: the option on show till now, when the menus have already set
-// the new one. Returns the option built, whether it's the one built before,
-// and the description of what's round it (describe())
-export function build(i, onShow = state.cornerCupboard.option) {
+// `onShow`: each cupboard's option on show till now (optionsOnShow()), when
+// the menus have already set new ones. Returns the option built, whether
+// it's the one built before, and the description of what's round it
+// (describe())
+export function build(i, onShow = optionsOnShow()) {
   settle();
   if (state.cornerCupboard.T === 0 && OPTIONS[i].needsLeft) i = optionAt(7);
   const option = OPTIONS[i];
-  const same = i === onShow && Boolean(cupboard);
+  const same = i === onShow.cornerCupboard && Boolean(cupboard);
   state.cornerCupboard.option = i;
   const group = buildOption();
   if (benchDrawn()) drawBench(option, group);
@@ -1557,7 +1578,7 @@ export function build(i, onShow = state.cornerCupboard.option) {
   const aboveText = backWall + frontWall(group, i) + sofa(group);
   if (!same) state.doors.second = 0;
   drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
-  buildBedroomCupboard();                                       // and its own corner cupboard
+  buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard
   drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
   drawShoeRack(state.shoeRack);                                 // the shoe rack, downstairs
   drawGarage(state.garage, state.otherRoom.cupboard);           // Sean, Billy, BillyChest and the rest, in the garage
@@ -1569,12 +1590,11 @@ const turn = degrees => THREE.MathUtils.degToRad(degrees);
 
 
 // The doors turned to their angles in state.doors (they don't rebuild),
-// each corner cupboard's second doors stopping at its room's walls. The
-// bedroom's cupboard's doors follow the living room's sliders, for now.
+// each corner cupboard's second doors stopping at its room's walls
 export function turnDoors() {
   const { doors } = state;
   cupboard?.turnDoors(doors);
-  bedroomCupboard?.turnDoors(doors);
+  bedroomCupboard?.turnDoors({ tall: doors.bedroomCupboardTall, second: doors.bedroomCupboardSecond });
   roomHinge.rotation.y = turn(doors.room);
   bedroomHinge.rotation.y = -turn(doors.bedroom);              // it opens the other way, into the bedroom
   for (const [h, name] of [[flatDoorHinge, 'flat'], [outsideDoorHinge, 'outside']]) h.rotation.y = (h.userData.dir ?? 1) * turn(doors[name]);
@@ -1609,11 +1629,11 @@ export function buildFlat(configuration, view = {}) {
     boxes: pieceBoxes(),
   };
 }
-// Each corner cupboard's cutting list as rows: the living room's (none for
-// the current room) and the bedroom's own, while it's there
+// Each corner cupboard's cutting list as rows: the living room's and the
+// bedroom's own, while it's there (none for the current room)
 export const cupboardRows = () => ({
   livingRoom: state.cornerCupboard.option === CURRENT ? null : cupboard.cuttingRows(),
-  bedroom: bedroomCupboard ? bedroomCupboard.cuttingRows() : null,
+  bedroom: bedroomCupboard && state.bedroomCupboard.option !== CURRENT ? bedroomCupboard.cuttingRows() : null,
 });
 
 // The settings as the page starts, and putting them back so: everything,

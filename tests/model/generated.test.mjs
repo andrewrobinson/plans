@@ -1,7 +1,8 @@
 // Generated configurations (REFACTOR_PLAN.md, step 6c): from the default,
 // for every option, one setting at a time at each end of its range (each
 // choice of a choice, on and off), and each board thickness; so each piece
-// in each room it can be in too. Each must build without error, with no
+// in each room it can be in too; and the bedroom's own cupboard in each
+// option, its settings at their ends. Each must build without error, with no
 // size that isn't a number, no board in the cutting lists of no size, the
 // corner cupboard and what stands on the front wall inside the living room
 // (with its doors at each end of their sliders too: they stop at the walls),
@@ -18,6 +19,7 @@ const DEFAULT = structuredClone(buildFlat({ version: 1 }).configuration);
 const OPTION = 'pieces.cornerCupboard.design.option';
 const BOARD = 'pieces.cornerCupboard.design.BOARD';
 const OPTION_NUMBERS = OPTIONS.map(o => o.no);
+const BEDROOM_DESIGN = 'pieces.bedroomCupboard.design', BEDROOM_OPTION = `${BEDROOM_DESIGN}.option`, BEDROOM_ON = 'pieces.bedroomCupboard.in.bedroom.on';
 
 // The values to try for an entry: a number's ends, a choice's every
 // choice, on and off, two colours; for the others a few of their own (the
@@ -53,6 +55,22 @@ function* configurations() {
       }
     }
     for (let board = 12; board <= 25; board++) yield [`option ${no}, boards ${board} thick`, changed(BOARD, board)];
+  }
+  // The bedroom's own corner cupboard, on, in each option, its settings at
+  // their ends one at a time (above, with it off, they build nothing)
+  for (const no of OPTION_NUMBERS) {
+    const base = structuredClone(DEFAULT);
+    setValueAt(base, BEDROOM_ON, true);
+    setValueAt(base, BEDROOM_OPTION, no);
+    yield [`the bedroom's option ${no}`, base];
+    for (const entry of SCHEMA.filter(e => e.path.startsWith(BEDROOM_DESIGN))) {
+      for (const value of valuesOf(entry)) {
+        if (JSON.stringify(value) === JSON.stringify(valueAt(base, entry.path))) continue;
+        const c = structuredClone(base);
+        setValueAt(c, entry.path, structuredClone(value));
+        yield [`the bedroom's option ${no}, ${entry.path} ${JSON.stringify(value)}`, c];
+      }
+    }
   }
 }
 

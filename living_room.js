@@ -38,7 +38,7 @@ import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims
   cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
-  placeStored, readConfiguration, readShelves, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting,
+  placeStored, readConfiguration, readShelves, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow, cupboardOf,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, state, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
@@ -413,7 +413,7 @@ window.addEventListener('keydown', e => {
 // moved. (The things to store and the doors change theirs with set() too,
 // but redraw only themselves.)
 function change(edits, { look = false } = {}) {
-  const onShow = state.cornerCupboard.option;
+  const onShow = optionsOnShow();                              // before they change
   setAll(edits);
   syncControls();
   show(state.cornerCupboard.option, onShow);
