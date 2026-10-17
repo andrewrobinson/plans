@@ -36,7 +36,9 @@ window.ROOM_SCENES = {
           "second": 0,
           "bedroom": 90,
           "flat": 0,
-          "outside": 0
+          "outside": 0,
+          "bedroomCupboardTall": 0,
+          "bedroomCupboardSecond": 0
         },
         "colours": {
           "floor": 0,
@@ -45,6 +47,7 @@ window.ROOM_SCENES = {
           "woodwork": 0,
           "dresser": 0,
           "carpet": 0,
+          "bedroomCupboard": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -79,6 +82,42 @@ window.ROOM_SCENES = {
               "SIDE_SHELF": false,
               "SIDE_W": 400,
               "SIDE_D": 330
+            }
+          },
+          "bedroomCupboard": {
+            "design": {
+              "option": 10,
+              "T": 600,
+              "R": 330,
+              "F": 1200,
+              "BOARD": 18,
+              "LEG": 600,
+              "LEG_D": 600,
+              "L_SHELVES": {
+                "back": [
+                  600,
+                  1200,
+                  1800
+                ],
+                "left": [
+                  600,
+                  1200,
+                  1800
+                ]
+              },
+              "WARD": 900,
+              "WARD_D": 600,
+              "TOWER": 400,
+              "CORNER_W": 800,
+              "CORNER_D": 650,
+              "SIDE_SHELF": false,
+              "SIDE_W": 400,
+              "SIDE_D": 330
+            },
+            "in": {
+              "bedroom": {
+                "on": false
+              }
             }
           },
           "bench": {
@@ -136,13 +175,6 @@ window.ROOM_SCENES = {
               "livingRoom": {
                 "front": 1900,
                 "move": null
-              }
-            }
-          },
-          "bedroomCupboard": {
-            "in": {
-              "bedroom": {
-                "on": false
               }
             }
           },
