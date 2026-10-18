@@ -142,7 +142,8 @@
           "model": "none",
           "w": 1690,
           "d": 1000,
-          "h": 920
+          "h": 920,
+          "asBed": false
         },
         "in": {
           "livingRoom": {
@@ -226,6 +227,45 @@
           }
         }
       },
+      "billyChest": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "breast",
+            "along": 2569
+          },
+          "livingRoom": {
+            "on": false,
+            "move": null
+          },
+          "garage": {
+            "on": true,
+            "x": 3000,
+            "y": 1100,
+            "turn": 0
+          }
+        }
+      },
+      "ivar": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "breast",
+            "along": 2569
+          },
+          "livingRoom": {
+            "on": true,
+            "lying": true,
+            "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 0,
+            "y": 1100,
+            "turn": 270
+          }
+        }
+      },
       "recessCupboards": {
         "design": {
           "lowerD": 301,
@@ -293,16 +333,6 @@
             "x": 2000,
             "y": 1000,
             "turn": 90
-          }
-        }
-      },
-      "billyChest": {
-        "in": {
-          "garage": {
-            "on": true,
-            "x": 3000,
-            "y": 1100,
-            "turn": 0
           }
         }
       },
@@ -528,7 +558,7 @@
     "Door 437 × 2437",
     "Door 437 × 2437"
   ],
-  "description": "No left-wall cupboard. A full-height cupboard on the back wall (x 0-900, 600 deep) with a pair of 437 doors, then a 400-wide, 330-deep open shelving tower (to x 1300), floor to ceiling, with five lit shelves. Base cupboards with 6 doors under an oak top run on to the right-hand wall: 2538 long, 780 high, 330 deep. Inside, within its 18 boards (rear panels against the walls included): 864 × 582, 2407 high. Above the bench: a 75\" TV (1680 × 960), centred on the 2538 of clear wall, from 1100 to 2060. 250-deep shelves right across, 2538 long, below it at 1000 and above it at 2210. A middle shelf at 1550 either side, 279 long, 150 clear of the TV. A dresser on the front wall between the sink and the desk (x 823-2193): 1370 wide overall (its body 1330), 1940 high, 410 deep up to 830 (two drawers over two doors, under a wooden top), then 340 deep with three open shelves.From option 7 and the photo (new)",
+  "description": "No left-wall cupboard. A full-height cupboard on the back wall (x 0-900, 600 deep) with a pair of 437 doors, then a 400-wide, 330-deep open shelving tower (to x 1300), floor to ceiling, with five lit shelves. Base cupboards with 6 doors under an oak top run on to the right-hand wall: 2538 long, 780 high, 330 deep. Inside, within its 18 boards (rear panels against the walls included): 864 × 582, 2407 high. Above the bench: a 75\" TV (1680 × 960), centred on the 2538 of clear wall, from 1100 to 2060. 250-deep shelves right across, 2538 long, below it at 1000 and above it at 2210. A middle shelf at 1550 either side, 279 long, 150 clear of the TV. A dresser on the front wall between the sink and the desk (x 823-2193): 1370 wide overall (its body 1330), 1940 high, 410 deep up to 830 (two drawers over two doors, under a wooden top), then 340 deep with three open shelves. The Ivar, lying on its side (830 long, 300 wide, 800 high), against the first radiator, 830 out into the room.From option 7 and the photo (new)",
   "boxes": {
     "livingRoom": {
       "from": [
@@ -581,6 +611,19 @@
         1780,
         4201,
         900
+      ],
+      "shown": true
+    },
+    "ivar.livingRoom": {
+      "from": [
+        2876,
+        1045,
+        0
+      ],
+      "to": [
+        3706,
+        1346,
+        800
       ],
       "shown": true
     },
@@ -647,6 +690,32 @@
         -1858,
         5362,
         2020
+      ],
+      "shown": false
+    },
+    "billyChest.bedroom": {
+      "from": [
+        -2661,
+        4878,
+        0
+      ],
+      "to": [
+        -1855,
+        5362,
+        780
+      ],
+      "shown": false
+    },
+    "ivar.bedroom": {
+      "from": [
+        -2658,
+        5062,
+        0
+      ],
+      "to": [
+        -1858,
+        5362,
+        830
       ],
       "shown": false
     },
@@ -842,6 +911,19 @@
         -33892,
         -12162,
         -1060
+      ],
+      "shown": false
+    },
+    "ivar": {
+      "from": [
+        -35992,
+        -11987,
+        -2850
+      ],
+      "to": [
+        -35692,
+        -11187,
+        -2020
       ],
       "shown": false
     }

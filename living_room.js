@@ -40,7 +40,7 @@ import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
-  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, state, storedGroup, storedMats,
+  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, state, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE } from './floor.js';
@@ -352,6 +352,7 @@ function showInMenus(option, i, aboveText) {
     shown(`${key}MoveBlock`, state[`${key}On`]);
     showPlace(key);                                             // where it starts follows the option's clear wall
   }
+  showIvar();
   showSofaPlace();                                              // where it starts follows the TV
 }
 
@@ -617,6 +618,8 @@ function showSofa() {
     document.getElementById(`${id}Value`).textContent = size[k];
   }
   document.getElementById('sofaFrontBlock').style.display = key ? '' : 'none';
+  document.getElementById('sofaAsBedRow').style.display = SOFAS[key]?.daybed ? '' : 'none';   // a daybed only
+  sofaAsBed.checked = state.sofa.asBed;
   document.getElementById('sofaFrontRow').style.display = state.sofa.move ? 'none' : '';   // moved, its sliders say where
 }
 const setSofaSize = sizes => sizeEdits('pieces.sofa.design', SOFA_SLIDERS, sizes);
@@ -629,6 +632,9 @@ sofaPick.addEventListener('change', () => {
   change([['pieces.sofa.design.model', wordAt('pieces.sofa.design.model', sofaPick.value)], ...(S ? setSofaSize(sofaOwnSize(S)) : [])], { look: true });
 });
 const SOFA_PLACE = 'pieces.sofa.in.livingRoom';
+// A daybed (the Drift) can be laid out as a bed
+const sofaAsBed = document.getElementById('sofaAsBed');
+sofaAsBed.addEventListener('change', () => change([['pieces.sofa.design.asBed', sofaAsBed.checked]], { look: true }));
 sofaSlider.addEventListener('input', () => change([[`${SOFA_PLACE}.front`, Number(sofaSlider.value)]], { look: true }));
 // Cupboard only: the rest of the room hidden, and the cupboard's dimensions shown
 const cupboardOnlySwitch = document.getElementById('cupboardOnly');
@@ -655,7 +661,8 @@ const PLACE_SLIDERS = [['x', 'X', ROOM_WIDTH, 5, ''], ['y', 'Y', ROOM_DEPTH, 5, 
 const roundedSpot = ({ x, y, turn }) => ({ x: Math.round(x), y: Math.round(y), turn });
 const backWallSwitches = {};
 // Each one's place in the living room in the configuration, by its key
-const BACK_WALL_PLACES = { bookshelf: 'pieces.bookcase.in.livingRoom', pine: 'pieces.pineCupboard.in.livingRoom', billy: 'pieces.billy.in.livingRoom' };
+const BACK_WALL_PLACES = { bookshelf: 'pieces.bookcase.in.livingRoom', pine: 'pieces.pineCupboard.in.livingRoom', billy: 'pieces.billy.in.livingRoom',
+  billyChest: 'pieces.billyChest.in.livingRoom' };
 // Billy can also lie on its long side there
 const billyLying = document.getElementById('billyLying');
 billyLying.addEventListener('change', () => change([[`${BACK_WALL_PLACES.billy}.lying`, billyLying.checked]], { look: true }));
@@ -663,14 +670,33 @@ for (const key of BACK_WALL_KEYS) {
   const place = BACK_WALL_PLACES[key];
   const onSwitch = backWallSwitches[key] = document.getElementById(`${key}On`);
   onSwitch.addEventListener('change', () => change([[`${place}.on`, onSwitch.checked]], { look: true }));
+  placeControls(key, place, () => spotOf(key));
+}
+// A piece's X, Y and Turn sliders (`${key}X` and so on) and its Reset
+// location button (`${key}Home`), moving it at `place`.move from where it
+// is now, spotNow()
+function placeControls(key, place, spotNow) {
   for (const [k, suffix, max, step] of PLACE_SLIDERS) {
     const input = Object.assign(document.getElementById(`${key}${suffix}`), { min: '0', max: String(max), step: String(step) });
-    input.addEventListener('input', () => change([[`${place}.move`, { ...roundedSpot(spotOf(key)), [k]: Number(input.value) }]]));
+    input.addEventListener('input', () => change([[`${place}.move`, { ...roundedSpot(spotNow()), [k]: Number(input.value) }]]));
   }
   document.getElementById(`${key}Home`).addEventListener('click', () => change([[`${place}.move`, null]]));
 }
-function showPlace(key) {
-  const spot = roundedSpot(spotOf(key));
+// The Ivar: in the lounge or not, lying or standing, and moved from where
+// it starts, by the first radiator (flat_model.js's ivarHome())
+const IVAR_PLACE = 'pieces.ivar.in.livingRoom';
+const ivarOn = document.getElementById('ivarOn'), ivarLying = document.getElementById('ivarLying');
+ivarOn.addEventListener('change', () => change([[`${IVAR_PLACE}.on`, ivarOn.checked]], { look: true }));
+ivarLying.addEventListener('change', () => change([[`${IVAR_PLACE}.lying`, ivarLying.checked]], { look: true }));
+placeControls('ivar', IVAR_PLACE, ivarSpot);
+function showIvar() {
+  ivarOn.checked = state.ivarOn;
+  ivarLying.checked = state.ivarLying;
+  document.getElementById('ivarMoveBlock').style.display = state.ivarOn ? '' : 'none';
+  showPlace('ivar', ivarSpot());
+}
+function showPlace(key, at = spotOf(key)) {
+  const spot = roundedSpot(at);
   for (const [k, suffix, , , unit] of PLACE_SLIDERS) {
     document.getElementById(`${key}${suffix}`).value = String(spot[k]);
     document.getElementById(`${key}${suffix}Value`).textContent = `${spot[k]}${unit}`;
@@ -907,6 +933,8 @@ const anchors = {
   bookcase: () => middleOf(otherRoomPieces.bookcase),
   pineCupboard: () => middleOf(otherRoomPieces.cupboard),
   bedroomBilly: () => middleOf(otherRoomPieces.billy),
+  bedroomBillyChest: () => middleOf(otherRoomPieces.billyChest),
+  bedroomIvar: () => middleOf(otherRoomPieces.ivar),
   newCupboard: () => {                                          // with none (switched off, or option 16), the pine cupboard's spot
     const drawn = new THREE.Box3().setFromObject(otherRoomPieces.newCupboard);
     return middleOf(drawn.isEmpty() ? otherRoomPieces.cupboard : otherRoomPieces.newCupboard);

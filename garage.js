@@ -8,12 +8,13 @@
 // (GARAGE_SCHEMA), says where the garage is, draws it and what's in it (drawGarage()), and
 // makes Garage options' block (garageControls()).
 import * as THREE from 'three';
-import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
+import { MM, material, box, slab, valueAt, clearDrawing } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { hallway, HALLWAY, ENTRANCE, ceilingMat, insideFace, faceAround } from './floor.js';
 import { pineCupboard, OTHER_ROOM_START, QUARTER_TURN, slider, lyingSwitch } from './other_room.js';
 import { bookcase } from './bookcase.js';
-import { BILLY, billy } from './billy.js';
+import { BILLY, BILLY_CHEST, billy, billyChest } from './billy.js';
+import { IVAR, ivar } from './ivar.js';
 
 // ---------------------------------------------------------------------------
 // Its sizes, in mm (the user's, 16 Oct 2026): 5327 long, from its door to
@@ -96,11 +97,11 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 // ---------------------------------------------------------------------------
 // What's in it: Sean, timber shelving: a frame at each end holding up
 // shelves of scaffold boards (the user's photo, 16 Oct 2026); Billy
-// (billy.js), standing or lying on its long side (`canLie`); BillyChest, a plain box (the user's, 16
+// (billy.js), standing or lying on its long side (`canLie`); BillyChest (billy.js), a plain box (the user's, 16
 // Oct 2026); then (also 16 Oct 2026) Metal, a table; Yellow, a cupboard;
 // the scaffold bench, a scaffold board on legs; Small Billy, a cupboard;
 // Potters, open shelves; and Biltong and Trellis, boxes open at the top;
-// and the bedroom's pine cupboard (other_room.js's pineCupboard()), at the
+// the bedroom's pine cupboard (other_room.js's pineCupboard()), at the
 // sizes set in Bedroom options (`bedroomSizes`), as its copy in the living
 // room. Each can be taken out, as the bedroom's furniture. Their sizes are the
 // user's: w along its back, d out from it, h high; their colours chosen.
@@ -116,7 +117,7 @@ const scaffoldBoard = material(0xc9a66b);          // a scaffold board's sandy p
 const PIECES = {
   sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: newPine, shape: 'timber shelves' },
   billy: { label: 'Billy', ...BILLY, shape: 'billy', canLie: true },
-  billyChest: { label: 'BillyChest', w: 805, d: 484, h: 780, mat: white, shape: 'box' },
+  billyChest: { label: 'BillyChest', ...BILLY_CHEST, shape: 'billyChest' },
   metal: { label: 'Metal', w: 710, d: 670, h: 895, mat: steel, shape: 'table' },
   yellow: { label: 'Yellow', w: 875, d: 310, h: 700, mat: material(0xe2b93b), shape: 'box', lifted: true },
   scaffoldBench: { label: 'Scaffold bench', w: 1820, d: 220, h: 438, mat: scaffoldBoard, shape: 'bench' },
@@ -125,6 +126,7 @@ const PIECES = {
   biltong: { label: 'Biltong', w: 940, d: 445, h: 460, mat: material(0x8a6a4a), shape: 'open box', lifted: true },
   trellis: { label: 'Trellis', w: 860, d: 720, h: 750, mat: material(0x6f8a5a), shape: 'open box' },   // a garden green
   pine: { label: 'Pine cupboard', ...sizesOf(OTHER_ROOM_START.cupboard), shape: 'pine', bedroomSizes: true },
+  ivar: { label: 'Ivar', ...IVAR, shape: 'ivar' },
 };
 function sizesOf({ w, d, h }) { return { w, d, h }; }
 const PIECE_KEYS = Object.keys(PIECES);
@@ -181,6 +183,7 @@ export const GARAGE_START = {
   biltong: { on: true, x: 580, y: 1070, turn: 90, z: PIECES.trellis.h },
   trellis: { on: true, x: 730, y: 1160, turn: 90 },
   pine: { on: true, x: 1425, y: 0, turn: 0 },
+  ivar: { on: false, x: 0, y: 1100, turn: 270 },     // out to start, at BillyChest's spot (asked for, 18 Oct 2026)
 };
 
 // The sliders, as other_room.js's: [path in state.garage, label, lowest,
@@ -253,7 +256,7 @@ export const garagePieces = Object.fromEntries(PIECE_KEYS.map(piece => [piece, n
 // `pineSizes`: the pine cupboard's sizes as set in Bedroom options
 export function drawGarage(s, pineSizes) {
   drawGarageDoor(s.door);
-  furniture.clear();
+  clearDrawing(furniture);
   for (const piece of PIECE_KEYS) {
     const sizes = PIECES[piece].bedroomSizes ? sizesOf(pineSizes) : {};
     const { x, y, turn, z = 0, off = 0, lying } = s[piece], g = new THREE.Group(), body = drawn({ ...PIECES[piece], ...sizes }, lying);
@@ -268,6 +271,8 @@ export function drawGarage(s, pineSizes) {
 }
 function drawn({ w, d, h, mat, shape }, lying) {
   if (shape === 'billy') return billy(lying);
+  if (shape === 'billyChest') return billyChest();
+  if (shape === 'ivar') return ivar(false);
   if (shape === 'shelves') return bookcase({ w, d, h }, mat);
   if (shape === 'pine') return pineCupboard({ w, d, h }, 0);   // flush: no carpet or skirting to hold it off
   const g = new THREE.Group();

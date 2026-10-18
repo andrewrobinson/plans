@@ -170,7 +170,8 @@ window.ROOM_SCENES = {
               "model": "none",
               "w": 1690,
               "d": 1000,
-              "h": 920
+              "h": 920,
+              "asBed": false
             },
             "in": {
               "livingRoom": {
@@ -254,6 +255,45 @@ window.ROOM_SCENES = {
               }
             }
           },
+          "billyChest": {
+            "in": {
+              "bedroom": {
+                "on": false,
+                "wall": "breast",
+                "along": 2569
+              },
+              "livingRoom": {
+                "on": false,
+                "move": null
+              },
+              "garage": {
+                "on": true,
+                "x": 0,
+                "y": 1100,
+                "turn": 270
+              }
+            }
+          },
+          "ivar": {
+            "in": {
+              "bedroom": {
+                "on": false,
+                "wall": "breast",
+                "along": 2569
+              },
+              "livingRoom": {
+                "on": true,
+                "lying": true,
+                "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 0,
+                "y": 1100,
+                "turn": 270
+              }
+            }
+          },
           "recessCupboards": {
             "design": {
               "lowerD": 301,
@@ -321,16 +361,6 @@ window.ROOM_SCENES = {
                 "x": 1255,
                 "y": 2865,
                 "turn": 180
-              }
-            }
-          },
-          "billyChest": {
-            "in": {
-              "garage": {
-                "on": true,
-                "x": 0,
-                "y": 1100,
-                "turn": 270
               }
             }
           },

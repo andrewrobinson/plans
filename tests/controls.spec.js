@@ -652,7 +652,7 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#room', 'bedroom');
     await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: 'birdseye' });
     expect(await options('where')).toEqual(['In the bedroom doorway, walking in', 'Lying on the bed', 'Standing beside the bed', 'Standing at the bedroom window']);
-    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at Billy', 'Looking at the new cupboard', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
+    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at Billy', 'Looking at BillyChest', 'Looking at the Ivar', 'Looking at the new cupboard', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
     await page.selectOption('#where', 'bed');
     await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: any(/^look:bed:\w+$/), eye: 'lie-tall' });
     await page.selectOption('#room', 'hallway');
@@ -679,7 +679,7 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#room', 'garage');
     await expect.poll(() => view(page)).toMatchObject({ room: 'garage', view: 'look:garageLookingIn:sean', eye: 'stand-tall' });
     expect(await options('where')).toEqual(['Looking in', 'Looking out', 'Looking in from outside']);
-    const garageThings = ['Looking at Sean', 'Looking at Billy', 'Looking at BillyChest', 'Looking at Metal', 'Looking at Yellow', 'Looking at the scaffold bench', 'Looking at Small Billy', 'Looking at Potters', 'Looking at Biltong', 'Looking at Trellis', 'Looking at the pine cupboard'];
+    const garageThings = ['Looking at Sean', 'Looking at Billy', 'Looking at BillyChest', 'Looking at Metal', 'Looking at Yellow', 'Looking at the scaffold bench', 'Looking at Small Billy', 'Looking at Potters', 'Looking at Biltong', 'Looking at Trellis', 'Looking at the pine cupboard', 'Looking at the Ivar'];
     expect(await offered()).toEqual([...garageThings, 'Looking at the back wall']);
     await page.selectOption('#where', 'garageLookingOut');
     expect(await offered()).toEqual([...garageThings, 'Looking at the entrance']);

@@ -65,6 +65,14 @@ const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x3b2a12 });
 // box({ from: [x0, y0, z0], to: [x1, y1, z1] }, mat, parent), with `from`
 // the low corner (smallest x, y and z). `edges` false leaves out the dark
 // outline (walls have none).
+// Empty `group`, first freeing its pieces' geometry on the graphics card:
+// a drawing rebuilt again and again (each slider move) without this fills
+// it, and the page loses its WebGL context. Materials are shared, so stay
+export function clearDrawing(group) {
+  group.traverse(o => o.geometry?.dispose());
+  group.clear();
+}
+
 export function box({ from: [x0, y0, z0], to: [x1, y1, z1] }, mat, parent, edges = true) {
   if (x1 <= x0 || y1 <= y0 || z1 <= z0) return null;          // nothing to draw, e.g. with no left-wall cupboard
   const g = new THREE.BoxGeometry((x1 - x0) * MM, (z1 - z0) * MM, (y1 - y0) * MM);

@@ -1,7 +1,7 @@
 // The other room's (the bedroom's) furniture and fitted cupboards: the bed,
 // with its headboard and mattress; the bookcase and the pine cupboard,
-// which can be resized and moved; Billy, from the garage (billy.js), on any
-// wall; and the two fitted cupboards in the
+// which can be resized and moved; Billy and BillyChest, from the garage
+// (billy.js), and the Ivar (ivar.js), on any wall; and the two fitted cupboards in the
 // recess beside the chimney breast, the lower one's depth adjustable. Drawn
 // in the room's own u, v mm (OTHER_ROOM in floor.js: u from the window wall,
 // v from the hallway wall).
@@ -12,11 +12,12 @@
 // (drawOtherRoom()), and makes the menu's sliders for them
 // (otherRoomControls()).
 import * as THREE from 'three';
-import { MM, material, box } from './kit/floor_kit.js';
+import { MM, material, box, clearDrawing } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { OTHER_ROOM, otherRoom } from './floor.js';
 import { BOOKCASE, bookcase } from './bookcase.js';
-import { billy, billySizes } from './billy.js';
+import { BILLY_CHEST, billy, billySizes, billyChest } from './billy.js';
+import { IVAR, ivar } from './ivar.js';
 
 // ---------------------------------------------------------------------------
 // The pieces' sizes, in mm. Measured 15 Oct 2026 unless it says otherwise.
@@ -105,11 +106,11 @@ const glassMat = new THREE.MeshStandardMaterial({ color: 0xdfe8ec, roughness: 0.
 // way it faces: 0° away from the hallway wall (the bed's head against it),
 // 90° the window wall, 180° the hallway wall, 270° the kitchen-side wall.
 // The mirror hangs on one of WALLS instead: `along` is its middle along that
-// wall, and `bottom` its bottom edge off the carpet. Billy stands with its
-// back to one of WALLS likewise, its middle `along` it.
+// wall, and `bottom` its bottom edge off the carpet. Billy, BillyChest and
+// the Ivar stand with their backs to one of WALLS likewise, the middle `along` it.
 // ---------------------------------------------------------------------------
 
-// The walls the mirror can hang on and Billy stand against, in the menu's order: its name there; the
+// The walls the mirror can hang on and Billy, BillyChest and the Ivar stand against, in the menu's order: its name there; the
 // turn that puts a piece's back to it; which way it runs (u or v), measured
 // from the window wall or the hallway wall; from where to where along it;
 // and where it stands across (its own u or v). The chimney breast's face
@@ -146,6 +147,10 @@ export const OTHER_ROOM_START = {
   // where the mirror starts (asked for, 18 Oct 2026)
   billyOn: false,
   billy: { wall: 'breast', along: OVER_THE_BOOKCASE, lying: false },
+  billyChestOn: false,             // BillyChest likewise, out to start, then where Billy starts
+  billyChest: { wall: 'breast', along: OVER_THE_BOOKCASE },
+  ivarOn: false,                   // the Ivar likewise
+  ivar: { wall: 'breast', along: OVER_THE_BOOKCASE },
 };
 
 // Each slider: [the setting's path in state.otherRoom, its label, lowest,
@@ -168,8 +173,8 @@ const MIRROR_PLACE = [
 // the living room's and the garage's
 export const LYING_LABEL = 'Lying on its long side, open side out';
 export const lyingSwitch = switchId => `<label class="switch"><input type="checkbox" id="${switchId}"> ${LYING_LABEL}</label>`;
-// Billy's place: along its wall
-const BILLY_PLACE = [['billy.along', ALONG_LABEL.u, 0, OTHER_ROOM.length, 5, '']];
+// Billy's, BillyChest's and the Ivar's places: along its wall
+const placeAlongWall = piece => [[`${piece}.along`, ALONG_LABEL.u, 0, OTHER_ROOM.length, 5, '']];
 const SIZES = {
   bookcase: [['w', 400, 2000], ['d', 200, 500], ['h', 600, 2200]],
   cupboard: [['w', 600, 2000], ['d', 300, 700], ['h', 1200, 2400]],
@@ -189,17 +194,21 @@ const PIECES = [
   { heading: 'Bed (with its headboard and mattress)', sizes: [], place: PLACE('bed') },
   { heading: 'Bookcase', sizes: sizeSliders('bookcase'), place: PLACE('bookcase'), switches: [['bookcaseOn', 'In the bedroom']] },
   { heading: 'Pine cupboard', sizes: sizeSliders('cupboard'), place: PLACE('cupboard'), switches: [['cupboardOn', 'In the bedroom']] },
-  { heading: 'Billy (from the garage)', sizes: [], place: BILLY_PLACE, wall: 'billy.wall',
+  { heading: 'Billy (from the garage)', sizes: [], place: placeAlongWall('billy'), wall: 'billy.wall',
     switches: [['billyOn', 'In the bedroom'], ['billy.lying', LYING_LABEL]], halfAlong: s => billySizes(s.billy.lying).w / 2 },
+  { heading: 'BillyChest (from the garage)', sizes: [], place: placeAlongWall('billyChest'), wall: 'billyChest.wall',
+    switches: [['billyChestOn', 'In the bedroom']], halfAlong: () => BILLY_CHEST.w / 2 },
+  { heading: 'Ivar', sizes: [], place: placeAlongWall('ivar'), wall: 'ivar.wall',
+    switches: [['ivarOn', 'In the bedroom']], halfAlong: () => IVAR.w / 2 },
   // The lower one's depth up to 800, as far as it might go (asked for, 15 Oct 2026)
   { heading: 'Recess cupboards', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [],
     switches: [['upperDrawers', 'Upper cupboard: drawers over the open shelves'], ['upperMirrors', 'Upper cupboard: mirrors on the tall doors']] },
   { heading: 'Mirror', sizes: sizeSliders('mirror'), place: MIRROR_PLACE, wall: 'mirror.wall', switches: [['mirrorOn', 'In the bedroom']] },
 ];
-// Those on a wall (`wall` the path of its choice of wall): the mirror and
-// Billy, each by its key in the settings, and how far its middle must be
-// from the wall's ends: half Billy's width, as it stands or lies; the
-// mirror's middle may go right to the end
+// Those on a wall (`wall` the path of its choice of wall): the mirror,
+// Billy, BillyChest and the Ivar, each by its key in the settings, and how far its
+// middle must be from the wall's ends: half its width (Billy's as it stands
+// or lies); the mirror's middle may go right to the end
 const ON_A_WALL = PIECES.filter(p => p.wall).map(p => ({ key: p.wall.split('.')[0], halfAlong: p.halfAlong ?? (() => 0) }));
 const SLIDERS = PIECES.flatMap(p => [...p.sizes, ...p.place]);
 const SWITCHES = PIECES.flatMap(p => p.switches ?? []);
@@ -225,6 +234,10 @@ export const OTHER_ROOM_SCHEMA = [
   ...designEntries('cupboard'), inBedroom('cupboard', 'cupboardOn'), ...placeEntries('cupboard'),
   inBedroom('billy', 'billyOn'), Config.choice('pieces.billy.in.bedroom.wall', 'otherRoom.billy.wall', WALL_KEYS),
   ...placeEntries('billy', ['along']), Config.onOff('pieces.billy.in.bedroom.lying', 'otherRoom.billy.lying'),
+  inBedroom('billyChest', 'billyChestOn'), Config.choice('pieces.billyChest.in.bedroom.wall', 'otherRoom.billyChest.wall', WALL_KEYS),
+  ...placeEntries('billyChest', ['along']),
+  inBedroom('ivar', 'ivarOn'), Config.choice('pieces.ivar.in.bedroom.wall', 'otherRoom.ivar.wall', WALL_KEYS),
+  ...placeEntries('ivar', ['along']),
   sliderEntry('pieces.recessCupboards.design.lowerD', 'lowerD'),
   Config.onOff('pieces.recessCupboards.design.upperDrawers', 'otherRoom.upperDrawers'),
   Config.onOff('pieces.recessCupboards.design.upperMirrors', 'otherRoom.upperMirrors'),
@@ -246,14 +259,14 @@ const newCupboardSpot = new THREE.Group();
 newCupboardSpot.position.set(NEW_CUPBOARD.u * MM, 0, NEW_CUPBOARD.v * MM);
 newCupboardSpot.rotation.y = THREE.MathUtils.degToRad(-NEW_CUPBOARD.turn);
 otherRoom.add(newCupboardSpot);
-export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null, billy: null, mirror: null, newCupboard: newCupboardSpot };   // each piece's group as drawn now, to look at
+export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null, billy: null, billyChest: null, ivar: null, mirror: null, newCupboard: newCupboardSpot };   // each piece's group as drawn now, to look at
 
 // Draw everything again from the settings `s` (state.otherRoom). With the
 // bookcase, the pine cupboard or the mirror switched off it's hidden,
 // though still placed, so Looking at it aims at its spot. The new cupboard
 // takes the pine cupboard's place, so hides it too.
 export function drawOtherRoom(s) {
-  furniture.clear();
+  clearDrawing(furniture);
   otherRoomPieces.bed = place(bed(), s.bed);
   otherRoomPieces.bookcase = place(bookcase(s.bookcase), s.bookcase);
   otherRoomPieces.bookcase.visible = s.bookcaseOn;
@@ -261,6 +274,10 @@ export function drawOtherRoom(s) {
   otherRoomPieces.cupboard.visible = s.cupboardOn && !s.newCupboardOn;
   otherRoomPieces.billy = place(billy(s.billy.lying), wallPlace(s.billy, billySizes(s.billy.lying).w / 2));
   otherRoomPieces.billy.visible = s.billyOn;
+  otherRoomPieces.billyChest = place(billyChest(), wallPlace(s.billyChest, BILLY_CHEST.w / 2));
+  otherRoomPieces.billyChest.visible = s.billyChestOn;
+  otherRoomPieces.ivar = place(ivar(false), wallPlace(s.ivar, IVAR.w / 2));
+  otherRoomPieces.ivar.visible = s.ivarOn;
   recessCupboards(s);
   otherRoomPieces.mirror = place(mirror(s.mirror), wallPlace(s.mirror));
   otherRoomPieces.mirror.visible = s.mirrorOn;
@@ -414,7 +431,7 @@ export function otherRoomControls(topContainer, container, change) {
 
   for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
   for (const [path] of SWITCHES) document.getElementById(id(path)).addEventListener('change', e => change([[path, e.target.checked]]));
-  // A new wall keeps the mirror, or Billy, as far along as it can
+  // A new wall keeps the mirror, Billy, BillyChest or the Ivar as far along as it can
   for (const { key, halfAlong } of ON_A_WALL) {
     document.getElementById(id(`${key}.wall`)).addEventListener('change', e =>
       change([[`${key}.wall`, e.target.value], [`${key}.along`, alongWall(e.target.value, shown[key].along, halfAlong(shown))]]));
@@ -457,7 +474,7 @@ function resetButtons(piece, i) {
   return buttons.length ? `<div class="row">${buttons.join('')}</div>` : '';
 }
 
-// A piece's wall chosen (the mirror's or Billy's, by its key), and its
+// A piece's wall chosen (the mirror's, Billy's, BillyChest's or the Ivar's, by its key), and its
 // along slider labelled and ranged for it, its middle `half` or more from
 // the wall's ends
 function followWall(id, key, { wall, along }, half) {

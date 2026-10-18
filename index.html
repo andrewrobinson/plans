@@ -249,6 +249,7 @@
     <div id="sofaBlock">
       <label for="sofaPick">Sofa, facing the TV</label>
       <select id="sofaPick"></select>
+      <label class="switch" id="sofaAsBedRow"><input type="checkbox" id="sofaAsBed"> As a bed (its arms let down)</label>
       <div id="sofaFrontBlock">
         <div id="sofaFrontRow">
           <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
@@ -271,7 +272,7 @@
         <label for="sofaD">Sofa depth: <span id="sofaDValue">1000</span></label>
         <input id="sofaD" type="range" min="700" max="1200" step="10" value="1000">
         <label for="sofaH">Sofa height: <span id="sofaHValue">920</span></label>
-        <input id="sofaH" type="range" min="700" max="1100" step="10" value="920">
+        <input id="sofaH" type="range" min="600" max="1100" step="10" value="920">
       </div>
     </div>
   </details>
@@ -309,6 +310,16 @@
       <input id="billyTurn" type="range">
       <div class="row"><button id="billyHome">Reset location</button></div>
     </div>
+    <label class="switch" title="BillyChest, from the garage, on the back wall in place of the bench"><input type="checkbox" id="billyChestOn"> BillyChest</label>
+    <div id="billyChestMoveBlock" class="depth">
+      <label for="billyChestX">BillyChest back's middle from the left wall: <span id="billyChestXValue"></span></label>
+      <input id="billyChestX" type="range">
+      <label for="billyChestY">BillyChest back's middle from the back wall: <span id="billyChestYValue"></span></label>
+      <input id="billyChestY" type="range">
+      <label for="billyChestTurn">BillyChest turned: <span id="billyChestTurnValue"></span></label>
+      <input id="billyChestTurn" type="range">
+      <div class="row"><button id="billyChestHome">Reset location</button></div>
+    </div>
     <div id="benchDetails">
     <div id="bench" class="depth">Bench height:
       <label><input type="radio" name="bench" value="700"> 700</label>
@@ -331,6 +342,20 @@
       <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
       <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
     </div>
+    </div>
+  </details>
+  <details class="sec" id="secIvar" open>
+    <summary>Ivar</summary>
+    <label class="switch"><input type="checkbox" id="ivarOn"> In the lounge</label>
+    <div id="ivarMoveBlock" class="depth">
+      <label class="switch"><input type="checkbox" id="ivarLying"> Lying on its side</label>
+      <label for="ivarX">Ivar back's middle from the left wall: <span id="ivarXValue"></span></label>
+      <input id="ivarX" type="range">
+      <label for="ivarY">Ivar back's middle from the back wall: <span id="ivarYValue"></span></label>
+      <input id="ivarY" type="range">
+      <label for="ivarTurn">Ivar turned: <span id="ivarTurnValue"></span></label>
+      <input id="ivarTurn" type="range">
+      <div class="row"><button id="ivarHome">Reset location</button></div>
     </div>
   </details>
   <details class="sec" id="secDoors" open>

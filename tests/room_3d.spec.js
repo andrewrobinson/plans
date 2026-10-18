@@ -313,6 +313,57 @@ test.describe('the controls', () => {
     expect(await setting(page, 'garage.billy.on')).toBe(true);             // and the garage's
   });
 
+  // BillyChest, as Billy but with no lying: in the living room
+  // (billyChestOn, billyChestMove) and in the bedroom (otherRoom.billyChestOn,
+  // on any wall), each on its own
+  test('BillyChest can be on the back wall and in the bedroom', async ({ page }) => {
+    await page.locator('#billyChestOn').check();
+    await expect(page.locator('#benchOn')).toBeDisabled();
+    await page.locator('#billyChestY').fill('500');
+    expect(await setting(page, 'billyChestMove')).toMatchObject({ y: 500, turn: 0 });
+    await page.locator('#billyChestHome').click();
+    expect(await setting(page, 'billyChestMove')).toBe(null);
+    await openOptions(page, 'bedroom');
+    await page.locator('#otherRoom_billyChestOn').check();
+    await page.selectOption('#otherRoom_billyChest_wall', 'window');
+    await expect(page.locator('#otherRoom_billyChest_along')).toHaveAttribute('min', '402.5');   // half its 805
+    expect(await setting(page, 'otherRoom.billyChest')).toMatchObject({ wall: 'window' });
+    expect(await setting(page, 'billyChestOn')).toBe(true);                // the living room's kept
+    expect(await setting(page, 'garage.billyChest.on')).toBe(false);       // and the garage's, out as it starts
+  });
+
+  // The Ivar: in the lounge to start, lying by the first radiator; moved
+  // and put back; standing; and in the bedroom and garage, each on its own
+  test('the Ivar is by the first radiator, and can go to the bedroom and garage', async ({ page }) => {
+    expect(await setting(page, 'ivarOn')).toBe(true);
+    expect(await setting(page, 'ivarLying')).toBe(true);
+    await expect(page.locator('#ivarXValue')).toHaveText('3291');      // 830 out from the radiator's front, at 3706
+    await page.locator('#ivarY').fill('2000');
+    expect(await setting(page, 'ivarMove')).toMatchObject({ x: 3291, y: 2000, turn: 0 });
+    await page.locator('#ivarHome').click();
+    expect(await setting(page, 'ivarMove')).toBe(null);
+    await page.locator('#ivarLying').uncheck();
+    await expect(page.locator('#ivarXValue')).toHaveText('3306');      // standing, 800 out
+    await openOptions(page, 'bedroom');
+    await page.locator('#otherRoom_ivarOn').check();
+    expect(await setting(page, 'otherRoom.ivarOn')).toBe(true);
+    expect(await setting(page, 'garage.ivar')).toEqual({ on: false, x: 0, y: 1100, turn: 270 });
+    expect(await setting(page, 'ivarOn')).toBe(true);                   // the lounge's kept
+  });
+
+  // The Drift, a daybed: its As a bed switch only for it, 1980 wide as a bed
+  test('the Drift sofa can be laid out as a bed', async ({ page }) => {
+    await expect(page.locator('#sofaAsBedRow')).toBeHidden();
+    await page.selectOption('#sofaPick', 'drift');
+    expect(await setting(page, 'sofa.size')).toEqual({ w: 1480, d: 790, h: 670 });
+    await expect(page.locator('#sofaAsBedRow')).toBeVisible();
+    await page.locator('#sofaAsBed').check();
+    expect(await setting(page, 'sofa.asBed')).toBe(true);
+    await expect(page.locator('#summary')).toContainText('as a bed: 1980 wide');
+    await page.selectOption('#sofaPick', 'merton');
+    await expect(page.locator('#sofaAsBedRow')).toBeHidden();
+  });
+
   // The living room's corner cupboard copied into the bedroom
   // (otherRoom.newCupboardOn): the pine cupboard's switch (cupboardOn) can't
   // be used while it's there, and keeps its setting for when it's gone

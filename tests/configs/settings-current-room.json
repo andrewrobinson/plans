@@ -142,7 +142,8 @@
           "model": "merton",
           "w": 2600,
           "d": 1200,
-          "h": 1100
+          "h": 1100,
+          "asBed": false
         },
         "in": {
           "livingRoom": {
@@ -226,6 +227,45 @@
           }
         }
       },
+      "billyChest": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "breast",
+            "along": 2569
+          },
+          "livingRoom": {
+            "on": false,
+            "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 0,
+            "y": 1100,
+            "turn": 270
+          }
+        }
+      },
+      "ivar": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "breast",
+            "along": 2569
+          },
+          "livingRoom": {
+            "on": true,
+            "lying": true,
+            "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 0,
+            "y": 1100,
+            "turn": 270
+          }
+        }
+      },
       "recessCupboards": {
         "design": {
           "lowerD": 301,
@@ -293,16 +333,6 @@
             "x": 1255,
             "y": 2865,
             "turn": 180
-          }
-        }
-      },
-      "billyChest": {
-        "in": {
-          "garage": {
-            "on": false,
-            "x": 0,
-            "y": 1100,
-            "turn": 270
           }
         }
       },

@@ -138,7 +138,8 @@
           "model": "none",
           "w": 1690,
           "d": 1000,
-          "h": 920
+          "h": 920,
+          "asBed": false
         },
         "in": {
           "livingRoom": {
@@ -234,6 +235,45 @@
           }
         }
       },
+      "billyChest": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "breast",
+            "along": 2569
+          },
+          "livingRoom": {
+            "on": false,
+            "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 3000,
+            "y": 200,
+            "turn": 0
+          }
+        }
+      },
+      "ivar": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "breast",
+            "along": 2569
+          },
+          "livingRoom": {
+            "on": true,
+            "lying": true,
+            "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 0,
+            "y": 1100,
+            "turn": 270
+          }
+        }
+      },
       "recessCupboards": {
         "design": {
           "lowerD": 450,
@@ -301,16 +341,6 @@
             "x": 2000,
             "y": 1000,
             "turn": 90
-          }
-        }
-      },
-      "billyChest": {
-        "in": {
-          "garage": {
-            "on": false,
-            "x": 3000,
-            "y": 200,
-            "turn": 0
           }
         }
       },
@@ -587,7 +617,7 @@
     "Door 294 × 2437",
     "Door 869 × 2437"
   ],
-  "description": "Both legs of the L run floor to ceiling, 900 inside along the back wall (900 deep) and 300 along the left wall, one space round the corner. Doors 2437 high, 25 thick: 869 wide on the back-wall leg, 294 wide on the left-wall leg (it covers the corner). No bench: the pine cupboard stands there instead. Inside, within its 25 boards (rear panels against the walls included): 1350 × 850 along the back wall and 450 × 300 along the left wall, 2393 high. The bedroom's pine cupboard (1000 wide, 400 deep, 2000 high) in place of the bench, moved: the middle of its back at x 500, y 300, facing the left wall. The kitchen island against the front wall between the sink and the desk, its long side out (x 800-1570), coming 1260 out from the wall to y 4119.From plan3/room_3d.html",
+  "description": "Both legs of the L run floor to ceiling, 900 inside along the back wall (900 deep) and 300 along the left wall, one space round the corner. Doors 2437 high, 25 thick: 869 wide on the back-wall leg, 294 wide on the left-wall leg (it covers the corner). No bench: the pine cupboard stands there instead. Inside, within its 25 boards (rear panels against the walls included): 1350 × 850 along the back wall and 450 × 300 along the left wall, 2393 high. The bedroom's pine cupboard (1000 wide, 400 deep, 2000 high) in place of the bench, moved: the middle of its back at x 500, y 300, facing the left wall. The kitchen island against the front wall between the sink and the desk, its long side out (x 800-1570), coming 1260 out from the wall to y 4119. The Ivar, lying on its side (830 long, 300 wide, 800 high), against the first radiator, 830 out into the room.From plan3/room_3d.html",
   "boxes": {
     "livingRoom": {
       "from": [
@@ -596,8 +626,8 @@
         0
       ],
       "to": [
-        1400,
-        1200,
+        3706,
+        1346,
         2443
       ],
       "shown": true
@@ -628,6 +658,19 @@
         1570,
         5379,
         900
+      ],
+      "shown": true
+    },
+    "ivar.livingRoom": {
+      "from": [
+        2876,
+        1045,
+        0
+      ],
+      "to": [
+        3706,
+        1346,
+        800
       ],
       "shown": true
     },
@@ -694,6 +737,32 @@
         -1858,
         5362,
         2020
+      ],
+      "shown": false
+    },
+    "billyChest.bedroom": {
+      "from": [
+        -2661,
+        4878,
+        0
+      ],
+      "to": [
+        -1855,
+        5362,
+        780
+      ],
+      "shown": false
+    },
+    "ivar.bedroom": {
+      "from": [
+        -2658,
+        5062,
+        0
+      ],
+      "to": [
+        -1858,
+        5362,
+        830
       ],
       "shown": false
     },
@@ -891,6 +960,19 @@
         -850
       ],
       "shown": true
+    },
+    "ivar": {
+      "from": [
+        -35992,
+        -11987,
+        -2850
+      ],
+      "to": [
+        -35692,
+        -11187,
+        -2020
+      ],
+      "shown": false
     }
   }
 }
