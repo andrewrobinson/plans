@@ -298,6 +298,17 @@
       <input id="pineTurn" type="range">
       <div class="row"><button id="pineHome">Reset location</button></div>
     </div>
+    <label class="switch" title="Billy, from the garage, on the back wall in place of the bench"><input type="checkbox" id="billyOn"> Billy</label>
+    <div id="billyMoveBlock" class="depth">
+      <label class="switch"><input type="checkbox" id="billyLying"> Lying on its long side, open side out</label>
+      <label for="billyX">Billy back's middle from the left wall: <span id="billyXValue"></span></label>
+      <input id="billyX" type="range">
+      <label for="billyY">Billy back's middle from the back wall: <span id="billyYValue"></span></label>
+      <input id="billyY" type="range">
+      <label for="billyTurn">Billy turned: <span id="billyTurnValue"></span></label>
+      <input id="billyTurn" type="range">
+      <div class="row"><button id="billyHome">Reset location</button></div>
+    </div>
     <div id="benchDetails">
     <div id="bench" class="depth">Bench height:
       <label><input type="radio" name="bench" value="700"> 700</label>
@@ -396,7 +407,9 @@
     <h1>Bedroom options</h1>
     <button id="bedClose" class="close" aria-label="Close bedroom options">✕</button>
   </div>
-  <div id="otherRoomBlock"></div>
+  <!-- The New cupboard switch, then the new cupboard's own section, then
+       the rest of the bedroom's furniture (other_room.js) -->
+  <div id="otherRoomTop"></div>
   <details class="sec" id="secBedroomCupboard" open>
     <summary>The new cupboard</summary>
     <div class="hint" id="bedroomCupboardOff">Its own corner cupboard, by the chimney breast: switch on New cupboard (above) to see it.</div>
@@ -425,6 +438,7 @@
       </details>
     </div>
   </details>
+  <div id="otherRoomBlock"></div>
   <details class="sec" id="secBedroomDoors" open>
     <summary>Doors</summary>
     <label for="bedroomDoor">Bedroom door: <span id="bedroomDoorValue">90°</span></label>

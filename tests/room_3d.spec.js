@@ -287,6 +287,32 @@ test.describe('the controls', () => {
     expect(await setting(page, 'bookshelfOn')).toBe(true);           // the living room's kept
   });
 
+  // Billy, from the garage, in the living room (billyOn, billyLying; its
+  // place, billyMove) and in the bedroom (otherRoom.billyOn, on any wall),
+  // each on its own, as the pine cupboard; lying, it's 2020 along its wall
+  test('Billy can be on the back wall and in the bedroom, standing or lying', async ({ page }) => {
+    await expect(page.locator('#billyMoveBlock')).toBeHidden();
+    await page.locator('#billyOn').check();
+    await expect(page.locator('#benchOn')).toBeDisabled();
+    await page.locator('#billyLying').check();
+    expect(await setting(page, 'billyLying')).toBe(true);
+    expect(await setting(page, 'billyMove')).toBe(null);                   // against the cupboards, where the bench starts
+    await page.locator('#billyY').fill('500');
+    expect(await setting(page, 'billyMove')).toMatchObject({ y: 500, turn: 0 });
+    await page.locator('#billyHome').click();
+    expect(await setting(page, 'billyMove')).toBe(null);
+    expect(await setting(page, 'otherRoom.billyOn')).toBe(false);          // the bedroom's its own
+    await openOptions(page, 'bedroom');
+    await page.locator('#otherRoom_billyOn').check();
+    expect(await setting(page, 'otherRoom.billy')).toEqual({ wall: 'breast', along: 2569, lying: false });
+    await page.locator('#otherRoom_billy_lying').check();
+    await page.selectOption('#otherRoom_billy_wall', 'hallway');
+    await expect(page.locator('#otherRoom_billy_along')).toHaveAttribute('min', '1010');   // half its 2020 lying
+    expect(await setting(page, 'otherRoom.billy')).toEqual({ wall: 'hallway', along: 2569, lying: true });
+    expect(await setting(page, 'billyOn')).toBe(true);                     // the living room's kept
+    expect(await setting(page, 'garage.billy.on')).toBe(true);             // and the garage's
+  });
+
   // The living room's corner cupboard copied into the bedroom
   // (otherRoom.newCupboardOn): the pine cupboard's switch (cupboardOn) can't
   // be used while it's there, and keeps its setting for when it's gone

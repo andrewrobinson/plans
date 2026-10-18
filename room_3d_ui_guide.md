@@ -52,19 +52,19 @@ live beside it.
 | 86 | `#tip` | A tooltip that follows the pointer over things to store |
 | **87–104** | `#panel` | **Other options**: `#secWickerBench` (the wicker bench, in any room) and `#palette`, the colours in this view |
 | **106–127** | `#hallPanel` | **Hallway and stairs options**: `#secShoeRack` (shoe_rack.js fills it) and `#secDownstairsDoors` (the flat's door and the lobby's) |
-| **129–392** | `#loungePanel` | **Lounge options**, the living room: |
+| **129–403** | `#loungePanel` | **Lounge options**, the living room: |
 | 134–196 | `#secCupboard` | The corner cupboard: its **option list** (`#current`), Cupboard only, its cutting list (`#loungeCutting`, folded away), and `#cupboardControls`: board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7). The bedroom's cupboard copies these |
 | 197–247 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
 | 248–278 | `#secSofa` | Sofa dropdown plus sliders |
-| 279–325 | `#secBench` | Bench switch, the bookshelf and pine cupboard in its place, bench-height radios, "above the bench" radios, TV and shelf sliders |
-| 326–338 | `#secDoors` | The cupboard's tall and second doors (`#tallBlock`, `#secondBlock`) and the room door |
-| 339–369 | `#secColours` | The cupboard, dresser and shelf colours: dropdowns with ◀ ▶ buttons and swatches (`.colours`) |
-| 370–385 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
-| 386–392 | `#about` | The description text (`#summary`), which JS fills in |
-| **394–452** | `#bedPanel` | **Bedroom options**: the furniture (`#otherRoomBlock`, other_room.js's), then `#secBedroomCupboard`, the new cupboard's own option list (`#bedroomCupboardCurrent`), its copied sliders and door sliders (`#bedroomCupboardControls`, `#bedroomCupboardDoors`, filled by living_room.js), its colour and its cutting list (`#bedroomCutting`); `#secBedroomDoors` (the bedroom door) and `#secBedroomColours` (the carpet, the stairs' too) |
-| 454–461 | `#garagePanel` | **Garage options** (`#garageBlock`, garage.js's): the garage door (not shown, open or closed), then each thing in it |
+| 279–336 | `#secBench` | Bench switch, the bookshelf, pine cupboard and Billy (with its Lying switch) in its place, bench-height radios, "above the bench" radios, TV and shelf sliders |
+| 337–349 | `#secDoors` | The cupboard's tall and second doors (`#tallBlock`, `#secondBlock`) and the room door |
+| 350–380 | `#secColours` | The cupboard, dresser and shelf colours: dropdowns with ◀ ▶ buttons and swatches (`.colours`) |
+| 381–396 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
+| 397–403 | `#about` | The description text (`#summary`), which JS fills in |
+| **405–466** | `#bedPanel` | **Bedroom options**: the New cupboard switch (`#otherRoomTop`, other_room.js's), then `#secBedroomCupboard`, the new cupboard's own option list (`#bedroomCupboardCurrent`), its copied sliders and door sliders (`#bedroomCupboardControls`, `#bedroomCupboardDoors`, filled by living_room.js), its colour and its cutting list (`#bedroomCutting`); the rest of the furniture (`#otherRoomBlock`, other_room.js's); `#secBedroomDoors` (the bedroom door) and `#secBedroomColours` (the carpet, the stairs' too) |
+| 468–475 | `#garagePanel` | **Garage options** (`#garageBlock`, garage.js's): the garage door (not shown, open or closed), then each thing in it (Billy with its Lying switch) |
 
-### Scripts (index.html, lines 448–450)
+### Scripts (index.html, lines 477–479)
 
 | Lines | What |
 |---|---|
@@ -77,16 +77,18 @@ The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `
 
 ### other_room.js (the bedroom's furniture)
 
-The bedroom's bed, bookcase, pine cupboard and recess cupboards, drawn
+The bedroom's bed, bookcase, pine cupboard, Billy (on any of `WALLS`, as the mirror) and recess cupboards, drawn
 into `floor.js`'s `otherRoom` group in the room's own u, v mm. It exports
 `OTHER_ROOM_START` (the settings as they start), `OTHER_ROOM_SCHEMA` (their
 entries in the configuration), `drawOtherRoom(settings)` (called from `redrawAround()`)
-(the bookcase hidden while it's in the living room) and `bookcase(sizes)`
-(drawn in the living room by `bookcaseOnBenchWall()` when the back wall's
-Bookshelf is on), and `otherRoomControls(container, change)`, which writes
-the **Bedroom options** drawer's sliders into `#otherRoomBlock` from
+(`bookcase(sizes)` is `bookcase.js`'s, drawn in the living room by
+`pieceOnBenchWall()` when the back wall's Bookshelf is on, and as the
+garage's Billy and Potters; `billy.js`'s `billy(lying)` draws Billy,
+standing or lying, in all three rooms), and `otherRoomControls(topContainer, container, change)`, which writes
+the **Bedroom options** drawer's sliders into `#otherRoomBlock` (the New
+cupboard switch, marked `top`, into `#otherRoomTop`, over the new cupboard's section) from
 `PIECES` (each piece's size and place sliders, its reset buttons, and the
-mirror's choice of wall, `WALLS`) and returns the function `syncControls()` calls to put
+mirror's and Billy's choice of wall, `WALLS`, `ON_A_WALL`) and returns the function `syncControls()` calls to put
 them in step. Unlike the other sections, its sliders aren't in the HTML.
 The **New cupboard** switch puts a corner cupboard of its own in the
 bedroom (`NEW_CUPBOARD`, its corner): `flat_model.js`'s

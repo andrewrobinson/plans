@@ -175,6 +175,9 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
       "in": { "bedroom": { "on": true, "u": 3682, "v": 1901, "turn": 90 },
               "livingRoom": { "on": false, "move": null },
               "garage": { "on": true, "x": 1425, "y": 0, "turn": 0 } } },
+    "billy": { "in": { "bedroom": { "on": false, "wall": "breast", "along": 2569, "lying": false },
+                       "livingRoom": { "on": false, "lying": false, "move": null },
+                       "garage": { "on": true, "lying": false, "x": 0, "y": 1920, "turn": 270 } } },
     "…": "the dresser, larder, island, bed, bookcase, recess cupboards, mirror, wicker bench, shoe rack and the garage's things"
   },
   "thingsToStore": { "shown": false, "packing": 0, "where": "window", "spots": [{ "x": 2550, "y": 2640, "turned": true, "z": 0 }, "…"] }
@@ -191,7 +194,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
   - `bench` (its `height`, and whether it's drawn) and `aboveBench` (`what`: `nothing`, `shelves`, `tv`, `tvAndShelves` or `tvAndTopShelf`; `shelfDepth`; `tv` in inches).
   - `dresser`, `larder` and `sofa`: their sizes, and the larder's and sofa's `model`, its key in `larders.js` or `sofas.js` (`none` for no sofa). The sofa's `front` is its front from the TV wall, where it starts.
   - `island`: in the living room, `at` (`room`, `along`, `out` or `none`) and its middle and turn out there.
-  - The bedroom's `bed`, `bookcase`, `pineCupboard`, `recessCupboards` and `mirror`; the `wickerBench`; the `shoeRack`; and the garage's things, by their names in `garage.js` (`sean`, `billy`, `billyChest`, `metal`, `yellow`, `scaffoldBench`, `smallBilly`, `potters`, `biltong`, `trellis`). The bookcase and the pine cupboard can be in the living room too, in place of the bench, and the pine cupboard in the garage.
+  - The bedroom's `bed`, `bookcase`, `pineCupboard`, `recessCupboards` and `mirror`; the `wickerBench`; the `shoeRack`; and the garage's things, by their names in `garage.js` (`sean`, `billy`, `billyChest`, `metal`, `yellow`, `scaffoldBench`, `smallBilly`, `potters`, `biltong`, `trellis`). The bookcase and the pine cupboard can be in the living room too, in place of the bench, and the pine cupboard in the garage. Billy (`billy.js`), its size fixed, can be in the garage, in the living room in place of the bench (against the cupboards, where the bench starts) and in the bedroom, each on its own; in each its `lying` says whether it lies on its long side, its open side out (2020 along the wall, 800 high), or stands. In the bedroom it stands against one of the mirror's walls (`wall`: `breast`, `hallway`, `window` or `kitchen`), its middle `along` it, held so it fits: lying, it's longer than the chimney breast (1858), so there it goes against the kitchen-side wall. It starts out, on the chimney breast where the mirror starts.
 - **`thingsToStore`**: `shown`, `packing` (0 to 3, as listed), `where` (`window`, `cupboard` or `byHand`) and each thing's place, `{ "x", "y", "turned", "z" }`, in the order of the table below. Their places are read only when `where` is `byHand`; otherwise they follow the packing.
 
 Each setting has an entry in the schema (`SCHEMA` in `flat_model.js`, with the other rooms' entries from their modules, `OTHER_ROOM_SCHEMA` and so on): its path in the configuration, its place in the page's settings (`state`), its kind (a number with its range and step, on or off, a choice, a colour) and its default. Reading a configuration, a setting left out takes its default, one not in the schema is ignored, and one out of its range or of the wrong kind keeps its default. Steps aren't checked (saved designs have sizes between them), bar quarter turns. A new setting needs its entry; new pieces go in `pieces`.
@@ -240,7 +243,7 @@ out from it; the user's "long" is the width, except the scaffold bench's
 | | Width | Depth | Height | What it is, and how it's drawn |
 |---|---|---|---|---|
 | Sean | 2500 | 535 | 1575 | timber shelving: a frame at each end of 38 by 89 timber (uprights front and back, a rail under each shelf), a brace on the back, and three shelves of two scaffold boards (225 by 38), flush to the front, their tops at 210, 820 and 1575 (estimated from a photo), the boards' ends banded blue; on a castor under each upright, its wheel 60 across (the user's), 80 high (estimated) |
-| Billy | 800 | 280 | 2020 | an IKEA Billy: a bookcase, white |
+| Billy | 800 | 280 | 2020 | an IKEA Billy: a bookcase, white; standing, or lying on its long side, its open side out (its own switch), as in the living room and the bedroom |
 | BillyChest | 805 | 484 | 780 | a chest: a plain box, white |
 | Metal | 710 | 670 | 895 | a table: a 30 top on four 40-square legs (chosen), grey |
 | Yellow | 875 | 310 | 700 | a cupboard: a plain box, yellow |
@@ -255,7 +258,7 @@ The colours are chosen. Where each starts, all where the user put them (16
 Oct 2026, sent as links). In the configuration, each is its piece's
 `in.garage` (the pine cupboard's under `pineCupboard`): `on`, `x`, `y` and
 `turn`, Yellow's and Biltong's with `z`, Small Billy's and Potters' with
-`off`:
+`off`, Billy's with `lying`:
 
 | | Starts | x, y, turn (and z or off) |
 |---|---|---|

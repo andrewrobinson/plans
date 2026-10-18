@@ -24,7 +24,9 @@ import { CUPBOARD_MATERIALS, makeCupboard, makeMaterials, seeThrough, OPTIONS, o
 import { DRESSER_MODELS } from './dressers.js';
 import { LARDER_MODELS } from './larders.js';
 import { SOFA_MODELS } from './sofas.js';
-import { drawOtherRoom, bookcase, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard,
+import { bookcase } from './bookcase.js';
+import { billy, billySizes } from './billy.js';
+import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard,
   QUARTER_TURN, OTHER_ROOM_SCHEMA } from './other_room.js';
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
 import { drawShoeRack, shoeRack, SHOE_RACK_START, SHOE_RACK_SCHEMA } from './shoe_rack.js';
@@ -246,6 +248,9 @@ const state = {
   bookshelfMove: null,             // ...and moved round the room from there: { x, y, turn } (see BACK_WALL_PIECES), or null where it starts
   pineOn: false,                   // the bedroom's pine cupboard likewise, in place of the bench
   pineMove: null,                  // ...and moved round the room from there, as the bookshelf
+  billyOn: false,                  // Billy, from the garage (billy.js), likewise
+  billyMove: null,                 // ...and moved round the room from there, as the bookshelf
+  billyLying: false,               // ...and standing, or lying on its long side, its open side out
   BENCH: 780,                      // the bench's height: 700, 780, 800 or 900
   above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
   shelfDepth: 250,                 // the shelves above the bench: 150 to 400 deep
@@ -1216,9 +1221,9 @@ export const cupboardOf = piece => ({ cornerCupboard: cupboard, bedroomCupboard 
 // menus have already set new ones
 export const optionsOnShow = () => ({ cornerCupboard: state.cornerCupboard.option, bedroomCupboard: state.bedroomCupboard.option });
 
-// The bedroom's pieces that can stand in the living room in place of the
-// bench (the back wall's Bookshelf and Pine cupboard switches), each at its
-// bedroom sizes: its settings are state[`${key}On`] and state[`${key}Move`],
+// The pieces that can stand in the living room in place of the bench (the
+// back wall's Bookshelf, Pine cupboard and Billy switches), the bedroom's
+// at their bedroom sizes, Billy at its own, standing or lying: its settings are state[`${key}On`] and state[`${key}Move`],
 // its controls `${key}On`, `${key}X` and so on. Where one stands: the middle
 // of its back, room x and y, and how far it's turned, in quarter turns (as
 // in the bedroom), which way it faces given in FACING. Each starts with its
@@ -1226,7 +1231,8 @@ export const optionsOnShow = () => ({ cornerCupboard: state.cornerCupboard.optio
 // bookcase centred on the clear wall, as the TV is, or against the
 // cupboards if it's wider than that wall; the pine cupboard in the corner
 // by the right-hand wall (chosen, 15 Oct 2026), the bookcase then centred
-// on what's left, so the two can stand together. Their
+// on what's left, so the two can stand together; Billy against the
+// cupboards, where the bench starts (asked for, 18 Oct 2026). Their
 // sliders move them from there.
 const BACK_WALL_PIECES = {
   bookshelf: {
@@ -1241,6 +1247,12 @@ const BACK_WALL_PIECES = {
     sizes: () => state.otherRoom.cupboard, draw: pineCupboard, name: "The bedroom's pine cupboard", short: 'the pine cupboard',
     home: (x0, w) => ({ x: ROOM_WIDTH - w / 2, y: 0, turn: 0 }),
     homeText: () => 'in the corner by the right-hand wall',
+  },
+  billy: {
+    sizes: () => billySizes(state.billyLying), draw: () => billy(state.billyLying), short: 'Billy',
+    get name() { return state.billyLying ? 'Billy, from the garage, lying on its long side' : 'Billy, from the garage'; },
+    home: (x0, w) => ({ x: x0 + w / 2, y: 0, turn: 0 }),
+    homeText: () => 'against the cupboards, where the bench starts',
   },
 };
 // Where the bookcase's clear wall ends: at the right-hand wall, or at the
@@ -1436,6 +1448,9 @@ const LIVING_ROOM_SCHEMA = [
   spotOrHome('pieces.bookcase.in.livingRoom.move', 'bookshelfMove'),
   Config.onOff('pieces.pineCupboard.in.livingRoom.on', 'pineOn'),
   spotOrHome('pieces.pineCupboard.in.livingRoom.move', 'pineMove'),
+  Config.onOff('pieces.billy.in.livingRoom.on', 'billyOn'),
+  Config.onOff('pieces.billy.in.livingRoom.lying', 'billyLying'),
+  spotOrHome('pieces.billy.in.livingRoom.move', 'billyMove'),
 ];
 const SCHEMA = Config.withDefaults([
   ...LIVING_ROOM_SCHEMA,
@@ -1526,6 +1541,7 @@ const pieceBoxes = () => Object.fromEntries(Object.entries({
   dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup,
   bedroomCupboard: otherRoomPieces.newCupboard,
   bed: otherRoomPieces.bed, bookcase: otherRoomPieces.bookcase, pineCupboard: otherRoomPieces.cupboard, mirror: otherRoomPieces.mirror,
+  'billy.bedroom': otherRoomPieces.billy,
   ...Object.fromEntries(Object.entries(wickerBenches).map(([room, bench]) => [`wickerBench.${room}`, bench])),
   shoeRack,
   ...Object.fromEntries(Object.entries(garagePieces).map(([key, piece]) => [key === 'pine' ? 'pineCupboard.garage' : key, piece])),

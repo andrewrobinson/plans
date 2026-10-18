@@ -29,6 +29,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | `flat_model.js` | The model: the living room's fittings and cupboard options, the settings and the configuration's schema, the dimensions, cutting list and things to store, with no page, so Node builds it too (`buildFlat()`) |
 | `living_room.js` | The page: the menus and controls, the built-in views, the scenes and the page address |
 | `other_room.js` | The bedroom's furniture and fitted cupboards, and their sliders |
+| `bookcase.js`, `billy.js` | The bedroom's bookcase, and Billy (drawn as one, standing or lying), each drawn wherever it stands |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
 | `garage.js` | The garage (off the site plan, in its own x, y mm), what's in it, and Garage options' sliders |
@@ -92,7 +93,9 @@ The notes:
   the garage** switch, a place and a quarter turn: Sean, Billy,
   BillyChest, Metal (a table), Yellow (a cupboard), the scaffold bench,
   Small Billy (a cupboard), Potters (open shelves), Biltong and Trellis
-  (boxes open at the top) and the bedroom's pine cupboard. Yellow and
+  (boxes open at the top) and the bedroom's pine cupboard. Billy can lie
+  on its long side, and can be in the living room (in the bench's place)
+  and the bedroom (on any wall) too, each on its own. Yellow and
   Biltong have a height above the floor, as they sit on the bench and on
   Trellis; Small Billy and Potters a gap from the wall behind. Sizes and
   where each starts in `room_dimensions.md`, "The garage".

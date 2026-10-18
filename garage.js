@@ -11,7 +11,9 @@ import * as THREE from 'three';
 import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { hallway, HALLWAY, ENTRANCE, ceilingMat, insideFace, faceAround } from './floor.js';
-import { bookcase, pineCupboard, OTHER_ROOM_START, QUARTER_TURN, slider } from './other_room.js';
+import { pineCupboard, OTHER_ROOM_START, QUARTER_TURN, slider, lyingSwitch } from './other_room.js';
+import { bookcase } from './bookcase.js';
+import { BILLY, billy } from './billy.js';
 
 // ---------------------------------------------------------------------------
 // Its sizes, in mm (the user's, 16 Oct 2026): 5327 long, from its door to
@@ -93,8 +95,8 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 
 // ---------------------------------------------------------------------------
 // What's in it: Sean, timber shelving: a frame at each end holding up
-// shelves of scaffold boards (the user's photo, 16 Oct 2026); Billy, drawn
-// as a bookcase, a box of shelves (other_room.js's bookcase()); BillyChest, a plain box (the user's, 16
+// shelves of scaffold boards (the user's photo, 16 Oct 2026); Billy
+// (billy.js), standing or lying on its long side (`canLie`); BillyChest, a plain box (the user's, 16
 // Oct 2026); then (also 16 Oct 2026) Metal, a table; Yellow, a cupboard;
 // the scaffold bench, a scaffold board on legs; Small Billy, a cupboard;
 // Potters, open shelves; and Biltong and Trellis, boxes open at the top;
@@ -113,7 +115,7 @@ const newPine = material(0xe3c48f);                // pale, as new construction 
 const scaffoldBoard = material(0xc9a66b);          // a scaffold board's sandy pine
 const PIECES = {
   sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: newPine, shape: 'timber shelves' },
-  billy: { label: 'Billy', w: 800, d: 280, h: 2020, mat: white, shape: 'shelves' },
+  billy: { label: 'Billy', ...BILLY, shape: 'billy', canLie: true },
   billyChest: { label: 'BillyChest', w: 805, d: 484, h: 780, mat: white, shape: 'box' },
   metal: { label: 'Metal', w: 710, d: 670, h: 895, mat: steel, shape: 'table' },
   yellow: { label: 'Yellow', w: 875, d: 310, h: 700, mat: material(0xe2b93b), shape: 'box', lifted: true },
@@ -126,6 +128,7 @@ const PIECES = {
 };
 function sizesOf({ w, d, h }) { return { w, d, h }; }
 const PIECE_KEYS = Object.keys(PIECES);
+const LYING_KEYS = PIECE_KEYS.filter(piece => PIECES[piece].canLie);
 
 // Their make, chosen as typical, none measured: the table's top and legs,
 // the bench's board (a scaffold board's 38 thick) and legs, and the open
@@ -168,7 +171,7 @@ const MOST_OFF_WALL = 200;
 export const GARAGE_START = {
   door: 'hidden',
   sean: { on: true, x: 1255, y: 2865, turn: 180 },
-  billy: { on: true, x: 0, y: 1920, turn: 270 },
+  billy: { on: true, x: 0, y: 1920, turn: 270, lying: false },
   billyChest: { on: false, x: 0, y: 1100, turn: 270 },
   metal: { on: true, x: 670, y: 360, turn: 90 },
   yellow: { on: true, x: 3390, y: 2550, turn: 0, z: PIECES.scaffoldBench.h },
@@ -202,6 +205,7 @@ function pieceEntries(piece) {
   const at = `pieces.${PIECE_NAME[piece] ?? piece}.in.garage`;
   return [
     Config.onOff(`${at}.on`, `garage.${piece}.on`),
+    ...(PIECES[piece].canLie ? [Config.onOff(`${at}.lying`, `garage.${piece}.lying`)] : []),
     ...placeSliders(piece).map(([path, , lo, hi, step]) => {
       const key = path.split('.')[1];
       return Config.number(`${at}.${key}`, `garage.${path}`, lo, hi, step, { onSteps: key === 'turn' });
@@ -252,7 +256,7 @@ export function drawGarage(s, pineSizes) {
   furniture.clear();
   for (const piece of PIECE_KEYS) {
     const sizes = PIECES[piece].bedroomSizes ? sizesOf(pineSizes) : {};
-    const { x, y, turn, z = 0, off = 0 } = s[piece], g = new THREE.Group(), body = drawn({ ...PIECES[piece], ...sizes });
+    const { x, y, turn, z = 0, off = 0, lying } = s[piece], g = new THREE.Group(), body = drawn({ ...PIECES[piece], ...sizes }, lying);
     body.position.z = off * MM;                   // its depth, out from the wall, is the group's z
     g.add(body);
     g.position.set(x * MM, z * MM, y * MM);
@@ -262,7 +266,8 @@ export function drawGarage(s, pineSizes) {
     garagePieces[piece] = g;
   }
 }
-function drawn({ w, d, h, mat, shape }) {
+function drawn({ w, d, h, mat, shape }, lying) {
+  if (shape === 'billy') return billy(lying);
   if (shape === 'shelves') return bookcase({ w, d, h }, mat);
   if (shape === 'pine') return pineCupboard({ w, d, h }, 0);   // flush: no carpet or skirting to hold it off
   const g = new THREE.Group();
@@ -376,6 +381,7 @@ export function garageControls(container, change) {
     const sizes = bedroomSizes ? 'its sizes as in Bedroom options' : `${w} wide, ${d} deep, ${h} high`;
     return `<div class="depth"><div><b>${label}</b> (${sizes})</div>` +
       `<label class="switch"><input type="checkbox" id="${id(`${piece}.on`)}"> In the garage</label>` +
+      (PIECES[piece].canLie ? lyingSwitch(id(`${piece}.lying`)) : '') +
       placeSliders(piece).map(slider(id)).join('') +
       `<div class="row"><button data-reset="${piece}">Reset location</button></div></div>`;
   }).join('');
@@ -383,6 +389,7 @@ export function garageControls(container, change) {
   doorRadios().forEach(r => r.addEventListener('change', () => change([['door', r.value]])));
   for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
   for (const piece of PIECE_KEYS) document.getElementById(id(`${piece}.on`)).addEventListener('change', e => change([[`${piece}.on`, e.target.checked]]));
+  for (const piece of LYING_KEYS) document.getElementById(id(`${piece}.lying`)).addEventListener('change', e => change([[`${piece}.lying`, e.target.checked]]));
   container.querySelectorAll('button[data-reset]').forEach(b => b.addEventListener('click', () => {
     change(placeSliders(b.dataset.reset).map(([path]) => [path, valueAt(GARAGE_START, path)]));
   }));
@@ -395,5 +402,6 @@ export function garageControls(container, change) {
       document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
     }
     for (const piece of PIECE_KEYS) document.getElementById(id(`${piece}.on`)).checked = s[piece].on;
+    for (const piece of LYING_KEYS) document.getElementById(id(`${piece}.lying`)).checked = s[piece].lying;
   };
 }

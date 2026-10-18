@@ -454,17 +454,25 @@ test.describe('the garage', () => {
 
   test('Sean and Billy can be moved and turned, and put back', async ({ page }) => {
     expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
-    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 0, y: 1920, turn: 270 });
+    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 0, y: 1920, turn: 270, lying: false });
     await slide(page, 'garage_sean_x', 2000);
     await slide(page, 'garage_sean_y', 1000);
     await slide(page, 'garage_sean_turn', 90);
     await slide(page, 'garage_billy_x', 4000);
     expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 2000, y: 1000, turn: 90 });
-    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 4000, y: 1920, turn: 270 });
+    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 4000, y: 1920, turn: 270, lying: false });
     expect(await readout(page, 'garage_sean_turn')).toBe('90°');
     await page.locator('#garageBlock [data-reset="sean"]').evaluate(b => b.click());
     expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
-    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 4000, y: 1920, turn: 270 });         // Billy stays where he was put
+    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 4000, y: 1920, turn: 270, lying: false });         // Billy stays where he was put
+  });
+
+  // Billy can lie on its long side, and stand again, where it is
+  test('Billy can lie down in the garage', async ({ page }) => {
+    await toggle(page, 'garage_billy_lying', true);
+    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 0, y: 1920, turn: 270, lying: true });
+    await toggle(page, 'garage_billy_lying', false);
+    expect(await setting(page, 'garage.billy.lying')).toBe(false);
   });
 
   // Each has its In the garage switch; taken out, its sliders stay, as the
@@ -644,7 +652,7 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#room', 'bedroom');
     await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: 'birdseye' });
     expect(await options('where')).toEqual(['In the bedroom doorway, walking in', 'Lying on the bed', 'Standing beside the bed', 'Standing at the bedroom window']);
-    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at the new cupboard', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
+    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at Billy', 'Looking at the new cupboard', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
     await page.selectOption('#where', 'bed');
     await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: any(/^look:bed:\w+$/), eye: 'lie-tall' });
     await page.selectOption('#room', 'hallway');

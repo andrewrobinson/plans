@@ -655,7 +655,10 @@ const PLACE_SLIDERS = [['x', 'X', ROOM_WIDTH, 5, ''], ['y', 'Y', ROOM_DEPTH, 5, 
 const roundedSpot = ({ x, y, turn }) => ({ x: Math.round(x), y: Math.round(y), turn });
 const backWallSwitches = {};
 // Each one's place in the living room in the configuration, by its key
-const BACK_WALL_PLACES = { bookshelf: 'pieces.bookcase.in.livingRoom', pine: 'pieces.pineCupboard.in.livingRoom' };
+const BACK_WALL_PLACES = { bookshelf: 'pieces.bookcase.in.livingRoom', pine: 'pieces.pineCupboard.in.livingRoom', billy: 'pieces.billy.in.livingRoom' };
+// Billy can also lie on its long side there
+const billyLying = document.getElementById('billyLying');
+billyLying.addEventListener('change', () => change([[`${BACK_WALL_PLACES.billy}.lying`, billyLying.checked]], { look: true }));
 for (const key of BACK_WALL_KEYS) {
   const place = BACK_WALL_PLACES[key];
   const onSwitch = backWallSwitches[key] = document.getElementById(`${key}On`);
@@ -903,6 +906,7 @@ const anchors = {
   bed: () => middleOf(otherRoomPieces.bed),
   bookcase: () => middleOf(otherRoomPieces.bookcase),
   pineCupboard: () => middleOf(otherRoomPieces.cupboard),
+  bedroomBilly: () => middleOf(otherRoomPieces.billy),
   newCupboard: () => {                                          // with none (switched off, or option 16), the pine cupboard's spot
     const drawn = new THREE.Box3().setFromObject(otherRoomPieces.newCupboard);
     return middleOf(drawn.isEmpty() ? otherRoomPieces.cupboard : otherRoomPieces.newCupboard);
@@ -1110,7 +1114,7 @@ const roomEdits = (within, edits) => edits.map(([path, value]) => {
   return [at, wordAt(at, value)];
 });
 // The bedroom's sliders (other_room.js), in state.otherRoom
-const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomBlock'), edits => change(roomEdits('otherRoom', edits)));
+const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomTop'), document.getElementById('otherRoomBlock'), edits => change(roomEdits('otherRoom', edits)));
 // The wicker bench's (wicker_bench.js), in state.wickerBench, as 'hallway.along'
 const syncWickerBench = wickerBenchControls(document.getElementById('wickerBenchBlock'), edits => change(roomEdits('wickerBench', edits), { look: true }));
 // The shoe rack's (shoe_rack.js), in state.shoeRack
@@ -1131,6 +1135,7 @@ function syncControls() {
   benchSwitch.checked = benchDrawn();
   benchSwitch.disabled = onBackWall().length > 0;
   for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = state[`${key}On`];
+  billyLying.checked = state.billyLying;
   showBookshelfSizes();
   check('bench', BENCH);
   check('above', above);

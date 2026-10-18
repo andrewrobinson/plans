@@ -57,8 +57,8 @@ test('a configuration of another version isn\'t read', () => {
 });
 
 // The garage's things: their places kept, held to the garage, in quarter
-// turns; a gap from the wall left out (as from before there was one) as it
-// starts
+// turns; a gap from the wall, or Billy lying, left out (as from before
+// there was one) as it starts
 test('the garage\'s places are kept, held to the garage', () => {
   const garage = c => Object.fromEntries(['sean', 'billy', 'smallBilly'].map(k => [k, c.pieces[k].in.garage]));
   assert.deepStrictEqual(garage(read(edited({
@@ -67,7 +67,7 @@ test('the garage\'s places are kept, held to the garage', () => {
     'pieces.smallBilly.in.garage': { on: false, x: 1000, y: 0, turn: 90 },
   }))), {
     sean: { on: false, x: 3000, y: 2000, turn: 180 },
-    billy: { on: true, x: 500, y: 500, turn: 0 },
+    billy: { on: true, x: 500, y: 500, turn: 0, lying: false },
     smallBilly: { on: false, x: 1000, y: 0, turn: 90, off: 0 },
   });
   // Past the back wall's far end, and not a quarter turn

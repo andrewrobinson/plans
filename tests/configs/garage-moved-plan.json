@@ -204,6 +204,28 @@
           }
         }
       },
+      "billy": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "breast",
+            "along": 2569,
+            "lying": false
+          },
+          "livingRoom": {
+            "on": false,
+            "lying": false,
+            "move": null
+          },
+          "garage": {
+            "on": false,
+            "lying": false,
+            "x": 0,
+            "y": 1920,
+            "turn": 270
+          }
+        }
+      },
       "recessCupboards": {
         "design": {
           "lowerD": 301,
@@ -271,16 +293,6 @@
             "x": 2000,
             "y": 1000,
             "turn": 90
-          }
-        }
-      },
-      "billy": {
-        "in": {
-          "garage": {
-            "on": false,
-            "x": 0,
-            "y": 1920,
-            "turn": 270
           }
         }
       },
