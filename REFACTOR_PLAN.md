@@ -203,6 +203,40 @@ so a link saved before a new default keeps the old one, and a new piece
 comes in at its default (the Ivar, in the lounge). Choosing a configuration
 (the Scenes list, renamed 18 Oct 2026) still loads the page again.
 
+## Configurations, and the rooms as they are (18 Oct 2026)
+
+Decided with the user:
+
+- **Scene becomes Configuration**: the same list at the bottom right,
+  named snapshots of every setting in every room bar the view, from
+  `living_room.configurations.js` (the same on every device) or saved on
+  the device. `kit/configuration_kit.js`; scenes saved on a device come
+  across. The "7. Finished design" scene went; the file holds **18
+  October 2026**, the defaults that day.
+- **The page opens on the rooms as they are** (`LOUNGE_NOW` and
+  `STORED_NOW` in `flat_model.js`; `room_dimensions.md`, "The living room
+  as it is now"): option 16 with the bench off, nothing on the front wall,
+  Billy lying and BillyChest turned to face the room on the back wall, the
+  Drift facing away from Billy, the kitchen tables (`tables.js`: Chesham
+  on its end on Cornwall, legs off) and the things to store on them; no
+  mirror in the bedroom, no shoe rack (its new **In the hallway** switch),
+  no Billy or pine cupboard in the garage, Trellis and Biltong moved.
+- **The tests start from the old start**: the controls' tests were
+  written for option 10 with the bench and the dresser, so they open the
+  address `designed` (the old default) rather than the page's default.
+  The saved addresses gained the tables (off) and the shoe rack (on), so
+  none of their screenshots changed.
+- **Fixes**: a packing puts the things to store back on the floor (z 0);
+  the Drift as a bed is 1980 wide (its arms' tilt was worked out from the
+  bed's width), and as a sofa 1480 to the outside of its arms, with 950
+  between their cushions (arms 400 long, from the user's 950).
+
+Left from this: Reload loads the defaults, but the page writes them
+straight back into the address, so the address isn't empty after it (by
+design, for Share; the user asked why, 18 Oct 2026). Rack 2's place and
+the tub's are guesses (neither clear in the photo). An empty Configuration
+list could say so.
+
 ## Left over, after 6d
 
 - **The configuration as the store**, `state` going

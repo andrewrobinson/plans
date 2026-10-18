@@ -761,8 +761,10 @@ function currentSofa() {
   const resized = own.w !== w || own.d !== d || own.h !== h;
   const label = resized ? `${S.label}, resized` : S.label;
   if (S.daybed) {
-    const asBed = state.sofa.asBed;
-    return { ...S, label: asBed ? `${label}, as a bed` : label, w: daybedFrame(S, w, asBed).width, sofaW: w, d, h, asBed,
+    // Worked out from the catalogue's own sizes (S), before w becomes the
+    // floor it covers: wider as a bed
+    const asBed = state.sofa.asBed, frame = daybedFrame(S, w, asBed);
+    return { ...S, label: asBed ? `${label}, as a bed` : label, w: frame.width, sofaW: w, frame, d, h, asBed,
       seatD: Math.min(S.seatD, d - 150) };
   }
   return { ...S, label, w, d, h, seatD: Math.min(S.seatD, d - 150), armH: Math.min(S.armH, h - 50) };
@@ -797,7 +799,7 @@ function sofa(g) {
   pieces.sofa = sub;
   sofaMat.color.set(S.colour ?? '#9DA3A6');
   if (S.daybed) {
-    sub.add(daybed(S, S.sofaW, S.asBed, sofaMat));
+    sub.add(daybed(S, sofaMat));
     return sofaText(spot);
   }
   for (const x of [x0 + 40, x1 - 90]) for (const y of [y0 + 40, y1 - 90]) box({ from: [x, y, 0], to: [x + 50, y + 50, S.legH] }, shelfMat, sub);   // wooden legs

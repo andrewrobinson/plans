@@ -40,6 +40,13 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    its long side; the Ivar starts in the lounge, lying by the first
    radiator, as it is now); the Drift daybed sofa, with As a bed; and
    Reload in place of Reset, the page afresh with nothing in the address.
+   Then Scenes became the **Configuration** list, and the page now opens
+   on **the rooms as they are** (18 Oct 2026, from the user's photos): no
+   cupboard or bench yet, Billy and BillyChest on the back wall, the Drift,
+   the Ivar, the two kitchen tables (Chesham and Cornwall, `tables.js`) and
+   the things to store in the corner by the door; kept as the
+   configuration "18 October 2026". The old start (option 10 with the
+   bench) is the test address `designed`.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).

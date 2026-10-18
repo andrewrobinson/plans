@@ -34,8 +34,11 @@ export const SOFA_MODELS = {
     // height 39 cm and back rest 67 cm as a sofa; W 198 as a bed, its arms
     // let down flat (the maker's specification and line drawing). An oak
     // base on four legs with a futon on it; its ends hinge up as the arms;
-    // an oak rail at the back, with a back cushion. From the drawing
-    // (estimated): the base 1300 long, so each arm 340; the futon 120 thick;
+    // an oak rail at the back, with a back cushion. As a sofa, 950 to lie
+    // on between the arms' cushions (the user's, 18 Oct 2026): with arms 400
+    // long (chosen to fit it), the base is 1180 and the arms tilt 75° to make
+    // the 1480, their cushions leaning in over it to leave 948, and their
+    // tops at 687, about the back's 670. From the drawing (estimated): the futon 120 thick;
     // the frame 50 and the legs 45 thick; the back rail 1000 wide and 60
     // high on 40 posts. The futon's the Comfy day bed futon, in the user's
     // charcoal grey weave (its colour estimated from their photo, 18 Oct
@@ -43,6 +46,6 @@ export const SOFA_MODELS = {
     // https://www.futoncompany.co.uk/shop-by-product/sofa-beds/type/daybeds/drift-oak-sofa-bed.html
     drift: { label: 'Drift Oak Sofa Bed (Futon Company)', w: 1480, d: 790, h: 670,
              seatH: 390, seatD: 600, colour: '#57575B',
-             daybed: { bedW: 1980, armLong: 340, futon: 120, rail: 50, leg: 45, backRail: { w: 1000, h: 60, post: 40 } } },
+             daybed: { bedW: 1980, armLong: 400, futon: 120, rail: 50, leg: 45, backRail: { w: 1000, h: 60, post: 40 } } },
   },
 };

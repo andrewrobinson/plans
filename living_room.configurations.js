@@ -15,5 +15,506 @@
 // setting, as export() does, so it doesn't change when a default does.
 window.ROOM_CONFIGURATIONS = {
   list: {
+    // The rooms as they were on 18 Oct 2026, from the user's photos and
+    // measurements: the page's defaults that day
+    oct18: { label: '18 October 2026', title: 'The rooms as they are on 18 October 2026: the lounge with no cupboard yet, the tables in the corner by the door',
+      configuration: {
+        "version": 1,
+        "doors": {
+          "room": 90,
+          "tall": 0,
+          "second": 0,
+          "bedroom": 90,
+          "flat": 0,
+          "outside": 0,
+          "bedroomCupboardTall": 0,
+          "bedroomCupboardSecond": 0,
+          "garage": "hidden"
+        },
+        "colours": {
+          "floor": 0,
+          "cupboard": 4,
+          "wall": 0,
+          "woodwork": 0,
+          "dresser": 0,
+          "carpet": 0,
+          "bedroomCupboard": 0,
+          "shelves": 0
+        },
+        "livingRoom": {
+          "frontWall": "none"
+        },
+        "pieces": {
+          "cornerCupboard": {
+            "design": {
+              "option": 16,
+              "T": 600,
+              "R": 330,
+              "F": 1200,
+              "BOARD": 18,
+              "LEG": 600,
+              "LEG_D": 600,
+              "L_SHELVES": {
+                "back": [
+                  600,
+                  1200,
+                  1800
+                ],
+                "left": [
+                  600,
+                  1200,
+                  1800
+                ]
+              },
+              "WARD": 900,
+              "WARD_D": 600,
+              "TOWER": 400,
+              "CORNER_W": 800,
+              "CORNER_D": 650,
+              "SIDE_SHELF": false,
+              "SIDE_W": 400,
+              "SIDE_D": 330
+            }
+          },
+          "bedroomCupboard": {
+            "design": {
+              "option": 10,
+              "T": 600,
+              "R": 330,
+              "F": 1200,
+              "BOARD": 18,
+              "LEG": 600,
+              "LEG_D": 600,
+              "L_SHELVES": {
+                "back": [
+                  600,
+                  1200,
+                  1800
+                ],
+                "left": [
+                  600,
+                  1200,
+                  1800
+                ]
+              },
+              "WARD": 900,
+              "WARD_D": 600,
+              "TOWER": 400,
+              "CORNER_W": 800,
+              "CORNER_D": 650,
+              "SIDE_SHELF": false,
+              "SIDE_W": 400,
+              "SIDE_D": 330
+            },
+            "in": {
+              "bedroom": {
+                "on": false
+              }
+            }
+          },
+          "bench": {
+            "design": {
+              "height": 780
+            },
+            "in": {
+              "livingRoom": {
+                "on": false
+              }
+            }
+          },
+          "aboveBench": {
+            "design": {
+              "what": "tvAndShelves",
+              "shelfDepth": 250,
+              "tv": 75
+            }
+          },
+          "dresser": {
+            "design": {
+              "w": 1000,
+              "h": 1930,
+              "baseD": 420,
+              "baseH": 830,
+              "upperD": 420
+            }
+          },
+          "larder": {
+            "design": {
+              "model": "chester",
+              "w": 1100,
+              "h": 1950,
+              "d": 510
+            }
+          },
+          "island": {
+            "in": {
+              "livingRoom": {
+                "at": "room",
+                "x": 1395,
+                "y": 3571,
+                "turn": 0
+              }
+            }
+          },
+          "sofa": {
+            "design": {
+              "model": "drift",
+              "w": 1480,
+              "d": 790,
+              "h": 670,
+              "asBed": false
+            },
+            "in": {
+              "livingRoom": {
+                "front": 1900,
+                "move": {
+                  "x": 1875,
+                  "y": 975,
+                  "turn": 180
+                }
+              }
+            }
+          },
+          "bed": {
+            "in": {
+              "bedroom": {
+                "u": 1360,
+                "v": 0,
+                "turn": 0
+              }
+            }
+          },
+          "bookcase": {
+            "design": {
+              "w": 1490,
+              "d": 290,
+              "h": 1220
+            },
+            "in": {
+              "bedroom": {
+                "on": true,
+                "u": 2569,
+                "v": 2841,
+                "turn": 180
+              },
+              "livingRoom": {
+                "on": false,
+                "move": null
+              }
+            }
+          },
+          "pineCupboard": {
+            "design": {
+              "w": 1300,
+              "d": 500,
+              "h": 1790
+            },
+            "in": {
+              "bedroom": {
+                "on": true,
+                "u": 3682,
+                "v": 1901,
+                "turn": 90
+              },
+              "livingRoom": {
+                "on": false,
+                "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 1425,
+                "y": 0,
+                "turn": 0
+              }
+            }
+          },
+          "billy": {
+            "in": {
+              "bedroom": {
+                "on": false,
+                "wall": "breast",
+                "along": 2569,
+                "lying": false
+              },
+              "livingRoom": {
+                "on": true,
+                "lying": true,
+                "move": {
+                  "x": 1875,
+                  "y": 0,
+                  "turn": 0
+                }
+              },
+              "garage": {
+                "on": false,
+                "lying": false,
+                "x": 0,
+                "y": 1920,
+                "turn": 270
+              }
+            }
+          },
+          "billyChest": {
+            "in": {
+              "bedroom": {
+                "on": false,
+                "wall": "breast",
+                "along": 2569
+              },
+              "livingRoom": {
+                "on": true,
+                "move": {
+                  "x": 3748,
+                  "y": 405,
+                  "turn": 90
+                }
+              },
+              "garage": {
+                "on": false,
+                "x": 0,
+                "y": 1100,
+                "turn": 270
+              }
+            }
+          },
+          "ivar": {
+            "in": {
+              "bedroom": {
+                "on": false,
+                "wall": "breast",
+                "along": 2569
+              },
+              "livingRoom": {
+                "on": true,
+                "lying": true,
+                "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 0,
+                "y": 1100,
+                "turn": 270
+              }
+            }
+          },
+          "recessCupboards": {
+            "design": {
+              "lowerD": 301,
+              "upperDrawers": false,
+              "upperMirrors": false
+            }
+          },
+          "mirror": {
+            "design": {
+              "w": 1000,
+              "h": 800
+            },
+            "in": {
+              "bedroom": {
+                "on": false,
+                "wall": "breast",
+                "along": 2569,
+                "bottom": 1400
+              }
+            }
+          },
+          "chesham": {
+            "in": {
+              "livingRoom": {
+                "on": true,
+                "onItsEnd": true,
+                "move": null
+              }
+            }
+          },
+          "cornwall": {
+            "in": {
+              "livingRoom": {
+                "on": true,
+                "legsOff": true,
+                "move": null
+              }
+            }
+          },
+          "wickerBench": {
+            "design": {
+              "w": 920,
+              "d": 410,
+              "h": 450,
+              "legs": 80
+            },
+            "in": {
+              "hallway": {
+                "on": true,
+                "along": 1470,
+                "across": 1372,
+                "turn": 0
+              },
+              "bedroom": {
+                "on": false,
+                "u": 1360,
+                "v": 1985,
+                "turn": 0
+              },
+              "livingRoom": {
+                "on": false,
+                "x": 3686,
+                "y": 2910,
+                "turn": 90
+              }
+            }
+          },
+          "shoeRack": {
+            "in": {
+              "hallway": {
+                "on": false
+              }
+            },
+            "design": {
+              "w": 460,
+              "d": 300,
+              "h": 1290,
+              "bevel": true,
+              "slope": 45,
+              "shoes": true,
+              "bevelDoor": 72
+            }
+          },
+          "sean": {
+            "in": {
+              "garage": {
+                "on": true,
+                "x": 1255,
+                "y": 2865,
+                "turn": 180
+              }
+            }
+          },
+          "metal": {
+            "in": {
+              "garage": {
+                "on": true,
+                "x": 670,
+                "y": 360,
+                "turn": 90
+              }
+            }
+          },
+          "yellow": {
+            "in": {
+              "garage": {
+                "on": true,
+                "x": 3390,
+                "y": 2550,
+                "turn": 0,
+                "z": 438
+              }
+            }
+          },
+          "scaffoldBench": {
+            "in": {
+              "garage": {
+                "on": true,
+                "x": 3430,
+                "y": 2650,
+                "turn": 0
+              }
+            }
+          },
+          "smallBilly": {
+            "in": {
+              "garage": {
+                "on": true,
+                "x": 2480,
+                "y": 0,
+                "turn": 0,
+                "off": 0
+              }
+            }
+          },
+          "potters": {
+            "in": {
+              "garage": {
+                "on": true,
+                "x": 3090,
+                "y": 0,
+                "turn": 0,
+                "off": 0
+              }
+            }
+          },
+          "biltong": {
+            "in": {
+              "garage": {
+                "on": true,
+                "x": 580,
+                "y": 1490,
+                "turn": 90,
+                "z": 750
+              }
+            }
+          },
+          "trellis": {
+            "in": {
+              "garage": {
+                "on": true,
+                "x": 735,
+                "y": 1475,
+                "turn": 90
+              }
+            }
+          }
+        },
+        "thingsToStore": {
+          "shown": true,
+          "packing": 0,
+          "where": "byHand",
+          "spots": [
+            {
+              "x": 330,
+              "y": 380,
+              "turned": true,
+              "z": 150
+            },
+            {
+              "x": 100,
+              "y": 700,
+              "turned": true,
+              "z": 150
+            },
+            {
+              "x": 0,
+              "y": 650,
+              "turned": true,
+              "z": 150
+            },
+            {
+              "x": 450,
+              "y": 450,
+              "turned": true,
+              "z": 150
+            },
+            {
+              "x": 440,
+              "y": 880,
+              "turned": false,
+              "z": 150
+            },
+            {
+              "x": 820,
+              "y": 1380,
+              "turned": false,
+              "z": 0
+            },
+            {
+              "x": 30,
+              "y": 30,
+              "turned": false,
+              "z": 150
+            }
+          ]
+        }
+      },
+    },
   },
 };

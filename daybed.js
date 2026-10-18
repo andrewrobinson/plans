@@ -11,19 +11,28 @@ const BACK_CUSHION = 150;                          // the back cushion's thickne
 
 // The base's length and the arms' tilt, for a daybed `S` at the width
 // `sofaW` (the menu's slider): the arms keep the tilt they have at its own
-// width (its w), and the base takes up the rest. As a bed they lie flat
+// width (its w), and the base takes up the rest. As a bed they lie flat.
+// Tilted up, an arm's outermost point is the bottom of its frame at its
+// far end, armLong along it and `rail` below the hinge: it stands out from
+// the hinge by armLong cos(tilt) + rail sin(tilt), which is reach(tilt)
+// below, so the width's measured to it (the maker's 1480 for the Drift)
+const reach = ({ armLong, rail }, tilt) => armLong * Math.cos(tilt) + rail * Math.sin(tilt);
 export function daybedFrame(S, sofaW, asBed) {
-  const { bedW, armLong } = S.daybed, ownBase = bedW - 2 * armLong;
-  const tilt = Math.acos(Math.min(1, (S.w - ownBase) / (2 * armLong)));
-  const base = sofaW - 2 * armLong * Math.cos(tilt);
+  const { bedW, armLong, rail } = S.daybed, ownBase = bedW - 2 * armLong;
+  // reach(tilt) = R cos(tilt - lean): the tilt at which it's half what the base leaves of w
+  const R = Math.hypot(armLong, rail), lean = Math.atan2(rail, armLong);
+  const tilt = lean + Math.acos(Math.min(1, (S.w - ownBase) / 2 / R));
+  const base = sofaW - 2 * reach(S.daybed, tilt);
   return { base, tilt: asBed ? 0 : tilt, width: asBed ? base + 2 * armLong : sofaW };
 }
 
 // The daybed, its middle at the origin, its front to -y, `d` deep and its
-// back rail `h` high; `fabric` the futon's material
-export function daybed(S, sofaW, asBed, fabric) {
-  const g = new THREE.Group(), { futon, rail, leg, armLong, backRail } = S.daybed;
-  const { base, tilt } = daybedFrame(S, sofaW, asBed), half = base / 2;
+// back rail `h` high, as flat_model.js's currentSofa() gives it: with its
+// `frame` (daybedFrame(), from the catalogue's own width) and `asBed`;
+// `fabric` the futon's material
+export function daybed(S, fabric) {
+  const g = new THREE.Group(), { futon, rail, leg, armLong, backRail } = S.daybed, asBed = S.asBed;
+  const { base, tilt } = S.frame, half = base / 2;
   const y0 = -S.d / 2, y1 = S.d / 2, top = S.seatH - futon, under = top - rail;
   for (const x of [-half, half - leg]) for (const y of [y0, y1 - leg]) box({ from: [x, y, 0], to: [x + leg, y + leg, under] }, oakMat, g);   // legs
   box({ from: [-half, y0, under], to: [half, y1, top] }, oakMat, g);              // the base's frame
