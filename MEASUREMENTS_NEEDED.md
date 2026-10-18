@@ -256,6 +256,18 @@ Already noted as estimates in `room_dimensions.md`:
 - [ ] **"The counter extends 105 cm left of the base":** what the 105 cm is
       measured from.
 
+## 7. Furniture estimates (priority 2)
+
+Drawn from product pages and photos (18 Oct 2026); worth a tape when
+convenient:
+
+- [ ] **The Ivar:** its boards' thickness (taken as 18), and where it
+      stands by the first radiator: centred on it, touching its front.
+- [ ] **The Drift sofa:** if bought, its base's length (taken as 1300
+      from the maker's drawing, so each arm 340), the futon's thickness
+      (120), the legs (drawn straight, 45 square; they splay in the
+      drawing), the back rail (1000 wide, 60 high) and the futon's colour.
+
 ---
 
 When some of these come in, they go into `room_dimensions.md` for the living

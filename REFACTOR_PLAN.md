@@ -164,6 +164,45 @@ full suite passed on both devices. On the phone, a long menu scrolls in
 its sheet; the old iPhone SE's narrow screen (320) still takes about five rows of bar
 while no sheet's open.
 
+## Furniture in more rooms, a daybed, and Reload (18 Oct 2026)
+
+Decided with the user, each choice put to them first:
+
+- **Billy, BillyChest and the Ivar** (`billy.js`, `ivar.js`) can each be
+  in the garage, the lounge and the bedroom, each with its own switch,
+  as the pine cupboard. Their sizes are fixed. In the lounge, Billy and
+  BillyChest stand in the bench's place (the back wall's switches); the
+  Ivar has its own section, as it isn't on the back wall: it starts
+  where it is now, lying on its side by the first radiator. In the
+  bedroom each goes on any wall (the mirror's choice of wall, now
+  `ON_A_WALL`). Billy can lie on its long side in every room, its open
+  side out; lying, it's longer than the chimney breast, so there it goes
+  against the kitchen-side wall.
+- **The Drift**, Futon Company's oak daybed (`daybed.js`), joins the
+  sofas, with **As a bed**; the sofa height slider starts at 600.
+- **Reload** replaced Reset: the page afresh with nothing in the address,
+  nothing to confirm (a plain browser reload brings the address's
+  settings back). An in-place reset was tried and dropped; so was Back
+  undoing it, as Back to an address alone doesn't redraw the page.
+- **Bedroom options** opens with the New cupboard switch and its section,
+  the rest of the furniture after.
+
+Refactors on the way, each keeping what the page does: the bookcase's
+drawing to `bookcase.js` (Billy's drawn with it, without a cycle of
+imports); one `wallPlace()`, `alongWall()` and `followWall()` for every
+piece on a wall; `placeControls()` for any piece's X, Y and Turn sliders
+in the lounge. And a fix: rebuilding the room now frees the old drawing's
+geometry (`clearDrawing()` in `kit/floor_kit.js`), which the slider tests
+needed once the new pieces made each rebuild bigger (the WebGL context
+was lost). The saved configurations are now regenerated through the
+model (`buildFlat()`), so new settings come in at their defaults in the
+export's order, and the diff checked to hold nothing else.
+
+Left from this: the saved scene and configurations give every setting,
+so a link saved before a new default keeps the old one, and a new piece
+comes in at its default (the Ivar, in the lounge). Choosing a scene still
+loads the page again.
+
 ## Left over, after 6d
 
 - **The configuration as the store**, `state` going

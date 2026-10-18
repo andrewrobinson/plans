@@ -34,6 +34,12 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    room's options from one button at the bottom left, as a sheet with the
    room live above it on a phone, a cutting list in the lounge's and the
    bedroom's options, Hallway and stairs options, and the garage door.
+   Later that day: Bedroom options opening with the New cupboard switch
+   and its section; the garage's Billy and BillyChest, and an Ivar, each
+   able to be in the lounge, the bedroom and the garage (Billy can lie on
+   its long side; the Ivar starts in the lounge, lying by the first
+   radiator, as it is now); the Drift daybed sofa, with As a bed; and
+   Reload in place of Reset, the page afresh with nothing in the address.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).
