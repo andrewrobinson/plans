@@ -376,14 +376,11 @@ function sheetHandles(moved) {
   }
 }
 
-// Reset: load the page again with no settings in the address, so everything
-// is back to its default
-export function resetButton(button) {
-  button.addEventListener('click', () => {
-    if (!window.confirm('Reset all settings?')) return;
-    history.replaceState(null, '', location.pathname);
-    location.reload();
-  });
+// Reload: load the page afresh, as a new deploy would be seen, with no
+// settings in the address, so everything is back to its default (asked for,
+// 18 Oct 2026, in place of Reset), with nothing to confirm
+export function reloadButton(button) {
+  button.addEventListener('click', () => location.replace(location.pathname));
 }
 
 // Share a link to exactly what's on show: the page at `publicUrl` with this

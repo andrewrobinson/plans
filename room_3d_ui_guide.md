@@ -45,7 +45,7 @@ live beside it.
 | Lines | Element | What it is on screen |
 |---|---|---|
 | 29 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
-| 35–41 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge view**, **Bedroom view**, **Garage view**, **Hallway view**, each going to its room, with a ▾ dropdown of Bird's eye or Plan), Share, Screenshot and Reset. On a phone, while a sheet's open, only ☰ shows |
+| 35–41 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge view**, **Bedroom view**, **Garage view**, **Hallway view**, each going to its room, with a ▾ dropdown of Bird's eye or Plan), Share, Screenshot and Reload (the page afresh, nothing in the address). On a phone, while a sheet's open, only ☰ shows |
 | 44–69 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
 | 71–81 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
 | 83–85 | `#bottomLeft` | The options button (`#roomOptions`), named for the room in view: Lounge, Bedroom or Garage options, or Hallway and stairs. It moves clear of an open drawer, onto a sheet's top edge on a phone |
@@ -163,7 +163,7 @@ The lounge's are index.html's own; the bedroom's are a copy of them,
 | **404–791** | **Control wiring** | **`change(edits, { look })`** (404), the two cupboards' controls (`loungeCupboard`, `bedroomCupboardControls`, `showBedroomCupboard()`), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5); the colour pickers (`colourPicker()`, the bedroom cupboard's too); `sizeEdits()` |
 | 787–922 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
 | 923–1007 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
-| 1008–1100 | The view as JSON; **the rooms' buttons and the drawers**; Reset, Share and offline support | `viewNow()`, `readDisplay()`; `ROOM_BUTTONS` (each room's name, drawer and options), the split buttons (`goToRoom()`, each room's Bird's eye or Plan kept on this device), `DRAWERS` (Other, Lounge, Bedroom, Garage, Hallway and stairs), the options button (`showRoomOptions()`, from `hooks.place()`) |
+| 1008–1100 | The view as JSON; **the rooms' buttons and the drawers**; Reload, Share and offline support | `viewNow()`, `readDisplay()`; `ROOM_BUTTONS` (each room's name, drawer and options), the split buttons (`goToRoom()`, each room's Bird's eye or Plan kept on this device), `DRAWERS` (Other, Lounge, Bedroom, Garage, Hallway and stairs), the options button (`showRoomOptions()`, from `hooks.place()`) |
 | 1101–1152 | The rooms' modules' controls and `syncControls()` | `roomEdits()` (their settings' places in `state` as the configuration's paths); the model's `settle()`, then every slider, radio, switch and dropdown in step with the settings |
 | 1153–1193 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
 | 1194–1209 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show()`, the view; the kit's `startLoop()` |
@@ -270,7 +270,7 @@ rule therefore gives each menu button its own colour.
 
 ### One class for many buttons
 
-The floating text buttons (Lounge options, Share, Reset, Dimensions, Show
+The floating text buttons (Lounge options, Share, Reload, Dimensions, Show
 the room buttons, and the menus' Save and Delete) all have `class="chip"` in the
 HTML, and one `.chip` rule styles them. To give a new button the same look, add `class="chip"` to it.
 
@@ -586,7 +586,7 @@ configuration into `state`, then `syncControls()` sets every slider and
 radio from `state`, e.g. the radio found with
 `document.querySelector('input[name=front][value="1329"]')`, `show()`
 builds it, and the view is applied. This is how Share links and Scenes
-work (a scene is a configuration). Reset simply loads the page with no
+work (a scene is a configuration). Reload simply loads the page with no
 hash.
 
 ### `window.plans`: the settings, for the tests and the console

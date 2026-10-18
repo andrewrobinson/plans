@@ -21,7 +21,7 @@
 // controls; the colours; the views and scenes; the display switches and the
 // view; window.plans; and starting the page.
 import * as THREE from 'three';
-import { MM, createStage, RAL, popMenus, createDrawers, resetButton,
+import { MM, createStage, RAL, popMenus, createDrawers, reloadButton,
   shareButton, screenshotButton, workOffline, flatViews, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as SceneKit from './kit/scene_kit.js';
@@ -1092,7 +1092,7 @@ function showRoomOptions(room) {
 }
 drawers.setMenu(null);
 
-resetButton(document.getElementById('reset'));
+reloadButton(document.getElementById('reload'));
 // Share: the link is always to the published page, so it works for others
 // even when this copy is on a local server
 shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => OPTIONS[state.cornerCupboard.option].name);

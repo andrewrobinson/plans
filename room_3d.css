@@ -40,7 +40,7 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 /* In front of the top bar: an open menu here can reach it on a phone */
 #topRight { position: fixed; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
 #sceneMenu { --tint: #2e7d4f; }
-/* The floating text buttons: Share, Reset, Dimensions, and the menus' Save and Delete */
+/* The floating text buttons: Share, Reload, Dimensions, and the menus' Save and Delete */
 .chip {
   pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
   background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer; flex: none;

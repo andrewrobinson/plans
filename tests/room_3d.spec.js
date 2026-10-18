@@ -516,18 +516,9 @@ test.describe('Share and Reset', () => {
     expect(copied.size).toBeGreaterThan(10000);                 // a picture, not a blank canvas (a few hundred bytes)
   });
 
-  test('Reset asks first, then goes back to the default page', async ({ page }) => {
+  test('Reload goes to the default page, with nothing to confirm', async ({ page }) => {
     await openRoom(page, OPTION_7);
-    // Cancelled: nothing changes
-    page.once('dialog', d => d.dismiss());
-    await page.click('#reset');
-    expect(await optionShown(page)).toBe(7);
-    // Accepted
-    page.once('dialog', d => {
-      expect(d.message()).toBe('Reset all settings?');
-      d.accept();
-    });
-    await page.click('#reset');
+    await page.click('#reload');
     await expect.poll(() => configurationOf(page).catch(() => 'loading')).toEqual(DEFAULT.configuration);
   });
 });
