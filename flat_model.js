@@ -261,7 +261,7 @@ const state = {
     // as set, so thicker boards take room from the inside.
     BOARD: 18,
     TOP: 0,                          // how high the full-height parts stand: 0 to the ceiling, or 1800 up to it (asked for, 18 Oct 2026)
-    LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200 (the bedroom's to its recess). Its door is LEG - BOARD - 2 * DOOR_GAP wide. Option 8 has its own, DIAG_RUN
+    LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200 (the bedroom's to its recess). Its door is LEG - BOARD - 2 * DOOR_GAP wide, or more doors past MAX_DOOR_W. Option 8 has its own, DIAG_RUN
     LEG_D: 600,                      // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench, which stays R deep
     L_SHELVES: { back: [600, 1200, 1800], left: [600, 1200, 1800] },   // ...and its shelf tops in the back-wall leg (with the inside corner) and the left-wall leg
     DIAG_RUN: 700,                   // option 8's back-wall leg, inside along the back wall from the left-wall cupboard: 400 up to the room's limit (700 as it was first drawn)
@@ -270,7 +270,7 @@ const state = {
     WARD: 900,                       // option 9's full-height double-door cupboard on the back wall: 600 to 1400 wide
     WARD_D: 600,                     // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench and tower, which stay R deep
     TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)
-    CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200 (the bedroom's to its recess). Option 10's doors are (CORNER_W - BOARD - 3 * DOOR_GAP) / 2 wide each
+    CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200 (the bedroom's to its recess). Option 10's doors are (CORNER_W - BOARD - 3 * DOOR_GAP) / 2 wide each, or two pairs past MAX_DOOR_W
     CORNER_D: 650,                   // ...and out along the left wall, in place of F: 0 to 1329 (the door frame; the bedroom's to its door's swing). Too shallow (cornerTooShallow()), it isn't built
     SIDE_SHELF: false,               // option 10's full-height side bookshelf, between the corner cupboard and the TV: drawn or not
     SIDE_W: 400,                     // ...its width along the back wall, 200 to 800, the cupboard's side included (it shares it)

@@ -3,14 +3,16 @@
 // choice of a choice, on and off), and each board thickness; so each piece
 // in each room it can be in too; and the bedroom's own cupboard in each
 // option, its settings at their ends. Each must build without error, with no
-// size that isn't a number, no board in the cutting lists of no size, the
-// corner cupboard and what stands on the front wall inside the living room
-// (with its doors at each end of their sliders too: they stop at the walls),
+// size that isn't a number, no board in the cutting lists of no size, no
+// door wider than MAX_DOOR_W, the corner cupboard and what stands on the
+// front wall inside the living room (with its doors at each end of their
+// sliders too: they stop at the walls),
 // and the same configuration back after a trip through the address. A
 // failure names the setting and gives its link, to open and look at.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildFlat, SCHEMA, OPTIONS } from '../../flat_model.js';
+import { MAX_DOOR_W } from '../../corner_cupboard.js';
 import { pack, unpack, valueAt, setValueAt } from '../../kit/config_kit.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT } from '../../floor.js';
 
@@ -85,6 +87,7 @@ function problems(flat) {
   });
   for (const [cupboard, rows] of Object.entries(flat.cupboards)) {
     for (const row of rows ?? []) if (!(row.length > 0 && row.width > 0 && row.count > 0)) found.push(`the ${cupboard} cutting list has ${JSON.stringify(row)}`);
+    for (const row of rows ?? []) if (row.kind === 'Doors' && row.width > MAX_DOOR_W) found.push(`the ${cupboard} has a door ${row.width} wide`);
   }
   for (const piece of ['cornerCupboard', 'dresser', 'larder']) {
     const box = flat.boxes[piece];

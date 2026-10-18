@@ -422,7 +422,7 @@ function change(edits, { look = false } = {}) {
 // The living room's corner cupboard's controls, in Lounge options
 // (cupboard_controls.js): its option list, sizes, shelves and front, by
 // its design's path in the configuration
-const loungeCupboard = cupboardControls({ piece: 'cornerCupboard', change });
+const loungeCupboard = cupboardControls({ piece: 'cornerCupboard', change, hasBench: benchDrawn });
 // ...and the bedroom's, in Bedroom options: every option bar the current
 // room (no cupboard), and no left-wall front to the door frame (there's no
 // door on its walls)

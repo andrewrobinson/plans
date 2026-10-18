@@ -8,6 +8,7 @@
 // (copyControls()), in Bedroom options, each id with the piece's name
 // before it. living_room.js makes both.
 import { OPTIONS, optionAt, get, cupboardOf, cupboardSettings, readShelves, idIn, cupboardLimits } from './flat_model.js';
+import { rearLabel } from './corner_cupboard.js';
 
 // The sliders, by their ids, and the settings they change, bar the
 // left-wall cupboard's depth (with its "none")
@@ -40,10 +41,11 @@ export function copyControls(elements, piece) {
 // The controls for the cupboard `piece` ('cornerCupboard' or
 // 'bedroomCupboard'): `id(name)` gives a control's id from the living
 // room's; `change(edits)` is the page's; `options`, the places in OPTIONS
-// its list offers. Gives choose(i), an option chosen as from the list,
+// its list offers; `hasBench()`, whether its room's bench is drawn (the
+// bedroom has none). Gives choose(i), an option chosen as from the list,
 // sync(), every control in step with the settings, and showBlocks(), only
 // the blocks that apply to its option shown
-export function cupboardControls({ piece, id = name => name, change, options = OPTIONS.map((o, i) => i) }) {
+export function cupboardControls({ piece, id = name => name, change, options = OPTIONS.map((o, i) => i), hasBench = () => false }) {
   const at = key => `pieces.${piece}.design.${key}`;
   const value = key => get(at(key));
   const set = (key, v) => change([[at(key), v]]);
@@ -104,7 +106,7 @@ export function cupboardControls({ piece, id = name => name, change, options = O
     [...list.options].forEach(o => { o.disabled = value('T') === 0 && Boolean(OPTIONS[Number(o.value)].needsLeft); });
     list.value = String(i);
     const shown = (name, yes) => { el(name).style.display = yes ? '' : 'none'; };
-    shown('tallBlock', Boolean(cupboardOf(piece)?.doors.tall));
+    shown('tallBlock', Boolean(cupboardOf(piece)?.doors.tall.length));
     shown('legBlock', no === 7);
     shown('diagBlock', no === 8);
     shown('wardBlock', no === 9);
@@ -113,6 +115,9 @@ export function cupboardControls({ piece, id = name => name, change, options = O
     shown('sideShelfDetails', value('SIDE_SHELF'));
     shown('leftLenBlock', !option.front);                       // options 10 and 11 have their own depth (cornerD)
     shown('depthBlock', !option.fixedWidth);
+    const rear = rearLabel(no, cupboardSettings(piece), hasBench());   // R's slider, as what it sets, hidden where it sets nothing
+    shown('rearBlock', rear);
+    el('rearLabel').textContent = rear ?? '';
     shown('secondBlock', option.second);
     el('secondLabel').textContent = option.second || '';
   }
