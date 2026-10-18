@@ -1,24 +1,29 @@
-// A corner cupboard's controls: its option list, its sizes, option 10's side
-// bookshelf, option 7's shelves and the left-wall cupboard's front, each
+// A corner cupboard's controls: its option list, its sizes (each held to
+// where it can reach in its room: cupboardLimits()), its height, option
+// 10's side bookshelf and option 7's shelves, each
 // changing the cupboard's design by its path in the configuration
 // (pieces.<piece>.design, through the page's change()), and its door
 // sliders' blocks shown as its option has them. The living room's are
 // index.html's own, in Lounge options; the bedroom's are a copy of them
 // (copyControls()), in Bedroom options, each id with the piece's name
 // before it. living_room.js makes both.
-import { OPTIONS, optionAt, get, cupboardOf, readShelves } from './flat_model.js';
+import { OPTIONS, optionAt, get, cupboardOf, cupboardSettings, readShelves, idIn, cupboardLimits } from './flat_model.js';
 
 // The sliders, by their ids, and the settings they change, bar the
 // left-wall cupboard's depth (with its "none")
-const CUPBOARD_SLIDERS = [['rear', 'R'], ['board', 'BOARD'], ['leg', 'LEG'], ['legD', 'LEG_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'],
+const CUPBOARD_SLIDERS = [['rear', 'R'], ['leftLen', 'F'], ['board', 'BOARD'], ['leg', 'LEG'], ['legD', 'LEG_D'],
+  ['diagRun', 'DIAG_RUN'], ['diagBack', 'DIAG_BACK'], ['diagLeft', 'DIAG_LEFT'], ['ward', 'WARD'], ['wardD', 'WARD_D'],
   ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']];
 // The left-wall cupboard's depth slider: none at its far left (290, index.html),
 // then 300 to 800
 const NO_LEFT_WALL = 290, LEFT_WALL_FROM = 300;
+// The height slider: at its far right (2450, index.html), up to the ceiling,
+// which is TOP 0
+const TO_THE_CEILING = 2450;
 
-// A control's id in a copy of the controls: the piece's name, then the
-// living room's id with a capital, as 'bedroomCupboardDepth' for 'depth'
-export const idIn = piece => name => `${piece}${name[0].toUpperCase()}${name.slice(1)}`;
+// A control's id in a copy of the controls (flat_model.js has it, for the
+// configuration's entries)
+export { idIn };
 // Copies of `elements`, every id (and the labels' and radios' references to
 // one) given its name in the copy (idIn(piece))
 export function copyControls(elements, piece) {
@@ -35,16 +40,24 @@ export function copyControls(elements, piece) {
 // The controls for the cupboard `piece` ('cornerCupboard' or
 // 'bedroomCupboard'): `id(name)` gives a control's id from the living
 // room's; `change(edits)` is the page's; `options`, the places in OPTIONS
-// its list offers; `front`, whether it has the left-wall front's choice
-// (only the living room has a door frame to go up to). Gives choose(i), an
-// option chosen as from the list, sync(), every control in step with the
-// settings, and showBlocks(), only the blocks that apply to its option shown
-export function cupboardControls({ piece, id = name => name, change, options = OPTIONS.map((o, i) => i), front = true }) {
+// its list offers. Gives choose(i), an option chosen as from the list,
+// sync(), every control in step with the settings, and showBlocks(), only
+// the blocks that apply to its option shown
+export function cupboardControls({ piece, id = name => name, change, options = OPTIONS.map((o, i) => i) }) {
   const at = key => `pieces.${piece}.design.${key}`;
   const value = key => get(at(key));
   const set = (key, v) => change([[at(key), v]]);
+  // A size set, held to where it can reach, and any other size it now holds
+  // back brought in with it (a deeper left-wall cupboard meets the
+  // bedroom door's swing sooner, so its length comes in)
+  function setSize(key, v) {
+    const next = { ...cupboardSettings(piece), [key]: v };
+    next[key] = Math.min(v, cupboardLimits(piece, next)[key] ?? Infinity);
+    const edits = [[at(key), next[key]]];
+    for (const [k, most] of Object.entries(cupboardLimits(piece, next))) if (k !== key && next[k] > most) edits.push([at(k), most]);
+    change(edits);
+  }
   const el = name => document.getElementById(id(name));
-  const frontRadios = () => document.querySelectorAll(`input[name=${id('front')}]`);
   const shelfInputs = { back: el('shelvesBack'), left: el('shelvesLeft') };
 
   // The option list; choosing an option (not a link to one): with no
@@ -61,12 +74,15 @@ export function cupboardControls({ piece, id = name => name, change, options = O
 
   el('depth').addEventListener('input', e => {
     const v = Number(e.target.value);
-    set('T', v < LEFT_WALL_FROM ? 0 : v);
+    setSize('T', v < LEFT_WALL_FROM ? 0 : v);
   });
-  for (const [name, key] of CUPBOARD_SLIDERS) el(name).addEventListener('input', e => set(key, Number(e.target.value)));
+  el('top').addEventListener('input', e => {
+    const v = Number(e.target.value);
+    set('TOP', v >= TO_THE_CEILING ? 0 : v);
+  });
+  for (const [name, key] of CUPBOARD_SLIDERS) el(name).addEventListener('input', e => setSize(key, Number(e.target.value)));
   el('sideShelfOn').addEventListener('change', e => set('SIDE_SHELF', e.target.checked));
   for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => set(`L_SHELVES.${k}`, readShelves(shelfInputs[k].value)));
-  frontRadios().forEach(r => r.addEventListener('change', () => set('F', Number(r.value))));
 
   function sync() {
     const slide = (name, v, text = v) => {
@@ -75,9 +91,10 @@ export function cupboardControls({ piece, id = name => name, change, options = O
     };
     const T = value('T');
     slide('depth', T || NO_LEFT_WALL, T || 'none');
+    const TOP = value('TOP');
+    slide('top', TOP || TO_THE_CEILING, TOP || 'ceiling');
     for (const [name, key] of CUPBOARD_SLIDERS) slide(name, value(key));
     el('sideShelfOn').checked = value('SIDE_SHELF');
-    frontRadios().forEach(r => { r.checked = Number(r.value) === value('F'); });
     for (const k of ['back', 'left']) shelfInputs[k].value = value(`L_SHELVES.${k}`).join(', ');
   }
 
@@ -89,11 +106,12 @@ export function cupboardControls({ piece, id = name => name, change, options = O
     const shown = (name, yes) => { el(name).style.display = yes ? '' : 'none'; };
     shown('tallBlock', Boolean(cupboardOf(piece)?.doors.tall));
     shown('legBlock', no === 7);
+    shown('diagBlock', no === 8);
     shown('wardBlock', no === 9);
     shown('cornerBlock', no === 10 || no === 11);
     shown('sideShelfBlock', no === 10);                         // option 11's doors open where it would stand
     shown('sideShelfDetails', value('SIDE_SHELF'));
-    shown('front', front && !option.front);                     // options 10 and 11 have their own depth (cornerD)
+    shown('leftLenBlock', !option.front);                       // options 10 and 11 have their own depth (cornerD)
     shown('depthBlock', !option.fixedWidth);
     shown('secondBlock', option.second);
     el('secondLabel').textContent = option.second || '';

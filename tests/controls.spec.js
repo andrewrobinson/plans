@@ -99,10 +99,37 @@ test.describe('sliders, to each end and back', () => {
     await endsAndBack(page, 'board', at('cornerCupboard.BOARD'));
   });
 
+  // Its height: at the slider's far right up to the ceiling (TOP 0), else
+  // as high as it's set, the description saying so
+  test('the cupboard\'s height', async ({ page }) => {
+    await OPTION(7)(page);
+    await endsAndBack(page, 'top', at('cornerCupboard.TOP'), { text: v => (v >= 2450 ? 'ceiling' : v), setting: v => (v >= 2450 ? 0 : v) });
+    await slide(page, 'top', 2000);
+    await expect(page.locator('#summary')).toContainText('Both legs of the L run 2000 high, from the floor');
+    await expect(page.locator('#summary')).toContainText('Doors 1994 high');
+  });
+
   test('option 7\'s sliders', async ({ page }) => {
     await OPTION(7)(page);
     await endsAndBack(page, 'leg', at('cornerCupboard.LEG'));
     await endsAndBack(page, 'legD', at('cornerCupboard.LEG_D'));
+  });
+
+  // Option 8's back-wall leg, and where its diagonal starts on each leg: a
+  // straight front in from the leg's end, held so the diagonal keeps 100
+  // along each wall
+  test('option 8\'s sliders', async ({ page }) => {
+    await OPTION(8)(page);
+    await expect(page.locator('#diagBlock')).toBeVisible();
+    await endsAndBack(page, 'diagRun', at('cornerCupboard.DIAG_RUN'));
+    await endsAndBack(page, 'diagBack', at('cornerCupboard.DIAG_BACK'), { text: v => Math.min(v, 600), setting: v => Math.min(v, 600) });
+    await endsAndBack(page, 'diagLeft', at('cornerCupboard.DIAG_LEFT'), { text: v => Math.min(v, 770), setting: v => Math.min(v, 770) });
+    await slide(page, 'diagLeft', 400);
+    await slide(page, 'diagBack', 300);
+    await expect(page.locator('#summary')).toContainText('Its front runs straight 400 in from the left-wall leg\'s end (a 394 door) and 300 in from the back-wall leg\'s end (a 276 door)');
+    await expect(page.locator('#tallBlock')).toBeVisible();                // the left-wall leg's door
+    await OPTION(7)(page);
+    await expect(page.locator('#diagBlock')).toBeHidden();
   });
 
   test('option 9\'s sliders', async ({ page }) => {
@@ -117,7 +144,7 @@ test.describe('sliders, to each end and back', () => {
   test('options 10 and 11\'s corner cupboard width and depth', async ({ page }) => {
     for (const n of [10, 11]) {
       await OPTION(n)(page);
-      await expect(page.locator('#front')).toBeHidden();
+      await expect(page.locator('#leftLenBlock')).toBeHidden();
       await endsAndBack(page, 'cornerW', at('cornerCupboard.CORNER_W'));
       await endsAndBack(page, 'cornerD', at('cornerCupboard.CORNER_D'));
       await slide(page, 'cornerD', 0);
@@ -125,7 +152,7 @@ test.describe('sliders, to each end and back', () => {
       await slide(page, 'cornerD', 1200);
     }
     await OPTION(9)(page);
-    await expect(page.locator('#front')).toBeVisible();
+    await expect(page.locator('#leftLenBlock')).toBeVisible();
   });
 
   // Only option 10 has it: option 11's doors open where it would stand. Off,
@@ -203,13 +230,10 @@ test.describe('radio buttons', () => {
     expect(await hash(page)).toBe(before);
   });
 
-  test('the left-wall cupboard\'s front', async ({ page }) => {
+  // Its length out from the back wall, 1000 up to the room door's frame
+  test('the left-wall cupboard\'s length', async ({ page }) => {
     await OPTION(7)(page);                                       // option 10, as the page opens, has its own depth instead
-    const before = await hash(page);
-    await page.check('input[name=front][value="1329"]');
-    expect(await setting(page, 'cornerCupboard.F')).toBe(1329);
-    await page.check('input[name=front][value="1200"]');
-    expect(await hash(page)).toBe(before);
+    await endsAndBack(page, 'leftLen', at('cornerCupboard.F'));
   });
 
   test('where the island is', async ({ page }) => {
@@ -344,9 +368,10 @@ test.describe('the bedroom\'s cupboard', () => {
     await expect(page.locator('#bedroomCupboardBlock')).toBeHidden();
     await page.locator('#otherRoom_newCupboardOn').check();
     await expect(page.locator('#bedroomCupboardBlock')).toBeVisible();
-    await expect(page.locator('#bedroomCupboardFront')).toBeHidden();       // no door frame to go up to
+    await expect(page.locator('#bedroomCupboardLeftLenBlock')).toBeHidden();   // option 10 has its own depth
     await pickOption(page, 7, 'bedroomCupboardCurrent');
     await expect(page.locator('#bedroomCupboardLegBlock')).toBeVisible();
+    await expect(page.locator('#bedroomCupboardLeftLenBlock')).toBeVisible();
     expect(await optionShown(page)).toBe(10);                               // the lounge's as it was
     expect(await at('bedroomCupboard.option')(page)).not.toBe(await at('cornerCupboard.option')(page));
     await endsAndBack(page, 'bedroomCupboardRear', at('bedroomCupboard.R'));
@@ -359,6 +384,34 @@ test.describe('the bedroom\'s cupboard', () => {
     expect(await setting(page, 'colours.cupboard')).toBe(4);
     await page.locator('#bedroomCutting summary').click();
     await expect(page.locator('#bedroomCutList')).toContainText('7. ');
+  });
+
+  // It reaches along the chimney breast to the recess (1858 from the
+  // kitchen-side wall) and out along the kitchen-side wall till it meets the
+  // bedroom door's swing, which it meets sooner the deeper it is. Its height
+  // is its own.
+  test('it reaches to the recess and the door', async ({ page }) => {
+    await page.locator('#otherRoom_newCupboardOn').check();
+    await pickOption(page, 7, 'bedroomCupboardCurrent');
+    await slide(page, 'bedroomCupboardLeg', 1858);
+    expect(await setting(page, 'bedroomCupboard.LEG')).toBe(1858 - 600);  // inside, from the 600-deep left-wall leg
+    await slide(page, 'bedroomCupboardLeftLen', 2841);
+    expect(await setting(page, 'bedroomCupboard.F')).toBe(2103);           // the door's swing, for a 600-deep leg
+    expect(await readout(page, 'bedroomCupboardLeftLen')).toBe('2103');
+    await slide(page, 'bedroomCupboardDepth', 800);                        // deeper: both come in
+    expect(await setting(page, 'bedroomCupboard.F')).toBe(2071);
+    expect(await setting(page, 'bedroomCupboard.LEG')).toBe(1858 - 800);
+    await slide(page, 'bedroomCupboardDepth', 400);
+    await slide(page, 'bedroomCupboardLeftLen', 2841);
+    expect(await setting(page, 'bedroomCupboard.F')).toBe(2197);           // shallower, further
+    await pickOption(page, 10, 'bedroomCupboardCurrent');
+    await slide(page, 'bedroomCupboardCornerW', 1858);
+    expect(await setting(page, 'bedroomCupboard.CORNER_W')).toBe(1858);
+    await slide(page, 'bedroomCupboardCornerD', 2841);
+    expect(await setting(page, 'bedroomCupboard.CORNER_D')).toBe(2071);    // 1858 wide: past the door's hinge
+    await slide(page, 'bedroomCupboardTop', 2100);
+    expect(await setting(page, 'bedroomCupboard.TOP')).toBe(2100);
+    expect(await setting(page, 'cornerCupboard.TOP')).toBe(0);
   });
 });
 

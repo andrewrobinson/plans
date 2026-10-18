@@ -52,6 +52,7 @@ window.ROOM_CONFIGURATIONS = {
               "R": 330,
               "F": 1200,
               "BOARD": 18,
+              "TOP": 0,
               "LEG": 600,
               "LEG_D": 600,
               "L_SHELVES": {
@@ -66,6 +67,9 @@ window.ROOM_CONFIGURATIONS = {
                   1800
                 ]
               },
+              "DIAG_RUN": 700,
+              "DIAG_BACK": 0,
+              "DIAG_LEFT": 0,
               "WARD": 900,
               "WARD_D": 600,
               "TOWER": 400,
@@ -83,6 +87,7 @@ window.ROOM_CONFIGURATIONS = {
               "R": 330,
               "F": 1200,
               "BOARD": 18,
+              "TOP": 0,
               "LEG": 600,
               "LEG_D": 600,
               "L_SHELVES": {
@@ -97,6 +102,9 @@ window.ROOM_CONFIGURATIONS = {
                   1800
                 ]
               },
+              "DIAG_RUN": 700,
+              "DIAG_BACK": 0,
+              "DIAG_LEFT": 0,
               "WARD": 900,
               "WARD_D": 600,
               "TOWER": 400,

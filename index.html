@@ -141,14 +141,16 @@
         <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
         <input id="depth" type="range" min="290" max="800" step="1" value="290">
       </div>
-      <div id="front" class="depth">Left-wall cupboard front:
-        <label><input type="radio" name="front" value="1200" checked> 1200</label>
-        <label><input type="radio" name="front" value="1329"> 1329 (to the door frame)</label>
+      <div id="leftLenBlock">
+        <label for="leftLen">Left-wall cupboard length, out from the back wall: <span id="leftLenValue">1200</span></label>
+        <input id="leftLen" type="range" min="1000" max="1329" step="1" value="1200">
       </div>
       <label for="rear">Back-wall cupboard depth: <span id="rearValue">330</span></label>
       <input id="rear" type="range" min="300" max="800" step="10" value="330">
       <label for="board">Board thickness: <span id="boardValue">18</span></label>
       <input id="board" type="range" min="12" max="25" step="1" value="18">
+      <label for="top">Cupboard height: <span id="topValue">ceiling</span></label>
+      <input id="top" type="range" min="1800" max="2450" step="10" value="2450">
       <div class="row">
         <button id="xray">See-through cupboards: off</button>
       </div>
@@ -184,6 +186,14 @@
         <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
         <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
         <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
+      </div>
+      <div id="diagBlock">
+        <label for="diagRun">Back-wall leg length: <span id="diagRunValue">700</span></label>
+        <input id="diagRun" type="range" min="400" max="1200" step="10" value="700">
+        <label for="diagBack">Diagonal starts on the back-wall leg, in from its end: <span id="diagBackValue">0</span></label>
+        <input id="diagBack" type="range" min="0" max="1800" step="10" value="0">
+        <label for="diagLeft">Diagonal starts on the left-wall leg, in from its end: <span id="diagLeftValue">0</span></label>
+        <input id="diagLeft" type="range" min="0" max="2700" step="10" value="0">
       </div>
     </div>
     <!-- The corner cupboard's cutting list, folded away till opened (the

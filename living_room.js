@@ -41,7 +41,7 @@ import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, state, storedGroup, storedMats,
-  storedSize, tvAt, tvMat, updateDims, worktopMat } from './flat_model.js';
+  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE } from './floor.js';
 
@@ -279,6 +279,11 @@ const BEDROOM_CUPBOARD = 'bedroomCupboard';
 document.getElementById('bedroomCupboardControls').append(...copyControls([...document.getElementById('cupboardControls').children], BEDROOM_CUPBOARD));
 document.getElementById(idIn(BEDROOM_CUPBOARD)('xray')).closest('.row').remove();
 document.getElementById('bedroomCupboardDoors').append(...copyControls(['tallBlock', 'secondBlock'].map(id => document.getElementById(id)), BEDROOM_CUPBOARD));
+// Its sliders that reach further than the living room's: along the chimney
+// breast to the recess, and out towards the hallway wall
+for (const [name, [min, max, step]] of Object.entries(BEDROOM_CUPBOARD_RANGES)) {
+  Object.assign(document.getElementById(idIn(BEDROOM_CUPBOARD)(name)), { min, max, step });
+}
 
 // The door sliders, by their names in the configuration's doors. The entrance's two
 // doors (floor.js's ENTRANCE) are the flat's own, into the stairs' foot,
@@ -422,7 +427,7 @@ const loungeCupboard = cupboardControls({ piece: 'cornerCupboard', change });
 // room (no cupboard), and no left-wall front to the door frame (there's no
 // door on its walls)
 const bedroomCupboardControls = cupboardControls({ piece: BEDROOM_CUPBOARD, id: idIn(BEDROOM_CUPBOARD), change,
-  options: OPTIONS.map((o, i) => i).filter(i => i !== CURRENT), front: false });
+  options: OPTIONS.map((o, i) => i).filter(i => i !== CURRENT) });
 // Its block shown only while it's there (Bedroom options' New cupboard switch)
 function showBedroomCupboard() {
   const on = state.otherRoom.newCupboardOn;
@@ -879,9 +884,9 @@ function packingSpot() {
   switch (OPTIONS[state.cornerCupboard.option].no) {
     case 7:                                                      // an L: in front of its inside corner; else the back-wall leg's door
       return T ? lCorner(LEG_D) : mid(T + LEG / 2, LEG_D, 0, 1);
-    case 8: {                                                    // the diagonal doors
-      const { ux, uy } = diagonal(cupboardSettings());
-      return mid(T + 350, (F + R) / 2, -uy, ux);
+    case 8: {                                                    // the diagonal doors' middle
+      const { from, to, ux, uy } = diagonal(cupboardSettings());
+      return mid((from[0] + to[0]) / 2, (from[1] + to[1]) / 2, -uy, ux);
     }
     case 9:                                                      // likewise an L, else the double doors
       return T ? lCorner(WARD_D) : mid(T + WARD / 2, WARD_D, 0, 1);

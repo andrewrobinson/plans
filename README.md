@@ -84,6 +84,12 @@ The notes:
   stays as the door opens and shuts. Its sliders are in **The shoe rack
   (downstairs)** in Other options, which also says how long a shoe fits
   along a shelf and, without the bevel, how far the door opens.
+- **The corner cupboards** (the lounge's, and the bedroom's New cupboard)
+  each have a **Cupboard height** slider, from 1800 up to the ceiling, and
+  the left-wall cupboard's length is a slider. The bedroom's reaches along
+  the chimney breast to the recess and out to the bedroom door's swing,
+  and option 8 has its back-wall leg's length and where its diagonal starts
+  on each leg (18 Oct 2026; `room_dimensions.md` has each).
 - **The pine cupboard** can be switched off in the bedroom, and on in
   the living room in place of the bench, as the bookcase can.
 - **The bedroom mirror** can be switched off too (**In the bedroom**, under

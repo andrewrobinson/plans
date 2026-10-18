@@ -20,7 +20,7 @@ import { MM, material, box, slab, part, hinge, skewHinge, RAL, oakBoards, makeCa
 import * as Config from './kit/config_kit.js';
 import * as Cupboard from './corner_cupboard.js';
 import { CUPBOARD_MATERIALS, makeCupboard, makeMaterials, seeThrough, OPTIONS, optionAt, CURRENT, DOOR_GAP, PLINTH, baseDoorCount,
-  spanOf, CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, sizesInOrder, diagonal, cornerTooShallow } from './corner_cupboard.js';
+  spanOf, CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, sizesInOrder, diagonal, cornerTooShallow, MIN_DIAGONAL } from './corner_cupboard.js';
 import { DRESSER_MODELS } from './dressers.js';
 import { LARDER_MODELS } from './larders.js';
 import { SOFA_MODELS } from './sofas.js';
@@ -255,19 +255,23 @@ const state = {
     // chosen.
     T: 600,
     R: 330,                          // the rear-wall cupboards' and bench's depth from the back wall: 300 to 800
-    F: 1200,                         // the left-wall cupboard's front: 1200, or 1329 right up to the door frame. Its inside leg along the left wall is F - R
+    F: 1200,                         // the left-wall cupboard's front, out from the back wall: 1000 up to the room's door (cupboardLimits()). Its inside leg along the left wall is F - R
     // The thickness of the boards (MDF or chipboard) every cupboard is built
     // from, 12 to 25: the same for all of them. Cupboards' outside sizes stay
     // as set, so thicker boards take room from the inside.
     BOARD: 18,
-    LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200. Its door is LEG - BOARD - 2 * DOOR_GAP wide. Option 8 keeps 700
+    TOP: 0,                          // how high the full-height parts stand: 0 to the ceiling, or 1800 up to it (asked for, 18 Oct 2026)
+    LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200 (the bedroom's to its recess). Its door is LEG - BOARD - 2 * DOOR_GAP wide. Option 8 has its own, DIAG_RUN
     LEG_D: 600,                      // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench, which stays R deep
     L_SHELVES: { back: [600, 1200, 1800], left: [600, 1200, 1800] },   // ...and its shelf tops in the back-wall leg (with the inside corner) and the left-wall leg
+    DIAG_RUN: 700,                   // option 8's back-wall leg, inside along the back wall from the left-wall cupboard: 400 up to the room's limit (700 as it was first drawn)
+    DIAG_BACK: 0,                    // ...its front running straight in from the back-wall leg's end before the diagonal starts: 0 (none) on
+    DIAG_LEFT: 0,                    // ...and likewise from the left-wall leg's end (both asked for, 18 Oct 2026)
     WARD: 900,                       // option 9's full-height double-door cupboard on the back wall: 600 to 1400 wide
     WARD_D: 600,                     // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench and tower, which stay R deep
     TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)
-    CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200. Option 10's doors are (CORNER_W - BOARD - 3 * DOOR_GAP) / 2 wide each
-    CORNER_D: 650,                   // ...and out along the left wall, in place of F: 0 to 1329 (the door frame). Too shallow (cornerTooShallow()), it isn't built
+    CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200 (the bedroom's to its recess). Option 10's doors are (CORNER_W - BOARD - 3 * DOOR_GAP) / 2 wide each
+    CORNER_D: 650,                   // ...and out along the left wall, in place of F: 0 to 1329 (the door frame; the bedroom's to its door's swing). Too shallow (cornerTooShallow()), it isn't built
     SIDE_SHELF: false,               // option 10's full-height side bookshelf, between the corner cupboard and the TV: drawn or not
     SIDE_W: 400,                     // ...its width along the back wall, 200 to 800, the cupboard's side included (it shares it)
     SIDE_D: 330,                     // ...and its depth from the back wall, 150 to 800
@@ -356,6 +360,40 @@ const LIVING_ROOM_PLACE = {
 // living room's unless set), doors, materials, shelves and cutting list are
 // its own; its shelves' wood is the flat's.
 const BEDROOM_PLACE = { width: OTHER_ROOM.length, depth: OTHER_ROOM.breastFace, ceiling: OTHER_ROOM.ceiling, door: null };
+
+// How far the bedroom's cupboard can reach (asked for, 18 Oct 2026): along
+// the chimney breast up to the recess, where its fitted cupboards stand
+// (OTHER_ROOM.breastLength, 1858), and out along the kitchen-side wall till
+// it meets the bedroom door's swing. The door, in the cupboard's own mm (x
+// along the breast from the kitchen-side wall, y out from the breast): in
+// the hallway wall (y = breastFace), its opening from x = fromKitchenWall to
+// fromKitchenWall + width, hinged at the far end and opening into the room,
+// so its edge sweeps a circle `width` round the hinge.
+const BEDROOM_ALONG_BREAST = OTHER_ROOM.breastLength;
+const BEDROOM_DOOR_SWING = { x: OTHER_ROOM.door.fromKitchenWall + OTHER_ROOM.door.width, y: OTHER_ROOM.breastFace, r: OTHER_ROOM.door.width };
+const DOOR_SWING_CLEAR = 10;       // kept clear of the door's swing (chosen)
+// How far out from the breast a cupboard `deep` out from the kitchen-side
+// wall can reach before the bedroom door's swing
+function clearOfBedroomDoor(deep) {
+  const { x, y, r } = BEDROOM_DOOR_SWING, across = x - deep;      // from the cupboard's front to the hinge, along the breast
+  const reach = across >= r ? 0 : across <= 0 ? r : Math.sqrt(r * r - across * across);   // how far into the room the door sweeps there
+  return Math.floor(y - reach - DOOR_SWING_CLEAR);
+}
+// The most each of a cupboard's sizes can be, given its other `settings`,
+// where it's less than its slider's end. In either room, option 8's straight
+// fronts leave its diagonal MIN_DIAGONAL along each wall. The living room's
+// sliders end at its own limits (the back wall's bench takes the rest, and
+// the room door's frame starts 1329 out along the left wall); in the
+// bedroom, the back-wall sizes go to the recess and the left-wall ones to
+// the door's swing.
+export function cupboardLimits(piece, settings = state[piece]) {
+  const { T, R, F, DIAG_RUN, CORNER_W } = settings;
+  const onSteps = (v, name) => Math.floor(v / SLIDER_RANGES[name][2]) * SLIDER_RANGES[name][2];   // where its slider can stop
+  const diagonal = { DIAG_BACK: onSteps(DIAG_RUN - MIN_DIAGONAL, 'diagBack'), DIAG_LEFT: onSteps(F - R - MIN_DIAGONAL, 'diagLeft') };
+  if (piece !== 'bedroomCupboard') return diagonal;
+  return { ...diagonal, LEG: BEDROOM_ALONG_BREAST - T, DIAG_RUN: BEDROOM_ALONG_BREAST - T, CORNER_W: BEDROOM_ALONG_BREAST,
+    F: clearOfBedroomDoor(T), CORNER_D: clearOfBedroomDoor(CORNER_W) };
+}
 const BEDROOM_MATERIALS = makeMaterials();
 // The things to store, for the shelves to be cut round: each { name, h, x,
 // y, z, w, d }, in STORED's order, none while they're not shown
@@ -1514,13 +1552,26 @@ const SLIDER_RANGES = {
   rear: [300, 800, 10], board: [12, 25, 1], leg: [400, 1200, 1], legD: [330, 1000, 1],
   ward: [600, 1400, 50], wardD: [330, 1000, 10], tower: [0, 600, 50],
   cornerW: [500, 1200, 10], cornerD: [0, 1329, 1], sideW: [200, 800, 10], sideD: [150, 800, 10],
+  leftLen: [1000, 1329, 1], top: [1800, 2450, 10], diagRun: [400, 1200, 10], diagBack: [0, 1800, 10], diagLeft: [0, 2700, 10],
   shelfDepth: [150, 400, 10], islandTurn: [0, 180, 5], sofaFront: [1000, 3500, 50],
 };
 for (const [, id, lo, hi, step] of [...DRESSER_SLIDERS, ...LARDER_SLIDERS, ...SOFA_SLIDERS]) SLIDER_RANGES[id] = [lo, hi, step];
+// A control's id in a copy of the living room's controls: the piece's name,
+// then the living room's id with a capital, as 'bedroomCupboardDepth' for
+// 'depth' (cupboard_controls.js's copyControls())
+export const idIn = piece => name => `${piece}${name[0].toUpperCase()}${name.slice(1)}`;
+// The bedroom cupboard's sliders that reach further than the living
+// room's (a copy of them, each id with 'bedroomCupboard' before it): along
+// the chimney breast to the recess, and out to the hallway wall (where they
+// can go as its settings stand is cupboardLimits())
+export const BEDROOM_CUPBOARD_RANGES = {
+  leg: [400, BEDROOM_ALONG_BREAST, 1], diagRun: [400, BEDROOM_ALONG_BREAST, 1], cornerW: [500, BEDROOM_ALONG_BREAST, 1],   // in 1s, to reach the recess exactly
+  leftLen: [1000, OTHER_ROOM.breastFace, 1], cornerD: [0, OTHER_ROOM.breastFace, 1],
+};
 // A number held to the range of the slider with this id, which it keeps
-// (`slider`), for the test
-function fromSlider(path, setting, id, more) {
-  const [min, max, step] = SLIDER_RANGES[id];
+// (`slider`), for the test; `range`, when it isn't the living room's
+function fromSlider(path, setting, id, more, range = SLIDER_RANGES[id]) {
+  const [min, max, step] = range;
   return { ...Config.number(path, setting, min, max, step, more), slider: id };
 }
 const isColour = code => code === 0 || Boolean(colourOf(code));
@@ -1539,30 +1590,37 @@ function readStoredSpots(spots, was, settings) {
 }
 // A corner cupboard's entries: its design at `design` in the configuration
 // (as 'pieces.cornerCupboard.design'), its settings at `setting` in state
-// (as 'cornerCupboard'), under its room's `ceiling`. The option by its
-// number (state has its place in OPTIONS); the boards' thickness before
-// option 7's shelves, checked against it and the ceiling
-function cupboardEntries(design, setting, ceiling) {
+// (as 'cornerCupboard'), under its room's `ceiling`, its sliders' ids
+// `id(name)` from the living room's, and their `ranges` where they aren't
+// the living room's. The option by its number (state has its place in
+// OPTIONS); the boards' thickness before option 7's shelves, checked against
+// it and the ceiling
+function cupboardEntries(design, setting, ceiling, { id = name => name, ranges = {} } = {}) {
   const at = key => `${design}.${key}`, of = key => `${setting}.${key}`;
+  const slider = (key, name) => fromSlider(at(key), of(key), id(name), {}, ranges[name] ?? SLIDER_RANGES[name]);
   return [
     Config.other(at('option'), of('option'), no => (optionAt(no) >= 0 ? optionAt(no) : undefined), i => OPTIONS[i].no),
     Config.number(at('T'), of('T'), 0, 800, 10, { also: t => t === 0 || t >= 300 }),   // none, or 300 to 800
-    fromSlider(at('R'), of('R'), 'rear'),
-    Config.choice(at('F'), of('F'), [1200, 1329]),
-    fromSlider(at('BOARD'), of('BOARD'), 'board'),
-    fromSlider(at('LEG'), of('LEG'), 'leg'),
-    fromSlider(at('LEG_D'), of('LEG_D'), 'legD'),
+    slider('R', 'rear'),
+    slider('F', 'leftLen'),
+    slider('BOARD', 'board'),
+    Config.number(at('TOP'), of('TOP'), 0, ceiling, 10, { also: top => top === 0 || top >= SLIDER_RANGES.top[0] }),   // the ceiling, or 1800 up to it
+    slider('LEG', 'leg'),
+    slider('LEG_D', 'legD'),
     ...['back', 'left'].map(leg => Config.other(at(`L_SHELVES.${leg}`), of(`L_SHELVES.${leg}`),
       (tops, was, settings) => (Array.isArray(tops) ? shelfTopsOf(tops.filter(Number.isFinite), Config.valueAt(settings, of('BOARD')), ceiling) : undefined),
       tops => [...tops])),
-    fromSlider(at('WARD'), of('WARD'), 'ward'),
-    fromSlider(at('WARD_D'), of('WARD_D'), 'wardD'),
-    fromSlider(at('TOWER'), of('TOWER'), 'tower'),
-    fromSlider(at('CORNER_W'), of('CORNER_W'), 'cornerW'),
-    fromSlider(at('CORNER_D'), of('CORNER_D'), 'cornerD'),
+    slider('DIAG_RUN', 'diagRun'),
+    slider('DIAG_BACK', 'diagBack'),
+    slider('DIAG_LEFT', 'diagLeft'),
+    slider('WARD', 'ward'),
+    slider('WARD_D', 'wardD'),
+    slider('TOWER', 'tower'),
+    slider('CORNER_W', 'cornerW'),
+    slider('CORNER_D', 'cornerD'),
     Config.onOff(at('SIDE_SHELF'), of('SIDE_SHELF')),
-    fromSlider(at('SIDE_W'), of('SIDE_W'), 'sideW'),
-    fromSlider(at('SIDE_D'), of('SIDE_D'), 'sideD'),
+    slider('SIDE_W', 'sideW'),
+    slider('SIDE_D', 'sideD'),
   ];
 }
 const LIVING_ROOM_SCHEMA = [
@@ -1571,7 +1629,7 @@ const LIVING_ROOM_SCHEMA = [
   Config.number('colours.shelves', 'shelfWood', 0, SHELF_WOODS.length - 1, 1, { onSteps: true }),
   Config.choice('livingRoom.frontWall', 'frontPiece', FRONT_PIECES),
   ...cupboardEntries('pieces.cornerCupboard.design', 'cornerCupboard', CEILING_HEIGHT),
-  ...cupboardEntries('pieces.bedroomCupboard.design', 'bedroomCupboard', BEDROOM_PLACE.ceiling),
+  ...cupboardEntries('pieces.bedroomCupboard.design', 'bedroomCupboard', BEDROOM_PLACE.ceiling, { id: idIn('bedroomCupboard'), ranges: BEDROOM_CUPBOARD_RANGES }),
   // The bench along the back wall, and what's above it
   Config.choice('pieces.bench.design.height', 'BENCH', [700, 780, 800, 900]),
   Config.onOff('pieces.bench.in.livingRoom.on', 'benchOn'),

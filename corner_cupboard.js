@@ -5,9 +5,10 @@
 // constants: each builder is given
 //
 //   settings   the cupboard's piece of the configuration: `option` (its
-//              index in OPTIONS), T, R, F, BOARD, LEG, LEG_D, L_SHELVES,
-//              WARD, WARD_D, TOWER, CORNER_W, CORNER_D, SIDE_SHELF, SIDE_W,
-//              SIDE_D (room_dimensions.md has what each is)
+//              index in OPTIONS), T, R, F, BOARD, TOP, LEG, LEG_D,
+//              L_SHELVES, DIAG_RUN, DIAG_BACK, DIAG_LEFT, WARD, WARD_D, TOWER,
+//              CORNER_W, CORNER_D, SIDE_SHELF, SIDE_W, SIDE_D
+//              (room_dimensions.md has what each is)
 //   place      the room it stands in, in its own mm: `width` along the
 //              back wall, `depth` out from it, `ceiling`, and its `door`
 //              (frameFrom, hingeAt, width, thickness), which option 8's
@@ -47,8 +48,16 @@ export function seeThrough(materials, on) {
 }
 
 // The settings a cupboard is built from: its piece of the configuration
-export const CUPBOARD_SETTINGS = ['option', 'T', 'R', 'F', 'BOARD', 'LEG', 'LEG_D', 'L_SHELVES', 'WARD', 'WARD_D',
-  'TOWER', 'CORNER_W', 'CORNER_D', 'SIDE_SHELF', 'SIDE_W', 'SIDE_D'];
+export const CUPBOARD_SETTINGS = ['option', 'T', 'R', 'F', 'BOARD', 'TOP', 'LEG', 'LEG_D', 'L_SHELVES', 'DIAG_RUN', 'DIAG_BACK',
+  'DIAG_LEFT', 'WARD', 'WARD_D', 'TOWER', 'CORNER_W', 'CORNER_D', 'SIDE_SHELF', 'SIDE_W', 'SIDE_D'];
+
+// How high the cupboard's full-height parts stand: up to the ceiling, or
+// lower when TOP (0 for the ceiling) is set below it
+export const cupboardHeight = ({ TOP }, { ceiling }) => (TOP && TOP < ceiling ? TOP : ceiling);
+// "floor to ceiling", or how high it stands when it's lower, for the summaries
+const fullHeightText = (s, place) => (cupboardHeight(s, place) < place.ceiling ? `${cupboardHeight(s, place)} high, from the floor` : 'floor to ceiling');
+// ...and "full-height", or "2100-high"
+const fullHeightWord = (s, place) => (cupboardHeight(s, place) < place.ceiling ? `${cupboardHeight(s, place)}-high` : 'full-height');
 
 // The doors' handles: bars from 950 to 1250 off the floor, 20 wide and
 // standing 22 off the door, near its free edge (chosen, not measured)
@@ -57,9 +66,11 @@ const HANDLE_BOTTOM = 950, HANDLE_TOP = 1250;
 // ceiling and each other (chosen), so a pair across a span is
 // (span - 3 * DOOR_GAP) / 2 wide
 export const DOOR_GAP = 3;
-// Option 8's diagonal front runs DIAGONAL_RUN along the back wall from the
-// left-wall cupboard (chosen), and its shelves stop SHELF_SETBACK behind it
-const DIAGONAL_RUN = 700, SHELF_SETBACK = 25;
+// Option 8's shelves stop SHELF_SETBACK behind its front (chosen), and its
+// diagonal is never less than MIN_DIAGONAL along either wall (chosen), however
+// far the straight fronts before it run
+const SHELF_SETBACK = 25;
+export const MIN_DIAGONAL = 100;
 // The shelf tops in options 8 to 11 (chosen; option 7's are settings)
 const SHELF_TOPS = [600, 1200, 1800];
 // The base cupboards along the bench have doors about this wide (chosen)
@@ -68,10 +79,10 @@ const BASE_DOOR_W = 450;
 // How many doors base cupboards `span` long have
 export const baseDoorCount = span => Math.max(1, Math.round(span / BASE_DOOR_W));
 
-// The cupboard being built: what each builder below is given. H is the
-// ceiling, which the full-height boards run up to; shelves are recorded
-// into `shelves` (cupShelf()) as the boards go up.
-const cupboardJob = (settings, place, materials) => ({ s: settings, place, H: place.ceiling, mats: materials, shelves: [] });
+// The cupboard being built: what each builder below is given. H is how high
+// the full-height boards run (cupboardHeight()); shelves are recorded into
+// `shelves` (cupShelf()) as the boards go up.
+const cupboardJob = (settings, place, materials) => ({ s: settings, place, H: cupboardHeight(settings, place), mats: materials, shelves: [] });
 
 // A named board from room corner `from` [x, y, z] to corner `to`, in mm, as
 // box() takes them, of a kind in the cutting list (CUT_KINDS: 'Panels',
@@ -102,10 +113,11 @@ function ofKind(kind, mesh) {
 const LIFT = 50;                   // clear above a stored thing, to lift it in over the cupboard's bottom board
 export const spanOf = (poly, axis) => [Math.min(...poly.map(p => p[axis])), Math.max(...poly.map(p => p[axis]))];
 const rectPoly = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
-// A shelf: { poly, top, mat }, its plan outline and top, BOARD thick
+// A shelf: { poly, top, mat }, its plan outline and top, BOARD thick. None
+// with no left-wall cupboard, nor above the cupboard's top board
 function cupShelf(job, poly, top, mat) {
   const [x0, x1] = spanOf(poly, 0), [y0, y1] = spanOf(poly, 1);
-  if (x1 > x0 && y1 > y0) job.shelves.push({ poly, top, mat });  // none with no left-wall cupboard
+  if (x1 > x0 && y1 > y0 && top <= job.H - job.s.BOARD) job.shelves.push({ poly, top, mat });
 }
 
 // The part of polygon `poly` with its x (axis 0) or y (axis 1) on one side
@@ -217,20 +229,43 @@ function fullHeightL(job, g) {
   board(job, 'Left-wall leg bottom', { from: [B, Dl, 0], to: [T, F - B, B] }, g);
   for (const top of L_SHELVES.back) cupShelf(job, rectPoly(B, B, E - B, Dl - B), top, mats.carcass);
   if (T) for (const top of L_SHELVES.left) cupShelf(job, rectPoly(B, Dl - B, T - B, F - B), top, mats.carcass);
-  const second = hinge(E, Dl + B, g);
-  board(job, 'Back-wall leg door', { from: [T + B + DOOR_GAP - E, -B, DOOR_GAP], to: [-DOOR_GAP, 0, H - DOOR_GAP] }, second, 'Doors');
-  box({ from: [T + B + 20 - E, 0, HANDLE_BOTTOM], to: [T + B + 40 - E, 22, HANDLE_TOP] }, mats.handle, second, false);
-  return second;
+  return backLegDoor(job, g, T + B, E, Dl);
 }
 
-// Option 8's diagonal front, from (T, F) to (T + DIAGONAL_RUN, R): its
-// length, its direction (ux, uy) from the left end, each door's width, and
-// the angle for skewHinge() at the left end.
-export function diagonal({ R, F }) {
-  const dx = DIAGONAL_RUN, dy = R - F;
+// A door across the front of a back-wall leg (its front `front` out from
+// the back wall), from x0 to its end at E, DOOR_GAP clear of both, hinged
+// at E. Returns its hinge.
+function backLegDoor(job, g, x0, E, front) {
+  const { BOARD: B } = job.s, { H, mats } = job;
+  const h = hinge(E, front + B, g);
+  board(job, 'Back-wall leg door', { from: [x0 + DOOR_GAP - E, -B, DOOR_GAP], to: [-DOOR_GAP, 0, H - DOOR_GAP] }, h, 'Doors');
+  box({ from: [x0 + 20 - E, 0, HANDLE_BOTTOM], to: [x0 + 40 - E, 22, HANDLE_TOP] }, mats.handle, h, false);
+  return h;
+}
+
+// Option 8's front, seen from above: the back-wall leg runs DIAG_RUN inside
+// along the back wall (to E = T + DIAG_RUN), R deep, and the left-wall leg
+// out to F, T deep. Each leg's front runs straight in from its end, DIAG_BACK
+// along the back-wall leg and DIAG_LEFT along the left-wall leg (0 for none),
+// then the diagonal joins them, from (T, yd) on the left-wall leg to (xd, R)
+// on the back-wall leg. The straight runs are held so the diagonal keeps
+// MIN_DIAGONAL along each wall.
+function diagonalFront({ T, R, F, DIAG_RUN, DIAG_BACK, DIAG_LEFT }) {
+  const E = T + DIAG_RUN;
+  const back = Math.max(0, Math.min(DIAG_BACK, DIAG_RUN - MIN_DIAGONAL));
+  const left = Math.max(0, Math.min(DIAG_LEFT, F - R - MIN_DIAGONAL));
+  return { E, back, left, xd: E - back, yd: F - left };
+}
+
+// Option 8's diagonal, from (T, yd) to (xd, R): its ends, its length, its
+// direction (ux, uy) from the left end, each door's width, and the angle
+// for skewHinge() at the left end.
+export function diagonal(settings) {
+  const { T, R } = settings, { xd, yd } = diagonalFront(settings);
+  const dx = xd - T, dy = R - yd;
   const length = Math.hypot(dx, dy);
   const ux = dx / length, uy = dy / length;
-  return { length, ux, uy, door: (length - 3 * DOOR_GAP) / 2, angle: THREE.MathUtils.radToDeg(Math.atan2(-uy, ux)) };
+  return { from: [T, yd], to: [xd, R], length, ux, uy, door: (length - 3 * DOOR_GAP) / 2, angle: THREE.MathUtils.radToDeg(Math.atan2(-uy, ux)) };
 }
 
 // The gap between option 8's left door, opened to 90°, and the room's door
@@ -239,13 +274,13 @@ export function diagonal({ R, F }) {
 // they clash. The open door points straight out from the front, so sample
 // its outline there.
 function roomDoorGap(settings, { door: roomDoor }) {
-  const { T, F, BOARD } = settings;
-  const { ux, uy, door } = diagonal(settings);
+  const { BOARD } = settings;
+  const { from: [x0, y0], ux, uy, door } = diagonal(settings);
   const ox = -uy, oy = ux;                                      // out of the cupboard
   let nearest = Infinity;
   for (let a = DOOR_GAP; a <= DOOR_GAP + door; a += 1) {
     for (const b of [0, -BOARD]) {                                 // the door's two faces, BOARD apart
-      const x = T + a * ox + b * ux, y = F + a * oy + b * uy;
+      const x = x0 + a * ox + b * ux, y = y0 + a * oy + b * uy;
       if (y >= roomDoor.hingeAt && y <= roomDoor.hingeAt + roomDoor.thickness) nearest = Math.min(nearest, x);
     }
   }
@@ -253,44 +288,60 @@ function roomDoorGap(settings, { door: roomDoor }) {
 }
 
 // Option 8's carcass: rear panels and ends as option 7's, and a top and
-// bottom between them that run out to the diagonal front
+// bottom between them that run out to its front: behind the room's side of
+// the front (diagonalFront()), between the ends
 function diagonalCarcass(job, g) {
   const { T, R, F, BOARD: B } = job.s, { H, mats } = job;
-  const E = T + DIAGONAL_RUN;
+  const { E, xd, yd } = diagonalFront(job.s);
   board(job, 'Back-wall rear panel', { from: [0, 0, 0], to: [E, B, H] }, g);                // runs through the corner
   board(job, 'Left-wall rear panel', { from: [0, B, 0], to: [B, F, H] }, g);                // stops at it
   board(job, 'Left-wall end', { from: [B, F - B, 0], to: [T, F, H] }, g);
   board(job, 'Back-wall end', { from: [E - B, B, 0], to: [E, R, H] }, g);
-  const across = (x, y) => [[x, R + (E - x) * (F - R) / DIAGONAL_RUN], [T + (F - y) * DIAGONAL_RUN / (F - R), y]];   // where x and y meet the front
-  const outline = [[B, B], [E - B, B], ...across(E - B, F - B), [B, F - B]];
+  const behindFront = [[B, B], [E, B], [E, R], [xd, R], [T, yd], [T, F], [B, F]];
+  const outline = withoutRepeats(clipPoly(clipPoly(behindFront, 0, E - B, true), 1, F - B, true));
   ofKind('Panels', part('Top', slab(outline, H - B, H, mats.carcass, g)));
   ofKind('Panels', part('Bottom', slab(outline, 0, B, mats.carcass, g)));
 }
+// A polygon with no point the same as the one before it (a straight front
+// of 0 leaves one twice)
+const withoutRepeats = poly => poly.filter((p, i) => {
+  const q = poly[(i + poly.length - 1) % poly.length];
+  return Math.abs(p[0] - q[0]) > 1e-9 || Math.abs(p[1] - q[1]) > 1e-9;
+});
 
-// Option 8's inside, SHELF_SETBACK behind the diagonal front: that line
-// meets x = E - B and y = F - B. Its shelves, and the space for the things
-// to store (insideSpaces()), have this outline.
+// Option 8's inside, SHELF_SETBACK behind its front, inside its ends (x up
+// to E - B, y up to F - B). Its shelves, and the space for the things to
+// store (insideSpaces()), have this outline.
 function diagonalInside(settings) {
-  const { T, F, BOARD: B } = settings;
-  const E = T + DIAGONAL_RUN, { ux, uy } = diagonal(settings);
+  const { R, F, BOARD: B } = settings;
+  const { E, back, left } = diagonalFront(settings);
+  const { from: [x0, y0], ux, uy } = diagonal(settings);
   const nx = uy, ny = -ux;                                   // unit normal, pointing into the cupboard
-  const c = T * nx + F * ny + SHELF_SETBACK;                  // the line n · p = c
-  return [[B, B], [E - B, B], [E - B, (c - (E - B) * nx) / ny], [(c - (F - B) * ny) / nx, F - B], [B, F - B]];
+  const c = x0 * nx + y0 * ny + SHELF_SETBACK;               // the line n · p = c, SHELF_SETBACK behind the diagonal
+  const yOnLine = x => (c - x * nx) / ny, xOnLine = y => (c - y * ny) / nx;
+  const y1 = R - SHELF_SETBACK, x1 = settings.T - SHELF_SETBACK;   // behind the straight fronts
+  const alongBack = back ? [[E - B, y1], [xOnLine(y1), y1]] : [[E - B, yOnLine(E - B)]];
+  const alongLeft = left ? [[x1, yOnLine(x1)], [x1, F - B]] : [[xOnLine(F - B), F - B]];
+  return [[B, B], [E - B, B], ...alongBack, ...alongLeft, [B, F - B]];
 }
 
-// Option 8's pair of doors across the diagonal front, each
-// (length - 3 * DOOR_GAP) / 2: the left one hinged at (T, F), the right at
-// (E, R). Returns their hinges.
+// Option 8's doors: a pair across the diagonal, each (length - 3 * DOOR_GAP)
+// / 2, the left one hinged at its left end, the right at its right; and a
+// door across each straight front: the left-wall leg's as option 7's
+// (tallDoor()), hinged at its end, and the back-wall leg's likewise. Returns
+// the left-wall leg's door's hinge (tall), and the others' (second).
 function diagonalDoors(job, g) {
-  const { T, R, F, BOARD: B } = job.s, { H, mats } = job;
-  const E = T + DIAGONAL_RUN, { door, angle } = diagonal(job.s);
-  const left = skewHinge(T, F, angle, -1, g);
-  board(job, 'Diagonal door', { from: [DOOR_GAP, 0, DOOR_GAP], to: [DOOR_GAP + door, B, H - DOOR_GAP] }, left, 'Doors');
-  box({ from: [door - 40, B, HANDLE_BOTTOM], to: [door - 20, B + 22, HANDLE_TOP] }, mats.handle, left, false);
-  const right = skewHinge(E, R, angle - 180, 1, g);
-  board(job, 'Diagonal door', { from: [DOOR_GAP, -B, DOOR_GAP], to: [DOOR_GAP + door, 0, H - DOOR_GAP] }, right, 'Doors');
-  box({ from: [door - 40, -B - 22, HANDLE_BOTTOM], to: [door - 20, -B, HANDLE_TOP] }, mats.handle, right, false);
-  return [left, right];
+  const { R, BOARD: B } = job.s, { H, mats } = job;
+  const { E, back, left, xd, yd } = diagonalFront(job.s), { from, to, door, angle } = diagonal(job.s);
+  const diagLeft = skewHinge(from[0], from[1], angle, -1, g);
+  board(job, 'Diagonal door', { from: [DOOR_GAP, 0, DOOR_GAP], to: [DOOR_GAP + door, B, H - DOOR_GAP] }, diagLeft, 'Doors');
+  box({ from: [door - 40, B, HANDLE_BOTTOM], to: [door - 20, B + 22, HANDLE_TOP] }, mats.handle, diagLeft, false);
+  const diagRight = skewHinge(to[0], to[1], angle - 180, 1, g);
+  board(job, 'Diagonal door', { from: [DOOR_GAP, -B, DOOR_GAP], to: [DOOR_GAP + door, 0, H - DOOR_GAP] }, diagRight, 'Doors');
+  box({ from: [door - 40, -B - 22, HANDLE_BOTTOM], to: [door - 20, -B, HANDLE_TOP] }, mats.handle, diagRight, false);
+  const second = [diagLeft, diagRight];
+  if (back) second.push(backLegDoor(job, g, xd, E, R));
+  return { tall: left ? tallDoor(job, g, yd) : null, second };
 }
 
 // Option 9's carcass: the double-door cupboard on the back wall (x T to
@@ -425,7 +476,7 @@ function cornerDoorsToWindows(job, g) {
 const sideShelfOn = s => s.SIDE_SHELF && OPTIONS[s.option].no === 10;
 const sideShelfW = s => (sideShelfOn(s) ? s.SIDE_W : 0);   // how far it takes the bench along
 const SIDE_SHELVES = 5;
-const sideShelfTops = ({ BOARD }, ceiling) => [...Array(SIDE_SHELVES).keys()].map(k => Math.round(BOARD + (k + 1) * (ceiling - 2 * BOARD) / (SIDE_SHELVES + 1)));
+const sideShelfTops = ({ BOARD }, H) => [...Array(SIDE_SHELVES).keys()].map(k => Math.round(BOARD + (k + 1) * (H - 2 * BOARD) / (SIDE_SHELVES + 1)));
 function sideBookshelf(job, g) {
   const { CORNER_W: X, CORNER_D, BOARD: B, SIDE_W, SIDE_D: d } = job.s, { H, mats } = job;
   const alone = cornerTooShallow(job.s, 'kitchen');               // no cupboard beside it, nor its rear panel
@@ -443,8 +494,8 @@ function sideBookshelf(job, g) {
 function sideShelfText(s, place) {
   if (!sideShelfOn(s)) return '';
   const { CORNER_W: X, SIDE_W, SIDE_D, BOARD } = s;
-  return `Beside it, a ${SIDE_W}-wide, ${SIDE_D}-deep open bookshelf (x ${X}-${X + SIDE_W}), floor to ceiling, sharing the cupboard's side, ` +
-    `with ${SIDE_SHELVES} lit shelves ${SIDE_W - BOARD} long, their tops at ${sideShelfTops(s, place.ceiling).join(', ')}. `;
+  return `Beside it, a ${SIDE_W}-wide, ${SIDE_D}-deep open bookshelf (x ${X}-${X + SIDE_W}), ${fullHeightText(s, place)}, sharing the cupboard's side, ` +
+    `with ${SIDE_SHELVES} lit shelves ${SIDE_W - BOARD} long, their tops at ${sideShelfTops(s, cupboardHeight(s, place)).join(', ')}. `;
 }
 
 // The least depth (CORNER_D) options 10 and 11's cupboard can be built at, as
@@ -471,8 +522,14 @@ export const OPTIONS = [
     source: 'plan3/room_3d.html',
     clearFrom: ({ T, LEG }) => T + LEG,
     benchFrom: ({ T, LEG }) => T + LEG,
-    summaryNoLeft: ({ R, BOARD, LEG, LEG_D }, { width, ceiling }) => `No left-wall cupboard: a full-height cupboard on the back wall (x 0-${LEG}, ${LEG_D} deep), with a ${LEG - BOARD - 2 * DOOR_GAP} × ${ceiling - 2 * DOOR_GAP} door. Bench ${width - LEG}, from x = ${LEG}, ${R} deep.`,
-    summary: ({ T, R, F, BOARD, LEG, LEG_D }, { width, ceiling }) => `Both legs of the L run floor to ceiling, ${LEG} inside along the back wall (${LEG_D} deep) and ${F - LEG_D} along the left wall, one space round the corner. Doors ${ceiling - 2 * DOOR_GAP} high, ${BOARD} thick: ${LEG - BOARD - 2 * DOOR_GAP} wide on the back-wall leg, ${F - LEG_D - 2 * DOOR_GAP} wide on the left-wall leg (it covers the corner). Bench shortened to ${width - T - LEG}, from x = ${T + LEG}, ${R} deep.`,
+    summaryNoLeft: (s, place) => {
+      const { R, BOARD, LEG, LEG_D } = s;
+      return `No left-wall cupboard: a ${fullHeightWord(s, place)} cupboard on the back wall (x 0-${LEG}, ${LEG_D} deep), with a ${LEG - BOARD - 2 * DOOR_GAP} × ${cupboardHeight(s, place) - 2 * DOOR_GAP} door. Bench ${place.width - LEG}, from x = ${LEG}, ${R} deep.`;
+    },
+    summary: (s, place) => {
+      const { T, R, F, BOARD, LEG, LEG_D } = s;
+      return `Both legs of the L run ${fullHeightText(s, place)}, ${LEG} inside along the back wall (${LEG_D} deep) and ${F - LEG_D} along the left wall, one space round the corner. Doors ${cupboardHeight(s, place) - 2 * DOOR_GAP} high, ${BOARD} thick: ${LEG - BOARD - 2 * DOOR_GAP} wide on the back-wall leg, ${F - LEG_D - 2 * DOOR_GAP} wide on the left-wall leg (it covers the corner). Bench shortened to ${place.width - T - LEG}, from x = ${T + LEG}, ${R} deep.`;
+    },
     second: 'Back-wall leg door',
     build(job, g) {
       return { tall: tallDoor(job, g, job.s.LEG_D), second: fullHeightL(job, g) };
@@ -482,12 +539,17 @@ export const OPTIONS = [
     name: '8. Full-height corner unit, diagonal double doors',
     needsLeft: true,                                   // not available without a left-wall cupboard
     source: 'option 7 (new)',
-    clearFrom: ({ T }) => T + DIAGONAL_RUN,
-    benchFrom: ({ T }) => T + DIAGONAL_RUN,
+    clearFrom: ({ T, DIAG_RUN }) => T + DIAG_RUN,
+    benchFrom: ({ T, DIAG_RUN }) => T + DIAG_RUN,
     summary: (s, place) => {
-      const { T, R, F } = s, { length, door } = diagonal(s), gap = roomDoorGap(s, place), E = T + DIAGONAL_RUN;
-      return `As option 7, but the front runs straight across from where its two doors hinge (x ${T}, y ${F} to x ${E}, y ${R}), about ${Math.round(length)} wide, with a pair of ${Math.round(door)} doors. Behind them it is one cupboard. ` +
-        (gap < 0 ? `Opened to 90°, the left door crosses the open room door's path by about ${-gap}: open one at a time. `
+      const { T, R, F, BOARD } = s, { from, to, length, door } = diagonal(s), { E, back, left } = diagonalFront(s);
+      const gap = place.door ? roomDoorGap(s, place) : Infinity;
+      const straight = [left && `${left} in from the left-wall leg's end (a ${left - 2 * DOOR_GAP} door)`, back && `${back} in from the back-wall leg's end (a ${back - BOARD - 2 * DOOR_GAP} door)`].filter(Boolean);
+      const lower = cupboardHeight(s, place) < place.ceiling ? ` It stands ${fullHeightText(s, place)}.` : '';
+      return (straight.length ? `As option 7, ${E} along the back wall (${R} deep) and ${F} out along the left wall (${T} deep).${lower} Its front runs straight ${straight.join(' and ')}, then`
+                              : `As option 7,${lower ? ` ${cupboardHeight(s, place)} high,` : ''} but the front runs`) +
+        ` straight across from where its two${straight.length ? ' diagonal' : ''} doors hinge (x ${from[0]}, y ${from[1]} to x ${to[0]}, y ${to[1]}), about ${Math.round(length)} wide, with a pair of ${Math.round(door)} doors. Behind them it is one cupboard. ` +
+        (gap === Infinity ? '' : gap < 0 ? `Opened to 90°, the left door crosses the open room door's path by about ${-gap}: open one at a time. `
                  : `Opened to 90°, the left door clears the open room door by about ${gap}. `) +
         `Bench ${place.width - E}, from x = ${E}, ${R} deep.`;
     },
@@ -495,7 +557,7 @@ export const OPTIONS = [
     build(job, g) {
       diagonalCarcass(job, g);
       for (const top of SHELF_TOPS) cupShelf(job, diagonalInside(job.s), top, job.mats.shelf);
-      return { second: diagonalDoors(job, g) };
+      return diagonalDoors(job, g);
     },
   },
   {
@@ -504,9 +566,12 @@ export const OPTIONS = [
     clearFrom: ({ T, WARD, TOWER }) => T + WARD + TOWER,
     benchFrom: ({ T, WARD, TOWER }) => T + WARD + TOWER,
     marks: ({ T, WARD }) => [T + WARD],
-    summary: ({ T, R, F, BOARD, WARD, WARD_D, TOWER }, { width }, { BENCH }) => `${T ? `Option 7's left-wall leg (${F - WARD_D} inside, with its door), joined to a` : 'No left-wall cupboard. A'} full-height cupboard on the back wall (x ${T}-${T + WARD}, ${WARD_D} deep) with a pair of ${Math.round((WARD - BOARD - 3 * DOOR_GAP) / 2)} doors` +
-      (TOWER >= 100 ? `, then a ${TOWER}-wide, ${R}-deep open shelving tower (to x ${T + WARD + TOWER}), floor to ceiling, with five lit shelves` : '') +
-      `. Base cupboards with ${baseDoorCount(width - T - WARD - TOWER)} doors under an oak top run on to the right-hand wall: ${width - T - WARD - TOWER} long, ${BENCH} high, ${R} deep.`,
+    summary: (s, place, { BENCH }) => {
+      const { T, R, F, BOARD, WARD, WARD_D, TOWER } = s, { width } = place;
+      return `${T ? `Option 7's left-wall leg (${F - WARD_D} inside, with its door), joined to a` : 'No left-wall cupboard. A'} ${fullHeightWord(s, place)} cupboard on the back wall (x ${T}-${T + WARD}, ${WARD_D} deep) with a pair of ${Math.round((WARD - BOARD - 3 * DOOR_GAP) / 2)} doors` +
+      (TOWER >= 100 ? `, then a ${TOWER}-wide, ${R}-deep open shelving tower (to x ${T + WARD + TOWER}), ${fullHeightText(s, place)}, with five lit shelves` : '') +
+      `. Base cupboards with ${baseDoorCount(width - T - WARD - TOWER)} doors under an oak top run on to the right-hand wall: ${width - T - WARD - TOWER} long, ${BENCH} high, ${R} deep.`;
+    },
     second: 'Cupboard doors',
     build(job, g) {
       const { T, WARD, WARD_D, TOWER } = job.s;
@@ -531,7 +596,7 @@ export const OPTIONS = [
       const S = CORNER_W + sideShelfW(s), bench = `Bench ${place.width - S}, from x = ${S}, ${R} deep.`;
       if (cornerTooShallow(s, 'kitchen')) return `${tooShallowText(s, 'kitchen')}${sideShelfText(s, place)}${bench}`;
       const w = Math.round((CORNER_W - BOARD - 3 * DOOR_GAP) / 2), reach = F + w;
-      return `A full-height cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
+      return `A ${fullHeightWord(s, place)} cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
         `${F === door.frameFrom ? ', right up to the door frame' : ''}, with a pair of ${w} doors on its end, facing the kitchen. ` +
         (reach > door.hingeAt ? `Opened to 90°, they reach ${reach} from the back wall, past the room door's hinge at ${door.hingeAt}: they can't open fully while the room door is open. ` : '') +
         `${sideShelfText(s, place)}${bench}`;
@@ -550,9 +615,9 @@ export const OPTIONS = [
     front: ({ CORNER_D }) => CORNER_D,                           // its own depth out along the left wall, in place of F
     clearFrom: ({ CORNER_W }) => CORNER_W,
     benchFrom: ({ CORNER_W }) => CORNER_W,
-    summary: (s, { width, door }) => {
-      const { R, CORNER_D: F, BOARD, CORNER_W } = s;
-      return cornerTooShallow(s, 'windows') ? `${tooShallowText(s, 'windows')}Bench ${width - CORNER_W}, from x = ${CORNER_W}, ${R} deep.` : `A full-height cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
+    summary: (s, place) => {
+      const { R, CORNER_D: F, BOARD, CORNER_W } = s, { width, door } = place;
+      return cornerTooShallow(s, 'windows') ? `${tooShallowText(s, 'windows')}Bench ${width - CORNER_W}, from x = ${CORNER_W}, ${R} deep.` : `A ${fullHeightWord(s, place)} cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
         `${F === door.frameFrom ? ', right up to the door frame' : ''}, with a pair of ${Math.round((F - R - BOARD - 3 * DOOR_GAP) / 2)} doors on its side, facing the windows, ` +
         `where it's clear of the ${R}-deep bench (y ${R}-${F}). Behind the doors it runs back to the back wall, behind the bench end. ` +
         `Bench ${width - CORNER_W}, from x = ${CORNER_W}, ${R} deep.`;
@@ -633,7 +698,7 @@ export function makeCupboard(settings, place, materials) {
 export function insideSpaces(settings, place) {
   const { T, F, BOARD: B, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = settings;
   const rect = (x0, y0, x1, y1, h) => ({ poly: rectPoly(x0, y0, x1, y1), h });
-  const full = place.ceiling - 2 * B;                                                    // inside a full-height cupboard
+  const full = cupboardHeight(settings, place) - 2 * B;                                  // inside a full-height cupboard
   const leftLeg = from => T ? [rect(B, from, T - B, F - B, full)] : [];
   const no = OPTIONS[settings.option].no;
   switch (no) {

@@ -33,6 +33,7 @@
           "R": 450,
           "F": 1200,
           "BOARD": 25,
+          "TOP": 0,
           "LEG": 900,
           "LEG_D": 900,
           "L_SHELVES": {
@@ -43,6 +44,9 @@
             ],
             "left": []
           },
+          "DIAG_RUN": 700,
+          "DIAG_BACK": 0,
+          "DIAG_LEFT": 0,
           "WARD": 900,
           "WARD_D": 600,
           "TOWER": 400,
@@ -60,6 +64,7 @@
           "R": 330,
           "F": 1200,
           "BOARD": 18,
+          "TOP": 0,
           "LEG": 600,
           "LEG_D": 600,
           "L_SHELVES": {
@@ -74,6 +79,9 @@
               1800
             ]
           },
+          "DIAG_RUN": 700,
+          "DIAG_BACK": 0,
+          "DIAG_LEFT": 0,
           "WARD": 900,
           "WARD_D": 600,
           "TOWER": 400,
