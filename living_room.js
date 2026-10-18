@@ -1027,7 +1027,7 @@ const ROOM_BUTTONS = {
   livingRoom: { name: 'Lounge', drawer: 'loungePanel', options: 'Lounge options' },
   bedroom: { name: 'Bedroom', drawer: 'bedPanel', options: 'Bedroom options' },
   garage: { name: 'Garage', drawer: 'garagePanel', options: 'Garage options' },
-  hallway: { name: 'Hallway', drawer: 'panel', options: 'Hallway and stairs' },
+  hallway: { name: 'Hallway', drawer: 'hallPanel', options: 'Hallway and stairs' },
 };
 const optionsOf = room => ROOM_BUTTONS[room] ?? ROOM_BUTTONS.hallway;     // downstairs: the hallway's
 // How a room's button shows it: views that frame every room (builtInViews')
@@ -1063,13 +1063,14 @@ for (const [room, { name }] of Object.entries(ROOM_BUTTONS)) {
 }
 
 // The settings drawers, one open at a time, all closed to start on every
-// screen: Other options (the hallway and stairs), opened by ☰, and each
-// room's, by the options button at the bottom left.
+// screen: Other options (the wicker bench, the colours in this view),
+// opened by ☰, and each room's, the hallway and stairs' too, by the options
+// button at the bottom left.
 // Each: [its button, or null for the options button's, the class on
 // <body> while it's open]. The 2D views move clear of the drawer as it
 // opens and closes.
 const DRAWERS = { panel: ['menu', 'menu-open'], loungePanel: [null, 'lounge-open'], bedPanel: [null, 'bed-open'],
-  garagePanel: [null, 'garage-open'] };
+  garagePanel: [null, 'garage-open'], hallPanel: [null, 'hall-open'] };
 const roomOptions = document.getElementById('roomOptions');
 const drawers = createDrawers(DRAWERS, () => {
   resize(true);

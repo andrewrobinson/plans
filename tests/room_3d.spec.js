@@ -131,7 +131,14 @@ test.describe('the settings drawers', () => {
     await page.click('#roomOptions');
     await expect(page.locator('#garagePanel')).toBeInViewport();
     // Only the lounge and the bedroom have a cupboard, so a cutting list
-    for (const panel of ['#garagePanel', '#panel']) await expect(page.locator(panel)).not.toContainText('Cutting list');
+    for (const panel of ['#garagePanel', '#hallPanel', '#panel']) await expect(page.locator(panel)).not.toContainText('Cutting list');
+    // The hallway's options: the shoe rack and the doors downstairs
+    await page.keyboard.press('Escape');
+    await page.click('#hallwayView');
+    await page.click('#roomOptions');
+    await expect(page.locator('#hallPanel')).toBeInViewport();
+    await expect(page.locator('#hallPanel')).toContainText('The shoe rack');
+    await expect(page.locator('#panel')).not.toContainText('The shoe rack');
     for (const panel of ['#loungePanel', '#bedPanel']) await expect(page.locator(`${panel} summary`, { hasText: 'Cutting list' })).toHaveCount(1);
   });
 

@@ -507,7 +507,7 @@ test.describe('the garage', () => {
 // The shoe rack, downstairs (state.shoeRack): its sizes, bevel, shelves'
 // slope, shoes and the door angle its bevel's cut for
 test.describe('the shoe rack', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'other'); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'hallway'); });
 
   test('it can be resized and put back', async ({ page }) => {
     expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });

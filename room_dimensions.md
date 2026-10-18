@@ -394,7 +394,7 @@ Places can stand on a lower floor (`floor` in `living_room.views.js`).
 
 At the foot of the stairs, a simple open rack of shelves between two sides
 (asked for, 15 Oct 2026; not bought yet), in [shoe_rack.js](shoe_rack.js).
-Its section in Other options, **The shoe rack (downstairs)**, has sliders
+Its section in Hallway and stairs options, **The shoe rack (downstairs)**, has sliders
 for its sizes and where it stands, with **Reset dimensions** and **Reset
 location**. Looking at offers it downstairs.
 

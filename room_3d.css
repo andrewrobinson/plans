@@ -4,8 +4,8 @@
 html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetica, Arial, sans-serif; }
 #view { position: fixed; inset: 0; }
 /* The settings are in drawers that slide in from the left, one at a time:
-   Other options (opened by ☰), and Lounge, Bedroom and Garage options (by
-   their buttons). They open below the top bar, which stays in front, so its
+   Other options (opened by ☰), and Lounge, Bedroom, Garage, and Hallway
+   and stairs options (by the options button, for the room in view). They open below the top bar, which stays in front, so its
    buttons can still be used (--below-bar is set by the page, as the bar can
    take two rows). The model always fills the screen. */
 .drawer {
@@ -14,7 +14,7 @@ html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetic
   box-shadow: 2px 0 14px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45;
   transform: translateX(-105%); transition: transform 0.25s ease;
 }
-body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, body.garage-open #garagePanel { transform: none; }
+body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, body.garage-open #garagePanel, body.hall-open #hallPanel { transform: none; }
 .drawer h1 { font-size: 15px; margin: 0; }
 .drawer .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
 .drawer .close { font-size: 18px; line-height: 1; padding: 4px 10px; }
@@ -80,7 +80,7 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 /* An open drawer leaves the room live beside it (kit/floor_kit.js frames
    the views clear of it), and the options button moves clear of it too, to
    close it again */
-body:is(.menu-open, .lounge-open, .bed-open, .garage-open) #bottomLeft { left: calc(min(340px, 88vw) + 12px); }
+body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLeft { left: calc(min(340px, 88vw) + 12px); }
 /* On phones held upright (up to 600 wide, kit/floor_kit.js's SHEET_WIDTH)
    the drawers are a sheet from the bottom, --sheet high, the room above it;
    its handle drags it taller or shorter, and the options button sits on its
@@ -92,7 +92,7 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open) #bottomLeft { left: c
   .sheetHandle { display: block; position: sticky; top: 0; z-index: 1; height: 22px; margin: 0 -14px 4px; background: inherit;
     cursor: ns-resize; touch-action: none; }
   .sheetHandle::before { content: ''; display: block; width: 44px; height: 5px; border-radius: 3px; background: #bbb; margin: 8px auto 0; }
-  body:is(.menu-open, .lounge-open, .bed-open, .garage-open) #bottomLeft { left: 12px; bottom: calc(var(--sheet, 45vh) + 8px); }
+  body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLeft { left: 12px; bottom: calc(var(--sheet, 45vh) + 8px); }
   /* The top bar's buttons smaller (chosen), two to a row, so it leaves the
      room more of the screen above the sheet */
   #bar { gap: 6px; }
@@ -102,7 +102,7 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open) #bottomLeft { left: c
   .split .kind select { width: 28px; }
   /* While a sheet's open, only ☰ stays in the top bar, so the room gets the
      space above the sheet; closing the sheet brings the buttons back */
-  body:is(.menu-open, .lounge-open, .bed-open, .garage-open) #bar > :not(#menu) { display: none; }
+  body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bar > :not(#menu) { display: none; }
 }
 .drawer label { display: block; margin: 8px 0 2px; }
 /* The drawer's sections, each opening and closing (remembered here) */
