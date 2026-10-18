@@ -38,7 +38,8 @@ window.ROOM_SCENES = {
           "flat": 0,
           "outside": 0,
           "bedroomCupboardTall": 0,
-          "bedroomCupboardSecond": 0
+          "bedroomCupboardSecond": 0,
+          "garage": "hidden"
         },
         "colours": {
           "floor": 0,

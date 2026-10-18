@@ -9,7 +9,8 @@
       "flat": 60,
       "outside": 45,
       "bedroomCupboardTall": 0,
-      "bedroomCupboardSecond": 0
+      "bedroomCupboardSecond": 0,
+      "garage": "hidden"
     },
     "colours": {
       "floor": 0,

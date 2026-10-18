@@ -17,12 +17,17 @@ import { bookcase, pineCupboard, OTHER_ROOM_START, QUARTER_TURN, slider } from '
 // Its sizes, in mm (the user's, 16 Oct 2026): 5327 long, from its door to
 // its back wall, 2866 wide and 2432 to the ceiling. The door's an
 // estimate: a standard single up-and-over door, 7' by 6'6", centred in the
-// end wall, not measured.
+// end wall, not measured. It opens as the user described it (18 Oct 2026):
+// pushed in at its top, which runs back on a rail under the ceiling, while
+// its bottom swings out in front of the garage, never more than 1 m
+// (swingOut).
 // ---------------------------------------------------------------------------
 export const GARAGE = {
   length: 5327, width: 2866, height: 2432,
-  door: { width: 2134, height: 1981, thick: 40 },
+  door: { width: 2134, height: 1981, thick: 40, swingOut: 1000 },
 };
+// The door as drawn (Garage options): not at all (to start), open or closed
+export const GARAGE_DOOR = { hidden: 'Not shown', open: 'Open', closed: 'Closed' };
 
 // Where it is: scaled off the user's site plan (16 Oct 2026), the flat
 // outlined in red and the garage in pink. Read with the user: the flat's
@@ -65,10 +70,8 @@ const garageWallMat = material(0xdcd8d0);          // painted block, off-white (
 const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 
 // The floor, the walls (seen from inside only, so the views from above look
-// in), the door in the end wall facing the flat, and the ceiling, facing
-// down. The door's drawn open, as the user asked (16 Oct 2026), to look in
-// from outside: up and over, lying flat inside, its outer face down, its
-// edge at the opening's head
+// in), the doorway in the end wall facing the flat, and the ceiling, facing
+// down. The door itself is drawGarage()'s, as Garage options say
 {
   const { length: L, width: W, height: H, door } = GARAGE;
   const face = (w, h, at, facing) => insideFace(w, h, garageWallMat, at, facing, garage);
@@ -82,7 +85,6 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
   // so looking in from outside shows the wall round the doorway; from
   // above the door it hides a little of the floor (the user's choice)
   faceAround(W, [d0, d1], [0, door.height], H, garageWallMat, a => [L, a], '+u', garage);
-  box({ from: [L - door.height, d0, door.height], to: [L, d1, door.height + door.thick] }, garageDoorMat, garage);
   const top = new THREE.Mesh(new THREE.PlaneGeometry(L * MM, W * MM), ceilingMat);
   top.rotation.x = Math.PI / 2;
   top.position.set(L / 2 * MM, H * MM, W / 2 * MM);
@@ -164,6 +166,7 @@ const MOST_OFF_WALL = 200;
 // scaffold bench and on Trellis. All start where the user put them (16 Oct
 // 2026, sent as links), with BillyChest out
 export const GARAGE_START = {
+  door: 'hidden',
   sean: { on: true, x: 1255, y: 2865, turn: 180 },
   billy: { on: true, x: 0, y: 1920, turn: 270 },
   billyChest: { on: false, x: 0, y: 1100, turn: 270 },
@@ -205,7 +208,8 @@ function pieceEntries(piece) {
     }),
   ];
 }
-export const GARAGE_SCHEMA = PIECE_KEYS.flatMap(pieceEntries);
+// ...and the door, with the flat's doors
+export const GARAGE_SCHEMA = [Config.choice('doors.garage', 'garage.door', Object.keys(GARAGE_DOOR)), ...PIECE_KEYS.flatMap(pieceEntries)];
 
 // ---------------------------------------------------------------------------
 // Drawing: each piece in its own group, its back's middle at the origin,
@@ -215,12 +219,36 @@ export const GARAGE_SCHEMA = PIECE_KEYS.flatMap(pieceEntries);
 // ---------------------------------------------------------------------------
 const furniture = new THREE.Group();
 garage.add(furniture);
+const doorGroup = new THREE.Group();                   // the door, as Garage options say
+garage.add(doorGroup);
+const swingMat = material(0x8f969c);                   // the ground the door swings over: the door's grey, faint (chosen)
+swingMat.transparent = true;
+swingMat.opacity = 0.25;
+swingMat.depthWrite = false;
+
+// The door: closed, filling the doorway just inside the end wall; or open,
+// level on its rail just under the opening's head, its bottom edge as far
+// out in front as it ever swings (door.swingOut), the rest inside, with
+// that ground in front marked faintly; or not drawn
+const SWING_MARK = 2;                                  // the mark's height off the ground, so it isn't lost in it
+function drawGarageDoor(state) {
+  doorGroup.clear();
+  const { length: L, width: W, door } = GARAGE;
+  const d0 = (W - door.width) / 2, d1 = d0 + door.width;
+  if (state === 'closed') box({ from: [L - door.thick, d0, 0], to: [L, d1, door.height] }, garageDoorMat, doorGroup);
+  if (state === 'open') {
+    const out = L + door.swingOut;
+    box({ from: [out - door.height, d0, door.height - door.thick], to: [out, d1, door.height] }, garageDoorMat, doorGroup);
+    box({ from: [L, d0, 0], to: [out, d1, SWING_MARK] }, swingMat, doorGroup, false);
+  }
+}
 // Each piece as drawn now, to look at: one taken out is hidden, but still
 // placed, so Looking at it aims at its spot
 export const garagePieces = Object.fromEntries(PIECE_KEYS.map(piece => [piece, null]));
 
 // `pineSizes`: the pine cupboard's sizes as set in Bedroom options
 export function drawGarage(s, pineSizes) {
+  drawGarageDoor(s.door);
   furniture.clear();
   for (const piece of PIECE_KEYS) {
     const sizes = PIECES[piece].bedroomSizes ? sizesOf(pineSizes) : {};
@@ -339,7 +367,11 @@ function openBox(w, d, h, mat, g) {
 // ---------------------------------------------------------------------------
 export function garageControls(container, change) {
   const id = path => `garage_${path.replace('.', '_')}`;
-  container.innerHTML = PIECE_KEYS.map(piece => {
+  const doorRadios = () => container.querySelectorAll('input[name=garageDoor]');
+  container.innerHTML = `<div id="garageDoorBlock" class="depth">Garage door:` +
+    Object.entries(GARAGE_DOOR).map(([value, label]) => `<label><input type="radio" name="garageDoor" value="${value}"> ${label}</label>`).join('') +
+    `<div class="hint">Up and over: its top runs back on a rail under the ceiling, its bottom swings out, at most ${GARAGE.door.swingOut / 1000} m (marked on the ground when it's open).</div></div>` +
+    PIECE_KEYS.map(piece => {
     const { label, w, d, h, bedroomSizes } = PIECES[piece];
     const sizes = bedroomSizes ? 'its sizes as in Bedroom options' : `${w} wide, ${d} deep, ${h} high`;
     return `<div class="depth"><div><b>${label}</b> (${sizes})</div>` +
@@ -348,6 +380,7 @@ export function garageControls(container, change) {
       `<div class="row"><button data-reset="${piece}">Reset location</button></div></div>`;
   }).join('');
 
+  doorRadios().forEach(r => r.addEventListener('change', () => change([['door', r.value]])));
   for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
   for (const piece of PIECE_KEYS) document.getElementById(id(`${piece}.on`)).addEventListener('change', e => change([[`${piece}.on`, e.target.checked]]));
   container.querySelectorAll('button[data-reset]').forEach(b => b.addEventListener('click', () => {
@@ -355,6 +388,7 @@ export function garageControls(container, change) {
   }));
 
   return s => {
+    doorRadios().forEach(r => { r.checked = r.value === s.door; });
     for (const [path, , , , , unit] of SLIDERS) {
       const value = valueAt(s, path);
       document.getElementById(id(path)).value = String(value);
