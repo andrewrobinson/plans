@@ -28,6 +28,7 @@ import { bookcase } from './bookcase.js';
 import { BILLY_CHEST, billy, billySizes, billyChest } from './billy.js';
 import { daybed, daybedFrame } from './daybed.js';
 import { ivar, ivarSizes } from './ivar.js';
+import { CHESHAM, CORNWALL, LEGS_OFF_H, kitchenTable, tableSizes } from './tables.js';
 import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard,
   QUARTER_TURN, OTHER_ROOM_SCHEMA } from './other_room.js';
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
@@ -204,6 +205,36 @@ box({ from: [-44, 0, 0], to: [0, ROOM_DOOR, ROOM_DOOR_H] }, roomDoorMat, roomHin
 box({ from: [0, 600, 1000], to: [60, 720, 1020] }, handleMat, roomHinge, false);
 
 // ---------------------------------------------------------------------------
+// The living room as it is now (the user's photo and measurements, 18 Oct
+// 2026): no cupboard or bench yet; BillyChest in the corner by the
+// windows, its back to the window wall and its drawers facing the left wall,
+// and along the back wall to its left, Billy lying on its side; the Drift
+// with its back to Billy; in the corner by the door, Cornwall on the floor
+// with its legs off, 1200 along the left wall, and Chesham on its end on
+// it, its top against the back wall. Each spot is the middle of its back,
+// room x and y, and its turn, as the pieces' sliders give it (in 5s).
+// Turned 90°, a piece faces the left wall, its back to the right; 270°,
+// the other way round.
+// ---------------------------------------------------------------------------
+const PIPE_GAP = 90;               // BillyChest's back to the window wall, for the radiator's pipe: measured
+const BILLY_TO_CHEST = 380;        // the gap between Billy's end and BillyChest: measured
+const SOFA_OFF_BILLY = 300;        // the sofa's back from Billy's front: estimated from the photo
+const to5 = mm => Math.round(mm / 5) * 5;                         // as the sliders hold it
+const LOUNGE_NOW = (() => {
+  const chestBack = ROOM_WIDTH - PIPE_GAP;                                          // 3748
+  const billyLong = billySizes(true).w;                                              // 2020 lying
+  const billyX = to5(chestBack - BILLY_CHEST.d - BILLY_TO_CHEST - billyLong / 2);    // 1875
+  const sofaD = SOFA_MODELS.list.drift.d;
+  return {
+    billyChest: { x: chestBack, y: to5(BILLY_CHEST.w / 2), turn: 90 },             // its side against the back wall
+    billy: { x: billyX, y: 0, turn: 0 },
+    sofa: { x: billyX, y: billySizes(true).d + SOFA_OFF_BILLY + sofaD / 2, turn: 180 },   // its back to Billy; y 975
+    cornwall: { x: 0, y: CORNWALL.L / 2, turn: 270 },              // from the back wall along the left wall, nearly to the door frame (1329)
+    chesham: { x: CHESHAM.W / 2, y: 0, turn: 0 },                  // in the corner, on Cornwall
+  };
+})();
+
+// ---------------------------------------------------------------------------
 // The settings: everything the menus set and the address saves, in one
 // place, changed by the menus only through set() (below). The cupboard's
 // sizes keep the short names the drawing code and room_dimensions.md use; a
@@ -245,38 +276,44 @@ const state = {
   // the living room's, its piece pieces.bedroomCupboard.design. To start, a
   // copy of the living room's (set below OPTIONS)
   bedroomCupboard: null,
-  benchOn: true,                   // the bench drawn, with what's above it; off, the back wall's bare
+  benchOn: false,                  // the bench drawn, with what's above it; off, the back wall's bare (there's none yet: LOUNGE_NOW)
   bookshelfOn: false,              // the bedroom's bookcase on the back wall in place of the bench (and what's above it), which is then off whatever benchOn says
   bookshelfMove: null,             // ...and moved round the room from there: { x, y, turn } (see BACK_WALL_PIECES), or null where it starts
   pineOn: false,                   // the bedroom's pine cupboard likewise, in place of the bench
   pineMove: null,                  // ...and moved round the room from there, as the bookshelf
-  billyOn: false,                  // Billy, from the garage (billy.js), likewise
-  billyMove: null,                 // ...and moved round the room from there, as the bookshelf
-  billyLying: false,               // ...and standing, or lying on its long side, its open side out
-  billyChestOn: false,             // BillyChest, from the garage (billy.js), likewise
-  billyChestMove: null,            // ...and moved round the room from there, as the bookshelf
+  billyOn: true,                   // Billy, from the garage (billy.js), likewise
+  billyMove: LOUNGE_NOW.billy,     // ...and moved round the room from there, as the bookshelf: where it is now
+  billyLying: true,                // ...and standing, or lying on its long side, its open side out
+  billyChestOn: true,              // BillyChest, from the garage (billy.js), likewise
+  billyChestMove: LOUNGE_NOW.billyChest,   // ...and moved round the room from there, as the bookshelf: in the corner, as now
   ivarOn: true,                    // the Ivar (ivar.js), by the first radiator, as it is now (IVAR_HOME)
   ivarLying: true,                 // ...lying on its side
   ivarMove: null,                  // ...and moved round the room from there: { x, y, turn }, or null where it starts
+  cheshamOn: true,                 // the Chesham kitchen table (tables.js), in the corner by the door, as it is now (LOUNGE_NOW)
+  cheshamOnItsEnd: true,           // ...on its end, its top against the wall behind it; else standing on its legs
+  cheshamMove: null,               // ...and moved round the room from there, as the Ivar
+  cornwallOn: true,                // the Cornwall kitchen table (tables.js), likewise
+  cornwallLegsOff: true,           // ...on the floor with its legs off; else on its legs
+  cornwallMove: null,              // ...and moved round the room from there, as the Ivar
   BENCH: 780,                      // the bench's height: 700, 780, 800 or 900
   above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
   shelfDepth: 250,                 // the shelves above the bench: 150 to 400 deep
   tv: 75,                          // the TV's size in inches, one of TV_SIZES
   colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0 },   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
   shelfWood: 0,                    // the shelves' wood, which of SHELF_WOODS
-  frontPiece: 'dresser',           // on the front wall between the sink and the desk: one of FRONT_PIECES
+  frontPiece: 'none',              // on the front wall between the sink and the desk: one of FRONT_PIECES (none yet)
   // The dresser's, larder's and sofa's sizes, and which larder and sofa:
   // these until set from dressers.js, larders.js and sofas.js below
   dresser: { w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290, drawer: 160 },
   larder: { key: '', size: { w: 1100, h: 1950, d: 510 } },
   sofa: { key: '', front: 1900, size: { w: 1690, d: 1000, h: 920 },     // key '' for none; front: its front from the TV wall
           asBed: false,          // a daybed (the Drift) laid out as a bed, its arms down
-          move: null },          // ...or moved and turned from there: { x, y, turn } (see sofaSpot), or null where it starts
+          move: LOUNGE_NOW.sofa },   // ...or moved and turned from there: { x, y, turn } (see sofaSpot), or null where it starts
   island: { at: 'room', move: null },   // where the island is, one of ISLAND_AT; out there, where its middle is and how far it's turned (ISLAND_HOME to start)
   // The things to store: shown or not, which of PACKINGS, where (0 by the
   // middle window, 1 in the corner cupboard, 2 moved by hand), and each
   // thing's { x, y, turned, z } (set up with STORED below)
-  stored: { shown: false, packing: 0, where: 0, spots: [] },
+  stored: { shown: false, packing: 0, where: 0, spots: [] },   // ...shown where they are now once STORED is set up (STORED_NOW)
   otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
   wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
   shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
@@ -663,7 +700,7 @@ function placePiece(g) {
 // a bookcase like the bedroom's or nothing, in every option but the current room.
 // The configuration names them as here.
 const FRONT_PIECES = ['dresser', 'larder', 'none', 'bookshelf'];
-const pieces = { dresser: null, larder: null, sofa: null, ivar: null };   // where each is drawn now, to look at
+const pieces = { dresser: null, larder: null, sofa: null, ivar: null, chesham: null, cornwall: null };   // where each is drawn now, to look at
 const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;
 const frontGap = () => DESK_RECESS.x0 - frontFrom();             // 1415
 const frontX0 = w => Math.round(frontFrom() + (frontGap() - w) / 2);   // a piece w wide, centred there
@@ -831,8 +868,11 @@ function frontSpan() {
   if (state.frontPiece !== 'larder' || !L) return null;
   return { x0: larderFrontX0(L), x1: larderFrontX0(L) + L.w, heights: [0, larderHeight(L)] };
 }
+// The bedroom's New cupboard starts as option 10 (its list has no current
+// room); the living room has no cupboard yet, the current room (LOUNGE_NOW)
 state.cornerCupboard.option = optionAt(10);
 state.bedroomCupboard = structuredClone(state.cornerCupboard);
+state.cornerCupboard.option = CURRENT;
 
 
 // ---------------------------------------------------------------------------
@@ -1008,6 +1048,23 @@ const PACKINGS = [
 ];
 const sizeOf = (k, turned) => turned ? [STORED[k].d, STORED[k].w] : [STORED[k].w, STORED[k].d];
 state.stored.spots = STORED.map(() => ({ x: 0, y: 0, turned: false, z: 0 }));   // z: how high it stands, as on a shelf
+// Where they are now (the user's photo, 18 Oct 2026; estimated from it), in
+// STORED's order, each its back left corner: on Cornwall (LOUNGE_NOW), so
+// as high as it is, the ladders against the left wall at its door end,
+// the hoover at its front, the mop's bucket and a rack under Chesham, the
+// other rack (not in the photo) behind that one, against Chesham's top;
+// the tub on the floor in front, clear of the sofa and the door
+const ON_CORNWALL = LEGS_OFF_H;
+const STORED_NOW = [
+  { x: 330, y: 380, turned: true, z: ON_CORNWALL },              // Rack 1
+  { x: 100, y: 700, turned: true, z: ON_CORNWALL },              // the folding ladder
+  { x: 0, y: 650, turned: true, z: ON_CORNWALL },                // the long ladder
+  { x: 450, y: 450, turned: true, z: ON_CORNWALL },              // the mop's bucket
+  { x: 440, y: 880, turned: false, z: ON_CORNWALL },             // the hoover
+  { x: 820, y: 1380, turned: false, z: 0 },                      // the tub
+  { x: 30, y: 30, turned: false, z: ON_CORNWALL },               // Rack 2
+];
+Object.assign(state.stored, { shown: true, where: 2, spots: structuredClone(STORED_NOW) });   // shown, as they are now
 const storedGroup = new THREE.Group();
 world.add(storedGroup);
 const storedMats = STORED.map(s => new THREE.MeshStandardMaterial({ color: s.colour, roughness: 0.7 }));
@@ -1084,8 +1141,9 @@ function placeStored() {
   const { packing, where, spots: stored } = state.stored;
   if (where === 2) return;                                       // moved by hand: leave them
   const pack = PACKINGS[packing].at;
-  // flip: the packing turned to run the other way (its x and y swapped)
-  const lay = (ox, oy, flip) => pack.map(([x, y, t]) => flip ? { x: ox + y, y: oy + x, turned: !t } : { x: ox + x, y: oy + y, turned: Boolean(t) });
+  // flip: the packing turned to run the other way (its x and y swapped).
+  // A packing stands on the floor (z 0), wherever they were before
+  const lay = (ox, oy, flip) => pack.map(([x, y, t]) => ({ ...(flip ? { x: ox + y, y: oy + x, turned: !t } : { x: ox + x, y: oy + y, turned: Boolean(t) }), z: 0 }));
   const depth = Math.max(...pack.map(([, y, t], k) => y + sizeOf(k, t)[1]));
   let spots = lay(2000, Math.round((2907 - depth / 2) / 10) * 10, false);   // centred on the middle window
   const spaces = cupboardSpaces();
@@ -1316,6 +1374,42 @@ function ivarHome() {
   return { x: radiatorFront - w / 2, y: radiatorMiddle - d / 2, turn: 0 };
 }
 const ivarSpot = () => state.ivarMove ?? ivarHome();
+
+// The kitchen tables in the living room, each starting where it is now
+// (LOUNGE_NOW) and moved from there by its sliders. A table on top of
+// another where they overlap (Chesham on Cornwall) stands on it
+const TABLES = {
+  cornwall: { table: CORNWALL, name: 'The Cornwall table', pose: () => ({ legsOff: state.cornwallLegsOff }),
+    posed: () => (state.cornwallLegsOff ? 'on the floor with its legs off' : 'on its legs') },
+  chesham: { table: CHESHAM, name: 'The Chesham table', pose: () => ({ onItsEnd: state.cheshamOnItsEnd }),
+    posed: () => (state.cheshamOnItsEnd ? 'on its end, its top against the wall behind it' : 'on its legs') },
+};
+const TABLE_KEYS = Object.keys(TABLES);                         // Cornwall first, as Chesham may stand on it
+const tableSpot = key => state[`${key}Move`] ?? LOUNGE_NOW[key];
+// Where a piece stands on the floor, in the scene: its box's x and z
+const footprint = piece => { piece.updateMatrixWorld(true); return new THREE.Box3().setFromObject(piece); };
+const overlaps = (a, b) => a.min.x < b.max.x && b.min.x < a.max.x && a.min.z < b.max.z && b.min.z < a.max.z;
+// Drawn into the option's group, each that's in. Returns their sentences for the summary
+function tablesInLivingRoom(g) {
+  const drawn = [];
+  let text = '';
+  for (const key of TABLE_KEYS) {
+    if (!state[`${key}On`]) continue;
+    const { table, name, pose, posed } = TABLES[key], { x, y, turn } = tableSpot(key), { w, d, h } = tableSizes(table, pose());
+    const piece = kitchenTable(table, pose());
+    piece.position.set(x * MM, 0, y * MM);
+    piece.rotation.y = THREE.MathUtils.degToRad(-turn);
+    // measured before it joins the group, so in the room's own scene units
+    const under = drawn.find(other => overlaps(footprint(piece), other));
+    if (under) piece.position.y = under.max.y;                  // on top of it
+    drawn.push(footprint(piece));
+    g.add(piece);
+    pieces[key] = piece;
+    const on = under ? ', on the other table' : '';
+    text += ` ${name}, ${posed()}${on} (${w} along, ${d} out, ${h} high): the middle of its back at x ${Math.round(x)}, y ${Math.round(y)}, facing ${FACING[turn]}.`;
+  }
+  return text;
+}
 // Drawn into the option's group if it's in. Returns a sentence for the summary
 function ivarInLivingRoom(g) {
   if (!state.ivarOn) return '';
@@ -1355,7 +1449,7 @@ function buildOption() {
   }
   livingGroup = new THREE.Group();
   world.add(livingGroup);
-  pieces.dresser = pieces.larder = pieces.sofa = pieces.ivar = null;
+  pieces.dresser = pieces.larder = pieces.sofa = pieces.ivar = pieces.chesham = pieces.cornwall = null;
   cupboard = makeCupboard(cupboardSettings(), LIVING_ROOM_PLACE, CUPBOARD_MATERIALS);
   livingGroup.add(cupboard.group);
   return livingGroup;
@@ -1512,6 +1606,12 @@ const LIVING_ROOM_SCHEMA = [
   Config.onOff('pieces.ivar.in.livingRoom.on', 'ivarOn'),
   Config.onOff('pieces.ivar.in.livingRoom.lying', 'ivarLying'),
   spotOrHome('pieces.ivar.in.livingRoom.move', 'ivarMove'),
+  Config.onOff('pieces.chesham.in.livingRoom.on', 'cheshamOn'),
+  Config.onOff('pieces.chesham.in.livingRoom.onItsEnd', 'cheshamOnItsEnd'),
+  spotOrHome('pieces.chesham.in.livingRoom.move', 'cheshamMove'),
+  Config.onOff('pieces.cornwall.in.livingRoom.on', 'cornwallOn'),
+  Config.onOff('pieces.cornwall.in.livingRoom.legsOff', 'cornwallLegsOff'),
+  spotOrHome('pieces.cornwall.in.livingRoom.move', 'cornwallMove'),
 ];
 const SCHEMA = Config.withDefaults([
   ...LIVING_ROOM_SCHEMA,
@@ -1600,6 +1700,7 @@ const pieceBoxes = () => Object.fromEntries(Object.entries({
   livingRoom: livingGroup,                                      // the option and all round it: the bench wall, the front wall, the sofa
   cornerCupboard: cupboard?.group,                              // the option's own build, without the bench
   dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup, 'ivar.livingRoom': pieces.ivar,
+  'chesham.livingRoom': pieces.chesham, 'cornwall.livingRoom': pieces.cornwall,
   bedroomCupboard: otherRoomPieces.newCupboard,
   bed: otherRoomPieces.bed, bookcase: otherRoomPieces.bookcase, pineCupboard: otherRoomPieces.cupboard, mirror: otherRoomPieces.mirror,
   'billy.bedroom': otherRoomPieces.billy, 'billyChest.bedroom': otherRoomPieces.billyChest, 'ivar.bedroom': otherRoomPieces.ivar,
@@ -1652,7 +1753,7 @@ export function build(i, onShow = optionsOnShow()) {
   const clearFrom = option.clearFrom(cupboardSettings());
   const backWall = benchDrawn() ? benchWall(clearFrom, group)
     : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('');
-  const aboveText = backWall + frontWall(group, i) + sofa(group) + ivarInLivingRoom(group);
+  const aboveText = backWall + frontWall(group, i) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group);
   if (!same) state.doors.second = 0;
   drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard
@@ -1737,6 +1838,6 @@ export {
   islandOnWall, islandTopMat, kitchenMat, larderHeight, larderOwnSize,
   cupboardSettings, oakMat, onBackWall, optionAt, pieceBoxes, pieces, placeDresser,
   placeStored, readConfiguration, readShelves, screenMat, setRal, shelfMat,
-  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, state, storedGroup,
+  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, state, storedGroup,
   storedMats, storedSize, tvAt, tvMat, updateDims, worktopMat,
 };

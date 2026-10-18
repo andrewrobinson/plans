@@ -15,6 +15,8 @@ const CONFIGURATIONS = Object.entries(sandbox.window.ROOM_CONFIGURATIONS.list);
 
 // The default page's configuration and view
 const DEFAULT = ADDRESSES.find(a => a.name === 'default');
+// Option 10 with the bench and the dresser, where the controls' tests start
+const DESIGNED = (({ configuration, view }) => addressOf(configuration, view))(ADDRESSES.find(a => a.name === 'designed'));
 const OPTION_7 = (({ configuration, view }) => addressOf(configuration, view))(ADDRESSES.find(a => a.name === 'option07'));
 
 test.describe('saved addresses', () => {
@@ -152,7 +154,7 @@ test.describe('the settings drawers', () => {
 
 test.describe('the controls', () => {
   test.beforeEach(async ({ page }) => {
-    await openRoom(page);
+    await openRoom(page, DESIGNED);
     await openOptions(page);
   });
   const hash = page => page.evaluate(() => location.hash);

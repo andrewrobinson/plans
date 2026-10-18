@@ -58,6 +58,7 @@ live beside it.
 | 248–279 | `#secSofa` | Sofa dropdown (with As a bed for a daybed) plus sliders |
 | 280–347 | `#secBench` | Bench switch, the bookshelf, pine cupboard, Billy (with its Lying switch) and BillyChest in its place, bench-height radios, "above the bench" radios, TV and shelf sliders |
 | 348–361 | `#secIvar` | The Ivar: In the lounge and Lying switches, its X, Y and Turn sliders and Reset location (`placeControls()`, as the back wall's pieces), starting by the first radiator (`ivarHome()`) |
+| 361–388 | `#secCornwall`, `#secChesham` | The kitchen tables (`tables.js`): each its In the lounge switch, its pose (Cornwall's Legs off, Chesham's On its end), X, Y and Turn sliders and Reset location (`placeControls()`), starting where they are now (`LOUNGE_NOW`) |
 | 362–374 | `#secDoors` | The cupboard's tall and second doors (`#tallBlock`, `#secondBlock`) and the room door |
 | 375–405 | `#secColours` | The cupboard, dresser and shelf colours: dropdowns with ◀ ▶ buttons and swatches (`.colours`) |
 | 406–421 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
@@ -85,7 +86,7 @@ entries in the configuration), `drawOtherRoom(settings)` (called from `redrawAro
 (`bookcase(sizes)` is `bookcase.js`'s, drawn in the living room by
 `pieceOnBenchWall()` when the back wall's Bookshelf is on, and as the
 garage's Billy and Potters; `billy.js`'s `billy(lying)` draws Billy,
-standing or lying, in all three rooms, and `billyChest()` BillyChest; `ivar.js`'s `ivar(lying)` the Ivar), and `otherRoomControls(topContainer, container, change)`, which writes
+standing or lying, in all three rooms, and `billyChest()` BillyChest; `ivar.js`'s `ivar(lying)` the Ivar; `tables.js`'s `kitchenTable(table, pose)` the kitchen tables, drawn by `flat_model.js`'s `tablesInLivingRoom()`), and `otherRoomControls(topContainer, container, change)`, which writes
 the **Bedroom options** drawer's sliders into `#otherRoomBlock` (the New
 cupboard switch, marked `top`, into `#otherRoomTop`, over the new cupboard's section) from
 `PIECES` (each piece's size and place sliders, its reset buttons, and the

@@ -23,12 +23,12 @@
       "shelves": 0
     },
     "livingRoom": {
-      "frontWall": "dresser"
+      "frontWall": "none"
     },
     "pieces": {
       "cornerCupboard": {
         "design": {
-          "option": 10,
+          "option": 16,
           "T": 600,
           "R": 330,
           "F": 1200,
@@ -99,7 +99,7 @@
         },
         "in": {
           "livingRoom": {
-            "on": true
+            "on": false
           }
         }
       },
@@ -139,16 +139,20 @@
       },
       "sofa": {
         "design": {
-          "model": "none",
-          "w": 1690,
-          "d": 1000,
-          "h": 920,
+          "model": "drift",
+          "w": 1480,
+          "d": 790,
+          "h": 670,
           "asBed": false
         },
         "in": {
           "livingRoom": {
             "front": 1900,
-            "move": null
+            "move": {
+              "x": 1875,
+              "y": 975,
+              "turn": 180
+            }
           }
         }
       },
@@ -198,7 +202,7 @@
             "move": null
           },
           "garage": {
-            "on": true,
+            "on": false,
             "x": 1425,
             "y": 0,
             "turn": 0
@@ -214,12 +218,16 @@
             "lying": false
           },
           "livingRoom": {
-            "on": false,
-            "lying": false,
-            "move": null
+            "on": true,
+            "lying": true,
+            "move": {
+              "x": 1875,
+              "y": 0,
+              "turn": 0
+            }
           },
           "garage": {
-            "on": true,
+            "on": false,
             "lying": false,
             "x": 0,
             "y": 1920,
@@ -235,8 +243,12 @@
             "along": 2569
           },
           "livingRoom": {
-            "on": false,
-            "move": null
+            "on": true,
+            "move": {
+              "x": 3748,
+              "y": 405,
+              "turn": 90
+            }
           },
           "garage": {
             "on": false,
@@ -280,10 +292,28 @@
         },
         "in": {
           "bedroom": {
-            "on": true,
+            "on": false,
             "wall": "breast",
             "along": 2569,
             "bottom": 1400
+          }
+        }
+      },
+      "chesham": {
+        "in": {
+          "livingRoom": {
+            "on": true,
+            "onItsEnd": true,
+            "move": null
+          }
+        }
+      },
+      "cornwall": {
+        "in": {
+          "livingRoom": {
+            "on": true,
+            "legsOff": true,
+            "move": null
           }
         }
       },
@@ -316,6 +346,11 @@
         }
       },
       "shoeRack": {
+        "in": {
+          "hallway": {
+            "on": false
+          }
+        },
         "design": {
           "w": 460,
           "d": 300,
@@ -412,51 +447,51 @@
       }
     },
     "thingsToStore": {
-      "shown": false,
+      "shown": true,
       "packing": 0,
-      "where": "window",
+      "where": "byHand",
       "spots": [
         {
-          "x": 2550,
-          "y": 2640,
+          "x": 330,
+          "y": 380,
           "turned": true,
-          "z": 0
+          "z": 150
         },
         {
-          "x": 2100,
-          "y": 2360,
-          "turned": false,
-          "z": 0
-        },
-        {
-          "x": 2000,
-          "y": 2360,
+          "x": 100,
+          "y": 700,
           "turned": true,
-          "z": 0
+          "z": 150
         },
         {
-          "x": 2100,
-          "y": 2580,
-          "turned": false,
-          "z": 0
-        },
-        {
-          "x": 2500,
-          "y": 2360,
-          "turned": false,
-          "z": 0
-        },
-        {
-          "x": 2000,
-          "y": 2900,
-          "turned": false,
-          "z": 0
-        },
-        {
-          "x": 2700,
-          "y": 2640,
+          "x": 0,
+          "y": 650,
           "turned": true,
+          "z": 150
+        },
+        {
+          "x": 450,
+          "y": 450,
+          "turned": true,
+          "z": 150
+        },
+        {
+          "x": 440,
+          "y": 880,
+          "turned": false,
+          "z": 150
+        },
+        {
+          "x": 820,
+          "y": 1380,
+          "turned": false,
           "z": 0
+        },
+        {
+          "x": 30,
+          "y": 30,
+          "turned": false,
+          "z": 150
         }
       ]
     }

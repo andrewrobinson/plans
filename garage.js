@@ -169,11 +169,11 @@ const MOST_OFF_WALL = 200;
 // wall, 90° the back wall, 180° the left-hand wall, 270° the door; and,
 // for Yellow and Biltong, how high off the floor its bottom is: on the
 // scaffold bench and on Trellis. All start where the user put them (16 Oct
-// 2026, sent as links), with BillyChest out
+// 2026, sent as links), with BillyChest out; Billy and the pine cupboard out too since (18 Oct 2026), as they are in the living room and the bedroom
 export const GARAGE_START = {
   door: 'hidden',
   sean: { on: true, x: 1255, y: 2865, turn: 180 },
-  billy: { on: true, x: 0, y: 1920, turn: 270, lying: false },
+  billy: { on: false, x: 0, y: 1920, turn: 270, lying: false },   // out, as now (18 Oct 2026): in the living room
   billyChest: { on: false, x: 0, y: 1100, turn: 270 },
   metal: { on: true, x: 670, y: 360, turn: 90 },
   yellow: { on: true, x: 3390, y: 2550, turn: 0, z: PIECES.scaffoldBench.h },
@@ -182,7 +182,7 @@ export const GARAGE_START = {
   potters: { on: true, x: 3090, y: 0, turn: 0, off: 0 },
   biltong: { on: true, x: 580, y: 1070, turn: 90, z: PIECES.trellis.h },
   trellis: { on: true, x: 730, y: 1160, turn: 90 },
-  pine: { on: true, x: 1425, y: 0, turn: 0 },
+  pine: { on: false, x: 1425, y: 0, turn: 0 },   // out, as now (18 Oct 2026): in the bedroom
   ivar: { on: false, x: 0, y: 1100, turn: 270 },     // out to start, at BillyChest's spot (asked for, 18 Oct 2026)
 };
 

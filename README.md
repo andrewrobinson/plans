@@ -32,6 +32,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | `bookcase.js`, `billy.js` | The bedroom's bookcase, and Billy (drawn as one, standing or lying) and BillyChest, each drawn wherever it stands |
 | `daybed.js` | A daybed sofa (the Drift), as a sofa or a bed |
 | `ivar.js` | The Ivar, standing or lying, wherever it is |
+| `tables.js` | The kitchen tables, Chesham and Cornwall: on their legs, Chesham on its end, Cornwall with its legs off |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
 | `garage.js` | The garage (off the site plan, in its own x, y mm), what's in it, and Garage options' sliders |

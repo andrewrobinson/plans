@@ -291,6 +291,24 @@
           }
         }
       },
+      "chesham": {
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "onItsEnd": true,
+            "move": null
+          }
+        }
+      },
+      "cornwall": {
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "legsOff": true,
+            "move": null
+          }
+        }
+      },
       "wickerBench": {
         "design": {
           "w": 920,
@@ -320,6 +338,11 @@
         }
       },
       "shoeRack": {
+        "in": {
+          "hallway": {
+            "on": true
+          }
+        },
         "design": {
           "w": 460,
           "d": 300,
@@ -655,6 +678,8 @@
       ],
       "shown": true
     },
+    "chesham.livingRoom": null,
+    "cornwall.livingRoom": null,
     "bedroomCupboard": null,
     "bed": {
       "from": [

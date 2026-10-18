@@ -23,12 +23,12 @@
       "shelves": 0
     },
     "livingRoom": {
-      "frontWall": "dresser"
+      "frontWall": "none"
     },
     "pieces": {
       "cornerCupboard": {
         "design": {
-          "option": 10,
+          "option": 16,
           "T": 600,
           "R": 330,
           "F": 1200,
@@ -99,7 +99,7 @@
         },
         "in": {
           "livingRoom": {
-            "on": true
+            "on": false
           }
         }
       },
@@ -139,16 +139,20 @@
       },
       "sofa": {
         "design": {
-          "model": "none",
-          "w": 1690,
-          "d": 1000,
-          "h": 920,
+          "model": "drift",
+          "w": 1480,
+          "d": 790,
+          "h": 670,
           "asBed": false
         },
         "in": {
           "livingRoom": {
             "front": 1900,
-            "move": null
+            "move": {
+              "x": 1875,
+              "y": 975,
+              "turn": 180
+            }
           }
         }
       },
@@ -198,7 +202,7 @@
             "move": null
           },
           "garage": {
-            "on": true,
+            "on": false,
             "x": 1425,
             "y": 0,
             "turn": 0
@@ -214,12 +218,16 @@
             "lying": false
           },
           "livingRoom": {
-            "on": false,
-            "lying": false,
-            "move": null
+            "on": true,
+            "lying": true,
+            "move": {
+              "x": 1875,
+              "y": 0,
+              "turn": 0
+            }
           },
           "garage": {
-            "on": true,
+            "on": false,
             "lying": false,
             "x": 0,
             "y": 1920,
@@ -235,8 +243,12 @@
             "along": 2569
           },
           "livingRoom": {
-            "on": false,
-            "move": null
+            "on": true,
+            "move": {
+              "x": 3748,
+              "y": 405,
+              "turn": 90
+            }
           },
           "garage": {
             "on": false,
@@ -280,10 +292,28 @@
         },
         "in": {
           "bedroom": {
-            "on": true,
+            "on": false,
             "wall": "breast",
             "along": 2569,
             "bottom": 1400
+          }
+        }
+      },
+      "chesham": {
+        "in": {
+          "livingRoom": {
+            "on": true,
+            "onItsEnd": true,
+            "move": null
+          }
+        }
+      },
+      "cornwall": {
+        "in": {
+          "livingRoom": {
+            "on": true,
+            "legsOff": true,
+            "move": null
           }
         }
       },
@@ -316,6 +346,11 @@
         }
       },
       "shoeRack": {
+        "in": {
+          "hallway": {
+            "on": false
+          }
+        },
         "design": {
           "w": 460,
           "d": 300,
@@ -412,125 +447,61 @@
       }
     },
     "thingsToStore": {
-      "shown": false,
+      "shown": true,
       "packing": 0,
-      "where": "window",
+      "where": "byHand",
       "spots": [
         {
-          "x": 2550,
-          "y": 2640,
+          "x": 330,
+          "y": 380,
           "turned": true,
-          "z": 0
+          "z": 150
         },
         {
-          "x": 2100,
-          "y": 2360,
-          "turned": false,
-          "z": 0
-        },
-        {
-          "x": 2000,
-          "y": 2360,
+          "x": 100,
+          "y": 700,
           "turned": true,
-          "z": 0
+          "z": 150
         },
         {
-          "x": 2100,
-          "y": 2580,
-          "turned": false,
-          "z": 0
-        },
-        {
-          "x": 2500,
-          "y": 2360,
-          "turned": false,
-          "z": 0
-        },
-        {
-          "x": 2000,
-          "y": 2900,
-          "turned": false,
-          "z": 0
-        },
-        {
-          "x": 2700,
-          "y": 2640,
+          "x": 0,
+          "y": 650,
           "turned": true,
+          "z": 150
+        },
+        {
+          "x": 450,
+          "y": 450,
+          "turned": true,
+          "z": 150
+        },
+        {
+          "x": 440,
+          "y": 880,
+          "turned": false,
+          "z": 150
+        },
+        {
+          "x": 820,
+          "y": 1380,
+          "turned": false,
           "z": 0
+        },
+        {
+          "x": 30,
+          "y": 30,
+          "turned": false,
+          "z": 150
         }
       ]
     }
   },
   "cupboards": {
-    "livingRoom": [
-      {
-        "kind": "Panels",
-        "length": 2443,
-        "width": 800,
-        "shaped": false,
-        "count": 1,
-        "parts": [
-          "Back-wall rear panel"
-        ]
-      },
-      {
-        "kind": "Panels",
-        "length": 2443,
-        "width": 632,
-        "shaped": false,
-        "count": 1,
-        "parts": [
-          "Side facing the windows"
-        ]
-      },
-      {
-        "kind": "Panels",
-        "length": 2443,
-        "width": 614,
-        "shaped": false,
-        "count": 1,
-        "parts": [
-          "Left-wall rear panel"
-        ]
-      },
-      {
-        "kind": "Panels",
-        "length": 764,
-        "width": 614,
-        "shaped": false,
-        "count": 2,
-        "parts": [
-          "Top",
-          "Bottom"
-        ]
-      },
-      {
-        "kind": "Doors",
-        "length": 2437,
-        "width": 387,
-        "shaped": false,
-        "count": 2,
-        "parts": [
-          "Cupboard door"
-        ]
-      },
-      {
-        "kind": "Shelves",
-        "length": 764,
-        "width": 614,
-        "shaped": false,
-        "count": 3,
-        "parts": [
-          "Shelf at 600",
-          "Shelf at 1200",
-          "Shelf at 1800"
-        ]
-      }
-    ],
+    "livingRoom": null,
     "bedroom": null
   },
   "dimensions": [],
-  "description": "A full-height cupboard in the corner, 800 along the back wall and 650 out along the left wall, with a pair of 387 doors on its end, facing the kitchen. Bench 3038, from x = 800, 330 deep. Inside, within its 18 boards (rear panels against the walls included): 764 × 614, 2407 high. Above the bench: a 75\" TV (1680 × 960), centred on the 3038 of clear wall, from 1100 to 2060. 250-deep shelves right across, 3038 long, below it at 1000 and above it at 2210. A middle shelf at 1550 either side, 529 long, 150 clear of the TV. A dresser on the front wall between the sink and the desk (x 1008-2008): 1000 wide overall (its body 960), 1930 high, 420 deep up to 830 (two drawers over two doors, under a wooden top), then 420 deep with three open shelves. The Ivar, lying on its side (830 long, 300 wide, 800 high), against the first radiator, 830 out into the room.From option 10 (new)",
+  "description": "The room as it is now, with no cupboards. No bench: Billy and BillyChest stand there instead. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk. Billy, from the garage, lying on its long side (2020 wide, 280 deep, 800 high) in place of the bench, moved: the middle of its back at x 1875, y 0, facing the front wall. BillyChest, from the garage (805 wide, 484 deep, 780 high) in place of the bench, moved: the middle of its back at x 3748, y 405, facing the left wall. A sofa, the Drift Oak Sofa Bed (Futon Company): 1480 wide, 790 deep, 670 high, its seat at 390. Moved: its middle at x 1875, y 975, facing the front wall (x 1135-2615, y 580-1370). The Ivar, lying on its side (830 long, 300 wide, 800 high), against the first radiator, 830 out into the room. The Cornwall table, on the floor with its legs off (1200 along, 800 out, 150 high): the middle of its back at x 0, y 600, facing the right wall. The Chesham table, on its end, its top against the wall behind it, on the other table (740 along, 730 out, 1190 high): the middle of its back at x 370, y 0, facing the front wall.From the room as it is now",
   "boxes": {
     "livingRoom": {
       "from": [
@@ -539,40 +510,28 @@
         0
       ],
       "to": [
-        3838,
-        5379,
-        2443
+        3748,
+        1370,
+        1340
       ],
       "shown": true
     },
-    "cornerCupboard": {
-      "from": [
-        0,
-        0,
-        0
-      ],
-      "to": [
-        800,
-        672,
-        2443
-      ],
-      "shown": true
-    },
-    "dresser": {
-      "from": [
-        1008,
-        4939,
-        0
-      ],
-      "to": [
-        2008,
-        5379,
-        1930
-      ],
-      "shown": true
-    },
+    "cornerCupboard": null,
+    "dresser": null,
     "larder": null,
-    "sofa": null,
+    "sofa": {
+      "from": [
+        1087,
+        580,
+        0
+      ],
+      "to": [
+        2663,
+        1370,
+        670
+      ],
+      "shown": true
+    },
     "island": {
       "from": [
         1010,
@@ -596,6 +555,32 @@
         3706,
         1346,
         800
+      ],
+      "shown": true
+    },
+    "chesham.livingRoom": {
+      "from": [
+        0,
+        0,
+        150
+      ],
+      "to": [
+        740,
+        730,
+        1340
+      ],
+      "shown": true
+    },
+    "cornwall.livingRoom": {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        800,
+        1200,
+        150
       ],
       "shown": true
     },
@@ -650,7 +635,7 @@
         5362,
         2200
       ],
-      "shown": true
+      "shown": false
     },
     "billy.bedroom": {
       "from": [
@@ -741,7 +726,7 @@
         1022,
         -1489
       ],
-      "shown": true
+      "shown": false
     },
     "sean": {
       "from": [
@@ -767,7 +752,7 @@
         -10367,
         -830
       ],
-      "shown": true
+      "shown": false
     },
     "billyChest": {
       "from": [
@@ -884,7 +869,7 @@
         -12162,
         -1060
       ],
-      "shown": true
+      "shown": false
     },
     "ivar": {
       "from": [

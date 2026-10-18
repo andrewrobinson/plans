@@ -324,6 +324,11 @@
           "slope": 45,
           "shoes": true,
           "bevelDoor": 72
+        },
+        "in": {
+          "hallway": {
+            "on": true
+          }
         }
       },
       "sean": {
@@ -407,6 +412,24 @@
             "x": 730,
             "y": 1160,
             "turn": 90
+          }
+        }
+      },
+      "chesham": {
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "onItsEnd": true,
+            "move": null
+          }
+        }
+      },
+      "cornwall": {
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "legsOff": true,
+            "move": null
           }
         }
       }

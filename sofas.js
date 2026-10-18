@@ -20,7 +20,7 @@
 //
 // An ES module: living_room.js imports it.
 export const SOFA_MODELS = {
-  start: '',                       // the sofa to start with: '' for none (a link keeps its own)
+  start: 'drift',                  // the sofa to start with: '' for none (a link keeps its own); the Drift, as now (18 Oct 2026)
   front: 1900,                     // its front from the TV wall, to start with (1000 to 3500)
   list: {
     // Habitat x Morris & Co. Merton Sunflower fabric 2 seater sofa:
@@ -37,12 +37,12 @@ export const SOFA_MODELS = {
     // an oak rail at the back, with a back cushion. From the drawing
     // (estimated): the base 1300 long, so each arm 340; the futon 120 thick;
     // the frame 50 and the legs 45 thick; the back rail 1000 wide and 60
-    // high on 40 posts. The futon's the one it comes with, the Comfy day bed
-    // futon in Acer Red Coast Weave (its colour estimated). The seat's depth
-    // is the futon's 750 (the sleeping area's width) less the back cushion.
+    // high on 40 posts. The futon's the Comfy day bed futon, in the user's
+    // charcoal grey weave (its colour estimated from their photo, 18 Oct
+    // 2026). The seat's depth is the futon's 750 (the sleeping area's width) less the back cushion.
     // https://www.futoncompany.co.uk/shop-by-product/sofa-beds/type/daybeds/drift-oak-sofa-bed.html
     drift: { label: 'Drift Oak Sofa Bed (Futon Company)', w: 1480, d: 790, h: 670,
-             seatH: 390, seatD: 600, colour: '#9B3A32',
+             seatH: 390, seatD: 600, colour: '#57575B',
              daybed: { bedW: 1980, armLong: 340, futon: 120, rail: 50, leg: 45, backRail: { w: 1000, h: 60, post: 40 } } },
   },
 };

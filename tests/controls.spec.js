@@ -12,6 +12,8 @@ const { ADDRESSES } = require('./addresses');
 // A saved address's configuration (tests/configs/), with settings changed
 // (as edited() takes them), seen in the plan
 const saved = name => ADDRESSES.find(a => a.name === name);
+// Option 10 with the bench and the dresser, where these tests start
+const DESIGNED = addressOf(saved('designed').configuration, saved('designed').view);
 const inPlan = (name, changes = {}) => addressOf(edited(saved(name).configuration, changes), saved('view-plan').view);
 
 const hash = page => page.evaluate(() => location.hash);
@@ -35,8 +37,8 @@ const any = expect.stringMatching;
 
 // The page with a drawer open (a room's options, as openOptions() takes
 // them, the lounge's unless given, or 'other' for Other options), and every
-// section in every drawer unfolded
-async function openDrawer(page, address, room = 'lounge') {
+// section in every drawer unfolded, at an address (DESIGNED unless given)
+async function openDrawer(page, address = DESIGNED, room = 'lounge') {
   await openRoom(page, address);
   if (room === 'other') await page.click('#menu');
   else await openOptions(page, room);
@@ -525,19 +527,58 @@ test.describe('the garage', () => {
   });
 });
 
-// The shoe rack, downstairs (state.shoeRack): its sizes, bevel, shelves'
+// The kitchen tables, in the lounge as they are now (the default page):
+// Cornwall on the floor with its legs off, Chesham on its end on it; each
+// can be moved, posed otherwise, and taken out
+test.describe('the kitchen tables', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page, ''); });
+  const boxOf = (page, key) => page.evaluate(k => window.plans.snapshot().boxes[`${k}.livingRoom`], key);
+
+  test('Chesham stands on Cornwall in the corner by the door', async ({ page }) => {
+    expect(await boxOf(page, 'cornwall')).toEqual({ from: [0, 0, 0], to: [800, 1200, 150], shown: true });
+    expect(await boxOf(page, 'chesham')).toEqual({ from: [0, 0, 150], to: [740, 730, 1340], shown: true });
+    await expect(page.locator('#summary')).toContainText('The Chesham table, on its end, its top against the wall behind it, on the other table');
+    // Cornwall's legs back on: Chesham's on a table 730 high
+    await page.locator('#cornwallLegsOff').uncheck();
+    expect(await boxOf(page, 'chesham')).toEqual({ from: [0, 0, 730], to: [740, 730, 1920], shown: true });
+    // Chesham stood up, moved out of the way, then back where it is now
+    await page.locator('#cheshamOnItsEnd').uncheck();
+    await slide(page, 'cheshamX', 2500);
+    expect(await setting(page, 'cheshamMove')).toEqual({ x: 2500, y: 0, turn: 0 });
+    expect(await boxOf(page, 'chesham')).toEqual({ from: [1905, 0, 0], to: [3095, 740, 730], shown: true });
+    await page.locator('#cheshamHome').click();
+    expect(await setting(page, 'cheshamMove')).toBe(null);
+    // Out, and its settings with it
+    await page.locator('#cheshamOn').uncheck();
+    await expect(page.locator('#cheshamMoveBlock')).toBeHidden();
+    expect(await boxOf(page, 'chesham')).toBe(null);
+  });
+});
+
+// The shoe rack, downstairs (state.shoeRack): not there yet, as the page
+// opens; its switch shows its settings
+test('the shoe rack is out to start, its switch showing its settings', async ({ page }) => {
+  await openDrawer(page, '', 'hallway');
+  expect(await setting(page, 'shoeRack.on')).toBe(false);
+  await expect(page.locator('#shoeRack_block')).toBeHidden();
+  await page.locator('#shoeRack_on').check();
+  expect(await setting(page, 'shoeRack.on')).toBe(true);
+  await expect(page.locator('#shoeRack_block')).toBeVisible();
+});
+
+// ...and, from the designed page, where it's in: its sizes, bevel, shelves'
 // slope, shoes and the door angle its bevel's cut for
 test.describe('the shoe rack', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'hallway'); });
 
   test('it can be resized and put back', async ({ page }) => {
-    expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
+    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
     await slide(page, 'shoeRack_d', 250);
     await slide(page, 'shoeRack_h', 900);
     await slide(page, 'shoeRack_slope', 30);
-    expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 250, h: 900, bevel: true, slope: 30, shoes: true, bevelDoor: 72 });
+    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 250, h: 900, bevel: true, slope: 30, shoes: true, bevelDoor: 72 });
     await page.locator('#shoeRackBlock [data-reset="sizes"]').evaluate(b => b.click());
-    expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
+    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
   });
 
   // The bevel, on to start: the well's whole width, cut where the internal
@@ -553,7 +594,7 @@ test.describe('the shoe rack', () => {
     await expect(page.locator('#shoeRack_door')).toContainText('at 80°, its front is 153 wide');
     await expect(page.locator('#shoeRack_fits')).toContainText('up to 424 long');   // 300 / cos 45°
     await page.locator('#shoeRack_bevel').uncheck();
-    expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 300, h: 1290, bevel: false, slope: 45, shoes: true, bevelDoor: 80 });
+    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 300, h: 1290, bevel: false, slope: 45, shoes: true, bevelDoor: 80 });
     await expect(page.locator('#shoeRack_w')).toBeEnabled();
     await expect(page.locator('#shoeRack_bevelDoor')).toBeHidden();
     await expect(page.locator('#shoeRack_door')).toContainText('opens to 65.5°');  // the door stops on its corner
@@ -563,7 +604,7 @@ test.describe('the shoe rack', () => {
     await slide(page, 'shoeRack_slope', 30);
     await expect(page.locator('#shoeRack_fits')).toContainText('up to 231 long');   // 200 / cos 30°
     await page.locator('#shoeRack_shoes').uncheck();
-    expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 200, h: 1290, bevel: false, slope: 30, shoes: false, bevelDoor: 80 });
+    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 200, h: 1290, bevel: false, slope: 30, shoes: false, bevelDoor: 80 });
   });
 });
 

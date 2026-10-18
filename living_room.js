@@ -40,7 +40,7 @@ import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
-  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, state, storedGroup, storedMats,
+  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, state, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE } from './floor.js';
@@ -353,6 +353,7 @@ function showInMenus(option, i, aboveText) {
     showPlace(key);                                             // where it starts follows the option's clear wall
   }
   showIvar();
+  showTables();
   showSofaPlace();                                              // where it starts follows the TV
 }
 
@@ -694,6 +695,28 @@ function showIvar() {
   ivarLying.checked = state.ivarLying;
   document.getElementById('ivarMoveBlock').style.display = state.ivarOn ? '' : 'none';
   showPlace('ivar', ivarSpot());
+}
+// The kitchen tables: each in the lounge or not, in its pose (Cornwall's
+// legs off, Chesham on its end) or not, and moved from where it is now
+// (flat_model.js's LOUNGE_NOW)
+const TABLE_POSES = { cornwall: 'legsOff', chesham: 'onItsEnd' };
+// A switch's name, its id and its setting in state alike: cornwallOn, cornwallLegsOff
+const tableSwitchName = (key, setting) => `${key}${setting[0].toUpperCase()}${setting.slice(1)}`;
+const tableSwitch = (key, setting) => document.getElementById(tableSwitchName(key, setting));
+for (const [key, pose] of Object.entries(TABLE_POSES)) {
+  const place = `pieces.${key}.in.livingRoom`;
+  for (const setting of ['on', pose]) {
+    const input = tableSwitch(key, setting);
+    input.addEventListener('change', () => change([[`${place}.${setting}`, input.checked]], { look: true }));
+  }
+  placeControls(key, place, () => tableSpot(key));
+}
+function showTables() {
+  for (const [key, pose] of Object.entries(TABLE_POSES)) {
+    for (const setting of ['on', pose]) tableSwitch(key, setting).checked = state[tableSwitchName(key, setting)];
+    document.getElementById(`${key}MoveBlock`).style.display = state[`${key}On`] ? '' : 'none';
+    showPlace(key, tableSpot(key));
+  }
 }
 function showPlace(key, at = spotOf(key)) {
   const spot = roundedSpot(at);

@@ -44,6 +44,7 @@ const shoeMat = material(0x3a2f2a);                // dark brown leather (chosen
 const FOOT_WIDTH = HALLWAY.yWellIn - HALLWAY.yWellOut;                  // the well: 900
 
 export const SHOE_RACK_START = {
+  on: false,                       // there or not: there's none yet (the user's, 18 Oct 2026)
   w: RACK.w, d: RACK.d, h: RACK.h,
   bevel: true,                     // its front-left corner cut away for the internal door (below)
   slope: RACK.slope,               // the shelves' slant
@@ -162,16 +163,16 @@ const SIZE_KEYS = SIZE_SLIDERS.map(([k]) => k);
 // The rack's design in the configuration, in order, and which are switches
 const DESIGN_KEYS = ['w', 'd', 'h', 'bevel', 'slope', 'shoes', 'bevelDoor'];
 const SWITCHES = ['bevel', 'shoes'];
-// The configuration's entries (kit/config_kit.js): the rack's design, each
-// size held to its slider's range. It always stands in the same place
-// downstairs, so it has no `in`
+// The configuration's entries (kit/config_kit.js): whether it's there,
+// then its design, each size held to its slider's range. It always stands
+// in the same place downstairs, so its `in` has only `on`
 const designEntry = key => {
   const at = `pieces.shoeRack.design.${key}`, setting = `shoeRack.${key}`;
   if (SWITCHES.includes(key)) return Config.onOff(at, setting);
   const [, , lo, hi, step] = SLIDERS.find(([k]) => k === key);
   return Config.number(at, setting, lo, hi, step);
 };
-export const SHOE_RACK_SCHEMA = DESIGN_KEYS.map(designEntry);
+export const SHOE_RACK_SCHEMA = [Config.onOff('pieces.shoeRack.in.hallway.on', 'shoeRack.on'), ...DESIGN_KEYS.map(designEntry)];
 
 // ---------------------------------------------------------------------------
 // Drawing: the rack in its own group, its back's middle at the origin, its
@@ -189,6 +190,7 @@ export function drawShoeRack(s) {
   if (s.shoes) shoeRack.add(shoePairs(sized));
   shoeRack.position.set(ENTRANCE.xBack * MM, ENTRANCE.floor * MM, (HALLWAY.yWellOut + sized.w / 2) * MM);
   shoeRack.rotation.y = THREE.MathUtils.degToRad(-FACING_THE_STAIRS);
+  shoeRack.visible = s.on;                                            // drawn but hidden when it's not there, so Looking at still finds its spot
   hallway.add(shoeRack);
 }
 
@@ -259,6 +261,7 @@ function shelfFronts(s) {
 export function shoeRackControls(container, change) {
   const id = key => `shoeRack_${key}`;
   container.innerHTML =
+    `<label class="switch"><input type="checkbox" id="${id('on')}"> In the hallway</label><div id="${id('block')}">` +
     `<div class="hint">It stands in the back right corner looking down the stairs: its back to the window, its end against the outside wall.</div>` +
     `<div class="depth"><div><b>Its sizes</b></div>${SIZE_SLIDERS.map(slider(id)).join('')}` +
     `<div class="hint" id="${id('fits')}"></div>` +
@@ -267,13 +270,15 @@ export function shoeRackControls(container, change) {
     `<div class="depth"><label class="switch"><input type="checkbox" id="${id('bevel')}"> Bevel for the door</label>` +
     `<div class="hint">Makes it as wide as the well and cuts off its front-left corner where the internal door swings, as far as the angle below. The cut stays as the door opens and closes (Doors menu), so set the door, read its angle, and set this to match. Try its depth too.</div>` +
     `<div id="${id('bevelSlider')}">${slider(id)(BEVEL_SLIDER)}</div>` +
-    `<div class="hint" id="${id('door')}"></div></div>`;
+    `<div class="hint" id="${id('door')}"></div></div></div>`;
 
   for (const [key] of SLIDERS) document.getElementById(id(key)).addEventListener('input', e => change([[key, Number(e.target.value)]]));
-  for (const key of SWITCHES) document.getElementById(id(key)).addEventListener('change', e => change([[key, e.target.checked]]));
+  for (const key of ['on', ...SWITCHES]) document.getElementById(id(key)).addEventListener('change', e => change([[key, e.target.checked]]));
   container.querySelector('button[data-reset]').addEventListener('click', () => change(SIZE_KEYS.map(key => [key, valueAt(SHOE_RACK_START, key)])));
 
   return s => {
+    document.getElementById(id('on')).checked = s.on;
+    document.getElementById(id('block')).hidden = !s.on;
     const shown = { ...s, w: widthOf(s) };                             // with the bevel, the well's width
     for (const [key, , , , , unit] of SLIDERS) {
       document.getElementById(id(key)).value = String(shown[key]);

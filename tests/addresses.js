@@ -23,8 +23,11 @@ const fs = require('fs');
 const path = require('path');
 
 const SAVED = [
-  // Option 10, as the page opens
+  // The lounge as it is now (18 Oct 2026), as the page opens
   'default',
+  // Option 10 with the bench and the dresser, as the page opened until
+  // then: the controls' tests start from it, as they were written for it
+  'designed',
   // Each option, from the default page: options 7 and 8 with the 600
   // left-wall cupboard the page picks for them, the current room (option 16)
   'option07', 'option08', 'option09', 'option10', 'option11', 'option16-current-room',

@@ -137,7 +137,7 @@ export const OTHER_ROOM_START = {
   cupboard: { u: OTHER_ROOM.length, v: OTHER_ROOM.breastFace - BOOKCASE.d - PINE.w / 2, turn: 90, w: PINE.w, d: PINE.d, h: PINE.h },
   bookcaseOn: true,                // the bookcase there, or not (whatever's in the living room)
   cupboardOn: true,                // the pine cupboard likewise
-  mirrorOn: true,                  // the mirror likewise
+  mirrorOn: false,                 // the mirror likewise: none yet (the user's, 18 Oct 2026)
   newCupboardOn: false,            // a corner cupboard of its own (NEW_CUPBOARD), in place of the pine cupboard
   lowerD: RECESS_CUPBOARDS.lowerD,
   upperDrawers: false,             // the upper recess cupboard: drawers over its open shelves
