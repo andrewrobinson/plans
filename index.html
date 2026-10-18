@@ -6,7 +6,7 @@
 <title>Cupboard options in 3D</title>
 <!-- The cupboard options page: the living room in 3D, its cupboard options
      and the settings drawers. Its look is room_3d.css; what it draws and
-     does is living_room.js, loaded at the end after its views and scenes
+     does is living_room.js, loaded at the end after its views and configurations
      (it imports dressers.js, larders.js and sofas.js). room_dimensions.md has the room's sizes and the address
      format; room_3d_ui_guide.md maps the files. -->
 <!-- Installable as an app on phones: Add to Home Screen -->
@@ -67,16 +67,16 @@
     </div>
   </div>
 </div>
-<!-- The scenes: a menu of their own at the bottom right -->
+<!-- The configurations: a menu of their own at the bottom right -->
 <div id="corner">
-  <div id="sceneMenu" class="pop">
-    <div id="sceneGroup" class="group" role="group" aria-label="Scene">
-      <span class="tag">Scene</span>
-      <select id="scenePick" class="pick" aria-label="Scenes"></select>
-      <button id="saveScene" class="chip" title="Keep everything on show (not where you're looking from), as a named scene">Save</button>
-      <button id="deleteScene" class="chip" title="Delete this saved scene" hidden>Delete</button>
+  <div id="configurationMenu" class="pop">
+    <div id="configurationGroup" class="group" role="group" aria-label="Configuration">
+      <span class="tag">Configuration</span>
+      <select id="configurationPick" class="pick" aria-label="Configurations"></select>
+      <button id="saveConfiguration" class="chip" title="Keep every setting in every room (not where you're looking from), as a named configuration">Save</button>
+      <button id="deleteConfiguration" class="chip" title="Delete this saved configuration" hidden>Delete</button>
     </div>
-    <button class="popToggle" aria-label="Scenes" title="Scenes" aria-controls="sceneGroup" aria-expanded="false">☰</button>
+    <button class="popToggle" aria-label="Configurations" title="Configurations" aria-controls="configurationGroup" aria-expanded="false">☰</button>
   </div>
 </div>
 <!-- At the bottom left: the options for the room in view (its drawer) -->
@@ -498,9 +498,9 @@
   <div id="garageBlock"></div>
 </div>
 
-<!-- The room's views and scenes, for editing; the module after them imports the kits that show them, and the dressers, larders and sofas -->
+<!-- The room's views and configurations, for editing; the module after them imports the kits that show them, and the dressers, larders and sofas -->
 <script src="living_room.views.js"></script>
-<script src="living_room.scenes.js"></script>
+<script src="living_room.configurations.js"></script>
 <script type="module" src="living_room.js"></script>
 </body>
 </html>

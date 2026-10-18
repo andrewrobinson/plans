@@ -1,5 +1,5 @@
 // Shared by the model's tests (REFACTOR_PLAN.md, step 6c): the saved
-// configurations (tests/configs/, and the scenes in living_room.scenes.js)
+// configurations (tests/configs/, and those in living_room.configurations.js)
 // and their snapshots (tests/snapshots/), and a snapshot made in Node, as
 // the page's window.plans.snapshot() makes it.
 import fs from 'node:fs';
@@ -12,17 +12,18 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
 const readJson = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 
-// Each saved configuration: { name, configuration, view } (a scene has no
-// view: it's seen as the page starts, from above)
+// Each saved configuration: { name, configuration, view } (one in
+// living_room.configurations.js has no view: it's seen as the page starts,
+// from above)
 const STARTING_VIEW = { room: 'livingRoom', view: 'birdseye', dimensions: true, doorSizes: true, cupboardOnly: false };
 export function savedConfigurations() {
   const configs = fs.readdirSync(path.join(ROOT, 'tests', 'configs')).filter(f => f.endsWith('.json'))
     .map(f => ({ name: f.replace(/\.json$/, ''), ...readJson(path.join(ROOT, 'tests', 'configs', f)) }));
   const sandbox = { window: {} };
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'living_room.scenes.js'), 'utf8'), sandbox);
-  const scenes = Object.entries(sandbox.window.ROOM_SCENES.list)
-    .map(([id, scene]) => ({ name: `scene-${id}`, configuration: scene.configuration, view: STARTING_VIEW }));
-  return [...configs, ...scenes];
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'living_room.configurations.js'), 'utf8'), sandbox);
+  const named = Object.entries(sandbox.window.ROOM_CONFIGURATIONS.list)
+    .map(([id, entry]) => ({ name: `configuration-${id}`, configuration: entry.configuration, view: STARTING_VIEW }));
+  return [...configs, ...named];
 }
 export const savedSnapshot = name => readJson(path.join(ROOT, 'tests', 'snapshots', `${name}.json`));
 

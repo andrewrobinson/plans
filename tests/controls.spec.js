@@ -6,7 +6,7 @@
 // The settings are read through window.plans.get() (setting(), by their
 // paths in `state` in living_room.js), not from the address, so a new
 // address format leaves these tests alone.
-const { test, expect, openOptions, openRoom, addressOf, readAddress, edited, pickOption, setting, optionShown } = require('./helpers');
+const { test, expect, openOptions, openRoom, addressOf, readAddress, configurationOf, edited, pickOption, setting, optionShown } = require('./helpers');
 const { ADDRESSES } = require('./addresses');
 
 // A saved address's configuration (tests/configs/), with settings changed
@@ -710,17 +710,30 @@ test.describe('the Views and Look menus', () => {
   });
 });
 
-test.describe('the Scenes menu', () => {
-  test('saving and deleting a scene', async ({ page }) => {
+test.describe('the Configuration menu', () => {
+  test('saving and deleting a configuration', async ({ page }) => {
     await openRoom(page);
-    await page.locator('#sceneMenu .popToggle').click();
-    page.once('dialog', d => d.accept('Test scene'));
-    await page.click('#saveScene');
-    await expect(page.locator('#scenePick option[value="saved:Test scene"]')).toHaveCount(1);
-    await expect(page.locator('#scenePick')).toHaveValue('saved:Test scene');   // it's the one on screen
+    await page.locator('#configurationMenu .popToggle').click();
+    page.once('dialog', d => d.accept('Test configuration'));
+    await page.click('#saveConfiguration');
+    await expect(page.locator('#configurationPick option[value="saved:Test configuration"]')).toHaveCount(1);
+    await expect(page.locator('#configurationPick')).toHaveValue('saved:Test configuration');   // it's the one on screen
     page.once('dialog', d => d.accept());
-    await page.click('#deleteScene');
-    await expect(page.locator('#scenePick option[value="saved:Test scene"]')).toHaveCount(0);
+    await page.click('#deleteConfiguration');
+    await expect(page.locator('#configurationPick option[value="saved:Test configuration"]')).toHaveCount(0);
+  });
+
+  // Those saved when the list was Scenes come across, under the new key
+  test('scenes saved before are kept as configurations', async ({ page }) => {
+    await openRoom(page);
+    const configuration = await configurationOf(page);
+    await page.evaluate(c => {
+      localStorage.removeItem('room_3d:savedConfigurations');
+      localStorage.setItem('room_3d:savedScenes', JSON.stringify([{ name: 'Old scene', configuration: c }]));
+    }, configuration);
+    await page.reload();
+    await expect(page.locator('#configurationPick option[value="saved:Old scene"]')).toHaveCount(1);
+    expect(await page.evaluate(() => localStorage.getItem('room_3d:savedScenes'))).toBeNull();
   });
 });
 

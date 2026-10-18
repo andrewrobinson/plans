@@ -27,7 +27,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | `index.html` | The page and its menus |
 | `floor.js` | The walls, doors and windows: the living room's, the hallway's (`HALLWAY`, with the stairs), downstairs (`ENTRANCE`) and the bedroom's (`OTHER_ROOM`, in its own u, v mm) |
 | `flat_model.js` | The model: the living room's fittings and cupboard options, the settings and the configuration's schema, the dimensions, cutting list and things to store, with no page, so Node builds it too (`buildFlat()`) |
-| `living_room.js` | The page: the menus and controls, the built-in views, the scenes and the page address |
+| `living_room.js` | The page: the menus and controls, the built-in views, the configurations and the page address |
 | `other_room.js` | The bedroom's furniture and fitted cupboards, and their sliders |
 | `bookcase.js`, `billy.js` | The bedroom's bookcase, and Billy (drawn as one, standing or lying) and BillyChest, each drawn wherever it stands |
 | `daybed.js` | A daybed sofa (the Drift), as a sofa or a bed |
@@ -36,10 +36,10 @@ takes new screenshots and snapshots when a change is meant to show.
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
 | `garage.js` | The garage (off the site plan, in its own x, y mm), what's in it, and Garage options' sliders |
 | `living_room.views.js` | The rooms, places (Where), things (Looking at), eye heights and config-defined views, for editing |
-| `living_room.scenes.js`, `dressers.js`, `larders.js`, `sofas.js` | Scenes and furniture catalogues, for editing |
+| `living_room.configurations.js`, `dressers.js`, `larders.js`, `sofas.js` | Named configurations and furniture catalogues, for editing |
 | `kit/config_kit.js` | The configuration: reading and writing it through a schema, and packing it for the address |
 | `tests/` | The browser tests, the saved configurations (`configs/`) and snapshots (`snapshots/`), and the model's tests in Node (`model/`) |
-| `kit/` | The engine: `floor_kit.js`, `view_kit.js` (views, rooms, Where and Looking at), `scene_kit.js` |
+| `kit/` | The engine: `floor_kit.js`, `view_kit.js` (views, rooms, Where and Looking at), `configuration_kit.js` (the Configuration list) |
 | `drawings/` | The floor plans, and `measure_sheet.html` for sending measurements |
 
 The notes:

@@ -1,5 +1,5 @@
 // The page: the living room and the rest of the flat in 3D, its menus and
-// controls, the views, the scenes and the address. What's drawn, from the
+// controls, the views, the configurations and the address. What's drawn, from the
 // settings, is the model's, flat_model.js (the fittings, the cupboard
 // options, the dimensions, the cutting list, the things to store, and the
 // configuration's schema); the walls, door frame and windows are floor.js's;
@@ -18,13 +18,13 @@
 // In order, below: the stage; the 2D views' cuts and Cupboard only; the
 // cutting list's menu; the things to store's controls and dragging; the door
 // sliders and the option list; show() and the menus; the address; the
-// controls; the colours; the views and scenes; the display switches and the
+// controls; the colours; the views and configurations; the display switches and the
 // view; window.plans; and starting the page.
 import * as THREE from 'three';
 import { MM, createStage, RAL, popMenus, createDrawers, reloadButton,
   shareButton, screenshotButton, workOffline, flatViews, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
-import * as SceneKit from './kit/scene_kit.js';
+import * as ConfigurationKit from './kit/configuration_kit.js';
 import * as Config from './kit/config_kit.js';
 import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, BED_SPOTS } from './other_room.js';
 import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
@@ -376,7 +376,7 @@ function redrawAround() {
 // replace: change the address without adding to the history, as when
 // looking round. Packing is asynchronous, so each write is numbered, and
 // one overtaken by a later write is dropped
-let sceneKit = null;               // the Scenes list (see below), shown the scene on screen as it changes
+let configurationKit = null;       // the Configuration list (see below), shown the configuration on screen as it changes
 // Nothing's written till the page has read its own address, at the start
 let addressWrites = 0;
 let addressRead = false;
@@ -384,7 +384,7 @@ async function writeAddress(replace = false) {
   if (!addressRead) return;
   const write = ++addressWrites;
   const configuration = configurationNow(), view = viewNow();
-  sceneKit?.refresh();
+  configurationKit?.refresh();
   const hash = `#${await Config.pack(configuration)}~${await Config.pack(view)}`;
   if (write !== addressWrites) return;
   try {
@@ -997,15 +997,16 @@ const viewKit = ViewKit.create({
 });
 // The doors' angles into the address a moment after they stop, as the view's
 Object.values(DOOR_SLIDERS).forEach(d => d.addEventListener('input', viewKit.writeView));
-// Scenes: everything on show bar the view, from living_room.scenes.js or saved
-// here. Showing one loads the page again with its settings, keeping the view.
-// The pop-up menus: the views list and look at the top right, the scenes at
-// the bottom right
+// Configurations: every setting in every room bar the view, from
+// living_room.configurations.js or saved here. Showing one loads the page
+// again with its settings, keeping the view.
+// The pop-up menus: the views list and look at the top right, the
+// configurations at the bottom right
 popMenus(renderer.domElement);
-sceneKit = SceneKit.create({
+configurationKit = ConfigurationKit.create({
   room: 'room_3d',
-  config: window.ROOM_SCENES,
-  el: { scenes: document.getElementById('scenePick'), save: document.getElementById('saveScene'), remove: document.getElementById('deleteScene') },
+  config: window.ROOM_CONFIGURATIONS,
+  el: { pick: document.getElementById('configurationPick'), save: document.getElementById('saveConfiguration'), remove: document.getElementById('deleteConfiguration') },
   get: () => configurationNow(),
   async apply(configuration) {
     history.replaceState(null, '', `#${await Config.pack(configuration)}~${await Config.pack(viewNow())}`);

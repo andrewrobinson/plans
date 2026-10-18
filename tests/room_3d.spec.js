@@ -7,11 +7,11 @@ const path = require('path');
 const { test, expect, openOptions, openRoom, addressOf, readAddress, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
 const { ADDRESSES } = require('./addresses');
 
-// The scenes in living_room.scenes.js, read the way the page reads them
-const sceneFile = fs.readFileSync(path.join(__dirname, '..', 'living_room.scenes.js'), 'utf8');
+// The configurations in living_room.configurations.js, read the way the page reads them
+const configurationsFile = fs.readFileSync(path.join(__dirname, '..', 'living_room.configurations.js'), 'utf8');
 const sandbox = { window: {} };
-vm.runInNewContext(sceneFile, sandbox);
-const SCENES = Object.entries(sandbox.window.ROOM_SCENES.list);
+vm.runInNewContext(configurationsFile, sandbox);
+const CONFIGURATIONS = Object.entries(sandbox.window.ROOM_CONFIGURATIONS.list);
 
 // The default page's configuration and view
 const DEFAULT = ADDRESSES.find(a => a.name === 'default');
@@ -28,14 +28,14 @@ test.describe('saved addresses', () => {
     });
   }
 
-  for (const [id, { configuration }] of SCENES) {
-    test(`scene ${id} looks the same and round-trips`, async ({ page }) => {
+  for (const [id, { configuration }] of CONFIGURATIONS) {
+    test(`configuration ${id} looks the same and round-trips`, async ({ page }) => {
       await openRoom(page, addressOf(configuration));
-      // A scene leaves out the view, so the page shows its starting one
+      // A configuration leaves out the view, so the page shows its starting one
       expect(await configurationOf(page)).toEqual(configuration);
       expect(await viewOf(page)).toEqual(DEFAULT.view);
-      await expectSnapshot(page, `scene-${id}`);
-      await expect(page).toHaveScreenshot(`scene-${id}.png`);
+      await expectSnapshot(page, `configuration-${id}`);
+      await expect(page).toHaveScreenshot(`configuration-${id}.png`);
     });
   }
 
@@ -483,7 +483,7 @@ test.describe('the controls', () => {
 
 test.describe('the pop-up menus', () => {
   test.beforeEach(async ({ page }) => { await openRoom(page); });
-  const MENUS = ['#viewsMenu', '#viewMenu', '#sceneMenu'];
+  const MENUS = ['#viewsMenu', '#viewMenu', '#configurationMenu'];
 
   test('each opens on its button and closes the others', async ({ page }) => {
     for (const menu of MENUS) {
@@ -496,8 +496,8 @@ test.describe('the pop-up menus', () => {
       }
     }
     // Its own button again closes it
-    await page.locator('#sceneMenu .popToggle').click();
-    await expect(page.locator('#sceneMenu .group')).toBeHidden();
+    await page.locator('#configurationMenu .popToggle').click();
+    await expect(page.locator('#configurationMenu .group')).toBeHidden();
   });
 
   test('Escape closes it; moving about in the 3D view does not', async ({ page }) => {
@@ -523,12 +523,18 @@ test.describe('the pop-up menus', () => {
     await expect(dims).toHaveText('Dimensions: off');
   });
 
-  test('Scenes: choosing one loads its settings', async ({ page }) => {
-    const [id, { configuration }] = SCENES[0];
-    await page.locator('#sceneMenu .popToggle').click();
-    await page.selectOption('#scenePick', id);
-    // The page loads again with the scene's settings, keeping the view
-    await page.waitForFunction(scene => JSON.stringify(window.plans?.export()) === scene, JSON.stringify(configuration));
+  test('Configuration: choosing one loads its settings', async ({ page }) => {
+    // Option 7's settings saved on this device, then the default page opened
+    await openRoom(page, OPTION_7);
+    const configuration = await configurationOf(page);
+    await page.locator('#configurationMenu .popToggle').click();
+    page.once('dialog', d => d.accept('Option 7'));
+    await page.click('#saveConfiguration');
+    await openRoom(page);
+    await page.locator('#configurationMenu .popToggle').click();
+    await page.selectOption('#configurationPick', 'saved:Option 7');
+    // The page loads again with its settings, keeping the view
+    await page.waitForFunction(saved => JSON.stringify(window.plans?.export()) === saved, JSON.stringify(configuration));
   });
 });
 

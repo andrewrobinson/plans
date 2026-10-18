@@ -24,7 +24,7 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
   pointer-events: none;
 }
 /* The views list and look (where you are and what you look at): menu
-   buttons at the top right, each opening its group below it; the scenes:
+   buttons at the top right, each opening its group below it; the configurations:
    a menu button at the bottom right, opening above */
 #corner { position: fixed; right: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
 .pop { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
@@ -39,7 +39,7 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 #viewsMenu { --tint: #6a3d9a; }
 /* In front of the top bar: an open menu here can reach it on a phone */
 #topRight { position: fixed; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
-#sceneMenu { --tint: #2e7d4f; }
+#configurationMenu { --tint: #2e7d4f; }
 /* The floating text buttons: Share, Reload, Dimensions, and the menus' Save and Delete */
 .chip {
   pointer-events: auto; height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px;
@@ -48,7 +48,7 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 .chip[hidden] { display: none; }
 .chip:disabled { opacity: 0.5; cursor: default; }
 /* The bar's groups, each with a small heading in its own colour: View
-   (where you are and what you look at), Scene (what's on show) and Option */
+   (where you are and what you look at), Configuration (every setting) and Option */
 .group { pointer-events: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 6px 4px 10px;
   border-radius: 12px; background: rgba(255, 255, 255, 0.55); box-shadow: inset 0 0 0 2px var(--tint); }
 .group .tag { font-size: 11px; font-weight: bold; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tint); }
@@ -56,12 +56,12 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 #viewGroup { max-width: min(900px, calc(100vw - 24px)); box-sizing: border-box; justify-content: flex-end; }
 #viewsGroup { flex-wrap: nowrap; }
 /* The dropdowns at the top right and bottom right: the views, where you
-   are, your eye height, the looks and the scenes */
+   are, your eye height, the looks and the configurations */
 .pick {
   pointer-events: auto; height: 44px; min-width: 0; max-width: 100%; border: none; border-radius: 10px; padding: 0 10px;
   background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font: inherit; font-size: 14px; cursor: pointer;
 }
-#where, #lookAt, #eye, #lookPick, #viewPick, #scenePick { flex: none; }
+#where, #lookAt, #eye, #lookPick, #viewPick, #configurationPick { flex: none; }
 /* The option on show, in Lounge options: the drawer's width, framed as its
    other dropdowns are */
 .drawer select.pick { display: block; width: 100%; height: 36px; box-shadow: none; border: 1px solid #999; border-radius: 6px; }

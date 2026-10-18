@@ -12,8 +12,8 @@
 // Old share links needn't keep working (agreed 12 Oct 2026), so none are
 // tested.
 //
-// Scenes from living_room.scenes.js are added by room_3d.spec.js itself, so a new
-// scene is tested as soon as it's added (run `npm run test:update` once to
+// Configurations from living_room.configurations.js are added by room_3d.spec.js
+// itself, so a new one is tested as soon as it's added (run `npm run test:update` once to
 // take its screenshot).
 //
 // Most are option 9, with the Chester dresser's sizes (the page now starts

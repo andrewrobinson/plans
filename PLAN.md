@@ -104,7 +104,7 @@ Smaller pieces, any time:
   gap is about 844 across at 45°, more than the racks' 800).
 - **Designs**: a cupboard design as data (its kind, sizes, doors, shelves per
   leg, notes), one marked the finished design, the others prototypes, chosen
-  in Lounge options. Scenes would then refer to a design, plus the
+  in Lounge options. Configurations would then refer to a design, plus the
   packing, furniture and view. Later, the L-shaped cupboard built from the
   data alone, so prototypes need no code, and a printable spec for the maker
   from the finished design. `REFACTOR_PLAN.md` step 6 starts this: a
@@ -115,8 +115,9 @@ Smaller pieces, any time:
 
 ## The finished design today
 
-The scene "7. Finished design, 1200 × 1200, ready packed" in
-`living_room.scenes.js`: option 7, each leg 618 deep outside, the back-wall leg
+Option 7 (it was the scene "7. Finished design, 1200 × 1200, ready
+packed", removed with the Scenes list on 18 Oct 2026; `option07` in
+`tests/addresses.js` is close): option 7, each leg 618 deep outside, the back-wall leg
 582 wide, the front at 1200; inside, with the rear panels against the walls
 (boards 18), 1164 × 582 along the back wall and 582 × 582 along the left
 wall, 2407 high, and all seven things to store fit; shelves 790, 1300, 1850
@@ -158,9 +159,9 @@ index.html                  the floor app: one page for the whole floor
 floor.js                    the floor plan: walls, doors and windows, where each room's corner is
 flat_model.js               the model (16 Oct 2026): the living room's fittings, the configuration's schema, buildFlat()
 corner_cupboard.js          the corner cupboard (17 Oct 2026): its options, builders, shelves, dimensions and cutting list, given settings, place and materials
-living_room.js              the page: menus, controls, views, scenes, the address
+living_room.js              the page: menus, controls, views, configurations, the address
 living_room.views.js        its places, things to look at, looks, preset views
-living_room.scenes.js       its scenes
+living_room.configurations.js  its named configurations (snapshots of every setting)
 living_room.designs.js      (later) its cupboard designs: the finished design and prototypes
 dressers.js                 furniture catalogues, for any room (ES modules)
 larders.js
@@ -169,7 +170,7 @@ kit/
   floor_kit.js              the engine: builds the floor and its rooms, cameras, menus
   config_kit.js             the configuration: its schema's reading and writing, and packing it for the address
   view_kit.js
-  scene_kit.js
+  configuration_kit.js      the Configuration list
 room_3d.html                a redirect into index.html, focused on the living room, for old links
 living_room.md              today's room_dimensions.md; floor.md for the floor plan's measurements
 ```

@@ -47,7 +47,7 @@ live beside it.
 | 29 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
 | 35–41 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge view**, **Bedroom view**, **Garage view**, **Hallway view**, each going to its room, with a ▾ dropdown of Bird's eye or Plan), Share, Screenshot and Reload (the page afresh, nothing in the address). On a phone, while a sheet's open, only ☰ shows |
 | 44–69 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
-| 71–81 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
+| 71–81 | `#corner` | The **Configuration** pop-up menu at the bottom right (`#configurationMenu`, green) |
 | 83–85 | `#bottomLeft` | The options button (`#roomOptions`), named for the room in view: Lounge, Bedroom or Garage options, or Hallway and stairs. It moves clear of an open drawer, onto a sheet's top edge on a phone |
 | 86 | `#tip` | A tooltip that follows the pointer over things to store |
 | **87–104** | `#panel` | **Other options**: `#secWickerBench` (the wicker bench, in any room) and `#palette`, the colours in this view |
@@ -69,8 +69,8 @@ live beside it.
 
 | Lines | What |
 |---|---|
-| | **Plain data scripts**: `living_room.views.js` and `living_room.scenes.js`, each setting a global (`window.ROOM_VIEWS`, `window.ROOM_SCENES`). The dressers, larders and sofas are ES modules (`DRESSER_MODELS`, …) the model imports |
-| 314 | `<script type="module" src="living_room.js">`: the room's module, which imports the floor plan from `floor.js`, the engine from `kit/floor_kit.js` and the view and scene kits from `kit/view_kit.js` and `kit/scene_kit.js` |
+| | **Plain data scripts**: `living_room.views.js` and `living_room.configurations.js`, each setting a global (`window.ROOM_VIEWS`, `window.ROOM_CONFIGURATIONS`). The dressers, larders and sofas are ES modules (`DRESSER_MODELS`, …) the model imports |
+| 314 | `<script type="module" src="living_room.js">`: the room's module, which imports the floor plan from `floor.js`, the engine from `kit/floor_kit.js` and the view and configuration kits from `kit/view_kit.js` and `kit/configuration_kit.js` |
 
 ### floor.js (341 lines)
 
@@ -183,12 +183,12 @@ The engine, an ES module: what any room needs, and nothing about this one.
 | The 2D/3D switch | `flatViews(stage, view)`: `setFlat()`, `resize()` (fitting the 3D and 2D views to the screen) and `startLoop()` (the render loop), reading the room's framing (`flat`, `flatFit`, `flatPerM`), the view kit's `hfov` and the drawers through `view` |
 | 2D dimensions | `dimLine()`, `dimLabel()`, `chain()` (a chain of dimensions), `cutViews(scene, view)`: `applyCut()`, reading the view's cut and what alone to show through `view` |
 
-### kit/view_kit.js (532 lines) and kit/scene_kit.js (97 lines)
+### kit/view_kit.js (532 lines) and kit/configuration_kit.js (107 lines)
 
-The Views and Look menus, and the Scenes menu: ES modules too, each
-exporting `create()`, which the room imports as `ViewKit` and `SceneKit`.
+The Views and Look menus, and the Configuration menu: ES modules too, each
+exporting `create()`, which the room imports as `ViewKit` and `ConfigurationKit`.
 The view kit's `view()` gives the view as JSON for the address, and
-`start()` reads one; a scene is a configuration.
+`start()` reads one; the Configuration list's entries are configurations.
 
 ### kit/config_kit.js (156 lines)
 
@@ -261,7 +261,7 @@ colour row uses it.
 ```css
 #viewMenu  { --tint: #1f4e79; }
 #viewsMenu { --tint: #6a3d9a; }
-#sceneMenu { --tint: #2e7d4f; }
+#configurationMenu { --tint: #2e7d4f; }
 .popToggle { color: var(--tint); box-shadow: ... inset 0 0 0 2px var(--tint); }
 .group .tag { color: var(--tint); }
 ```
@@ -326,7 +326,7 @@ CSS does the movement and the animation.
 | CSS | `.pop > .group { display: none }` hides the group. `.pop.open > .group { display: flex }` shows it |
 | JS | `setPop(open)` adds `open` to the menu clicked and removes it from the others, and sets `aria-expanded` for screen readers. Escape, or a click outside the menus that isn't on the 3D view, closes them |
 
-Scenes opens upwards for a reason. In `#sceneMenu` the group comes **before** the
+Configuration opens upwards for a reason. In `#configurationMenu` the group comes **before** the
 button in the HTML, and `#corner` stacks its children in a column
 from the bottom of the screen.
 
@@ -347,7 +347,7 @@ class="pick"></select>`). JS adds every `<option>`:
 
 - Views and Look (`#viewPick`, `#room`, `#where`, `#lookAt`, `#eye`, `#lookPick`) are filled by
   `kit/view_kit.js`, Where and Looking at again each time the room changes. The page passes the elements in to `ViewKit.create()`.
-- Scenes (`#scenePick`) is filled by `kit/scene_kit.js`, through `SceneKit.create()`.
+- Configuration (`#configurationPick`) is filled by `kit/configuration_kit.js`, through `ConfigurationKit.create()`.
 - The rest are filled in the module (section 4).
 
 ---
@@ -417,7 +417,7 @@ Three styles are used, which do the same thing:
    ```
    The list comes from the data file (`dressers.js`). Adding a dresser
    there adds it to the dropdown.
-3. **The kits** (`kit/view_kit.js` and `kit/scene_kit.js`) use the `createElement` style internally.
+3. **The kits** (`kit/view_kit.js` and `kit/configuration_kit.js`) use the `createElement` style internally.
 
 The dresser, larder and sofa dropdowns also have a disabled **"Custom"** option.
 JS selects it when the sliders no longer match any preset (`showDresserPick()`).
@@ -539,7 +539,7 @@ fast enough for a model of this size, and it means the 3D model always matches
 
 The door sliders don't rebuild. Each sets its angle through
 `turnDoorsTo({ name: degrees })`, which `set()`s `doors.<name>` (they're
-in the configuration, so a scene keeps them) and calls `update()`, which
+in the configuration, so a saved configuration keeps them) and calls `update()`, which
 only rotates the existing hinge objects and puts the sliders in step.
 Packing and walking in turn them the same way:
 
@@ -586,8 +586,8 @@ address before it builds anything (a top-level `await`), reads the
 configuration into `state`, then `syncControls()` sets every slider and
 radio from `state`, e.g. the radio found with
 `document.querySelector('input[name=front][value="1329"]')`, `show()`
-builds it, and the view is applied. This is how Share links and Scenes
-work (a scene is a configuration). Reload simply loads the page with no
+builds it, and the view is applied. This is how Share links and the
+Configuration list work. Reload simply loads the page with no
 hash.
 
 ### `window.plans`: the settings, for the tests and the console
@@ -611,7 +611,7 @@ For the tests and the browser console (REFACTOR_PLAN.md, steps 6a and
   or `null` when there isn't one), `dimensions` (the figures on show, in a
   2D view or with Cupboard only), `description` (the text under the
   option) and `boxes` (where each piece is drawn, to the mm, and whether
-  it's on show). Each saved address and scene has its snapshot in
+  it's on show). Each saved address and named configuration has its snapshot in
   `tests/snapshots/<name>.json`, compared exactly beside its screenshot, so a
   board 2 mm out or one fewer fails even when the picture passes.
   `npm run test:update` writes them again, with the screenshots.
@@ -664,9 +664,9 @@ step. The second entry maps a whole prefix, so
 They were written to work when the page was opened from a file, which it no
 longer can be (see above). `dressers.js`, `larders.js` and `sofas.js` are ES
 modules now (step 6c), as the model needs them in Node too. The views and
-scenes, which only the page needs, still load as classic scripts before the
+named configurations, which only the page needs, still load as classic scripts before the
 module and hand over their contents through globals (`window.ROOM_VIEWS`,
-`window.ROOM_SCENES`).
+`window.ROOM_CONFIGURATIONS`).
 
 The order matters, and it works out as follows: the classic scripts run first, as
 they're parsed. The module is deferred, so by the time it runs the globals exist

@@ -200,8 +200,8 @@ export's order, and the diff checked to hold nothing else.
 
 Left from this: the saved scene and configurations give every setting,
 so a link saved before a new default keeps the old one, and a new piece
-comes in at its default (the Ivar, in the lounge). Choosing a scene still
-loads the page again.
+comes in at its default (the Ivar, in the lounge). Choosing a configuration
+(the Scenes list, renamed 18 Oct 2026) still loads the page again.
 
 ## Left over, after 6d
 
