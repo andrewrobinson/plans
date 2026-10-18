@@ -958,6 +958,10 @@ const anchors = {
   bedroomBilly: () => middleOf(otherRoomPieces.billy),
   bedroomBillyChest: () => middleOf(otherRoomPieces.billyChest),
   bedroomIvar: () => middleOf(otherRoomPieces.ivar),
+  bedsideTable: () => middleOf(otherRoomPieces.bedsideTable),
+  bedsideTableByCupboard: () => middleOf(otherRoomPieces.bedsideTableByCupboard),
+  kvistbro: () => middleOf(otherRoomPieces.kvistbro),
+  laundryBasket: () => middleOf(otherRoomPieces.laundryBasket),
   newCupboard: () => {                                          // with none (switched off, or option 16), the pine cupboard's spot
     const drawn = new THREE.Box3().setFromObject(otherRoomPieces.newCupboard);
     return middleOf(drawn.isEmpty() ? otherRoomPieces.cupboard : otherRoomPieces.newCupboard);

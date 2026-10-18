@@ -274,6 +274,43 @@
           }
         }
       },
+      "bedsideTable": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "hallway",
+            "along": 2275
+          }
+        }
+      },
+      "bedsideTableByCupboard": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "kitchen",
+            "along": 1016
+          }
+        }
+      },
+      "kvistbro": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "hallway",
+            "along": 400
+          }
+        }
+      },
+      "laundryBasket": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "u": 400,
+            "v": 460,
+            "turn": 0
+          }
+        }
+      },
       "recessCupboards": {
         "design": {
           "lowerD": 450,
@@ -292,6 +329,24 @@
             "wall": "window",
             "along": 1500,
             "bottom": 900
+          }
+        }
+      },
+      "chesham": {
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "onItsEnd": true,
+            "move": null
+          }
+        }
+      },
+      "cornwall": {
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "legsOff": true,
+            "move": null
           }
         }
       },
@@ -324,6 +379,11 @@
         }
       },
       "shoeRack": {
+        "in": {
+          "hallway": {
+            "on": true
+          }
+        },
         "design": {
           "w": 900,
           "d": 300,
@@ -332,11 +392,6 @@
           "slope": 30,
           "shoes": true,
           "bevelDoor": 78
-        },
-        "in": {
-          "hallway": {
-            "on": true
-          }
         }
       },
       "sean": {
@@ -420,24 +475,6 @@
             "x": 730,
             "y": 1160,
             "turn": 90
-          }
-        }
-      },
-      "chesham": {
-        "in": {
-          "livingRoom": {
-            "on": false,
-            "onItsEnd": true,
-            "move": null
-          }
-        }
-      },
-      "cornwall": {
-        "in": {
-          "livingRoom": {
-            "on": false,
-            "legsOff": true,
-            "move": null
           }
         }
       }

@@ -432,6 +432,36 @@ test.describe('the wicker bench', () => {
   });
 });
 
+// What's by the bed (state.otherRoom): the two Knarrevik bedside tables and
+// the Kvistbro on the walls, the laundry basket anywhere. Off in the
+// designed address, on in the default
+test.describe('what\'s by the bed', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'bedroom'); });
+
+  test('each can be put in, moved and put back', async ({ page }) => {
+    expect(await setting(page, 'otherRoom.kvistbroOn')).toBe(false);
+    await toggle(page, 'otherRoom_kvistbroOn', true);
+    await page.selectOption('#otherRoom_kvistbro_wall', 'window');
+    expect(await setting(page, 'otherRoom.kvistbro')).toEqual({ wall: 'window', along: 400 });     // as far along as it was
+    await toggle(page, 'otherRoom_laundryBasketOn', true);
+    await slide(page, 'otherRoom_laundryBasket_v', 1500);
+    await slide(page, 'otherRoom_bedsideTable_along', 3000);
+    expect(await setting(page, 'otherRoom.laundryBasket')).toEqual({ u: 400, v: 1500, turn: 0 });
+    expect(await setting(page, 'otherRoom.bedsideTable')).toEqual({ wall: 'hallway', along: 3000 });
+    await page.locator('[data-reset="place"]').evaluateAll(bs => bs.forEach(b => b.click()));
+    expect(await setting(page, 'otherRoom.kvistbro')).toEqual({ wall: 'hallway', along: 400 });
+    expect(await setting(page, 'otherRoom.laundryBasket')).toEqual({ u: 400, v: 460, turn: 0 });
+    expect(await setting(page, 'otherRoom.bedsideTable')).toEqual({ wall: 'hallway', along: 2275 });
+    expect(await setting(page, 'otherRoom.bedsideTableByCupboard')).toEqual({ wall: 'kitchen', along: 1016 });
+  });
+
+  test('all four are in on the default page', async ({ page }) => {
+    await openRoom(page);
+    const on = await page.evaluate(() => ['bedsideTableOn', 'bedsideTableByCupboardOn', 'kvistbroOn', 'laundryBasketOn'].map(k => window.plans.get().otherRoom[k]));
+    expect(on).toEqual([true, true, true, true]);
+  });
+});
+
 // The garage, in Garage options (state.garage): Sean, Billy and BillyChest,
 // each on, x, y and turn; then Metal, Yellow (with its height above the
 // floor, z), the scaffold bench, Small Billy (with its gap from the wall,
@@ -693,7 +723,7 @@ test.describe('the Views and Look menus', () => {
     await page.selectOption('#room', 'bedroom');
     await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: 'birdseye' });
     expect(await options('where')).toEqual(['In the bedroom doorway, walking in', 'Lying on the bed', 'Standing beside the bed', 'Standing at the bedroom window']);
-    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at Billy', 'Looking at BillyChest', 'Looking at the Ivar', 'Looking at the new cupboard', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
+    expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at Billy', 'Looking at BillyChest', 'Looking at the Ivar', 'Looking at the bedside table by the bed', 'Looking at the bedside table by the wardrobe', 'Looking at the Kvistbro', 'Looking at the laundry basket', 'Looking at the new cupboard', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
     await page.selectOption('#where', 'bed');
     await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: any(/^look:bed:\w+$/), eye: 'lie-tall' });
     await page.selectOption('#room', 'hallway');

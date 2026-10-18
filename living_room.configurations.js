@@ -297,6 +297,43 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "bedsideTable": {
+            "in": {
+              "bedroom": {
+                "on": true,
+                "wall": "hallway",
+                "along": 2275
+              }
+            }
+          },
+          "bedsideTableByCupboard": {
+            "in": {
+              "bedroom": {
+                "on": true,
+                "wall": "kitchen",
+                "along": 1016
+              }
+            }
+          },
+          "kvistbro": {
+            "in": {
+              "bedroom": {
+                "on": true,
+                "wall": "hallway",
+                "along": 400
+              }
+            }
+          },
+          "laundryBasket": {
+            "in": {
+              "bedroom": {
+                "on": true,
+                "u": 400,
+                "v": 460,
+                "turn": 0
+              }
+            }
+          },
           "recessCupboards": {
             "design": {
               "lowerD": 301,

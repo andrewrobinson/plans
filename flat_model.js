@@ -1706,6 +1706,8 @@ const pieceBoxes = () => Object.fromEntries(Object.entries({
   bedroomCupboard: otherRoomPieces.newCupboard,
   bed: otherRoomPieces.bed, bookcase: otherRoomPieces.bookcase, pineCupboard: otherRoomPieces.cupboard, mirror: otherRoomPieces.mirror,
   'billy.bedroom': otherRoomPieces.billy, 'billyChest.bedroom': otherRoomPieces.billyChest, 'ivar.bedroom': otherRoomPieces.ivar,
+  bedsideTable: otherRoomPieces.bedsideTable, bedsideTableByCupboard: otherRoomPieces.bedsideTableByCupboard,
+  kvistbro: otherRoomPieces.kvistbro, laundryBasket: otherRoomPieces.laundryBasket,
   ...Object.fromEntries(Object.entries(wickerBenches).map(([room, bench]) => [`wickerBench.${room}`, bench])),
   shoeRack,
   ...Object.fromEntries(Object.entries(garagePieces).map(([key, piece]) => [key === 'pine' ? 'pineCupboard.garage' : key, piece])),

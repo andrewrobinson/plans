@@ -278,6 +278,43 @@
           }
         }
       },
+      "bedsideTable": {
+        "in": {
+          "bedroom": {
+            "on": true,
+            "wall": "hallway",
+            "along": 2275
+          }
+        }
+      },
+      "bedsideTableByCupboard": {
+        "in": {
+          "bedroom": {
+            "on": true,
+            "wall": "kitchen",
+            "along": 1016
+          }
+        }
+      },
+      "kvistbro": {
+        "in": {
+          "bedroom": {
+            "on": true,
+            "wall": "hallway",
+            "along": 400
+          }
+        }
+      },
+      "laundryBasket": {
+        "in": {
+          "bedroom": {
+            "on": true,
+            "u": 400,
+            "v": 460,
+            "turn": 0
+          }
+        }
+      },
       "recessCupboards": {
         "design": {
           "lowerD": 301,
@@ -675,6 +712,58 @@
         830
       ],
       "shown": false
+    },
+    "bedsideTable": {
+      "from": [
+        -2737,
+        2521,
+        0
+      ],
+      "to": [
+        -2367,
+        2801,
+        450
+      ],
+      "shown": true
+    },
+    "bedsideTableByCupboard": {
+      "from": [
+        -1425,
+        3352,
+        0
+      ],
+      "to": [
+        -1145,
+        3722,
+        450
+      ],
+      "shown": true
+    },
+    "kvistbro": {
+      "from": [
+        -4647,
+        2521,
+        0
+      ],
+      "to": [
+        -4207,
+        2961,
+        420
+      ],
+      "shown": true
+    },
+    "laundryBasket": {
+      "from": [
+        -4647,
+        2981,
+        0
+      ],
+      "to": [
+        -4207,
+        3421,
+        480
+      ],
+      "shown": true
     },
     "wickerBench.hallway": {
       "from": [

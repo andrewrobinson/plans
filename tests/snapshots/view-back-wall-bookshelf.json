@@ -266,6 +266,43 @@
           }
         }
       },
+      "bedsideTable": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "hallway",
+            "along": 2275
+          }
+        }
+      },
+      "bedsideTableByCupboard": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "kitchen",
+            "along": 1016
+          }
+        }
+      },
+      "kvistbro": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "wall": "hallway",
+            "along": 400
+          }
+        }
+      },
+      "laundryBasket": {
+        "in": {
+          "bedroom": {
+            "on": false,
+            "u": 400,
+            "v": 460,
+            "turn": 0
+          }
+        }
+      },
       "recessCupboards": {
         "design": {
           "lowerD": 301,
@@ -742,6 +779,58 @@
         -1858,
         5362,
         830
+      ],
+      "shown": false
+    },
+    "bedsideTable": {
+      "from": [
+        -2737,
+        2521,
+        0
+      ],
+      "to": [
+        -2367,
+        2801,
+        450
+      ],
+      "shown": false
+    },
+    "bedsideTableByCupboard": {
+      "from": [
+        -1425,
+        3352,
+        0
+      ],
+      "to": [
+        -1145,
+        3722,
+        450
+      ],
+      "shown": false
+    },
+    "kvistbro": {
+      "from": [
+        -4647,
+        2521,
+        0
+      ],
+      "to": [
+        -4207,
+        2961,
+        420
+      ],
+      "shown": false
+    },
+    "laundryBasket": {
+      "from": [
+        -4647,
+        2981,
+        0
+      ],
+      "to": [
+        -4207,
+        3421,
+        480
       ],
       "shown": false
     },

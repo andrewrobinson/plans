@@ -86,7 +86,7 @@ entries in the configuration), `drawOtherRoom(settings)` (called from `redrawAro
 (`bookcase(sizes)` is `bookcase.js`'s, drawn in the living room by
 `pieceOnBenchWall()` when the back wall's Bookshelf is on, and as the
 garage's Billy and Potters; `billy.js`'s `billy(lying)` draws Billy,
-standing or lying, in all three rooms, and `billyChest()` BillyChest; `ivar.js`'s `ivar(lying)` the Ivar; `tables.js`'s `kitchenTable(table, pose)` the kitchen tables, drawn by `flat_model.js`'s `tablesInLivingRoom()`), and `otherRoomControls(topContainer, container, change)`, which writes
+standing or lying, in all three rooms, and `billyChest()` BillyChest; `ivar.js`'s `ivar(lying)` the Ivar; `knarrevik.js`'s `knarrevik()`, `kvistbro.js`'s `kvistbro()` and `laundry_basket.js`'s `laundryBasket()` what's by the bed; `tables.js`'s `kitchenTable(table, pose)` the kitchen tables, drawn by `flat_model.js`'s `tablesInLivingRoom()`), and `otherRoomControls(topContainer, container, change)`, which writes
 the **Bedroom options** drawer's sliders into `#otherRoomBlock` (the New
 cupboard switch, marked `top`, into `#otherRoomTop`, over the new cupboard's section) from
 `PIECES` (each piece's size and place sliders, its reset buttons, and the

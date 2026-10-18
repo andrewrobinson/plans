@@ -263,6 +263,12 @@ convenient:
 
 - [ ] **The Ivar:** its boards' thickness (taken as 18), and where it
       stands by the first radiator: centred on it, touching its front.
+- [ ] **By the bed:** the Knarreviks' bars and shelf heights (12 square,
+      the top at 410, the shelf at 120, a rail round the top's back and
+      sides) and each one's gap to the bed or the pine cupboard (taken as
+      50); the Kvistbro's gap to the bed (60) and its basket's foot (360
+      across); the laundry basket (440 across its rim, 340 at its foot,
+      480 high, 20 in front of the Kvistbro), all from the photo.
 - [ ] **The Drift sofa:** if bought, its base's length (taken as 1300
       from the maker's drawing, so each arm 340), the futon's thickness
       (120), the legs (drawn straight, 45 square; they splay in the
