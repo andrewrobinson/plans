@@ -946,6 +946,7 @@ const viewKit = ViewKit.create({
   },
   hooks: {
     place(v, id, room) {
+      showRoomOptions(room);
       setFlat(Boolean(v.fit));
       const [cam, ctl] = flat ? [flatCamera, flatControls] : [camera, controls];
       cam.position.set(...v.position);
@@ -1020,14 +1021,73 @@ function readDisplay(view) {
   if (given('seeThrough')) setSeeThrough(view.seeThrough);
 }
 
+// ---------------------------------------------------------------------------
+// The rooms' buttons and the settings drawers. In the top bar, a split
+// button for each room: its name goes to it, seen as its dropdown says
+// (Bird's eye to start, or the plan), remembered for each on this device.
+// At the bottom left, the options for the room in view: its drawer.
+// Downstairs has no button of its own; its options are the hallway's.
+// ---------------------------------------------------------------------------
+const ROOM_BUTTONS = {
+  livingRoom: { name: 'Lounge', drawer: 'loungePanel', options: 'Lounge options' },
+  bedroom: { name: 'Bedroom', drawer: 'bedPanel', options: 'Bedroom options' },
+  garage: { name: 'Garage', drawer: 'garagePanel', options: 'Garage options' },
+  hallway: { name: 'Hallway', drawer: 'panel', options: 'Hallway and stairs' },
+};
+const optionsOf = room => ROOM_BUTTONS[room] ?? ROOM_BUTTONS.hallway;     // downstairs: the hallway's
+// How a room's button shows it: views that frame every room (builtInViews')
+const ROOM_VIEW_KINDS = [['birdseye', "Bird's eye"], ['plan', 'Plan (2D)']];
+const viewKindKey = room => `room_3d:viewKind:${room}`;
+function viewKindOf(room) {
+  try { return localStorage.getItem(viewKindKey(room)) ?? ROOM_VIEW_KINDS[0][0]; } catch (e) { return ROOM_VIEW_KINDS[0][0]; }
+}
+// To room, as its button's dropdown says: the drawers shut, and the whole
+// room shown (not Cupboard only)
+function goToRoom(room) {
+  drawers.setMenu(null);
+  if (cupboardOnly) setCupboardOnly(false);
+  viewKit.showRoom(room, viewKindOf(room));
+}
+for (const [room, { name }] of Object.entries(ROOM_BUTTONS)) {
+  const id = `${name.toLowerCase()}View`;                           // loungeView, bedroomView and so on
+  const split = Object.assign(document.createElement('div'), { className: 'split' });
+  const go = Object.assign(document.createElement('button'), { id, className: 'chip', textContent: `${name} view`, title: `Go to the ${name.toLowerCase()}` });
+  const kind = Object.assign(document.createElement('select'), { id: `${id}Kind`, className: 'pick' });
+  kind.setAttribute('aria-label', `${name} view: seen from`);
+  kind.append(...ROOM_VIEW_KINDS.map(([value, label]) => Object.assign(document.createElement('option'), { value, textContent: label })));
+  kind.value = viewKindOf(room);
+  go.addEventListener('click', () => goToRoom(room));
+  kind.addEventListener('change', () => {
+    try { localStorage.setItem(viewKindKey(room), kind.value); } catch (e) { /* not important */ }
+    goToRoom(room);
+  });
+  split.append(go, kind);
+  document.getElementById('roomViews').append(split);
+}
+
 // The settings drawers, one open at a time, all closed to start on every
-// screen: Other options, opened by ☰, and Lounge options, Bedroom
-// options and Garage options by their buttons.
-// Each: [its button, the class on <body> while it's open]. The 2D views
-// move clear of the drawer as it opens and closes.
-const DRAWERS = { panel: ['menu', 'menu-open'], loungePanel: ['loungeMenu', 'lounge-open'], bedPanel: ['bedMenu', 'bed-open'],
-  garagePanel: ['garageMenu', 'garage-open'] };
-const drawers = createDrawers(DRAWERS, () => resize(true));
+// screen: Other options (the hallway and stairs), opened by ☰, and each
+// room's, by the options button at the bottom left.
+// Each: [its button, or null for the options button's, the class on
+// <body> while it's open]. The 2D views move clear of the drawer as it
+// opens and closes.
+const DRAWERS = { panel: ['menu', 'menu-open'], loungePanel: [null, 'lounge-open'], bedPanel: [null, 'bed-open'],
+  garagePanel: [null, 'garage-open'] };
+const roomOptions = document.getElementById('roomOptions');
+const drawers = createDrawers(DRAWERS, () => {
+  resize(true);
+  roomOptions.setAttribute('aria-expanded', String(drawers.openDrawer() === optionsOf(viewKit.room).drawer));
+});
+roomOptions.addEventListener('click', () => {
+  const { drawer } = optionsOf(viewKit.room);
+  drawers.setMenu(drawers.openDrawer() === drawer ? null : drawer);
+});
+// The options button names the room in view's (from hooks.place())
+function showRoomOptions(room) {
+  const { drawer, options } = optionsOf(room);
+  roomOptions.textContent = options;
+  roomOptions.setAttribute('aria-controls', drawer);
+}
 drawers.setMenu(null);
 
 resetButton(document.getElementById('reset'));

@@ -6,7 +6,7 @@
 // The settings are read through window.plans.get() (setting(), by their
 // paths in `state` in living_room.js), not from the address, so a new
 // address format leaves these tests alone.
-const { test, expect, openRoom, addressOf, readAddress, edited, pickOption, setting, optionShown } = require('./helpers');
+const { test, expect, openOptions, openRoom, addressOf, readAddress, edited, pickOption, setting, optionShown } = require('./helpers');
 const { ADDRESSES } = require('./addresses');
 
 // A saved address's configuration (tests/configs/), with settings changed
@@ -33,12 +33,13 @@ const storedHead = async page => { const { shown, packing, where } = await setti
 const view = async page => readAddress(await hash(page)).view;
 const any = expect.stringMatching;
 
-// The page with a drawer open (Lounge options, or with '#menu' Other
-// options, '#bedMenu' Bedroom options or '#garageMenu' Garage options), and
-// every section in every drawer unfolded
-async function openDrawer(page, address, button = '#loungeMenu') {
+// The page with a drawer open (a room's options, as openOptions() takes
+// them, the lounge's unless given, or 'other' for Other options), and every
+// section in every drawer unfolded
+async function openDrawer(page, address, room = 'lounge') {
   await openRoom(page, address);
-  await page.click(button);
+  if (room === 'other') await page.click('#menu');
+  else await openOptions(page, room);
   await page.evaluate(() => document.querySelectorAll('.drawer details').forEach(d => { d.open = true; }));
 }
 
@@ -266,7 +267,7 @@ test.describe('dropdowns', () => {
   // the first photos' colour lighter (13), as it was (12), Dormouse's
   // swatch (11), or any RAL colour
   test('the carpet colour, ◀ ▶, and other colours', async ({ page }) => {
-    await page.click('#bedMenu');                                // the carpet's in Bedroom options
+    await openOptions(page, 'bedroom');                          // the carpet's in Bedroom options
     expect(await setting(page, 'colours.carpet')).toBe(0);
     await expect(page.locator('#carpetSwatch')).toHaveCSS('background-color', 'rgb(181, 164, 153)');   // #B5A499, from the doorway photo
     await page.click('#carpetNext');
@@ -335,7 +336,7 @@ test.describe('dropdowns', () => {
 // The bedroom's own corner cupboard, in Bedroom options: its option, sizes,
 // doors and colour its own, the lounge's left as they were
 test.describe('the bedroom\'s cupboard', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#bedMenu'); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'bedroom'); });
 
   test('its controls show once it\'s on, and change only it', async ({ page }) => {
     await expect(page.locator('#bedroomCupboardBlock')).toBeHidden();
@@ -400,7 +401,7 @@ test.describe('switches and buttons', () => {
     await page.selectOption('#viewPick', 'plan');
     await expect(page.locator('#dims')).toHaveText('Dimensions: on');
     await page.keyboard.press('Escape');                             // the Views menu shut: on a phone it reaches the top bar
-    await page.click('#loungeMenu');
+    await openOptions(page);
     await page.locator('#cupboardOnly').uncheck();
   });
 });
@@ -408,7 +409,7 @@ test.describe('switches and buttons', () => {
 // The wicker bench (state.wickerBench): its sizes, then whether it's on and
 // where in the hallway, the bedroom and the living room, each on its own
 test.describe('the wicker bench', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#menu'); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'other'); });
 
   test('it can be on in each room, resized and moved', async ({ page }) => {
     await expect(page.locator('#wickerBench_bedroom')).toBeHidden();
@@ -436,7 +437,7 @@ test.describe('the wicker bench', () => {
 // bedroom's pine cupboard (its sizes the bedroom's). The tests of older
 // links write them in the address's fields, 58 to 68
 test.describe('the garage', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#garageMenu'); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'garage'); });
 
   test('Sean and Billy can be moved and turned, and put back', async ({ page }) => {
     expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
@@ -506,7 +507,7 @@ test.describe('the garage', () => {
 // The shoe rack, downstairs (state.shoeRack): its sizes, bevel, shelves'
 // slope, shoes and the door angle its bevel's cut for
 test.describe('the shoe rack', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, '#menu'); });
+  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'other'); });
 
   test('it can be resized and put back', async ({ page }) => {
     expect(await setting(page, 'shoeRack')).toEqual({ w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });

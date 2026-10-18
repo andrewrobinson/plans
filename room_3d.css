@@ -65,6 +65,12 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 /* The option on show, in Lounge options: the drawer's width, framed as its
    other dropdowns are */
 .drawer select.pick { display: block; width: 100%; height: 36px; box-shadow: none; border: 1px solid #999; border-radius: 6px; }
+/* The rooms' split buttons in the top bar: the room's name, going there,
+   joined to a dropdown of how to see it (Bird's eye or the plan) */
+#roomViews { display: contents; }
+.split { display: flex; flex: none; pointer-events: auto; border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
+.split .chip { box-shadow: none; border-radius: 10px 0 0 10px; }
+.split .pick { box-shadow: none; border-radius: 0 10px 10px 0; border-left: 1px solid #ccc; padding: 0 6px; }
 /* On phones the open drawer dims the model; tapping there closes it */
 #scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
 @media (max-width: 900px) { body.menu-open #scrim, body.lounge-open #scrim, body.bed-open #scrim, body.garage-open #scrim { display: block; } }
@@ -111,8 +117,9 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 #summary { padding: 7px 9px; background: #f4efe6; border-radius: 6px; margin-top: 4px; }
 #summary .src { color: #777; font-size: 11px; margin-top: 4px; }
 .drawer .hint { color: #666; font-size: 12px; margin-top: 8px; }
-/* The cutting list, at the bottom left in the 2D views */
-#cutBox { position: fixed; left: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
+/* At the bottom left: the room's options and, in the 2D views, the cutting list */
+#bottomLeft { position: fixed; left: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
+#bottomLeft .row { display: flex; gap: 8px; }
 #cutList { pointer-events: auto; max-height: 50vh; max-width: min(460px, calc(100vw - 92px)); overflow: auto; box-sizing: border-box; padding: 8px 12px;
   background: rgba(255, 255, 255, 0.95); border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45; }
 #cutList[hidden] { display: none; }

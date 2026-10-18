@@ -522,6 +522,13 @@ export function create(o) {
 
   return {
     setView, start, view, writeView,
+    // Room r, seen from view `id`, one that frames every room (as Bird's
+    // eye or the plan), as if chosen from the lists
+    showRoom(r, id) {
+      setRoom(r);
+      setView(id);
+      if (!hooks.isFlat()) remember('startView', startView = viewId);
+    },
     // The room changed: work the view out again, if it's worked out from it
     refresh() { if (follows) setView(viewId); },
     get viewId() { return viewId; },

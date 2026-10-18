@@ -27,13 +27,13 @@
 </head>
 <body>
 <div id="view"></div>
-<!-- The top bar: ☰ for Other options (the hallway and stairs), each room's
-     options (Lounge, Bedroom, Garage), Share, Screenshot and Reset -->
+<!-- The top bar: ☰ for Other options (the hallway and stairs), a split
+     button for each room (Lounge, Bedroom, Garage, Hallway: going there,
+     and from Bird's eye or the plan; living_room.js makes them in
+     #roomViews), Share, Screenshot and Reset -->
 <div id="bar">
   <button id="menu" aria-label="Other options" title="Other options" aria-controls="panel" aria-expanded="false">☰</button>
-  <button id="loungeMenu" class="chip" aria-controls="loungePanel" aria-expanded="false">Lounge options</button>
-  <button id="bedMenu" class="chip" aria-controls="bedPanel" aria-expanded="false">Bedroom options</button>
-  <button id="garageMenu" class="chip" aria-controls="garagePanel" aria-expanded="false">Garage options</button>
+  <div id="roomViews"></div>
   <button id="share" class="chip">Share</button>
   <button id="screenshot" class="chip" title="Copy a picture of the view on show">Screenshot</button>
   <button id="reset" class="chip">Reset</button>
@@ -78,10 +78,14 @@
     <button class="popToggle" aria-label="Scenes" title="Scenes" aria-controls="sceneGroup" aria-expanded="false">☰</button>
   </div>
 </div>
-<!-- The cutting list, in the 2D views: a button at the bottom left that opens it -->
-<div id="cutBox" data-mode="2d">
-  <div id="cutList" class="cutList" hidden></div>
-  <button id="cutToggle" class="chip" aria-controls="cutList" aria-expanded="false">Show cutting list</button>
+<!-- At the bottom left: the options for the room in view (its drawer), and
+     in the 2D views the cutting list's button, the list opening above them -->
+<div id="bottomLeft">
+  <div id="cutList" class="cutList" data-mode="2d" hidden></div>
+  <div class="row">
+    <button id="roomOptions" class="chip" aria-expanded="false">Lounge options</button>
+    <button id="cutToggle" class="chip" data-mode="2d" aria-controls="cutList" aria-expanded="false">Show cutting list</button>
+  </div>
 </div>
 <div id="scrim"></div>
 <div id="tip"></div>

@@ -307,9 +307,10 @@ export function popMenus(canvas) {
 
 // Drawers that slide in from the left, one open at a time: `drawers` is
 // { drawer's id: [its button's id, the class on <body> while it's open] }
-// (the CSS does the sliding). Its button opens and closes it; its ✕ (.close),
-// the scrim (#scrim) and Escape close it. moved() is called each time one
-// opens or closes.
+// (the CSS does the sliding). Its button opens and closes it; a drawer with
+// no button of its own (null) is opened by the page, with setMenu(); its ✕
+// (.close), the scrim (#scrim) and Escape close it. moved() is called each
+// time one opens or closes.
 export function createDrawers(drawers, moved) {
   // The drawer open, or null
   const openDrawer = () => Object.keys(drawers).find(id => document.body.classList.contains(drawers[id][1])) ?? null;
@@ -317,12 +318,12 @@ export function createDrawers(drawers, moved) {
   function setMenu(id) {
     for (const [drawer, [button, open]] of Object.entries(drawers)) {
       document.body.classList.toggle(open, drawer === id);
-      document.getElementById(button).setAttribute('aria-expanded', String(drawer === id));
+      if (button) document.getElementById(button).setAttribute('aria-expanded', String(drawer === id));
     }
     moved();
   }
   for (const [drawer, [button]] of Object.entries(drawers)) {
-    document.getElementById(button).addEventListener('click', () => setMenu(openDrawer() === drawer ? null : drawer));
+    if (button) document.getElementById(button).addEventListener('click', () => setMenu(openDrawer() === drawer ? null : drawer));
   }
   document.querySelectorAll('.drawer .close').forEach(b => b.addEventListener('click', () => setMenu(null)));
   document.getElementById('scrim').addEventListener('click', () => setMenu(null));

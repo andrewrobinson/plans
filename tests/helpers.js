@@ -112,4 +112,13 @@ const setting = (page, path) => page.evaluate(p => p.split('.').reduce((o, k) =>
 // (state.cornerCupboard.option is its place in OPTIONS)
 const optionShown = page => page.locator('#current option:checked').evaluate(o => parseInt(o.textContent, 10));
 
-module.exports = { test, expect: base.expect, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot };
+// Open the options of `room` ('lounge', 'bedroom', 'garage' or 'hallway'):
+// the button at the bottom left, going to the room first with its button
+// in the top bar if it isn't the one in view; left open if it is already
+async function openOptions(page, room = 'lounge') {
+  const button = page.locator('#roomOptions');
+  if (!(await button.textContent()).toLowerCase().startsWith(room)) await page.click(`#${room}View`);
+  if (await button.getAttribute('aria-expanded') !== 'true') await button.click();
+}
+
+module.exports = { test, expect: base.expect, openOptions, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot };
