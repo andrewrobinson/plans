@@ -100,6 +100,9 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open) #bottomLeft { left: c
   #bar .chip { padding: 0 9px; }
   #menu { width: 36px; font-size: 18px; }
   .split .kind select { width: 28px; }
+  /* While a sheet's open, only ☰ stays in the top bar, so the room gets the
+     space above the sheet; closing the sheet brings the buttons back */
+  body:is(.menu-open, .lounge-open, .bed-open, .garage-open) #bar > :not(#menu) { display: none; }
 }
 .drawer label { display: block; margin: 8px 0 2px; }
 /* The drawer's sections, each opening and closing (remembered here) */

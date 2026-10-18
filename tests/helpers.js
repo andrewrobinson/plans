@@ -117,7 +117,10 @@ const optionShown = page => page.locator('#current option:checked').evaluate(o =
 // in the top bar if it isn't the one in view; left open if it is already
 async function openOptions(page, room = 'lounge') {
   const button = page.locator('#roomOptions');
-  if (!(await button.textContent()).toLowerCase().startsWith(room)) await page.click(`#${room}View`);
+  if (!(await button.textContent()).toLowerCase().startsWith(room)) {
+    await page.keyboard.press('Escape');                          // on a phone an open sheet hides the room buttons
+    await page.click(`#${room}View`);
+  }
   if (await button.getAttribute('aria-expanded') !== 'true') await button.click();
 }
 
