@@ -47,6 +47,8 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 }
 .chip[hidden] { display: none; }
 .chip:disabled { opacity: 0.5; cursor: default; }
+/* Reload pressed: the room fades till the fresh page draws it (floor_kit.js's reloadButton()) */
+body.reloading canvas { opacity: 0.2; transition: opacity 0.25s; }
 /* The bar's groups, each with a small heading in its own colour: View
    (where you are and what you look at), Configuration (every setting) and Option */
 .group { pointer-events: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 6px 4px 10px;

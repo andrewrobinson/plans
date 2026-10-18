@@ -63,8 +63,8 @@ live beside it.
 | 375–405 | `#secColours` | The cupboard, dresser and shelf colours: dropdowns with ◀ ▶ buttons and swatches (`.colours`) |
 | 406–421 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
 | 422–428 | `#about` | The description text (`#summary`), which JS fills in |
-| **430–491** | `#bedPanel` | **Bedroom options**: the New cupboard switch (`#otherRoomTop`, other_room.js's), then `#secBedroomCupboard`, the new cupboard's own option list (`#bedroomCupboardCurrent`), its copied sliders and door sliders (`#bedroomCupboardControls`, `#bedroomCupboardDoors`, filled by living_room.js), its colour and its cutting list (`#bedroomCutting`); the rest of the furniture (`#otherRoomBlock`, other_room.js's); `#secBedroomDoors` (the bedroom door) and `#secBedroomColours` (the carpet, the stairs' too) |
-| 493–500 | `#garagePanel` | **Garage options** (`#garageBlock`, garage.js's): the garage door (not shown, open or closed), then each thing in it (Billy with its Lying switch) |
+| **430–491** | `#bedPanel` | **Bedroom options**: the New cupboard switch (`#otherRoomTop`, other_room.js's), then `#secBedroomCupboard`, the new cupboard's own option list (`#bedroomCupboardCurrent`), its copied sliders and door sliders (`#bedroomCupboardControls`, `#bedroomCupboardDoors`, filled by living_room.js), its colour and its cutting list (`#bedroomCutting`); the rest of the furniture (`#otherRoomBlock`, other_room.js's) in three sections: Bed, and what's by it (`#otherRoomSection_bed`, open), Extras (`#otherRoomSection_extras`: bookcase, pine cupboard, Billy, BillyChest, Ivar, mirror) and Recess cupboards (both closed to start), each piece's controls hidden while its In the bedroom switch is off; `#secBedroomDoors` (the bedroom door) and `#secBedroomColours` (the carpet, the stairs' too) |
+| 493–500 | `#garagePanel` | **Garage options** (`#garageBlock`, garage.js's): the garage door (not shown, open or closed), then each thing in it (Billy with its Lying switch), its sliders hidden while In the garage is off |
 
 ### Scripts (index.html, lines 502–504)
 

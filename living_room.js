@@ -21,7 +21,7 @@
 // controls; the colours; the views and configurations; the display switches and the
 // view; window.plans; and starting the page.
 import * as THREE from 'three';
-import { MM, createStage, RAL, popMenus, createDrawers, reloadButton,
+import { MM, createStage, RAL, popMenus, createDrawers, reloadButton, SHEET_HEIGHT_KEY,
   shareButton, screenshotButton, workOffline, flatViews, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as ConfigurationKit from './kit/configuration_kit.js';
@@ -442,13 +442,6 @@ try { about.open = localStorage.getItem('aboutOpen') === '1'; } catch (e) { /* n
 about.addEventListener('toggle', () => {
   try { localStorage.setItem('aboutOpen', about.open ? '1' : '0'); } catch (e) { /* not important */ }
 });
-// The drawers' sections open or closed as they were left here
-for (const sec of document.querySelectorAll('.drawer details.sec[id^=sec]')) {
-  try { const was = localStorage.getItem(`room_3d:${sec.id}`); if (was) sec.open = was === '1'; } catch (e) { /* not important */ }
-  sec.addEventListener('toggle', () => {
-    try { localStorage.setItem(`room_3d:${sec.id}`, sec.open ? '1' : '0'); } catch (e) { /* not important */ }
-  });
-}
 
 // The cupboard and dresser colours: named colours to compare, or "Other
 // colours…", which shows a second dropdown of popular cupboard colours and
@@ -1153,7 +1146,12 @@ function showRoomOptions(room) {
 }
 drawers.setMenu(null);
 
-reloadButton(document.getElementById('reload'));
+// Reload forgets what's remembered on this device (asked for, 18 Oct 2026):
+// the view (where the camera was, each room's Bird's eye or Plan), which
+// sections are open, the Description and Colours in this view, and the
+// sheet's height; not the saved views, looks and configurations
+reloadButton(document.getElementById('reload'), () => ['room_3d:startView', ...Object.keys(ROOM_BUTTONS).map(viewKindKey),
+  ...DRAWER_SECTIONS.map(sectionKey), 'aboutOpen', 'paletteOpen', SHEET_HEIGHT_KEY]);
 // Share: the link is always to the published page, so it works for others
 // even when this copy is on a local server
 shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => OPTIONS[state.cornerCupboard.option].name);
@@ -1182,6 +1180,17 @@ const syncWickerBench = wickerBenchControls(document.getElementById('wickerBench
 const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), edits => change(roomEdits('shoeRack', edits), { look: true }));
 // The garage's (garage.js), in state.garage, as 'sean.x'
 const syncGarage = garageControls(document.getElementById('garageBlock'), edits => change(roomEdits('garage', edits), { look: true }));
+// The drawers' sections open or closed as they were left here, those the
+// rooms' modules build too (Bedroom options' Bed, Extras and Recess
+// cupboards), so after them
+const DRAWER_SECTIONS = [...document.querySelectorAll('.drawer details.sec[id^=sec]')];
+const sectionKey = sec => `room_3d:${sec.id}`;
+for (const sec of DRAWER_SECTIONS) {
+  try { const was = localStorage.getItem(sectionKey(sec)); if (was) sec.open = was === '1'; } catch (e) { /* not important */ }
+  sec.addEventListener('toggle', () => {
+    try { localStorage.setItem(sectionKey(sec), sec.open ? '1' : '0'); } catch (e) { /* not important */ }
+  });
+}
 
 function syncControls() {
   settle();                                                     // the TV's size, the colours and the dresser's place, worked out

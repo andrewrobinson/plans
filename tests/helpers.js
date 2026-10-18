@@ -124,4 +124,7 @@ async function openOptions(page, room = 'lounge') {
   if (await button.getAttribute('aria-expanded') !== 'true') await button.click();
 }
 
-module.exports = { test, expect: base.expect, openOptions, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot };
+// Open a menu's section (a <details>, by its id), its triangle pointing down
+const openSection = (page, id) => page.locator(`#${id}`).evaluate(d => { d.open = true; });
+
+module.exports = { test, expect: base.expect, openOptions, openSection, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot };

@@ -213,33 +213,48 @@ const SIZES = {
 export const BOOKCASE_SIZES = SIZES.bookcase;
 export const SIZE_LABEL = { w: 'Width', d: 'Depth', h: 'Height' };
 const sizeSliders = piece => SIZES[piece].map(([k, lo, hi]) => [`${piece}.${k}`, SIZE_LABEL[k], lo, hi, 10, '']);
-// The menu's pieces, in order: each its heading (if it has one), its size sliders and its
-// place sliders (each with a reset button, back to OTHER_ROOM_START), and
-// for the mirror the choice of wall, reset with its place
+// The menu's sections, each a triangle that opens and closes, in order,
+// all closed to start (asked for, 18 Oct 2026, to shorten the menu): the
+// bed and what's by it; the pieces that may or may not be in the bedroom,
+// Extras; the recess cupboards
+const SECTIONS = [
+  { key: 'bed', summary: 'Bed, and what’s by it' },
+  { key: 'extras', summary: 'Extras' },
+  { key: 'recess', summary: 'Recess cupboards' },
+];
+// The switch that says whether a piece is in the bedroom; switched off,
+// the piece's other controls are hidden (asked for, 18 Oct 2026)
+const IN_THE_BEDROOM = 'In the bedroom';
+// The menu's pieces, in order: each its key, its section, its heading (if
+// it has one), its In the bedroom switch (`on`, if it has one), its size
+// sliders and its place sliders (each with a reset button, back to
+// OTHER_ROOM_START), and for those on a wall the choice of wall, reset
+// with its place
 const PIECES = [
   // The new cupboard first, just its switch (asked for, 16 Oct 2026), at the
   // menu's top, over the new cupboard's own section (`top`, asked for 18 Oct 2026)
-  { sizes: [], place: [], switches: [['newCupboardOn', 'New cupboard']], top: true },
-  { heading: 'Bed (with its headboard and mattress)', sizes: [], place: PLACE('bed') },
-  { heading: 'Bookcase', sizes: sizeSliders('bookcase'), place: PLACE('bookcase'), switches: [['bookcaseOn', 'In the bedroom']] },
-  { heading: 'Pine cupboard', sizes: sizeSliders('cupboard'), place: PLACE('cupboard'), switches: [['cupboardOn', 'In the bedroom']] },
-  { heading: 'Billy (from the garage)', sizes: [], place: placeAlongWall('billy'), wall: 'billy.wall',
-    switches: [['billyOn', 'In the bedroom'], ['billy.lying', LYING_LABEL]], halfAlong: s => billySizes(s.billy.lying).w / 2 },
-  { heading: 'BillyChest (from the garage)', sizes: [], place: placeAlongWall('billyChest'), wall: 'billyChest.wall',
-    switches: [['billyChestOn', 'In the bedroom']], halfAlong: () => BILLY_CHEST.w / 2 },
-  { heading: 'Ivar', sizes: [], place: placeAlongWall('ivar'), wall: 'ivar.wall',
-    switches: [['ivarOn', 'In the bedroom']], halfAlong: () => IVAR.w / 2 },
-  { heading: 'Bedside table by the bed (Knarrevik)', sizes: [], place: placeAlongWall('bedsideTable'), wall: 'bedsideTable.wall',
-    switches: [['bedsideTableOn', 'In the bedroom']], halfAlong: () => KNARREVIK.w / 2 },
-  { heading: 'Bedside table by the pine cupboard (Knarrevik)', sizes: [], place: placeAlongWall('bedsideTableByCupboard'), wall: 'bedsideTableByCupboard.wall',
-    switches: [['bedsideTableByCupboardOn', 'In the bedroom']], halfAlong: () => KNARREVIK.w / 2 },
-  { heading: 'Kvistbro (storage table)', sizes: [], place: placeAlongWall('kvistbro'), wall: 'kvistbro.wall',
-    switches: [['kvistbroOn', 'In the bedroom']], halfAlong: () => KVISTBRO.w / 2 },
-  { heading: 'Laundry basket', sizes: [], place: PLACE('laundryBasket'), switches: [['laundryBasketOn', 'In the bedroom']] },
-  // The lower one's depth up to 800, as far as it might go (asked for, 15 Oct 2026)
-  { heading: 'Recess cupboards', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [],
+  { key: 'newCupboard', sizes: [], place: [], switches: [['newCupboardOn', 'New cupboard']], top: true },
+  { key: 'bed', section: 'bed', heading: 'Bed (with its headboard and mattress)', sizes: [], place: PLACE('bed') },
+  { key: 'bedsideTable', section: 'bed', heading: 'Bedside table by the bed (Knarrevik)', sizes: [], place: placeAlongWall('bedsideTable'), wall: 'bedsideTable.wall',
+    on: 'bedsideTableOn', halfAlong: () => KNARREVIK.w / 2 },
+  { key: 'bedsideTableByCupboard', section: 'bed', heading: 'Bedside table by the pine cupboard (Knarrevik)', sizes: [], place: placeAlongWall('bedsideTableByCupboard'), wall: 'bedsideTableByCupboard.wall',
+    on: 'bedsideTableByCupboardOn', halfAlong: () => KNARREVIK.w / 2 },
+  { key: 'kvistbro', section: 'bed', heading: 'Kvistbro (storage table)', sizes: [], place: placeAlongWall('kvistbro'), wall: 'kvistbro.wall',
+    on: 'kvistbroOn', halfAlong: () => KVISTBRO.w / 2 },
+  { key: 'laundryBasket', section: 'bed', heading: 'Laundry basket', sizes: [], place: PLACE('laundryBasket'), on: 'laundryBasketOn' },
+  { key: 'bookcase', section: 'extras', heading: 'Bookcase', sizes: sizeSliders('bookcase'), place: PLACE('bookcase'), on: 'bookcaseOn' },
+  { key: 'cupboard', section: 'extras', heading: 'Pine cupboard', sizes: sizeSliders('cupboard'), place: PLACE('cupboard'), on: 'cupboardOn' },
+  { key: 'billy', section: 'extras', heading: 'Billy (from the garage)', sizes: [], place: placeAlongWall('billy'), wall: 'billy.wall',
+    on: 'billyOn', switches: [['billy.lying', LYING_LABEL]], halfAlong: s => billySizes(s.billy.lying).w / 2 },
+  { key: 'billyChest', section: 'extras', heading: 'BillyChest (from the garage)', sizes: [], place: placeAlongWall('billyChest'), wall: 'billyChest.wall',
+    on: 'billyChestOn', halfAlong: () => BILLY_CHEST.w / 2 },
+  { key: 'ivar', section: 'extras', heading: 'Ivar', sizes: [], place: placeAlongWall('ivar'), wall: 'ivar.wall',
+    on: 'ivarOn', halfAlong: () => IVAR.w / 2 },
+  { key: 'mirror', section: 'extras', heading: 'Mirror', sizes: sizeSliders('mirror'), place: MIRROR_PLACE, wall: 'mirror.wall', on: 'mirrorOn' },
+  // The lower one's depth up to 800, as far as it might go (asked for, 15 Oct 2026);
+  // no heading, its section's name says what it is
+  { key: 'recess', section: 'recess', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [],
     switches: [['upperDrawers', 'Upper cupboard: drawers over the open shelves'], ['upperMirrors', 'Upper cupboard: mirrors on the tall doors']] },
-  { heading: 'Mirror', sizes: sizeSliders('mirror'), place: MIRROR_PLACE, wall: 'mirror.wall', switches: [['mirrorOn', 'In the bedroom']] },
 ];
 // Those on a wall (`wall` the path of its choice of wall): the mirror,
 // Billy, BillyChest, the Ivar, the bedside tables and the Kvistbro, each by its key in the settings, and how far its
@@ -247,7 +262,7 @@ const PIECES = [
 // or lies); the mirror's middle may go right to the end
 const ON_A_WALL = PIECES.filter(p => p.wall).map(p => ({ key: p.wall.split('.')[0], halfAlong: p.halfAlong ?? (() => 0) }));
 const SLIDERS = PIECES.flatMap(p => [...p.sizes, ...p.place]);
-const SWITCHES = PIECES.flatMap(p => p.switches ?? []);
+const SWITCHES = PIECES.flatMap(p => [...(p.on ? [[p.on, IN_THE_BEDROOM]] : []), ...(p.switches ?? [])]);
 
 // The configuration's entries (kit/config_kit.js): each piece's design and
 // its place in the bedroom, each number held to its slider's range, turns
@@ -459,10 +474,10 @@ function doorMirror(a0, a1, z0, z1, faceV) {
 }
 
 // ---------------------------------------------------------------------------
-// The menu's block: for each piece a heading, the mirror's wall, its
-// sliders, and buttons to put its dimensions and its location back as they
-// started, built into `container`, those marked `top` into `topContainer`
-// instead. change(edits) is called with a list of
+// The menu's block: its sections (SECTIONS), in each, for each piece a
+// heading, its In the bedroom switch, its wall, its sliders, and buttons
+// to put its dimensions and its location back as they started, built into
+// `container`, those marked `top` into `topContainer` instead. change(edits) is called with a list of
 // [path, value] as anything changes; the function returned puts the
 // controls in step with the settings `s`.
 // ---------------------------------------------------------------------------
@@ -471,14 +486,22 @@ const valueAt = (s, path) => path.split('.').reduce((o, k) => o[k], s);
 export function otherRoomControls(topContainer, container, change) {
   const id = path => `otherRoom_${path.replace('.', '_')}`;
   let shown = OTHER_ROOM_START;                        // the settings last put in the controls
-  const pieceBlock = (piece, i) => `<div class="depth">${piece.heading ? `<div><b>${piece.heading}</b></div>` : ''}` +
+  const switchHtml = ([path, label]) => `<label class="switch"><input type="checkbox" id="${id(path)}"> ${label}</label>`;
+  // A piece's block: its heading and In the bedroom switch, then the rest
+  // of its controls, hidden while it's out
+  const pieceBlock = (piece, i) => `<div class="depth" id="otherRoomPiece_${piece.key}">` +
+    (piece.heading ? `<div><b>${piece.heading}</b></div>` : '') +
+    (piece.on ? switchHtml([piece.on, IN_THE_BEDROOM]) : '') +
+    `<div id="otherRoomPiece_${piece.key}Details">` +
     (piece.wall ? wallPick(id(piece.wall)) : '') +
-    (piece.switches ?? []).map(([path, label]) => `<label class="switch"><input type="checkbox" id="${id(path)}"> ${label}</label>`).join('') +
+    (piece.switches ?? []).map(switchHtml).join('') +
     [...piece.sizes, ...piece.place].map(slider(id)).join('') +
-    resetButtons(piece, i) + '</div>';
-  const blocksWhere = top => PIECES.map((piece, i) => (!!piece.top === top ? pieceBlock(piece, i) : '')).join('');
-  topContainer.innerHTML = blocksWhere(true);
-  container.innerHTML = blocksWhere(false);
+    resetButtons(piece, i) + '</div></div>';
+  const blocksIn = section => PIECES.map((piece, i) => (piece.section === section ? pieceBlock(piece, i) : '')).join('');
+  const sectionHtml = ({ key, summary, open }) => `<details class="sec" id="secOtherRoom_${key}"${open ? ' open' : ''}>` +
+    `<summary>${summary}</summary>${blocksIn(key)}</details>`;
+  topContainer.innerHTML = PIECES.map((piece, i) => (piece.top ? pieceBlock(piece, i) : '')).join('');
+  container.innerHTML = SECTIONS.map(sectionHtml).join('');
 
   for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
   for (const [path] of SWITCHES) document.getElementById(id(path)).addEventListener('change', e => change([[path, e.target.checked]]));
@@ -501,6 +524,7 @@ export function otherRoomControls(topContainer, container, change) {
       document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
     }
     for (const [path] of SWITCHES) document.getElementById(id(path)).checked = valueAt(s, path);
+    for (const piece of PIECES.filter(p => p.on)) document.getElementById(`otherRoomPiece_${piece.key}Details`).hidden = !s[piece.on];
     document.getElementById(id('cupboardOn')).disabled = s.newCupboardOn;   // the new cupboard stands in its place
     for (const { key, halfAlong } of ON_A_WALL) followWall(id, key, s[key], halfAlong(s));
   };

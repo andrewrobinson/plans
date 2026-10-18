@@ -560,13 +560,14 @@ test.describe('the garage', () => {
     expect(await setting(page, 'garage.billy.lying')).toBe(false);
   });
 
-  // Each has its In the garage switch; taken out, its sliders stay, as the
-  // bedroom's
+  // Each has its In the garage switch; taken out, its sliders are hidden,
+  // as the bedroom's
   test('each can be taken out, moved and put back', async ({ page }) => {
     await toggle(page, 'garage_sean_on', false);
     expect(await setting(page, 'garage.sean')).toEqual({ on: false, x: 1255, y: 2865, turn: 180 });
-    await expect(page.locator('#garage_sean_x')).toBeVisible();
+    await expect(page.locator('#garage_sean_x')).toBeHidden();
     await toggle(page, 'garage_sean_on', true);
+    await expect(page.locator('#garage_sean_x')).toBeVisible();
     expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
     expect(await setting(page, 'garage.billyChest')).toEqual({ on: false, x: 0, y: 1100, turn: 270 });            // out to start
     await toggle(page, 'garage_billyChest_on', true);

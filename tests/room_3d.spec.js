@@ -4,7 +4,7 @@
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
-const { test, expect, openOptions, openRoom, addressOf, readAddress, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
+const { test, expect, openOptions, openSection, openRoom, addressOf, readAddress, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
 const { ADDRESSES } = require('./addresses');
 
 // The configurations in living_room.configurations.js, read the way the page reads them
@@ -233,8 +233,9 @@ test.describe('the controls', () => {
   // The bedroom's lower recess cupboard (otherRoom.lowerD) and mirror (otherRoom.mirror)
   test('the bedroom\'s reset buttons, and the mirror\'s wall', async ({ page }) => {
     await openOptions(page, 'bedroom');
-    const recess = page.locator('#otherRoomBlock .depth', { hasText: 'Recess cupboards' });
-    const mirror = page.locator('#otherRoomBlock .depth').last();             // the mirror's, last
+    for (const section of ['extras', 'recess']) await openSection(page, `secOtherRoom_${section}`);
+    const recess = page.locator('#otherRoomPiece_recess');
+    const mirror = page.locator('#otherRoomPiece_mirror');
     await page.locator('#otherRoom_lowerD').fill('800');
     expect(await setting(page, 'otherRoom.lowerD')).toBe(800);
     await recess.getByRole('button', { name: 'Reset dimensions' }).click();
@@ -284,6 +285,7 @@ test.describe('the controls', () => {
     await expect(page.locator('#benchOn')).toBeDisabled();            // the bookshelf's still there
     expect(await setting(page, 'otherRoom.cupboardOn')).toBe(true);
     await openOptions(page, 'bedroom');
+    await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_cupboardOn').uncheck();
     expect(await setting(page, 'otherRoom.cupboardOn')).toBe(false);
     expect(await setting(page, 'bookshelfOn')).toBe(true);           // the living room's kept
@@ -305,6 +307,7 @@ test.describe('the controls', () => {
     expect(await setting(page, 'billyMove')).toBe(null);
     expect(await setting(page, 'otherRoom.billyOn')).toBe(false);          // the bedroom's its own
     await openOptions(page, 'bedroom');
+    await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_billyOn').check();
     expect(await setting(page, 'otherRoom.billy')).toEqual({ wall: 'breast', along: 2569, lying: false });
     await page.locator('#otherRoom_billy_lying').check();
@@ -326,6 +329,7 @@ test.describe('the controls', () => {
     await page.locator('#billyChestHome').click();
     expect(await setting(page, 'billyChestMove')).toBe(null);
     await openOptions(page, 'bedroom');
+    await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_billyChestOn').check();
     await page.selectOption('#otherRoom_billyChest_wall', 'window');
     await expect(page.locator('#otherRoom_billyChest_along')).toHaveAttribute('min', '402.5');   // half its 805
@@ -347,6 +351,7 @@ test.describe('the controls', () => {
     await page.locator('#ivarLying').uncheck();
     await expect(page.locator('#ivarXValue')).toHaveText('3306');      // standing, 800 out
     await openOptions(page, 'bedroom');
+    await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_ivarOn').check();
     expect(await setting(page, 'otherRoom.ivarOn')).toBe(true);
     expect(await setting(page, 'garage.ivar')).toEqual({ on: false, x: 0, y: 1100, turn: 270 });
@@ -382,10 +387,30 @@ test.describe('the controls', () => {
     await expect(page.locator('#otherRoom_cupboardOn')).toBeEnabled();
   });
 
+  // Bedroom options in sections (asked for, 18 Oct 2026), all closed to
+  // start: the bed and what's by it, Extras, the recess cupboards; a piece's
+  // controls hidden while it's out of the bedroom
+  test('Bedroom options: its sections, and a piece out shows only its switch', async ({ page }) => {
+    await openOptions(page, 'bedroom');
+    for (const section of ['bed', 'extras', 'recess']) await expect(page.locator(`#secOtherRoom_${section}`)).not.toHaveAttribute('open', '');
+    await expect(page.locator('#secOtherRoom_bed #otherRoomPiece_kvistbro')).toHaveCount(1);
+    await expect(page.locator('#secOtherRoom_extras #otherRoomPiece_billy')).toHaveCount(1);
+    await openSection(page, 'secOtherRoom_extras');
+    await expect(page.locator('#otherRoom_bookcase_w')).toBeVisible();
+    await page.locator('#otherRoom_bookcaseOn').uncheck();
+    await expect(page.locator('#otherRoom_bookcase_w')).toBeHidden();
+    await expect(page.locator('#otherRoom_bookcaseOn')).toBeVisible();
+    await page.locator('#otherRoom_bookcaseOn').check();
+    await expect(page.locator('#otherRoom_bookcase_w')).toBeVisible();
+    await page.reload();                                                // Extras left open, as the other sections are
+    await expect(page.locator('#secOtherRoom_extras')).toHaveAttribute('open', '');
+  });
+
   // The bedroom's mirror (otherRoom.mirrorOn) switched off and on again
   test('the bedroom mirror can be switched off', async ({ page }) => {
     expect(await setting(page, 'otherRoom.mirrorOn')).toBe(true);
     await openOptions(page, 'bedroom');
+    await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_mirrorOn').uncheck();
     expect(await setting(page, 'otherRoom.mirrorOn')).toBe(false);
     await page.locator('#otherRoom_mirrorOn').check();
@@ -419,6 +444,7 @@ test.describe('the controls', () => {
     expect(await setting(page, 'bookshelfOn')).toBe(true);
     expect(await setting(page, 'otherRoom.bookcaseOn')).toBe(true);
     await openOptions(page, 'bedroom');
+    await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_bookcaseOn').uncheck();
     expect(await setting(page, 'otherRoom.bookcaseOn')).toBe(false);
     expect(await setting(page, 'frontPiece')).toBe('bookshelf');           // the living room's kept
@@ -575,9 +601,15 @@ test.describe('Share and Reset', () => {
     expect(copied.size).toBeGreaterThan(10000);                 // a picture, not a blank canvas (a few hundred bytes)
   });
 
+  // ...saying so as it goes, and forgetting the view remembered on this device
   test('Reload goes to the default page, with nothing to confirm', async ({ page }) => {
     await openRoom(page, OPTION_7);
+    const remembered = ['room_3d:viewKind:bedroom', 'room_3d:secOtherRoom_extras', 'room_3d:secCupboard', 'aboutOpen', 'paletteOpen', 'room_3d:sheetHeight'];
+    await page.evaluate(keys => { for (const k of keys) localStorage.setItem(k, '1'); localStorage.setItem('room_3d:savedViews', '[]'); }, remembered);
     await page.click('#reload');
     await expect.poll(() => configurationOf(page).catch(() => 'loading')).toEqual(DEFAULT.configuration);
+    await expect(page.locator('#reload')).toHaveText('Reload');
+    const stored = await page.evaluate(keys => keys.map(k => localStorage.getItem(k)), [...remembered, 'room_3d:savedViews']);
+    expect(stored).toEqual([...remembered.map(() => null), '[]']);   // all forgotten but the saved views
   });
 });

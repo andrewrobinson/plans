@@ -372,8 +372,8 @@ function openBox(w, d, h, mat, g) {
 
 // ---------------------------------------------------------------------------
 // Garage options' block, built into `container`, laid out as Bedroom
-// options: for each piece its name and sizes, its In the garage switch, the
-// sliders that place it and a button to put it back. change(edits) is
+// options: for each piece its name and sizes, its In the garage switch, and
+// while it's in, the sliders that place it and a button to put it back. change(edits) is
 // called with a list of [path, value]; the function returned puts the
 // controls in step with the settings `s`
 // ---------------------------------------------------------------------------
@@ -388,9 +388,10 @@ export function garageControls(container, change) {
     const sizes = bedroomSizes ? 'its sizes as in Bedroom options' : `${w} wide, ${d} deep, ${h} high`;
     return `<div class="depth"><div><b>${label}</b> (${sizes})</div>` +
       `<label class="switch"><input type="checkbox" id="${id(`${piece}.on`)}"> In the garage</label>` +
+      `<div id="${id(`${piece}.details`)}">` +                // hidden while it's out (asked for, 18 Oct 2026)
       (PIECES[piece].canLie ? lyingSwitch(id(`${piece}.lying`)) : '') +
       placeSliders(piece).map(slider(id)).join('') +
-      `<div class="row"><button data-reset="${piece}">Reset location</button></div></div>`;
+      `<div class="row"><button data-reset="${piece}">Reset location</button></div></div></div>`;
   }).join('');
 
   doorRadios().forEach(r => r.addEventListener('change', () => change([['door', r.value]])));
@@ -408,7 +409,10 @@ export function garageControls(container, change) {
       document.getElementById(id(path)).value = String(value);
       document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
     }
-    for (const piece of PIECE_KEYS) document.getElementById(id(`${piece}.on`)).checked = s[piece].on;
+    for (const piece of PIECE_KEYS) {
+      document.getElementById(id(`${piece}.on`)).checked = s[piece].on;
+      document.getElementById(id(`${piece}.details`)).hidden = !s[piece].on;
+    }
     for (const piece of LYING_KEYS) document.getElementById(id(`${piece}.lying`)).checked = s[piece].lying;
   };
 }

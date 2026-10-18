@@ -151,8 +151,6 @@
       </div>
       <label for="board">Board thickness: <span id="boardValue">18</span></label>
       <input id="board" type="range" min="12" max="25" step="1" value="18">
-      <label for="top">Cupboard height: <span id="topValue">ceiling</span></label>
-      <input id="top" type="range" min="1800" max="2450" step="10" value="2450">
       <div class="row">
         <button id="xray">See-through cupboards: off</button>
       </div>
@@ -182,7 +180,7 @@
       <div id="legBlock">
         <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
         <input id="leg" type="range" min="400" max="1200" step="1" value="600">
-        <label for="legD">Single-door cupboard depth: <span id="legDValue">600</span></label>
+        <label for="legD">Back-wall cupboard depth: <span id="legDValue">600</span></label>
         <input id="legD" type="range" min="330" max="1000" step="1" value="600">
         <label for="shelvesBack">Shelves in the back-wall leg and corner (tops, mm)</label>
         <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
@@ -197,6 +195,9 @@
         <label for="diagLeft">Diagonal starts on the left-wall leg, in from its end: <span id="diagLeftValue">0</span></label>
         <input id="diagLeft" type="range" min="0" max="2700" step="10" value="0">
       </div>
+      <!-- The cupboard's height last, in every option (asked for, 18 Oct 2026) -->
+      <label for="top">Cupboard height: <span id="topValue">ceiling</span></label>
+      <input id="top" type="range" min="1800" max="2450" step="10" value="2450">
     </div>
     <!-- The corner cupboard's cutting list, folded away till opened (the
          bedroom cupboard has its own, in Bedroom options) -->

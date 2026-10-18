@@ -299,6 +299,8 @@ export const narrow = () => window.innerWidth <= 900;
 // height dragged by its handle between SHEET_LOWEST and SHEET_HIGHEST of
 // the screen, SHEET_START to start (chosen)
 const SHEET_WIDTH = 600, SHEET_LOWEST = 0.33, SHEET_HIGHEST = 0.67, SHEET_START = 0.45;
+// Where the sheet's height, as dragged, is remembered on this device
+export const SHEET_HEIGHT_KEY = 'room_3d:sheetHeight';
 export const asSheet = () => window.innerWidth <= SHEET_WIDTH;
 
 // The pop-up menus, every .pop on the page, each a .popToggle button and its
@@ -358,7 +360,7 @@ export function createDrawers(drawers, moved) {
 // (the CSS), dragged up and down to set its height, --sheet, kept on this
 // device as a share of the screen's height
 function sheetHandles(moved) {
-  const KEY = 'room_3d:sheetHeight';
+  const KEY = SHEET_HEIGHT_KEY;
   const setHeight = share => {
     const clamped = Math.min(SHEET_HIGHEST, Math.max(SHEET_LOWEST, share));
     document.documentElement.style.setProperty('--sheet', `${Math.round(clamped * 100)}vh`);
@@ -386,9 +388,21 @@ function sheetHandles(moved) {
 
 // Reload: load the page afresh, as a new deploy would be seen, with no
 // settings in the address, so everything is back to its default (asked for,
-// 18 Oct 2026, in place of Reset), with nothing to confirm
-export function reloadButton(button) {
-  button.addEventListener('click', () => location.replace(location.pathname));
+// 18 Oct 2026, in place of Reset), with nothing to confirm. The keys
+// forget() gives (what's remembered on this device but the saved views,
+// looks and configurations) are cleared first, so it opens as a first
+// visit would; the button says so and the page fades
+// (`reloading` on the body) for RELOAD_FADE_MS before it goes, so it can be
+// seen to happen (asked for, 18 Oct 2026: it looked as if nothing did)
+const RELOAD_FADE_MS = 300;                           // chosen: long enough to see, short enough not to wait for
+export function reloadButton(button, forget = () => []) {
+  button.addEventListener('click', () => {
+    for (const key of forget()) { try { localStorage.removeItem(key); } catch (e) { /* not important */ } }
+    button.textContent = 'Reloading…';
+    button.disabled = true;
+    document.body.classList.add('reloading');
+    setTimeout(() => location.replace(location.pathname), RELOAD_FADE_MS);
+  });
 }
 
 // Share a link to exactly what's on show: the page at `publicUrl` with this
