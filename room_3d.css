@@ -70,10 +70,37 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 #roomViews { display: contents; }
 .split { display: flex; flex: none; pointer-events: auto; border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
 .split .chip { box-shadow: none; border-radius: 10px 0 0 10px; }
-.split .pick { box-shadow: none; border-radius: 0 10px 10px 0; border-left: 1px solid #ccc; padding: 0 6px; }
-/* On phones the open drawer dims the model; tapping there closes it */
-#scrim { position: fixed; inset: 0; z-index: 2; background: rgba(0, 0, 0, 0.25); display: none; }
-@media (max-width: 900px) { body.menu-open #scrim, body.lounge-open #scrim, body.bed-open #scrim, body.garage-open #scrim { display: block; } }
+/* The dropdown shows only ▾, its list the choices (the select's own text
+   hidden; the options keep theirs) */
+.split .kind { position: relative; display: flex; }
+.split .kind select { width: 36px; padding: 0; color: transparent; appearance: none; -webkit-appearance: none;
+  box-shadow: none; border-radius: 0 10px 10px 0; border-left: 1px solid #ccc; }
+.split .kind select option { color: #000; }
+.split .kind::after { content: '▾'; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font-size: 16px; }
+/* An open drawer leaves the room live beside it (kit/floor_kit.js frames
+   the views clear of it), and the options button moves clear of it too, to
+   close it again */
+body:is(.menu-open, .lounge-open, .bed-open, .garage-open) #bottomLeft { left: calc(min(340px, 88vw) + 12px); }
+/* On phones held upright (up to 600 wide, kit/floor_kit.js's SHEET_WIDTH)
+   the drawers are a sheet from the bottom, --sheet high, the room above it;
+   its handle drags it taller or shorter, and the options button sits on its
+   top edge */
+.sheetHandle { display: none; }
+@media (max-width: 600px) {
+  .drawer { top: auto; bottom: 0; width: 100%; max-width: none; height: var(--sheet, 45vh); padding-top: 0;
+    border-radius: 14px 14px 0 0; box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.2); transform: translateY(105%); }
+  .sheetHandle { display: block; position: sticky; top: 0; z-index: 1; height: 22px; margin: 0 -14px 4px; background: inherit;
+    cursor: ns-resize; touch-action: none; }
+  .sheetHandle::before { content: ''; display: block; width: 44px; height: 5px; border-radius: 3px; background: #bbb; margin: 8px auto 0; }
+  body:is(.menu-open, .lounge-open, .bed-open, .garage-open) #bottomLeft { left: 12px; bottom: calc(var(--sheet, 45vh) + 8px); }
+  /* The top bar's buttons smaller (chosen), two to a row, so it leaves the
+     room more of the screen above the sheet */
+  #bar { gap: 6px; }
+  #bar .chip, #bar .pick, #menu { height: 36px; font-size: 13px; }
+  #bar .chip { padding: 0 9px; }
+  #menu { width: 36px; font-size: 18px; }
+  .split .kind select { width: 28px; }
+}
 .drawer label { display: block; margin: 8px 0 2px; }
 /* The drawer's sections, each opening and closing (remembered here) */
 .drawer details.sec { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; }

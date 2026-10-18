@@ -1061,7 +1061,9 @@ for (const [room, { name }] of Object.entries(ROOM_BUTTONS)) {
     try { localStorage.setItem(viewKindKey(room), kind.value); } catch (e) { /* not important */ }
     goToRoom(room);
   });
-  split.append(go, kind);
+  const kindBox = Object.assign(document.createElement('span'), { className: 'kind' });   // shows ▾ over it
+  kindBox.append(kind);
+  split.append(go, kindBox);
   document.getElementById('roomViews').append(split);
 }
 

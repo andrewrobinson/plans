@@ -78,15 +78,18 @@ test.describe('the settings drawers', () => {
     await expect(panel).not.toBeInViewport();
   });
 
-  test('the scrim dims the model on a phone, and a tap on it closes the drawer', async ({ page, isMobile }) => {
-    test.skip(!isMobile, 'the scrim is only shown on narrow screens');
-    await page.click('#menu');
-    const scrim = page.locator('#scrim');
-    await expect(scrim).toBeVisible();
-    const { width } = page.viewportSize();
-    await scrim.click({ position: { x: width - 15, y: 400 } });   // beside the drawer
-    await expect(page.locator('#panel')).not.toBeInViewport();
-    await expect(scrim).toBeHidden();
+  // On a phone the options are a sheet from the bottom, the room live
+  // above it (no scrim), the options button on its top edge to close it
+  test('on a phone the options are a sheet, with the room above it', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'a sheet only on narrow screens');
+    await page.click('#roomOptions');
+    const sheet = page.locator('#loungePanel'), { height } = page.viewportSize();
+    await expect(sheet).toBeInViewport();
+    await expect.poll(async () => (await sheet.boundingBox()).y).toBeGreaterThan(height / 3);   // the top part's the room's
+    const options = await page.locator('#roomOptions').boundingBox();
+    expect(options.y + options.height).toBeLessThanOrEqual((await sheet.boundingBox()).y);
+    await page.click('#roomOptions');
+    await expect(sheet).not.toBeInViewport();
   });
 
   // The room's options (the button at the bottom left, Lounge options in

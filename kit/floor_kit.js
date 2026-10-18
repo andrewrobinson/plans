@@ -286,6 +286,12 @@ export { valueAt, setValueAt } from './config_kit.js';
 // ---------------------------------------------------------------------------
 // Narrow screens, phones: the drawers cover the model there
 export const narrow = () => window.innerWidth <= 900;
+// Up to this wide (a phone held upright), the drawers are a sheet from the
+// bottom, the room live above it (room_3d.css's matching media query), its
+// height dragged by its handle between SHEET_LOWEST and SHEET_HIGHEST of
+// the screen, SHEET_START to start (chosen)
+const SHEET_WIDTH = 600, SHEET_LOWEST = 0.33, SHEET_HIGHEST = 0.67, SHEET_START = 0.45;
+export const asSheet = () => window.innerWidth <= SHEET_WIDTH;
 
 // The pop-up menus, every .pop on the page, each a .popToggle button and its
 // group: a button opens its menu and closes the others; Escape or a click on
@@ -309,8 +315,9 @@ export function popMenus(canvas) {
 // { drawer's id: [its button's id, the class on <body> while it's open] }
 // (the CSS does the sliding). Its button opens and closes it; a drawer with
 // no button of its own (null) is opened by the page, with setMenu(); its ✕
-// (.close), the scrim (#scrim) and Escape close it. moved() is called each
-// time one opens or closes.
+// (.close) and Escape close it. moved() is called each time one opens or
+// closes, or a sheet's height changes. No scrim: an open drawer leaves the
+// room live beside it or above it, so a slider's change can be watched.
 export function createDrawers(drawers, moved) {
   // The drawer open, or null
   const openDrawer = () => Object.keys(drawers).find(id => document.body.classList.contains(drawers[id][1])) ?? null;
@@ -326,9 +333,47 @@ export function createDrawers(drawers, moved) {
     if (button) document.getElementById(button).addEventListener('click', () => setMenu(openDrawer() === drawer ? null : drawer));
   }
   document.querySelectorAll('.drawer .close').forEach(b => b.addEventListener('click', () => setMenu(null)));
-  document.getElementById('scrim').addEventListener('click', () => setMenu(null));
   window.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(null); });
-  return { setMenu, openDrawer, menuOpen: () => openDrawer() !== null };
+  sheetHandles(moved);
+  // The part of the screen the open drawer covers, in pixels: the left, on
+  // a wider screen, or the bottom, as a sheet
+  function covering() {
+    const open = openDrawer();
+    if (!open) return { left: 0, bottom: 0 };
+    const el = document.getElementById(open);
+    return asSheet() ? { left: 0, bottom: el.offsetHeight } : { left: el.offsetWidth, bottom: 0 };
+  }
+  return { setMenu, openDrawer, menuOpen: () => openDrawer() !== null, covering };
+}
+
+// The sheets' handles: a bar along each drawer's top, shown only as a sheet
+// (the CSS), dragged up and down to set its height, --sheet, kept on this
+// device as a share of the screen's height
+function sheetHandles(moved) {
+  const KEY = 'room_3d:sheetHeight';
+  const setHeight = share => {
+    const clamped = Math.min(SHEET_HIGHEST, Math.max(SHEET_LOWEST, share));
+    document.documentElement.style.setProperty('--sheet', `${Math.round(clamped * 100)}vh`);
+    return clamped;
+  };
+  let share = SHEET_START;
+  try { share = Number(localStorage.getItem(KEY)) || SHEET_START; } catch (e) { /* not important */ }
+  share = setHeight(share);
+  for (const drawer of document.querySelectorAll('.drawer')) {
+    const handle = Object.assign(document.createElement('div'), { className: 'sheetHandle', title: 'Drag to make the options taller or shorter' });
+    drawer.prepend(handle);
+    handle.addEventListener('pointerdown', e => {
+      handle.setPointerCapture(e.pointerId);
+      const move = ev => { share = setHeight(1 - ev.clientY / window.innerHeight); moved(); };
+      const up = () => {
+        handle.removeEventListener('pointermove', move);
+        try { localStorage.setItem(KEY, String(share)); } catch (err) { /* not important */ }
+      };
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', up, { once: true });
+      handle.addEventListener('pointercancel', up, { once: true });
+    });
+  }
 }
 
 // Reset: load the page again with no settings in the address, so everything
@@ -431,22 +476,31 @@ export function flatViews(stage, view) {
     document.documentElement.style.setProperty('--below-bar', `${Math.ceil(document.getElementById('bar').getBoundingClientRect().bottom) + 8}px`);
     const { clientWidth: w, clientHeight: h } = renderer.domElement.parentElement;
     renderer.setSize(w, h);
-    camera.aspect = w / h;
+    // An open drawer stays open over the model, so the views fit the part it
+    // leaves clear: to its right, or above it as a sheet. The 3D view is the
+    // whole view in that part, its frustum stretched over the rest
+    const { left, bottom } = drawers.covering();
+    // ...and below the top bar, while a sheet's open (as the 2D views are)
+    const barBottom = Math.min(document.getElementById('bar').getBoundingClientRect().bottom, h / 3);
+    const top = bottom ? barBottom : 0;
+    const clearW = w - left, clearH = h - bottom - top;
+    camera.aspect = clearW / clearH;
     // On narrow screens, keep about 55° across rather than 45° up and down, so
     // the room isn't cropped at the sides
-    const across = view.hfov || (w / h < 1.4 ? 55 : null);         // degrees across, when fixed
+    const across = view.hfov || (clearW / clearH < 1.4 ? 55 : null);   // degrees across, when fixed
     // Up and down, capped so a tall phone screen doesn't stretch the view
-    camera.fov = across ? Math.min(80, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(across / 2)) * h / w))) : 45;
+    camera.fov = across ? Math.min(80, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(across / 2)) * clearH / clearW))) : 45;
+    if (left || bottom) camera.setViewOffset(clearW, clearH, -left, -top, w, h);
+    else camera.clearViewOffset();
     camera.updateProjectionMatrix();
-    // Fit flatFit on screen, whichever way round is tighter, in the part the
-    // settings drawer leaves clear (on wide screens it stays open over the
-    // model) and below the top bar
+    // Fit flatFit on screen, whichever way round is tighter, in that clear
+    // part, below the top bar
     const [fw, fh] = view.flatFit;
-    const covered = drawers.menuOpen() && !narrow() ? document.getElementById(drawers.openDrawer()).offsetWidth : 0;
-    const clear = w - covered, below = Math.min(document.getElementById('bar').getBoundingClientRect().bottom, h / 3), high = h - below;
-    if (!keepScale || !view.flatPerM) view.flatPerM = Math.min(clear / fw, high / fh);
+    const below = barBottom, high = h - bottom - below;
+    // (a sheet leaves too little to keep the scale: the plan's fitted again)
+    if (!keepScale || !view.flatPerM || bottom) view.flatPerM = Math.min(clearW / fw, high / fh);
     const perM = view.flatPerM;
-    Object.assign(flatCamera, { left: -(covered + clear / 2) / perM, right: clear / 2 / perM, top: (below + high / 2) / perM, bottom: -high / 2 / perM });
+    Object.assign(flatCamera, { left: -(left + clearW / 2) / perM, right: clearW / 2 / perM, top: (below + high / 2) / perM, bottom: -(high / 2 + bottom) / perM });
     flatCamera.updateProjectionMatrix();
   }
   window.addEventListener('resize', () => resize());
