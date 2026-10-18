@@ -29,7 +29,11 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    (`cupboard_controls.js`). Then the bedroom cupboard's own design (its
    own option, sizes, doors, colour and cutting list, in Bedroom options)
    and the menus by room: Lounge, Bedroom and Garage options, Other
-   options keeping the hallway and stairs (17 Oct 2026).
+   options keeping the hallway and stairs (17 Oct 2026). Then (18 Oct
+   2026) a button for each room in the top bar (Bird's eye or Plan), each
+   room's options from one button at the bottom left, as a sheet with the
+   room live above it on a phone, a cutting list in the lounge's and the
+   bedroom's options, Hallway and stairs options, and the garage door.
 2. **Measure the rest of the flat**: `MEASUREMENTS_NEEDED.md`, priority 1,
    with `drawings/measure_sheet.html` (lettered on the plan; the values come
    back as "A = 2240" lines, to go into `floor.md` and the model).

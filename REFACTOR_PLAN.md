@@ -130,6 +130,40 @@ below it); the cupboard controls as a module, `cupboard_controls.js`
 (`cupboardControls()`, `copyControls()`); the bedroom's controls, a copy
 of the lounge's, with its colour, door sliders and cutting list.
 
+## The rooms' buttons and options, on phones too (18 Oct 2026)
+
+Decided with the user, one piece at a time, each tried locally first:
+
+- **Room buttons**: the top bar has a split button for each room, Lounge,
+  Bedroom, Garage and Hallway view. Its name goes to the room (the menus
+  shut, Cupboard only off), seen as its ▾ says, Bird's eye or Plan (2D),
+  kept for each on that device (the view kit's `showRoom()`).
+- **The options button**, at the bottom left, follows the room in view,
+  however you got there: Lounge, Bedroom, Garage options, or Hallway and
+  stairs (the hallway and downstairs), each a drawer of its own. Other
+  options (☰) keeps the wicker bench and the colours in this view; the
+  shoe rack and the doors downstairs went to Hallway and stairs options.
+- **On phones held upright** (up to 600 wide) a drawer is a sheet from
+  the bottom, the room live above it, with a handle to make it taller or
+  shorter (a third to two thirds of the screen), and only ☰ left in the
+  top bar while it's open. Wider, the drawer's on the left, the room live
+  beside it. No scrim: the views fit the part a drawer leaves clear
+  (`covering()` in `kit/floor_kit.js`, the 3D view by `setViewOffset()`),
+  so a slider's change can be watched while it's dragged. Checked at
+  iPhone 13, iPhone SE, landscape and iPad sizes.
+- **The cutting lists**: one in Lounge options, one in Bedroom options,
+  each folded away till opened; none for the garage or the hallway. The
+  2D views' Show cutting list button went.
+- **The garage door** (Garage options): not shown (to start), open or
+  closed, as `doors.garage`. Up and over, as the user described it: open,
+  a canopy on its rail, its bottom edge 1 m out over the drive.
+
+Every snapshot gained only `doors.garage`; the screenshots changed with
+the top bar, the options button and the garage door (checked by eye); the
+full suite passed on both devices. On the phone, a long menu scrolls in
+its sheet; the old iPhone SE's narrow screen (320) still takes about five rows of bar
+while no sheet's open.
+
 ## Left over, after 6d
 
 - **The configuration as the store**, `state` going

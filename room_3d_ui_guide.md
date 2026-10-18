@@ -32,33 +32,37 @@ and control patterns this explains stay the same.
 | **20** | `<link rel="stylesheet" href="room_3d.css">`: **all the CSS**, in its own file (see section 2) |
 | 21–26 | The **import map**: tells the browser that `import … from 'three'` means the three.js file on the jsDelivr CDN (see section 6) |
 
-### The `<body>` HTML (lines 28–451)
+### The `<body>` HTML (lines 28–466)
 
 The HTML only lays out the controls. It contains no logic. The settings are
-in four drawers, one for the hallway and stairs and one for each room (17
-Oct 2026), each made of `<details>` sections that remember being open.
+in five drawers (18 Oct 2026): one for each room, the hallway and stairs
+too, opened by the options button at the bottom left for the room in view,
+and Other options, by ☰. Each is made of `<details>` sections that remember
+being open. On a phone held upright (up to 600 wide) a drawer is a sheet
+from the bottom, the room live above it; wider, it's on the left, the room
+live beside it.
 
 | Lines | Element | What it is on screen |
 |---|---|---|
 | 29 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
-| 32–40 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), **Lounge options** (`#loungeMenu`), **Bedroom options** (`#bedMenu`), **Garage options** (`#garageMenu`), Share, Screenshot and Reset |
-| 43–68 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
-| 70–80 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
-| 82–85 | `#cutBox` | The lounge cupboard's **cutting list** (`#cutList`) and its Show/Hide button (`#cutToggle`), bottom left, in the 2D views only |
-| 86 | `#scrim` | A grey see-through overlay. On phones it dims the model while a drawer is open |
-| 87 | `#tip` | A tooltip that follows the pointer over things to store |
-| **88–115** | `#panel` | **Other options**: the hallway and stairs. `#secWickerBench` and `#secShoeRack` (their modules fill them), `#secDownstairsDoors` (the flat's door and the lobby's), and `#palette`, the colours in this view |
-| **120–377** | `#loungePanel` | **Lounge options**, the living room: |
-| 125–180 | `#secCupboard` | The corner cupboard: its **option list** (`#current`), Cupboard only, and `#cupboardControls`: board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7). The bedroom's cupboard copies these |
-| 181–231 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
-| 232–262 | `#secSofa` | Sofa dropdown plus sliders |
-| 263–309 | `#secBench` | Bench switch, the bookshelf and pine cupboard in its place, bench-height radios, "above the bench" radios, TV and shelf sliders |
-| 310–322 | `#secDoors` | The cupboard's tall and second doors (`#tallBlock`, `#secondBlock`) and the room door |
-| 323–353 | `#secColours` | The cupboard, dresser and shelf colours: dropdowns with ◀ ▶ buttons and swatches (`.colours`) |
-| 354–369 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
-| 370–376 | `#about` | The description text (`#summary`), which JS fills in |
-| **379–437** | `#bedPanel` | **Bedroom options**: the furniture (`#otherRoomBlock`, other_room.js's), then `#secBedroomCupboard`, the new cupboard's own option list (`#bedroomCupboardCurrent`), its copied sliders and door sliders (`#bedroomCupboardControls`, `#bedroomCupboardDoors`, filled by living_room.js), its colour and its cutting list (`#bedroomCutting`); `#secBedroomDoors` (the bedroom door) and `#secBedroomColours` (the carpet, the stairs' too) |
-| 439–446 | `#garagePanel` | **Garage options** (`#garageBlock`, garage.js's) |
+| 35–41 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge view**, **Bedroom view**, **Garage view**, **Hallway view**, each going to its room, with a ▾ dropdown of Bird's eye or Plan), Share, Screenshot and Reset. On a phone, while a sheet's open, only ☰ shows |
+| 44–69 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
+| 71–81 | `#corner` | The **Scenes** pop-up menu at the bottom right (`#sceneMenu`, green) |
+| 83–85 | `#bottomLeft` | The options button (`#roomOptions`), named for the room in view: Lounge, Bedroom or Garage options, or Hallway and stairs. It moves clear of an open drawer, onto a sheet's top edge on a phone |
+| 86 | `#tip` | A tooltip that follows the pointer over things to store |
+| **87–104** | `#panel` | **Other options**: `#secWickerBench` (the wicker bench, in any room) and `#palette`, the colours in this view |
+| **106–127** | `#hallPanel` | **Hallway and stairs options**: `#secShoeRack` (shoe_rack.js fills it) and `#secDownstairsDoors` (the flat's door and the lobby's) |
+| **129–392** | `#loungePanel` | **Lounge options**, the living room: |
+| 134–196 | `#secCupboard` | The corner cupboard: its **option list** (`#current`), Cupboard only, its cutting list (`#loungeCutting`, folded away), and `#cupboardControls`: board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7). The bedroom's cupboard copies these |
+| 197–247 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
+| 248–278 | `#secSofa` | Sofa dropdown plus sliders |
+| 279–325 | `#secBench` | Bench switch, the bookshelf and pine cupboard in its place, bench-height radios, "above the bench" radios, TV and shelf sliders |
+| 326–338 | `#secDoors` | The cupboard's tall and second doors (`#tallBlock`, `#secondBlock`) and the room door |
+| 339–369 | `#secColours` | The cupboard, dresser and shelf colours: dropdowns with ◀ ▶ buttons and swatches (`.colours`) |
+| 370–385 | `#secStored` | Things to store: packing dropdown, where-radios, buttons, heights off the floor |
+| 386–392 | `#about` | The description text (`#summary`), which JS fills in |
+| **394–452** | `#bedPanel` | **Bedroom options**: the furniture (`#otherRoomBlock`, other_room.js's), then `#secBedroomCupboard`, the new cupboard's own option list (`#bedroomCupboardCurrent`), its copied sliders and door sliders (`#bedroomCupboardControls`, `#bedroomCupboardDoors`, filled by living_room.js), its colour and its cutting list (`#bedroomCutting`); `#secBedroomDoors` (the bedroom door) and `#secBedroomColours` (the carpet, the stairs' too) |
+| 454–461 | `#garagePanel` | **Garage options** (`#garageBlock`, garage.js's): the garage door (not shown, open or closed), then each thing in it |
 
 ### Scripts (index.html, lines 448–450)
 
@@ -144,23 +148,23 @@ The lounge's are index.html's own; the bedroom's are a copy of them,
 `copyControls(elements, piece)`, each id with the piece's name before it
 (`idIn(piece)`: `depth` becomes `bedroomCupboardDepth`).
 
-### living_room.js (1,151 lines): the page
+### living_room.js (1,209 lines): the page
 
 | Lines | Section | Notes |
 |---|---|---|
 | 1–21 | What the file is for | How a change flows through the page, and its sections in order |
 | 22–46 | `import`s | The kits, the other rooms' controls, the cupboard controls, the model's pieces from `flat_model.js`, `floor.js` |
 | 47–86 | The stage, the 2D views' cuts and Cupboard only's framing | `createStage()`, `scene.add(world)`, the kit's `cutViews()` giving `applyCut()`, `frameCupboard()` |
-| 87–275 | The cutting lists, the things to store's controls and dragging in plan | `cuttingListHtml(piece)` (the lounge's in the 2D views, the bedroom's in Bedroom options), `showStored()` (the model's `drawStored()`, then the menu); `setStored()` and `moveStored()`, their settings by path |
+| 87–275 | The cutting lists, the things to store's controls and dragging in plan | `cuttingListHtml(piece)` and `showCuttingLists()` (the lounge's in Lounge options, the bedroom's in Bedroom options), `showStored()` (the model's `drawStored()`, then the menu); `setStored()` and `moveStored()`, their settings by path |
 | 276–385 | **The bedroom cupboard's copied controls, door sliders, `show(i)`** | `copyControls()` into Bedroom options; `update()` (the model's `turnDoors()`, then the sliders), `turnDoorsTo()`; **`show(i, onShow)`**: the model's `build()`, then `showInMenus()` and `redrawAround()` |
 | 386–403 | **The address**: `writeAddress()` | The configuration and the view, packed into the URL `#hash` (section 5) |
 | **404–791** | **Control wiring** | **`change(edits, { look })`** (404), the two cupboards' controls (`loungeCupboard`, `bedroomCupboardControls`, `showBedroomCupboard()`), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5); the colour pickers (`colourPicker()`, the bedroom cupboard's too); `sizeEdits()` |
-| 792–927 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
-| 928–1012 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
-| 1013–1041 | The view as JSON, the drawers (`DRAWERS`: Other, Lounge, Bedroom, Garage), Reset, Share and offline support | `viewNow()`, `readDisplay()` |
-| 1042–1094 | The rooms' modules' controls and `syncControls()` | `roomEdits()` (their settings' places in `state` as the configuration's paths); the model's `settle()`, then every slider, radio, switch and dropdown in step with the settings |
-| 1095–1135 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
-| 1136–1151 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show()`, the view; the kit's `startLoop()` |
+| 787–922 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
+| 923–1007 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
+| 1008–1100 | The view as JSON; **the rooms' buttons and the drawers**; Reset, Share and offline support | `viewNow()`, `readDisplay()`; `ROOM_BUTTONS` (each room's name, drawer and options), the split buttons (`goToRoom()`, each room's Bird's eye or Plan kept on this device), `DRAWERS` (Other, Lounge, Bedroom, Garage, Hallway and stairs), the options button (`showRoomOptions()`, from `hooks.place()`) |
+| 1101–1152 | The rooms' modules' controls and `syncControls()` | `roomEdits()` (their settings' places in `state` as the configuration's paths); the model's `settle()`, then every slider, radio, switch and dropdown in step with the settings |
+| 1153–1193 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
+| 1194–1209 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show()`, the view; the kit's `startLoop()` |
 
 ### kit/floor_kit.js (541 lines)
 
@@ -198,13 +202,13 @@ DOM or three.js, so Node can use it too (step 6c).
 | Lines | What |
 |---|---|
 | 1–5 | Base: what the file is for, colour scheme, page background and font, `#view` filling the window |
-| 6–20 | The four drawers (`.drawer`: `#panel`, `#loungePanel`, `#bedPanel`, `#garagePanel`) and their open states |
+| 6–20 | The five drawers (`.drawer`: `#panel`, `#hallPanel`, `#loungePanel`, `#bedPanel`, `#garagePanel`) and their open states; further down, the sheet on phones and the split buttons (`.split`) |
 | 21–49 | `#bar`, `#corner` and the pop-up menus (`.pop`, `.group`, `.popToggle`, each menu's `--tint`), and the floating text buttons (`.chip`) |
 | 50–67 | The menus' groups, tags and dropdowns (`.group`, `.pick`), and the option list in the top bar |
-| 68–70 | The scrim, and the phone-only rule for it |
+| 68–70 | The options button moving clear of an open drawer |
 | 72–100 | The drawers' sections, labels, sliders, buttons, radio rows and switch |
 | 101–114 | Tooltip, things to store, description |
-| 115–125 | The cutting list |
+| 115–125 | The cutting lists (`.cutList`), in the lounge's and bedroom's options |
 
 ---
 
@@ -231,11 +235,11 @@ the state** by adding or removing a class. Most of the menu behaviour works this
 
 - `#view` is `position: fixed; inset: 0`, so it fills the window.
   The 3D canvas lives inside it.
-- `#bar`, `#topRight`, `#corner`, `#cutBox`, the two drawers, `#scrim` and `#tip` are all
+- `#bar`, `#topRight`, `#corner`, `#bottomLeft`, the drawers and `#tip` are all
   `position: fixed`. They sit on top of the canvas at the screen edges, set by
   `top`/`left`/`right`/`bottom`.
-- `z-index` sets which layer is on top: canvas (0) < bars and menus (2) < scrim (2,
-  later in the HTML) < drawer (3) < tooltip (4).
+- `z-index` sets which layer is on top: canvas (0) < bars and menus (2) <
+  drawer (3) < tooltip (4).
 - **`pointer-events: none`** on the containers (`#bar`, `#topRight`, `.pop`,
   `.group`), with `pointer-events: auto` on the buttons and dropdowns themselves
  . A container is an invisible box, and without
@@ -265,7 +269,7 @@ rule therefore gives each menu button its own colour.
 ### One class for many buttons
 
 The floating text buttons (Lounge options, Share, Reset, Dimensions, Show
-cutting list, and the menus' Save and Delete) all have `class="chip"` in the
+the room buttons, and the menus' Save and Delete) all have `class="chip"` in the
 HTML, and one `.chip` rule styles them. To give a new button the same look, add `class="chip"` to it.
 
 ### Hand-styled controls
@@ -284,9 +288,13 @@ HTML, and one `.chip` rule styles them. To give a new button the same look, add 
 
 - `max-width: 88vw` on the drawer means it never takes more than
   88% of the screen width.
-- `@media (max-width: 900px) { body.menu-open #scrim { display: block; } }`
- : the scrim only appears on narrow screens. On a wide screen the
-  drawer sits over the model and the model stays usable.
+- `@media (max-width: 600px)`: on a phone held upright a drawer is a sheet
+  from the bottom, `--sheet` high (its handle, `.sheetHandle`, drags it
+  between a third and two thirds of the screen), and while one's open only
+  ☰ stays in the top bar. There's no scrim: an open drawer leaves the room
+  live, and the views fit the part it leaves clear (`drawers.covering()` in
+  `kit/floor_kit.js`: the 3D view with `setViewOffset()`, the 2D views
+  fitted again), so a slider's change can be watched as it's dragged.
 
 ---
 
@@ -296,13 +304,13 @@ There are three kinds of menu. **All of them are HTML + CSS + a little JS.** The
 JS adds or removes a class or sets an attribute, and the CSS reacts to that.
 The one exception is `<details>`, which is pure HTML.
 
-### a) The four drawers (`#panel`, `#loungePanel`, `#bedPanel`, `#garagePanel`)
+### a) The five drawers (`#panel`, `#hallPanel`, `#loungePanel`, `#bedPanel`, `#garagePanel`)
 
 | Part | Where |
 |---|---|
-| HTML | `<div id="panel" class="drawer">` (**Other options**, the hallway and stairs, opened by ☰ `#menu`), `#loungePanel` (**Lounge options**, by `#loungeMenu`), `#bedPanel` (**Bedroom options**, by `#bedMenu`) and `#garagePanel` (**Garage options**, by `#garageMenu`), each with a ✕ (`.close`) |
-| CSS | Normally moved off-screen to the left with `transform`. With `body.menu-open #panel`, `body.lounge-open #loungePanel` and so on it is back on screen. A `transition` on `transform` animates the slide |
-| JS | `DRAWERS` maps each drawer to its button and its class on `<body>`. `setMenu(id)` opens drawer `id` and closes the others (`setMenu(null)` closes them all), so one is open at a time. Its button toggles it; ✕, the scrim and Escape close it |
+| HTML | `<div id="panel" class="drawer">` (**Other options**, opened by ☰ `#menu`), and each room's: `#loungePanel` (**Lounge options**), `#bedPanel` (**Bedroom options**), `#garagePanel` (**Garage options**) and `#hallPanel` (**Hallway and stairs options**, the hallway's and downstairs'), opened by the options button (`#roomOptions`) for the room in view; each with a ✕ (`.close`) |
+| CSS | Normally moved off-screen with `transform` (to the left, or below as a sheet on a phone). With `body.menu-open #panel`, `body.lounge-open #loungePanel` and so on it is back on screen. A `transition` on `transform` animates the slide |
+| JS | `DRAWERS` maps each drawer to its button (null for the rooms', which `#roomOptions` opens by `setMenu()`) and its class on `<body>`. `setMenu(id)` opens drawer `id` and closes the others (`setMenu(null)` closes them all), so one is open at a time. ✕ and Escape close it. `ROOM_BUTTONS` in living_room.js names each room's button, drawer and options |
 
 The JS doesn't move the drawers. It only switches a class on `<body>`, and the
 CSS does the movement and the animation.
