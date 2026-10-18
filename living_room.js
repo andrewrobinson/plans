@@ -86,7 +86,7 @@ function frameCupboard() {
 }
 
 // A corner cupboard's cutting list as HTML, by its piece's name: the living
-// room's, in the 2D views' box, or the bedroom's, in Bedroom options
+// room's, in Lounge options, or the bedroom's, in Bedroom options
 function cuttingListHtml(piece) {
   const design = key => get(`pieces.${piece}.design.${key}`);
   const option = OPTIONS[optionAt(design('option'))];
@@ -105,20 +105,16 @@ function cuttingListHtml(piece) {
     `<div class="cutRule">${CUT_RULE}${CUT_EXCEPTIONS[option.no] ? ` ${CUT_EXCEPTIONS[option.no]}` : ''}</div>${rows}` +
     `<div class="cutTotal">${boards} boards, ${(area / 1e6).toFixed(2)} m² in all</div>`;
 }
-const cutList = document.getElementById('cutList'), cutToggle = document.getElementById('cutToggle');
-function showCuttingList() { cutList.innerHTML = cuttingListHtml('cornerCupboard'); }
-// The bedroom cupboard's, shown when it's unfolded
-const bedroomCutting = document.getElementById('bedroomCutting');
-function showBedroomCuttingList() {
-  if (bedroomCutting.open) document.getElementById('bedroomCutList').innerHTML = cuttingListHtml('bedroomCupboard');
+// Each corner cupboard's cutting list, folded away in its room's options:
+// [its <details>, where the list goes, the cupboard's piece]. Drawn when
+// unfolded, and again as anything changes while it's open
+const CUTTING_LISTS = [['loungeCutting', 'loungeCutList', 'cornerCupboard'], ['bedroomCutting', 'bedroomCutList', 'bedroomCupboard']];
+function showCuttingLists() {
+  for (const [details, list, piece] of CUTTING_LISTS) {
+    if (document.getElementById(details).open) document.getElementById(list).innerHTML = cuttingListHtml(piece);
+  }
 }
-bedroomCutting.addEventListener('toggle', showBedroomCuttingList);
-cutToggle.addEventListener('click', () => {
-  cutList.hidden = !cutList.hidden;
-  cutToggle.textContent = cutList.hidden ? 'Show cutting list' : 'Hide cutting list';
-  cutToggle.setAttribute('aria-expanded', String(!cutList.hidden));
-  if (!cutList.hidden) showCuttingList();
-});
+for (const [details] of CUTTING_LISTS) document.getElementById(details).addEventListener('toggle', showCuttingLists);
 
 // Each thing's height off the floor, as on a shelf: 0 on the floor
 const storedLifts = document.getElementById('storedLifts');
@@ -366,7 +362,7 @@ function redrawAround() {
   updatePalette();
   showStored();
   if (cupboardOnly) updateDims();                                // its shelves are drawn now, to dimension
-  if (!cutList.hidden) showCuttingList();                       // with its shelves as drawn, round the things to store
+  showCuttingLists();                                           // with its shelves as drawn, round the things to store
   writeAddress();
   update();
 }
@@ -431,7 +427,6 @@ function showBedroomCupboard() {
   document.getElementById('bedroomCupboardBlock').hidden = !on;
   document.getElementById('bedroomCupboardOff').hidden = on;
   if (on) bedroomCupboardControls.showBlocks();
-  showBedroomCuttingList();
 }
 document.querySelectorAll('input[name=bench]').forEach(r => r.addEventListener('change', () => change([['pieces.bench.design.height', Number(r.value)]])));
 // The description starts folded away; remember if the viewer opens it

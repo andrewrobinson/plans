@@ -130,6 +130,9 @@ test.describe('the settings drawers', () => {
     expect(await viewOf(page)).toMatchObject({ room: 'garage', view: 'plan' });
     await page.click('#roomOptions');
     await expect(page.locator('#garagePanel')).toBeInViewport();
+    // Only the lounge and the bedroom have a cupboard, so a cutting list
+    for (const panel of ['#garagePanel', '#panel']) await expect(page.locator(panel)).not.toContainText('Cutting list');
+    for (const panel of ['#loungePanel', '#bedPanel']) await expect(page.locator(`${panel} summary`, { hasText: 'Cutting list' })).toHaveCount(1);
   });
 
   test('the option list is in Lounge options, with its sliders', async ({ page }) => {

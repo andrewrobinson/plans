@@ -78,14 +78,9 @@
     <button class="popToggle" aria-label="Scenes" title="Scenes" aria-controls="sceneGroup" aria-expanded="false">☰</button>
   </div>
 </div>
-<!-- At the bottom left: the options for the room in view (its drawer), and
-     in the 2D views the cutting list's button, the list opening above them -->
+<!-- At the bottom left: the options for the room in view (its drawer) -->
 <div id="bottomLeft">
-  <div id="cutList" class="cutList" data-mode="2d" hidden></div>
-  <div class="row">
-    <button id="roomOptions" class="chip" aria-expanded="false">Lounge options</button>
-    <button id="cutToggle" class="chip" data-mode="2d" aria-controls="cutList" aria-expanded="false">Show cutting list</button>
-  </div>
+  <button id="roomOptions" class="chip" aria-expanded="false">Lounge options</button>
 </div>
 <div id="tip"></div>
 <div id="panel" class="drawer">
@@ -180,6 +175,12 @@
         <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
       </div>
     </div>
+    <!-- The corner cupboard's cutting list, folded away till opened (the
+         bedroom cupboard has its own, in Bedroom options) -->
+    <details id="loungeCutting">
+      <summary>Cutting list</summary>
+      <div id="loungeCutList" class="cutList"></div>
+    </details>
   </details>
   <details class="sec" id="secFrontWall" open>
     <summary>The front wall and the island</summary>

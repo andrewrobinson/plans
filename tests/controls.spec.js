@@ -737,15 +737,17 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   expect(await hash(page)).toBe(start);
 });
 
-test.describe('the 2D views\' door sizes and cutting list', () => {
+// The cutting list is in Lounge options (the bedroom cupboard's in Bedroom
+// options), folded away till opened
+test.describe('the 2D views\' door sizes, and the cutting list', () => {
   const PLAN = inPlan('option07');                             // option 7, in the plan
 
   test('the cutting list opens, follows the boards\' thickness, and closes', async ({ page }) => {
     await openRoom(page, PLAN);
-    const list = page.locator('#cutList'), toggle = page.locator('#cutToggle');
+    await openOptions(page);
+    const list = page.locator('#loungeCutList'), toggle = page.locator('#loungeCutting summary');
     await expect(list).toBeHidden();
     await toggle.click();
-    await expect(toggle).toHaveText('Hide cutting list');
     // Option 7 at 18: its doors are LEG - BOARD - 6 and F - LEG_D - 6 wide, H - 6 high
     await expect(list).toContainText('boards 18 thick');
     await expect(list).toContainText('2437 × 576');
@@ -763,7 +765,6 @@ test.describe('the 2D views\' door sizes and cutting list', () => {
     await expect(list).toContainText('2437 × 594');                 // the left-wall leg's, not
     await toggle.click();
     await expect(list).toBeHidden();
-    await expect(toggle).toHaveText('Show cutting list');
   });
 
   // Option 10's side bookshelf is part of its cupboard: its rear panel,
@@ -771,8 +772,9 @@ test.describe('the 2D views\' door sizes and cutting list', () => {
   // sliders
   test('option 10\'s side bookshelf is in the cutting list', async ({ page }) => {
     await openRoom(page, inPlan('option10', { 'pieces.cornerCupboard.design.SIDE_SHELF': true }));
-    const list = page.locator('#cutList');
-    await page.locator('#cutToggle').click();
+    await openOptions(page);
+    const list = page.locator('#loungeCutList');
+    await page.locator('#loungeCutting summary').click();
     await expect(list).toContainText('2443 × 312');                 // its own side, full height, in front of its rear panel
     await expect(list).toContainText('Bookshelf side');
     await expect(list).toContainText('2443 × 400');                 // its rear panel, on from the cupboard's
