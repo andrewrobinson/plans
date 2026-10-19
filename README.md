@@ -51,7 +51,7 @@ takes new screenshots and snapshots when a change is meant to show.
 The notes:
 
 - `CLAUDE.md`: how to write the code.
-- `PLAN.md`: what's done and what's next.
+- `PLAN.md`: what's next.
 - `room_dimensions.md`: every dimension the model uses, and the configuration's and the page address's format.
 - `MEASUREMENTS_NEEDED.md`: what's measured and what's still to measure, in "Where it's got to".
 - `REFACTOR_PLAN.md`: tidying the code.
@@ -127,12 +127,7 @@ The notes:
   Where and Looking at offer that room's, and Bird's eye and Plan (2D)
   frame it.
 
-Next (`PLAN.md`): Y to check (2330, against 3360 on the drawing); the
-stairs' going (X) and the winders' sizes; the right sill board's 2370
-against the hallway's 2330, and the WC wall's bottom over the stairs (how
-deep, how far down); the bathroom and WC; walls seen from above in the bedroom's
-and hallway's plans; looking from the hallway into a room; stopping
-furniture at the walls.
+What's next: `PLAN.md`.
 
 Working rule: a branch for each piece of work; when it's done and tested,
 it's merged into `main` and pushed, which publishes it.

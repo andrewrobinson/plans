@@ -219,6 +219,36 @@ The view:
 
 `room` is the room chosen: `livingRoom`, `hallway`, `bedroom`, `downstairs` or `garage`. `view` is a listed view's id (as `desk`, `plan` or `look:desk:tv`); for anywhere else (moved by hand, or a view saved on a device) it's `null`, and `camera` is `{ "kind", "position", "target", "fov" }`: `cam` (orbiting), `walk` (as a person) or `seat` (in the chair), the camera's place and aim in mm, in the scene's axes (x, height, y), and its angle across in degrees. 2D views keep their id only, not any panning or zooming. `eye` is the eye height. Then the Dimensions, Door sizes, Cupboard only and See-through switches, so a link shows them as they were.
 
+### How the configuration was decided (16 Oct 2026)
+
+**Why**: settings, menus, drawing and the address all reached into one
+global `state`; the address was about 75 unnamed values in the order they
+were added; and the flat could only be built inside the page, so every
+test drove a browser. So a configuration went between the menus and what's
+drawn: two JSON documents, **the configuration** (input: everything chosen,
+each piece once, with a `version`; the address's first part) and **the
+snapshot** (output: the configuration as read, each cupboard's cutting
+list, the dimension figures, the description and each piece's box; saved
+beside each test configuration in `tests/snapshots/` and compared exactly;
+later the source for engineering drawings). The view is the address's
+second part.
+
+| Question | Decided |
+|---|---|
+| The configuration's shape | **By piece**: each piece once, with its design and where it is in each room. The two corner cupboards are two pieces |
+| Names inside a piece | `state`'s (`T`, `R`, `LEG_D`, `L_SHELVES`, …), renamed only where the piece says it (`BENCH` → `bench.design.height`) |
+| Places | Flat, in each room's own axes, as the sliders: `{ on, x, y, turn }` in the living room and garage, `u, v` in the bedroom, `along, across` in the hallway |
+| Choices | Words (`above: "tvAndShelves"`); options by number (7 to 11, 16); colours stay codes; sizes in mm |
+| `version` | 1; up only when a setting changes its path or meaning. Missing settings take their defaults, unknown ones are ignored, another version is ignored with a warning |
+| The view | A document of its own: `room`, `view` (or `camera`), `eye`, and the display switches |
+| Door angles | In the configuration, as the flat's state. Since decided (17 Oct 2026) to move into the view (`REFACTOR_PLAN.md`), not done yet |
+| The address | `#<configuration>~<view>`, each the full JSON, deflated and base64url'd. The full configuration, not changes from defaults, so a link never changes meaning when a default does |
+| Schema entries | Each module's list (`OTHER_ROOM_SCHEMA`, …), ranges written in it (`SLIDER_RANGES`, checked against the sliders by a browser test), defaults from its `…_START`; the general code in `kit/config_kit.js` |
+| JSON in and out of the page | Only `window.plans`: `export()`, `view()`, `load(json)`, `snapshot()`, for the tests and the browser console |
+| The model | `flat_model.js`, with `buildFlat(config, view)`, no DOM; `living_room.js` keeps the page. Canvases in Node are the kit's `makeCanvas()` stand-in |
+| Testing the model | `node --test` with `three@0.160.0` (the page's version): `npm run test:model`. Every saved configuration gives its saved snapshot; generated ones (every option, each setting at its ends, each board thickness) build, fit their rooms with the doors opened, and round-trip through the address |
+| The corner cupboards | Instances (`makeCupboard()`), each built against its room's `place`, with its own materials and its boards tagged by kind |
+
 ## The garage
 
 Added 16 Oct 2026, in [garage.js](garage.js): 5327 long, 2866 wide, 2432 to
@@ -679,8 +709,8 @@ Heights here are set from the bench height; the value at the default bench of 78
 
 ## Checked against the floor plan
 
-The second floor plan (`drawings/second_floor_plan.png`; see `PLAN.md`)
-agrees with these measurements when scaled, though it isn't meant to be
+The second floor plan (`drawings/second_floor_plan.png`), scaled at about
+8.4 mm a pixel, agrees with these measurements when scaled, though it isn't meant to be
 scaled:
 
 | | Scaled from the drawing | Measured here |
@@ -693,8 +723,9 @@ scaled:
 On the drawing, the outer wall (three windows) is at the top, the back wall
 (bench) on the left, the front wall with the chimney breast on the right, and
 the left wall, with the room door, along the room's lower edge. The drawing's
-kitchen fittings don't match the room; its walls do. `PLAN.md` has first
-estimates for the other room, hallway and stairs, in this room's coordinates.
+kitchen fittings don't match the room; its walls do. Everything below the
+living room on the drawing (hallway, stairs, bathroom, the other room) is
+at negative x, beyond the kitchen recess.
 
 ## TODO
 
@@ -721,4 +752,3 @@ How these fit, with the counter at the back of the 372-deep sink recess (y = 575
 - With a small TV, the middle shelves either side sit level with its top edge, not halfway up it.
 - A thin brick-coloured strip shows at one edge of the back and front wall views (a window's outer reveal, seen through the wall's thickness).
 - Ideas: a guided tour through chosen options. (Automated checks are done: the Playwright tests in `tests/`, run with `npm test`.)
-- Tidying: deleting branches already merged.
