@@ -15,37 +15,96 @@ their arguments, and let the snapshots check it. After a new setting,
 `npm run regen` writes the saved configurations and snapshots again
 through the model; check the diff holds only the new setting. The controls
 tests' corner cupboard sizes test can time out under load and pass when
-run again.
+run again (item 1).
 
 ---
 
 ## Left to do
 
-In order, as each makes the next easier:
+From the review of the code (19 Oct 2026), merged with what was here, in
+order: the tests first, so the rest is checked by a suite that can be
+trusted; then the small standalone pieces; then `state`'s track, each step
+making the next easier. Each keeps what the page does (no snapshot or
+screenshot changes) unless it says otherwise.
 
-1. **The door angles into the view** (decided 17 Oct 2026,
-   `ui_paradigm_analysis.md`): out of the configuration (`doors.*`), so
-   Packing and walking in no longer change the flat.
-2. **What's worked out leaves `state`** (`ui_paradigm_analysis.md`,
-   recommendation 5): `settle()` and `placeStored()` keep worked-out values
-   (the TV's size, where the dresser stands, the things to store's places)
-   beside the settings, so the order of calls matters; `build()` turns
-   option 8 into 7.
-3. **The configuration as the store, `state` going**
-   (`ui_paradigm_analysis.md`, recommendation 1's second half): the
-   drawing code reads the configuration (or a cupboard's settings from it)
-   in place of `state`. The menus already write only through `set(path,
-   value)`; `flat_model.js` still reads `state.` in 113 places.
+**The tests**
+
+1. **The flaky test's cause**: the controls tests' "corner cupboard
+   sizes" can time out under load and pass when run again. Find why it's
+   slow (too many rebuilds?) and fix that, rather than a longer timeout or
+   retries.
+2. **Fewer screenshots**: 68 baselines (9.1 MB), changed by 50 commits;
+   `.git` is 133 MB, mostly old screenshots. Drop those whose content the
+   model's snapshots already check (dimensions, cutting lists, places), and
+   keep a few per room for how it looks. Before the UI fixes
+   (`UI_CRITIQUE.md`), which change many of them.
+3. **A guard on `state`**: a model test that fails if any file but the
+   model writes `state.` (a search of the source), so the menus keep
+   writing only through `set(path, value)`. `living_room.js` reads it in 74
+   places and writes it in none today.
+
+**Small, standalone**
+
+4. **One `rebuild()`**: `build()`, `drawStored()`, `turnDoors()` and
+   `updateDims()` in their order, in one function, which `buildFlat()` and
+   the page both call, so nothing has to remember them. (A new flat per
+   build, with no module state, was considered and not chosen.)
+5. **The repeated measurements named**: `floor.js` has the recesses' 372
+   (measured) written five times, and `RECESS_FROM`'s 610 and 2125 (the
+   counter's depth and run, measured) bare.
+6. **The menus' shared helpers into `kit/controls_kit.js`**: `slider()`,
+   `lyingSwitch`, `wallPick()` and `resetButtons()`, from `other_room.js`,
+   which the stairs', shoe boxes', wicker bench's and garage's modules
+   import today. Each piece keeps its own menu in its own file.
+7. **One `drawFloor()`**, in named steps: the living room's walls, the
+   ceiling and lights, the outer wall, the bedroom's shell, the hallway and
+   stairs, the entrance, the bathroom. Today `floor.js` (841 lines) draws on
+   import, partly at its top level, partly in functions called at its end.
+   Its numbers named on the way (measured, estimated or chosen). The model's
+   own load-time calls (the room door's drawing, `benchHeights()`,
+   `placeDresser()`) go too, if the snapshots hold without them.
+8. **`kit/view_kit.js`'s `create()` split**: one function of 482 lines
+   holding about 40 inner ones. Its parts (rooms and places, eyes, looks,
+   saved views, the camera) as functions or modules of their own, each
+   given what it needs.
+
+**`state`'s track**
+
+9. **The option held as its number** (7 to 11, 16) in `state`, as the
+   configuration has it, not its index in `OPTIONS`; `optionAt()` only
+   where the list is indexed, and `CURRENT` no longer "the last one".
+10. **The door angles into the view** (decided 17 Oct 2026,
+    `ui_paradigm_analysis.md`): out of the configuration (`doors.*`), so
+    Packing and walking in no longer change the flat.
+11. **What's worked out leaves `state`** (`ui_paradigm_analysis.md`,
+    recommendation 5): `settle()` and `placeStored()` keep worked-out values
+    (the TV's size, where the dresser stands, the things to store's places)
+    beside the settings, so the order of calls matters; `build()` turns
+    option 8 into 7.
+12. **`state` in the configuration's shape, a room at a time**: the
+    lounge's `billyOn`, `billyMove` and `billyLying` become
+    `pieces.billy.in.livingRoom.*`, and so on, the bedroom's and the
+    garage's likewise, till each schema entry maps a path onto itself. The
+    shoe boxes get their own place (now in `state.stairWalls.shoeBoxes`).
+    One room per step.
+13. **The configuration as the store, `state` going**
+    (`ui_paradigm_analysis.md`, recommendation 1's second half): after 12,
+    a rename. `flat_model.js` reads `state.` in 113 places.
+
+**Then**
+
+14. **The controls tests from the page as it opens**: today they start
+    from `designed` (option 10 with the bench and the dresser), so the
+    default page's controls are tested only where a test sets them. All of
+    them moved, each switching on what it needs. The largest job here;
+    after 12 and 13, which change the paths the tests read.
+
+As you go (CLAUDE.md): a function's numbers named and long functions split
+when they're next changed; `stairWallsControls()` (about 80 lines) is the
+first.
 
 Any time:
 
-- **`stairWallsControls()`** (`stair_walls.js`, about 80 lines): building
-  the HTML, syncing and editing as three named functions.
-- **The hallway's drawing in `floor.js`** (841 lines) is one long block:
-  named steps, as `newelsAtTheWinders()` and `wallHandrail()` are.
-- **The shoe boxes' settings** live in `state.stairWalls.shoeBoxes` so
-  `stair_walls.js` can keep the shelves clear of them: worth their own
-  place in the configuration once `state` goes (3, above).
 - **The big files**: `flat_model.js` has grown from 1,582 lines after the
   corner cupboard left it to 1,917, and `living_room.js` is 1,309. Which
   pieces could leave each, to decide (suggested 19 Oct 2026, not agreed).
