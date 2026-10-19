@@ -1104,7 +1104,7 @@ function goToRoom(room) {
 for (const [room, { name }] of Object.entries(ROOM_BUTTONS)) {
   const id = `${name.toLowerCase()}View`;                           // loungeView, bedroomView and so on
   const split = Object.assign(document.createElement('div'), { className: 'split' });
-  const go = Object.assign(document.createElement('button'), { id, className: 'chip', textContent: `${name} view`, title: `Go to the ${name.toLowerCase()}` });
+  const go = Object.assign(document.createElement('button'), { id, className: 'chip', textContent: name, title: `Go to the ${name.toLowerCase()}` });   // the room's name alone, short for the phone's top bar (asked for, 19 Oct 2026)
   const kind = Object.assign(document.createElement('select'), { id: `${id}Kind`, className: 'pick' });
   kind.setAttribute('aria-label', `${name} view: seen from`);
   kind.append(...ROOM_VIEW_KINDS.map(([value, label]) => Object.assign(document.createElement('option'), { value, textContent: label })));

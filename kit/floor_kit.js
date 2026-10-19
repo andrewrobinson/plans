@@ -455,9 +455,10 @@ export function shareButton(button, publicUrl, text) {
 // again just before it's read. name() names the file when the clipboard
 // can't take pictures (some browsers) and it's downloaded instead.
 export function screenshotButton(button, canvas, draw, name) {
+  const label = button.textContent;                   // as the page gives it (📷)
   const said = words => {
     button.textContent = words;
-    setTimeout(() => { button.textContent = 'Screenshot'; }, 2000);
+    setTimeout(() => { button.textContent = label; }, 2000);
   };
   const png = () => new Promise(done => { draw(); canvas.toBlob(done, 'image/png'); });
   button.addEventListener('click', async () => {
