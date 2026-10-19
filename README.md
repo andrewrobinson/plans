@@ -39,6 +39,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
 | `stair_walls.js` | The shelves and pictures on the walls over the stairs, and their sliders ([HALLWAY_SHELVES.md](HALLWAY_SHELVES.md)) |
+| `shoe_boxes.js` | The shoe boxes on the sills either side of the top of the stairs, and their sliders ([HALLWAY_SHELVES.md](HALLWAY_SHELVES.md)) |
 | `garage.js` | The garage (off the site plan, in its own x, y mm), what's in it, and Garage options' sliders |
 | `living_room.views.js` | The rooms, places (Where), things (Looking at), eye heights and config-defined views, for editing |
 | `living_room.configurations.js`, `dressers.js`, `larders.js`, `sofas.js` | Named configurations and furniture catalogues, for editing |

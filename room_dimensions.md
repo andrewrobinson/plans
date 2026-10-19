@@ -392,12 +392,14 @@ from inside only, as the bedroom's, so the bird's eye looks in.
 | The banister | y 1312, 909 from the kitchen side, its rail flush with its base's hallway face (y 1372) | Measured (AB; D gives 1317) |
 | The far end, the WC wall | x −2480, 2330 along | Measured (Y), to check: the drawing scales 3360 |
 | The stairwell | 900 wall to wall, y 122 to 1022; along its hallway side a 110 ledge, then a 240 box (150 high) the banister stands on, to y 1372 | Measured 15 Oct 2026 (the box's height estimated); the outside wall comes 122 in from the back wall's line, as the drawing has it |
-| The sill boards | At the top the opening is wider than the well: on each side a white window-sill board (25 thick) bridges the gap from the well's wall to the hallway floor. Looking down the stairs, on the left (hallway side) one 240 wide, 210 below the hallway floor, from the winders' newel 1650 along (1430 to the hallway's far end, then 220 on into a corner under the WC wall), with the banister's 110 base (150 high) between it and the floor; on the right, against the outside wall, one 120 wide, level with the floor, from the door wall to the far end's wall, so above the floor the outside wall is at y 2, all but in line with the living room's | Measured 15 Oct 2026: the right one 2370 to where the stairs turn, drawn the hallway's 2330 (to check); the boards' thickness and the base's height estimated |
+| The sill boards | At the top the opening is wider than the well: on each side a white window-sill board (25 thick) bridges the gap from the well's wall to the hallway floor. Looking down the stairs, on the left (hallway side) one 240 wide, 210 below the hallway floor, from the winders' newel 1650 along (1430 to the hallway's far end, then 220 on into a corner under the WC wall), with the banister's 110 base (150 high) between it and the floor; on the right, against the outside wall, one 120 wide, 25 below the floor, from the door wall to the far end's wall, so above the floor the outside wall is at y 2, all but in line with the living room's | Measured 15 Oct 2026: the right one 2370 to where the stairs turn, drawn the hallway's 2330 (to check); the right one's 25 below the floor from the user, 19 Oct 2026 (to check: drawn level with it before), the left one's 210 is 20 below the first step down (190); the boards' thickness and the base's height estimated |
 | The WC wall over the well | Stops at the hallway floor's level, its bottom 220 deep, to the left board's corner (x −2700); past it, the bathroom floor's underside | From the left board's length; the depth of the bottom not measured |
 | The stairs | Up from the foot: 11 straight steps along the outside wall towards the living room door, 3 winders turning right in a 900 square against the door wall, then 1 more step whose tread is level with the hallway floor. 15 risers of 190, 2850 floor to floor; straight steps 810 wide between 45 strings. The newel at the winders' inner corner, x −1050; the flight's foot at x −3470 | Measured and counted 15 Oct 2026; the going (220) is the drawing's, still to measure |
 | Under the bathroom | Past the far end the flight runs on under the bathroom's floor (taken as 300 thick), to its foot | Estimated |
 | Floors | The hallway's oak boards, as the living room's, with a metal strip (30 wide) where the top step's carpet meets them; the stairs carpet, as the bedroom | From the photos |
 | Banister | Rail at 900, 60 wide; spindles 30 thick, about 120 apart; a 90 newel post at each end | Estimated |
+| The second newel post | At the winders, 90 square like the banister's end post and in line with it along the stairs, 200 from it towards the outside wall (so its outside face at y 992, over the left board's end), running down beside the well's hallway-side wall to the tread 5 steps down (950 below the hallway floor), its top at 1000 as the end post's. Between their tops a short rail like the banister's; under it a board (60 × 50) sloping from the base's top (150) at the end post to the first step's level (−190) at the second, with one spindle on it, halfway; a 130 square cap, 40 deep, on each of the two posts | The user, 19 Oct 2026, from photos (the gap, the size, how far down); the board's size, the caps and the slope's ends agreed from the photos, estimated |
+| The handrail | A round rail, 40 thick, 65 out from the well's hallway-side wall, down the straight flight: its top end 420 along from the second newel post, 2400 long along its slope, on 3 brackets the same distance apart, each a 60 round plate on the wall, an arm bending up and a collar round the rail. The top bracket meets the wall 540 along from the second post, 245 below the left board's top (455 below the hallway floor); the bottom one 875 above step 2 (counting from the foot), the rail 990 above it, taken as under the step's middle | The user, 19 Oct 2026, with a photo of a bracket; its thickness, how far out and the brackets' parts estimated. The user also gave the top bracket as 845 above step 9, 160 higher than the drawing's going (220) puts it: left out till the going's measured |
 | Ceiling | Not drawn, as asked; the walls go to 2443, as the living room's | Assumed |
 
 ### Downstairs: the stairs' foot and the shared lobby
@@ -447,6 +449,17 @@ the configuration (`hallway.wcWall`, `hallway.loungeWall`,
 `hallway.tvWall`, `hallway.cornerShelves` for the L-shaped shelves,
 `hallway.bathroomShown`) are in [HALLWAY_SHELVES.md](HALLWAY_SHELVES.md).
 All off to start, at the user's sizes and places once on.
+
+### The shoe boxes on the sills
+
+A box on each of the two sill boards either side of the top of the stairs,
+in [shoe_boxes.js](shoe_boxes.js): open towards the stairs, 18 white
+panels, no wider than the sill (the left sill's top 210 below the
+hallway floor, the right's 25, both to check), and on the left one, under the WC wall,
+sloping to the sill's corner. In the configuration as
+`hallway.shoeBoxes.left` and `.right` (`on`, `from`, `length`, `width`,
+`height`, and the right one's `levelWithLeft`, its top kept level with the
+left's); both off to start, the left 370 high once on. More in [HALLWAY_SHELVES.md](HALLWAY_SHELVES.md).
 
 ### The wicker bench
 

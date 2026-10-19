@@ -216,11 +216,26 @@ Plans don't give heights, so the slope can only come from these.
 - [ ] **The opening above the stairs:** its length and width, and the
       headroom, the lowest ceiling over any step, measured straight up
       from the step's front edge.
+- [ ] **The stairs' going** (still the drawing's 220): the handrail's top
+      bracket is 845 above step 9 (from the foot) by the user's figure, but
+      160 lower than that as drawn, from its other measurement (540 from the
+      second newel post, 245 below the left sill). Measuring the going would
+      settle which.
+- [ ] **The skirting up the stairs** (the user, 19 Oct 2026): a skirting
+      joins the second newel post; still to model. Which wall it's on, its
+      height and thickness.
+- [ ] **The sill boards' heights** (from the user, 19 Oct 2026, to
+      check): the left one's top 210 below the hallway floor (20 below the
+      first step down, at 190), the right one's 25 below it (drawn level
+      with the floor till then). Both shoe boxes sit on them
+      (shoe_boxes.js).
 - [ ] **The sill boards and the WC wall over the stairs:** the right
       board measured 2370 to where the stairs turn, but the hallway is 2330
       long: from where to where? And the WC wall's bottom over the stairs
       (drawn level with the hallway floor, 220 deep, to the left board's
       corner): how deep it is, front to back, and how far it comes down.
+      It sets the room under it for the left shoe box (shoe_boxes.js: 210,
+      the sill's drop, taken), and so where its slope starts.
       The banister's base: its height above the hallway floor.
 - [ ] **The ceiling over the stairs:** is it flat or sloping, and where does it
       change?

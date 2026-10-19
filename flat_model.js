@@ -34,6 +34,7 @@ import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNew
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
 import { drawShoeRack, shoeRack, SHOE_RACK_START, SHOE_RACK_SCHEMA } from './shoe_rack.js';
 import { drawStairWalls, settleStairWalls, STAIR_WALLS_START, STAIR_WALLS_SCHEMA } from './stair_walls.js';
+import { drawShoeBoxes, SHOE_BOXES_SCHEMA } from './shoe_boxes.js';
 import { drawGarage, garagePieces, GARAGE, GARAGE_CORNER, GARAGE_START, GARAGE_SCHEMA } from './garage.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, floorMat, FRIDGE_W, RECESS_FROM,
   KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, SINK_RECESS, DESK_TOP,
@@ -322,7 +323,7 @@ const state = {
   otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
   wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
   shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
-  stairWalls: structuredClone(STAIR_WALLS_START),     // the shelves and pictures on the walls over the stairs, none to start (stair_walls.js)
+  stairWalls: structuredClone(STAIR_WALLS_START),     // the shelves and pictures on the walls over the stairs, and the shoe boxes on the sills, none to start (stair_walls.js, shoe_boxes.js)
   bathroomShown: true,             // the bathroom and WC drawn, or hidden to see the hallway and stairs past them
   garage: structuredClone(GARAGE_START),              // Sean, Billy, BillyChest and the rest, in the garage: where each stands (garage.js)
   // How far each door is open, in degrees, up to its slider's most
@@ -1682,6 +1683,7 @@ const SCHEMA = Config.withDefaults([
   ...WICKER_BENCH_SCHEMA,
   ...SHOE_RACK_SCHEMA,
   ...STAIR_WALLS_SCHEMA,
+  ...SHOE_BOXES_SCHEMA,
   Config.onOff('hallway.bathroomShown', 'bathroomShown'),
   ...GARAGE_SCHEMA,
   // The things to store: shown or not, which packing, and where
@@ -1829,6 +1831,7 @@ export function build(i, onShow = optionsOnShow()) {
   drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
   drawShoeRack(state.shoeRack);                                 // the shoe rack, downstairs
   drawStairWalls(state.stairWalls);                             // the shelves and pictures over the stairs
+  drawShoeBoxes(state.stairWalls.shoeBoxes);                    // and the shoe boxes on the sills
   bathroom.visible = state.bathroomShown;                       // the bathroom and WC, or not
   drawGarage(state.garage, state.otherRoom.cupboard);           // Sean, Billy, BillyChest and the rest, in the garage
   placeStored();                                                // the cupboard they go in may have changed

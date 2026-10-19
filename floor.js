@@ -165,11 +165,13 @@ const HALLWAY = {
   // the WC wall. Between it and the hallway floor, a 110 base the
   // banister stands on, its hallway face the banister's (its height
   // estimated from the photos). The right one, against the outside wall,
-  // is 120 wide and level with the floor, 2370 long to where the stairs
-  // turn: drawn the hallway's length, 2330
+  // is 120 wide and 2370 long to where the stairs turn: drawn the
+  // hallway's length, 2330. Its top is 25 below the hallway floor (the
+  // user, 19 Oct 2026, to check: it was drawn level with the floor), and
+  // the left one's 210 below it, 20 below the first step down's tread
   base: 110, baseH: 150,
   leftSill: { width: 240, below: 210, length: 1650 },
-  rightSill: { width: 120 },
+  rightSill: { width: 120, below: 25 },
   sillThick: 25,
   // Beyond the hallway's far end the flight runs on under the bathroom's
   // floor to its foot, which runs on to the building's back wall
@@ -180,6 +182,33 @@ const HALLWAY = {
   // The banister's rail height and its spindles' spacing (estimated)
   rail: 900, spindles: 120,
   post: 90, railW: 60, spindle: 30,  // the newel posts' and the rail's width, the spindles' thickness (estimated)
+  // At the winders, a second newel post (the user, 19 Oct 2026, from
+  // photos): 90 square like the first, in line with it along the stairs,
+  // 200 from it towards the outside wall, over the left board's end, and
+  // running down beside the well's hallway-side wall to the tread 5 steps
+  // down. Between their tops a short rail like the banister's, and under
+  // it a board sloping from the base's top at the first post to the first
+  // step down's level at the second, with one spindle on it, halfway
+  newelGap: 200, newelFoot: 5,
+  slopeBoard: { w: 60, h: 50 },      // its width along the stairs and depth (chosen, as the rail's)
+  cap: { w: 130, h: 40 },            // the square cap on each of the two posts at the winders (estimated from the photos)
+  // The handrail on the well's hallway-side wall, down the straight flight
+  // (the user, 19 Oct 2026): its top end 420 along from the second newel
+  // post, 2400 long (along its slope), on 3 brackets the same distance
+  // apart. The highest bracket meets the wall 540 along from the second
+  // post, 245 below the left board's top. Steps counted from the bottom
+  // (the foot): the lowest meets the wall 875 above step 2, the rail 990
+  // above it; taken as under the step's middle. The middle one halfway
+  // between. (The user also gave the highest as 845 above step 9: with
+  // the going as drawn, 220, a guess, that's 160 higher, so it's left out
+  // till the going's measured.) The rail's thickness and how far it stands
+  // out are estimated from the photos
+  handrail: { fromPost: 420, length: 2400, brackets: 3,
+    low: { step: 2, wall: 875, rail: 990 }, high: { fromPost: 540, belowLeftSill: 245 },
+    d: 40, out: 65,                    // the rail's diameter and its middle's distance from the wall (estimated)
+    // Each bracket (from the user's photo): a round plate on the wall, an
+    // arm out from it bending up to a collar round the rail (estimated)
+    plate: { d: 60, t: 10 }, collar: { d: 50, length: 40 }, arm: 16 },
 };
 // Where its walls are, in the living room's x and y
 HALLWAY.x0 = -HALLWAY.doorWall;                                         // the door wall's hallway face: -150
@@ -204,6 +233,7 @@ HALLWAY.xFoot = HALLWAY.xTurn - HALLWAY.flightSteps * HALLWAY.going;    // the b
 HALLWAY.risers = HALLWAY.flightSteps + HALLWAY.winders + HALLWAY.topSteps;   // 15
 HALLWAY.drop = HALLWAY.risers * HALLWAY.rise;                           // floor to floor: 2850
 HALLWAY.xSillEnd = HALLWAY.xTurn - HALLWAY.leftSill.length;             // the left board's corner, under the WC wall: -2700
+HALLWAY.yNewel = HALLWAY.yBoxFace - 2 * HALLWAY.post - HALLWAY.newelGap; // the second newel post's outside-wall face: 992
 
 // ---------------------------------------------------------------------------
 // The other room (the bedroom), beyond the kitchen recess. It has its own
@@ -452,7 +482,7 @@ const hallway = new THREE.Group();                                     // at the
 floor.add(hallway);
 {
   const { x0, xStep, xEnd, xTurn, xFoot, xSillEnd, kitchenSide, yBanister, yBoxFace, ySillEdge, yWellIn, yWellOut, yHallOut, ySetBack, well, stepWidth, rise, going, flightSteps, winders, topSteps, drop,
-    baseH, leftSill, sillThick, bathroomFloor, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
+    baseH, leftSill, rightSill, sillThick, bathroomFloor, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
   const leftSillTop = -leftSill.below;
   const face = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, hallway);
   const level = n => -n * rise;                                 // a tread n steps down from the hallway floor
@@ -470,7 +500,7 @@ floor.add(hallway);
   box({ from: [xEnd, ySillEdge, leftSillTop], to: [xTurn, yBoxFace, baseH] }, frameMat, hallway);
   box({ from: [xSillEnd, yWellIn, leftSillTop - sillThick], to: [xTurn, ySillEdge, leftSillTop] }, frameMat, hallway);
   face(xEnd - xSillEnd, leftSill.below, [(xEnd + xSillEnd) / 2, ySillEdge, leftSillTop / 2], '-v');   // behind it, under the WC wall
-  box({ from: [xEnd, yHallOut, -sillThick], to: [x0, yWellOut, 0] }, frameMat, hallway);
+  box({ from: [xEnd, yHallOut, -rightSill.below - sillThick], to: [x0, yWellOut, -rightSill.below] }, frameMat, hallway);
 
   // The living room door's wall: its hallway face, and the sides and head
   // of the doorway through the part of it the living room's 100 leaves,
@@ -509,11 +539,15 @@ floor.add(hallway);
   face(xSillEnd - xBack, well, [(xSillEnd + xBack) / 2, yWell, -bathroomFloor], '-u').rotation.set(Math.PI / 2, 0, 0);   // the bathroom floor's underside, flat, facing down
 
   // The well's walls: the outside one, above the right board as far as the
-  // hallway goes, below it on to the board's corner, and then up to the
-  // bathroom floor's underside; the hallway side, up to the left board and
-  // then likewise (on down to the foot, with the flat's door, below)
-  face(x0 - xEnd, CEILING_HEIGHT, [(x0 + xEnd) / 2, yHallOut, CEILING_HEIGHT / 2], '+v');
-  face(x0 - xSillEnd, drop, [(x0 + xSillEnd) / 2, yWellOut, -drop / 2], '+v');
+  // hallway goes, from the board's top; below it, up to the board's top
+  // as far as it goes and to the hallway floor's level on to the left
+  // board's corner, and then up to the bathroom floor's underside; the
+  // hallway side, up to the left board and then likewise (on down to the
+  // foot, with the flat's door, below)
+  const wallAbove = CEILING_HEIGHT + rightSill.below;
+  face(x0 - xEnd, wallAbove, [(x0 + xEnd) / 2, yHallOut, CEILING_HEIGHT - wallAbove / 2], '+v');
+  face(x0 - xEnd, drop - rightSill.below, [(x0 + xEnd) / 2, yWellOut, -(drop + rightSill.below) / 2], '+v');
+  face(xEnd - xSillEnd, drop, [(xEnd + xSillEnd) / 2, yWellOut, -drop / 2], '+v');
   face(xSillEnd - xBack, drop - bathroomFloor, [(xSillEnd + xBack) / 2, yWellOut, -(drop + bathroomFloor) / 2], '+v');
   face(xTurn - xSillEnd, drop - leftSill.below, [(xTurn + xSillEnd) / 2, yWellIn, -(drop + leftSill.below) / 2], '-v');
 
@@ -538,7 +572,71 @@ floor.add(hallway);
     const x = xEnd + post + k * (xTurn - xEnd - 2 * post) / gaps;
     box({ from: [x - spindle / 2, yBanister + (railW - spindle) / 2, baseH], to: [x + spindle / 2, yBanister + (railW + spindle) / 2, rail - 50] }, frameMat, hallway, false);
   }
+  newelsAtTheWinders(HALLWAY, level);
+  wallHandrail(HALLWAY, level);
   // No ceiling over the hallway: left out, as asked (15 Oct 2026)
+}
+
+// The handrail down the straight flight, on the well's hallway-side wall:
+// a round rail on its line through the two heights given, from 420 past
+// the second newel post for its length, and its brackets, each a plate on
+// the wall, an arm out from it and up, and a collar round the rail
+function wallHandrail({ xTurn, yWellIn, post, going, risers, flightSteps, leftSill, handrail }, level) {
+  const { fromPost, length, brackets, low, high, d, out, plate, collar, arm } = handrail;
+  const stepMiddle = n => xTurn - (flightSteps - n + 0.5) * going;   // step n from the foot, along the flight
+  const tread = n => level(risers - n);
+  const rise = low.rail - low.wall;                                  // the rail's top above where its bracket meets the wall
+  const a = [xTurn - post - high.fromPost, -leftSill.below - high.belowLeftSill + rise - d / 2];   // the rail's middle line, at its two end brackets
+  const b = [stepMiddle(low.step), tread(low.step) + low.rail - d / 2];
+  const slope = (a[1] - b[1]) / (a[0] - b[0]), angle = Math.atan(slope);
+  const zAt = x => b[1] + (x - b[0]) * slope;
+  const xTop = xTurn - post - fromPost, xBottom = xTop - length * Math.cos(angle);
+  const y = yWellIn - out;
+  // A round piece, its middle at [x, y, z] (mm), its axis upright to
+  // start, then turned by `turn` ([about x, about z])
+  const round = (diameter, long, [x, y, z], [aboutX, aboutZ]) => {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(diameter / 2 * MM, diameter / 2 * MM, long * MM, 16), frameMat);
+    m.rotation.set(aboutX, 0, aboutZ);
+    m.position.set(x * MM, z * MM, y * MM);
+    m.castShadow = true;
+    hallway.add(m);
+  };
+  const alongRail = [0, Math.PI / 2 + angle];                         // the axis laid along the rail's line
+  const xMid = (xTop + xBottom) / 2;
+  round(d, length, [xMid, y, zAt(xMid)], alongRail);
+  for (let i = 0; i < brackets; i++) {
+    const x = a[0] + (b[0] - a[0]) * i / (brackets - 1);
+    const zWall = zAt(x) + d / 2 - rise;
+    round(plate.d, plate.t, [x, yWellIn - plate.t / 2, zWall], [Math.PI / 2, 0]);   // the plate, flat on the wall
+    box({ from: [x - arm / 2, y, zWall - arm / 2], to: [x + arm / 2, yWellIn - plate.t, zWall + arm / 2] }, frameMat, hallway, false);   // the arm, out from the wall...
+    box({ from: [x - arm / 2, y - arm / 2, zWall - arm / 2], to: [x + arm / 2, y + arm / 2, zAt(x)] }, frameMat, hallway, false);   // ...and up to the rail
+    round(collar.d, collar.length, [x, y, zAt(x)], alongRail);       // the collar round it
+  }
+}
+
+// The two newel posts at the winders, side by side across the top of the
+// stairs: the banister's end post and the second one, a short rail between
+// their tops, under it the sloping board with its one spindle, and a cap
+// on each post. `level(n)` is the tread n steps down
+function newelsAtTheWinders({ xTurn, yBoxFace, yNewel, post, rail, railW, spindle, baseH, newelFoot, slopeBoard, cap }, level) {
+  const x0 = xTurn - post, xMid = xTurn - post / 2;             // both posts' ends along the stairs, and their middle
+  const postTop = rail + 100;                                   // as the banister's posts
+  const yInner = yNewel + post, yOuter = yBoxFace - post;       // the faces between the posts: the second's and the end post's
+  box({ from: [x0, yNewel, level(newelFoot)], to: [xTurn, yInner, postTop] }, frameMat, hallway);
+  box({ from: [xMid - railW / 2, yInner, rail - 50], to: [xMid + railW / 2, yOuter, rail] }, frameMat, hallway);
+  for (const y of [yNewel, yOuter]) box({ from: [xMid - cap.w / 2, y + post / 2 - cap.w / 2, postTop], to: [xMid + cap.w / 2, y + post / 2 + cap.w / 2, postTop + cap.h] }, frameMat, hallway);
+
+  // The sloping board, its top from the base's top at the end post down to
+  // the first step's level at the second: a box laid along that line
+  const [highZ, lowZ] = [baseH, level(1)];
+  const run = yOuter - yInner, drop = highZ - lowZ, length = Math.hypot(run, drop);
+  const yMid = (yInner + yOuter) / 2, zMid = (highZ + lowZ) / 2;
+  const board = box({ from: [xMid - slopeBoard.w / 2, yMid - length / 2, zMid - slopeBoard.h], to: [xMid + slopeBoard.w / 2, yMid + length / 2, zMid] }, frameMat, hallway);
+  board.geometry.translate(0, slopeBoard.h / 2 * MM, 0);        // turn it about its top's middle...
+  board.children[0].geometry.translate(0, slopeBoard.h / 2 * MM, 0);
+  board.position.y = zMid * MM;
+  board.rotation.x = -Math.atan2(drop, run);                    // ...so its top falls towards the second post (the scene's z is the plan's y)
+  box({ from: [xMid - spindle / 2, yMid - spindle / 2, zMid], to: [xMid + spindle / 2, yMid + spindle / 2, rail - 50] }, frameMat, hallway, false);   // the spindle, from the board's middle
 }
 
 // ---------------------------------------------------------------------------

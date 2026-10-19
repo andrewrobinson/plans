@@ -249,14 +249,33 @@ with a throwaway script.
 
 Left from this:
 
-- **A regenerate script** in `tests/model/` (`npm run regen`): every new
-  setting needs the saved configurations, `living_room.configurations.js`
-  and the snapshots written again through `buildFlat()`, done by hand
-  each time so far.
+- ~~**A regenerate script**~~: done with the shoe boxes (below),
+  `tests/model/regenerate.mjs`, `npm run regen`.
 - **`stairWallsControls()`** is long (about 90 lines): building the HTML,
   syncing and editing could be three named functions.
 - **Between walls** nothing is checked: separate shelves at a corner can
   meet (the L is the way to join them).
+
+## Shoe boxes on the sills (19 Oct 2026)
+
+Built in `shoe_boxes.js` (HALLWAY_SHELVES.md has what was agreed), its
+settings in `state.stairWalls.shoeBoxes` so `stair_walls.js` can keep the
+walls' shelves and pictures clear of them: `keepApart()` now takes the
+boxes' spans as more fixed things to go past (with none, it does as
+before), and a box against a wall is found from the walls' own start, way
+along and way out (`boxSpanOn()`). The boxes' controls are given the
+refusal from stair_walls.js by living_room.js, so neither module imports
+the other's menu. A panel with a sloping edge is drawn by
+`kit/floor_kit.js`'s new `profile()`. The regenerate script
+(`npm run regen`, `tests/model/regenerate.mjs`) writes the saved
+configurations, `living_room.configurations.js` and the snapshots again
+through `buildFlat()`; it was first used for these settings.
+
+Left from this: `stair_walls.js` is now 412 lines, and
+`stairWallsControls()` still long. The second newel post and the handrail
+went into floor.js as `newelsAtTheWinders()` and `wallHandrail()`; floor.js
+is now 841 lines, and the hallway's drawing (one long block) could be
+split into named steps the same way.
 
 ## Left over, after 6d
 

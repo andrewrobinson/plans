@@ -97,6 +97,19 @@ export function slab(points, z0, z1, mat, parent) {
   return m;
 }
 
+// A flat piece standing upright, from y0 to y1, whose side view is the
+// polygon `points` ([x, z] in mm): for a piece with a sloping edge
+export function profile(points, y0, y1, mat, parent) {
+  const shape = new THREE.Shape(points.map(([x, z]) => new THREE.Vector2(x * MM, z * MM)));
+  const g = new THREE.ExtrudeGeometry(shape, { depth: (y1 - y0) * MM, bevelEnabled: false });   // side view (x, z) -> scene (x, y), extruded along the scene's z (the plan's y)
+  const m = new THREE.Mesh(g, mat);
+  m.position.z = y0 * MM;
+  m.castShadow = m.receiveShadow = true;
+  m.add(new THREE.LineSegments(new THREE.EdgesGeometry(g), edgeMaterial));
+  parent.add(m);
+  return m;
+}
+
 // Names a part, mesh `m` (a cupboard's board, say, for the cutting list)
 export function part(name, m) {
   if (m) m.userData.part = name;

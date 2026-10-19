@@ -127,6 +127,10 @@ test.describe('the settings drawers', () => {
     }
     await page.selectOption('#garageViewKind', 'plan');
     expect(await viewOf(page)).toMatchObject({ room: 'garage', view: 'plan' });
+    // The hallway's own view, the stairs from the side, is in its list alone
+    await expect(page.locator('#garageViewKind option[value="stairsSide"]')).toHaveCount(0);
+    await page.selectOption('#hallwayViewKind', 'stairsSide');
+    expect(await viewOf(page)).toMatchObject({ room: 'hallway', view: 'stairsSide' });
     await page.click('#loungeView');
     await page.click('#garageView');                                // as its dropdown says now
     expect(await viewOf(page)).toMatchObject({ room: 'garage', view: 'plan' });

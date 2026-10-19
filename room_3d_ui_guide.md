@@ -32,7 +32,7 @@ and control patterns this explains stay the same.
 | **20** | `<link rel="stylesheet" href="room_3d.css">`: **all the CSS**, in its own file (see section 2) |
 | 21–26 | The **import map**: tells the browser that `import … from 'three'` means the three.js file on the jsDelivr CDN (see section 6) |
 
-### The `<body>` HTML (lines 28–562)
+### The `<body>` HTML (lines 28–567)
 
 The HTML only lays out the controls. It contains no logic. The settings are
 in five drawers (18 Oct 2026): one for each room, the hallway and stairs
@@ -45,41 +45,45 @@ live beside it.
 | Lines | Element | What it is on screen |
 |---|---|---|
 | 29 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
-| 37–45 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge**, **Bedroom**, **Garage**, **Hallway** (the room's name alone, short for a phone), each going to its room, with a ▾ dropdown of Bird's eye or Plan), Share, **Stored: on/off** (`#storedToggle`, shows or hides the things to store in the lounge), 📷 (Screenshot), Reload (the page afresh, nothing in the address) and Reset (once confirmed, forgets everything on the device, saved views, looks and configurations too, and drops the offline copy; `resetButton()` in kit/floor_kit.js). On a phone, while a sheet's open, only ☰ shows |
+| 37–45 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge**, **Bedroom**, **Garage**, **Hallway** (the room's name alone, short for a phone), each going to its room, with a ▾ dropdown of Bird's eye or Plan, and for the Hallway also Stairs from the side), Share, **Stored: on/off** (`#storedToggle`, shows or hides the things to store in the lounge), 📷 (Screenshot), Reload (the page afresh, nothing in the address) and Reset (once confirmed, forgets everything on the device, saved views, looks and configurations too, and drops the offline copy; `resetButton()` in kit/floor_kit.js). On a phone, while a sheet's open, only ☰ shows |
 | 48–73 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
 | 75–85 | `#corner` | The **Configuration** pop-up menu at the bottom right (`#configurationMenu`, green) |
 | 87–89 | `#bottomLeft` | The options button (`#roomOptions`), named for the room in view: Lounge, Bedroom or Garage options, or Hallway and stairs. It moves clear of an open drawer, onto a sheet's top edge on a phone |
 | 90 | `#tip` | A tooltip that follows the pointer over things to store |
 | **91–105** | `#panel` | **Other options**: `#secWickerBench` (the wicker bench, in any room) and `#palette`, the colours in this view |
-| **112–139** | `#hallPanel` | **Hallway and stairs options**: `#secBathroom` (the bathroom and WC shown or hidden, `#bathroomShown`), `#secStairWalls` (the shelves and pictures over the stairs: stair_walls.js fills `#stairWallsBlock`), `#secShoeRack` (shoe_rack.js fills it) and `#secDownstairsDoors` (the flat's door and the lobby's) |
-| **145–481** | `#loungePanel` | **Lounge options**, the living room: |
-| 150–224 | `#secCupboard` | The corner cupboard: its **option list** (`#current`), Cupboard only, its cutting list (`#loungeCutting`, folded away), and `#cupboardControls`: board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7). The bedroom's cupboard copies these |
-| 225–275 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
-| 276–307 | `#secSofa` | Sofa dropdown (with As a bed for a daybed) plus sliders |
-| 308–375 | `#secBench` | Bench switch, the bookshelf, pine cupboard, Billy (with its Lying switch) and BillyChest in its place, bench-height radios, "above the bench" radios, TV and shelf sliders |
-| 376–389 | `#secIvar` | The Ivar: In the lounge and Lying switches, its X, Y and Turn sliders and Reset location (`placeControls()`, as the back wall's pieces), starting by the first radiator (`ivarHome()`) |
-| 390–417 | `#secCornwall`, `#secChesham` | The kitchen tables (`tables.js`): each its In the lounge switch, its pose (Cornwall's Legs off, Chesham's On its end), X, Y and Turn sliders and Reset location (`placeControls()`), starting where they are now (`LOUNGE_NOW`) |
-| 418–430 | `#secDoors` | The cupboard's tall and second doors (`#tallBlock`, `#secondBlock`) and the room door |
-| 431–461 | `#secColours` | The cupboard, dresser and shelf colours: dropdowns with ◀ ▶ buttons and swatches (`.colours`) |
-| 462–476 | `#secStored` | Things to store: packing dropdown, where-radios, Pack them again, heights off the floor (shown or hidden is the top bar's) |
-| 477–480 | `#about` | The description text (`#summary`), which JS fills in |
-| **486–544** | `#bedPanel` | **Bedroom options**: the New cupboard switch (`#otherRoomTop`, other_room.js's), then `#secBedroomCupboard`, the new cupboard's own option list (`#bedroomCupboardCurrent`), its copied sliders and door sliders (`#bedroomCupboardControls`, `#bedroomCupboardDoors`, filled by living_room.js), its colour and its cutting list (`#bedroomCutting`); the rest of the furniture (`#otherRoomBlock`, other_room.js's) in three sections: Bed, and what's by it (`#otherRoomSection_bed`, open), Extras (`#otherRoomSection_extras`: bookcase, pine cupboard, Billy, BillyChest, Ivar, mirror) and Recess cupboards (both closed to start), each piece's controls hidden while its In the bedroom switch is off; `#secBedroomDoors` (the bedroom door) and `#secBedroomColours` (the carpet, the stairs' too) |
-| 549–555 | `#garagePanel` | **Garage options** (`#garageBlock`, garage.js's): the garage door (not shown, open or closed), then each thing in it (Billy with its Lying switch), its sliders hidden while In the garage is off |
+| **112–144** | `#hallPanel` | **Hallway and stairs options**: `#secBathroom` (the bathroom and WC shown or hidden, `#bathroomShown`), `#secStairWalls` (the shelves and pictures over the stairs: stair_walls.js fills `#stairWallsBlock`), `#secShoeBoxes` (the shoe boxes on the sills: shoe_boxes.js fills `#shoeBoxesBlock`), `#secShoeRack` (shoe_rack.js fills it) and `#secDownstairsDoors` (the flat's door and the lobby's) |
+| **150–486** | `#loungePanel` | **Lounge options**, the living room: |
+| 155–229 | `#secCupboard` | The corner cupboard: its **option list** (`#current`), Cupboard only, its cutting list (`#loungeCutting`, folded away), and `#cupboardControls`: board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7). The bedroom's cupboard copies these |
+| 230–280 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |
+| 281–312 | `#secSofa` | Sofa dropdown (with As a bed for a daybed) plus sliders |
+| 313–380 | `#secBench` | Bench switch, the bookshelf, pine cupboard, Billy (with its Lying switch) and BillyChest in its place, bench-height radios, "above the bench" radios, TV and shelf sliders |
+| 381–394 | `#secIvar` | The Ivar: In the lounge and Lying switches, its X, Y and Turn sliders and Reset location (`placeControls()`, as the back wall's pieces), starting by the first radiator (`ivarHome()`) |
+| 395–422 | `#secCornwall`, `#secChesham` | The kitchen tables (`tables.js`): each its In the lounge switch, its pose (Cornwall's Legs off, Chesham's On its end), X, Y and Turn sliders and Reset location (`placeControls()`), starting where they are now (`LOUNGE_NOW`) |
+| 423–435 | `#secDoors` | The cupboard's tall and second doors (`#tallBlock`, `#secondBlock`) and the room door |
+| 436–466 | `#secColours` | The cupboard, dresser and shelf colours: dropdowns with ◀ ▶ buttons and swatches (`.colours`) |
+| 467–481 | `#secStored` | Things to store: packing dropdown, where-radios, Pack them again, heights off the floor (shown or hidden is the top bar's) |
+| 482–485 | `#about` | The description text (`#summary`), which JS fills in |
+| **491–549** | `#bedPanel` | **Bedroom options**: the New cupboard switch (`#otherRoomTop`, other_room.js's), then `#secBedroomCupboard`, the new cupboard's own option list (`#bedroomCupboardCurrent`), its copied sliders and door sliders (`#bedroomCupboardControls`, `#bedroomCupboardDoors`, filled by living_room.js), its colour and its cutting list (`#bedroomCutting`); the rest of the furniture (`#otherRoomBlock`, other_room.js's) in three sections: Bed, and what's by it (`#otherRoomSection_bed`, open), Extras (`#otherRoomSection_extras`: bookcase, pine cupboard, Billy, BillyChest, Ivar, mirror) and Recess cupboards (both closed to start), each piece's controls hidden while its In the bedroom switch is off; `#secBedroomDoors` (the bedroom door) and `#secBedroomColours` (the carpet, the stairs' too) |
+| 554–560 | `#garagePanel` | **Garage options** (`#garageBlock`, garage.js's): the garage door (not shown, open or closed), then each thing in it (Billy with its Lying switch), its sliders hidden while In the garage is off |
 
-### Scripts (index.html, lines 558–560)
+### Scripts (index.html, lines 563–565)
 
 | Lines | What |
 |---|---|
 | | **Plain data scripts**: `living_room.views.js` and `living_room.configurations.js`, each setting a global (`window.ROOM_VIEWS`, `window.ROOM_CONFIGURATIONS`). The dressers, larders and sofas are ES modules (`DRESSER_MODELS`, …) the model imports |
-| 560 | `<script type="module" src="living_room.js">`: the room's module, which imports the floor plan from `floor.js`, the engine from `kit/floor_kit.js` and the view and configuration kits from `kit/view_kit.js` and `kit/configuration_kit.js` |
+| 565 | `<script type="module" src="living_room.js">`: the room's module, which imports the floor plan from `floor.js`, the engine from `kit/floor_kit.js` and the view and configuration kits from `kit/view_kit.js` and `kit/configuration_kit.js` |
 
-### floor.js (743 lines)
+### floor.js (841 lines)
 
-The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `WALL_THICKNESS`), the floor, the walls with their recesses (kitchen, sink, desk: `KITCHEN_RECESS_BACK_WALL_X`, `SINK_RECESS`, `DESK_RECESS`, …), the doorway and its frame (`DOOR_FRAME_STARTS_AT`, `DOOR_HINGE_AT`, `FRAME_END`, …), the ceiling and downlights, and the outer wall with its windows and radiators (`OUTER`). It draws them into `floor`, a group `living_room.js` adds to the scene, and exports the measurements and the materials the colours menu changes (`wallMat`, `frameMat`, `floorMat`, `ceilingMat`). The living room's in its mm; then the bedroom's walls, door and window (`OTHER_ROOM`, in the `otherRoom` group at `OTHER_ROOM_CORNER`, in its own u, v mm), the hallway's walls, floor, stairs and banister (`HALLWAY`, in the `hallway` group, in the living room's mm), the entrance downstairs (`ENTRANCE`), and the bathroom and WC (`BATHROOM`, in the `bathroom` group, which Hallway and stairs options' switch hides).
+The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `WALL_THICKNESS`), the floor, the walls with their recesses (kitchen, sink, desk: `KITCHEN_RECESS_BACK_WALL_X`, `SINK_RECESS`, `DESK_RECESS`, …), the doorway and its frame (`DOOR_FRAME_STARTS_AT`, `DOOR_HINGE_AT`, `FRAME_END`, …), the ceiling and downlights, and the outer wall with its windows and radiators (`OUTER`). It draws them into `floor`, a group `living_room.js` adds to the scene, and exports the measurements and the materials the colours menu changes (`wallMat`, `frameMat`, `floorMat`, `ceilingMat`). The living room's in its mm; then the bedroom's walls, door and window (`OTHER_ROOM`, in the `otherRoom` group at `OTHER_ROOM_CORNER`, in its own u, v mm), the hallway's walls, floor, stairs and banister (`HALLWAY`, in the `hallway` group, in the living room's mm; the two newel posts at the winders in `newelsAtTheWinders()` and the handrail down the flight in `wallHandrail()`), the entrance downstairs (`ENTRANCE`), and the bathroom and WC (`BATHROOM`, in the `bathroom` group, which Hallway and stairs options' switch hides).
 
-### stair_walls.js (366 lines): the shelves and pictures over the stairs
+### stair_walls.js (413 lines): the shelves and pictures over the stairs
 
-The three walls round the stairwell (`WALLS`: the WC wall, the lounge door wall and the TV wall, each a start, a way along and a way out into the hallway), each wall's shelves and picture and the L-shaped shelves on the TV and WC walls (`STAIR_WALLS_START`, the settings in `state.stairWalls`), their configuration entries (`STAIR_WALLS_SCHEMA`), the rule keeping a wall's shelves and picture apart (`keepApart()`, `settleStairWalls()`, called from `settle()`), the drawing (`drawStairWalls()`, from `build()`) and the menu block in `#stairWallsBlock` (`stairWallsControls()`). What was agreed: HALLWAY_SHELVES.md.
+The three walls round the stairwell (`WALLS`: the WC wall, the lounge door wall and the TV wall, each a start, a way along and a way out into the hallway), each wall's shelves and picture and the L-shaped shelves on the TV and WC walls (`STAIR_WALLS_START`, the settings in `state.stairWalls`), their configuration entries (`STAIR_WALLS_SCHEMA`), the rule keeping a wall's shelves and picture apart (`keepApart()`, `settleStairWalls()`, called from `settle()`), the drawing (`drawStairWalls()`, from `build()`) and the menu block in `#stairWallsBlock` (`stairWallsControls()`). It holds the shoe boxes' settings too (`state.stairWalls.shoeBoxes`), as spans on the walls they stand against (`boxSpansOn()`), which `keepApart()` keeps the shelves and pictures clear of, and says why a box can't go where it's asked (`shoeBoxRefusal()`). What was agreed: HALLWAY_SHELVES.md.
+
+### shoe_boxes.js (236 lines): the shoe boxes on the sills
+
+The two sill boards either side of the top of the stairs (`SILLS`: each one's end by the winders, top, back, way out to the stairs, width and length, and the left one's stretch under the WC wall), a box on each (`SHOE_BOXES_START`), their configuration entries (`SHOE_BOXES_SCHEMA`), a box held on its sill (`onTheSill()`), the right one's top kept level with the left one's when its switch is on (`levelled()`, from `settleStairWalls()` and the controls) and where it is (`shoeBoxBounds()`, for stair_walls.js), its panels as side views (`panels()`: under the WC wall the top steps down at the wall's face and slopes to the sill's corner), drawn with `kit/floor_kit.js`'s `profile()` (`drawShoeBoxes()`, from `build()`), and the menu block in `#shoeBoxesBlock` (`shoeBoxesControls()`, given stair_walls.js's `shoeBoxRefusal()` by living_room.js). What was agreed: HALLWAY_SHELVES.md.
 
 ### other_room.js (the bedroom's furniture)
 
@@ -156,7 +160,7 @@ The lounge's are index.html's own; the bedroom's are a copy of them,
 `copyControls(elements, piece)`, each id with the piece's name before it
 (`idIn(piece)`: `depth` becomes `bedroomCupboardDepth`).
 
-### living_room.js (1,295 lines): the page
+### living_room.js (1,309 lines): the page
 
 | Lines | Section | Notes |
 |---|---|---|
@@ -169,7 +173,7 @@ The lounge's are index.html's own; the bedroom's are a copy of them,
 | **404–791** | **Control wiring** | **`change(edits, { look })`** (404), the two cupboards' controls (`loungeCupboard`, `bedroomCupboardControls`, `showBedroomCupboard()`), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5); the colour pickers (`colourPicker()`, the bedroom cupboard's too); `sizeEdits()` |
 | 787–922 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
 | 923–1007 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
-| 1008–1100 | The view as JSON; **the rooms' buttons and the drawers**; Reload, Share and offline support | `viewNow()`, `readDisplay()`; `ROOM_BUTTONS` (each room's name, drawer and options), the split buttons (`goToRoom()`, each room's Bird's eye or Plan kept on this device), `DRAWERS` (Other, Lounge, Bedroom, Garage, Hallway and stairs), the options button (`showRoomOptions()`, from `hooks.place()`) |
+| 1008–1100 | The view as JSON; **the rooms' buttons and the drawers**; Reload, Share and offline support | `viewNow()`, `readDisplay()`; `ROOM_BUTTONS` (each room's name, drawer and options), the split buttons (`goToRoom()`, each room's Bird's eye or Plan kept on this device, and a room's own views from `ROOMS_OWN_VIEWS`: the hallway's Stairs from the side, `builtInViews.stairsSide`), `DRAWERS` (Other, Lounge, Bedroom, Garage, Hallway and stairs), the options button (`showRoomOptions()`, from `hooks.place()`) |
 | 1101–1152 | The rooms' modules' controls and `syncControls()` | `roomEdits()` (their settings' places in `state` as the configuration's paths); the model's `settle()`, then every slider, radio, switch and dropdown in step with the settings |
 | 1153–1193 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
 | 1194–1209 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show()`, the view; the kit's `startLoop()` |
@@ -700,7 +704,7 @@ and every HTML element above it is in the DOM.
   `npm run test:update` once and check the snapshots' diff adds only it;
   or regenerate the saved configurations (`tests/configs/`,
   `living_room.configurations.js`) and their snapshots through the model
-  (`buildFlat()`, `snapshotOf()` in `tests/model/flat.mjs`), as done since
+  with `npm run regen` (`tests/model/regenerate.mjs`), as done since
   18 Oct 2026, checking the diff only adds the new setting.
 - **To change how something looks**: find its id or class in the HTML, then search
   `room_3d.css` for that `#id` or `.class`.

@@ -135,3 +135,63 @@ each number held to its slider's range; and `bathroomShown`. The page's
 settings are `state.stairWalls.wc` / `.lounge` / `.tv` / `.corner` and
 `state.bathroomShown`. The saved addresses all have them off, so their
 screenshots are as before.
+
+## Shoe boxes on the sills (asked for and agreed, 19 Oct 2026)
+
+At the top of the stairs, a white sill board runs either side of the
+stairwell (floor.js's `HALLWAY.leftSill` and `rightSill`). The user asked
+for a box on each, for shoes. Agreed one question at a time:
+
+- **The box.** Closed on its bottom, top, back and both ends, open on the
+  long side facing the stairs. 18 white panels, like the sills, with
+  nothing inside.
+- **Its sizes.** Length along the stairs, width from the wall (or the
+  banister's base) out towards the stairs, height up from the sill's top.
+  The width can't be more than the sill's: 240 on the left, 120 on the
+  right. Height 100 to 1000.
+- **Where.** A slider for where its near end is, from the winders' end of
+  its sill (the newel post on the left, the lounge door wall on the
+  right). The box is held on its sill: made longer, it comes back towards
+  the winders to fit.
+- **Under the WC wall.** The left sill's last 220 is under the WC wall,
+  with 210 of headroom (the sill's drop below the hallway floor). A box
+  that goes in there steps down at the wall's face, then slopes from 210
+  (or its own height, if lower) to nothing at the sill's far corner.
+- **Kept clear of the walls.** The right box stands against the TV wall,
+  and either box can reach the WC wall or the lounge door wall. On those
+  walls the box and the shelves or picture keep the same 50 gap: a box
+  change that would meet them isn't made and the menu says why; shelves or
+  a picture moved onto a box go along past it; the L-shaped shelves
+  aren't moved onto one.
+- **Menu and start.** A section of its own, Shoe boxes on the sills, in
+  Hallway and stairs options, a switch and four sliders for each. Both off
+  to start; switched on, 1200 long and 300 high from the winders' end, as
+  wide as the sill. (Later the same day the left one starts 370 high, the
+  user's, from their link.)
+
+The sills' heights, from the user (19 Oct 2026, to check, in
+MEASUREMENTS_NEEDED.md): the left one's top 210 below the hallway floor,
+20 below the first step down; the right one's 25 below it (it was drawn
+level with the floor), so the right box sits 25 below the floor and the
+left one 185 lower than that.
+
+Later the same day the second newel post went in (floor.js), standing on
+the left sill's end by the winders, so the left box starts behind it
+(agreed): its near end is measured from the posts, and it can be up to
+1560 long (1340 clear of the WC wall).
+
+Asked for the same evening:
+
+- **The right box level with the left.** A switch on the right box, Top
+  level with the left box's: while on, its height follows the left one's
+  so their tops are level (the left's height less 185, the right sill
+  being that much higher), its own height slider greyed out; off to
+  start.
+- **A view to see them**: Stairs from the side, in the Hallway ▾ list
+  beside Bird's eye and Plan (2D), the user's camera from their link,
+  high up past the TV wall looking across at the stairs.
+
+In the configuration as `hallway.shoeBoxes.left` and `.right` (`on`,
+`from`, `length`, `width`, `height`; the right one's `levelWithLeft` too), in the page's settings
+`state.stairWalls.shoeBoxes`. The saved addresses all have them off, so
+their screenshots are as before.

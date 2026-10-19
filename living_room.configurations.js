@@ -574,6 +574,23 @@ window.ROOM_CONFIGURATIONS = {
             "spacing": 440,
             "depth": 240
           },
+          "shoeBoxes": {
+            "left": {
+              "on": false,
+              "from": 0,
+              "length": 1200,
+              "width": 240,
+              "height": 300
+            },
+            "right": {
+              "on": false,
+              "from": 0,
+              "length": 1200,
+              "width": 120,
+              "height": 300,
+              "levelWithLeft": false
+            }
+          },
           "bathroomShown": true
         },
         "thingsToStore": {

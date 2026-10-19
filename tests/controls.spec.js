@@ -766,6 +766,70 @@ test.describe('the shelves and pictures over the stairs', () => {
   });
 });
 
+// The shoe boxes on the sills (shoe_boxes.js, agreed 19 Oct 2026): off to
+// start, at 1200 long, as wide as their sills, the left one 370 high and
+// the right 300; the right one can be kept level with the left; held on their
+// sills, no wider than them; the TV wall's shelves kept clear of the right
+// one, which isn't made longer where it would meet them
+test.describe('the shoe boxes on the sills', () => {
+  test.beforeEach(async ({ page }) => { await openDrawer(page, '', 'hallway'); });
+  const shoeBox = (page, key) => setting(page, `stairWalls.shoeBoxes.${key}`);
+  const wall = (page, key) => setting(page, `stairWalls.${key}`);
+
+  test('are off to start, each switch showing its sliders', async ({ page }) => {
+    expect(await shoeBox(page, 'left')).toEqual({ on: false, from: 0, length: 1200, width: 240, height: 370 });
+    expect(await shoeBox(page, 'right')).toEqual({ on: false, from: 0, length: 1200, width: 120, height: 300, levelWithLeft: false });
+    await expect(page.locator('#shoeBoxes_left_block')).toBeHidden();
+    await toggle(page, 'shoeBoxes_left_on', true);
+    await expect(page.locator('#shoeBoxes_left_block')).toBeVisible();
+    await expect(page.locator('#shoeBoxes_left_fromLabel')).toHaveText('Near end, from the newel posts');
+    await expect(page.locator('#shoeBoxes_right_fromLabel')).toHaveText('Near end, from the lounge door wall');
+  });
+
+  test('stay on their sills, no wider than them', async ({ page }) => {
+    await toggle(page, 'shoeBoxes_left_on', true);
+    expect(await slide(page, 'shoeBoxes_left_width', 5000)).toBe('240');
+    expect(await slide(page, 'shoeBoxes_left_from', 5000)).toBe('360');            // 1560 behind the post, less its 1200
+    expect(await slide(page, 'shoeBoxes_left_length', 5000)).toBe('1560');
+    expect(await readout(page, 'shoeBoxes_left_from')).toBe('0');                   // brought back to fit
+    await toggle(page, 'shoeBoxes_right_on', true);
+    expect(await slide(page, 'shoeBoxes_right_width', 5000)).toBe('120');
+    expect(await slide(page, 'shoeBoxes_right_length', 5000)).toBe('2330');
+  });
+
+  test('the right one can keep its top level with the left one’s', async ({ page }) => {
+    await toggle(page, 'shoeBoxes_left_on', true);
+    await toggle(page, 'shoeBoxes_right_on', true);
+    await toggle(page, 'shoeBoxes_right_levelWithLeft', true);
+    // Its sill 185 above the left's: 370 less 185
+    expect((await shoeBox(page, 'right')).height).toBe(185);
+    await expect(page.locator('#shoeBoxes_right_height')).toBeDisabled();
+    await slide(page, 'shoeBoxes_left_height', 500);
+    expect((await shoeBox(page, 'right')).height).toBe(315);
+    await toggle(page, 'shoeBoxes_right_levelWithLeft', false);
+    await expect(page.locator('#shoeBoxes_right_height')).toBeEnabled();
+    await slide(page, 'shoeBoxes_left_height', 400);
+    expect((await shoeBox(page, 'right')).height).toBe(315);              // free again
+  });
+
+  test('on the TV wall, the shelves keep clear of the right one', async ({ page }) => {
+    await toggle(page, 'shoeBoxes_right_on', true);                                 // 0 to 1200 along, 300 high
+    await toggle(page, 'stairWalls_tv_shelves_on', true);
+    await slide(page, 'stairWalls_tv_shelves_width', 600);                          // 880 to 1480
+    // Brought down onto the box, the shelves go along past it: 1200 + 50 + 300
+    await slide(page, 'stairWalls_tv_shelves_height', 200);
+    expect((await wall(page, 'tv')).shelves).toMatchObject({ height: 200, along: 1550 });
+    // The box made longer would meet them: not made, saying why
+    await slide(page, 'shoeBoxes_right_length', 2000);
+    expect((await shoeBox(page, 'right')).length).toBe(1200);
+    await expect(page.locator('#shoeBoxes_right_blocked')).toBeVisible();
+    // Lower, it's clear of them
+    await slide(page, 'shoeBoxes_right_height', 100);
+    await slide(page, 'shoeBoxes_right_length', 2000);
+    expect(await shoeBox(page, 'right')).toMatchObject({ height: 100, length: 2000 });
+  });
+});
+
 // ...and, from the designed page, where it's in: its sizes, bevel, shelves'
 // slope, shoes and the door angle its bevel's cut for
 test.describe('the shoe rack', () => {

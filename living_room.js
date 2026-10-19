@@ -29,7 +29,8 @@ import * as Config from './kit/config_kit.js';
 import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, BED_SPOTS } from './other_room.js';
 import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
 import { shoeRack, shoeRackControls } from './shoe_rack.js';
-import { stairWallsControls } from './stair_walls.js';
+import { stairWallsControls, shoeBoxRefusal } from './stair_walls.js';
+import { shoeBoxesControls } from './shoe_boxes.js';
 import { garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
 import { cupboardControls, copyControls, idIn } from './cupboard_controls.js';
 import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims, build,
@@ -851,6 +852,12 @@ const builtInViews = {
       downstairs: { position: [ENTRANCE_AREA.x, 3.6, -3.4], target: [ENTRANCE_AREA.x, ENTRANCE.floor / 2 * MM, 1.2] },   // aimed halfway down the stairs, chosen to fit
       garage: { position: [GARAGE_AREA.x + 4.5, GARAGE_FLOOR + 6.5, GARAGE_AREA.y], target: [GARAGE_AREA.x - 0.6, GARAGE_FLOOR, GARAGE_AREA.y] },   // above its door, looking in (chosen to fit)
     } },
+  // The hallway's own (asked for, 19 Oct 2026, from the user's link): the
+  // stairwell from beside it, high up past the TV wall (which only shows
+  // from inside), looking across at the stairs, the banister and the shoe
+  // boxes on the sills
+  stairsSide: { label: 'Stairs from the side', title: 'The stairwell from beside it, past the TV wall', room: 'hallway',
+    position: [-2.035, 2.861, -4.124], target: [-2.346, 0.105, 2.19], hfov: 66 },
   // The wall views leave out what's on the camera's side of their cut (see
   // applyCut): the back wall view everything past the return wall, the left
   // wall view the island, the dresser and beyond, the front wall view
@@ -1089,8 +1096,11 @@ const ROOM_BUTTONS = {
   hallway: { name: 'Hallway', drawer: 'hallPanel', options: 'Hallway and stairs' },
 };
 const optionsOf = room => ROOM_BUTTONS[room] ?? ROOM_BUTTONS.hallway;     // downstairs: the hallway's
-// How a room's button shows it: views that frame every room (builtInViews')
+// How a room's button shows it: views that frame every room (builtInViews'),
+// then any of the room's own
 const ROOM_VIEW_KINDS = [['birdseye', "Bird's eye"], ['plan', 'Plan (2D)']];
+const ROOMS_OWN_VIEWS = { hallway: [['stairsSide', 'Stairs from the side']] };
+const viewKindsOf = room => [...ROOM_VIEW_KINDS, ...(ROOMS_OWN_VIEWS[room] ?? [])];
 const viewKindKey = room => `room_3d:viewKind:${room}`;
 function viewKindOf(room) {
   try { return localStorage.getItem(viewKindKey(room)) ?? ROOM_VIEW_KINDS[0][0]; } catch (e) { return ROOM_VIEW_KINDS[0][0]; }
@@ -1108,7 +1118,7 @@ for (const [room, { name }] of Object.entries(ROOM_BUTTONS)) {
   const go = Object.assign(document.createElement('button'), { id, className: 'chip', textContent: name, title: `Go to the ${name.toLowerCase()}` });   // the room's name alone, short for the phone's top bar (asked for, 19 Oct 2026)
   const kind = Object.assign(document.createElement('select'), { id: `${id}Kind`, className: 'pick' });
   kind.setAttribute('aria-label', `${name} view: seen from`);
-  kind.append(...ROOM_VIEW_KINDS.map(([value, label]) => Object.assign(document.createElement('option'), { value, textContent: label })));
+  kind.append(...viewKindsOf(room).map(([value, label]) => Object.assign(document.createElement('option'), { value, textContent: label })));
   kind.value = viewKindOf(room);
   go.addEventListener('click', () => goToRoom(room));
   kind.addEventListener('change', () => {
@@ -1183,6 +1193,9 @@ const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), 
 // The shelves and pictures over the stairs (stair_walls.js), in
 // state.stairWalls, as 'wc.shelves.count'
 const syncStairWalls = stairWallsControls(document.getElementById('stairWallsBlock'), edits => change(roomEdits('stairWalls', edits)));
+// The shoe boxes on the sills (shoe_boxes.js), in state.stairWalls too,
+// as 'shoeBoxes.left.length', kept clear of the walls' shelves and pictures
+const syncShoeBoxes = shoeBoxesControls(document.getElementById('shoeBoxesBlock'), edits => change(roomEdits('stairWalls', edits)), shoeBoxRefusal);
 // The bathroom and WC shown or hidden (Hallway and stairs options), as
 // they stand in the way of seeing the hallway and stairs
 const bathroomShown = document.getElementById('bathroomShown');
@@ -1231,6 +1244,7 @@ function syncControls() {
   syncWickerBench(state.wickerBench);
   syncShoeRack(state.shoeRack);
   syncStairWalls(state.stairWalls);
+  syncShoeBoxes(state.stairWalls);
   bathroomShown.checked = state.bathroomShown;
   syncGarage(state.garage);
 }

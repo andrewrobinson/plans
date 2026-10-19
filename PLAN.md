@@ -133,6 +133,31 @@ whole length and lower; L-shaped shelves join the TV and WC walls in
 their corner. With it, a switch there to hide the bathroom and WC. What was agreed and how it was built:
 [HALLWAY_SHELVES.md](HALLWAY_SHELVES.md).
 
+### The second newel post and the handrail (from photos, 19 Oct 2026)
+
+From the user's photos and measurements, in floor.js: at the winders, a
+second newel post beside the banister's end post (200 apart, 90 square,
+down to 5 steps down), a short rail between their tops with a sloping
+board and one spindle under it, and caps on both; and the handrail down
+the flight on the well's hallway-side wall, 2400 long on 3 brackets. The
+left shoe box starts behind the new post. Still to model: the skirting
+that joins the second post (MEASUREMENTS_NEEDED.md). Details:
+room_dimensions.md.
+
+### Shoe boxes on the sills (agreed and built 19 Oct 2026)
+
+A box on each of the two white sills either side of the top of the
+stairs, for shoes: closed bar the long side facing the stairs, 18 white
+panels, with sliders for where it starts along the sill (from the winders'
+end), its length, width (no wider than the sill) and height (100 to 1000
+above the sill). On the left sill, under the WC wall, the box steps down
+at the wall's face and slopes to nothing at the sill's corner. Kept clear
+of the walls' shelves and pictures. In Hallway and stairs options, both
+off to start (the left one 370 high once on); the right one can keep its top level
+with the left's, and the Hallway ▾ list has Stairs from the side to see
+them. The right sill lowered to 25 below the hallway floor
+(the user, to check; the left is 210 below): [HALLWAY_SHELVES.md](HALLWAY_SHELVES.md).
+
 ## The finished design today
 
 Option 7 (it was the scene "7. Finished design, 1200 × 1200, ready
