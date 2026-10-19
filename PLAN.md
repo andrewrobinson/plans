@@ -92,7 +92,8 @@ it on GitHub Pages. Two sessions testing at once need separate ports
    wall clear of the internal door's swing; Looking at offers it
    downstairs. Its real sizes to come. Still to do: the measured numbers as they
    come in (S, W, X: `MEASUREMENTS_NEEDED.md`); the
-   bathroom and WC; walls drawn from above in the bedroom's and hallway's
+   bathroom and WC's real sizes (a first pass, scaled off the drawing, 19
+   Oct 2026); walls drawn from above in the bedroom's and hallway's
    plans (they're faces seen from inside, so the plan shows only floors);
    looking from the hallway into a room; stopping furniture at the walls;
    and the engine refactor below, now `REFACTOR_PLAN.md` step 6.

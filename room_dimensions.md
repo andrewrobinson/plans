@@ -468,8 +468,23 @@ the stairs (the living room's y), with 0° facing the kitchen side and 90°
 the far end; the bedroom's are its `u` and `v`, turned as its furniture;
 the living room's are `x` and `y`, turned as the bookshelf.
 
-The bathroom and WC beyond its far end aren't drawn yet. The living
-room's wall views leave the hallway out, as its stairwell would hang below
+Beyond its far end, the bathroom and WC (a first pass, 19 Oct 2026, all
+scaled off the second floor plan, so estimates; `BATHROOM` in `floor.js`).
+The measured Y (2330) is taken as to the bathroom's wall over the stairs,
+the drawing's stairs' end wall; the drawing's 3360 is to the WC's door.
+
+| What | Estimate |
+|---|---|
+| The bathroom | x −2580 (inside its 100 wall over the stairs) to the back wall (−4827), y 2 (the outside wall) to 1500; tiled floor at the hallway's level, over the flight's lower end |
+| The lobby | The hallway's oak on past the bathroom's wall, y 1600 to the bedroom's wall (2371), 1030 long (3360 less 2330) to the WC's front wall at x −3510 |
+| The WC | Behind a 100 front wall, x −3610 to the back wall, y 1600 to 2371, over the entrance's lobby |
+| Doors | The bathroom's, 700, in its wall to the lobby, hinged 80 from the hallway end, open into the bathroom; the WC's, 610, in its front wall, hinged 80 from the bedroom's wall, open into the lobby. Both drawn open (no sliders) |
+| Windows | In the back wall: the bathroom's y 400–1370, the WC's y 1760–2210; sill 1000, top 2270, reveal 250 (heights chosen) |
+| Shower | Tray 1100 × 700 × 40 in the corner by the stairs' wall, a glass screen 2000 high along its open side, a wall at its far end 800 out |
+| Basin | 500 × 420, top at 850, on a pedestal, against the outside wall 450 from the back wall |
+| WC | Cistern 380 × 180 × 800 against the back wall, bowl 520 deep, 400 high, in the middle of the WC |
+
+The living room's wall views leave the hallway out, as its stairwell would hang below
 their floor.
 
 ## Things to store

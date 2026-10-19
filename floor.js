@@ -136,7 +136,7 @@ const OUTER = {
 // the stairs along one side, in the living room's mm (x, y as there), as
 // its measurements were taken from there: the measure sheet's letters,
 // 15 Oct 2026. Measured before the bedroom, as they place it; drawn after
-// it. Beyond its far end are the bathroom and WC, not drawn yet.
+// it. Beyond its far end are the bathroom and WC (BATHROOM, below).
 // ---------------------------------------------------------------------------
 const HALLWAY = {
   doorWall: 150,                   // the living room door's wall, so the hallway starts at x -150 (B, measured as about 150)
@@ -303,6 +303,33 @@ ENTRANCE.yLobby1 = ENTRANCE.yLobby0 + ENTRANCE.lobby.width;             // its f
 ENTRANCE.xLobbyEnd = ENTRANCE.xBack + ENTRANCE.lobby.length;            // the neighbour's wall: -3737
 ENTRANCE.flatDoorHingeX = ENTRANCE.xBack + ENTRANCE.flatDoor.fromBackWall;                   // -4727
 ENTRANCE.outsideDoorHingeY = ENTRANCE.yLobby0 + ENTRANCE.outsideDoor.fromWellWall + ENTRANCE.outsideDoor.width;   // 2057
+
+// The bathroom and WC, beyond the hallway's far end, out to the back wall
+// over the entrance. All scaled off the second floor plan (about 8.4 mm a
+// pixel), so estimates. The measured Y (2330) is to the bathroom's wall
+// over the stairs (the drawing's stairs' end wall, scaled 2400); the
+// drawing's 3360 is to the WC's door: past the bathroom's wall the
+// hallway runs on into a small lobby, the bathroom's door on its left, the
+// WC's at its end. The bathroom is beside the stairs' line, over the
+// flight's lower end; the WC over the entrance's lobby.
+const BATHROOM = {
+  wall: 100,                       // the bathroom's walls inside the flat (the drawing's about 12 px)
+  yPartition: 1500,                // the bathroom's side of the wall between it and the lobby and WC (scaled 1510)
+  lobbyLength: 3360 - 2330,        // the bathroom's wall over the stairs to the WC's front wall: the drawing's length less the measured one
+  door: { width: 700, fromWall: 80 },             // in the wall to the lobby, hinged at the hallway end, opening into the bathroom (scaled 714); 80 clears the frame (JAMB)
+  wcDoor: { width: 610, fromBedroomWall: 80 },    // in the WC's front wall, hinged at the bedroom's wall, opening into the lobby; 80 clears the frame
+  // The windows in the back wall, along y; the heights aren't on the
+  // drawing (chosen, as the bedroom's top)
+  window: { y0: 400, y1: 1370, sill: 1000, top: 2270, reveal: 250, sillThick: 25, sillDepth: 150 },
+  wcWindow: { y0: 1760, y1: 2210 },
+  shower: { length: 1100, width: 700, trayH: 40, screenH: 2000, endWall: 800 },   // the tray against the outside wall and the hallway end; a wall at its far end, 800 out
+  basin: { fromBackWall: 450, width: 500, depth: 420, top: 850, bowl: 150, pedestal: 200 },   // on the outside wall
+  wc: { width: 380, cisternDepth: 180, cisternH: 800, bowlDepth: 520, bowlH: 400 },          // against the back wall, in the middle
+};
+BATHROOM.xIn = HALLWAY.xEnd - BATHROOM.wall;                          // the bathroom's hallway-end wall, its inside face: -2580
+BATHROOM.yLobby = BATHROOM.yPartition + BATHROOM.wall;                 // the lobby's and WC's side of the wall: 1600
+BATHROOM.xWcFront = HALLWAY.xEnd - BATHROOM.lobbyLength;               // the WC's front wall, its lobby face: -3510
+BATHROOM.xWcIn = BATHROOM.xWcFront - BATHROOM.wall;                    // its WC face: -3610
 
 // The bedroom door's thickness, as the living room's (estimated); its hinge
 // is set when the room is drawn below
@@ -475,7 +502,7 @@ floor.add(hallway);
   // floor's underside over the well and to the board beside it: the
   // flight runs on beneath them
   const underWC = ySillEdge - yWellOut;
-  face(ySetBack - yHallOut, CEILING_HEIGHT, [xEnd, (yHallOut + ySetBack) / 2, CEILING_HEIGHT / 2], '+u');
+  face(BATHROOM.yLobby - yHallOut, CEILING_HEIGHT, [xEnd, (yHallOut + BATHROOM.yLobby) / 2, CEILING_HEIGHT / 2], '+u');   // only as far as the lobby, beyond it
   face(xEnd - xSillEnd, underWC, [(xEnd + xSillEnd) / 2, (yWellOut + ySillEdge) / 2, 0], '-u').rotation.set(Math.PI / 2, 0, 0);   // flat, facing down
   face(well, bathroomFloor, [xSillEnd, yWell, -bathroomFloor / 2], '+u');
   face(leftSill.width, leftSill.below, [xSillEnd, (yWellIn + ySillEdge) / 2, leftSillTop / 2], '+u');
@@ -528,16 +555,16 @@ let flatDoorHinge, outsideDoorHinge;
 
 // A door frame through a wall that runs along x, from y0 to y1: a jamb
 // each side of the opening [x0, x1] and the head, down to the door's top
-function frameAlongX(x0, x1, y0, y1, doorH, frameH) {
-  box({ from: [x0 - JAMB, y0, 0], to: [x0, y1, frameH] }, frameMat, entrance);
-  box({ from: [x1, y0, 0], to: [x1 + JAMB, y1, frameH] }, frameMat, entrance);
-  box({ from: [x0, y0, doorH], to: [x1, y1, frameH] }, frameMat, entrance);
+function frameAlongX(x0, x1, y0, y1, doorH, frameH, parent = entrance) {
+  box({ from: [x0 - JAMB, y0, 0], to: [x0, y1, frameH] }, frameMat, parent);
+  box({ from: [x1, y0, 0], to: [x1 + JAMB, y1, frameH] }, frameMat, parent);
+  box({ from: [x0, y0, doorH], to: [x1, y1, frameH] }, frameMat, parent);
 }
 // And through a wall that runs along y, from x0 to x1, the opening [y0, y1]
-function frameAlongY(y0, y1, x0, x1, doorH, frameH) {
-  box({ from: [x0, y0 - JAMB, 0], to: [x1, y0, frameH] }, frameMat, entrance);
-  box({ from: [x0, y1, 0], to: [x1, y1 + JAMB, frameH] }, frameMat, entrance);
-  box({ from: [x0, y0, doorH], to: [x1, y1, frameH] }, frameMat, entrance);
+function frameAlongY(y0, y1, x0, x1, doorH, frameH, parent = entrance) {
+  box({ from: [x0, y0 - JAMB, 0], to: [x1, y0, frameH] }, frameMat, parent);
+  box({ from: [x0, y1, 0], to: [x1, y1 + JAMB, frameH] }, frameMat, parent);
+  box({ from: [x0, y0, doorH], to: [x1, y1, frameH] }, frameMat, parent);
 }
 
 // The stairs' window, in the back wall at the foot: its glass at the back
@@ -612,5 +639,105 @@ function drawStairWindow() {
   frameAlongY(n0, n1, xLobbyEnd, xFar, ROOM_DOOR_H, FRAME_H);
   box({ from: [xFar - doorT, n0, 0], to: [xFar, n1, ROOM_DOOR_H] }, frameMat, entrance);
 }
+
+// ---------------------------------------------------------------------------
+// The bathroom and WC, drawn (a first pass: plain shapes, sized from the
+// drawing, BATHROOM above). On the hallway's floor level, in the hallway's
+// group. Both doors are drawn open, as the drawing has them; no ceilings,
+// as the hallway has none
+// ---------------------------------------------------------------------------
+const bathFloorMat = material(0xcfccc6);           // a pale grey tile: its finish isn't known
+const sanitaryMat = material(0xfafafa);            // the shower tray, basin and WC: white
+const bathroom = new THREE.Group();
+hallway.add(bathroom);
+
+const bathFace = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, bathroom);
+
+// A window in the back wall, [y0, y1] along it: its glass at the back of
+// the reveal, the reveal's sides and top, and a sill
+function backWallWindow(y0, y1) {
+  const { sill, top, reveal, sillThick, sillDepth } = BATHROOM.window;
+  const xBack = ENTRANCE.xBack, mid = (y0 + y1) / 2, zMid = (sill + top) / 2, xReveal = xBack - reveal / 2;
+  insideFace(y1 - y0, top - sill, glassMat, [xBack - reveal, mid, zMid], '+u', bathroom);
+  bathFace(reveal, top - sill, [xReveal, y0, zMid], '+v');
+  bathFace(reveal, top - sill, [xReveal, y1, zMid], '-v');
+  bathFace(reveal, y1 - y0, [xReveal, mid, top], '+u').rotation.set(Math.PI / 2, 0, 0);   // the top, flat, facing down
+  box({ from: [xBack - reveal, y0 - sillThick, sill - sillThick], to: [xBack + sillDepth, y1 + sillThick, sill] }, frameMat, bathroom);
+}
+
+// The floors: the hallway's oak on into the lobby, tiles in the bathroom and WC
+function drawBathroomFloors() {
+  const { xEnd, yHallOut, ySetBack } = HALLWAY;
+  const { xIn, yPartition, yLobby, xWcFront, xWcIn } = BATHROOM, xBack = ENTRANCE.xBack;
+  slab([[xEnd, yLobby], [xWcFront, yLobby], [xWcFront, ySetBack], [xEnd, ySetBack]], -20, 0, hallFloorMat, bathroom);
+  slab([[xIn, yHallOut], [xBack, yHallOut], [xBack, yPartition], [xIn, yPartition]], -20, 0, bathFloorMat, bathroom);
+  slab([[xWcIn, yLobby], [xBack, yLobby], [xBack, ySetBack], [xWcIn, ySetBack]], -20, 0, bathFloorMat, bathroom);
+}
+
+// The bathroom: its four walls, the door in the wall to the lobby (open
+// into the bathroom, against the hallway-end wall, as drawn) and the window
+function drawBathroomRoom() {
+  const { yHallOut } = HALLWAY;
+  const { xIn, yPartition, yLobby, xWcFront, door, window: win } = BATHROOM, xBack = ENTRANCE.xBack;
+  const H = CEILING_HEIGHT, length = xIn - xBack, width = yPartition - yHallOut;
+  bathFace(width, H, [xIn, (yHallOut + yPartition) / 2, H / 2], '-u');
+  bathFace(length, H, [(xIn + xBack) / 2, yHallOut, H / 2], '+v');
+  faceAround(width, [win.y0 - yHallOut, win.y1 - yHallOut], [win.sill, win.top], H, wallMat, a => [xBack, yHallOut + a], '+u', bathroom);
+  backWallWindow(win.y0, win.y1);
+
+  const hingeX = xIn - door.fromWall, d0 = hingeX - door.width;    // the opening, along x
+  const opening = [xIn - hingeX - JAMB, xIn - d0 + JAMB];          // along the wall from the bathroom's hallway end
+  faceAround(length, opening, [0, FRAME_H], H, wallMat, a => [xIn - a, yPartition], '-v', bathroom);
+  faceAround(HALLWAY.xEnd - xWcFront, opening.map(a => a + BATHROOM.wall), [0, FRAME_H], H, wallMat, a => [HALLWAY.xEnd - a, yLobby], '+v', bathroom);
+  frameAlongX(d0, hingeX, yPartition, yLobby, ROOM_DOOR_H, FRAME_H, bathroom);
+  box({ from: [hingeX - ENTRANCE.doorT, yPartition - door.width, 0], to: [hingeX, yPartition, ROOM_DOOR_H] }, frameMat, bathroom);
+}
+
+// What's in the bathroom: the shower tray in the corner by the hallway end,
+// a glass screen along its open side and a wall at its far end; the basin
+// on the outside wall near the back
+function drawBathroomFittings() {
+  const { yHallOut } = HALLWAY;
+  const { xIn, wall, shower, basin } = BATHROOM, xBack = ENTRANCE.xBack;
+  const xTrayEnd = xIn - shower.length, yScreen = yHallOut + shower.width;
+  box({ from: [xTrayEnd, yHallOut, 0], to: [xIn, yScreen, shower.trayH] }, sanitaryMat, bathroom);
+  insideFace(shower.length, shower.screenH, glassMat, [(xIn + xTrayEnd) / 2, yScreen, shower.trayH + shower.screenH / 2], '+v', bathroom);
+  box({ from: [xTrayEnd - wall, yHallOut, 0], to: [xTrayEnd, yHallOut + shower.endWall, CEILING_HEIGHT] }, wallMat, bathroom);
+
+  const cx = xBack + basin.fromBackWall, half = basin.width / 2, stem = basin.pedestal / 2;
+  box({ from: [cx - half, yHallOut, basin.top - basin.bowl], to: [cx + half, yHallOut + basin.depth, basin.top] }, sanitaryMat, bathroom);
+  box({ from: [cx - stem, yHallOut + basin.depth / 2 - stem, 0], to: [cx + stem, yHallOut + basin.depth / 2 + stem, basin.top - basin.bowl] }, sanitaryMat, bathroom);
+}
+
+// The lobby's far side and the WC: the lobby's side of the bedroom's wall,
+// the WC's front wall with its door (open into the lobby, as drawn), the
+// WC's walls and window, and the WC against the back wall
+function drawWc() {
+  const { xEnd, ySetBack } = HALLWAY;
+  const { yLobby, xWcFront, xWcIn, wcDoor, wcWindow, window: win, wc } = BATHROOM, xBack = ENTRANCE.xBack;
+  const H = CEILING_HEIGHT, width = ySetBack - yLobby, length = xWcIn - xBack;
+  bathFace(xEnd - xWcFront, H, [(xEnd + xWcFront) / 2, ySetBack, H / 2], '-v');
+
+  const hingeY = ySetBack - wcDoor.fromBedroomWall, w0 = hingeY - wcDoor.width;
+  const opening = [w0 - JAMB - yLobby, hingeY + JAMB - yLobby];
+  faceAround(width, opening, [0, FRAME_H], H, wallMat, a => [xWcFront, yLobby + a], '+u', bathroom);
+  faceAround(width, opening, [0, FRAME_H], H, wallMat, a => [xWcIn, yLobby + a], '-u', bathroom);
+  frameAlongY(w0, hingeY, xWcIn, xWcFront, ROOM_DOOR_H, FRAME_H, bathroom);
+  box({ from: [xWcFront, hingeY - ENTRANCE.doorT, 0], to: [xWcFront + wcDoor.width, hingeY, ROOM_DOOR_H] }, frameMat, bathroom);
+
+  bathFace(length, H, [(xWcIn + xBack) / 2, yLobby, H / 2], '+v');
+  bathFace(length, H, [(xWcIn + xBack) / 2, ySetBack, H / 2], '-v');
+  faceAround(width, [wcWindow.y0 - yLobby, wcWindow.y1 - yLobby], [win.sill, win.top], H, wallMat, a => [xBack, yLobby + a], '+u', bathroom);
+  backWallWindow(wcWindow.y0, wcWindow.y1);
+
+  const mid = (yLobby + ySetBack) / 2, half = wc.width / 2, xCistern = xBack + wc.cisternDepth;
+  box({ from: [xBack, mid - half, 0], to: [xCistern, mid + half, wc.cisternH] }, sanitaryMat, bathroom);
+  box({ from: [xCistern, mid - half, 0], to: [xCistern + wc.bowlDepth, mid + half, wc.bowlH] }, sanitaryMat, bathroom);
+}
+
+drawBathroomFloors();
+drawBathroomRoom();
+drawBathroomFittings();
+drawWc();
 
 export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, bedroomHinge, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge, insideFace, faceAround };

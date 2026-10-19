@@ -70,6 +70,8 @@ guess today, or could be well out:
 
 - **Y 2330** against 3360 scaled off the drawing: which wall was it
   measured to? The sheet asks for the WC wall at the hallway's far end.
+  Drawn (19 Oct 2026) as to the bathroom's wall over the stairs, with a
+  1030 lobby past it to the WC's door, as the drawing has it.
 - **A 2252** makes the far side's trim about 92 wide, against 71 on the
   hinge side. The living room door's width (760) is assumed, not measured:
   measuring it would settle which is right.
