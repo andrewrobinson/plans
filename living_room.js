@@ -157,7 +157,7 @@ function showStored() {
   const { shown, packing, where } = state.stored;
   document.getElementById('storedInfo').textContent = drawStored();
   showLifts();
-  document.getElementById('storedToggle').textContent = `Stored things: ${shown ? 'shown' : 'hidden'}`;
+  document.getElementById('storedToggle').textContent = `Stored: ${shown ? 'on' : 'off'}`;   // short, for the phone's top bar (asked for, 19 Oct 2026)
   document.getElementById('storedPacking').value = String(packing);
   document.querySelectorAll('input[name=storedWhere]').forEach(r => { r.checked = Number(r.value) === where; });
 }

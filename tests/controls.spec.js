@@ -704,7 +704,7 @@ test.describe('things to store', () => {
   async function showStoredThenOpen(page) {
     await openRoom(page, DESIGNED);
     await page.click('#storedToggle');
-    await expect(page.locator('#storedToggle')).toHaveText('Stored things: shown');
+    await expect(page.locator('#storedToggle')).toHaveText('Stored: on');
     await openOptions(page, 'lounge');
     await page.evaluate(() => document.querySelectorAll('.drawer details').forEach(d => { d.open = true; }));
   }
@@ -720,7 +720,7 @@ test.describe('things to store', () => {
     await expect(page.locator('#storedInfo')).toContainText("corner cupboard");
     await page.click('#roomOptions');                                  // Lounge options shut
     await page.click('#storedToggle');
-    await expect(page.locator('#storedToggle')).toHaveText('Stored things: hidden');
+    await expect(page.locator('#storedToggle')).toHaveText('Stored: off');
     expect(await storedHead(page)).toEqual({ shown: false, packing: 2, where: 1 });
   });
 

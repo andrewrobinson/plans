@@ -520,9 +520,11 @@ export function flatViews(stage, view) {
     // leaves clear: to its right, or above it as a sheet. The 3D view is the
     // whole view in that part, its frustum stretched over the rest
     const { left, bottom } = drawers.covering();
-    // ...and below the top bar, while a sheet's open (as the 2D views are)
+    // ...and below the top bar on a phone (as the 2D views are), where the
+    // bar's rows take a good part of the screen, so the room sits in the
+    // space under them rather than up behind them (asked for, 19 Oct 2026)
     const barBottom = Math.min(document.getElementById('bar').getBoundingClientRect().bottom, h / 3);
-    const top = bottom ? barBottom : 0;
+    const top = bottom || asSheet() ? barBottom : 0;
     const clearW = w - left, clearH = h - bottom - top;
     camera.aspect = clearW / clearH;
     // On narrow screens, keep about 55° across rather than 45° up and down, so
@@ -530,7 +532,7 @@ export function flatViews(stage, view) {
     const across = view.hfov || (clearW / clearH < 1.4 ? 55 : null);   // degrees across, when fixed
     // Up and down, capped so a tall phone screen doesn't stretch the view
     camera.fov = across ? Math.min(80, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(across / 2)) * clearH / clearW))) : 45;
-    if (left || bottom) camera.setViewOffset(clearW, clearH, -left, -top, w, h);
+    if (left || top || bottom) camera.setViewOffset(clearW, clearH, -left, -top, w, h);
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
     // Fit flatFit on screen, whichever way round is tighter, in that clear

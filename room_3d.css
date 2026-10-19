@@ -95,11 +95,12 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
     cursor: ns-resize; touch-action: none; }
   .sheetHandle::before { content: ''; display: block; width: 44px; height: 5px; border-radius: 3px; background: #bbb; margin: 8px auto 0; }
   body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLeft { left: 12px; bottom: calc(var(--sheet, 45vh) + 8px); }
-  /* The top bar's buttons smaller (chosen), two to a row, so it leaves the
-     room more of the screen above the sheet */
+  /* The top bar's buttons smaller (chosen), so it leaves the room more of
+     the screen above the sheet: padded just enough that they fit in three
+     rows on a 390-wide phone (measured, 19 Oct 2026) */
   #bar { gap: 6px; }
   #bar .chip, #bar .pick, #menu { height: 36px; font-size: 13px; }
-  #bar .chip { padding: 0 9px; }
+  #bar .chip { padding: 0 7px; }
   #menu { width: 36px; font-size: 18px; }
   .split .kind select { width: 28px; }
   /* While a sheet's open, only ☰ stays in the top bar, so the room gets the
