@@ -216,6 +216,35 @@ Plans don't give heights, so the slope can only come from these.
 - [ ] **The opening above the stairs:** its length and width, and the
       headroom, the lowest ceiling over any step, measured straight up
       from the step's front edge.
+- [ ] **The banister and the left sill: measured 19 Oct 2026, late, to
+      check** (the user said they were tired and there may be mistakes, so
+      none of this is in the model yet). From the measuring sheet
+      (https://claude.ai/artifact/UuD2uWggJhSq4W7CtradGG):
+      - From the left sill's top to where the spindles start: **230**. The
+        model has 360 (the sill 210 below the floor, the base's top 150
+        above it), so one of those is off.
+      - **12 spindles** (the model draws 10), **22 thick** (model 30),
+        **110 apart** middle to middle (model about 120).
+      - The **far post**, by the WC wall, **goes right down to the left
+        sill** and is **half in the WC wall**: it stands **32** out of the
+        wall's face. (The model has it whole, 90 out, from the floor up.)
+      - Along the left sill: the newel post (90), then **1430** from it to
+        the far post, inside face to inside face, the far post (90), then
+        **125** to the sill's corner: **1735** in all (model 1650). So the
+        WC wall's bottom over the sill is about **183** deep (58 of post
+        in the wall and the 125), not 220.
+      - **These don't fit the hallway's 2330** (Y). With the newel 900
+        from the lounge door wall (the stairwell's width), they put the WC
+        wall 2452 from the door wall, 122 further than 2330. The user's
+        choice, before stopping: keep 2330 and move the turn (both newel
+        posts, the winders' corner and the flight) 122 towards the door
+        wall, so the winders turn in 778 along the door wall. Tried and
+        put back: it moves the stairs' foot downstairs too (a snapshot
+        changed). To check first: the lounge door wall to the newel post,
+        and to the WC wall, along the hallway.
+      - Still to measure on the sheet: the base's width and height, the
+        rail's height and size, the posts' height and caps, how far the
+        WC wall's bottom comes down over the sill.
 - [ ] **The stairs' going** (still the drawing's 220): the handrail's top
       bracket is 845 above step 9 (from the foot) by the user's figure, but
       160 lower than that as drawn, from its other measurement (540 from the
