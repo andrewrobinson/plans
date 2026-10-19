@@ -479,6 +479,72 @@
         }
       }
     },
+    "hallway": {
+      "wcWall": {
+        "shelves": {
+          "on": false,
+          "count": 2,
+          "height": 1350,
+          "width": 1200,
+          "along": 810,
+          "spacing": 440,
+          "depth": 220
+        },
+        "picture": {
+          "on": false,
+          "height": 1420,
+          "width": 670,
+          "tall": 930,
+          "along": 830
+        }
+      },
+      "loungeWall": {
+        "shelves": {
+          "on": false,
+          "count": 2,
+          "height": 1290,
+          "width": 1200,
+          "along": 600,
+          "spacing": 300,
+          "depth": 200
+        },
+        "picture": {
+          "on": false,
+          "height": 1220,
+          "width": 680,
+          "tall": 1000,
+          "along": 660
+        }
+      },
+      "tvWall": {
+        "shelves": {
+          "on": false,
+          "count": 3,
+          "height": 1000,
+          "width": 1200,
+          "along": 1180,
+          "spacing": 440,
+          "depth": 240
+        },
+        "picture": {
+          "on": false,
+          "height": 1430,
+          "width": 1200,
+          "tall": 1000,
+          "along": 1160
+        }
+      },
+      "cornerShelves": {
+        "on": false,
+        "count": 3,
+        "height": 1000,
+        "tvLength": 1200,
+        "wcLength": 1200,
+        "spacing": 440,
+        "depth": 240
+      },
+      "bathroomShown": true
+    },
     "thingsToStore": {
       "shown": false,
       "packing": 0,

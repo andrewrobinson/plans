@@ -29,6 +29,7 @@ import * as Config from './kit/config_kit.js';
 import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, BED_SPOTS } from './other_room.js';
 import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
 import { shoeRack, shoeRackControls } from './shoe_rack.js';
+import { stairWallsControls } from './stair_walls.js';
 import { garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
 import { cupboardControls, copyControls, idIn } from './cupboard_controls.js';
 import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims, build,
@@ -1179,6 +1180,13 @@ const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomTop'),
 const syncWickerBench = wickerBenchControls(document.getElementById('wickerBenchBlock'), edits => change(roomEdits('wickerBench', edits), { look: true }));
 // The shoe rack's (shoe_rack.js), in state.shoeRack
 const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), edits => change(roomEdits('shoeRack', edits), { look: true }));
+// The shelves and pictures over the stairs (stair_walls.js), in
+// state.stairWalls, as 'wc.shelves.count'
+const syncStairWalls = stairWallsControls(document.getElementById('stairWallsBlock'), edits => change(roomEdits('stairWalls', edits)));
+// The bathroom and WC shown or hidden (Hallway and stairs options), as
+// they stand in the way of seeing the hallway and stairs
+const bathroomShown = document.getElementById('bathroomShown');
+bathroomShown.addEventListener('change', () => change([['hallway.bathroomShown', bathroomShown.checked]]));
 // The garage's (garage.js), in state.garage, as 'sean.x'
 const syncGarage = garageControls(document.getElementById('garageBlock'), edits => change(roomEdits('garage', edits), { look: true }));
 // The drawers' sections open or closed as they were left here, those the
@@ -1222,6 +1230,8 @@ function syncControls() {
   syncOtherRoom(state.otherRoom);
   syncWickerBench(state.wickerBench);
   syncShoeRack(state.shoeRack);
+  syncStairWalls(state.stairWalls);
+  bathroomShown.checked = state.bathroomShown;
   syncGarage(state.garage);
 }
 

@@ -38,6 +38,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | `tables.js` | The kitchen tables, Chesham and Cornwall: on their legs, Chesham on its end, Cornwall with its legs off |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
+| `stair_walls.js` | The shelves and pictures on the walls over the stairs, and their sliders ([HALLWAY_SHELVES.md](HALLWAY_SHELVES.md)) |
 | `garage.js` | The garage (off the site plan, in its own x, y mm), what's in it, and Garage options' sliders |
 | `living_room.views.js` | The rooms, places (Where), things (Looking at), eye heights and config-defined views, for editing |
 | `living_room.configurations.js`, `dressers.js`, `larders.js`, `sofas.js` | Named configurations and furniture catalogues, for editing |
@@ -84,6 +85,13 @@ The notes:
   stays as the door opens and shuts. Its sliders are in **The shoe rack
   (downstairs)** in Other options, which also says how long a shoe fits
   along a shelf and, without the bevel, how far the door opens.
+- **Over the stairs**, in Hallway and stairs options: white floating
+  shelves (0 to 3) and a blank picture in a thin black frame on each of
+  the WC wall, the lounge door wall over the winders and the TV wall (the
+  stairwell's outside wall), kept apart, all off to start; L-shaped
+  shelves joining the TV and WC walls in their corner; and a switch to hide the
+  bathroom and WC, which stand in the way of seeing them
+  ([HALLWAY_SHELVES.md](HALLWAY_SHELVES.md)).
 - **The corner cupboards** (the lounge's, and the bedroom's New cupboard)
   each have a **Cupboard height** slider, from 1800 up to the ceiling, and
   the left-wall cupboard's length is a slider. The bedroom's reaches along

@@ -439,6 +439,15 @@ In the configuration it's `pieces.shoeRack.design`: `w`, `d`, `h`,
 `bevel`, `slope`, `shoes` and `bevelDoor`, each held to its slider's range.
 It always stands in the same place, so it has no `in`.
 
+### Shelves and pictures over the stairs
+
+On the WC wall, the lounge door wall over the winders and the TV wall, in
+[stair_walls.js](stair_walls.js): sizes, sources, the keep-apart rule and
+the configuration (`hallway.wcWall`, `hallway.loungeWall`,
+`hallway.tvWall`, `hallway.cornerShelves` for the L-shaped shelves,
+`hallway.bathroomShown`) are in [HALLWAY_SHELVES.md](HALLWAY_SHELVES.md).
+All off to start, at the user's sizes and places once on.
+
 ### The wicker bench
 
 The hallway's bench, a white wicker ottoman with a padded floral lid on four

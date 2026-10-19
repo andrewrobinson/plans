@@ -51,7 +51,7 @@ live beside it.
 | 83–85 | `#bottomLeft` | The options button (`#roomOptions`), named for the room in view: Lounge, Bedroom or Garage options, or Hallway and stairs. It moves clear of an open drawer, onto a sheet's top edge on a phone |
 | 86 | `#tip` | A tooltip that follows the pointer over things to store |
 | **87–104** | `#panel` | **Other options**: `#secWickerBench` (the wicker bench, in any room) and `#palette`, the colours in this view |
-| **106–127** | `#hallPanel` | **Hallway and stairs options**: `#secShoeRack` (shoe_rack.js fills it) and `#secDownstairsDoors` (the flat's door and the lobby's) |
+| **106–127** | `#hallPanel` | **Hallway and stairs options**: `#secBathroom` (the bathroom and WC shown or hidden, `#bathroomShown`), `#secStairWalls` (the shelves and pictures over the stairs: stair_walls.js fills `#stairWallsBlock`), `#secShoeRack` (shoe_rack.js fills it) and `#secDownstairsDoors` (the flat's door and the lobby's) |
 | **129–428** | `#loungePanel` | **Lounge options**, the living room: |
 | 134–196 | `#secCupboard` | The corner cupboard: its **option list** (`#current`), Cupboard only, its cutting list (`#loungeCutting`, folded away), and `#cupboardControls`: board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7). The bedroom's cupboard copies these |
 | 197–247 | `#secFrontWall` | Island radios, front-piece radios, dresser and larder dropdowns plus sliders |

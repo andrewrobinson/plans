@@ -104,14 +104,26 @@
   </details>
 </div>
 
-<!-- Hallway and stairs options: the shoe rack at the foot of the stairs and
-     the two doors downstairs, a drawer of its own, opened from the hallway
-     or downstairs (the wicker bench, in any room, is in Other options) -->
+<!-- Hallway and stairs options: the bathroom and WC shown or not, the
+     shelves and pictures over the stairs, the shoe rack at the foot of the
+     stairs and the two doors downstairs, a drawer of its own, opened from
+     the hallway or downstairs (the wicker bench, in any room, is in Other
+     options) -->
 <div id="hallPanel" class="drawer">
   <div class="head">
     <h1>Hallway and stairs options</h1>
     <button id="hallClose" class="close" aria-label="Close hallway and stairs options">✕</button>
   </div>
+  <details class="sec" id="secBathroom" open>
+    <summary>The bathroom and WC</summary>
+    <label class="switch"><input type="checkbox" id="bathroomShown"> Show the bathroom and WC</label>
+    <div class="hint">Hide them to see the hallway and stairs past them: the WC wall stays, for its shelves and picture.</div>
+  </details>
+  <details class="sec" id="secStairWalls">
+    <summary>Shelves and pictures over the stairs</summary>
+    <div class="hint">On the three walls that rise from the hallway floor to the ceiling round the stairwell, high up, heights from the hallway floor. On one wall the shelves and the picture are kept apart: one moved onto the other goes along the wall, past it.</div>
+    <div id="stairWallsBlock"></div>
+  </details>
   <details class="sec" id="secShoeRack">
     <summary>The shoe rack (downstairs)</summary>
     <div class="hint">An open rack of shelves at the foot of the stairs, on its floor between the bottom step and the back wall.</div>

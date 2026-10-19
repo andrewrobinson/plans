@@ -33,12 +33,13 @@ import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNew
   QUARTER_TURN, OTHER_ROOM_SCHEMA } from './other_room.js';
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
 import { drawShoeRack, shoeRack, SHOE_RACK_START, SHOE_RACK_SCHEMA } from './shoe_rack.js';
+import { drawStairWalls, settleStairWalls, STAIR_WALLS_START, STAIR_WALLS_SCHEMA } from './stair_walls.js';
 import { drawGarage, garagePieces, GARAGE, GARAGE_CORNER, GARAGE_START, GARAGE_SCHEMA } from './garage.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, floorMat, FRIDGE_W, RECESS_FROM,
   KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, SINK_RECESS, DESK_TOP,
   DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat,
   ceilingMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, carpetMat, CARPET_COLOURS,
-  HALLWAY, hallway, ENTRANCE, flatDoorHinge, outsideDoorHinge } from './floor.js';
+  HALLWAY, hallway, ENTRANCE, bathroom, flatDoorHinge, outsideDoorHinge } from './floor.js';
 
 // Everything drawn: the flat, the hallway and stairs, the garage, in the
 // scene's metres (room (x, y, z) mm -> (x, z, y) / 1000)
@@ -321,6 +322,8 @@ const state = {
   otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
   wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
   shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
+  stairWalls: structuredClone(STAIR_WALLS_START),     // the shelves and pictures on the walls over the stairs, none to start (stair_walls.js)
+  bathroomShown: true,             // the bathroom and WC drawn, or hidden to see the hallway and stairs past them
   garage: structuredClone(GARAGE_START),              // Sean, Billy, BillyChest and the rest, in the garage: where each stands (garage.js)
   // How far each door is open, in degrees, up to its slider's most
   // (index.html): the room door, the left-wall cupboard's tall door, the
@@ -1678,6 +1681,8 @@ const SCHEMA = Config.withDefaults([
   ...LIVING_ROOM_SCHEMA,
   ...WICKER_BENCH_SCHEMA,
   ...SHOE_RACK_SCHEMA,
+  ...STAIR_WALLS_SCHEMA,
+  Config.onOff('hallway.bathroomShown', 'bathroomShown'),
   ...GARAGE_SCHEMA,
   // The things to store: shown or not, which packing, and where
   Config.onOff('thingsToStore.shown', 'stored.shown'),
@@ -1785,6 +1790,7 @@ export function settle() {
   benchHeights();
   placeDresser();
   placeIsland();
+  settleStairWalls(state.stairWalls);
 }
 // The shelves' wood, and option 9's oak, from state.shelfWood: one colour,
 // or the shelves' and the oak's
@@ -1822,6 +1828,8 @@ export function build(i, onShow = optionsOnShow()) {
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard
   drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
   drawShoeRack(state.shoeRack);                                 // the shoe rack, downstairs
+  drawStairWalls(state.stairWalls);                             // the shelves and pictures over the stairs
+  bathroom.visible = state.bathroomShown;                       // the bathroom and WC, or not
   drawGarage(state.garage, state.otherRoom.cupboard);           // Sean, Billy, BillyChest and the rest, in the garage
   placeStored();                                                // the cupboard they go in may have changed
   return { option, same, aboveText };
