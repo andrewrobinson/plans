@@ -237,6 +237,27 @@ design, for Share; the user asked why, 18 Oct 2026). Rack 2's place and
 the tub's are guesses (neither clear in the photo). An empty Configuration
 list could say so.
 
+## Shelves and pictures over the stairs (19 Oct 2026)
+
+Built in `stair_walls.js` (HALLWAY_SHELVES.md has what was agreed): three
+walls, each a start, a way along and a way out (so one module draws on
+walls running along x or y), the L-shaped shelves as each of its walls'
+shelves for the keep-apart rule (`cornerArm()`, `shelvesOn()`), and a
+switch for the bathroom and WC (`bathroom.visible`, from `build()`). The
+saved configurations and snapshots were regenerated through the model
+with a throwaway script.
+
+Left from this:
+
+- **A regenerate script** in `tests/model/` (`npm run regen`): every new
+  setting needs the saved configurations, `living_room.configurations.js`
+  and the snapshots written again through `buildFlat()`, done by hand
+  each time so far.
+- **`stairWallsControls()`** is long (about 90 lines): building the HTML,
+  syncing and editing could be three named functions.
+- **Between walls** nothing is checked: separate shelves at a corner can
+  meet (the L is the way to join them).
+
 ## Left over, after 6d
 
 - **The configuration as the store**, `state` going
