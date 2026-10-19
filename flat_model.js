@@ -28,7 +28,7 @@ import { bookcase } from './bookcase.js';
 import { BILLY_CHEST, billy, billySizes, billyChest } from './billy.js';
 import { daybed, daybedFrame } from './daybed.js';
 import { ivar, ivarSizes } from './ivar.js';
-import { CHESHAM, CORNWALL, LEGS_OFF_H, kitchenTable, tableSizes } from './tables.js';
+import { CHESHAM, CORNWALL, kitchenTable, tableSizes } from './tables.js';
 import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard,
   QUARTER_TURN, OTHER_ROOM_SCHEMA } from './other_room.js';
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
@@ -293,10 +293,10 @@ const state = {
   ivarOn: true,                    // the Ivar (ivar.js), by the first radiator, as it is now (IVAR_HOME)
   ivarLying: true,                 // ...lying on its side
   ivarMove: null,                  // ...and moved round the room from there: { x, y, turn }, or null where it starts
-  cheshamOn: true,                 // the Chesham kitchen table (tables.js), in the corner by the door, as it is now (LOUNGE_NOW)
+  cheshamOn: false,                // the Chesham kitchen table (tables.js), in the corner by the door, as it is now (LOUNGE_NOW); hidden to start (asked for, 19 Oct 2026)
   cheshamOnItsEnd: true,           // ...on its end, its top against the wall behind it; else standing on its legs
   cheshamMove: null,               // ...and moved round the room from there, as the Ivar
-  cornwallOn: true,                // the Cornwall kitchen table (tables.js), likewise
+  cornwallOn: false,               // the Cornwall kitchen table (tables.js), likewise
   cornwallLegsOff: true,           // ...on the floor with its legs off; else on its legs
   cornwallMove: null,              // ...and moved round the room from there, as the Ivar
   BENCH: 780,                      // the bench's height: 700, 780, 800 or 900
@@ -1089,20 +1089,21 @@ const PACKINGS = [
 const sizeOf = (k, turned) => turned ? [STORED[k].d, STORED[k].w] : [STORED[k].w, STORED[k].d];
 state.stored.spots = STORED.map(() => ({ x: 0, y: 0, turned: false, z: 0 }));   // z: how high it stands, as on a shelf
 // Where they are now (the user's photo, 18 Oct 2026; estimated from it), in
-// STORED's order, each its back left corner: on Cornwall (LOUNGE_NOW), so
-// as high as it is, the ladders against the left wall at its door end,
-// the hoover at its front, the mop's bucket and a rack under Chesham, the
-// other rack (not in the photo) behind that one, against Chesham's top;
-// the tub on the floor in front, clear of the sofa and the door
-const ON_CORNWALL = LEGS_OFF_H;
+// STORED's order, each its back left corner: where Cornwall stands
+// (LOUNGE_NOW), the ladders against the left wall at its door end, the
+// hoover at its front, the mop's bucket and a rack by Chesham, the other
+// rack (not in the photo) behind that one; the tub in front, clear of the
+// sofa and the door. All on the floor, as the tables are hidden to start
+// (asked for, 19 Oct 2026); on Cornwall they'd be LEGS_OFF_H up.
+const ON_THE_FLOOR = 0;
 const STORED_NOW = [
-  { x: 330, y: 380, turned: true, z: ON_CORNWALL },              // Rack 1
-  { x: 100, y: 700, turned: true, z: ON_CORNWALL },              // the folding ladder
-  { x: 0, y: 650, turned: true, z: ON_CORNWALL },                // the long ladder
-  { x: 450, y: 450, turned: true, z: ON_CORNWALL },              // the mop's bucket
-  { x: 440, y: 880, turned: false, z: ON_CORNWALL },             // the hoover
-  { x: 820, y: 1380, turned: false, z: 0 },                      // the tub
-  { x: 30, y: 30, turned: false, z: ON_CORNWALL },               // Rack 2
+  { x: 330, y: 380, turned: true, z: ON_THE_FLOOR },             // Rack 1
+  { x: 100, y: 700, turned: true, z: ON_THE_FLOOR },             // the folding ladder
+  { x: 0, y: 650, turned: true, z: ON_THE_FLOOR },               // the long ladder
+  { x: 450, y: 450, turned: true, z: ON_THE_FLOOR },             // the mop's bucket
+  { x: 440, y: 880, turned: false, z: ON_THE_FLOOR },            // the hoover
+  { x: 820, y: 1380, turned: false, z: ON_THE_FLOOR },           // the tub
+  { x: 30, y: 30, turned: false, z: ON_THE_FLOOR },              // Rack 2
 ];
 Object.assign(state.stored, { shown: true, where: 2, spots: structuredClone(STORED_NOW) });   // shown, as they are now
 const storedGroup = new THREE.Group();

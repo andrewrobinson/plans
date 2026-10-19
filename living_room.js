@@ -21,7 +21,7 @@
 // controls; the colours; the views and configurations; the display switches and the
 // view; window.plans; and starting the page.
 import * as THREE from 'three';
-import { MM, createStage, RAL, popMenus, createDrawers, reloadButton, SHEET_HEIGHT_KEY,
+import { MM, createStage, RAL, popMenus, createDrawers, reloadButton, resetButton, SHEET_HEIGHT_KEY,
   shareButton, screenshotButton, workOffline, flatViews, cutViews } from './kit/floor_kit.js';
 import * as ViewKit from './kit/view_kit.js';
 import * as ConfigurationKit from './kit/configuration_kit.js';
@@ -1152,6 +1152,7 @@ drawers.setMenu(null);
 // sheet's height; not the saved views, looks and configurations
 reloadButton(document.getElementById('reload'), () => ['room_3d:startView', ...Object.keys(ROOM_BUTTONS).map(viewKindKey),
   ...DRAWER_SECTIONS.map(sectionKey), 'aboutOpen', 'paletteOpen', SHEET_HEIGHT_KEY]);
+resetButton(document.getElementById('reset'));
 // Share: the link is always to the published page, so it works for others
 // even when this copy is on a local server
 shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => OPTIONS[state.cornerCupboard.option].name);

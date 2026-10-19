@@ -612,4 +612,21 @@ test.describe('Share and Reset', () => {
     const stored = await page.evaluate(keys => keys.map(k => localStorage.getItem(k)), [...remembered, 'room_3d:savedViews']);
     expect(stored).toEqual([...remembered.map(() => null), '[]']);   // all forgotten but the saved views
   });
+
+  // Reset forgets everything, the saved views and configurations too, once
+  // confirmed (asked for, 19 Oct 2026); declined, it does nothing
+  test('Reset forgets everything once confirmed', async ({ page }) => {
+    await openRoom(page, OPTION_7);
+    const kept = ['room_3d:savedViews', 'room_3d:secCupboard', 'aboutOpen'];
+    await page.evaluate(keys => { for (const k of keys) localStorage.setItem(k, '1'); }, kept);
+    page.once('dialog', dialog => dialog.dismiss());
+    await page.click('#reset');
+    await expect(page.locator('#reset')).toHaveText('Reset');
+    expect(await page.evaluate(() => localStorage.length)).toBeGreaterThanOrEqual(kept.length);   // declined: all still there
+    page.once('dialog', dialog => dialog.accept());
+    await page.click('#reset');
+    await expect.poll(() => configurationOf(page).catch(() => 'loading')).toEqual(DEFAULT.configuration);
+    const left = await page.evaluate(keys => keys.map(k => localStorage.getItem(k)), kept);
+    expect(left).toEqual(kept.map(() => null));
+  });
 });

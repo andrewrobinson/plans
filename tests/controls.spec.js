@@ -612,13 +612,18 @@ test.describe('the garage', () => {
 });
 
 // The kitchen tables, in the lounge as they are now (the default page):
-// Cornwall on the floor with its legs off, Chesham on its end on it; each
-// can be moved, posed otherwise, and taken out
+// hidden to start (asked for, 19 Oct 2026); switched on, Cornwall on the
+// floor with its legs off, Chesham on its end on it; each can be moved,
+// posed otherwise, and taken out
 test.describe('the kitchen tables', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, ''); });
   const boxOf = (page, key) => page.evaluate(k => window.plans.snapshot().boxes[`${k}.livingRoom`], key);
 
   test('Chesham stands on Cornwall in the corner by the door', async ({ page }) => {
+    expect(await boxOf(page, 'cornwall')).toBe(null);
+    expect(await boxOf(page, 'chesham')).toBe(null);
+    await page.locator('#cornwallOn').check();
+    await page.locator('#cheshamOn').check();
     expect(await boxOf(page, 'cornwall')).toEqual({ from: [0, 0, 0], to: [800, 1200, 150], shown: true });
     expect(await boxOf(page, 'chesham')).toEqual({ from: [0, 0, 150], to: [740, 730, 1340], shown: true });
     await expect(page.locator('#summary')).toContainText('The Chesham table, on its end, its top against the wall behind it, on the other table');
@@ -693,10 +698,19 @@ test.describe('the shoe rack', () => {
 });
 
 test.describe('things to store', () => {
-  test('shown, packed, and where they go', async ({ page }) => {
-    await openDrawer(page);
+  // Shown or hidden from the top bar (asked for, 19 Oct 2026), which on a
+  // phone is hidden while a drawer's open: so before opening Lounge options
+  // and after closing it
+  async function showStoredThenOpen(page) {
+    await openRoom(page, DESIGNED);
     await page.click('#storedToggle');
     await expect(page.locator('#storedToggle')).toHaveText('Stored things: shown');
+    await openOptions(page, 'lounge');
+    await page.evaluate(() => document.querySelectorAll('.drawer details').forEach(d => { d.open = true; }));
+  }
+
+  test('shown, packed, and where they go', async ({ page }) => {
+    await showStoredThenOpen(page);
     expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 0 });
     await expect(page.locator('#storedInfo')).toContainText('Standing on the floor they take');
     await page.selectOption('#storedPacking', '2');
@@ -704,13 +718,14 @@ test.describe('things to store', () => {
     await page.check('input[name=storedWhere][value="1"]');
     expect(await storedHead(page)).toEqual({ shown: true, packing: 2, where: 1 });
     await expect(page.locator('#storedInfo')).toContainText("corner cupboard");
+    await page.click('#roomOptions');                                  // Lounge options shut
     await page.click('#storedToggle');
+    await expect(page.locator('#storedToggle')).toHaveText('Stored things: hidden');
     expect(await storedHead(page)).toEqual({ shown: false, packing: 2, where: 1 });
   });
 
   test('off the floor, then packed again', async ({ page }) => {
-    await openDrawer(page);
-    await page.click('#storedToggle');
+    await showStoredThenOpen(page);
     const lift = page.locator('#storedLifts input').first();             // Rack 1
     await lift.fill('300');
     await lift.press('Tab');

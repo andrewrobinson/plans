@@ -398,10 +398,31 @@ const RELOAD_FADE_MS = 300;                           // chosen: long enough to 
 export function reloadButton(button, forget = () => []) {
   button.addEventListener('click', () => {
     for (const key of forget()) { try { localStorage.removeItem(key); } catch (e) { /* not important */ } }
-    button.textContent = 'Reloading…';
-    button.disabled = true;
-    document.body.classList.add('reloading');
-    setTimeout(() => location.replace(location.pathname), RELOAD_FADE_MS);
+    loadAfresh(button, 'Reloading…');
+  });
+}
+// The button saying `words`, the room fading, then the page with an empty address
+function loadAfresh(button, words) {
+  button.textContent = words;
+  button.disabled = true;
+  document.body.classList.add('reloading');
+  setTimeout(() => location.replace(location.pathname), RELOAD_FADE_MS);
+}
+
+// Reset: as a first visit ever would see it (asked for, 19 Oct 2026). Once
+// confirmed, as it can't be undone: everything this site keeps on the
+// device is forgotten, the saved views, looks and configurations too, and
+// the offline copy (the service worker and its caches) dropped, so the
+// newest page is fetched, then loaded as Reload does
+export function resetButton(button) {
+  button.addEventListener('click', async () => {
+    if (!confirm('Reset forgets everything kept on this device, saved views, looks and configurations too, and loads the newest page. Go ahead?')) return;
+    try { localStorage.clear(); sessionStorage.clear(); } catch (e) { /* not important */ }
+    await Promise.all([
+      navigator.serviceWorker?.getRegistrations().then(list => Promise.all(list.map(r => r.unregister()))),
+      window.caches?.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))),
+    ]).catch(() => { /* not important: the page still loads */ });
+    loadAfresh(button, 'Resetting…');
   });
 }
 

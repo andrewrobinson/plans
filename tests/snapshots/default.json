@@ -347,7 +347,7 @@
       "chesham": {
         "in": {
           "livingRoom": {
-            "on": true,
+            "on": false,
             "onItsEnd": true,
             "move": null
           }
@@ -356,7 +356,7 @@
       "cornwall": {
         "in": {
           "livingRoom": {
-            "on": true,
+            "on": false,
             "legsOff": true,
             "move": null
           }
@@ -500,31 +500,31 @@
           "x": 330,
           "y": 380,
           "turned": true,
-          "z": 150
+          "z": 0
         },
         {
           "x": 100,
           "y": 700,
           "turned": true,
-          "z": 150
+          "z": 0
         },
         {
           "x": 0,
           "y": 650,
           "turned": true,
-          "z": 150
+          "z": 0
         },
         {
           "x": 450,
           "y": 450,
           "turned": true,
-          "z": 150
+          "z": 0
         },
         {
           "x": 440,
           "y": 880,
           "turned": false,
-          "z": 150
+          "z": 0
         },
         {
           "x": 820,
@@ -536,7 +536,7 @@
           "x": 30,
           "y": 30,
           "turned": false,
-          "z": 150
+          "z": 0
         }
       ]
     }
@@ -546,18 +546,18 @@
     "bedroom": null
   },
   "dimensions": [],
-  "description": "The room as it is now, with no cupboards. No bench: Billy and BillyChest stand there instead. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk. Billy, from the garage, lying on its long side (2020 wide, 280 deep, 800 high) in place of the bench, moved: the middle of its back at x 1875, y 0, facing the front wall. BillyChest, from the garage (805 wide, 484 deep, 780 high) in place of the bench, moved: the middle of its back at x 3748, y 405, facing the left wall. A sofa, the Drift Oak Sofa Bed (Futon Company): 1480 wide, 790 deep, 670 high, its seat at 390. Moved: its middle at x 1875, y 975, facing the front wall (x 1135-2615, y 580-1370). The Ivar, lying on its side (830 long, 300 wide, 800 high), against the first radiator, 830 out into the room. The Cornwall table, on the floor with its legs off (1200 along, 800 out, 150 high): the middle of its back at x 0, y 600, facing the right wall. The Chesham table, on its end, its top against the wall behind it, on the other table (740 along, 730 out, 1190 high): the middle of its back at x 370, y 0, facing the front wall.From the room as it is now",
+  "description": "The room as it is now, with no cupboards. No bench: Billy and BillyChest stand there instead. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk. Billy, from the garage, lying on its long side (2020 wide, 280 deep, 800 high) in place of the bench, moved: the middle of its back at x 1875, y 0, facing the front wall. BillyChest, from the garage (805 wide, 484 deep, 780 high) in place of the bench, moved: the middle of its back at x 3748, y 405, facing the left wall. A sofa, the Drift Oak Sofa Bed (Futon Company): 1480 wide, 790 deep, 670 high, its seat at 390. Moved: its middle at x 1875, y 975, facing the front wall (x 1135-2615, y 580-1370). The Ivar, lying on its side (830 long, 300 wide, 800 high), against the first radiator, 830 out into the room.From the room as it is now",
   "boxes": {
     "livingRoom": {
       "from": [
-        0,
+        865,
         0,
         0
       ],
       "to": [
         3748,
         1370,
-        1340
+        800
       ],
       "shown": true
     },
@@ -603,32 +603,8 @@
       ],
       "shown": true
     },
-    "chesham.livingRoom": {
-      "from": [
-        0,
-        0,
-        150
-      ],
-      "to": [
-        740,
-        730,
-        1340
-      ],
-      "shown": true
-    },
-    "cornwall.livingRoom": {
-      "from": [
-        0,
-        0,
-        0
-      ],
-      "to": [
-        800,
-        1200,
-        150
-      ],
-      "shown": true
-    },
+    "chesham.livingRoom": null,
+    "cornwall.livingRoom": null,
     "bedroomCupboard": null,
     "bed": {
       "from": [

@@ -31,13 +31,16 @@
      this view), a split
      button for each room (Lounge, Bedroom, Garage, Hallway: going there,
      and from Bird's eye or the plan; living_room.js makes them in
-     #roomViews), Share, Screenshot and Reload -->
+     #roomViews), Stored things (shown or hidden, in the lounge), Share,
+     Screenshot, Reload and Reset -->
 <div id="bar">
   <button id="menu" aria-label="Other options" title="Other options" aria-controls="panel" aria-expanded="false">☰</button>
   <div id="roomViews"></div>
+  <button id="storedToggle" class="chip" title="Show or hide the things to store, in the lounge">Stored things: shown</button>
   <button id="share" class="chip">Share</button>
   <button id="screenshot" class="chip" title="Copy a picture of the view on show">Screenshot</button>
   <button id="reload" class="chip" title="Load the page afresh, every setting back to its default">Reload</button>
+  <button id="reset" class="chip" title="Forget everything this device remembers, saved views, looks and configurations too, and load the newest page">Reset</button>
 </div>
 <!-- The views list, and where you are and what you look at: menus of their
      own at the top right, opening below them -->
@@ -454,7 +457,6 @@
       <div id="storedInfo"></div>
       <div id="storedLifts"></div>
       <div class="row">
-        <button id="storedToggle">Shown</button>
         <button id="storedPack">Pack them again</button>
       </div>
     </div>

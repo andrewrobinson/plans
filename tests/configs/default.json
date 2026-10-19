@@ -347,7 +347,7 @@
       "chesham": {
         "in": {
           "livingRoom": {
-            "on": true,
+            "on": false,
             "onItsEnd": true,
             "move": null
           }
@@ -356,7 +356,7 @@
       "cornwall": {
         "in": {
           "livingRoom": {
-            "on": true,
+            "on": false,
             "legsOff": true,
             "move": null
           }
@@ -500,31 +500,31 @@
           "x": 330,
           "y": 380,
           "turned": true,
-          "z": 150
+          "z": 0
         },
         {
           "x": 100,
           "y": 700,
           "turned": true,
-          "z": 150
+          "z": 0
         },
         {
           "x": 0,
           "y": 650,
           "turned": true,
-          "z": 150
+          "z": 0
         },
         {
           "x": 450,
           "y": 450,
           "turned": true,
-          "z": 150
+          "z": 0
         },
         {
           "x": 440,
           "y": 880,
           "turned": false,
-          "z": 150
+          "z": 0
         },
         {
           "x": 820,
@@ -536,7 +536,7 @@
           "x": 30,
           "y": 30,
           "turned": false,
-          "z": 150
+          "z": 0
         }
       ]
     }
