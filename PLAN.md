@@ -120,6 +120,33 @@ Smaller pieces, any time:
 - **`menu_demo/`** keeps its own copy of the room; its `room.js` could load
   the walls from `floor.js`.
 
+### Shelves and pictures over the stairs (agreed 19 Oct 2026, not started)
+
+Waiting for the weekly usage limit to reset (Wed 21 Oct, about 6pm) before
+building. The choices, as agreed:
+
+- **The two walls**, both seen from the hallway, over the stairwell:
+  - **WC wall**: the wall shared with the bathroom, at the hallway's far
+    end (`HALLWAY.xEnd`). Its bottom over the well is still to measure;
+    estimated until then.
+  - **Lounge wall**: the wall in front of you as you leave the hallway and
+    take one step down, the hallway side of the lounge's TV / bench wall
+    (`HALLWAY.doorWall`, its hallway face at x −150), over the winders.
+- **Shelves**: on both walls separately, each wall with its own switch
+  and count, 0 to 3 shelves. Plain white floating shelves.
+- **Picture frames**: one per wall, each with its own switch and size. A
+  blank white picture in a thin black frame.
+- **Placement**: high up, at eye height standing on the hallway floor,
+  measured from the hallway floor (not the stairs): 1600 to start (eye
+  height, estimated), a named constant.
+- **Sliders**: height above the hallway floor (1600 by default), width and
+  position along the wall for each; shelf spacing and depth too.
+- **Overlap**: on the same wall, the shelves and the frame are kept apart:
+  positions are clamped so they never overlap.
+- **Controls**: a new section, Shelves and pictures, in Hallway options,
+  all off to start, so the default and saved addresses' screenshots don't
+  change.
+
 ## The finished design today
 
 Option 7 (it was the scene "7. Finished design, 1200 × 1200, ready
