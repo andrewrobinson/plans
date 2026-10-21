@@ -630,9 +630,9 @@ For the tests and the browser console (REFACTOR_PLAN.md, steps 6a and
   2D view or with Cupboard only), `description` (the text under the
   option) and `boxes` (where each piece is drawn, to the mm, and whether
   it's on show). Each saved address and named configuration has its snapshot in
-  `tests/snapshots/<name>.json`, compared exactly (and, for the 11 in
+  `tests/snapshots/<name>.json`, compared exactly (and, for the 7 in
   `PICTURED` in `room_3d.spec.js`, beside a screenshot of the 3D view
-  alone), so a board 2 mm out or one fewer fails even when the picture
+  alone; one a room), so a board 2 mm out or one fewer fails even when the picture
   passes. The bar and menus have screenshots of their own, the 3D view
   hidden.
 - `plans.viewSnapshot()`: what the view makes of it, which Node can't say

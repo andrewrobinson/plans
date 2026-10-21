@@ -20,18 +20,17 @@ const DEFAULT = ADDRESSES.find(a => a.name === 'default');
 const DESIGNED = (({ configuration, view }) => addressOf(configuration, view))(ADDRESSES.find(a => a.name === 'designed'));
 const OPTION_7 = (({ configuration, view }) => addressOf(configuration, view))(ADDRESSES.find(a => a.name === 'option07'));
 
-// The rooms' screenshots kept (REFACTOR_PLAN.md item 2, chosen with the
-// user, 21 Oct 2026): two or three a room, as the model's snapshots check
-// the sizes, cutting lists and places of every saved address. The lounge
-// from above, in plan and seated at the desk; the bedroom from above with
-// its new cupboard and its recess cupboards from the window; the hallway,
-// the shoe rack and downstairs' doors; the garage's plan; and the
-// configurations Option 12 and Pretty
+// The rooms' screenshots kept (REFACTOR_PLAN.md items 2 and 3, chosen with
+// the user, 21 Oct 2026): one a room, in 3D where it has one, as the
+// model's snapshots check every saved address's sizes, cutting lists and
+// places and the view snapshots each view's camera, cut and what it shows.
+// These check what only a picture can: the shapes inside each piece,
+// colours and lighting, and that the view's drawn at all. The lounge and
+// the bedroom from above (with its new cupboard), the hallway, the shoe
+// rack downstairs, the garage's plan, and the configurations Option 12
+// and Pretty
 const PICTURED = new Set([
-  'default', 'view-plan', 'view-desk',
-  'bedroom-new-cupboard-option10', 'bedroom-recess-drawers-mirrors',
-  'wicker-bench-hallway', 'shoe-rack-stairs', 'downstairs-doors-plan',
-  'garage-moved-plan',
+  'default', 'bedroom-new-cupboard-option10', 'wicker-bench-hallway', 'shoe-rack-stairs', 'garage-moved-plan',
   'configuration-option12', 'configuration-pretty',
 ]);
 // ...of the 3D view alone, the page's buttons and menus hidden, so changing

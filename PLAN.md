@@ -21,8 +21,8 @@ lobby and route, in blue).
 ## Next steps
 
 1. **The tests first** (`REFACTOR_PLAN.md`'s items 1 to 5, reviewed 21
-   Oct 2026; the first three, the flaky tests' cause, the screenshots and
-   the new views, done): a guard on `state`, and the phone's top bar
+   Oct 2026; the first four, the flaky tests' cause, the screenshots, the
+   new views and a guard on `state`, done): left, the phone's top bar
    checked to fit (with UI step 1). The choices for them, made on 21
    Oct 2026, are in `REFACTOR_PLAN.md`. Deployed to main once done. Then:
 2. **The UI fixes agreed on 19 Oct 2026** (`UI_CRITIQUE.md`): Look ▾ and

@@ -55,13 +55,16 @@ choices to settle with the user before it's built.
    piece and room shell the view shows (all, part or none). The same on
    both devices. Checked: the old garage fault fails the garage wall's
    test, and a wall view's cut moved fails the view snapshot while the
-   model's passes. Left: cutting the screenshots to about one a room, now
-   the view snapshots check the cut and the camera (the user's to decide:
-   the screenshots still alone check shapes, colours and lighting).
-4. **A guard on `state`**: a model test that fails if any file but the
-   model writes `state.` (a search of the source), so the menus keep
-   writing only through `set(path, value)`. `living_room.js` reads it in 74
-   places and writes it in none today. Before `state`'s track (11 to 15).
+   model's passes. The rooms' screenshots then cut to one a room (the
+   user's choice): 7 a device, in `PICTURED`.
+4. ~~A guard on `state`~~: **done, 21 Oct 2026.**
+   `tests/model/state_guard.test.mjs` (in `npm run test:model`) fails if a
+   file that imports the model's `state` (today only `living_room.js`)
+   writes to it: assigned, stepped, `Object.assign()`ed, deleted or an
+   array in it changed in place, comments left out. The model's helpers
+   handed a part of it (`settleStairWalls()`) don't import it. A search,
+   so a write through another name (`const s = state.x; s.y = 1`) gets
+   past it.
 5. **The phone's top bar fits**: a test that at 390 wide the bar stays in
    its three rows, as `UI_CRITIQUE.md`'s step 1 asks to check by hand.
    With step 1.
