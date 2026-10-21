@@ -20,14 +20,10 @@ lobby and route, in blue).
 
 ## Next steps
 
-1. **The UI fixes** (`UI_CRITIQUE.md`, decided 19 Oct 2026), done on the
-   branch `ui-fixes` (21 Oct 2026), with the tests' last item (the phone's
-   top bar checked to fit) and `REFACTOR_PLAN.md`'s item 8: to try, then
-   deploy to main. Then:
-2. **The refactor's small, standalone items** (`REFACTOR_PLAN.md`'s 6, 7,
-   9 and 10), deployed to main once done; then stop and decide on
-   `state`'s track (11 to 16).
-3. **Measurements still to come in** (`MEASUREMENTS_NEEDED.md`, with
+1. **Decide on `state`'s track** (`REFACTOR_PLAN.md`'s 11 to 16): the
+   UI fixes (deployed 21 Oct 2026) and the refactor's small items 6, 7, 9
+   and 10 (done 21 Oct 2026, on the branch `refactor-small`) are done.
+2. **Measurements still to come in** (`MEASUREMENTS_NEEDED.md`, with
    `drawings/measure_sheet.html`; the values come back as "A = 2240"
    lines, to go into `room_dimensions.md` and the model):
    - Y to check (2330, against 3360 on the drawing); S, the bedroom's

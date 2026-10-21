@@ -91,28 +91,23 @@ they find controls by id (`#loungeViewKind`), not by what they do.
 
 **Small, standalone**
 
-6. **One `rebuild()`**: `build()`, `drawStored()`, `turnDoors()` and
-   `updateDims()` in their order, in one function, which `buildFlat()` and
-   the page both call, so nothing has to remember them. (A new flat per
-   build, with no module state, was considered and not chosen.)
-7. **The repeated measurements named**: `floor.js` has the recesses' 372
-   (measured) written five times, and `RECESS_FROM`'s 610 and 2125 (the
-   counter's depth and run, measured) bare.
+6. ~~One `rebuild()`~~: **done, 21 Oct 2026.** `flat_model.js`'s
+   `rebuild()`: `build()`, the things to store, the doors, then the
+   dimensions; `buildFlat()` and the page's `show()` both call it.
+7. ~~The repeated measurements named~~: **done, 21 Oct 2026.**
+   `FRONT_RECESS_DEPTH` (372), `WORKTOP_DEPTH` (610), `COUNTER_RUN` (2125).
 8. ~~The menus' shared helpers into `kit/controls_kit.js`~~: **done,
    21 Oct 2026.** `slider()`, `lyingSwitch`, `wallPick()` (given the
    room's walls), `resetButtons()` and `SIZE_LABEL`; each piece keeps its
    own menu in its own file.
-9. **One `drawFloor()`**, in named steps: the living room's walls, the
-   ceiling and lights, the outer wall, the bedroom's shell, the hallway and
-   stairs, the entrance, the bathroom. Today `floor.js` (841 lines) draws on
-   import, partly at its top level, partly in functions called at its end.
-   Its numbers named on the way (measured, estimated or chosen). The model's
-   own load-time calls (the room door's drawing, `benchHeights()`,
-   `placeDresser()`) go too, if the snapshots hold without them.
-10. **`kit/view_kit.js`'s `create()` split**: one function of 482 lines
-   holding about 40 inner ones. Its parts (rooms and places, eyes, looks,
-   saved views, the camera) as functions or modules of their own, each
-   given what it needs.
+9. ~~One `drawFloor()`~~: **done, 21 Oct 2026.** Importing `floor.js`
+   only makes its measurements, materials and groups; `drawFloor()`,
+   called once by `flat_model.js`, draws it in named steps. The model's
+   load-time `benchHeights()` and `placeDresser()` went (`settle()` makes
+   both); the room door's drawing stays with the kitchen's, the model's
+   own one-time drawing.
+10. ~~`kit/view_kit.js`'s `create()` split~~: **done, 21 Oct 2026.** Its
+   parts as functions in the same file, sharing `viewState()` and `k`.
 
 **`state`'s track**
 

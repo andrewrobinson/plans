@@ -74,9 +74,9 @@ live beside it.
 | | **Plain data scripts**: `living_room.views.js` and `living_room.configurations.js`, each setting a global (`window.ROOM_VIEWS`, `window.ROOM_CONFIGURATIONS`). The dressers, larders and sofas are ES modules (`DRESSER_MODELS`, …) the model imports |
 | 565 | `<script type="module" src="living_room.js">`: the room's module, which imports the floor plan from `floor.js`, the engine from `kit/floor_kit.js` and the view and configuration kits from `kit/view_kit.js` and `kit/configuration_kit.js` |
 
-### floor.js (841 lines)
+### floor.js (880 lines)
 
-The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `WALL_THICKNESS`), the floor, the walls with their recesses (kitchen, sink, desk: `KITCHEN_RECESS_BACK_WALL_X`, `SINK_RECESS`, `DESK_RECESS`, …), the doorway and its frame (`DOOR_FRAME_STARTS_AT`, `DOOR_HINGE_AT`, `FRAME_END`, …), the ceiling and downlights, and the outer wall with its windows and radiators (`OUTER`). It draws them into `floor`, a group `living_room.js` adds to the scene, and exports the measurements and the materials the colours menu changes (`wallMat`, `frameMat`, `floorMat`, `ceilingMat`). The living room's in its mm; then the bedroom's walls, door and window (`OTHER_ROOM`, in the `otherRoom` group at `OTHER_ROOM_CORNER`, in its own u, v mm), the hallway's walls, floor, stairs and banister (`HALLWAY`, in the `hallway` group, in the living room's mm; the two newel posts at the winders in `newelsAtTheWinders()` and the handrail down the flight in `wallHandrail()`), the entrance downstairs (`ENTRANCE`), and the bathroom and WC (`BATHROOM`, in the `bathroom` group, which Hallway and stairs options' switch hides).
+The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `WALL_THICKNESS`), the floor, the walls with their recesses (kitchen, sink, desk: `KITCHEN_RECESS_BACK_WALL_X`, `SINK_RECESS`, `DESK_RECESS`, …), the doorway and its frame (`DOOR_FRAME_STARTS_AT`, `DOOR_HINGE_AT`, `FRAME_END`, …), the ceiling and downlights, and the outer wall with its windows and radiators (`OUTER`). Importing it only makes these and its groups; `drawFloor()`, called once by `flat_model.js` as it loads, draws them into `floor` (a group the page adds to the scene) in named steps: `drawLivingRoomWalls()`, `drawCeilingAndLights()`, `drawOuterWall()`, `drawBedroomShell()`, `drawHallwayAndStairs()`, `drawEntrance()`, `drawBathroom()`. It and exports the measurements and the materials the colours menu changes (`wallMat`, `frameMat`, `floorMat`, `ceilingMat`). The living room's in its mm; then the bedroom's walls, door and window (`OTHER_ROOM`, in the `otherRoom` group at `OTHER_ROOM_CORNER`, in its own u, v mm), the hallway's walls, floor, stairs and banister (`HALLWAY`, in the `hallway` group, in the living room's mm; the two newel posts at the winders in `newelsAtTheWinders()` and the handrail down the flight in `wallHandrail()`), the entrance downstairs (`ENTRANCE`), and the bathroom and WC (`BATHROOM`, in the `bathroom` group, which Hallway and stairs options' switch hides).
 
 ### stair_walls.js (413 lines): the shelves and pictures over the stairs
 
@@ -193,10 +193,15 @@ The engine, an ES module: what any room needs, and nothing about this one.
 | The 2D/3D switch | `flatViews(stage, view)`: `setFlat()`, `resize()` (fitting the 3D and 2D views to the screen) and `startLoop()` (the render loop, drawing only when the camera has moved or `drawSoon()` asks: any input, click, key or resize does, as do `setFlat()`, `resize()` and loading a configuration), reading the room's framing (`flat`, `flatFit`, `flatPerM`), the view kit's `hfov` and the drawers through `view` |
 | 2D dimensions | `dimLine()`, `dimLabel()`, `chain()` (a chain of dimensions), `cutViews(scene, view)`: `applyCut()`, reading the view's cut and what alone to show through `view` |
 
-### kit/view_kit.js (539 lines) and kit/configuration_kit.js (107 lines)
+### kit/view_kit.js (619 lines) and kit/configuration_kit.js (107 lines)
 
-The Views and Look menus, and the Configuration menu: ES modules too, each
+The Look menu, and the Configuration menu: ES modules too, each
 exporting `create()`, which the room imports as `ViewKit` and `ConfigurationKit`.
+The view kit's `create()` lists its parts, each a function given `k` (the
+room's data and the parts' functions) and `k.s` (what changes as the view
+does, `viewState()`): `roomData()`, `viewFinding()`, `cameraControls()`,
+`savedViewsList()`, `whereAndLookingAt()`, `looksMenu()`, `showChoices()`,
+`startAndSaving()`, `address()`, and `kitFace()`, what the page sees.
 The view kit's `view()` gives the view as JSON for the address, and
 `start()` reads one; the Configuration list's entries are configurations.
 
