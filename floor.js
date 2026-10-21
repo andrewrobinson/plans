@@ -1,5 +1,5 @@
 // The floor plan: the walls, the door frame and the windows, drawn into
-// `floor`, a group the page adds to its scene. For now only the living room's
+// `floor`, a group the page adds to its scene, by drawFloor() (at the end). For now only the living room's
 // (PLAN.md has the floor plan to come), in its mm: x along the back wall from
 // the left wall, y from the back wall towards the front, z up. It exports
 // the room's measurements (ROOM_WIDTH, the recesses, the door frame, …) and
@@ -30,8 +30,6 @@ const WORKTOP_DEPTH = 610, COUNTER_RUN = 2125, FRIDGE_W = 630;
 const RECESS_FROM = ROOM_DEPTH + FRONT_RECESS_DEPTH - WORKTOP_DEPTH - COUNTER_RUN - FRIDGE_W;
 const KITCHEN_SETBACK = 405, KITCHEN_DEPTH = 590;
 const KITCHEN_RECESS_BACK_WALL_X = -(KITCHEN_SETBACK + KITCHEN_DEPTH);
-// The floor: L-shaped, the room plus the recess. Its texture is laid by
-// position, in metres, so the oak boards keep their size everywhere.
 // The front wall has a full-height recess for the desk, 1623 across (measured)
 // and taken to run to the right-hand wall, as deep as the alcove over the sink
 // (FRONT_RECESS_DEPTH). Between it and the sink alcove is 1490 of wall (measured).
@@ -42,9 +40,6 @@ const WALL_BETWEEN_RECESSES = 1490;
 // recess, FRONT_RECESS_DEPTH deep, up to about 1990 (estimated)
 const SINK_RECESS = { x0: KITCHEN_RECESS_BACK_WALL_X, x1: DESK_RECESS.x0 - WALL_BETWEEN_RECESSES, depth: FRONT_RECESS_DEPTH, top: 1990 };
 const DESK_TOP = 830;                                                // the desk in the recess, measured
-slab([[0, 0], [ROOM_WIDTH, 0], [ROOM_WIDTH, ROOM_DEPTH + DESK_RECESS.depth], [DESK_RECESS.x0, ROOM_DEPTH + DESK_RECESS.depth], [DESK_RECESS.x0, ROOM_DEPTH],
-  [SINK_RECESS.x1, ROOM_DEPTH], [SINK_RECESS.x1, ROOM_DEPTH + SINK_RECESS.depth], [KITCHEN_RECESS_BACK_WALL_X, ROOM_DEPTH + SINK_RECESS.depth], [KITCHEN_RECESS_BACK_WALL_X, RECESS_FROM], [0, RECESS_FROM]], -20, 0, floorMat, floor);
-box({ from: [-WALL_THICKNESS, -WALL_THICKNESS, 0], to: [ROOM_WIDTH + WALL_THICKNESS, 0, CEILING_HEIGHT] }, wallMat, floor, false);         // back wall
 // The doorway: the frame starts 1329 from the back wall, the furthest a
 // cupboard on the left wall can come. The door hinges at 1400, so the frame
 // is 71 each side of the door; the far side is assumed to match. The frame
@@ -53,29 +48,42 @@ const DOOR_FRAME_STARTS_AT = 1329, DOOR_HINGE_AT = 1400, ROOM_DOOR = 760, JAMB =
 const FRAME_H = 2050, ROOM_DOOR_H = 1978;
 const FRAME_END = DOOR_HINGE_AT + ROOM_DOOR + JAMB;                          // 2231
 const frameMat = material(0xffffff);
-box({ from: [-WALL_THICKNESS, 0, 0], to: [0, DOOR_FRAME_STARTS_AT, CEILING_HEIGHT] }, wallMat, floor, false);                // left wall, behind the doorway
-box({ from: [-WALL_THICKNESS, FRAME_END, 0], to: [0, RECESS_FROM, CEILING_HEIGHT] }, wallMat, floor, false);  // left wall, past the doorway to the return
-box({ from: [KITCHEN_RECESS_BACK_WALL_X - WALL_THICKNESS, RECESS_FROM - WALL_THICKNESS, 0], to: [0, RECESS_FROM, CEILING_HEIGHT] }, wallMat, floor, false); // the return wall, facing the front
-box({ from: [KITCHEN_RECESS_BACK_WALL_X - WALL_THICKNESS, RECESS_FROM, 0], to: [KITCHEN_RECESS_BACK_WALL_X, ROOM_DEPTH + SINK_RECESS.depth, CEILING_HEIGHT] }, wallMat, floor, false);   // the recess's back wall, on into the sink recess
-box({ from: [-WALL_THICKNESS, DOOR_FRAME_STARTS_AT, FRAME_H], to: [0, FRAME_END, CEILING_HEIGHT] }, wallMat, floor, false);     // over the doorway
-box({ from: [-WALL_THICKNESS, DOOR_FRAME_STARTS_AT, 0], to: [0, DOOR_HINGE_AT, FRAME_H] }, frameMat, floor);               // frame, hinge side
-box({ from: [-WALL_THICKNESS, FRAME_END - JAMB, 0], to: [0, FRAME_END, FRAME_H] }, frameMat, floor); // frame, far side
-box({ from: [-WALL_THICKNESS, DOOR_HINGE_AT, ROOM_DOOR_H], to: [0, FRAME_END - JAMB, FRAME_H] }, frameMat, floor); // frame head, down to the door
+
+// The living room's floor (L-shaped, the room plus the recess; its texture
+// laid by position, in metres, so the oak boards keep their size
+// everywhere), its back wall, the left wall round the doorway and the
+// kitchen recess, and the door's frame
+function drawLivingRoomWalls() {
+  slab([[0, 0], [ROOM_WIDTH, 0], [ROOM_WIDTH, ROOM_DEPTH + DESK_RECESS.depth], [DESK_RECESS.x0, ROOM_DEPTH + DESK_RECESS.depth], [DESK_RECESS.x0, ROOM_DEPTH],
+    [SINK_RECESS.x1, ROOM_DEPTH], [SINK_RECESS.x1, ROOM_DEPTH + SINK_RECESS.depth], [KITCHEN_RECESS_BACK_WALL_X, ROOM_DEPTH + SINK_RECESS.depth], [KITCHEN_RECESS_BACK_WALL_X, RECESS_FROM], [0, RECESS_FROM]], -20, 0, floorMat, floor);
+  box({ from: [-WALL_THICKNESS, -WALL_THICKNESS, 0], to: [ROOM_WIDTH + WALL_THICKNESS, 0, CEILING_HEIGHT] }, wallMat, floor, false);         // back wall
+  box({ from: [-WALL_THICKNESS, 0, 0], to: [0, DOOR_FRAME_STARTS_AT, CEILING_HEIGHT] }, wallMat, floor, false);                // left wall, behind the doorway
+  box({ from: [-WALL_THICKNESS, FRAME_END, 0], to: [0, RECESS_FROM, CEILING_HEIGHT] }, wallMat, floor, false);  // left wall, past the doorway to the return
+  box({ from: [KITCHEN_RECESS_BACK_WALL_X - WALL_THICKNESS, RECESS_FROM - WALL_THICKNESS, 0], to: [0, RECESS_FROM, CEILING_HEIGHT] }, wallMat, floor, false); // the return wall, facing the front
+  box({ from: [KITCHEN_RECESS_BACK_WALL_X - WALL_THICKNESS, RECESS_FROM, 0], to: [KITCHEN_RECESS_BACK_WALL_X, ROOM_DEPTH + SINK_RECESS.depth, CEILING_HEIGHT] }, wallMat, floor, false);   // the recess's back wall, on into the sink recess
+  box({ from: [-WALL_THICKNESS, DOOR_FRAME_STARTS_AT, FRAME_H], to: [0, FRAME_END, CEILING_HEIGHT] }, wallMat, floor, false);     // over the doorway
+  box({ from: [-WALL_THICKNESS, DOOR_FRAME_STARTS_AT, 0], to: [0, DOOR_HINGE_AT, FRAME_H] }, frameMat, floor);               // frame, hinge side
+  box({ from: [-WALL_THICKNESS, FRAME_END - JAMB, 0], to: [0, FRAME_END, FRAME_H] }, frameMat, floor); // frame, far side
+  box({ from: [-WALL_THICKNESS, DOOR_HINGE_AT, ROOM_DOOR_H], to: [0, FRAME_END - JAMB, FRAME_H] }, frameMat, floor); // frame head, down to the door
+}
 
 // The ceiling, white, with six downlights. It faces down only, so from above
 // (the corner and top views) it can't be seen and the room stays open.
 const ceilingMat = new THREE.MeshStandardMaterial({ color: 0xedece7, roughness: 0.9, side: THREE.FrontSide });
-const ceiling = new THREE.Mesh(new THREE.PlaneGeometry((ROOM_WIDTH - KITCHEN_RECESS_BACK_WALL_X) * MM, ROOM_DEPTH * MM), ceilingMat);
-ceiling.rotation.x = Math.PI / 2;                                   // facing down
-ceiling.position.set((ROOM_WIDTH + KITCHEN_RECESS_BACK_WALL_X) / 2 * MM, CEILING_HEIGHT * MM, ROOM_DEPTH / 2 * MM);
-floor.add(ceiling);
 const downlightMat = new THREE.MeshBasicMaterial({ color: 0xfff6e0, side: THREE.FrontSide });
-for (const x of [960, 1920, 2880]) {
-  for (const y of [1500, 3700]) {
-    const light = new THREE.Mesh(new THREE.CircleGeometry(0.045, 24), downlightMat);
-    light.rotation.x = Math.PI / 2;
-    light.position.set(x * MM, CEILING_HEIGHT * MM - 0.002, y * MM);
-    floor.add(light);
+let ceiling;                                                         // drawn by drawCeilingAndLights()
+function drawCeilingAndLights() {
+  ceiling = new THREE.Mesh(new THREE.PlaneGeometry((ROOM_WIDTH - KITCHEN_RECESS_BACK_WALL_X) * MM, ROOM_DEPTH * MM), ceilingMat);
+  ceiling.rotation.x = Math.PI / 2;                                   // facing down
+  ceiling.position.set((ROOM_WIDTH + KITCHEN_RECESS_BACK_WALL_X) / 2 * MM, CEILING_HEIGHT * MM, ROOM_DEPTH / 2 * MM);
+  floor.add(ceiling);
+  for (const x of [960, 1920, 2880]) {
+    for (const y of [1500, 3700]) {
+      const light = new THREE.Mesh(new THREE.CircleGeometry(0.045, 24), downlightMat);
+      light.rotation.x = Math.PI / 2;
+      light.position.set(x * MM, CEILING_HEIGHT * MM - 0.002, y * MM);
+      floor.add(light);
+    }
   }
 }
 
@@ -91,7 +99,7 @@ const OUTER = {
   sill: 912, top: 912 + 1390, reveal: 207,      // sill height measured
   radiator: { width: 600, bottom: 240, top: 840, out: 132, thick: 100 },
 };
-{
+function drawOuterWall() {
   const { end, windows, sill, top, reveal, radiator } = OUTER;
   const intoRoom = Math.PI / -2;                 // a face at x = W looking back into the room
   const face = (w, h, mat, y, z, x = ROOM_WIDTH, turn = [0, intoRoom]) => {
@@ -390,7 +398,6 @@ const trimMat = new THREE.MeshStandardMaterial({ color: 0xc8c8c4, roughness: 0.3
 const NOSING = { w: 30, h: 5 };                    // the strip's width and how far it stands up (estimated from the photos)
 const otherRoom = new THREE.Group();
 otherRoom.position.set(OTHER_ROOM_CORNER.x * MM, 0, OTHER_ROOM_CORNER.y * MM);
-floor.add(otherRoom);
 
 // A wall's face, seen from inside only: w across and h high, its middle at
 // (u, v, z), facing the way `facing` says: '+u', '-u', '+v' or '-v'. From
@@ -414,7 +421,8 @@ function faceAround(length, [a0, a1], [z0, z1], height, mat, along, facing, pare
   piece(a0, a1, z1, height);                       // above it
 }
 
-{
+// The bedroom's shell: its floor, walls, door, window and ceiling
+function drawBedroomShell() {
   const { length, breastFace, recessBack, recessWidth, ceiling, door, doorFrom, doorTo, window: win, radiator } = OTHER_ROOM;
   // The floor: the room and the recess, carpeted
   slab([[0, 0], [length, 0], [length, breastFace], [recessWidth, breastFace], [recessWidth, recessBack], [0, recessBack]], -20, 0, carpetMat, otherRoom);
@@ -483,8 +491,9 @@ function winderTreads({ x0, xTurn, yWellIn, yWellOut, well, winders }) {
 }
 
 const hallway = new THREE.Group();                                     // at the living room's origin
-floor.add(hallway);
-{
+
+// The hallway's walls, floors, stairs and banisters
+function drawHallwayAndStairs() {
   const { x0, xStep, xEnd, xTurn, xFoot, xSillEnd, kitchenSide, yBanister, yBoxFace, ySillEdge, yWellIn, yWellOut, yHallOut, ySetBack, well, stepWidth, rise, going, flightSteps, winders, topSteps, drop,
     baseH, leftSill, rightSill, sillThick, bathroomFloor, rail, spindles, post, railW, spindle, bedroomDoor, bedroomFrameBack } = HALLWAY;
   const leftSillTop = -leftSill.below;
@@ -650,7 +659,6 @@ function newelsAtTheWinders({ xTurn, yBoxFace, yNewel, post, rail, railW, spindl
 // ---------------------------------------------------------------------------
 const entrance = new THREE.Group();
 entrance.position.y = ENTRANCE.floor * MM;
-hallway.add(entrance);
 const lobbyFloorMat = material(0xb9b4ab);          // a plain grey-beige: its finish isn't known
 const outsideDoorMat = material(0x3d4a5c);         // a dark blue-grey: its colour isn't known
 let flatDoorHinge, outsideDoorHinge;
@@ -687,7 +695,8 @@ function drawStairWindow() {
   return [y0, y1];
 }
 
-{
+// The stairs' foot and the lobby: its floor, walls, doors and window
+function drawEntrance() {
   const { xBack, backWall, flatDoor, outsideDoor, neighbourDoor, doorT, height, stairWindow, lobby, yLobby0, yLobby1, xLobbyEnd, flatDoorHingeX, outsideDoorHingeY } = ENTRANCE;
   const { xFoot, xSillEnd, yWellOut, yWellIn, well } = HALLWAY;
   const face = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, entrance);
@@ -751,7 +760,6 @@ function drawStairWindow() {
 const bathFloorMat = material(0xcfccc6);           // a pale grey tile: its finish isn't known
 const sanitaryMat = material(0xfafafa);            // the shower tray, basin and WC: white
 const bathroom = new THREE.Group();
-hallway.add(bathroom);
 
 const bathFace = (w, h, at, facing) => insideFace(w, h, wallMat, at, facing, bathroom);
 
@@ -837,9 +845,34 @@ function drawWc() {
   box({ from: [xCistern, mid - half, 0], to: [xCistern + wc.bowlDepth, mid + half, wc.bowlH] }, sanitaryMat, bathroom);
 }
 
-drawBathroomFloors();
-drawBathroomRoom();
-drawBathroomFittings();
-drawWc();
+// The bathroom and WC, in their order
+function drawBathroom() {
+  drawBathroomFloors();
+  drawBathroomRoom();
+  drawBathroomFittings();
+  drawWc();
+}
+
+// ---------------------------------------------------------------------------
+// The floor plan drawn, once, by flat_model.js as it loads (REFACTOR_PLAN.md
+// item 9): importing this module only makes its groups and measurements.
+// Each group goes into its parent where it always has, before its contents
+// ---------------------------------------------------------------------------
+let drawn = false;
+export function drawFloor() {
+  if (drawn) return;
+  drawn = true;
+  drawLivingRoomWalls();
+  drawCeilingAndLights();
+  drawOuterWall();
+  floor.add(otherRoom);
+  drawBedroomShell();
+  floor.add(hallway);
+  drawHallwayAndStairs();
+  hallway.add(entrance);
+  drawEntrance();
+  hallway.add(bathroom);
+  drawBathroom();
+}
 
 export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, bedroomHinge, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, entrance, BATHROOM, bathroom, flatDoorHinge, outsideDoorHinge, insideFace, faceAround };

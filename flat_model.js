@@ -37,7 +37,7 @@ import { drawShoeRack, shoeRack, SHOE_RACK_START, SHOE_RACK_SCHEMA } from './sho
 import { drawStairWalls, settleStairWalls, STAIR_WALLS_START, STAIR_WALLS_SCHEMA } from './stair_walls.js';
 import { drawShoeBoxes, SHOE_BOXES_SCHEMA } from './shoe_boxes.js';
 import { drawGarage, garagePieces, GARAGE, GARAGE_CORNER, GARAGE_START, GARAGE_SCHEMA } from './garage.js';
-import { floor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, floorMat, FRIDGE_W, RECESS_FROM,
+import { floor, drawFloor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, floorMat, FRIDGE_W, RECESS_FROM,
   KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, SINK_RECESS, DESK_TOP,
   DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat,
   ceilingMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, carpetMat, CARPET_COLOURS,
@@ -95,6 +95,7 @@ export const ROOM_BOXES = {
 const { carcass: carcassMat, shelf: shelfMat, door: doorMat, handle: handleMat, oak: oakMat } = CUPBOARD_MATERIALS;
 const benchMat = material(0xe8d9bf);
 
+drawFloor();                                                    // once: the walls, the rooms' shells, the stairs
 world.add(floor);
 
 let deskChair = null;            // the office chair
@@ -470,7 +471,6 @@ function benchHeights() {
   TV_SHELF_TOPS = [BENCH + 220, ...(top <= CEILING_HEIGHT - 60 ? [top] : [])];
   TV_MIDDLE_SHELF = BENCH + 770;
 }
-benchHeights();
 const tvMat = material(0x1a1a1a);
 const screenMat = new THREE.MeshStandardMaterial({ color: 0x0c1824, roughness: 0.3, metalness: 0.2 });
 
@@ -657,7 +657,6 @@ function placeDresser() {
   state.dresser.x0 = Math.round(from + (gap - state.dresser.w) / 2);
   state.dresser.x1 = state.dresser.x0 + state.dresser.w;
 }
-placeDresser();
 function dresser(g) {
   // Its width is overall, with the top's 20 overhang each side, so the body is 40 narrower
   const { h, baseD, baseH, upperD, drawer } = state.dresser, x0 = state.dresser.x0 + 20, x1 = state.dresser.x1 - 20, w = state.dresser.w - 40;
