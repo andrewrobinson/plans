@@ -20,12 +20,18 @@ lobby and route, in blue).
 
 ## Next steps
 
-1. **The UI fixes agreed on 19 Oct 2026** (`UI_CRITIQUE.md`): Views ▾,
-   Look ▾ and Configuration ▾ in place of the coloured ☰; Reload and
+1. **The tests first** (`REFACTOR_PLAN.md`'s items 1 to 5, reviewed 21
+   Oct 2026): the flaky test's cause, the rooms' screenshots free of the
+   page's buttons (so UI changes don't retake them all), the new wall views
+   and the room buttons' ▾ tested, a guard on `state`, and the phone's top
+   bar checked to fit. Then:
+2. **The UI fixes agreed on 19 Oct 2026** (`UI_CRITIQUE.md`): Look ▾ and
+   Configuration ▾ in place of the coloured ☰ (the Views menu went on 21
+   Oct 2026, its views into the room buttons' ▾: `VIEWS_MENU.md`); Reload and
    Reset into Other options; a number box beside the millimetre sliders;
    Stored and See-through cupboards as switches; the title *The flat in
    3D*, shorter labels and a tip on Look's greyed Save.
-2. **Measurements still to come in** (`MEASUREMENTS_NEEDED.md`, with
+3. **Measurements still to come in** (`MEASUREMENTS_NEEDED.md`, with
    `drawings/measure_sheet.html`; the values come back as "A = 2240"
    lines, to go into `room_dimensions.md` and the model):
    - Y to check (2330, against 3360 on the drawing); S, the bedroom's
@@ -39,7 +45,7 @@ lobby and route, in blue).
      drawing, in `floor.js`'s `BATHROOM`).
    - The shoe rack's real sizes; where rack 2 and the tub stand (guesses,
      neither clear in the photo).
-3. **The rest of the flat, drawn**:
+4. **The rest of the flat, drawn**:
    - Walls seen from above in the bedroom's and the hallway's plans (they're
      faces seen from inside, so the plan shows only floors).
    - Stopping furniture at the walls.
