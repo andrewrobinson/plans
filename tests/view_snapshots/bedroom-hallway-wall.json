@@ -1,0 +1,73 @@
+{
+  "room": "bedroom",
+  "view": "back",
+  "flat": true,
+  "camera": {
+    "at": [
+      -2986,
+      35710,
+      1000
+    ],
+    "aim": [
+      -2986,
+      2521,
+      1000
+    ]
+  },
+  "frames": [
+    4882,
+    3200
+  ],
+  "cut": [
+    "y",
+    3796.6000000000004,
+    1
+  ],
+  "cupboardOnly": false,
+  "shown": {
+    "shell.livingRoom": "part",
+    "shell.bedroom": "part",
+    "shell.hallway": "none",
+    "shell.downstairs": "none",
+    "shell.garage": "none",
+    "shell.bathroom": "none",
+    "livingRoom": "all",
+    "cornerCupboard": null,
+    "dresser": null,
+    "larder": null,
+    "sofa": "all",
+    "island": "all",
+    "ivar.livingRoom": "all",
+    "chesham.livingRoom": null,
+    "cornwall.livingRoom": null,
+    "castorDesk.livingRoom": null,
+    "bedroomCupboard": null,
+    "bed": "part",
+    "bookcase": "none",
+    "pineCupboard": "part",
+    "mirror": "none",
+    "billy.bedroom": "none",
+    "billyChest.bedroom": "none",
+    "ivar.bedroom": "none",
+    "bedsideTable": "all",
+    "bedsideTableByCupboard": "all",
+    "kvistbro": "all",
+    "laundryBasket": "all",
+    "wickerBench.hallway": "none",
+    "wickerBench.bedroom": "none",
+    "wickerBench.livingRoom": "none",
+    "shoeRack": "none",
+    "sean": "none",
+    "billy": "none",
+    "billyChest": "none",
+    "metal": "none",
+    "yellow": "none",
+    "scaffoldBench": "none",
+    "smallBilly": "none",
+    "potters": "none",
+    "biltong": "none",
+    "trellis": "none",
+    "pineCupboard.garage": "none",
+    "ivar": "none"
+  }
+}

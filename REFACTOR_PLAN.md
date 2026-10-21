@@ -45,19 +45,19 @@ choices to settle with the user before it's built.
    and round trip. Four of the bar and menus alone, the 3D view hidden
    (`tests/controls_only.css`): every menu closed, Look, Configuration and
    Lounge options open. The tolerance is 0, as measured.
-3. **The new views tested**: saved addresses (`tests/configs/`, with
-   their snapshots) for a bedroom wall, a garage wall and a hallway wall
-   in 2D: the snapshot's boxes say whether each piece is shown, which
-   would have caught the garage's wall views coming out empty (21 Oct
-   2026, found by eye); and a test of each room button's ▾ options
-   (`roomViewChoices()`). **And a view snapshot** (agreed 21 Oct 2026):
-   the model's snapshot knows nothing of a view (Node has no camera), and
-   a view's own work (the cut that hides walls and pieces to see in, the
-   camera's framing, a person's eye, the 2D views' dimensions) runs only
-   in the page, so only screenshots check it today. The page reports it as
-   data for each saved address (which pieces the cut hides, where the
-   camera is and what it aims at), compared exactly as the snapshots are;
-   then the screenshots cut to about one a room if it covers them.
+3. ~~The new views tested~~: **done, 21 Oct 2026.** Saved addresses for
+   the bedroom's hallway wall, the garage's back wall and the hallway's
+   lounge door wall in 2D; a test of each room button's ▾, in full, every
+   choice going to its room and view; and the view snapshot
+   (`window.plans.viewSnapshot()` in `living_room.js`, beside every saved
+   address's in `tests/view_snapshots/`): the room and view, the camera's
+   place and aim, what a 2D view frames, the cut, and how much of each
+   piece and room shell the view shows (all, part or none). The same on
+   both devices. Checked: the old garage fault fails the garage wall's
+   test, and a wall view's cut moved fails the view snapshot while the
+   model's passes. Left: cutting the screenshots to about one a room, now
+   the view snapshots check the cut and the camera (the user's to decide:
+   the screenshots still alone check shapes, colours and lighting).
 4. **A guard on `state`**: a model test that fails if any file but the
    model writes `state.` (a search of the source), so the menus keep
    writing only through `set(path, value)`. `living_room.js` reads it in 74

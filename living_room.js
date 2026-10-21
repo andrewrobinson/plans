@@ -31,7 +31,7 @@ import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
 import { shoeRack, shoeRackControls } from './shoe_rack.js';
 import { stairWallsControls, shoeBoxRefusal } from './stair_walls.js';
 import { shoeBoxesControls } from './shoe_boxes.js';
-import { garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
+import { garage, garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
 import { cupboardControls, copyControls, idIn } from './cupboard_controls.js';
 import { CASTOR_DESK } from './castor_desk.js';
 import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, showDims, showDoorDims, build,
@@ -41,12 +41,12 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   TV_H, TV_SIZES, TV_W, benchDrawn, carcassMat, colourOf, configurationNow, cornerTooShallow,
   cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, deskSpot, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
-  kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
+  kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, namedPieces, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, state, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
-  OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE } from './floor.js';
+  OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE, floor, otherRoom, hallway, entrance, bathroom } from './floor.js';
 
 // The page: the stage, with the model (flat_model.js) in it
 const { scene, renderer, camera, controls, flatCamera, flatControls } = createStage(document.getElementById('view'));
@@ -56,8 +56,10 @@ scene.add(world);
 // is left out, so the wall and what stands against it aren't hidden behind
 // the island, the desk or the outside of the outer wall: the kit's, with
 // the view's cut, and with the cupboard on its own, only its parts.
+// The view's cut, [axis, where in mm, the camera's side], or null
+const viewCut = () => (flat && flatView && !cupboardOnly ? (builtInViews[flatView].rooms?.[flatRoom] ?? builtInViews[flatView]).cut : null);   // on its own, the cupboard needs no cut
 const applyCut = cutViews(scene, {
-  get cut() { return flat && flatView && !cupboardOnly ? (builtInViews[flatView].rooms?.[flatRoom] ?? builtInViews[flatView]).cut : null; },   // on its own, the cupboard needs no cut
+  get cut() { return viewCut(); },
   get only() { return cupboardOnly ? cupboardPart : null; },
 });
 
@@ -1403,7 +1405,50 @@ function loadConfiguration(configuration) {
   drawSoon();                                                   // not in answer to an event, so asked for
 }
 
+// The view as data (REFACTOR_PLAN.md item 3, agreed 21 Oct 2026): what the
+// view's own work makes of the flat, which the model's snapshot can't say,
+// as Node has no camera. The room and the view (its id, or null when moved
+// by hand), whether it's 2D, the camera's place and aim in the living
+// room's mm, what a 2D view frames (mm across and up), the cut and Cupboard
+// only; and for each piece and each room's shell, how much of it the view
+// shows: 'all', 'part' (some cut away) or 'none', null where it isn't
+// built. Nothing that follows the screen's size, so it's the same on every
+// device.
+const ROOM_SHELLS = {
+  // The living room's walls, floor and ceiling: the floor group's own meshes
+  // (the other rooms are groups in it)
+  livingRoom: () => floor.children.filter(o => o.isMesh),
+  bedroom: () => [otherRoom], hallway: () => [hallway], downstairs: () => [entrance], garage: () => [garage], bathroom: () => [bathroom],
+};
+// A mesh is on show if it and every group it's in are
+const meshShown = mesh => { for (let o = mesh; o; o = o.parent) if (!o.visible) return false; return true; };
+function howMuchShown(objects) {
+  const meshes = [];
+  for (const object of objects) object?.traverse(o => { if (o.isMesh) meshes.push(o); });
+  if (!meshes.length) return null;
+  const shown = meshes.filter(meshShown).length;
+  return shown === meshes.length ? 'all' : shown ? 'part' : 'none';
+}
+const roomMm = v => [v.x, v.z, v.y].map(n => Math.round(n / MM) || 0);   // scene metres to the room's mm (|| 0: no -0)
+function viewSnapshot() {
+  const [cam, ctl] = flat ? [flatCamera, flatControls] : [camera, controls];
+  return {
+    room: viewKit.room,
+    view: viewKit.viewId || null,
+    flat,
+    camera: { at: roomMm(cam.position), aim: roomMm(ctl.target) },
+    frames: flat ? flatFit.map(m => Math.round(m / MM)) : null,
+    cut: viewCut(),
+    cupboardOnly,
+    shown: {
+      ...Object.fromEntries(Object.entries(ROOM_SHELLS).map(([room, objects]) => [`shell.${room}`, howMuchShown(objects())])),
+      ...Object.fromEntries(Object.entries(namedPieces()).map(([name, object]) => [name, howMuchShown([object])])),
+    },
+  };
+}
+
 window.plans = {
+  viewSnapshot,
   get: settingsNow,
   export: configurationNow,
   load: loadConfiguration,

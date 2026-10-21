@@ -635,6 +635,14 @@ For the tests and the browser console (REFACTOR_PLAN.md, steps 6a and
   alone), so a board 2 mm out or one fewer fails even when the picture
   passes. The bar and menus have screenshots of their own, the 3D view
   hidden.
+- `plans.viewSnapshot()`: what the view makes of it, which Node can't say
+  (it has no camera): `room`, `view` (its id, or null), `flat`, `camera`
+  (`at` and `aim`, in the living room's mm), `frames` (what a 2D view fits
+  on screen, mm), `cut`, `cupboardOnly`, and `shown`: each room's shell
+  (`shell.livingRoom` and so on) and each piece (as `boxes` names them)
+  `all`, `part` (some cut away) or `none`, null where it isn't built. Each
+  saved address's is in `tests/view_snapshots/<name>.json`, compared
+  exactly on both devices (`expectSnapshot(page, name, { of: 'view' })`).
   `npm run test:update` writes them again, with the screenshots.
 
 ### The model in Node

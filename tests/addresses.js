@@ -85,6 +85,12 @@ const SAVED = [
   // sizes stay put, and the boards eat into the inside
   'board-25-option07-packing', 'board-12-option09-plan',
 
+  // The other rooms' walls in 2D, as the page opens (REFACTOR_PLAN.md item
+  // 3, 21 Oct 2026): the bedroom's hallway wall, the garage's back wall,
+  // and the hallway's lounge door wall. Their view snapshots say what each
+  // shows, which would have caught the garage's wall views coming out empty
+  'bedroom-hallway-wall', 'garage-back-wall', 'hallway-lounge-door-wall',
+
   // Nearly every setting away from its default, so each is read and
   // written back (refactor step 3)
   'settings-option07-no-bench', 'settings-current-room',

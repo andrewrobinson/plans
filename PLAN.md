@@ -21,9 +21,9 @@ lobby and route, in blue).
 ## Next steps
 
 1. **The tests first** (`REFACTOR_PLAN.md`'s items 1 to 5, reviewed 21
-   Oct 2026; the first two, the flaky tests' cause and the screenshots, done): the new wall views
-   and the room buttons' ▾ tested, a guard on `state`, and the phone's top
-   bar checked to fit (with UI step 1). The choices for them, made on 21
+   Oct 2026; the first three, the flaky tests' cause, the screenshots and
+   the new views, done): a guard on `state`, and the phone's top bar
+   checked to fit (with UI step 1). The choices for them, made on 21
    Oct 2026, are in `REFACTOR_PLAN.md`. Deployed to main once done. Then:
 2. **The UI fixes agreed on 19 Oct 2026** (`UI_CRITIQUE.md`): Look ▾ and
    Configuration ▾ in place of the coloured ☰ (the Views menu went on 21

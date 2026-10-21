@@ -87,20 +87,28 @@ async function pickOption(page, n, list = 'current') {
 // (REFACTOR_PLAN.md, step 6a). One file for both devices, so they must
 // agree. It's written when it's missing, and again when it's changed with
 // `npm run test:update`, as the screenshots are.
+// `of: 'view'` checks the view's instead (window.plans.viewSnapshot(): the
+// camera, the cut and how much of each piece and room the view shows)
+// against tests/view_snapshots/<name>.json, which only the page makes.
 const SNAPSHOTS = path.join(__dirname, 'snapshots');
-async function expectSnapshot(page, name) {
-  const actual = await page.evaluate(() => window.plans.snapshot());
-  const file = path.join(SNAPSHOTS, `${name}.json`);
+const SNAPSHOT_KINDS = {
+  model: { folder: SNAPSHOTS, method: 'snapshot' },
+  view: { folder: path.join(__dirname, 'view_snapshots'), method: 'viewSnapshot' },
+};
+async function expectSnapshot(page, name, { of = 'model' } = {}) {
+  const { folder, method } = SNAPSHOT_KINDS[of];
+  const actual = await page.evaluate(m => window.plans[m](), method);
+  const file = path.join(folder, `${name}.json`);
   const mode = base.test.info().config.updateSnapshots;           // 'default' normally, 'changed' with --update-snapshots
   const saved = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : undefined;
   const write = mode === 'all' || mode === 'changed' || (mode !== 'none' && saved === undefined);
   if (write) {
     if (JSON.stringify(actual) === JSON.stringify(saved)) return;
-    fs.mkdirSync(SNAPSHOTS, { recursive: true });
+    fs.mkdirSync(folder, { recursive: true });
     fs.writeFileSync(file, `${JSON.stringify(actual, null, 2)}\n`);
     return;
   }
-  base.expect(actual, `what the page makes of it, as saved in tests/snapshots/${name}.json`).toEqual(saved);
+  base.expect(actual, `what the page makes of it, as saved in ${path.relative(path.join(__dirname, '..'), file)}`).toEqual(saved);
 }
 
 // A setting, by its path in window.plans.get() (`state` in living_room.js,

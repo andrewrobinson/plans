@@ -1861,7 +1861,10 @@ function boxOf(object) {
   for (let o = object; o; o = o.parent) shown &&= o.visible;
   return { from: mm(box.min), to: mm(box.max), shown };
 }
-const pieceBoxes = () => Object.fromEntries(Object.entries({
+// Each piece drawn, by its name, null where it isn't built: for
+// pieceBoxes() and the page's view snapshot (which says how much of each a
+// view shows)
+const namedPieces = () => ({
   livingRoom: livingGroup,                                      // the option and all round it: the bench wall, the front wall, the sofa
   cornerCupboard: cupboard?.group,                              // the option's own build, without the bench
   dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup, 'ivar.livingRoom': pieces.ivar,
@@ -1874,7 +1877,8 @@ const pieceBoxes = () => Object.fromEntries(Object.entries({
   ...Object.fromEntries(Object.entries(wickerBenches).map(([room, bench]) => [`wickerBench.${room}`, bench])),
   shoeRack,
   ...Object.fromEntries(Object.entries(garagePieces).map(([key, piece]) => [key === 'pine' ? 'pineCupboard.garage' : key, piece])),
-}).map(([name, object]) => [name, boxOf(object)]));
+});
+const pieceBoxes = () => Object.fromEntries(Object.entries(namedPieces()).map(([name, object]) => [name, boxOf(object)]));
 
 // ---------------------------------------------------------------------------
 // Building
@@ -2007,7 +2011,7 @@ export {
   currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat,
   islandOnWall, islandTopMat, kitchenMat, larderHeight, larderOwnSize,
-  cupboardSettings, oakMat, onBackWall, optionAt, pieceBoxes, pieces, placeDresser,
+  cupboardSettings, oakMat, onBackWall, optionAt, namedPieces, pieceBoxes, pieces, placeDresser,
   placeStored, readConfiguration, readShelves, screenMat, setRal, shelfMat,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, state, storedGroup,
   storedMats, storedSize, tvAt, tvMat, updateDims, worktopMat,

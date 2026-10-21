@@ -1010,6 +1010,41 @@ test.describe('the room buttons\' views and the Look menu', () => {
     await expect.poll(() => view(page)).toMatchObject({ room: 'garage', view: 'garageFromAbove' });
   });
 
+  // Each room button's ▾, in full, with nothing saved on the device: its
+  // headings and choices (roomViewChoices() in living_room.js), as
+  // VIEWS_MENU.md has them; and every choice goes to its room and view
+  test('each room button\'s ▾ lists its views, and each one goes there', async ({ page }) => {
+    const whole = [['birdseye', "Bird's eye"], ['plan', 'Plan (2D)']];
+    const LISTS = {
+      lounge: [['Whole room', whole],
+        ['Walls', [['back', 'Back wall, the TV (2D)'], ['left', 'Left wall, the door (2D)'], ['front', 'Front wall, the kitchen (2D)'], ['right', 'Right wall, the windows (2D)']]],
+        ['Views', [['desk', 'Seated'], ['kitchen', 'Kitchen'], ['window', 'Window'], ['door', 'Door'], ['packing', 'Packing']]]],
+      bedroom: [['Whole room', whole],
+        ['Walls', [['back', 'Hallway wall (2D)'], ['front', 'Chimney breast (2D)'], ['left', 'Window wall (2D)'], ['right', 'Kitchen-side wall (2D)']]]],
+      garage: [['Whole room', whole],
+        ['Walls', [['left', 'Back wall (2D)'], ['right', 'Door (2D)'], ['back', 'Right-hand wall, going in (2D)'], ['front', 'Left-hand wall, going in (2D)']]],
+        ['Views', [['garageFromAbove', 'Garage from above']]]],
+      hallway: [['Whole room', whole],
+        ['Walls', [['back', "Stairs' outside wall (2D)"], ['front', 'Bedroom side (2D)'], ['right', 'Lounge door wall (2D)'], ['left', 'WC wall (2D)']]],
+        ['Views', [['stairsSide', 'Stairs from the side']]],
+        ['Downstairs: whole room', whole.map(([id, label]) => [`downstairs/${id}`, label])],
+        ['Downstairs: views', [['downstairs/footFromAbove', 'Foot of the stairs']]]],
+    };
+    // The button's room: the lounge's is the living room
+    const ROOM_OF = { lounge: 'livingRoom', bedroom: 'bedroom', garage: 'garage', hallway: 'hallway' };
+    for (const [button, list] of Object.entries(LISTS)) {
+      const kind = page.locator(`#${button}ViewKind`);
+      expect(await kind.evaluate(s => [...s.querySelectorAll('optgroup')].map(g => [g.label, [...g.children].map(o => [o.value, o.textContent])])), `${button}'s ▾`).toEqual(list);
+      for (const [, choices] of list) {
+        for (const [value] of choices) {
+          await kind.selectOption(value);
+          const [room, id] = value.includes('/') ? value.split('/') : [ROOM_OF[button], value];
+          expect(await page.evaluate(() => (({ room, view }) => ({ room, view }))(window.plans.viewSnapshot())), `${button}'s ▾: ${value}`).toEqual({ room, view: id });
+        }
+      }
+    }
+  });
+
   test('where you are, what you look at, and eye height', async ({ page }) => {
     await openLook(page);
     await page.selectOption('#where', 'island');

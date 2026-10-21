@@ -1,5 +1,6 @@
-// index.html: saved addresses look the same, give the same snapshot
-// (tests/snapshots/) and round-trip, and the menus work. See REFACTOR_PLAN.md. Every test also fails on a console error
+// index.html: saved addresses look the same, give the same snapshots (the
+// model's, tests/snapshots/, and the view's, tests/view_snapshots/) and
+// round-trip, and the menus work. See REFACTOR_PLAN.md. Every test also fails on a console error
 // (helpers.js).
 const fs = require('fs');
 const vm = require('vm');
@@ -45,6 +46,7 @@ test.describe('saved addresses', () => {
       expect(await configurationOf(page)).toEqual(configuration);
       expect(await viewOf(page)).toEqual(view);
       await expectSnapshot(page, name);
+      await expectSnapshot(page, name, { of: 'view' });
       if (PICTURED.has(name)) await expect(page).toHaveScreenshot(`${name}.png`, VIEW_ONLY);
     });
   }
@@ -56,6 +58,7 @@ test.describe('saved addresses', () => {
       expect(await configurationOf(page)).toEqual(configuration);
       expect(await viewOf(page)).toEqual(DEFAULT.view);
       await expectSnapshot(page, `configuration-${id}`);
+      await expectSnapshot(page, `configuration-${id}`, { of: 'view' });
       if (PICTURED.has(`configuration-${id}`)) await expect(page).toHaveScreenshot(`configuration-${id}.png`, VIEW_ONLY);
     });
   }
