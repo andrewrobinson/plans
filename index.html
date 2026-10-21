@@ -51,7 +51,8 @@
   <button id="menu" aria-label="Other options" title="Other options" aria-controls="panel" aria-expanded="false">☰</button>
   <div id="roomViews"></div>
   <button id="share" class="chip">Share</button>
-  <button id="storedToggle" class="chip" title="Show or hide the things to store, in the lounge">Stored: on</button>
+  <!-- Stored: a switch, as the drawers' on/off settings are (UI_CRITIQUE.md, step 8) -->
+  <label class="chip switch" title="Show or hide the things to store, in the lounge"><input type="checkbox" id="storedToggle" checked> Stored</label>
   <button id="screenshot" class="chip" aria-label="Screenshot" title="Screenshot: copy a picture of the view on show">📷</button>
 </div>
 <!-- Where you are and what you look at: a menu of its own at the top
@@ -193,9 +194,7 @@
       </div>
       <label for="board">Board thickness: <span id="boardValue">18</span></label>
       <input id="board" type="range" min="12" max="25" step="1" value="18">
-      <div class="row">
-        <button id="xray">See-through cupboards: off</button>
-      </div>
+      <label class="switch" id="xrayRow"><input type="checkbox" id="xray"> See-through cupboards</label>
       <div id="wardBlock">
         <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
         <input id="wardD" type="range" min="330" max="1000" step="10" value="600">

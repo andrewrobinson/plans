@@ -470,9 +470,9 @@ test.describe('switches and buttons', () => {
 
   test('see-through cupboards', async ({ page }) => {
     await page.click('#xray');
-    await expect(page.locator('#xray')).toHaveText('See-through cupboards: on');
+    await expect(page.locator('#xray')).toBeChecked();
     await page.click('#xray');
-    await expect(page.locator('#xray')).toHaveText('See-through cupboards: off');
+    await expect(page.locator('#xray')).not.toBeChecked();
   });
 
   test('cupboard only, in 3D and in the plan', async ({ page }) => {
@@ -929,7 +929,7 @@ test.describe('things to store', () => {
   async function showStoredThenOpen(page) {
     await openRoom(page, DESIGNED);
     await page.click('#storedToggle');
-    await expect(page.locator('#storedToggle')).toHaveText('Stored: on');
+    await expect(page.locator('#storedToggle')).toBeChecked();
     await openOptions(page, 'lounge');
     await page.evaluate(() => document.querySelectorAll('.drawer details').forEach(d => { d.open = true; }));
   }
@@ -945,7 +945,7 @@ test.describe('things to store', () => {
     await expect(page.locator('#storedInfo')).toContainText("corner cupboard");
     await page.click('#roomOptions');                                  // Lounge options shut
     await page.click('#storedToggle');
-    await expect(page.locator('#storedToggle')).toHaveText('Stored: off');
+    await expect(page.locator('#storedToggle')).not.toBeChecked();
     expect(await storedHead(page)).toEqual({ shown: false, packing: 2, where: 1 });
   });
 

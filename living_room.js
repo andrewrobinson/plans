@@ -163,12 +163,12 @@ function showStored() {
   const { shown, packing, where } = state.stored;
   document.getElementById('storedInfo').textContent = drawStored();
   showLifts();
-  document.getElementById('storedToggle').textContent = `Stored: ${shown ? 'on' : 'off'}`;   // short, for the phone's top bar (asked for, 19 Oct 2026)
+  document.getElementById('storedToggle').checked = shown;
   document.getElementById('storedPacking').value = String(packing);
   document.querySelectorAll('input[name=storedWhere]').forEach(r => { r.checked = Number(r.value) === where; });
 }
-document.getElementById('storedToggle').addEventListener('click', () => {
-  setStored([['shown', !storedValue('shown')]]);
+document.getElementById('storedToggle').addEventListener('change', e => {
+  setStored([['shown', e.target.checked]]);
   showStored();
   updatePalette();
   writeAddress();
@@ -283,7 +283,7 @@ for (const type of ['pointerup', 'pointercancel']) {
 // (cupboard_controls.js)
 const BEDROOM_CUPBOARD = 'bedroomCupboard';
 document.getElementById('bedroomCupboardControls').append(...copyControls([...document.getElementById('cupboardControls').children], BEDROOM_CUPBOARD));
-document.getElementById(idIn(BEDROOM_CUPBOARD)('xray')).closest('.row').remove();
+document.getElementById(idIn(BEDROOM_CUPBOARD)('xray')).closest('label').remove();
 document.getElementById('bedroomCupboardDoors').append(...copyControls(['tallBlock', 'secondBlock', 'deskDoorBlock'].map(id => document.getElementById(id)), BEDROOM_CUPBOARD));
 // Its sliders that reach further than the living room's: along the chimney
 // breast to the recess, and out towards the hallway wall
@@ -831,14 +831,14 @@ const ABOVE = 'pieces.aboveBench.design.what';
 document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => change([[ABOVE, wordAt(ABOVE, Number(r.value))]])));
 
 let xray = false;
-const xrayButton = document.getElementById('xray');
+const xraySwitch = document.getElementById('xray');
 function setSeeThrough(on) {
   xray = on;
   setDisplay({ seeThrough: xray });
-  xrayButton.textContent = `See-through cupboards: ${xray ? 'on' : 'off'}`;
+  xraySwitch.checked = xray;
 }
-xrayButton.addEventListener('click', () => {
-  setSeeThrough(!xray);
+xraySwitch.addEventListener('change', () => {
+  setSeeThrough(xraySwitch.checked);
   viewKit.writeView();
 });
 

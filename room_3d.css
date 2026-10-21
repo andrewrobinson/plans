@@ -53,6 +53,8 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 }
 .chip[hidden] { display: none; }
 .chip:disabled { opacity: 0.5; cursor: default; }
+/* A switch in the top bar (Stored): a chip holding the switch and its word */
+label.chip.switch { display: flex; align-items: center; gap: 6px; box-sizing: border-box; }
 /* Reload pressed: the room fades till the fresh page draws it (floor_kit.js's reloadButton()) */
 body.reloading canvas { opacity: 0.2; transition: opacity 0.25s; }
 /* The bar's groups, each with a small heading in its own colour: View
