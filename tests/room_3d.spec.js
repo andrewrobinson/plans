@@ -19,6 +19,25 @@ const DEFAULT = ADDRESSES.find(a => a.name === 'default');
 const DESIGNED = (({ configuration, view }) => addressOf(configuration, view))(ADDRESSES.find(a => a.name === 'designed'));
 const OPTION_7 = (({ configuration, view }) => addressOf(configuration, view))(ADDRESSES.find(a => a.name === 'option07'));
 
+// The rooms' screenshots kept (REFACTOR_PLAN.md item 2, chosen with the
+// user, 21 Oct 2026): two or three a room, as the model's snapshots check
+// the sizes, cutting lists and places of every saved address. The lounge
+// from above, in plan and seated at the desk; the bedroom from above with
+// its new cupboard and its recess cupboards from the window; the hallway,
+// the shoe rack and downstairs' doors; the garage's plan; and the
+// configurations Option 12 and Pretty
+const PICTURED = new Set([
+  'default', 'view-plan', 'view-desk',
+  'bedroom-new-cupboard-option10', 'bedroom-recess-drawers-mirrors',
+  'wicker-bench-hallway', 'shoe-rack-stairs', 'downstairs-doors-plan',
+  'garage-moved-plan',
+  'configuration-option12', 'configuration-pretty',
+]);
+// ...of the 3D view alone, the page's buttons and menus hidden, so changing
+// them retakes none of these (the bar and menus have their own, below)
+const VIEW_ONLY = { stylePath: path.join(__dirname, 'view_only.css') };
+const CONTROLS_ONLY = { stylePath: path.join(__dirname, 'controls_only.css') };
+
 test.describe('saved addresses', () => {
   for (const { name, configuration, view } of ADDRESSES) {
     test(`${name} looks the same and round-trips`, async ({ page }) => {
@@ -26,7 +45,7 @@ test.describe('saved addresses', () => {
       expect(await configurationOf(page)).toEqual(configuration);
       expect(await viewOf(page)).toEqual(view);
       await expectSnapshot(page, name);
-      await expect(page).toHaveScreenshot(`${name}.png`);
+      if (PICTURED.has(name)) await expect(page).toHaveScreenshot(`${name}.png`, VIEW_ONLY);
     });
   }
 
@@ -37,7 +56,7 @@ test.describe('saved addresses', () => {
       expect(await configurationOf(page)).toEqual(configuration);
       expect(await viewOf(page)).toEqual(DEFAULT.view);
       await expectSnapshot(page, `configuration-${id}`);
-      await expect(page).toHaveScreenshot(`configuration-${id}.png`);
+      if (PICTURED.has(`configuration-${id}`)) await expect(page).toHaveScreenshot(`configuration-${id}.png`, VIEW_ONLY);
     });
   }
 
@@ -59,6 +78,32 @@ test.describe('saved addresses', () => {
     await openRoom(page);
     expect(await configurationOf(page)).toEqual(DEFAULT.configuration);
     expect(await viewOf(page)).toEqual(DEFAULT.view);
+  });
+});
+
+// The page's bar and menus, the 3D view behind them hidden: what the UI
+// changes (UI_CRITIQUE.md) are meant to change, so these are retaken with
+// them. The page as it opens, then each corner menu and Lounge options open
+test.describe('the bar and menus look the same', () => {
+  test.beforeEach(async ({ page }) => { await openRoom(page); });
+
+  test('every menu closed', async ({ page }) => {
+    await expect(page).toHaveScreenshot('controls-closed.png', CONTROLS_ONLY);
+  });
+
+  test('the Look menu open', async ({ page }) => {
+    await page.click('#viewMenu .popToggle');
+    await expect(page).toHaveScreenshot('controls-look.png', CONTROLS_ONLY);
+  });
+
+  test('the Configuration menu open', async ({ page }) => {
+    await page.click('#configurationMenu .popToggle');
+    await expect(page).toHaveScreenshot('controls-configuration.png', CONTROLS_ONLY);
+  });
+
+  test('Lounge options open', async ({ page }) => {
+    await openOptions(page);
+    await expect(page).toHaveScreenshot('controls-lounge-options.png', CONTROLS_ONLY);
   });
 });
 

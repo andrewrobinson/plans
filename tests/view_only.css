@@ -1,0 +1,4 @@
+/* The rooms' screenshots (room_3d.spec.js): the 3D view alone, the page's
+   bar, buttons, menus and drawers hidden, so changing them retakes none of
+   these (REFACTOR_PLAN.md item 2, 21 Oct 2026) */
+body > :not(#view) { visibility: hidden !important; }

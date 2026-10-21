@@ -21,8 +21,12 @@ module.exports = defineConfig({
   timeout: 60_000,
   expect: {
     timeout: 15_000,
-    // The 3D drawing can differ by a few anti-aliased pixels between runs
-    toHaveScreenshot: { maxDiffPixelRatio: 0.002 },
+    // Every pixel the same (21 Oct 2026): measured, the 15 kept screenshots
+    // came out identical on both devices 4 times over at 10 workers, so
+    // any difference is a real one. It was 0.2%, which let the newel posts
+    // through the lounge doorway pass for days. A new browser version may
+    // draw a pixel differently: retake them then (npm run test:update)
+    toHaveScreenshot: { maxDiffPixelRatio: 0 },
   },
   fullyParallel: true,
   reporter: [['list'], ['html', { open: 'never' }]],

@@ -38,25 +38,26 @@ choices to settle with the user before it's built.
    86 ms a frame), so under load it was too busy to answer the tests. It
    now draws only when the camera moves or the page changes the scene
    (`flatViews()` in `kit/floor_kit.js`), with the user's agreement.
-2. **Screenshots free of the page's buttons, and fewer of them**: every
-   phone screenshot holds the top bar and the corner buttons, so one UI
-   change retakes most of them (taking away the Views ☰ retook 31 on 21
-   Oct 2026), and baselines retaken wholesale stop catching anything. Mask
-   the top bar, corner buttons and drawers (or take only the 3D view) in
-   the rooms' screenshots, and add a few of the bar and menus alone, which
-   UI changes are meant to change. Then drop those whose content the
-   model's snapshots already check (dimensions, cutting lists, places) and
-   keep a few per room: about 70 baselines today, `.git` mostly old
-   screenshots. The 0.2% tolerance (`maxDiffPixelRatio` in
-   `playwright.config.js`) let a real change through for days (the newel
-   posts through the lounge doorway in `view-desk`): look again at it
-   once the buttons are masked. Before the UI fixes (`UI_CRITIQUE.md`).
+2. ~~Screenshots free of the page's buttons, and fewer of them~~: **done,
+   21 Oct 2026.** The rooms' screenshots are of the 3D view alone
+   (`tests/view_only.css` hides the rest), 11 a device in place of 36:
+   `PICTURED` in `room_3d.spec.js`; every saved address keeps its snapshot
+   and round trip. Four of the bar and menus alone, the 3D view hidden
+   (`tests/controls_only.css`): every menu closed, Look, Configuration and
+   Lounge options open. The tolerance is 0, as measured.
 3. **The new views tested**: saved addresses (`tests/configs/`, with
    their snapshots) for a bedroom wall, a garage wall and a hallway wall
    in 2D: the snapshot's boxes say whether each piece is shown, which
    would have caught the garage's wall views coming out empty (21 Oct
    2026, found by eye); and a test of each room button's ▾ options
-   (`roomViewChoices()`).
+   (`roomViewChoices()`). **And a view snapshot** (agreed 21 Oct 2026):
+   the model's snapshot knows nothing of a view (Node has no camera), and
+   a view's own work (the cut that hides walls and pieces to see in, the
+   camera's framing, a person's eye, the 2D views' dimensions) runs only
+   in the page, so only screenshots check it today. The page reports it as
+   data for each saved address (which pieces the cut hides, where the
+   camera is and what it aims at), compared exactly as the snapshots are;
+   then the screenshots cut to about one a room if it covers them.
 4. **A guard on `state`**: a model test that fails if any file but the
    model writes `state.` (a search of the source), so the menus keep
    writing only through `set(path, value)`. `living_room.js` reads it in 74

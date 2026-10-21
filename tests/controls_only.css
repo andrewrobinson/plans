@@ -1,0 +1,4 @@
+/* The bar and menus' screenshots (room_3d.spec.js): the page's controls
+   alone, the 3D view behind them hidden, so a change to the rooms retakes
+   none of these (REFACTOR_PLAN.md item 2, 21 Oct 2026) */
+#view { visibility: hidden !important; }
