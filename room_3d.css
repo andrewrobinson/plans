@@ -130,6 +130,7 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
    numberBoxes()), wide enough for 4 digits and a decimal, chosen */
 .drawer input.numberBox { width: 64px; font: inherit; padding: 1px 4px; border: 1px solid #999; border-radius: 4px; }
 .drawer label > span[hidden] { display: none; }
+.drawer input.numberBox + span { margin-left: 4px; }   /* a word beside the box: 2450 ceiling */
 .drawer button { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid #999; background: #fff; cursor: pointer; }
 .drawer button:disabled { opacity: 0.4; cursor: default; }
 .drawer button.on { background: #1f4e79; color: #fff; border-color: #1f4e79; }

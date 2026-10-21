@@ -65,9 +65,9 @@ choices to settle with the user before it's built.
    handed a part of it (`settleStairWalls()`) don't import it. A search,
    so a write through another name (`const s = state.x; s.y = 1`) gets
    past it.
-5. **The phone's top bar fits**: a test that at 390 wide the bar stays in
-   its three rows, as `UI_CRITIQUE.md`'s step 1 asks to check by hand.
-   With step 1.
+5. ~~The phone's top bar fits~~: **done, 21 Oct 2026**, with UI step 1:
+   `the top bar fits, clear of Look ▾` in `room_3d.spec.js`, the bar
+   short of Look ▾ on both devices and in three rows at most on a phone.
 
 **Decided with the user (21 Oct 2026)**, for items 1 to 5:
 

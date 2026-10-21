@@ -46,12 +46,12 @@ live beside it.
 |---|---|---|
 | 29 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
 | 30–42 | `#loading` | The screen greyed with **Loading…** (or **Loading Pretty…**, a configuration's name kept in sessionStorage as it's chosen) while the page loads, from before any code comes till the room's first drawn (`startLoop()`'s `onFirstDraw`); shown again as a configuration's chosen (`showLoading()` in living_room.js), as that loads the page again. Above everything, taking the clicks |
-| 37–45 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge**, **Bedroom**, **Garage**, **Hallway** (the room's name alone, short for a phone), each going to its room, with a ▾ dropdown of all that room's views: Bird's eye, Plan, its four walls in 2D, its config-defined views and those saved in it, and under the Hallway's, downstairs' too; `fillRoomKinds()` in living_room.js, as VIEWS_MENU.md has it), Share, **Stored: on/off** (`#storedToggle`, shows or hides the things to store in the lounge), 📷 (Screenshot), Reload (the page afresh, nothing in the address) and Reset (once confirmed, forgets everything on the device, saved views, looks and configurations too, and drops the offline copy; `resetButton()` in kit/floor_kit.js). On a phone, while a sheet's open, only ☰ shows |
-| 48–66 | `#topRight` | The **Look** pop-up menu (`#viewMenu`, blue): Where, Looking at, eye height, looks, and Save view / Delete view. The Views menu went on 21 Oct 2026 (VIEWS_MENU.md); in a 2D view the Dimensions and Door sizes chips (`#flatChips`) show at the bottom right, above Configuration |
-| 75–85 | `#corner` | The **Configuration** pop-up menu at the bottom right (`#configurationMenu`, green) |
+| 37–45 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge**, **Bedroom**, **Garage**, **Hallway** (the room's name alone, short for a phone), each going to its room, with a ▾ dropdown of all that room's views: Bird's eye, Plan, its four walls in 2D, its config-defined views and those saved in it, and under the Hallway's, downstairs' too; `fillRoomKinds()` in living_room.js, as VIEWS_MENU.md has it), Share, **Stored** (a switch, `#storedToggle`, shows or hides the things to store in the lounge) and 📷 (Screenshot); it keeps clear of Look ▾ (`--clear-of-look` in room_3d.css). On a phone, while a sheet's open, only ☰ shows |
+| 48–66 | `#topRight` | The **Look ▾** pop-up menu (`#viewMenu`, blue): Where, Looking at, eye height, looks, and Save view / Delete view. The Views menu went on 21 Oct 2026 (VIEWS_MENU.md); in a 2D view the Dimensions and Door sizes chips (`#flatChips`) show at the bottom right, above Configuration |
+| 75–85 | `#corner` | The **Configuration ▴** pop-up menu at the bottom right (`#configurationMenu`, green) |
 | 87–89 | `#bottomLeft` | The options button (`#roomOptions`), named for the room in view: Lounge, Bedroom or Garage options, or Hallway and stairs. It moves clear of an open drawer, onto a sheet's top edge on a phone |
 | 90 | `#tip` | A tooltip that follows the pointer over things to store |
-| **91–105** | `#panel` | **Other options**: `#secWickerBench` (the wicker bench, in any room) and `#palette`, the colours in this view |
+| **91–105** | `#panel` | **Other options**: `#secWickerBench` (the wicker bench, in any room), `#palette`, the colours in this view, and `#thisPage`: Reload (the page afresh, nothing in the address) and Reset (in red; once confirmed, forgets everything on the device, saved views, looks and configurations too, and drops the offline copy; `resetButton()` in kit/floor_kit.js) |
 | **112–144** | `#hallPanel` | **Hallway and stairs options**: `#secBathroom` (the bathroom and WC shown or hidden, `#bathroomShown`), `#secStairWalls` (the shelves and pictures over the stairs: stair_walls.js fills `#stairWallsBlock`), `#secShoeBoxes` (the shoe boxes on the sills: shoe_boxes.js fills `#shoeBoxesBlock`), `#secShoeRack` (shoe_rack.js fills it) and `#secDownstairsDoors` (the flat's door and the lobby's) |
 | **150–486** | `#loungePanel` | **Lounge options**, the living room: |
 | 155–229 | `#secCupboard` | The corner cupboard: its **option list** (`#current`), Cupboard only, its cutting list (`#loungeCutting`, folded away), and `#cupboardControls`: board thickness, the left-wall depth and front, and each option's own sliders in blocks shown only for it (`#wardBlock` for 9, `#cornerBlock` and `#sideShelfBlock` for 10 and 11, `#legBlock` for 7). The bedroom's cupboard copies these |
@@ -200,6 +200,16 @@ exporting `create()`, which the room imports as `ViewKit` and `ConfigurationKit`
 The view kit's `view()` gives the view as JSON for the address, and
 `start()` reads one; the Configuration list's entries are configurations.
 
+### kit/controls_kit.js
+
+The drawers' shared pieces (REFACTOR_PLAN.md item 8): `slider()` (a
+labelled slider, with an optional tooltip), `lyingSwitch`, `wallPick()`,
+`resetButtons()`, `SIZE_LABEL`, and `numberBoxes()`, which living_room.js
+calls once the controls show their values: a number box in place of each
+millimetre slider's value, typed numbers going through the slider (held to
+its range and step) and the box following the slider as the page writes
+its value.
+
 ### kit/config_kit.js (156 lines)
 
 The configuration: a schema's entries (`number()`, `onOff()`, `choice()`,
@@ -281,8 +291,8 @@ rule therefore gives each menu button its own colour.
 
 ### One class for many buttons
 
-The floating text buttons (Lounge options, Share, Reload, Dimensions, Show
-the room buttons, and the menus' Save and Delete) all have `class="chip"` in the
+The floating text buttons (Lounge options, Share, Look ▾, Configuration ▴,
+Dimensions, the room buttons, and the menus' Save and Delete) all have `class="chip"` in the
 HTML, and one `.chip` rule styles them. To give a new button the same look, add `class="chip"` to it.
 
 ### Hand-styled controls

@@ -101,7 +101,8 @@ and native radios and selects beside the custom switches.
 
 Each step stands alone and can be built in any order. All decided (19 Oct
 2026): to build, steps 1, 2, 3, 8 and most of 9; dropped or put off, steps
-4, 5, 6 and 7.
+4, 5, 6 and 7. **Built 21 Oct 2026** (branch `ui-fixes`), with the last
+small choices settled with the user that day, each under its step.
 
 ### Step 1: tell the corner menus apart
 
@@ -120,6 +121,10 @@ Leave the top left ☰ (Other options) as the one ☰? Changes screenshots.
 checked to still fit on a phone. The top left ☰ (Other options) stays as it is.
 Since 21 Oct 2026 there's no Views menu (VIEWS_MENU.md): only *Look ▾* and
 *Configuration ▾* are left to do.
+**Built (21 Oct 2026):** *Look ▾* and *Configuration ▴* (its arrow the way
+it opens, the user's choice), chips in their menu's colour; the top bar
+keeps clear of Look ▾ (`--clear-of-look`), still three rows on a phone,
+checked by a test.
 
 ### Step 2: make Reload and Reset safe
 
@@ -137,6 +142,9 @@ Changes screenshots (the bar).
 **Decided (19 Oct 2026): a.** Both move out of the top bar into a menu.
 They go in the Other options panel (the top left ☰), Reset still asking
 first.
+**Built (21 Oct 2026):** a last section of Other options, *This page*,
+always shown: Reload, then Reset in red, still asking first (Reload
+doesn't).
 
 ### Step 3: type a number beside each slider
 
@@ -157,6 +165,10 @@ Changes screenshots (every drawer).
 
 **Decided (19 Oct 2026): b.** A number box beside the millimetre sliders
 only; door angles and the like keep the slider alone.
+**Built (21 Oct 2026):** the box in place of the value in the label, on
+every slider but the angles, the TV's size and the shelves' counts (182 of
+225); `numberBoxes()` in `kit/controls_kit.js`. A word (*none*, *ceiling*)
+stays beside it. Typed numbers are held to the slider's range and step.
 
 ### Step 4: the open drawer follows the room
 
@@ -214,6 +226,7 @@ rest. Radios for long choices (the island) stay.
 
 **Decided (19 Oct 2026): yes.** Changes screenshots (the lounge drawer, and
 the top bar's Stored).
+**Built (21 Oct 2026):** Stored a switch in a chip in the top bar.
 
 ### Step 9: the small things
 
@@ -222,6 +235,11 @@ the top bar's Stored).
 - The Look menu's Save says why it's greyed out (its tooltip). **Decided.**
 - ~~The cupboard options without their numbers in the list~~: **dropped**,
   the numbers stay.
+
+**Built (21 Oct 2026):** the title; no label in a drawer wraps at its
+narrowest (340 wide), what each left out in its tooltip (the lounge's
+back-wall pieces now read *Back's middle from the left wall*, as the
+bedroom's do); Save look and Save view, greyed out, say why.
 
 ---
 
