@@ -11,7 +11,7 @@
 // drawn on the kit's makeCanvas().
 //
 // The page's menus change the settings by their paths in the configuration
-// (set(), setAll()) and it calls build(), then drawStored() and turnDoors(); what the page shows that the
+// (set(), setAll()) and it calls rebuild(); what the page shows that the
 // drawing follows (2D or 3D, which view, Cupboard only, the dimension
 // buttons) it sets with setDisplay().
 import * as THREE from 'three';
@@ -1939,6 +1939,20 @@ export function build(i, onShow = optionsOnShow()) {
   return { option, same, aboveText };
 }
 
+// Build option i and draw everything that follows from it, in the order
+// each needs (REFACTOR_PLAN.md item 6), as both the page and buildFlat()
+// do: build(), the things to store (and the cupboard's shelves cut round
+// them), the doors turned, and last the dimensions, of the shelves and
+// doors as drawn. Returns build()'s, and what drawStored() says of the
+// things to store
+export function rebuild(i, onShow = optionsOnShow()) {
+  const built = build(i, onShow);
+  const storedText = drawStored();
+  turnDoors();
+  updateDims();
+  return { ...built, storedText };
+}
+
 const turn = degrees => THREE.MathUtils.degToRad(degrees);
 
 
@@ -1969,10 +1983,7 @@ export function buildFlat(configuration, view = {}) {
   startAgain();
   readConfiguration(configuration);
   setDisplay({ flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true, ...view });
-  const { option, aboveText } = build(state.cornerCupboard.option);
-  drawStored();
-  turnDoors();
-  updateDims();
+  const { option, aboveText } = rebuild(state.cornerCupboard.option);
   return {
     world,
     configuration: configurationNow(),

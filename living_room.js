@@ -9,9 +9,9 @@
 // change it through change(edits), by the settings' paths in the
 // configuration (the model's set()), which puts every control in step
 // (syncControls()) and calls show(). show() has the model build the option
-// chosen and everything round it (build()), shows it in the menus, then
-// redrawAround() redraws the dimensions, colours, things to store, cutting
-// list and the address. The address, the settings as a configuration
+// chosen and draw everything round it (rebuild()), shows it in the menus,
+// then redrawAround() puts the rest of the page in step: the colours, the
+// things to store's menu, the cutting list and the address. The address, the settings as a configuration
 // (SCHEMA) and the view, is read at the start and written on every change,
 // so a link brings the same settings back.
 //
@@ -35,7 +35,7 @@ import { shoeBoxesControls } from './shoe_boxes.js';
 import { garage, garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
 import { cupboardControls, copyControls, idIn } from './cupboard_controls.js';
 import { CASTOR_DESK } from './castor_desk.js';
-import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, showDims, showDoorDims, build,
+import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, showDims, showDoorDims, rebuild,
   drawStored, turnDoors, describe, settle, cupboardRows, startAgain, BACK_WALL_KEYS, CHAIR_TURN, CURRENT,
   CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES,
   LARDERS, LARDER_SLIDERS, OPTIONS, PACKINGS, SCHEMA, SHELF_WOODS, SOFAS, SOFA_SLIDERS, STORED,
@@ -157,11 +157,15 @@ function moveStored(k, change) {
 }
 // Moved by hand, they go back to the window when packed again
 const unlessByHand = () => (storedValue('where') === BY_HAND ? [['where', BY_THE_WINDOW]] : []);
-// The things to store drawn (the model's showStored()), and their part of
+// The things to store drawn (the model's drawStored()), and their part of
 // the menu put in step
 function showStored() {
+  showStoredMenu(drawStored());
+}
+// Their part of the menu, `storedText` what drawStored() said of them
+function showStoredMenu(storedText) {
   const { shown, packing, where } = state.stored;
-  document.getElementById('storedInfo').textContent = drawStored();
+  document.getElementById('storedInfo').textContent = storedText;
   showLifts();
   document.getElementById('storedToggle').checked = shown;
   document.getElementById('storedPacking').value = String(packing);
@@ -316,6 +320,10 @@ const doorAt = name => `doors.${name}`;
 function update() {
   turnDoors();
   if (dims) updateDims();                                       // the doors' labels go with them
+  showDoors();
+}
+// The cut and the doors' controls, with the doors as turned
+function showDoors() {
   applyCut();                                                   // the doors may have moved across a cut
   for (const [name, slider] of Object.entries(DOOR_SLIDERS)) {
     const angle = get(doorAt(name));
@@ -337,14 +345,14 @@ for (const name of Object.keys(DESK_RADIOS)) {
 }
 
 
-// Show option i: the model builds it (build()), then the menus, the view
-// and everything drawn round it follow. onShow: the option on show till
-// now, when the menus have already set i
+// Show option i: the model builds it and all that's drawn from it
+// (rebuild()), then the menus, the view and the rest of the page follow.
+// onShow: the option on show till now, when the menus have already set i
 function show(i, onShow) {
-  const { option, same, aboveText } = build(i, onShow);
+  const { option, same, aboveText, storedText } = rebuild(i, onShow);
   showInMenus(option, state.cornerCupboard.option, aboveText);
   if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
-  redrawAround();
+  redrawAround(storedText);
 }
 
 // The menus for option i: the option list, the description, and only the
@@ -378,16 +386,15 @@ function showInMenus(option, i, aboveText) {
   showSofaPlace();                                              // where it starts follows the TV
 }
 
-// Everything drawn round the option: dimensions, colours, the things to
-// store and the cupboard shelves round them, the cutting list, the address
-function redrawAround() {
-  updateDims();
+// The page round the option as rebuilt: the colours, the things to
+// store's menu (`storedText`, what's said of them), the cutting list, the
+// address, the cut and the doors' controls
+function redrawAround(storedText) {
   updatePalette();
-  showStored();
-  if (cupboardOnly) updateDims();                                // its shelves are drawn now, to dimension
+  showStoredMenu(storedText);
   showCuttingLists();                                           // with its shelves as drawn, round the things to store
   writeAddress();
-  update();
+  showDoors();
 }
 
 // ---------------------------------------------------------------------------
