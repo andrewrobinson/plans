@@ -35,3 +35,46 @@ export function resetButtons(piece, i) {
   const buttons = [piece.sizes.length && button('sizes', 'Reset dimensions'), piece.place.length && button('place', 'Reset location')].filter(Boolean);
   return buttons.length ? `<div class="row">${buttons.join('')}</div>` : '';
 }
+
+// A number box in place of each chosen slider's value (UI_CRITIQUE.md,
+// step 3): a size or place can be typed, not only dragged to. Every slider
+// in `root` with a value (`${slider.id}Value`) for which isWanted(slider,
+// value) is true gets one, so call this once the controls show their
+// values. A number typed goes to the slider, which holds it to its range
+// and step, and on through the slider's own input listener, as a drag
+// would; anything that isn't a number is refused, the box showing the
+// slider again. The box follows the slider as the page puts the slider in
+// step: each time its value is written (a MutationObserver on it). Where
+// the value is a word (Cupboard height: ceiling), the word stays after the
+// box.
+export function numberBoxes(root, isWanted) {
+  for (const slider of root.querySelectorAll('input[type=range]')) {
+    const value = document.getElementById(`${slider.id}Value`);
+    if (value && isWanted(slider, value.textContent)) numberBox(slider, value);
+  }
+}
+
+function numberBox(slider, value) {
+  const box = document.createElement('input');
+  Object.assign(box, { type: 'number', id: `${slider.id}Box`, className: 'numberBox', inputMode: 'decimal' });
+  box.setAttribute('aria-label', document.querySelector(`label[for="${slider.id}"]`).textContent.replace(/:.*$/s, ''));
+  value.before(box);
+  // The box as the slider stands, its range too (some follow the room: a
+  // wall's length). Its number is the value written, which can be off the
+  // slider's step (a saved 1372 on a slider in 5s), so is truer than the
+  // slider's own; a word is kept beside the slider's number, a number shown once
+  const follow = () => {
+    for (const k of ['min', 'max', 'step']) box[k] = slider[k];
+    const written = value.textContent.trim(), isNumber = written !== '' && Number.isFinite(Number(written));
+    box.value = isNumber ? written : slider.value;
+    value.hidden = isNumber;
+  };
+  follow();
+  new MutationObserver(follow).observe(value, { childList: true, characterData: true, subtree: true });
+  box.addEventListener('change', () => {
+    if (box.value === '' || !Number.isFinite(Number(box.value))) return follow();
+    slider.value = box.value;                               // held to its range and step, as the slider holds it
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
+    follow();
+  });
+}

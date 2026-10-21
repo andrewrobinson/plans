@@ -111,6 +111,8 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
   #bar .chip, #viewMenu .popToggle { padding: 0 7px; }
   :root { --clear-of-look: 76px; }   /* Look ▾ as small as the bar's chips: 54 wide in Chrome (measured), a little over for Safari's font */
   #menu { width: 36px; font-size: 18px; }
+  /* 16px, as a phone's browser zooms in on a smaller box being typed in */
+  .drawer input.numberBox { font-size: 16px; }
   .split .kind select { width: 28px; }
   /* While a sheet's open, only ☰ stays in the top bar, so the room gets the
      space above the sheet; closing the sheet brings the buttons back */
@@ -124,6 +126,10 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
 .drawer div.sec { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; }
 .drawer .sec > .secHead { font-weight: bold; font-size: 14px; color: #1f4e79; padding: 2px 0; }
 .drawer input[type=range] { width: 100%; }
+/* The number box in a millimetre slider's label (kit/controls_kit.js's
+   numberBoxes()), wide enough for 4 digits and a decimal, chosen */
+.drawer input.numberBox { width: 64px; font: inherit; padding: 1px 4px; border: 1px solid #999; border-radius: 4px; }
+.drawer label > span[hidden] { display: none; }
 .drawer button { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid #999; background: #fff; cursor: pointer; }
 .drawer button:disabled { opacity: 0.4; cursor: default; }
 .drawer button.on { background: #1f4e79; color: #fff; border-color: #1f4e79; }

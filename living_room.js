@@ -27,7 +27,7 @@ import * as ViewKit from './kit/view_kit.js';
 import * as ConfigurationKit from './kit/configuration_kit.js';
 import * as Config from './kit/config_kit.js';
 import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, QUARTER_TURN, BED_SPOTS } from './other_room.js';
-import { SIZE_LABEL } from './kit/controls_kit.js';
+import { SIZE_LABEL, numberBoxes } from './kit/controls_kit.js';
 import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
 import { shoeRack, shoeRackControls } from './shoe_rack.js';
 import { stairWallsControls, shoeBoxRefusal } from './stair_walls.js';
@@ -1485,6 +1485,10 @@ if (startingConfiguration) readConfiguration(startingConfiguration);
 addressRead = true;
 syncControls();
 show(state.cornerCupboard.option);
+// A number box for each millimetre slider, now each shows its value: not
+// the angles (in °: turns, doors, the shoe rack's slope), the TV (a list of
+// sizes) or the shelves' counts
+numberBoxes(document, (slider, value) => !value.endsWith('°') && slider.id !== 'tvSize' && !slider.id.endsWith('_count'));
 // The view: the address's, else the last chosen here. After show(), as
 // some views are worked out from the option; the switches for what's shown
 // first, as Cupboard only frames the view

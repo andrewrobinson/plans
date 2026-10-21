@@ -238,6 +238,35 @@ test.describe('the controls', () => {
     expect(await setting(page, 'cornerCupboard.BOARD')).toBe(22);
   });
 
+  // A number typed in the box beside a millimetre slider (UI_CRITIQUE.md,
+  // step 3) goes where the slider would take it: held to its range and
+  // step, anything else refused; a word (none) shown beside it; the box
+  // following the slider; none beside the angles
+  test('a millimetre slider\'s number can be typed', async ({ page }) => {
+    await pickOption(page, 7);
+    const box = page.locator('#rearBox');
+    await box.fill('520');
+    await box.press('Enter');
+    expect(await setting(page, 'cornerCupboard.R')).toBe(520);
+    await expect(page.locator('#rear')).toHaveValue('520');
+    await box.fill('9000');
+    await box.press('Enter');
+    await expect(box).toHaveValue('800');                       // the slider's highest
+    expect(await setting(page, 'cornerCupboard.R')).toBe(800);
+    await box.fill('');
+    await box.press('Enter');
+    await expect(box).toHaveValue('800');                       // nothing typed: refused
+    await box.fill('455');
+    await box.press('Enter');
+    await expect(box).toHaveValue('460');                       // on its step, of 10
+    await page.locator('#depth').fill('290');
+    await expect(page.locator('#depthBox')).toHaveValue('290');   // the slider moved, the box follows
+    await expect(page.locator('#depthValue')).toHaveText('none');
+    await expect(page.locator('#depthValue')).toBeVisible();
+    await expect(page.locator('#rearValue')).toBeHidden();     // a bare number, shown once, in the box
+    await expect(page.locator('#roomDoorBox')).toHaveCount(0);
+  });
+
   test('the left-wall depth slider shows "none" below 300', async ({ page }) => {
     await openOptions(page);
     await pickOption(page, 7);                                   // option 10, as the page opens, has no left-wall cupboard
