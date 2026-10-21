@@ -172,6 +172,32 @@ test.describe('sliders, to each end and back', () => {
     await expect(page.locator('#sideShelfBlock')).toBeHidden();
   });
 
+  // Only option 10 has it, on its side facing the windows, where the side
+  // is clear of the bench (option 11's doors are there). Off, its sliders
+  // and how it's shown are hidden; on, it's folded away or down, ready to use
+  test('option 10\'s fold-down desk', async ({ page }) => {
+    await OPTION(10)(page);
+    await slide(page, 'cornerD', 1150);                          // 820 of side clear of the 330-deep bench
+    await expect(page.locator('#deskDetails')).toBeHidden();
+    await expect(page.locator('#deskDoorBlock')).toBeHidden();
+    await toggle(page, 'deskOn', true);
+    await expect.poll(() => setting(page, 'cornerCupboard.DESK')).toBe(true);
+    await expect(page.locator('#summary')).toContainText('a fold-down desk 780 wide and 500 deep');
+    await endsAndBack(page, 'deskW', at('cornerCupboard.DESK_W'));
+    await endsAndBack(page, 'deskD', at('cornerCupboard.DESK_D'));
+    await endsAndBack(page, 'deskH', at('cornerCupboard.DESK_H'));
+    await expect(page.locator('#deskFolded')).toBeChecked();
+    await toggle(page, 'deskDown', true);
+    await expect.poll(() => setting(page, 'doors.desk')).toBe(90);   // its angle, level
+    await toggle(page, 'deskFolded', true);
+    await expect.poll(() => setting(page, 'doors.desk')).toBe(0);    // upright
+    await toggle(page, 'deskOn', false);
+    await expect(page.locator('#deskDoorBlock')).toBeHidden();
+    await expect(page.locator('#summary')).not.toContainText('fold-down desk');
+    await OPTION(11)(page);
+    await expect(page.locator('#deskBlock')).toBeHidden();
+  });
+
   test('the bench', async ({ page }) => {
     await endsAndBack(page, 'shelfDepth', at('shelfDepth'));
     const TV = { 0: [32, '32" (720 × 440)'], 14: [86, '86" (1930 × 1110)'] };   // the ends of TV_SIZES
@@ -642,6 +668,32 @@ test.describe('the kitchen tables', () => {
     await expect(page.locator('#cheshamMoveBlock')).toBeHidden();
     expect(await boxOf(page, 'chesham')).toBe(null);
   });
+});
+
+// The desk on castors (asked for, 20 Oct 2026): out to start; switched on,
+// parked against the left wall, 20 short of the door frame; wheeled out in
+// front of the TV, centred on it, its back 100 out from the bench; moved from
+// there by hand, and Reset location takes it back
+test('the desk on castors parks by the door and wheels out to the TV', async ({ page }) => {
+  await openDrawer(page);                                       // option 10 with the bench: the TV's middle at x 2319
+  const box = () => page.evaluate(() => window.plans.snapshot().boxes['castorDesk.livingRoom']);
+  expect(await box()).toBe(null);
+  await expect(page.locator('#castorDeskMoveBlock')).toBeHidden();
+  await toggle(page, 'castorDeskOn', true);
+  await expect(page.locator('input[name=castorDeskAt][value=byTheDoor]')).toBeChecked();
+  expect(await box()).toEqual({ from: [0, 359, 0], to: [550, 1309, 740], shown: true });
+  await expect(page.locator('#summary')).toContainText('The desk on castors (950 long, 550 deep, 740 high), parked by the door');
+  await expect(page.locator('#summary')).toContainText('It stands where the corner cupboard is');   // option 10's starts 650 out along the left wall
+  await page.locator('input[name=castorDeskAt][value=atTheTv]').evaluate(el => { el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); });
+  expect(await box()).toEqual({ from: [1844, 430, 0], to: [2794, 980, 740], shown: true });
+  await expect(page.locator('#summary')).toContainText('in front of the TV, centred on it, its back 100 out from the bench');
+  await slide(page, 'castorDeskY', 1500);
+  expect(await setting(page, 'castorDeskMove')).toEqual({ x: 2319, y: 1500, turn: 0 });
+  await page.locator('#castorDeskHome').click();
+  expect(await setting(page, 'castorDeskMove')).toBe(null);
+  expect(await setting(page, 'castorDeskAt')).toBe('tv');
+  await toggle(page, 'castorDeskOn', false);
+  expect(await box()).toBe(null);
 });
 
 // The shoe rack, downstairs (state.shoeRack): not there yet, as the page

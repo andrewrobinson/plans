@@ -197,6 +197,17 @@
             <input id="sideD" type="range" min="150" max="800" step="10" value="330">
           </div>
         </div>
+        <div id="deskBlock">
+          <label class="switch" title="A desk that folds down from the cupboard's side facing the windows, where it's clear of the bookshelf or the bench"><input type="checkbox" id="deskOn"> Fold-down desk</label>
+          <div id="deskDetails">
+            <label for="deskW">Desk width, along the side: <span id="deskWValue">780</span></label>
+            <input id="deskW" type="range" min="300" max="1200" step="10" value="780">
+            <label for="deskD">Desk depth, out from the side: <span id="deskDValue">500</span></label>
+            <input id="deskD" type="range" min="300" max="700" step="10" value="500">
+            <label for="deskH">Desk height, open: <span id="deskHValue">740</span></label>
+            <input id="deskH" type="range" min="650" max="800" step="10" value="740">
+          </div>
+        </div>
       </div>
       <div id="legBlock">
         <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
@@ -420,6 +431,21 @@
       <div class="row"><button id="cheshamHome">Reset location</button></div>
     </div>
   </details>
+  <details class="sec" id="secCastorDesk">
+    <summary>Desk on castors</summary>
+    <label class="switch"><input type="checkbox" id="castorDeskOn"> In the lounge</label>
+    <div id="castorDeskMoveBlock" class="depth">
+      <label title="Its back against the left wall, between the corner cupboard and the door frame"><input type="radio" name="castorDeskAt" value="byTheDoor"> Parked by the door</label>
+      <label title="Centred on the TV, just out from the bench, where you sit facing the TV"><input type="radio" name="castorDeskAt" value="atTheTv"> At the TV</label>
+      <label for="castorDeskX">Desk back's middle from the left wall: <span id="castorDeskXValue"></span></label>
+      <input id="castorDeskX" type="range">
+      <label for="castorDeskY">Desk back's middle from the back wall: <span id="castorDeskYValue"></span></label>
+      <input id="castorDeskY" type="range">
+      <label for="castorDeskTurn">Desk turned: <span id="castorDeskTurnValue"></span></label>
+      <input id="castorDeskTurn" type="range">
+      <div class="row"><button id="castorDeskHome">Reset location</button></div>
+    </div>
+  </details>
   <details class="sec" id="secDoors" open>
     <summary>Doors</summary>
     <div id="tallBlock">
@@ -429,6 +455,10 @@
     <div id="secondBlock">
       <label for="secondDoor"><span id="secondLabel"></span>: <span id="secondDoorValue">0°</span></label>
       <input id="secondDoor" type="range" min="0" max="180" value="0">
+    </div>
+    <div id="deskDoorBlock" class="depth">Fold-down desk:
+      <label title="Standing up against the cupboard's side"><input type="radio" name="deskShown" id="deskFolded" value="foldedAway" checked> Folded away</label>
+      <label title="Level, on its brackets"><input type="radio" name="deskShown" id="deskDown" value="down"> Down, ready to use</label>
     </div>
     <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
     <input id="roomDoor" type="range" min="0" max="110" value="90">

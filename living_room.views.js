@@ -62,6 +62,11 @@ window.ROOM_VIEWS = {
     sofa:   { label: 'Sitting on the sofa', anchor: 'sofaSeat', posture: 'sit', cannotSee: ['sofa'] },
     // The door's shut behind you, as open it stands in the room in front of you
     door:   { label: 'In the doorway, walking in', at: [150, 1780], posture: 'stand', cannotSee: ['door'], arrive: 'shutRoomDoor' },
+    // At option 10's fold-down desk, on the corner cupboard's side, if it's
+    // on: in front of it, facing the cupboard (worked out in living_room.js)
+    foldDownDesk: { label: 'Seated at the fold-down desk', anchor: 'foldDownDeskSeat', posture: 'sit', arrive: 'openDesk' },
+    // At the desk on castors, if it's in, wherever it is (worked out in living_room.js)
+    castorDesk: { label: 'Seated at the desk on castors', anchor: 'castorDeskSeat', posture: 'sit' },
     // In the hallway (floor.js's HALLWAY): just out of the living room's
     // door, by the bedroom's (its doorway's middle, 470 out from it), and on
     // the top step, level with the hallway floor (its middle)
@@ -116,6 +121,8 @@ window.ROOM_VIEWS = {
     fridge:   { label: 'the fridge', at: [-405, 2701, 1200] },      // the middle of its front
     door:     { label: 'the door', at: [0, 1780, 989] },            // the doorway's middle
     cupboard: { label: 'the corner cupboard', anchor: 'cupboard' },
+    foldDownDesk: { label: 'the fold-down desk', anchor: 'foldDownDesk' },   // option 10's, if it's on: the middle of its top, open
+    castorDesk: { label: 'the desk on castors', anchor: 'castorDesk' },      // wherever it is, if it's in
     tv:       { label: 'the TV', anchor: 'tv' },
     livingBench: { label: 'the wicker bench', anchor: 'livingBench' },   // if it's on in here (wicker_bench.js)
     // The three windows, numbered from the TV end: the middle of each, on the

@@ -10,6 +10,8 @@
       "outside": 0,
       "bedroomCupboardTall": 0,
       "bedroomCupboardSecond": 0,
+      "desk": "foldedAway",
+      "bedroomCupboardDesk": "foldedAway",
       "garage": "hidden"
     },
     "colours": {
@@ -58,7 +60,11 @@
           "CORNER_D": 650,
           "SIDE_SHELF": false,
           "SIDE_W": 400,
-          "SIDE_D": 330
+          "SIDE_D": 330,
+          "DESK": false,
+          "DESK_W": 780,
+          "DESK_D": 500,
+          "DESK_H": 740
         }
       },
       "bedroomCupboard": {
@@ -93,7 +99,11 @@
           "CORNER_D": 650,
           "SIDE_SHELF": false,
           "SIDE_W": 400,
-          "SIDE_D": 330
+          "SIDE_D": 330,
+          "DESK": false,
+          "DESK_W": 780,
+          "DESK_D": 500,
+          "DESK_H": 740
         },
         "in": {
           "bedroom": {
@@ -337,6 +347,15 @@
           "livingRoom": {
             "on": false,
             "onItsEnd": true,
+            "move": null
+          }
+        }
+      },
+      "castorDesk": {
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "at": "byTheDoor",
             "move": null
           }
         }
@@ -752,6 +771,7 @@
     },
     "chesham.livingRoom": null,
     "cornwall.livingRoom": null,
+    "castorDesk.livingRoom": null,
     "bedroomCupboard": null,
     "bed": {
       "from": [

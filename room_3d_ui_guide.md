@@ -412,7 +412,11 @@ copies of the sliders that reach further (`BEDROOM_CUPBOARD_RANGES` in
 past where its room lets it go is held there (`cupboardLimits()`).
 Option 10 alone shows `sideShelfBlock` in it, the Show side bookshelf switch
 (`SIDE_SHELF`), and its width and depth sliders (`SIDE_W`, `SIDE_D`) in
-`sideShelfDetails` when it's on.
+`sideShelfDetails` when it's on; and `deskBlock`, the Fold-down desk switch
+(`DESK`), with its width, depth and height sliders in `deskDetails` when it's
+on. Whether the desk is folded away or down is two radios in the Doors
+section (`deskDoorBlock`, shown while there's a desk), as words in the
+configuration's `doors.desk` (`DESK_SHOWN` in `flat_model.js`).
 
 ### Dropdowns are filled by JS
 

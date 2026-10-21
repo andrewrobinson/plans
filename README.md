@@ -25,6 +25,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | File | What |
 | --- | --- |
 | `index.html` | The page and its menus |
+| `controls_demo.html` | A demo of the page's controls and menus beside others it could use (UI_CRITIQUE.md's agreed steps); it touches nothing in the model |
 | `floor.js` | The walls, doors and windows: the living room's, the hallway's (`HALLWAY`, with the stairs), downstairs (`ENTRANCE`) and the bedroom's (`OTHER_ROOM`, in its own u, v mm) |
 | `flat_model.js` | The model: the living room's fittings and cupboard options, the settings and the configuration's schema, the dimensions, cutting list and things to store, with no page, so Node builds it too (`buildFlat()`) |
 | `living_room.js` | The page: the menus and controls, the built-in views, the configurations and the page address |
@@ -36,6 +37,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | `kvistbro.js` | The Kvistbro storage table, in the bedroom |
 | `laundry_basket.js` | The laundry basket, in the bedroom |
 | `tables.js` | The kitchen tables, Chesham and Cornwall: on their legs, Chesham on its end, Cornwall with its legs off |
+| `castor_desk.js` | The desk on castors, parked by the door or wheeled out to the TV |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
 | `stair_walls.js` | The shelves and pictures on the walls over the stairs, and their sliders ([HALLWAY_SHELVES.md](HALLWAY_SHELVES.md)) |

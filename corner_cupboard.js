@@ -7,7 +7,8 @@
 //   settings   the cupboard's piece of the configuration: `option` (its
 //              index in OPTIONS), T, R, F, BOARD, TOP, LEG, LEG_D,
 //              L_SHELVES, DIAG_RUN, DIAG_BACK, DIAG_LEFT, WARD, WARD_D, TOWER,
-//              CORNER_W, CORNER_D, SIDE_SHELF, SIDE_W, SIDE_D
+//              CORNER_W, CORNER_D, SIDE_SHELF, SIDE_W, SIDE_D, DESK, DESK_W,
+//              DESK_D, DESK_H
 //              (room_dimensions.md has what each is)
 //   place      the room it stands in, in its own mm: `width` along the
 //              back wall, `depth` out from it, `ceiling`, and its `door`
@@ -49,7 +50,7 @@ export function seeThrough(materials, on) {
 
 // The settings a cupboard is built from: its piece of the configuration
 export const CUPBOARD_SETTINGS = ['option', 'T', 'R', 'F', 'BOARD', 'TOP', 'LEG', 'LEG_D', 'L_SHELVES', 'DIAG_RUN', 'DIAG_BACK',
-  'DIAG_LEFT', 'WARD', 'WARD_D', 'TOWER', 'CORNER_W', 'CORNER_D', 'SIDE_SHELF', 'SIDE_W', 'SIDE_D'];
+  'DIAG_LEFT', 'WARD', 'WARD_D', 'TOWER', 'CORNER_W', 'CORNER_D', 'SIDE_SHELF', 'SIDE_W', 'SIDE_D', 'DESK', 'DESK_W', 'DESK_D', 'DESK_H'];
 
 // How high the cupboard's full-height parts stand: up to the ceiling, or
 // lower when TOP (0 for the ceiling) is set below it
@@ -528,6 +529,86 @@ function sideShelfText(s, place) {
     `with ${SIDE_SHELVES} lit shelves ${SIDE_W - BOARD} long, their tops at ${sideShelfTops(s, cupboardHeight(s, place)).join(', ')}. `;
 }
 
+// ---------------------------------------------------------------------------
+// Option 10's fold-down desk, on its side facing the windows
+// ---------------------------------------------------------------------------
+
+// A flap hinged along its bottom edge on the cupboard's side, where the side
+// is clear of the side bookshelf (or of the bench, with none): closed, it
+// stands upright against the side; open (90°), it's level, its top DESK_H
+// high, DESK_D out towards the windows and DESK_W along the side, centred
+// in the side's clear run. Two folding brackets on the side hold it level:
+// each an arm under it, which drops down flat against the side as the desk
+// closes, beside a bar fixed to the side. Its sizes are settings (agreed
+// with the user, 20 Oct 2026); these are chosen:
+const DESK_CLEAR = 20;             // the flap clear of each end of the side's clear run
+const DESK_LEAST = 300;            // the least run along the side a desk is drawn in
+const OAK_FACE = 1;                // the oak writing surface on the flap's top, drawn, not a board of its own
+// The brackets' steel: its square `bar`, the fixed bar's length below the
+// arm (`drop`), each bracket `in` from the flap's end, its arm `short` of the
+// flap's far edge
+const BRACKET = { bar: 25, drop: 300, in: 80, short: 50 };
+
+const deskOn = s => s.DESK && OPTIONS[s.option].no === 10 && !cornerTooShallow(s, 'kitchen');
+// The side's run clear of what stands against it along the back wall: the
+// side bookshelf, or with none the bench (R deep), from `from` out to the
+// cupboard's end
+const deskRun = s => ({ from: sideShelfOn(s) ? s.SIDE_D : s.R, to: s.CORNER_D });
+// Where the desk is, or null when there's none (switched off, another
+// option, or less than DESK_LEAST of clear side): the side's face at room
+// x, its ends y0 and y1 (its width w, held to the clear run), how far it
+// reaches out (d) and its top's height (h)
+export function deskSpot(s) {
+  if (!deskOn(s)) return null;
+  const { from, to } = deskRun(s), room = to - from - 2 * DESK_CLEAR;
+  if (room < DESK_LEAST) return null;
+  const w = Math.min(s.DESK_W, room), middle = (from + to) / 2;
+  return { x: s.CORNER_W, y0: middle - w / 2, y1: middle + w / 2, w, d: s.DESK_D, h: s.DESK_H };
+}
+
+// A flap or arm turning about a level hinge that runs along the room's y,
+// at room (x, z): its boxes are given in mm from the hinge in x and z, and
+// in the room's y. Built level, reaching out to +x; turnDoors() turns it by
+// `dir`, 1 lifting it upright, -1 dropping it down. Marked as a door's, so
+// it's not part of the cupboard's outline.
+function levelHinge(x, z, dir, parent) {
+  const h = new THREE.Group();
+  Object.assign(h.userData, { hinge: true, dir });
+  h.position.set(x * MM, z * MM, 0);
+  parent.add(h);
+  return h;
+}
+// The desk: its flap (in the cupboard's colour, with an oak top) and its
+// brackets. Returns the flap's and the arms' hinges, none with no desk.
+function foldDownDesk(job, g) {
+  const spot = deskSpot(job.s);
+  if (!spot) return [];
+  const { BOARD: B } = job.s, { mats } = job, { x, y0, y1, d, h } = spot;
+  const flap = levelHinge(x, h, 1, g);
+  board(job, 'Desk flap', { from: [0, y0, -B - OAK_FACE], to: [d, y1, -OAK_FACE] }, flap);
+  box({ from: [0, y0, -OAK_FACE], to: [d, y1, 0] }, mats.oak, flap, false);
+  const fixed = new THREE.Group();                               // the brackets' fixed bars, not the cupboard's outline
+  fixed.userData.hinge = true;
+  g.add(fixed);
+  const { bar, drop, short } = BRACKET, armTop = h - B - OAK_FACE;   // the arms meet the flap's underside
+  const arms = [y0 + BRACKET.in, y1 - BRACKET.in - 2 * bar].map(y => {
+    const arm = levelHinge(x, armTop - bar, -1, g);
+    box({ from: [0, y, 0], to: [d - short, y + bar, bar] }, mats.handle, arm);
+    box({ from: [x, y + bar, armTop - bar - drop], to: [x + bar, y + 2 * bar, armTop] }, mats.handle, fixed);   // beside the arm, which folds down against the side next to it
+    return arm;
+  });
+  return [flap, ...arms];
+}
+function deskText(s) {
+  if (!s.DESK || OPTIONS[s.option].no !== 10 || cornerTooShallow(s, 'kitchen')) return '';
+  const spot = deskSpot(s), { from, to } = deskRun(s);
+  if (!spot) return `No room for the fold-down desk: the side has only ${Math.max(0, to - from)} clear (it needs ${DESK_LEAST + 2 * DESK_CLEAR}). `;
+  const { x, w, d, h } = spot;
+  return `On its side facing the windows, a fold-down desk ${Math.round(w)} wide${w < s.DESK_W ? ` (held to the side's clear ${to - from})` : ''} and ${d} deep, ` +
+    `hinged along its bottom edge: open, it's level, its oak top ${h} high, reaching ${x + d} from the left wall, on two folding brackets; ` +
+    `closed, it stands upright against the side, up to ${h + d}. `;
+}
+
 // The least depth (CORNER_D) options 10 and 11's cupboard can be built at, as
 // the slider goes down to 0: room inside for its top and bottom (between the
 // left-wall rear panel and the doors, for option 10), and for
@@ -647,13 +728,13 @@ export const OPTIONS = [
       return `A ${fullHeightWord(s, place)} cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +
         `${F === door.frameFrom ? ', right up to the door frame' : ''}, with ${doorsText(span, true)} on its end, facing the kitchen. ` +
         (reach > door.hingeAt ? `Opened to 90°, they reach ${reach} from the back wall, past the room door's hinge at ${door.hingeAt}: they can't open fully while the room door is open. ` : '') +
-        `${sideShelfText(s, place)}${bench}`;
+        `${deskText(s)}${sideShelfText(s, place)}${bench}`;
     },
     second: 'Cupboard doors',
     build(job, g) {
       const doors = cornerCupboard(job, g, 'kitchen');
       if (sideShelfOn(job.s)) sideBookshelf(job, g);
-      return { second: doors };
+      return { second: doors, desk: foldDownDesk(job, g) };
     },
   },
   {
@@ -697,14 +778,16 @@ export const CURRENT = OPTIONS.length - 1;
 // A corner cupboard: the chosen option (settings.option) built into a new
 // group, standing in place's back-left corner, and what's asked of it.
 //   group             everything it's built of, its shelves included
-//   doors             { tall, second }: the hinges of the left-wall leg's
-//                     doors (options 7 to 9) and of the option's other doors
+//   doors             { tall, second, desk }: the hinges of the left-wall
+//                     leg's doors (options 7 to 9), of the option's other
+//                     doors, and of option 10's fold-down desk and its arms
 //   shelves           what it recorded as it was built, for drawShelves()
 //   drawShelves(things), shelfCutText(things)
 //                     its shelves drawn round the things to store (each
 //                     { name, h, x, y, z, w, d }), and what's cut back
 //   turnDoors(angles) its doors opened to angles.tall and angles.second, in
-//                     degrees, each stopping at its room's walls
+//                     degrees, each stopping at its room's walls, and its
+//                     desk to angles.desk (0 closed, 90 level)
 //   cuttingList(), cuttingRows()
 //   partOf(o, withDoors), dims(view, g), doorDims(view, g)
 //                     what Cupboard only shows, and its dimensions in a view
@@ -712,20 +795,22 @@ export const CURRENT = OPTIONS.length - 1;
 export function makeCupboard(settings, place, materials) {
   const job = cupboardJob(settings, place, materials);
   const group = new THREE.Group();
-  const { tall = [], second = [] } = OPTIONS[settings.option].build(job, group);
+  const { tall = [], second = [], desk = [] } = OPTIONS[settings.option].build(job, group);
   const shelfGroup = new THREE.Group();                          // drawn into by drawShelves()
   shelfGroup.userData.cupShelves = true;                         // so its dimensions know the shelves from an open tower's
   group.add(shelfGroup);
   let cuts = [];                                                 // what drawShelves() last cut
   const turn = degrees => THREE.MathUtils.degToRad(degrees);
   return {
-    group, doors: { tall, second }, shelves: job.shelves,
+    group, doors: { tall, second, desk }, shelves: job.shelves,
     drawShelves(things) { cuts = drawShelves(job.shelves, things, settings.BOARD, shelfGroup); },
     shelfCutText: things => shelfCutText(cuts, job.shelves, things, settings.BOARD),
     turnDoors(angles) {
       const open = (h, degrees) => { h.rotation.y = (h.userData.dir ?? 1) * turn(Math.min(degrees, opensTo(h, group, place))); };
       for (const h of tall) open(h, angles.tall);
       for (const h of second) open(h, angles.second);
+      const lowered = Math.min(Math.max(angles.desk ?? 0, 0), 90);   // the desk's flap from upright (0) to level (90)
+      for (const h of desk) h.rotation.z = h.userData.dir * turn(90 - lowered);
     },
     cuttingList: () => cuttingList(group, settings.BOARD),
     cuttingRows: () => cuttingRows(group, settings.BOARD),

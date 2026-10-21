@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Phones lay the page out at their own width, not as a zoomed-out desktop page -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controls demo</title>
+<!--
+  A demo of the controls and menus the plans page uses (copied from
+  room_3d.css) and those it could use (UI_CRITIQUE.md's agreed steps and
+  others). Standalone: it loads nothing from the model and changes nothing.
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a comparison table first, then two grids of live cards — what the plans page uses, then what it could.
+   The demos borrow the plans page's own look (room_3d.css): Helvetica, its navy #1f4e79, white floating chips. */
+:root {
+  --bg: #eef0f2;          /* room_3d.css's page grey */
+  --surface: #ffffff;
+  --surface-2: #f5f7f9;
+  --fg: #1c2530;
+  --muted: #5b6673;
+  --line: #d5dbe1;
+  --accent: #1f4e79;      /* the plans navy */
+  --accent-fg: #ffffff;
+  --accent-soft: #dbe6f1;
+  --ok: #2e7d4f;          /* the Configuration menu's green */
+  --ok-soft: #dcefe3;
+  --new: #8a5a00;
+  --new-soft: #f7ead0;
+  --danger: #b3261e;
+  --danger-soft: #f9dedc;
+  --tint-views: #6a3d9a; --tint-look: #1f4e79; --tint-config: #2e7d4f;
+  --shadow: 0 2px 8px rgba(0,0,0,.2);
+  --stage: #c9d3dc;
+  --sans: Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12171d; --surface: #1b222a; --surface-2: #222b35; --fg: #e3e8ee; --muted: #9aa6b3; --line: #33404d;
+  --accent: #6fa3d6; --accent-fg: #0d1620; --accent-soft: #1f3347; --ok: #6cc391; --ok-soft: #1c3528;
+  --new: #e2b45c; --new-soft: #3a2e17; --danger: #f2877f; --danger-soft: #3d1f1d;
+  --tint-views: #b58ce0; --tint-look: #6fa3d6; --tint-config: #6cc391; --shadow: 0 2px 8px rgba(0,0,0,.55); --stage: #2a3540;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12171d; --surface: #1b222a; --surface-2: #222b35; --fg: #e3e8ee; --muted: #9aa6b3; --line: #33404d;
+  --accent: #6fa3d6; --accent-fg: #0d1620; --accent-soft: #1f3347; --ok: #6cc391; --ok-soft: #1c3528;
+  --new: #e2b45c; --new-soft: #3a2e17; --danger: #f2877f; --danger-soft: #3d1f1d;
+  --tint-views: #b58ce0; --tint-look: #6fa3d6; --tint-config: #6cc391; --shadow: 0 2px 8px rgba(0,0,0,.55); --stage: #2a3540;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 40px; }
+h1 { font-size: 28px; margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+h2 { font-size: 19px; margin: 0; text-wrap: balance; }
+h3 { font-size: 15px; margin: 0; }
+p { margin: 0; }
+.lede { max-width: 68ch; color: var(--muted); font-size: 15px; display: grid; gap: 8px; }
+code, .mono { font-family: var(--mono); font-size: 12px; }
+header { display: grid; gap: 12px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; color: var(--muted); font-size: 13px; }
+.sechead { display: grid; gap: 6px; }
+.sechead p { color: var(--muted); max-width: 70ch; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Status pills */
+.pill { display: inline-block; font-size: 11px; font-weight: bold; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.used { background: var(--accent-soft); color: var(--accent); }
+.pill.agreed { background: var(--ok-soft); color: var(--ok); }
+.pill.new { background: var(--new-soft); color: var(--new); }
+.pill.no { background: var(--surface-2); color: var(--muted); }
+
+/* Comparison table */
+.tablebox { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 13px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--surface-2); }
+tr:last-child td { border-bottom: none; }
+td.grp { font-weight: bold; color: var(--accent); background: var(--surface-2); }
+
+/* Cards */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; display: grid; grid-template-rows: auto 1fr auto; min-width: 0; }
+.card > .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 12px 14px 0; }
+.demo { padding: 18px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; align-content: center; min-width: 0; }
+.demo.col { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }   /* one line, so it takes the card's full width */
+.note { padding: 10px 14px 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; display: grid; gap: 4px; }
+.note b { color: var(--fg); font-weight: 600; }
+.stage { background: var(--stage); border-radius: 8px; }
+
+/* ---------- Replicas of the plans page's controls (room_3d.css) ---------- */
+.p-chip { height: 44px; padding: 0 14px; border-radius: 10px; border: none; font: inherit; font-size: 14px; color: var(--fg);
+  background: var(--surface); box-shadow: var(--shadow); cursor: pointer; }
+.p-chip:disabled { opacity: .5; cursor: default; }
+.p-burger { width: 44px; height: 44px; border-radius: 10px; border: none; font-size: 22px; background: var(--surface); color: var(--fg); box-shadow: var(--shadow); cursor: pointer; }
+.p-pop { color: var(--tint); box-shadow: var(--shadow), inset 0 0 0 2px var(--tint); }
+.p-group { display: none; flex-wrap: wrap; gap: 6px; align-items: center; padding: 4px 6px 4px 10px; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 2px var(--tint); }
+.p-group.open { display: flex; }
+.p-group .tag { font-size: 11px; font-weight: bold; letter-spacing: .06em; text-transform: uppercase; color: var(--tint); }
+.p-pick { height: 44px; border: none; border-radius: 10px; padding: 0 10px; background: var(--surface); color: var(--fg); box-shadow: var(--shadow); font: inherit; font-size: 14px; cursor: pointer; }
+.p-split { display: flex; border-radius: 10px; box-shadow: var(--shadow); }
+.p-split .p-chip { box-shadow: none; border-radius: 10px 0 0 10px; }
+.p-split .kind { position: relative; display: flex; }
+.p-split .kind select { width: 36px; height: 44px; padding: 0; color: transparent; appearance: none; -webkit-appearance: none; border: none;
+  border-left: 1px solid var(--line); border-radius: 0 10px 10px 0; background: var(--surface); cursor: pointer; }
+.p-split .kind select option { color: var(--fg); background: var(--surface); }
+.p-split .kind::after { content: '▾'; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font-size: 16px; }
+.p-drawerctl label { display: block; margin: 8px 0 2px; font-size: 13px; }
+.p-drawerctl input[type=range] { width: 100%; accent-color: var(--accent); }
+.p-btn { font: inherit; font-size: 13px; padding: 5px 8px; border-radius: 6px; border: 1px solid #999; background: var(--surface); color: var(--fg); cursor: pointer; }
+.p-btn.on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.p-switch { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; font-size: 13px; }
+.p-switch input { appearance: none; margin: 0; width: 36px; height: 20px; border-radius: 10px; background: #bbb; position: relative; cursor: pointer; transition: background .15s; flex: none; }
+.p-switch input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .15s; }
+.p-switch input:checked { background: var(--accent); }
+.p-switch input:checked::after { left: 18px; }
+details.p-sec { border-top: 1px solid var(--line); padding-top: 6px; font-size: 13px; }
+details.p-sec > summary { cursor: pointer; font-weight: bold; font-size: 14px; color: var(--accent); padding: 2px 0; }
+details.p-sec > div { padding: 4px 0 8px; }
+.p-text { font: inherit; font-size: 13px; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: var(--surface); color: var(--fg); }
+.p-tipzone { position: relative; height: 120px; width: 100%; display: grid; place-items: center; cursor: crosshair; color: var(--muted); font-size: 12px; overflow: hidden; }
+.p-tipzone .box { width: 90px; height: 54px; background: #c7a27a; border-radius: 3px; box-shadow: 0 2px 0 rgba(0,0,0,.2); }
+.p-tip { position: absolute; pointer-events: none; white-space: nowrap; font-size: 12px; padding: 4px 7px; border-radius: 5px; background: rgba(31,78,121,.95); color: #fff; display: none; }
+
+/* Mini drawer stage */
+.mini { position: relative; width: 100%; height: 230px; overflow: hidden; }
+.mini .room { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 12px; }
+.mini .ctl { position: absolute; left: 10px; bottom: 10px; z-index: 2; display: flex; gap: 6px; transition: left .25s ease, bottom .25s ease; }
+.mini .drawer { position: absolute; top: 0; left: 0; bottom: 0; width: 62%; background: var(--surface); padding: 10px 12px; box-shadow: 2px 0 14px rgba(0,0,0,.2);
+  transform: translateX(-105%); transition: transform .25s ease; overflow: auto; font-size: 13px; z-index: 1; }
+.mini.open .drawer { transform: none; }
+.mini.open .ctl { left: calc(62% + 10px); }
+.mini.sheet .drawer { top: auto; width: 100%; height: 55%; border-radius: 14px 14px 0 0; transform: translateY(105%); padding-top: 0; }
+.mini.sheet.open .drawer { transform: none; }
+.mini.sheet.open .ctl { left: 10px; bottom: calc(55% + 8px); }
+.mini .handle { display: none; height: 18px; margin: 0 -12px 4px; }
+.mini.sheet .handle { display: block; }
+.mini .handle::before { content: ''; display: block; width: 40px; height: 5px; border-radius: 3px; background: #bbb; margin: 7px auto 0; }
+.mini .p-chip { height: 34px; font-size: 13px; padding: 0 10px; }
+
+/* ---------- Could-add patterns ---------- */
+.btn { font: inherit; font-size: 14px; height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.btn.float { border: none; box-shadow: var(--shadow); height: 44px; }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.btn.danger { color: var(--danger); }
+.btn.danger.solid { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn .caret { font-size: 11px; opacity: .7; }
+
+/* Popover menus (the native popover attribute: top layer, light dismiss, Esc to close) */
+[popover].menu { inset: auto; margin: 0; position: fixed; padding: 6px; min-width: 210px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--surface); color: var(--fg); box-shadow: 0 8px 28px rgba(0,0,0,.25); font-size: 14px; }
+.menu [role=menuitem], .menu [role=menuitemradio], .menu [role=menuitemcheckbox] { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  border: none; background: none; color: inherit; font: inherit; padding: 7px 10px; border-radius: 6px; cursor: pointer; }
+.menu [role^=menuitem]:hover, .menu [role^=menuitem]:focus-visible { background: var(--accent-soft); outline: none; }
+.menu .check { width: 14px; flex: none; color: var(--accent); visibility: hidden; }
+.menu [aria-checked=true] .check { visibility: visible; }
+.menu .kbd { margin-left: auto; color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.menu .sep { height: 1px; background: var(--line); margin: 5px 4px; }
+.menu .mlabel { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 6px 10px 2px; }
+.menu .danger { color: var(--danger); }
+
+/* Dialog */
+dialog { border: none; border-radius: 14px; padding: 0; max-width: min(420px, calc(100vw - 32px)); background: var(--surface); color: var(--fg); box-shadow: 0 16px 48px rgba(0,0,0,.35); }
+dialog::backdrop { background: rgba(10,20,30,.45); }
+dialog .dbody { padding: 20px 20px 8px; display: grid; gap: 8px; }
+dialog .dfoot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px 18px; flex-wrap: wrap; }
+
+/* Toast */
+.toasts { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: grid; gap: 8px; z-index: 50; pointer-events: none; }
+.toast { background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; box-shadow: var(--shadow); font-size: 14px; animation: rise .2s ease; }
+@keyframes rise { from { transform: translateY(8px); opacity: 0; } }
+
+/* Slider + number box */
+.field { display: grid; gap: 4px; width: 100%; }
+.field .lab { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; }
+.num { width: 78px; font: inherit; font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--fg); }
+.num:invalid { border-color: var(--danger); }
+.unit { color: var(--muted); font-size: 12px; }
+input[type=range] { accent-color: var(--accent); width: 100%; }
+.ticks { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Stepper */
+.stepper { display: inline-flex; align-items: stretch; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.stepper button { width: 40px; border: none; background: var(--surface-2); color: var(--fg); font-size: 18px; cursor: pointer; }
+.stepper input { width: 72px; border: none; text-align: center; font: inherit; font-variant-numeric: tabular-nums; background: var(--surface); color: var(--fg); -moz-appearance: textfield; }
+.stepper input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* Segmented control: radios drawn as one bar */
+.seg { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); flex-wrap: wrap; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { padding: 6px 12px; border-radius: 7px; cursor: pointer; font-size: 13px; }
+.seg input:checked + label { background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,.18); font-weight: bold; color: var(--accent); }
+.seg input:focus-visible + label { outline: 2px solid var(--accent); }
+
+/* Tabs */
+.tabs { width: 100%; }
+.tablist { display: flex; gap: 2px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tablist button { border: none; background: none; color: var(--muted); font: inherit; font-size: 13px; padding: 8px 12px; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+.tablist button[aria-selected=true] { color: var(--accent); border-bottom-color: var(--accent); font-weight: bold; }
+.tabpanel { padding: 10px 2px 0; font-size: 13px; color: var(--muted); }
+
+/* Toggle chips */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.tchip { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.tchip[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.tchip[aria-pressed=true]::before { content: '✓ '; }
+
+/* Search + filter */
+.search { width: 100%; font: inherit; padding: 8px 10px 8px 30px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface) no-repeat 9px 50%; color: var(--fg); }
+.searchwrap { position: relative; width: 100%; }
+.searchwrap::before { content: '⌕'; position: absolute; left: 10px; top: 50%; transform: translateY(-52%); color: var(--muted); font-size: 16px; pointer-events: none; }
+.slist { width: 100%; font-size: 13px; display: grid; gap: 2px; max-height: 150px; overflow: auto; }
+.slist .sh { font-weight: bold; color: var(--accent); margin-top: 6px; }
+.slist mark { background: var(--new-soft); color: inherit; border-radius: 2px; }
+.slist .empty { color: var(--muted); font-style: italic; }
+
+/* Exclusive accordion */
+details.acc { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); width: 100%; }
+details.acc + details.acc { margin-top: -4px; }
+details.acc summary { padding: 8px 12px; cursor: pointer; font-weight: bold; font-size: 13px; list-style: none; display: flex; justify-content: space-between; }
+details.acc summary::-webkit-details-marker { display: none; }
+details.acc summary::after { content: '+'; color: var(--muted); }
+details.acc[open] summary::after { content: '−'; }
+details.acc > div { padding: 0 12px 10px; font-size: 13px; color: var(--muted); }
+
+/* Swatches */
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatches input { position: absolute; opacity: 0; }
+.swatches label { width: 34px; height: 34px; border-radius: 8px; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,.2); display: block; }
+.swatches input:checked + label { outline: 3px solid var(--accent); outline-offset: 2px; }
+.swatches input:focus-visible + label { outline: 3px dashed var(--accent); outline-offset: 2px; }
+
+/* Icon + word buttons */
+.iconbtn { display: inline-grid; justify-items: center; gap: 2px; width: 64px; padding: 6px 4px; border: none; border-radius: 10px; background: var(--surface); color: var(--fg);
+  box-shadow: var(--shadow); font: inherit; font-size: 11px; cursor: pointer; }
+.iconbtn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Settings-list rows */
+.rows { width: 100%; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.rowi { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.rowi:last-child { border-bottom: none; }
+.rowi .t { display: grid; font-size: 13px; }
+.rowi .t small { color: var(--muted); font-size: 12px; }
+
+/* Disabled with a reason */
+.why { position: relative; display: inline-block; }
+.why .reason { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); width: max-content; max-width: 220px;
+  background: var(--fg); color: var(--bg); font-size: 12px; padding: 6px 9px; border-radius: 6px; opacity: 0; pointer-events: none; transition: opacity .12s; }
+.why:hover .reason, .why:focus-within .reason { opacity: 1; }
+
+/* Command palette */
+dialog.palette { width: min(520px, calc(100vw - 32px)); max-width: none; margin-top: 12vh; }
+.palette input { width: 100%; border: none; border-bottom: 1px solid var(--line); padding: 14px 16px; font: inherit; font-size: 16px; background: var(--surface); color: var(--fg); outline: none; }
+.palette ul { list-style: none; margin: 0; padding: 6px; max-height: 300px; overflow: auto; }
+.palette li { padding: 8px 10px; border-radius: 6px; display: flex; justify-content: space-between; gap: 8px; cursor: pointer; font-size: 14px; }
+.palette li small { color: var(--muted); }
+.palette li[aria-selected=true] { background: var(--accent-soft); }
+kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; background: var(--surface-2); }
+
+/* Context-menu stage, FAB */
+.ctxzone { width: 100%; height: 130px; display: grid; place-items: center; color: var(--muted); font-size: 12px; text-align: center; padding: 8px; user-select: none; }
+.fabzone { position: relative; width: 100%; height: 190px; }
+.fab { position: absolute; right: 12px; bottom: 12px; width: 52px; height: 52px; border-radius: 50%; border: none; background: var(--accent); color: var(--accent-fg); font-size: 26px;
+  box-shadow: var(--shadow); cursor: pointer; transition: transform .2s; }
+.fabzone.open .fab { transform: rotate(45deg); }
+.dial { position: absolute; right: 16px; bottom: 74px; display: grid; gap: 8px; justify-items: end; }
+.dial button { opacity: 0; transform: translateY(8px) scale(.9); pointer-events: none; transition: .15s; height: 36px; font-size: 13px; }
+.fabzone.open .dial button { opacity: 1; transform: none; pointer-events: auto; }
+.fabzone.open .dial button:nth-child(2) { transition-delay: .03s; } .fabzone.open .dial button:nth-child(1) { transition-delay: .06s; }
+
+/* Customisable select (appearance: base-select, new in Chromium; others fall back to the native one) */
+.bsel { font: inherit; font-size: 14px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); min-width: 200px; }
+@supports (appearance: base-select) {
+  .bsel, .bsel::picker(select) { appearance: base-select; }
+  .bsel::picker(select) { border: 1px solid var(--line); border-radius: 10px; padding: 4px; background: var(--surface); box-shadow: 0 8px 28px rgba(0,0,0,.25); }
+  .bsel option { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 6px; }
+  .bsel option:checked { background: var(--accent-soft); }
+  .bsel .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; box-shadow: inset 0 0 0 1px rgba(0,0,0,.25); }
+}
+
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+@media (max-width: 420px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 23px; } }
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Controls and menus for the plans page</h1>
+  <div class="lede">
+    <p>Every control below is live and built from plain HTML and CSS, with a few lines of script where a pattern needs it. No library. The first set copies what <code>index.html</code> and <code>room_3d.css</code> use today, in their own look. The second set is what the page could use, tied to the fixes agreed in <code>UI_CRITIQUE.md</code> where one applies. Nothing here touches the model: it's a demo of looks and behaviour only.</p>
+  </div>
+  <div class="legend">
+    <span><span class="pill used">In plans</span> used on the page now</span>
+    <span><span class="pill agreed">Agreed fix</span> fits a step decided on 19 Oct</span>
+    <span><span class="pill new">Could add</span> not used, would fit</span>
+    <span><span class="pill no">Probably not</span> possible, little gain</span>
+  </div>
+</header>
+
+
+<!-- ================= IN PLANS NOW ================= -->
+<section class="sechead">
+  <h2>What the plans page uses now</h2>
+  <p>Copies of the page's own controls, drawn with the same CSS (<code>room_3d.css</code>), counted from <code>index.html</code>.</p>
+</section>
+<div class="grid" style="margin-top:-24px">
+
+  <article class="card"><div class="top"><h3>Floating chip</h3><span class="pill used">In plans</span></div>
+    <div class="demo stage"><button class="p-chip" data-toast="Link copied">Share</button><button class="p-chip" aria-label="Screenshot">📷</button><button class="p-chip" disabled>Save</button></div>
+    <div class="note"><span><code>.chip</code>: 44px high, white, a soft shadow so it floats over the room. 9 in the page.</span><span>Every action looks the same, so Share, Reload and Reset can't be told apart.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Coloured ☰ pop-up</h3><span class="pill used">In plans</span></div>
+    <div class="demo stage col" style="align-items:flex-end">
+      <div style="display:flex;gap:8px">
+        <button class="p-burger p-pop" style="--tint:var(--tint-views)" data-pop="pg1" aria-expanded="false" aria-label="Views">☰</button>
+        <button class="p-burger p-pop" style="--tint:var(--tint-look)" data-pop="pg2" aria-expanded="false" aria-label="Look">☰</button>
+        <button class="p-burger p-pop" style="--tint:var(--tint-config)" data-pop="pg3" aria-expanded="false" aria-label="Configuration">☰</button>
+      </div>
+      <div class="p-group" id="pg1" style="--tint:var(--tint-views)"><span class="tag">Views</span><select class="p-pick"><option>Bird's eye</option><option>Plan</option><option>Stairs from the side</option></select></div>
+      <div class="p-group" id="pg2" style="--tint:var(--tint-look)"><span class="tag">Look</span><select class="p-pick"><option>Where</option><option>Hallway</option></select><select class="p-pick"><option>Eye height</option><option>1600</option></select></div>
+      <div class="p-group" id="pg3" style="--tint:var(--tint-config)"><span class="tag">Configuration</span><select class="p-pick"><option>Yours (not saved)</option><option>Designed</option></select></div>
+    </div>
+    <div class="note"><span><code>.popToggle</code> opens a <code>.group</code> below it. 3 in the page.</span><span>Only the ring's colour says which is which (critique item 1).</span></div></article>
+
+  <article class="card"><div class="top"><h3>Split button</h3><span class="pill used">In plans</span></div>
+    <div class="demo stage">
+      <div class="p-split"><button class="p-chip" data-toast="Going to the lounge">Lounge</button><span class="kind"><select aria-label="How to see the lounge"><option>Bird's eye</option><option>Plan</option></select></span></div>
+      <div class="p-split"><button class="p-chip" data-toast="Going to the hallway">Hallway</button><span class="kind"><select aria-label="How to see the hallway"><option>Bird's eye</option><option>Plan</option><option>Stairs from the side</option></select></span></div>
+    </div>
+    <div class="note"><span>The room's name goes there; ▾ is a native select with its text made transparent. The list is the system's own, so it can't show a tick or match the page.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Drawer and bottom sheet</h3><span class="pill used">In plans</span></div>
+    <div class="demo stage" style="padding:0">
+      <div class="mini" id="mini">
+        <div class="room">the room, still live</div>
+        <div class="drawer"><div class="handle"></div><b>Lounge options</b>
+          <details class="p-sec" open><summary>Corner cupboard</summary><div class="p-drawerctl"><label for="m1">Height: <span id="m1v">2100</span></label><input id="m1" type="range" min="1800" max="2400" value="2100"></div></details>
+          <details class="p-sec"><summary>Sofa</summary><div>…</div></details></div>
+        <div class="ctl"><button class="p-chip" id="miniBtn">Lounge options</button><button class="p-chip" id="miniMode">Phone</button></div>
+      </div>
+    </div>
+    <div class="note"><span>340px drawer from the left, the room live beside it; under 600px wide it's a sheet from the bottom with a drag handle. 5 drawers.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Folding sections</h3><span class="pill used">In plans</span></div>
+    <div class="demo col">
+      <details class="p-sec" open><summary>Wardrobe</summary><div>Width, depth, doors…</div></details>
+      <details class="p-sec"><summary>Dresser</summary><div>Which dresser, where it stands…</div></details>
+      <details class="p-sec"><summary>Things to store</summary><div>Boxes, heights…</div></details>
+    </div>
+    <div class="note"><span><code>&lt;details class="sec"&gt;</code>, pure HTML; the page remembers which are open. 23 in the page.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Switch</h3><span class="pill used">In plans</span></div>
+    <div class="demo col">
+      <label class="p-switch"><input type="checkbox" id="s1" checked> Corner cupboard</label>
+      <label class="p-switch"><input type="checkbox" id="s2"> Bench</label>
+      <label class="p-switch" style="opacity:.45;cursor:default"><input type="checkbox" id="s3" disabled> Bookshelf</label>
+    </div>
+    <div class="note"><span><code>label.switch</code>: a checkbox with <code>appearance: none</code> and a sliding dot. 16 in the page; a disabled one fades.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Toggle as a button</h3><span class="pill used">In plans</span></div>
+    <div class="demo stage">
+      <button class="p-chip" id="storedBtn">Stored: on</button>
+      <div class="row" style="display:flex;gap:6px"><button class="p-btn on" data-onbtn>Doors</button><button class="p-btn" data-onbtn>Dimensions</button></div>
+    </div>
+    <div class="note"><span>The state in the button's text, or <code>button.on</code> filled navy. The third style of on/off beside switches and checkboxes (critique item 9).</span></div></article>
+
+  <article class="card"><div class="top"><h3>Radios and dropdowns</h3><span class="pill used">In plans</span></div>
+    <div class="demo col p-drawerctl">
+      <div style="font-size:13px">Depth:<label style="display:inline;margin-left:10px"><input type="radio" name="dep" checked> 400</label><label style="display:inline;margin-left:10px"><input type="radio" name="dep"> 600</label></div>
+      <select class="p-text" style="width:100%"><option>Hemnes 8-drawer</option><option>Malm 6-drawer</option><option>None</option></select>
+    </div>
+    <div class="note"><span>Native radios (19 sets in Lounge options) and native selects (14, plus 9 <code>.pick</code> in the corners). Fine on any device; look like the system, not the page.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Slider with readout</h3><span class="pill used">In plans</span></div>
+    <div class="demo col p-drawerctl">
+      <label for="sl1">Left-wall cupboard length, out from the back wall: <span id="sl1v">1200</span></label>
+      <input id="sl1" type="range" min="1000" max="1329" value="1200">
+    </div>
+    <div class="note"><span>About 216 across the drawers. The value is in the label and can't be typed, so landing on 1250 exactly takes patience (critique item 4).</span></div></article>
+
+  <article class="card"><div class="top"><h3>Text and number boxes</h3><span class="pill used">In plans</span></div>
+    <div class="demo col p-drawerctl">
+      <label for="sh1">Shelf heights</label><input class="p-text" id="sh1" type="text" inputmode="numeric" value="600, 1200, 1800">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span>Raise box by</span><input class="p-text" type="number" value="0" style="width:70px"></div>
+    </div>
+    <div class="note"><span>A comma list for shelves and 7 number inputs for the stored things' heights: the only places a number is typed.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Pointer tip</h3><span class="pill used">In plans</span></div>
+    <div class="demo stage" style="padding:0">
+      <div class="p-tipzone" id="tipzone"><div class="box"></div><div class="p-tip" id="ptip">Christmas box · 600 × 400 × 300</div></div>
+    </div>
+    <div class="note"><span><code>#tip</code> follows the pointer over a thing to store. Elsewhere, <code>title</code> tooltips in plain words.</span></div></article>
+</div>
+
+<!-- ================= COULD ADD ================= -->
+<section class="sechead">
+  <h2>What HTML and CSS could add</h2>
+  <p>Each runs in Safari, Chrome and Firefox today unless the note says otherwise. Menus use the built-in <code>popover</code> attribute, so clicking outside and Esc close them with no extra code.</p>
+</section>
+<div class="grid" style="margin-top:-24px">
+
+  <article class="card"><div class="top"><h3>Labelled menu button</h3><span class="pill agreed">Step 1</span></div>
+    <div class="demo stage" style="justify-content:flex-end">
+      <button class="btn float" popovertarget="mViews" aria-haspopup="menu">Views <span class="caret">▾</span></button>
+      <button class="btn float" popovertarget="mLook" aria-haspopup="menu">Look <span class="caret">▾</span></button>
+    </div>
+    <div class="note"><span>Says what it opens. The menu ticks the current choice, has headings and dividers, and arrow keys move through it.</span><span>A real menu in place of a group of selects.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Overflow ⋯ menu + confirm</h3><span class="pill agreed">Step 2</span></div>
+    <div class="demo stage">
+      <button class="btn float" popovertarget="mMore" aria-haspopup="menu" aria-label="More">⋯</button>
+      <span style="font-size:12px;color:var(--muted)">Reload and Reset, out of the bar</span>
+    </div>
+    <div class="note"><span>Reset drawn as a danger, asking in a <code>&lt;dialog&gt;</code> that names what will be lost. The dialog traps focus and Esc cancels.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Slider + number box</h3><span class="pill agreed">Step 3</span></div>
+    <div class="demo col">
+      <div class="field"><div class="lab"><label for="r2">Left-wall cupboard length</label><span><input class="num" id="r2n" type="number" min="1000" max="1329" step="1" value="1200" aria-label="Length in millimetres"> <span class="unit">mm</span></span></div>
+        <input id="r2" type="range" min="1000" max="1329" value="1200" list="r2t"><datalist id="r2t"><option value="1000"></option><option value="1200"></option><option value="1329"></option></datalist>
+        <div class="ticks"><span>1000</span><span>1329</span></div></div>
+    </div>
+    <div class="note"><span>Type 1250 and press Enter; drag and the box follows. A number outside the range is held to it on leaving the box.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Stepper</h3><span class="pill new">Could add</span></div>
+    <div class="demo">
+      <div class="stepper"><button type="button" data-step="-1" aria-label="One fewer">−</button><input id="stp" type="number" min="0" max="8" value="3" aria-label="Shelves"><button type="button" data-step="1" aria-label="One more">+</button></div>
+      <span style="font-size:13px">shelves</span>
+    </div>
+    <div class="note"><span>For counts with a small range: shelves, spindles, drawers. Easier with a finger than a slider over 0 to 8.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Segmented control</h3><span class="pill new">Could add</span></div>
+    <div class="demo col" style="align-items:flex-start">
+      <div class="seg" role="radiogroup" aria-label="Depth"><input type="radio" name="sg" id="sg1"><label for="sg1">300</label><input type="radio" name="sg" id="sg2" checked><label for="sg2">400</label><input type="radio" name="sg" id="sg3"><label for="sg3">600</label></div>
+      <div class="seg" role="radiogroup" aria-label="View"><input type="radio" name="sv" id="sv1" checked><label for="sv1">3D</label><input type="radio" name="sv" id="sv2"><label for="sv2">Plan</label></div>
+    </div>
+    <div class="note"><span>Real radios under the CSS, so keyboard and screen readers work. Shows all choices at once in less room than a row of radios.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Settings rows</h3><span class="pill agreed">Step 9</span></div>
+    <div class="demo">
+      <div class="rows">
+        <div class="rowi"><span class="t">Stored things<small>Boxes on the shelves</small></span><label class="p-switch"><input type="checkbox" checked aria-label="Stored things"></label></div>
+        <div class="rowi"><span class="t">See-through cupboards<small>Doors and sides faded</small></span><label class="p-switch"><input type="checkbox" aria-label="See-through cupboards"></label></div>
+      </div>
+    </div>
+    <div class="note"><span>Stored and See-through as switches, agreed. A row with a line of help reads well in the drawers too.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Greyed out, with the reason</h3><span class="pill agreed">Step 9</span></div>
+    <div class="demo stage" style="padding-top:48px">
+      <span class="why" tabindex="0"><button class="btn float" disabled>Save look</button><span class="reason" role="tooltip">Choose Where and Looking at first</span></span>
+    </div>
+    <div class="note"><span>Hover or tab to it. A disabled button gets no hover or focus of its own, so the wrapper carries them.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Toast</h3><span class="pill new">Could add</span></div>
+    <div class="demo stage">
+      <button class="btn float" data-toast="Link copied">Share</button>
+      <button class="btn float" data-toast="Saved as “Hallway shelves”">Save</button>
+    </div>
+    <div class="note"><span>A short note at the bottom that leaves on its own, announced to screen readers (<code>aria-live</code>).</span></div></article>
+
+  <article class="card"><div class="top"><h3>Popover split button</h3><span class="pill new">Could add</span></div>
+    <div class="demo stage">
+      <div class="p-split"><button class="p-chip" data-toast="Going to the hallway">Hallway</button><span class="kind" style="display:flex"><button class="p-chip" style="width:36px;padding:0;border-radius:0 10px 10px 0;border-left:1px solid var(--line);box-shadow:none" popovertarget="mHall" aria-haspopup="menu" aria-label="How to see the hallway">▾</button></span></div>
+    </div>
+    <div class="note"><span>The same split button, its ▾ opening a page-styled menu with the current view ticked, in place of the hidden native select.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Tabs</h3><span class="pill new">Could add</span></div>
+    <div class="demo">
+      <div class="tabs" id="tabs">
+        <div class="tablist" role="tablist"><button role="tab" aria-selected="true" aria-controls="tp1" id="t1">Cupboards</button><button role="tab" aria-selected="false" aria-controls="tp2" id="t2" tabindex="-1">Furniture</button><button role="tab" aria-selected="false" aria-controls="tp3" id="t3" tabindex="-1">Stored</button><button role="tab" aria-selected="false" aria-controls="tp4" id="t4" tabindex="-1">Colours</button></div>
+        <div class="tabpanel" role="tabpanel" id="tp1" aria-labelledby="t1">Corner cupboard, larders, Billy, Ivar…</div>
+        <div class="tabpanel" role="tabpanel" id="tp2" aria-labelledby="t2" hidden>Sofa, tables, daybed…</div>
+        <div class="tabpanel" role="tabpanel" id="tp3" aria-labelledby="t3" hidden>Boxes and their heights…</div>
+        <div class="tabpanel" role="tabpanel" id="tp4" aria-labelledby="t4" hidden>Palette for every board…</div>
+      </div>
+    </div>
+    <div class="note"><span>Would break Lounge options' 2,360px into four short pages. Arrow keys move between tabs.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Search the settings</h3><span class="pill no">Step 6: not now</span></div>
+    <div class="demo col">
+      <div class="searchwrap"><input class="search" id="sq" type="search" placeholder="Find a setting, e.g. depth" aria-label="Find a setting"></div>
+      <div class="slist" id="slist"></div>
+    </div>
+    <div class="note"><span>Filters the labels as you type and keeps each match under its section. Put off until steps 1 to 3 are in.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Command palette</h3><span class="pill new">Could add</span></div>
+    <div class="demo stage">
+      <button class="btn float" id="palBtn">Go to… <kbd>⌘K</kbd></button>
+    </div>
+    <div class="note"><span>One box for every room, view and action, opened by ⌘K or Ctrl K. Desktop only in practice; the phone keeps its buttons.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Toggle chips</h3><span class="pill new">Could add</span></div>
+    <div class="demo col" style="align-items:flex-start">
+      <div class="chips" role="group" aria-label="Show"><button class="tchip" aria-pressed="true">Doors</button><button class="tchip" aria-pressed="false">Dimensions</button><button class="tchip" aria-pressed="true">Stored</button><button class="tchip" aria-pressed="false">Walls</button></div>
+    </div>
+    <div class="note"><span>Several on/off display choices in one row, each saying its state with a tick, not with "on" in its text.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Icon and word</h3><span class="pill no">Step 1: chose text</span></div>
+    <div class="demo stage">
+      <button class="iconbtn"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Views</button>
+      <button class="iconbtn"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Look</button>
+      <button class="iconbtn"><svg viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v11H3z"/></svg>Saved</button>
+    </div>
+    <div class="note"><span>Step 1's option c. Square, so it fits a phone's bar better than text, at the cost of height.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Swatch picker</h3><span class="pill new">Could add</span></div>
+    <div class="demo col" style="align-items:flex-start">
+      <div class="swatches" role="radiogroup" aria-label="Carcass colour">
+        <input type="radio" name="sw" id="w1" checked><label for="w1" style="background:#f4f3ef" title="White"></label>
+        <input type="radio" name="sw" id="w2"><label for="w2" style="background:#d9c3a0" title="Birch"></label>
+        <input type="radio" name="sw" id="w3"><label for="w3" style="background:#b0844f" title="Oak"></label>
+        <input type="radio" name="sw" id="w4"><label for="w4" style="background:#5a4636" title="Walnut"></label>
+        <input type="radio" name="sw" id="w5"><label for="w5" style="background:#3a3d40" title="Anthracite"></label>
+      </div>
+      <span id="swName" style="font-size:13px">White</span>
+    </div>
+    <div class="note"><span>Colours chosen by seeing them, not by a name in a select with a swatch beside it.</span></div></article>
+
+  <article class="card"><div class="top"><h3>One-open accordion</h3><span class="pill new">Could add</span></div>
+    <div class="demo col" style="gap:0">
+      <details class="acc" name="acc" open><summary>Corner cupboard</summary><div>Opening one closes the others.</div></details>
+      <details class="acc" name="acc"><summary>Larders</summary><div>Handy on a phone's short sheet.</div></details>
+      <details class="acc" name="acc"><summary>Sofa</summary><div>Pure HTML: details with the same name.</div></details>
+    </div>
+    <div class="note"><span><code>&lt;details name="…"&gt;</code>: the page's sections, but only one open at a time, so the sheet never grows long.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Right-click menu</h3><span class="pill no">Probably not</span></div>
+    <div class="demo stage" style="padding:0"><div class="ctxzone" id="ctx" tabindex="0">Right-click here<br>(the 3D room)</div></div>
+    <div class="note"><span>A menu for the thing under the pointer. The 3D view would have to find what was clicked, and a phone needs long-press.</span></div></article>
+
+  <article class="card"><div class="top"><h3>Floating action button</h3><span class="pill no">Probably not</span></div>
+    <div class="demo stage" style="padding:0">
+      <div class="fabzone" id="fabz"><div class="dial"><button class="btn float" data-toast="Screenshot taken">📷 Screenshot</button><button class="btn float" data-toast="Link copied">Share</button><button class="btn float" data-toast="Options opened">Options</button></div><button class="fab" id="fab" aria-expanded="false" aria-label="Actions">+</button></div>
+    </div>
+    <div class="note"><span>A phone pattern: one round button that fans out a few actions. Another corner taken, which the critique counts against (item 6).</span></div></article>
+
+  <article class="card"><div class="top"><h3>Styled select</h3><span class="pill new">Chromium only</span></div>
+    <div class="demo col" style="align-items:flex-start">
+      <select class="bsel" aria-label="Door colour">
+        <button><selectedcontent></selectedcontent></button>
+        <option value="w"><span class="sw" style="background:#f4f3ef"></span> White</option>
+        <option value="o" selected><span class="sw" style="background:#b0844f"></span> Oak</option>
+        <option value="g"><span class="sw" style="background:#7b8c7a"></span> Sage</option>
+      </select>
+    </div>
+    <div class="note"><span><code>appearance: base-select</code> lets a select's list show swatches and match the page. Safari and Firefox show the plain select instead, so it's safe to use but only Chrome gains.</span></div></article>
+</div>
+</div>
+
+<!-- Popover menus -->
+<div popover class="menu" id="mViews" role="menu">
+  <div class="mlabel">Lounge</div>
+  <button role="menuitemradio" aria-checked="true" data-group="v"><span class="check">✓</span>Bird's eye</button>
+  <button role="menuitemradio" aria-checked="false" data-group="v"><span class="check">✓</span>Plan</button>
+  <div class="sep"></div><div class="mlabel">Hallway</div>
+  <button role="menuitemradio" aria-checked="false" data-group="v"><span class="check">✓</span>Stairs from the side</button>
+  <button role="menuitemradio" aria-checked="false" data-group="v"><span class="check">✓</span>From the door</button>
+</div>
+<div popover class="menu" id="mLook" role="menu">
+  <button role="menuitemcheckbox" aria-checked="true"><span class="check">✓</span>Dimensions</button>
+  <button role="menuitemcheckbox" aria-checked="false"><span class="check">✓</span>Door sizes</button>
+  <div class="sep"></div>
+  <button role="menuitem" data-toast="Look saved"><span class="check"></span>Save this look…<span class="kbd">S</span></button>
+</div>
+<div popover class="menu" id="mMore" role="menu">
+  <button role="menuitem" data-toast="Screenshot taken"><span class="check"></span>Screenshot</button>
+  <button role="menuitem" data-confirm="reload"><span class="check"></span>Reload…</button>
+  <div class="sep"></div>
+  <button role="menuitem" class="danger" data-confirm="reset"><span class="check"></span>Reset everything…</button>
+</div>
+<div popover class="menu" id="mHall" role="menu">
+  <button role="menuitemradio" aria-checked="true" data-group="h"><span class="check">✓</span>Bird's eye</button>
+  <button role="menuitemradio" aria-checked="false" data-group="h"><span class="check">✓</span>Plan</button>
+  <button role="menuitemradio" aria-checked="false" data-group="h"><span class="check">✓</span>Stairs from the side</button>
+</div>
+<div popover class="menu" id="mCtx" role="menu">
+  <div class="mlabel">Corner cupboard</div>
+  <button role="menuitem" data-toast="Options opened"><span class="check"></span>Its options</button>
+  <button role="menuitem" data-toast="Hidden"><span class="check"></span>Hide it</button>
+  <button role="menuitem" data-toast="Measured"><span class="check"></span>Show its sizes</button>
+</div>
+
+<dialog id="confirm" aria-labelledby="cfT">
+  <form method="dialog">
+    <div class="dbody"><h3 id="cfT">Reset everything?</h3><p id="cfP" style="color:var(--muted)">Every setting goes back to the designed configuration. Your unsaved configuration will be lost.</p></div>
+    <div class="dfoot"><button class="btn" value="cancel" autofocus>Cancel</button><button class="btn danger solid" value="ok" id="cfOk">Reset</button></div>
+  </form>
+</dialog>
+
+<dialog id="pal" class="palette" aria-label="Go to">
+  <input id="palIn" placeholder="Type a room, view or action" aria-label="Search rooms, views and actions" autocomplete="off">
+  <ul id="palList" role="listbox"></ul>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+// Toasts: any element with data-toast shows its text briefly
+function toast(text) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = text;
+  document.getElementById('toasts').append(t); setTimeout(() => t.remove(), 2500);
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-toast]'); if (!el) return;
+  toast(el.dataset.toast); el.closest('[popover]')?.hidePopover();
+});
+
+// Plans replicas
+document.querySelectorAll('[data-pop]').forEach(b => b.addEventListener('click', () => {
+  const g = document.getElementById(b.dataset.pop), open = !g.classList.contains('open');
+  document.querySelectorAll('.p-group').forEach(x => x.classList.remove('open'));
+  document.querySelectorAll('[data-pop]').forEach(x => x.setAttribute('aria-expanded', 'false'));
+  g.classList.toggle('open', open); b.setAttribute('aria-expanded', open);
+}));
+function readout(id) { const r = document.getElementById(id), v = document.getElementById(id + 'v'); r.addEventListener('input', () => v.textContent = r.value); }
+readout('m1'); readout('sl1');
+const mini = document.getElementById('mini');
+document.getElementById('miniBtn').onclick = () => mini.classList.toggle('open');
+document.getElementById('miniMode').onclick = e => { const s = mini.classList.toggle('sheet'); e.target.textContent = s ? 'Desktop' : 'Phone'; };
+document.getElementById('storedBtn').onclick = e => { const on = e.target.textContent.endsWith('on'); e.target.textContent = 'Stored: ' + (on ? 'off' : 'on'); };
+document.querySelectorAll('[data-onbtn]').forEach(b => b.onclick = () => b.classList.toggle('on'));
+const tz = document.getElementById('tipzone'), tip = document.getElementById('ptip'), box = tz.querySelector('.box');
+tz.addEventListener('pointermove', e => {
+  const over = e.target === box, r = tz.getBoundingClientRect();
+  tip.style.display = over ? 'block' : 'none';
+  tip.style.left = Math.min(e.clientX - r.left + 12, r.width - tip.offsetWidth - 4) + 'px'; tip.style.top = (e.clientY - r.top + 14) + 'px';
+});
+tz.addEventListener('pointerleave', () => tip.style.display = 'none');
+
+// Popover menus: placed under their button (or at the pointer), arrow keys between items
+let menuAt = null;
+document.querySelectorAll('[popover].menu').forEach(m => {
+  m.addEventListener('toggle', e => {
+    if (e.newState !== 'open') return;
+    const opener = document.querySelector(`[popovertarget="${m.id}"]`);
+    const r = menuAt || (opener && opener.getBoundingClientRect()); menuAt = null;
+    if (r) {
+      const w = m.offsetWidth, h = m.offsetHeight;
+      let left = (r.right ?? r.x) - w, top = (r.bottom ?? r.y) + 6;
+      if (r.isPoint) { left = r.x; top = r.y; }
+      left = Math.max(8, Math.min(left, innerWidth - w - 8));
+      if (top + h > innerHeight - 8) top = Math.max(8, (r.top ?? r.y) - h - 6);
+      m.style.left = left + 'px'; m.style.top = top + 'px';
+    }
+    m.querySelector('[role^=menuitem]')?.focus();
+  });
+  m.addEventListener('keydown', e => {
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+    e.preventDefault();
+    const items = [...m.querySelectorAll('[role^=menuitem]')], i = items.indexOf(document.activeElement);
+    const n = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : (i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+    items[n].focus();
+  });
+  m.addEventListener('click', e => {
+    const it = e.target.closest('[role^=menuitem]'); if (!it) return;
+    if (it.getAttribute('role') === 'menuitemradio') {
+      m.querySelectorAll(`[data-group="${it.dataset.group}"]`).forEach(x => x.setAttribute('aria-checked', x === it));
+      toast('Showing ' + it.textContent.replace('✓', '').trim()); m.hidePopover();
+    } else if (it.getAttribute('role') === 'menuitemcheckbox') {
+      it.setAttribute('aria-checked', it.getAttribute('aria-checked') !== 'true');
+    }
+  });
+});
+
+// Confirm dialog for Reload and Reset
+const dlg = document.getElementById('confirm');
+const asks = {
+  reset: ['Reset everything?', 'Every setting goes back to the designed configuration. Your unsaved configuration will be lost.', 'Reset', 'Everything reset'],
+  reload: ['Reload the page?', 'Your configuration isn’t saved. Reloading puts every setting back to its default.', 'Reload', 'Reloaded'],
+};
+let asking = null;
+document.querySelectorAll('[data-confirm]').forEach(b => b.addEventListener('click', () => {
+  asking = asks[b.dataset.confirm];
+  document.getElementById('cfT').textContent = asking[0]; document.getElementById('cfP').textContent = asking[1]; document.getElementById('cfOk').textContent = asking[2];
+  b.closest('[popover]').hidePopover(); dlg.showModal();
+}));
+dlg.addEventListener('close', () => { if (dlg.returnValue === 'ok') toast(asking[3]); });
+
+// Slider + number box, kept in step and held to the range
+const r2 = document.getElementById('r2'), r2n = document.getElementById('r2n');
+r2.addEventListener('input', () => r2n.value = r2.value);
+r2n.addEventListener('input', () => { if (r2n.checkValidity() && r2n.value !== '') r2.value = r2n.value; });
+r2n.addEventListener('change', () => { const v = Math.round(Math.min(+r2.max, Math.max(+r2.min, +r2n.value || +r2.value))); r2n.value = r2.value = v; });
+
+// Stepper
+const stp = document.getElementById('stp');
+document.querySelectorAll('[data-step]').forEach(b => b.onclick = () => { stp.value = Math.min(+stp.max, Math.max(+stp.min, +stp.value + +b.dataset.step)); });
+
+// Tabs, with arrow keys
+const tabs = [...document.querySelectorAll('#tabs [role=tab]')];
+function pick(t) { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; document.getElementById(x.getAttribute('aria-controls')).hidden = !on; }); t.focus(); }
+tabs.forEach((t, i) => { t.onclick = () => pick(t); t.onkeydown = e => { if (e.key === 'ArrowRight') pick(tabs[(i + 1) % tabs.length]); if (e.key === 'ArrowLeft') pick(tabs[(i - 1 + tabs.length) % tabs.length]); }; });
+
+// Toggle chips
+document.querySelectorAll('.tchip').forEach(c => c.onclick = () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'));
+
+// Swatches
+document.querySelectorAll('.swatches input').forEach(i => i.onchange = () => document.getElementById('swName').textContent = i.nextElementSibling.title);
+
+// Search the settings (a sample of the lounge's labels)
+const SETTINGS = {
+  'Corner cupboard': ['Height', 'Depth', 'Left-wall length, out from the back wall', 'Door gap', 'Handle height'],
+  'Larders': ['Width', 'Depth', 'Shelf heights'],
+  'Sofa': ['Which sofa', 'Across', 'Out from the wall', 'Turn'],
+  'TV wall': ['TV size', 'Shelf depth', 'Length along the wall'],
+};
+const sq = document.getElementById('sq'), slist = document.getElementById('slist');
+function esc(s) { return s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+function showSettings() {
+  const q = sq.value.trim().toLowerCase(); let html = '';
+  for (const [sec, labels] of Object.entries(SETTINGS)) {
+    const hits = labels.filter(l => !q || l.toLowerCase().includes(q) || sec.toLowerCase().includes(q));
+    if (!hits.length) continue;
+    html += `<div class="sh">${esc(sec)}</div>` + hits.map(l => {
+      const i = q ? l.toLowerCase().indexOf(q) : -1;
+      return `<div>${i < 0 ? esc(l) : esc(l.slice(0, i)) + '<mark>' + esc(l.slice(i, i + q.length)) + '</mark>' + esc(l.slice(i + q.length))}</div>`;
+    }).join('');
+  }
+  slist.innerHTML = html || '<div class="empty">No setting matches.</div>';
+}
+sq.addEventListener('input', showSettings); showSettings();
+
+// Command palette
+const PAL = [['Lounge', 'Room'], ['Bedroom', 'Room'], ['Garage', 'Room'], ['Hallway', 'Room'], ['Bird’s eye', 'View'], ['Plan', 'View'], ['Stairs from the side', 'View'],
+  ['Share a link', 'Action'], ['Screenshot', 'Action'], ['Lounge options', 'Drawer'], ['Corner cupboard height', 'Setting'], ['Reset everything…', 'Action']];
+const pal = document.getElementById('pal'), palIn = document.getElementById('palIn'), palList = document.getElementById('palList');
+let palSel = 0, palHits = PAL;
+function drawPal() {
+  const q = palIn.value.toLowerCase(); palHits = PAL.filter(([n]) => n.toLowerCase().includes(q)); palSel = Math.min(palSel, Math.max(0, palHits.length - 1));
+  palList.innerHTML = palHits.map(([n, k], i) => `<li role="option" aria-selected="${i === palSel}" data-i="${i}">${esc(n)} <small>${k}</small></li>`).join('') || '<li><small>Nothing found</small></li>';
+}
+function openPal() { palIn.value = ''; palSel = 0; drawPal(); pal.showModal(); palIn.focus(); }
+function runPal(i) { const h = palHits[i]; if (!h) return; pal.close(); toast(h[1] === 'Room' ? 'Going to the ' + h[0].toLowerCase() : h[0]); }
+document.getElementById('palBtn').onclick = openPal;
+palIn.addEventListener('input', () => { palSel = 0; drawPal(); });
+palIn.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') { palSel = Math.min(palSel + 1, palHits.length - 1); drawPal(); e.preventDefault(); }
+  if (e.key === 'ArrowUp') { palSel = Math.max(palSel - 1, 0); drawPal(); e.preventDefault(); }
+  if (e.key === 'Enter') runPal(palSel);
+});
+palList.addEventListener('click', e => { const li = e.target.closest('[data-i]'); if (li) runPal(+li.dataset.i); });
+pal.addEventListener('click', e => { if (e.target === pal) pal.close(); });
+document.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPal(); } });
+
+// Right-click menu at the pointer
+const ctxMenu = document.getElementById('mCtx');
+document.getElementById('ctx').addEventListener('contextmenu', e => { e.preventDefault(); menuAt = { x: e.clientX, y: e.clientY, isPoint: true }; ctxMenu.showPopover(); });
+
+// Floating action button
+const fabz = document.getElementById('fabz'), fab = document.getElementById('fab');
+fab.onclick = () => fab.setAttribute('aria-expanded', fabz.classList.toggle('open'));
+fabz.querySelectorAll('.dial button').forEach(b => b.addEventListener('click', () => { fabz.classList.remove('open'); fab.setAttribute('aria-expanded', false); }));
+</script>
+
+</html>

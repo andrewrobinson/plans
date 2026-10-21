@@ -1,6 +1,6 @@
 // A corner cupboard's controls: its option list, its sizes (each held to
 // where it can reach in its room: cupboardLimits()), its height, option
-// 10's side bookshelf and option 7's shelves, each
+// 10's side bookshelf and fold-down desk, and option 7's shelves, each
 // changing the cupboard's design by its path in the configuration
 // (pieces.<piece>.design, through the page's change()), and its door
 // sliders' blocks shown as its option has them. The living room's are
@@ -14,7 +14,8 @@ import { rearLabel } from './corner_cupboard.js';
 // left-wall cupboard's depth (with its "none")
 const CUPBOARD_SLIDERS = [['rear', 'R'], ['leftLen', 'F'], ['board', 'BOARD'], ['leg', 'LEG'], ['legD', 'LEG_D'],
   ['diagRun', 'DIAG_RUN'], ['diagBack', 'DIAG_BACK'], ['diagLeft', 'DIAG_LEFT'], ['ward', 'WARD'], ['wardD', 'WARD_D'],
-  ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D']];
+  ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D'],
+  ['deskW', 'DESK_W'], ['deskD', 'DESK_D'], ['deskH', 'DESK_H']];
 // The left-wall cupboard's depth slider: none at its far left (290, index.html),
 // then 300 to 800
 const NO_LEFT_WALL = 290, LEFT_WALL_FROM = 300;
@@ -84,6 +85,7 @@ export function cupboardControls({ piece, id = name => name, change, options = O
   });
   for (const [name, key] of CUPBOARD_SLIDERS) el(name).addEventListener('input', e => setSize(key, Number(e.target.value)));
   el('sideShelfOn').addEventListener('change', e => set('SIDE_SHELF', e.target.checked));
+  el('deskOn').addEventListener('change', e => set('DESK', e.target.checked));
   for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => set(`L_SHELVES.${k}`, readShelves(shelfInputs[k].value)));
 
   function sync() {
@@ -97,6 +99,7 @@ export function cupboardControls({ piece, id = name => name, change, options = O
     slide('top', TOP || TO_THE_CEILING, TOP || 'ceiling');
     for (const [name, key] of CUPBOARD_SLIDERS) slide(name, value(key));
     el('sideShelfOn').checked = value('SIDE_SHELF');
+    el('deskOn').checked = value('DESK');
     for (const k of ['back', 'left']) shelfInputs[k].value = value(`L_SHELVES.${k}`).join(', ');
   }
 
@@ -113,6 +116,9 @@ export function cupboardControls({ piece, id = name => name, change, options = O
     shown('cornerBlock', no === 10 || no === 11);
     shown('sideShelfBlock', no === 10);                         // option 11's doors open where it would stand
     shown('sideShelfDetails', value('SIDE_SHELF'));
+    shown('deskBlock', no === 10);                              // option 11's doors are on that side
+    shown('deskDetails', value('DESK'));
+    shown('deskDoorBlock', Boolean(cupboardOf(piece)?.doors.desk.length));
     shown('leftLenBlock', !option.front);                       // options 10 and 11 have their own depth (cornerD)
     shown('depthBlock', !option.fixedWidth);
     const rear = rearLabel(no, cupboardSettings(piece), hasBench());   // R's slider, as what it sets, hidden where it sets nothing

@@ -33,16 +33,17 @@ import { stairWallsControls, shoeBoxRefusal } from './stair_walls.js';
 import { shoeBoxesControls } from './shoe_boxes.js';
 import { garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
 import { cupboardControls, copyControls, idIn } from './cupboard_controls.js';
+import { CASTOR_DESK } from './castor_desk.js';
 import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims, build,
   drawStored, turnDoors, describe, settle, cupboardRows, startAgain, BACK_WALL_KEYS, CHAIR_TURN, CURRENT,
   CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES,
   LARDERS, LARDER_SLIDERS, OPTIONS, PACKINGS, SCHEMA, SHELF_WOODS, SOFAS, SOFA_SLIDERS, STORED,
   TV_H, TV_SIZES, TV_W, benchDrawn, carcassMat, colourOf, configurationNow, cornerTooShallow,
-  cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
+  cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, deskSpot, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
-  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, state, storedGroup, storedMats,
+  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, state, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE } from './floor.js';
@@ -280,7 +281,7 @@ for (const type of ['pointerup', 'pointercancel']) {
 const BEDROOM_CUPBOARD = 'bedroomCupboard';
 document.getElementById('bedroomCupboardControls').append(...copyControls([...document.getElementById('cupboardControls').children], BEDROOM_CUPBOARD));
 document.getElementById(idIn(BEDROOM_CUPBOARD)('xray')).closest('.row').remove();
-document.getElementById('bedroomCupboardDoors').append(...copyControls(['tallBlock', 'secondBlock'].map(id => document.getElementById(id)), BEDROOM_CUPBOARD));
+document.getElementById('bedroomCupboardDoors').append(...copyControls(['tallBlock', 'secondBlock', 'deskDoorBlock'].map(id => document.getElementById(id)), BEDROOM_CUPBOARD));
 // Its sliders that reach further than the living room's: along the chimney
 // breast to the recess, and out towards the hallway wall
 for (const [name, [min, max, step]] of Object.entries(BEDROOM_CUPBOARD_RANGES)) {
@@ -301,6 +302,11 @@ const DOOR_SLIDERS = {
   bedroomCupboardTall: document.getElementById('bedroomCupboardTallDoor'),
   bedroomCupboardSecond: document.getElementById('bedroomCupboardSecondDoor'),
 };
+// Each cupboard's fold-down desk, folded away or down (its two radios, by
+// their name, each worth its word in the configuration: flat_model.js's
+// DESK_SHOWN), by its name in the configuration's doors
+const DESK_RADIOS = { desk: 'deskShown', bedroomCupboardDesk: idIn(BEDROOM_CUPBOARD)('deskShown') };
+const deskRadios = name => [...document.getElementsByName(DESK_RADIOS[name])];
 // The doors turned to their angles in the configuration's doors (the
 // model's turnDoors()), and their sliders put in step with them
 const doorAt = name => `doors.${name}`;
@@ -313,8 +319,9 @@ function update() {
     slider.value = String(angle);
     document.getElementById(`${slider.id}Value`).textContent = `${angle}°`;
   }
+  for (const name of Object.keys(DESK_RADIOS)) for (const radio of deskRadios(name)) radio.checked = radio.value === get(doorAt(name));
 }
-// Doors turned, { name: degrees }: set() like any setting, but nothing's
+// Doors turned, { name: degrees } (a fold-down desk's, its word): set() like any setting, but nothing's
 // built again, as a door's angle changes nothing that's made (the fast path)
 function turnDoorsTo(angles) {
   setAll(Object.entries(angles).map(([name, angle]) => [doorAt(name), angle]));
@@ -322,6 +329,9 @@ function turnDoorsTo(angles) {
 }
 
 for (const [name, slider] of Object.entries(DOOR_SLIDERS)) slider.addEventListener('input', () => turnDoorsTo({ [name]: Number(slider.value) }));
+for (const name of Object.keys(DESK_RADIOS)) {
+  for (const radio of deskRadios(name)) radio.addEventListener('change', () => turnDoorsTo({ [name]: radio.value }));
+}
 
 
 // Show option i: the model builds it (build()), then the menus, the view
@@ -361,6 +371,7 @@ function showInMenus(option, i, aboveText) {
   }
   showIvar();
   showTables();
+  showCastorDesk();
   showSofaPlace();                                              // where it starts follows the TV
 }
 
@@ -718,6 +729,22 @@ function showTables() {
     showPlace(key, tableSpot(key));
   }
 }
+// The desk on castors: in the lounge or not, parked by the door or at the
+// TV (choosing one wheels it there), and moved from either
+// (flat_model.js's CASTOR_DESK_HOMES)
+const CASTOR_DESK_PLACE = 'pieces.castorDesk.in.livingRoom';
+const castorDeskOn = document.getElementById('castorDeskOn'), castorDeskAt = [...document.getElementsByName('castorDeskAt')];
+castorDeskOn.addEventListener('change', () => change([[`${CASTOR_DESK_PLACE}.on`, castorDeskOn.checked]], { look: true }));
+for (const radio of castorDeskAt) {
+  radio.addEventListener('change', () => change([[`${CASTOR_DESK_PLACE}.at`, radio.value], [`${CASTOR_DESK_PLACE}.move`, null]], { look: true }));
+}
+placeControls('castorDesk', CASTOR_DESK_PLACE, castorDeskSpot);
+function showCastorDesk() {
+  castorDeskOn.checked = state.castorDeskOn;
+  for (const radio of castorDeskAt) radio.checked = radio.value === get(`${CASTOR_DESK_PLACE}.at`);
+  document.getElementById('castorDeskMoveBlock').style.display = state.castorDeskOn ? '' : 'none';
+  showPlace('castorDesk', castorDeskSpot());
+}
 function showPlace(key, at = spotOf(key)) {
   const spot = roundedSpot(at);
   for (const [k, suffix, , , unit] of PLACE_SLIDERS) {
@@ -939,6 +966,10 @@ function pointOn(piece, [across, along]) {
   const p = piece.localToWorld(new THREE.Vector3(across * MM, 0, along * MM));
   return [p.x / MM, p.z / MM];
 }
+// Sitting at the fold-down desk or the desk on castors: your eyes this far
+// back from its front edge (chosen, as the seat's middle in a chair pulled
+// up to it)
+const DESK_SEAT_BACK = 350;
 const anchors = {
   // Wherever they are, else where they'd be on the front wall
   dresser: () => pieces.dresser ? middleOf(pieces.dresser) : [(state.dresser.x0 + state.dresser.x1) / 2, ROOM_DEPTH - state.dresser.baseD / 2, state.dresser.h / 2],
@@ -956,6 +987,21 @@ const anchors = {
     return at ? [at.x, at.y, 1200] : [400, 400, 1200];
   },
   tv: () => tvAt ?? [ROOM_WIDTH / 2, 0, 1400],
+  // Option 10's fold-down desk, as open: the middle of its top, and sitting
+  // at it, facing the cupboard's side; with no desk, where option 12's
+  // would be (living_room.configurations.js)
+  foldDownDesk: () => {
+    const desk = deskSpot(cupboardSettings());
+    return desk ? [desk.x + desk.d / 2, (desk.y0 + desk.y1) / 2, desk.h] : [1150, 740, 740];
+  },
+  // The desk on castors, wherever it is, and sitting at it, at its front
+  // (where it's drawn, else where it parks)
+  castorDesk: () => (pieces.castorDesk ? middleOf(pieces.castorDesk) : [CASTOR_DESK.W / 2, 830, CASTOR_DESK.H]),
+  castorDeskSeat: () => (pieces.castorDesk ? pointOn(pieces.castorDesk, [0, CASTOR_DESK.W + DESK_SEAT_BACK]) : [CASTOR_DESK.W + DESK_SEAT_BACK, 830]),
+  foldDownDeskSeat: () => {
+    const desk = deskSpot(cupboardSettings());
+    return desk ? [desk.x + desk.d + DESK_SEAT_BACK, (desk.y0 + desk.y1) / 2] : [1750, 740];
+  },
   // The bedroom's furniture (other_room.js), and where you lie on the bed
   // and stand beside it, as it's moved and turned
   bed: () => middleOf(otherRoomPieces.bed),
@@ -996,6 +1042,9 @@ const viewKit = ViewKit.create({
   actions: {
     shutRoomDoor() {
       turnDoorsTo({ room: 0 });
+    },
+    openDesk() {                                                // sitting at the fold-down desk, it's open
+      turnDoorsTo({ desk: 'down' });
     },
   },
   chair: { object: deskChair, rest: CHAIR_TURN, eyes: 150 },
