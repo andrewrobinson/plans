@@ -7,12 +7,13 @@
 // The size sliders' labels, by the size's key
 export const SIZE_LABEL = { w: 'Width', d: 'Depth', h: 'Height' };
 
-// A labelled slider for [path, label, lowest, highest, step], its ids from
-// id(path): the slider id(path), its label's text `${id(path)}Label` and its
-// value `${id(path)}Value`
+// A labelled slider for [path, label, lowest, highest, step, unit, tip],
+// its ids from id(path): the slider id(path), its label's text
+// `${id(path)}Label` and its value `${id(path)}Value`. The tip, if any, is
+// the label's tooltip: what a short label leaves out (UI_CRITIQUE.md, step 9)
 export function slider(id) {
-  return ([path, label, lo, hi, step]) =>
-    `<label for="${id(path)}"><span id="${id(path)}Label">${label}</span>: <span id="${id(path)}Value"></span></label>` +
+  return ([path, label, lo, hi, step, , tip]) =>
+    `<label for="${id(path)}"${tip ? ` title="${tip}"` : ''}><span id="${id(path)}Label">${label}</span>: <span id="${id(path)}Value"></span></label>` +
     `<input id="${id(path)}" type="range" min="${lo}" max="${hi}" step="${step}">`;
 }
 

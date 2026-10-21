@@ -65,35 +65,35 @@ export const WICKER_BENCH_START = {
 const ROOMS = {
   hallway: {
     label: 'In the hallway', group: hallway,
-    place: [['along', 'Back’s middle from the living room door’s wall', 0, HALLWAY.length],
-      ['across', 'Back’s middle from the outside wall behind the stairs', 0, HALLWAY.ySetBack]],
-    turnLabel: 'Turned (0° faces the kitchen side, 90° the far end)',
+    place: [['along', 'Back’s middle from the door wall', 0, HALLWAY.length, 'From the living room door’s wall'],
+      ['across', 'Back’s middle from the outside wall', 0, HALLWAY.ySetBack, 'From the outside wall behind the stairs']],
+    turnTip: '0° faces the kitchen side, 90° the far end',
     at: ({ along, across }) => [HALLWAY.x0 - along, across],
   },
   bedroom: {
     label: 'In the bedroom', group: otherRoom,
     place: [['u', 'Back’s middle from the window wall', 0, OTHER_ROOM.length],
       ['v', 'Back’s middle from the hallway wall', 0, OTHER_ROOM.recessBack]],
-    turnLabel: 'Turned (0° faces away from the hallway wall, 90° the window wall)',
+    turnTip: '0° faces away from the hallway wall, 90° the window wall',
     at: ({ u, v }) => [u, v],
   },
   livingRoom: {
     label: 'In the living room', group: floor,
     place: [['x', 'Back’s middle from the left wall', 0, ROOM_WIDTH],
       ['y', 'Back’s middle from the back wall', 0, ROOM_DEPTH]],
-    turnLabel: 'Turned (0° faces the front wall, 90° the left wall)',
+    turnTip: '0° faces the front wall, 90° the left wall',
     at: ({ x, y }) => [x, y],
   },
 };
 const ROOM_KEYS = Object.keys(ROOMS);
 
 // The sliders, as other_room.js's: [path in state.wickerBench, label,
-// lowest, highest, step, unit]
+// lowest, highest, step, unit, tip]
 const SIZE_SLIDERS = [['w', 400, 2000], ['d', 250, 800], ['h', 250, 900]].map(([k, lo, hi]) => [k, SIZE_LABEL[k], lo, hi, 10, ''])
   .concat([['legs', 'Legs', 0, 300, 5, '']]);
 const placeSliders = room => [
-  ...ROOMS[room].place.map(([k, label, lo, hi]) => [`${room}.${k}`, label, lo, hi, 5, '']),
-  [`${room}.turn`, ROOMS[room].turnLabel, 0, 360 - QUARTER_TURN, QUARTER_TURN, '°'],
+  ...ROOMS[room].place.map(([k, label, lo, hi, tip]) => [`${room}.${k}`, label, lo, hi, 5, '', tip]),
+  [`${room}.turn`, 'Turned', 0, 360 - QUARTER_TURN, QUARTER_TURN, '°', ROOMS[room].turnTip],
 ];
 const SLIDERS = [...SIZE_SLIDERS, ...ROOM_KEYS.flatMap(placeSliders)];
 

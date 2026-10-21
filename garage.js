@@ -195,8 +195,8 @@ export const GARAGE_START = {
 // from the wall in 1s too, as it's small
 const placeSliders = piece => [
   [`${piece}.x`, 'Back’s middle from the back wall', 0, GARAGE.length, 5, ''],
-  [`${piece}.y`, 'Back’s middle from the right-hand wall (looking in)', 0, GARAGE.width, 5, ''],
-  [`${piece}.turn`, 'Turned (0° faces the left-hand wall, 90° the back wall)', 0, 360 - QUARTER_TURN, QUARTER_TURN, '°'],
+  [`${piece}.y`, 'Back’s middle from the right-hand wall', 0, GARAGE.width, 5, '', 'The right-hand wall as you look in at the garage door'],
+  [`${piece}.turn`, 'Turned', 0, 360 - QUARTER_TURN, QUARTER_TURN, '°', '0° faces the left-hand wall, 90° the back wall'],
   ...(PIECES[piece].lifted ? [[`${piece}.z`, 'Height above the floor', 0, GARAGE.height - PIECES[piece].h, 1, '']] : []),
   ...(PIECES[piece].offWall ? [[`${piece}.off`, 'Gap from the wall behind', 0, MOST_OFF_WALL, 1, '']] : []),
 ];

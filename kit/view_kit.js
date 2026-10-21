@@ -103,6 +103,13 @@ export function create(o) {
   // View ids: a config-defined or built-in view's own, 'saved:<name>', or
   // 'look:<place>:<thing>'
   const lookParts = id => id.split(':').slice(1);
+  // A Save button greyed out says why in its tooltip (UI_CRITIQUE.md, step
+  // 9), its own tooltip back once it can be used
+  const canUse = (button, yes, whyNot) => {
+    button.dataset.title ??= button.title;
+    button.disabled = !yes;
+    button.title = yes ? button.dataset.title : whyNot;
+  };
   const thingAt = id => THINGS[id].anchor ? anchors[THINGS[id].anchor]() : inRoom(THINGS[id], THINGS[id].at);
   function is3dView(id) {
     if (id.startsWith('saved:')) return savedViews().some(v => v.name === id.slice(6));
@@ -181,7 +188,7 @@ export function create(o) {
     const flat = hooks.isFlat();
     setPerson(!flat && Boolean(v.posture));
     if (!flat) controls.update();
-    el.save.disabled = flat;
+    canUse(el.save, !flat, 'A 2D view can\'t be saved: each of the room\'s walls is in its ▾ already');
     showChoices(Boolean(v.posture) && !v.exact);
     writeView();
   }
@@ -407,7 +414,7 @@ export function create(o) {
       const id = saved ? `saved:${saved.name}` : user ? `user:${user[0]}` : '';
       lookUnset.textContent = looking && !id ? 'This look (not saved)' : 'Looks';
       el.looks.value = id;
-      el.saveLook.disabled = !looking;
+      canUse(el.saveLook, looking, 'Choose Where you are and Looking at first: a look is those, kept by name');
       el.removeLook.hidden = !id.startsWith('saved:');
     }
   }

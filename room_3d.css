@@ -138,6 +138,9 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
 .depth { margin: 0 0 8px; }
 .drawer .depth label { display: inline; margin: 0 0 0 10px; font-weight: normal; }
 .drawer #islandBlock label { display: block; margin: 2px 0 0 10px; }   /* long choices, one a line */
+/* ...but a slider's label, in a piece's block, on a line of its own, not
+   run on after the wall's dropdown */
+.drawer .depth label:has(+ input[type=range]) { display: block; margin: 8px 0 2px; }
 /* A switch: a checkbox drawn as a sliding toggle */
 .drawer label.switch { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; }
 .drawer label.switch:has(input:disabled) { opacity: 0.45; cursor: default; }   /* the Bench, while the bookshelf's in its place */

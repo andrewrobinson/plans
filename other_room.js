@@ -252,7 +252,8 @@ const PIECES = [
   // The lower one's depth up to 800, as far as it might go (asked for, 15 Oct 2026);
   // no heading, its section's name says what it is
   { key: 'recess', section: 'recess', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [],
-    switches: [['upperDrawers', 'Upper cupboard: drawers over the open shelves'], ['upperMirrors', 'Upper cupboard: mirrors on the tall doors']] },
+    switches: [['upperDrawers', 'Upper cupboard: drawers', 'Drawers over the upper cupboard’s open shelves'],
+      ['upperMirrors', 'Upper cupboard: mirrors', 'Mirrors on the upper cupboard’s two tall doors']] },
 ];
 // Those on a wall (`wall` the path of its choice of wall): the mirror,
 // Billy, BillyChest, the Ivar, the bedside tables and the Kvistbro, each by its key in the settings, and how far its
@@ -484,7 +485,7 @@ const valueAt = (s, path) => path.split('.').reduce((o, k) => o[k], s);
 export function otherRoomControls(topContainer, container, change) {
   const id = path => `otherRoom_${path.replace('.', '_')}`;
   let shown = OTHER_ROOM_START;                        // the settings last put in the controls
-  const switchHtml = ([path, label]) => `<label class="switch"><input type="checkbox" id="${id(path)}"> ${label}</label>`;
+  const switchHtml = ([path, label, tip]) => `<label class="switch"${tip ? ` title="${tip}"` : ''}><input type="checkbox" id="${id(path)}"> ${label}</label>`;
   // A piece's block: its heading and In the bedroom switch, then the rest
   // of its controls, hidden while it's out
   const pieceBlock = (piece, i) => `<div class="depth" id="otherRoomPiece_${piece.key}">` +

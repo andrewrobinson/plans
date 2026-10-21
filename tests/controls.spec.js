@@ -1110,9 +1110,13 @@ test.describe('the room buttons\' views and the Look menu', () => {
     await expect(page.locator('#loungeViewKind option[value="saved:Test view"]')).toHaveCount(0);
   });
 
+  // Greyed out till there's a look to save, saying why (UI_CRITIQUE.md, step 9)
   test('saving and deleting a look', async ({ page }) => {
     await openLook(page);
+    await expect(page.locator('#saveLook')).toBeDisabled();
+    await expect(page.locator('#saveLook')).toHaveAttribute('title', /^Choose Where you are and Looking at first/);
     await page.selectOption('#where', 'window2');
+    await expect(page.locator('#saveLook')).toHaveAttribute('title', /^Keep this Where/);
     page.once('dialog', d => d.accept('Test look'));
     await page.click('#saveLook');
     await expect(page.locator('#lookPick option[value="saved:Test look"]')).toHaveCount(1);

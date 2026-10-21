@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cupboard options in 3D</title>
-<!-- The cupboard options page: the living room in 3D, its cupboard options
-     and the settings drawers. Its look is room_3d.css; what it draws and
+<title>The flat in 3D</title>
+<!-- The flat in 3D: its rooms, the corner cupboards' options and the
+     settings drawers. Its look is room_3d.css; what it draws and
      does is living_room.js, loaded at the end after its views and configurations
      (it imports dressers.js, larders.js and sofas.js). room_dimensions.md has the room's sizes and the address
      format; room_3d_ui_guide.md maps the files. -->
@@ -185,7 +185,7 @@
         <input id="depth" type="range" min="290" max="800" step="1" value="290">
       </div>
       <div id="leftLenBlock">
-        <label for="leftLen">Left-wall cupboard length, out from the back wall: <span id="leftLenValue">1200</span></label>
+        <label for="leftLen" title="Out from the back wall">Left-wall cupboard length: <span id="leftLenValue">1200</span></label>
         <input id="leftLen" type="range" min="1000" max="1329" step="1" value="1200">
       </div>
       <div id="rearBlock">
@@ -206,7 +206,7 @@
       <div id="cornerBlock">
         <label for="cornerW">Corner cupboard width: <span id="cornerWValue">800</span></label>
         <input id="cornerW" type="range" min="500" max="1200" step="10" value="800">
-        <label for="cornerD">Corner cupboard depth (out along the left wall): <span id="cornerDValue">650</span></label>
+        <label for="cornerD" title="Out along the left wall">Corner cupboard depth: <span id="cornerDValue">650</span></label>
         <input id="cornerD" type="range" min="0" max="1329" step="1" value="650">
         <div id="sideShelfBlock">
           <label class="switch"><input type="checkbox" id="sideShelfOn"> Show side bookshelf</label>
@@ -242,9 +242,9 @@
       <div id="diagBlock">
         <label for="diagRun">Back-wall leg length: <span id="diagRunValue">700</span></label>
         <input id="diagRun" type="range" min="400" max="1200" step="10" value="700">
-        <label for="diagBack">Diagonal starts on the back-wall leg, in from its end: <span id="diagBackValue">0</span></label>
+        <label for="diagBack" title="Where the diagonal starts on the back-wall leg, in from the leg’s end">Diagonal in, back-wall leg: <span id="diagBackValue">0</span></label>
         <input id="diagBack" type="range" min="0" max="1800" step="10" value="0">
-        <label for="diagLeft">Diagonal starts on the left-wall leg, in from its end: <span id="diagLeftValue">0</span></label>
+        <label for="diagLeft" title="Where the diagonal starts on the left-wall leg, in from the leg’s end">Diagonal in, left-wall leg: <span id="diagLeftValue">0</span></label>
         <input id="diagLeft" type="range" min="0" max="2700" step="10" value="0">
       </div>
       <!-- The cupboard's height last, in every option (asked for, 18 Oct 2026) -->
@@ -346,9 +346,9 @@
     <label class="switch"><input type="checkbox" id="benchOn" checked> Bench</label>
     <label class="switch" title="A bookcase like the bedroom's against the back wall, in place of the bench"><input type="checkbox" id="bookshelfOn"> Bookshelf</label>
     <div id="bookshelfMoveBlock" class="depth">
-      <label for="bookshelfX">Bookshelf back's middle from the left wall: <span id="bookshelfXValue"></span></label>
+      <label for="bookshelfX" title="The bookshelf’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="bookshelfXValue"></span></label>
       <input id="bookshelfX" type="range">
-      <label for="bookshelfY">Bookshelf back's middle from the back wall: <span id="bookshelfYValue"></span></label>
+      <label for="bookshelfY" title="The bookshelf’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="bookshelfYValue"></span></label>
       <input id="bookshelfY" type="range">
       <label for="bookshelfTurn">Bookshelf turned: <span id="bookshelfTurnValue"></span></label>
       <input id="bookshelfTurn" type="range">
@@ -356,9 +356,9 @@
     </div>
     <label class="switch" title="The bedroom's pine cupboard on the back wall, in place of the bench"><input type="checkbox" id="pineOn"> Pine cupboard</label>
     <div id="pineMoveBlock" class="depth">
-      <label for="pineX">Pine cupboard back's middle from the left wall: <span id="pineXValue"></span></label>
+      <label for="pineX" title="The pine cupboard’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="pineXValue"></span></label>
       <input id="pineX" type="range">
-      <label for="pineY">Pine cupboard back's middle from the back wall: <span id="pineYValue"></span></label>
+      <label for="pineY" title="The pine cupboard’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="pineYValue"></span></label>
       <input id="pineY" type="range">
       <label for="pineTurn">Pine cupboard turned: <span id="pineTurnValue"></span></label>
       <input id="pineTurn" type="range">
@@ -367,9 +367,9 @@
     <label class="switch" title="Billy, from the garage, on the back wall in place of the bench"><input type="checkbox" id="billyOn"> Billy</label>
     <div id="billyMoveBlock" class="depth">
       <label class="switch"><input type="checkbox" id="billyLying"> Lying on its long side, open side out</label>
-      <label for="billyX">Billy back's middle from the left wall: <span id="billyXValue"></span></label>
+      <label for="billyX" title="Billy’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="billyXValue"></span></label>
       <input id="billyX" type="range">
-      <label for="billyY">Billy back's middle from the back wall: <span id="billyYValue"></span></label>
+      <label for="billyY" title="Billy’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="billyYValue"></span></label>
       <input id="billyY" type="range">
       <label for="billyTurn">Billy turned: <span id="billyTurnValue"></span></label>
       <input id="billyTurn" type="range">
@@ -377,9 +377,9 @@
     </div>
     <label class="switch" title="BillyChest, from the garage, on the back wall in place of the bench"><input type="checkbox" id="billyChestOn"> BillyChest</label>
     <div id="billyChestMoveBlock" class="depth">
-      <label for="billyChestX">BillyChest back's middle from the left wall: <span id="billyChestXValue"></span></label>
+      <label for="billyChestX" title="BillyChest’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="billyChestXValue"></span></label>
       <input id="billyChestX" type="range">
-      <label for="billyChestY">BillyChest back's middle from the back wall: <span id="billyChestYValue"></span></label>
+      <label for="billyChestY" title="BillyChest’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="billyChestYValue"></span></label>
       <input id="billyChestY" type="range">
       <label for="billyChestTurn">BillyChest turned: <span id="billyChestTurnValue"></span></label>
       <input id="billyChestTurn" type="range">
@@ -414,9 +414,9 @@
     <label class="switch"><input type="checkbox" id="ivarOn"> In the lounge</label>
     <div id="ivarMoveBlock" class="depth">
       <label class="switch"><input type="checkbox" id="ivarLying"> Lying on its side</label>
-      <label for="ivarX">Ivar back's middle from the left wall: <span id="ivarXValue"></span></label>
+      <label for="ivarX" title="Ivar’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="ivarXValue"></span></label>
       <input id="ivarX" type="range">
-      <label for="ivarY">Ivar back's middle from the back wall: <span id="ivarYValue"></span></label>
+      <label for="ivarY" title="Ivar’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="ivarYValue"></span></label>
       <input id="ivarY" type="range">
       <label for="ivarTurn">Ivar turned: <span id="ivarTurnValue"></span></label>
       <input id="ivarTurn" type="range">
@@ -428,9 +428,9 @@
     <label class="switch"><input type="checkbox" id="cornwallOn"> In the lounge</label>
     <div id="cornwallMoveBlock" class="depth">
       <label class="switch"><input type="checkbox" id="cornwallLegsOff"> Legs off, on the floor</label>
-      <label for="cornwallX">Cornwall table back's middle from the left wall: <span id="cornwallXValue"></span></label>
+      <label for="cornwallX" title="The Cornwall table’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="cornwallXValue"></span></label>
       <input id="cornwallX" type="range">
-      <label for="cornwallY">Cornwall table back's middle from the back wall: <span id="cornwallYValue"></span></label>
+      <label for="cornwallY" title="The Cornwall table’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="cornwallYValue"></span></label>
       <input id="cornwallY" type="range">
       <label for="cornwallTurn">Cornwall table turned: <span id="cornwallTurnValue"></span></label>
       <input id="cornwallTurn" type="range">
@@ -442,9 +442,9 @@
     <label class="switch"><input type="checkbox" id="cheshamOn"> In the lounge</label>
     <div id="cheshamMoveBlock" class="depth">
       <label class="switch"><input type="checkbox" id="cheshamOnItsEnd"> On its end, its top against the wall</label>
-      <label for="cheshamX">Chesham table back's middle from the left wall: <span id="cheshamXValue"></span></label>
+      <label for="cheshamX" title="The Chesham table’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="cheshamXValue"></span></label>
       <input id="cheshamX" type="range">
-      <label for="cheshamY">Chesham table back's middle from the back wall: <span id="cheshamYValue"></span></label>
+      <label for="cheshamY" title="The Chesham table’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="cheshamYValue"></span></label>
       <input id="cheshamY" type="range">
       <label for="cheshamTurn">Chesham table turned: <span id="cheshamTurnValue"></span></label>
       <input id="cheshamTurn" type="range">
@@ -457,9 +457,9 @@
     <div id="castorDeskMoveBlock" class="depth">
       <label title="Its back against the left wall, between the corner cupboard and the door frame"><input type="radio" name="castorDeskAt" value="byTheDoor"> Parked by the door</label>
       <label title="Centred on the TV, just out from the bench, where you sit facing the TV"><input type="radio" name="castorDeskAt" value="atTheTv"> At the TV</label>
-      <label for="castorDeskX">Desk back's middle from the left wall: <span id="castorDeskXValue"></span></label>
+      <label for="castorDeskX" title="The desk’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="castorDeskXValue"></span></label>
       <input id="castorDeskX" type="range">
-      <label for="castorDeskY">Desk back's middle from the back wall: <span id="castorDeskYValue"></span></label>
+      <label for="castorDeskY" title="The desk’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="castorDeskYValue"></span></label>
       <input id="castorDeskY" type="range">
       <label for="castorDeskTurn">Desk turned: <span id="castorDeskTurnValue"></span></label>
       <input id="castorDeskTurn" type="range">
