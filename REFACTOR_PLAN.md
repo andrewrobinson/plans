@@ -98,10 +98,10 @@ they find controls by id (`#loungeViewKind`), not by what they do.
 7. **The repeated measurements named**: `floor.js` has the recesses' 372
    (measured) written five times, and `RECESS_FROM`'s 610 and 2125 (the
    counter's depth and run, measured) bare.
-8. **The menus' shared helpers into `kit/controls_kit.js`**: `slider()`,
-   `lyingSwitch`, `wallPick()` and `resetButtons()`, from `other_room.js`,
-   which the stairs', shoe boxes', wicker bench's and garage's modules
-   import today. Each piece keeps its own menu in its own file.
+8. ~~The menus' shared helpers into `kit/controls_kit.js`~~: **done,
+   21 Oct 2026.** `slider()`, `lyingSwitch`, `wallPick()` (given the
+   room's walls), `resetButtons()` and `SIZE_LABEL`; each piece keeps its
+   own menu in its own file.
 9. **One `drawFloor()`**, in named steps: the living room's walls, the
    ceiling and lights, the outer wall, the bedroom's shell, the hallway and
    stairs, the entrance, the bathroom. Today `floor.js` (841 lines) draws on

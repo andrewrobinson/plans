@@ -12,8 +12,9 @@
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
+import { SIZE_LABEL, slider } from './kit/controls_kit.js';
 import { hallway, HALLWAY, ENTRANCE } from './floor.js';
-import { QUARTER_TURN, SIZE_LABEL, slider } from './other_room.js';
+import { QUARTER_TURN } from './other_room.js';
 
 // ---------------------------------------------------------------------------
 // Its sizes, in mm: the user's conclusion (15 Oct 2026), to fit a pair of

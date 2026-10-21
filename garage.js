@@ -10,8 +10,9 @@
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt, clearDrawing } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
+import { slider, lyingSwitch } from './kit/controls_kit.js';
 import { hallway, HALLWAY, ENTRANCE, ceilingMat, insideFace, faceAround } from './floor.js';
-import { pineCupboard, OTHER_ROOM_START, QUARTER_TURN, slider, lyingSwitch } from './other_room.js';
+import { pineCupboard, OTHER_ROOM_START, QUARTER_TURN } from './other_room.js';
 import { bookcase } from './bookcase.js';
 import { BILLY, BILLY_CHEST, billy, billyChest } from './billy.js';
 import { IVAR, ivar } from './ivar.js';

@@ -26,7 +26,8 @@ import { MM, createStage, RAL, popMenus, createDrawers, reloadButton, resetButto
 import * as ViewKit from './kit/view_kit.js';
 import * as ConfigurationKit from './kit/configuration_kit.js';
 import * as Config from './kit/config_kit.js';
-import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, SIZE_LABEL, QUARTER_TURN, BED_SPOTS } from './other_room.js';
+import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, QUARTER_TURN, BED_SPOTS } from './other_room.js';
+import { SIZE_LABEL } from './kit/controls_kit.js';
 import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
 import { shoeRack, shoeRackControls } from './shoe_rack.js';
 import { stairWallsControls, shoeBoxRefusal } from './stair_walls.js';

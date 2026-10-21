@@ -20,7 +20,7 @@ import * as THREE from 'three';
 import { profile, clearDrawing } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { hallway, HALLWAY, frameMat } from './floor.js';
-import { slider } from './other_room.js';
+import { slider } from './kit/controls_kit.js';
 
 // ---------------------------------------------------------------------------
 // The two sills, in the living room's mm (as floor.js's HALLWAY), seen

@@ -16,7 +16,7 @@ import * as THREE from 'three';
 import { material, box, clearDrawing, valueAt } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { hallway, HALLWAY, BATHROOM, CEILING_HEIGHT, DOOR_FRAME_STARTS_AT } from './floor.js';
-import { slider } from './other_room.js';
+import { slider } from './kit/controls_kit.js';
 import { SHOE_BOXES_START, onTheSill, levelled, shoeBoxBounds } from './shoe_boxes.js';
 
 // ---------------------------------------------------------------------------

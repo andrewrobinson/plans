@@ -37,6 +37,7 @@ const FILES = [
   './kit/view_kit.js',
   './kit/configuration_kit.js',
   './kit/config_kit.js',
+  './kit/controls_kit.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',

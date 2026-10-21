@@ -16,6 +16,7 @@
 import * as THREE from 'three';
 import { MM, material, box, clearDrawing } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
+import { SIZE_LABEL, slider, LYING_LABEL, wallPick, resetButtons } from './kit/controls_kit.js';
 import { OTHER_ROOM, otherRoom } from './floor.js';
 import { BOOKCASE, bookcase } from './bookcase.js';
 import { BILLY_CHEST, billy, billySizes, billyChest } from './billy.js';
@@ -200,8 +201,6 @@ const MIRROR_PLACE = [
 ];
 // The switch to lay Billy on its long side, its open side looking out; also
 // the living room's and the garage's
-export const LYING_LABEL = 'Lying on its long side, open side out';
-export const lyingSwitch = switchId => `<label class="switch"><input type="checkbox" id="${switchId}"> ${LYING_LABEL}</label>`;
 // Billy's, BillyChest's and the Ivar's places: along its wall
 const placeAlongWall = piece => [[`${piece}.along`, ALONG_LABEL.u, 0, OTHER_ROOM.length, 5, '']];
 const SIZES = {
@@ -211,7 +210,6 @@ const SIZES = {
 };
 // The bookcase's: also its sliders in the living room, on the front wall
 export const BOOKCASE_SIZES = SIZES.bookcase;
-export const SIZE_LABEL = { w: 'Width', d: 'Depth', h: 'Height' };
 const sizeSliders = piece => SIZES[piece].map(([k, lo, hi]) => [`${piece}.${k}`, SIZE_LABEL[k], lo, hi, 10, '']);
 // The menu's sections, each a triangle that opens and closes, in order,
 // all closed to start (asked for, 18 Oct 2026, to shorten the menu): the
@@ -493,7 +491,7 @@ export function otherRoomControls(topContainer, container, change) {
     (piece.heading ? `<div><b>${piece.heading}</b></div>` : '') +
     (piece.on ? switchHtml([piece.on, IN_THE_BEDROOM]) : '') +
     `<div id="otherRoomPiece_${piece.key}Details">` +
-    (piece.wall ? wallPick(id(piece.wall)) : '') +
+    (piece.wall ? wallPick(id(piece.wall), WALLS) : '') +
     (piece.switches ?? []).map(switchHtml).join('') +
     [...piece.sizes, ...piece.place].map(slider(id)).join('') +
     resetButtons(piece, i) + '</div></div>';
@@ -528,25 +526,6 @@ export function otherRoomControls(topContainer, container, change) {
     document.getElementById(id('cupboardOn')).disabled = s.newCupboardOn;   // the new cupboard stands in its place
     for (const { key, halfAlong } of ON_A_WALL) followWall(id, key, s[key], halfAlong(s));
   };
-}
-
-// A labelled slider for [path, label, lowest, highest, step], its ids from
-// id(path); also the wicker bench's (wicker_bench.js)
-export function slider(id) {
-  return ([path, label, lo, hi, step]) =>
-    `<label for="${id(path)}"><span id="${id(path)}Label">${label}</span>: <span id="${id(path)}Value"></span></label>` +
-    `<input id="${id(path)}" type="range" min="${lo}" max="${hi}" step="${step}">`;
-}
-
-function wallPick(pickId) {
-  return `<label for="${pickId}">On the wall:</label> <select id="${pickId}">` +
-    WALL_KEYS.map(k => `<option value="${k}">${WALLS[k].label}</option>`).join('') + '</select>';
-}
-
-function resetButtons(piece, i) {
-  const button = (what, text) => `<button data-reset="${what}" data-piece="${i}">${text}</button>`;
-  const buttons = [piece.sizes.length && button('sizes', 'Reset dimensions'), piece.place.length && button('place', 'Reset location')].filter(Boolean);
-  return buttons.length ? `<div class="row">${buttons.join('')}</div>` : '';
 }
 
 // A piece's wall chosen (one of ON_A_WALL, by its key), and its
