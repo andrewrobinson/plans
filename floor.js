@@ -19,24 +19,28 @@ const glassMat = new THREE.MeshStandardMaterial({ color: 0xcfe3ef, roughness: 0.
 // light switch on it) and a recess for the kitchen. The kitchen's fronts are
 // 405 behind the door wall and the fridge unit is 590 deep (both measured), so
 // the recess's back wall is at x = -(405 + 590).
-// The return wall: from the back of the sink recess (D + 372) along the left
-// wall come the corner (the 610 worktop), the counter's 2125 inner edge and
-// the 630 fridge cabinet (all measured), so it's at 2386, 155 past the door frame
-const FRIDGE_W = 630;
-const RECESS_FROM = ROOM_DEPTH + 372 - 610 - 2125 - FRIDGE_W;
+// The front wall's two recesses, over the sink and for the desk, are as deep
+// as each other: 372 (the sink recess's back at 5751, less the front wall's
+// 5379, both measured)
+const FRONT_RECESS_DEPTH = 372;
+// The return wall: from the back of the sink recess along the left wall
+// come the corner (the worktop's depth), the counter's inner edge and the
+// fridge cabinet (all measured), so it's at 2386, 155 past the door frame
+const WORKTOP_DEPTH = 610, COUNTER_RUN = 2125, FRIDGE_W = 630;
+const RECESS_FROM = ROOM_DEPTH + FRONT_RECESS_DEPTH - WORKTOP_DEPTH - COUNTER_RUN - FRIDGE_W;
 const KITCHEN_SETBACK = 405, KITCHEN_DEPTH = 590;
 const KITCHEN_RECESS_BACK_WALL_X = -(KITCHEN_SETBACK + KITCHEN_DEPTH);
 // The floor: L-shaped, the room plus the recess. Its texture is laid by
 // position, in metres, so the oak boards keep their size everywhere.
 // The front wall has a full-height recess for the desk, 1623 across (measured)
 // and taken to run to the right-hand wall, as deep as the alcove over the sink
-// (372, measured). Between it and the sink alcove is 1490 of wall (measured).
-const DESK_RECESS = { x0: ROOM_WIDTH - 1623, depth: 372 };
+// (FRONT_RECESS_DEPTH). Between it and the sink alcove is 1490 of wall (measured).
+const DESK_RECESS = { x0: ROOM_WIDTH - 1623, depth: FRONT_RECESS_DEPTH };
 const WALL_BETWEEN_RECESSES = 1490;
 // The recess over the sink, also from the floor: from the kitchen recess's
 // back wall (so the L of units turns into it) to 1490 short of the desk
-// recess, 372 deep (5751 - 5379, both measured), up to about 1990 (estimated)
-const SINK_RECESS = { x0: KITCHEN_RECESS_BACK_WALL_X, x1: DESK_RECESS.x0 - WALL_BETWEEN_RECESSES, depth: 372, top: 1990 };
+// recess, FRONT_RECESS_DEPTH deep, up to about 1990 (estimated)
+const SINK_RECESS = { x0: KITCHEN_RECESS_BACK_WALL_X, x1: DESK_RECESS.x0 - WALL_BETWEEN_RECESSES, depth: FRONT_RECESS_DEPTH, top: 1990 };
 const DESK_TOP = 830;                                                // the desk in the recess, measured
 slab([[0, 0], [ROOM_WIDTH, 0], [ROOM_WIDTH, ROOM_DEPTH + DESK_RECESS.depth], [DESK_RECESS.x0, ROOM_DEPTH + DESK_RECESS.depth], [DESK_RECESS.x0, ROOM_DEPTH],
   [SINK_RECESS.x1, ROOM_DEPTH], [SINK_RECESS.x1, ROOM_DEPTH + SINK_RECESS.depth], [KITCHEN_RECESS_BACK_WALL_X, ROOM_DEPTH + SINK_RECESS.depth], [KITCHEN_RECESS_BACK_WALL_X, RECESS_FROM], [0, RECESS_FROM]], -20, 0, floorMat, floor);
@@ -82,7 +86,7 @@ for (const x of [960, 1920, 2880]) {
 // the floor, their fronts 132 out from the wall; centred under the windows
 // (assumed).
 const OUTER = {
-  end: ROOM_DEPTH + 372,                                  // the wall runs on past the desk recess
+  end: ROOM_DEPTH + FRONT_RECESS_DEPTH,                   // the wall runs on past the desk recess
   windows: [734, 2446, 4137].map(y => ({ y: [y, y + 923] })),   // where each recess starts
   sill: 912, top: 912 + 1390, reveal: 207,      // sill height measured
   radiator: { width: 600, bottom: 240, top: 840, out: 132, thick: 100 },
