@@ -20,6 +20,12 @@ configurations moved to Node. Suggested, not decided: the desktop project
 only at "deploy to main", and a quicker `test:model` (one option of the
 generated ones) for everyday runs, all 1,728 at deploy.
 
+**21 Oct 2026, decided with the user:** the page is sometimes used on
+the phone, so both projects stay; everyday and targeted runs, and the
+controls tests, move to desktop Chrome, and the phone runs only in the full
+suite at "deploy to main" (questions 1 to 3 and 5). Question 4, the desktop
+window's size, is still open. Being built with `REFACTOR_PLAN.md`'s tests.
+
 ## Findings
 
 1. **The tests take too much of each session.** On 15 Oct there were 13

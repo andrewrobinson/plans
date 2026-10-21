@@ -67,6 +67,23 @@ choices to settle with the user before it's built.
    its three rows, as `UI_CRITIQUE.md`'s step 1 asks to check by hand.
    With step 1.
 
+**Decided with the user (21 Oct 2026)**, for items 1 to 5:
+
+- **Screenshots of the 3D view only** (the canvas, not the page), so UI
+  changes never retake the rooms' shots; a few shots of the top bar and
+  menus alone for the UI. **2 or 3 per room** (bird's eye, plan and one
+  view inside), plus Option 12 and Pretty, about 15 per device.
+- **The tolerance tighter than 0.2%**, as far as the drawing allows
+  without false failures, found by running each shot a few times.
+- **Both devices stay** (the page is sometimes used on the phone): the
+  controls tests move to desktop Chrome for everyday runs, the phone
+  running only in the full suite at deploy (`testing_questions.md`).
+- **The controls tests find a control by its label only when a UI step
+  moves it**, not all rewritten first.
+- **Deploy to main after each phase**: the tests, the UI fixes, then items
+  6 to 10 (8 brought forward, before UI step 3's number box, which it
+  serves); then stop to decide on `state`'s track (11 to 16).
+
 Expect the controls tests to break in bulk as the menus are restructured:
 they find controls by id (`#loungeViewKind`), not by what they do.
 
