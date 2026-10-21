@@ -970,7 +970,7 @@ let flatFit = builtInViews.plan.fit;
 let flatPerM = null;               // the 2D views' scale, pixels per metre at zoom 1
 // The 2D/3D switch, fitting the views to the screen, and the render loop:
 // kit/floor_kit.js's, reading the views' framing from here
-const { setFlat, resize, startLoop, draw } = flatViews({ scene, renderer, camera, controls, flatCamera, flatControls }, {
+const { setFlat, resize, startLoop, draw, drawSoon } = flatViews({ scene, renderer, camera, controls, flatCamera, flatControls }, {
   get flat() { return flat; },
   set flat(on) { setDisplay({ flat: on }); },
   get flatFit() { return flatFit; },
@@ -1400,6 +1400,7 @@ function loadConfiguration(configuration) {
   syncControls();
   show(state.cornerCupboard.option);
   viewKit.refresh();
+  drawSoon();                                                   // not in answer to an event, so asked for
 }
 
 window.plans = {

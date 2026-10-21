@@ -511,7 +511,8 @@ export function workOffline(worker) {
 // a 2D view, read and set), flatFit ([width, height] in m to fit on screen),
 // flatPerM (the 2D views' scale, pixels per metre at zoom 1, read and set),
 // hfov (the 3D view's angle across, when it sets one) and drawers
-// (createDrawers()'s). Returns setFlat(), resize() and startLoop().
+// (createDrawers()'s). Returns setFlat(), resize(), startLoop(), draw() and
+// drawSoon(), which asks for the scene to be drawn again at the next frame.
 export function flatViews(stage, view) {
   const { scene, renderer, camera, controls, flatCamera, flatControls } = stage;
 
@@ -520,6 +521,7 @@ export function flatViews(stage, view) {
     controls.enabled = !on;
     flatControls.enabled = on;
     document.querySelectorAll('[data-mode]').forEach(b => { b.style.display = b.dataset.mode === (on ? '2d' : '3d') ? '' : 'none'; });
+    drawSoon();
   }
 
   // keepScale: the drawer opened or closed, so slide the drawing clear of it
@@ -558,6 +560,7 @@ export function flatViews(stage, view) {
     const perM = view.flatPerM;
     Object.assign(flatCamera, { left: -(left + clearW / 2) / perM, right: clearW / 2 / perM, top: (below + high / 2) / perM, bottom: -(high / 2 + bottom) / perM });
     flatCamera.updateProjectionMatrix();
+    drawSoon();                                       // setSize() cleared the canvas
   }
   window.addEventListener('resize', () => resize());
 
@@ -566,14 +569,45 @@ export function flatViews(stage, view) {
     renderer.render(scene, view.flat ? flatCamera : camera);
   }
 
+  // Drawn only when something's changed (21 Oct 2026). Drawing the flat
+  // takes most of a frame where it's drawn in software (measured: 86 ms in
+  // headless Chrome, the page busy 98% of the time doing nothing new), and
+  // drawn every frame it left the page too busy to answer the tests under
+  // load. What's on screen changes only when the camera moves, its glide
+  // to a stop included (cameraMoved()), or the page changes the scene: in
+  // answer to an event (a click, a key, a slider, the window resized), as
+  // it starts, and when a configuration's loaded (drawSoon()).
+  let drawWanted = true;
+  const drawSoon = () => { drawWanted = true; };
+  const SCENE_EVENTS = ['input', 'change', 'click', 'pointerdown', 'pointermove', 'pointerup', 'wheel', 'keydown',
+    'touchstart', 'touchmove', 'touchend', 'resize', 'visibilitychange', 'pageshow'];
+  // (capturing, so it's seen before any handler, whether it bubbles or not)
+  for (const type of SCENE_EVENTS) window.addEventListener(type, drawSoon, { capture: true, passive: true });
+
+  // Whether the camera on show has moved, turned or zoomed since it was
+  // last drawn, by its matrices, so it's seen however it was moved (the
+  // views set the 2D camera's zoom without its controls)
+  const lastDrawn = { camera: null, world: new THREE.Matrix4(), projection: new THREE.Matrix4() };
+  function cameraMoved(cam) {
+    cam.updateMatrixWorld();
+    if (cam === lastDrawn.camera && cam.matrixWorld.equals(lastDrawn.world) && cam.projectionMatrix.equals(lastDrawn.projection)) return false;
+    lastDrawn.camera = cam;
+    lastDrawn.world.copy(cam.matrixWorld);
+    lastDrawn.projection.copy(cam.projectionMatrix);
+    return true;
+  }
+
   function startLoop() {
     renderer.setAnimationLoop(() => {
       (view.flat ? flatControls : controls).update();
+      const moved = cameraMoved(view.flat ? flatCamera : camera);
+      if (!moved && !drawWanted) return;
+      drawWanted = false;
       draw();
     });
   }
 
-  return { setFlat, resize, startLoop, draw };
+  return { setFlat, resize, startLoop, draw, drawSoon };
 }
 
 // ---------------------------------------------------------------------------

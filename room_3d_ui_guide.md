@@ -189,7 +189,7 @@ The engine, an ES module: what any room needs, and nothing about this one.
 | Colours | `RAL` (the RAL Classic table), `oakBoards()` (the oak floor's texture) |
 | Settings by path | `valueAt()`, `setValueAt()` (from `kit/config_kit.js`) |
 | Menus and buttons | `narrow()`, `popMenus()`, `createDrawers()`, `resetButton()`, `shareButton()`, `workOffline()` |
-| The 2D/3D switch | `flatViews(stage, view)`: `setFlat()`, `resize()` (fitting the 3D and 2D views to the screen) and `startLoop()` (the render loop), reading the room's framing (`flat`, `flatFit`, `flatPerM`), the view kit's `hfov` and the drawers through `view` |
+| The 2D/3D switch | `flatViews(stage, view)`: `setFlat()`, `resize()` (fitting the 3D and 2D views to the screen) and `startLoop()` (the render loop, drawing only when the camera has moved or `drawSoon()` asks: any input, click, key or resize does, as do `setFlat()`, `resize()` and loading a configuration), reading the room's framing (`flat`, `flatFit`, `flatPerM`), the view kit's `hfov` and the drawers through `view` |
 | 2D dimensions | `dimLine()`, `dimLabel()`, `chain()` (a chain of dimensions), `cutViews(scene, view)`: `applyCut()`, reading the view's cut and what alone to show through `view` |
 
 ### kit/view_kit.js (539 lines) and kit/configuration_kit.js (107 lines)

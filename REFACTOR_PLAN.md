@@ -13,9 +13,7 @@ Two sessions testing at once need separate ports (`PORT=8766 npm test`).
 For a change across many lines, write a script that rewrites the calls by
 their arguments, and let the snapshots check it. After a new setting,
 `npm run regen` writes the saved configurations and snapshots again
-through the model; check the diff holds only the new setting. The controls
-tests' corner cupboard sizes test can time out under load and pass when
-run again (item 1).
+through the model; check the diff holds only the new setting.
 
 ---
 
@@ -35,11 +33,11 @@ setting at its ends) guard a refactor of the model well; the browser tests
 are weaker for UI changes. These come first, in this order; each has small
 choices to settle with the user before it's built.
 
-1. **The flaky test's cause**: the controls tests' "corner cupboard
-   sizes" can time out under load and pass when run again (on 20 Oct 2026
-   one desktop run had 9 timeouts, all passing on a rerun). Find why it's
-   slow (too many rebuilds?) and fix that, rather than a longer timeout or
-   retries.
+1. ~~The flaky test's cause~~: **done, 21 Oct 2026.** The page drew the
+   flat every frame, nothing changing (98% of the time in headless Chrome,
+   86 ms a frame), so under load it was too busy to answer the tests. It
+   now draws only when the camera moves or the page changes the scene
+   (`flatViews()` in `kit/floor_kit.js`), with the user's agreement.
 2. **Screenshots free of the page's buttons, and fewer of them**: every
    phone screenshot holds the top bar and the corner buttons, so one UI
    change retakes most of them (taking away the Views ☰ retook 31 on 21
