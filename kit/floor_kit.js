@@ -597,13 +597,16 @@ export function flatViews(stage, view) {
     return true;
   }
 
-  function startLoop() {
+  // onFirstDraw(), if given, once the scene's first drawn
+  function startLoop(onFirstDraw = null) {
     renderer.setAnimationLoop(() => {
       (view.flat ? flatControls : controls).update();
       const moved = cameraMoved(view.flat ? flatCamera : camera);
       if (!moved && !drawWanted) return;
       drawWanted = false;
       draw();
+      onFirstDraw?.();
+      onFirstDraw = null;
     });
   }
 

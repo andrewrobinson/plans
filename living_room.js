@@ -1110,6 +1110,16 @@ const viewKit = ViewKit.create({
 });
 // The doors' angles into the address a moment after they stop, as the view's
 Object.values(DOOR_SLIDERS).forEach(d => d.addEventListener('input', viewKit.writeView));
+// The screen greyed while the page loads (index.html's #loading): shown as
+// it starts, and hidden once the room's first drawn (startLoop(), at the
+// end); shown again as a configuration's chosen, which loads the page
+// again, its name kept for the new page to show
+const loading = document.getElementById('loading');
+function showLoading(name) {
+  try { if (name) sessionStorage.setItem('loadingName', name); } catch (e) { /* not important */ }
+  loading.querySelector('span').textContent = name ? `Loading ${name}…` : 'Loading…';
+  loading.hidden = false;
+}
 // Configurations: every setting in every room bar the view, from
 // living_room.configurations.js or saved here. Showing one loads the page
 // again with its settings, keeping the view.
@@ -1122,6 +1132,7 @@ configurationKit = ConfigurationKit.create({
   el: { pick: document.getElementById('configurationPick'), save: document.getElementById('saveConfiguration'), remove: document.getElementById('deleteConfiguration') },
   get: () => configurationNow(),
   async apply(configuration) {
+    showLoading(document.getElementById('configurationPick').selectedOptions[0]?.textContent);
     history.replaceState(null, '', `#${await Config.pack(configuration)}~${await Config.pack(viewNow())}`);
     location.reload();
   },
@@ -1478,4 +1489,4 @@ show(state.cornerCupboard.option);
 // first, as Cupboard only frames the view
 readDisplay(startingView);
 viewKit.start(startingView);
-startLoop();
+startLoop(() => { loading.hidden = true; });

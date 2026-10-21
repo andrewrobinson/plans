@@ -160,3 +160,11 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
 .cutList .cutRow { display: grid; grid-template-columns: 3em 9em auto; }
 .cutList .cutRow span:first-child { text-align: right; padding-right: 6px; }
 .cutList .cutTotal { margin-top: 6px; border-top: 1px solid #ddd; padding-top: 4px; }
+
+/* The screen greyed while the page loads (index.html's #loading), above
+   everything, taking the clicks till the room's drawn */
+#loading { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center;
+  background: rgba(60, 64, 70, 0.55); cursor: progress; }
+#loading[hidden] { display: none; }
+#loading span { padding: 10px 16px; border-radius: 8px; background: #fff; color: #1f2933; font-size: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25); }

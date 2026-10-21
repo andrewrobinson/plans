@@ -27,6 +27,19 @@
 </head>
 <body>
 <div id="view"></div>
+<!-- The screen greyed while the page loads, a configuration chosen from the
+     list included (it loads the page again), till the room's first drawn
+     (asked for, 21 Oct 2026): shown from the start, before any code has
+     come, and hidden by living_room.js. A configuration's name, kept for
+     a moment as it's chosen, says which -->
+<div id="loading" role="status" aria-live="polite"><span>Loading…</span></div>
+<script>
+  try {
+    const name = sessionStorage.getItem('loadingName');
+    sessionStorage.removeItem('loadingName');
+    if (name) document.querySelector('#loading span').textContent = `Loading ${name}…`;
+  } catch (e) { /* not important */ }
+</script>
 <!-- The top bar: ☰ for Other options (the wicker bench, the colours in
      this view), a split
      button for each room (Lounge, Bedroom, Garage, Hallway: going there,
