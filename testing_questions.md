@@ -1,6 +1,11 @@
 # Testing: findings and questions (from 15 Oct 2026)
 
-For tomorrow. Nothing has changed yet. The session's run-by-run log is
+**Done but for question 4** (21 Oct 2026): questions 1, 2, 3 and 5
+decided with the user (below) and built in the tests phase. As built
+(`playwright.config.js`), the controls tests run once, in WebKit at phone
+size, the faster of the two at drawing; the full two-device suite runs at
+"deploy to main". Question 4, the desktop screenshots' size, is still open
+(in `PLAN.md`'s smaller pieces). The 15 Oct session's run-by-run log is
 `test_runs_15_oct_2026.md`.
 
 **16 Oct 2026:** `REFACTOR_PLAN.md` step 6 changes the testing: saved

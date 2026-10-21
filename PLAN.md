@@ -2,12 +2,14 @@
 
 What's next, in order. Only what's still to do is here: what's done is in
 git history (`git log`), what was agreed for a piece in its own note
-(`HALLWAY_SHELVES.md`, `UI_CRITIQUE.md`), the model in
-`room_dimensions.md` and the code's layout in `room_3d_ui_guide.md`.
+(`HALLWAY_SHELVES.md`, `UI_CRITIQUE.md`, `VIEWS_MENU.md`, all built), the
+model in `room_dimensions.md` and the code's layout in
+`room_3d_ui_guide.md`. `REFACTOR_PLAN.md` has the code's tidying still to do.
 
-How work goes: each piece on its own branch, `npm run test:quick` while
-working, the full `npm test` before it goes live, and "deploy to main" puts
-it on GitHub Pages. Two sessions testing at once need separate ports
+How work goes: each piece on its own branch, only the tests a change can
+break while working (`-g`), at most one `npm run test:quick` before a
+commit, the full `npm test` once before it goes live, and "deploy to main"
+puts it on GitHub Pages. Two sessions testing at once need separate ports
 (`PORT=8766 npm test`).
 
 **Scope:** the top-floor (second-floor) flat: its rooms, hallway and
@@ -20,9 +22,9 @@ lobby and route, in blue).
 
 ## Next steps
 
-1. **Decide on `state`'s track** (`REFACTOR_PLAN.md`'s 11 to 16): the
-   UI fixes (deployed 21 Oct 2026) and the refactor's small items 6, 7, 9
-   and 10 (done 21 Oct 2026, on the branch `refactor-small`) are done.
+1. **Decide on `state`'s track** (`REFACTOR_PLAN.md`'s 11 to 16). Done
+   before it, all on main by 21 Oct 2026: the tests phase, the UI fixes
+   and the refactor's small items.
 2. **Measurements still to come in** (`MEASUREMENTS_NEEDED.md`, with
    `drawings/measure_sheet.html`; the values come back as "A = 2240"
    lines, to go into `room_dimensions.md` and the model):
@@ -37,7 +39,7 @@ lobby and route, in blue).
      drawing, in `floor.js`'s `BATHROOM`).
    - The shoe rack's real sizes; where rack 2 and the tub stand (guesses,
      neither clear in the photo).
-5. **The rest of the flat, drawn**:
+3. **The rest of the flat, drawn**:
    - Walls seen from above in the bedroom's and the hallway's plans (they're
      faces seen from inside, so the plan shows only floors).
    - Stopping furniture at the walls.
@@ -45,6 +47,12 @@ lobby and route, in blue).
      used a room at a time (the user, 19 Oct 2026).
 
 Smaller pieces, any time:
+
+- **Find a setting** (`UI_CRITIQUE.md`'s step 6, put off till steps 1 to 3
+  were in, as they now are): a search box in a drawer, or across them.
+  To decide.
+- **The desktop screenshots' size** (`testing_questions.md`'s question 4,
+  still open): 1280 × 800 now, or the user's window size.
 
 - **Other parts in the cutting list**: parts not `BOARD` thick (option 9's
   tower plinth and its 25-thick oak shelves) are left out today; list them

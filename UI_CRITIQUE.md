@@ -1,9 +1,12 @@
 # The page's UI: a critique, and a plan to fix it
 
+**Done (21 Oct 2026):** steps 1, 2, 3, 8 and 9 built and on main; steps
+4, 5 and 7 dropped; step 6 (finding a setting) put off, now in `PLAN.md`'s
+smaller pieces. Kept as the record of what was decided and why.
+
 Written 19 Oct 2026 after using the page on the desktop (800 × 600) and at
-phone size (375 × 812) on main at `edbd7cd`. Nothing here is agreed yet:
-each step lists its choices, to be decided before it's built (as
-`PLAN.md`'s sections are). Refactors stay checked by the screenshot tests;
+phone size (375 × 812) on main at `edbd7cd`. Each step lists its choices,
+decided before it was built. Refactors stay checked by the screenshot tests;
 the steps that change what's on screen will change screenshots, and say so.
 
 ---

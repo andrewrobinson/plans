@@ -7,7 +7,7 @@ Only what's still to do is here. What's done is in git history;
 **How to work.** A branch per step, one kind of change per commit, so any
 one can be undone on its own. Refactors keep what the page does, checked by
 the snapshots and screenshots with no changes. `npm run test:model` (Node,
-about 30 seconds) and targeted browser runs (`-g`) while working; the full
+about a minute and a half) and targeted browser runs (`-g`) while working; the full
 `npm test` (both devices, about 5.5 minutes) once, before it goes live.
 Two sessions testing at once need separate ports (`PORT=8766 npm test`).
 For a change across many lines, write a script that rewrites the calls by
@@ -19,95 +19,11 @@ through the model; check the diff holds only the new setting.
 
 ## Left to do
 
-From the review of the code (19 Oct 2026), merged with what was here, in
-order: the tests first, so the rest is checked by a suite that can be
-trusted; then the small standalone pieces; then `state`'s track, each step
-making the next easier. Each keeps what the page does (no snapshot or
-screenshot changes) unless it says otherwise.
-
-**The tests**
-
-Reviewed again on 21 Oct 2026, before the UI fixes and the refactor: the
-model's tests (36 saved configurations checked exactly in Node, and every
-setting at its ends) guard a refactor of the model well; the browser tests
-are weaker for UI changes. These come first, in this order; each has small
-choices to settle with the user before it's built.
-
-1. ~~The flaky test's cause~~: **done, 21 Oct 2026.** The page drew the
-   flat every frame, nothing changing (98% of the time in headless Chrome,
-   86 ms a frame), so under load it was too busy to answer the tests. It
-   now draws only when the camera moves or the page changes the scene
-   (`flatViews()` in `kit/floor_kit.js`), with the user's agreement.
-2. ~~Screenshots free of the page's buttons, and fewer of them~~: **done,
-   21 Oct 2026.** The rooms' screenshots are of the 3D view alone
-   (`tests/view_only.css` hides the rest), 11 a device in place of 36:
-   `PICTURED` in `room_3d.spec.js`; every saved address keeps its snapshot
-   and round trip. Four of the bar and menus alone, the 3D view hidden
-   (`tests/controls_only.css`): every menu closed, Look, Configuration and
-   Lounge options open. The tolerance is 0, as measured.
-3. ~~The new views tested~~: **done, 21 Oct 2026.** Saved addresses for
-   the bedroom's hallway wall, the garage's back wall and the hallway's
-   lounge door wall in 2D; a test of each room button's ▾, in full, every
-   choice going to its room and view; and the view snapshot
-   (`window.plans.viewSnapshot()` in `living_room.js`, beside every saved
-   address's in `tests/view_snapshots/`): the room and view, the camera's
-   place and aim, what a 2D view frames, the cut, and how much of each
-   piece and room shell the view shows (all, part or none). The same on
-   both devices. Checked: the old garage fault fails the garage wall's
-   test, and a wall view's cut moved fails the view snapshot while the
-   model's passes. The rooms' screenshots then cut to one a room (the
-   user's choice): 7 a device, in `PICTURED`.
-4. ~~A guard on `state`~~: **done, 21 Oct 2026.**
-   `tests/model/state_guard.test.mjs` (in `npm run test:model`) fails if a
-   file that imports the model's `state` (today only `living_room.js`)
-   writes to it: assigned, stepped, `Object.assign()`ed, deleted or an
-   array in it changed in place, comments left out. The model's helpers
-   handed a part of it (`settleStairWalls()`) don't import it. A search,
-   so a write through another name (`const s = state.x; s.y = 1`) gets
-   past it.
-5. ~~The phone's top bar fits~~: **done, 21 Oct 2026**, with UI step 1:
-   `the top bar fits, clear of Look ▾` in `room_3d.spec.js`, the bar
-   short of Look ▾ on both devices and in three rows at most on a phone.
-
-**Decided with the user (21 Oct 2026)**, for items 1 to 5:
-
-- **Screenshots of the 3D view only** (the canvas, not the page), so UI
-  changes never retake the rooms' shots; a few shots of the top bar and
-  menus alone for the UI. **2 or 3 per room** (bird's eye, plan and one
-  view inside), plus Option 12 and Pretty, about 15 per device.
-- **The tolerance tighter than 0.2%**, as far as the drawing allows
-  without false failures, found by running each shot a few times.
-- **Both devices stay** (the page is sometimes used on the phone): the
-  controls tests move to desktop Chrome for everyday runs, the phone
-  running only in the full suite at deploy (`testing_questions.md`).
-- **The controls tests find a control by its label only when a UI step
-  moves it**, not all rewritten first.
-- **Deploy to main after each phase**: the tests, the UI fixes, then items
-  6 to 10 (8 brought forward, before UI step 3's number box, which it
-  serves); then stop to decide on `state`'s track (11 to 16).
-
-Expect the controls tests to break in bulk as the menus are restructured:
-they find controls by id (`#loungeViewKind`), not by what they do.
-
-**Small, standalone**
-
-6. ~~One `rebuild()`~~: **done, 21 Oct 2026.** `flat_model.js`'s
-   `rebuild()`: `build()`, the things to store, the doors, then the
-   dimensions; `buildFlat()` and the page's `show()` both call it.
-7. ~~The repeated measurements named~~: **done, 21 Oct 2026.**
-   `FRONT_RECESS_DEPTH` (372), `WORKTOP_DEPTH` (610), `COUNTER_RUN` (2125).
-8. ~~The menus' shared helpers into `kit/controls_kit.js`~~: **done,
-   21 Oct 2026.** `slider()`, `lyingSwitch`, `wallPick()` (given the
-   room's walls), `resetButtons()` and `SIZE_LABEL`; each piece keeps its
-   own menu in its own file.
-9. ~~One `drawFloor()`~~: **done, 21 Oct 2026.** Importing `floor.js`
-   only makes its measurements, materials and groups; `drawFloor()`,
-   called once by `flat_model.js`, draws it in named steps. The model's
-   load-time `benchHeights()` and `placeDresser()` went (`settle()` makes
-   both); the room door's drawing stays with the kitchen's, the model's
-   own one-time drawing.
-10. ~~`kit/view_kit.js`'s `create()` split~~: **done, 21 Oct 2026.** Its
-   parts as functions in the same file, sharing `viewState()` and `k`.
+Done, and so gone from here (in `git log`): the tests (items 1 to 5), the
+small, standalone items (6 to 10), all on main by 21 Oct 2026. Each step
+keeps what the page does (no snapshot or screenshot changes) unless it
+says otherwise. Before starting, decide with the user how far to go
+(`PLAN.md`'s next step).
 
 **`state`'s track**
 

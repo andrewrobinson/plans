@@ -1,5 +1,8 @@
 # Test runs, 15 Oct 2026 session
 
+A record only: what it led to is in `testing_questions.md`, all settled
+but its question 4.
+
 The Playwright runs during the session that added downstairs (the stairs' foot,
 the internal and external doors, the Downstairs room) and the pine cupboard
 switches. Each run used port 8766.

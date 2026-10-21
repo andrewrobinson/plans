@@ -15,9 +15,12 @@ python3 serve.py
 ```
 
 then open http://localhost:8765/index.html. The model's tests, in Node:
-`npm run test:model` (about half a minute). The browser tests (Playwright):
-`npm run test:quick` (a phone, about a minute) after each change, and the
-full `npm test` before anything goes to `main`. `npm run test:update`
+`npm run test:model` (about a minute and a half). The browser tests
+(Playwright): only those a change can break while working
+(`npx playwright test --project=iphone -g "<name>"`), at most one
+`npm run test:quick` (a phone, about two to four minutes) before a commit,
+and the full `npm test` (both devices) once, before anything goes to
+`main`. `npm run test:update`
 takes new screenshots and snapshots when a change is meant to show.
 
 ## Where things are

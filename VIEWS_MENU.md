@@ -1,9 +1,12 @@
 # The Views menu and the rooms: an analysis
 
+**Done (21 Oct 2026):** decided and built, on main: the Views menu gone,
+its views in each room button's ▾ (see *Choices* below). Kept as the
+record of why.
+
 Written 21 Oct 2026, from the code on main plus the uncommitted desk work
 (`kit/view_kit.js`, `living_room.js`'s `builtInViews` and room buttons,
-`living_room.views.js`). Nothing here is agreed or built: the choices at
-the end are for the user to decide (as `UI_CRITIQUE.md`'s were).
+`living_room.views.js`).
 
 In short: **yes**. The Views menu is one flat list for the whole flat. It
 doesn't know which room you're in, so it offers lounge-only views from any
