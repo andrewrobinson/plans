@@ -109,6 +109,20 @@ test.describe('the bar and menus look the same', () => {
   });
 });
 
+// The top bar fits (REFACTOR_PLAN.md item 5, with UI_CRITIQUE.md's step 1):
+// on a phone (390 wide) its buttons take three rows at most, and on either
+// device the bar, and so its buttons, stop short of Look ▾ at the top right
+const BAR_ROWS_ON_A_PHONE = 3;          // chosen, 19 Oct 2026: about 15% of the screen
+test('the top bar fits, clear of Look ▾', async ({ page, isMobile }) => {
+  await openRoom(page);
+  const boxes = await page.locator('#bar > :not(#roomViews), #roomViews > *').evaluateAll(els => els.map(e => e.getBoundingClientRect().toJSON()));
+  const look = await page.locator('#viewMenu .popToggle').boundingBox();
+  const bar = await page.locator('#bar').boundingBox();
+  expect(bar.x + bar.width).toBeLessThanOrEqual(look.x);    // room kept for it, however the buttons wrap
+  for (const box of boxes) expect(box.right <= look.x || box.top >= look.y + look.height, JSON.stringify(box)).toBe(true);
+  if (isMobile) expect(new Set(boxes.map(b => Math.round(b.top))).size).toBeLessThanOrEqual(BAR_ROWS_ON_A_PHONE);
+});
+
 test.describe('the settings drawers', () => {
   test.beforeEach(async ({ page }) => { await openRoom(page); });
 
@@ -656,6 +670,7 @@ test.describe('Share and Reset', () => {
     await openRoom(page, OPTION_7);
     const remembered = ['room_3d:viewKind:bedroom', 'room_3d:secOtherRoom_extras', 'room_3d:secCupboard', 'aboutOpen', 'paletteOpen', 'room_3d:sheetHeight'];
     await page.evaluate(keys => { for (const k of keys) localStorage.setItem(k, '1'); localStorage.setItem('room_3d:savedViews', '[]'); }, remembered);
+    await page.click('#menu');                                  // in Other options (UI_CRITIQUE.md, step 2)
     await page.click('#reload');
     await expect.poll(() => configurationOf(page).catch(() => 'loading')).toEqual(DEFAULT.configuration);
     await expect(page.locator('#reload')).toHaveText('Reload');
@@ -669,6 +684,7 @@ test.describe('Share and Reset', () => {
     await openRoom(page, OPTION_7);
     const kept = ['room_3d:savedViews', 'room_3d:secCupboard', 'aboutOpen'];
     await page.evaluate(keys => { for (const k of keys) localStorage.setItem(k, '1'); }, kept);
+    await page.click('#menu');
     page.once('dialog', dialog => dialog.dismiss());
     await page.click('#reset');
     await expect(page.locator('#reset')).toHaveText('Reset');

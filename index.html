@@ -41,11 +41,11 @@
   } catch (e) { /* not important */ }
 </script>
 <!-- The top bar: ☰ for Other options (the wicker bench, the colours in
-     this view), a split
+     this view, Reload and Reset), a split
      button for each room (Lounge, Bedroom, Garage, Hallway: going there,
      and from Bird's eye or the plan; living_room.js makes them in
      #roomViews), Share, Stored (the things to store in the lounge, on or
-     off), 📷 (Screenshot), Reload and Reset: in that order so they fit in three
+     off) and 📷 (Screenshot): in that order so they fit in three
      rows on a phone -->
 <div id="bar">
   <button id="menu" aria-label="Other options" title="Other options" aria-controls="panel" aria-expanded="false">☰</button>
@@ -53,14 +53,13 @@
   <button id="share" class="chip">Share</button>
   <button id="storedToggle" class="chip" title="Show or hide the things to store, in the lounge">Stored: on</button>
   <button id="screenshot" class="chip" aria-label="Screenshot" title="Screenshot: copy a picture of the view on show">📷</button>
-  <button id="reload" class="chip" title="Load the page afresh, every setting back to its default">Reload</button>
-  <button id="reset" class="chip" title="Forget everything this device remembers, saved views, looks and configurations too, and load the newest page">Reset</button>
 </div>
 <!-- Where you are and what you look at: a menu of its own at the top
-     right, opening below it (the views are in the room buttons' ▾) -->
+     right, Look ▾, opening below it (the views are in the room buttons' ▾).
+     The corner menus are named in words, not ☰ (UI_CRITIQUE.md, step 1) -->
 <div id="topRight">
   <div id="viewMenu" class="pop">
-    <button class="popToggle" aria-label="Look" title="Look: where you are in the room on screen, what you're looking at, your eye height" aria-controls="viewGroup" aria-expanded="false">☰</button>
+    <button class="chip popToggle" title="Look: where you are in the room on screen, what you're looking at, your eye height" aria-controls="viewGroup" aria-expanded="false">Look ▾</button>
     <div id="viewGroup" class="group" role="group" aria-label="Look">
       <span class="tag">Look</span>
       <select id="where" class="pick" aria-label="Where you are"></select>
@@ -74,8 +73,8 @@
     </div>
   </div>
 </div>
-<!-- The configurations: a menu of their own at the bottom right, with the
-     2D views' chips above it -->
+<!-- The configurations: a menu of their own at the bottom right,
+     Configuration ▴, opening above it, with the 2D views' chips above that -->
 <div id="corner">
   <!-- In a 2D view, its dimensions and the doors' sizes (the kit shows
        these only then: data-mode), clear of the top bar, which they'd
@@ -91,7 +90,7 @@
       <button id="saveConfiguration" class="chip" title="Keep every setting in every room (not where you're looking from), as a named configuration">Save</button>
       <button id="deleteConfiguration" class="chip" title="Delete this saved configuration" hidden>Delete</button>
     </div>
-    <button class="popToggle" aria-label="Configurations" title="Configurations" aria-controls="configurationGroup" aria-expanded="false">☰</button>
+    <button class="chip popToggle" title="Configurations: every setting in every room, by name" aria-controls="configurationGroup" aria-expanded="false">Configuration ▴</button>
   </div>
 </div>
 <!-- At the bottom left: the options for the room in view (its drawer) -->
@@ -113,6 +112,17 @@
     <summary>Colours in this view</summary>
     <div class="colours"><div id="paletteList"></div></div>
   </details>
+  <!-- Reload and Reset, out of the top bar so neither's pressed by mistake
+       (UI_CRITIQUE.md, step 2), always shown: Reset, the drastic one, in
+       red and asking first -->
+  <div class="sec" id="thisPage">
+    <div class="secHead">This page</div>
+    <div class="row">
+      <button id="reload" title="Load the page afresh, every setting back to its default">Reload</button>
+      <button id="reset" class="danger" title="Forget everything this device remembers, saved views, looks and configurations too, and load the newest page">Reset</button>
+    </div>
+    <div class="hint">Reload puts every setting back to its default, keeping the saved views, looks and configurations. Reset forgets those too, and asks first.</div>
+  </div>
 </div>
 
 <!-- Hallway and stairs options: the bathroom and WC shown or not, the
