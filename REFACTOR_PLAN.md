@@ -65,8 +65,6 @@ Any time:
 - **The big files**: `flat_model.js` has grown from 1,582 lines after the
   corner cupboard left it to 1,917, and `living_room.js` is 1,309. Which
   pieces could leave each, to decide (suggested 19 Oct 2026, not agreed).
-- **Old branches**: ten local branches and a worktree
-  (`.claude/worktrees/`) from merged work, to delete once checked merged.
 - **`testing_questions.md`**: still open (phone or desktop, window size,
   how often), with fewer browser runs now most combinations run in Node.
 
