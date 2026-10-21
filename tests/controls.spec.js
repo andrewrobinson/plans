@@ -478,10 +478,8 @@ test.describe('switches and buttons', () => {
   test('cupboard only, in 3D and in the plan', async ({ page }) => {
     await page.locator('#cupboardOnly').check();
     await page.click('#loungeClose');
-    await page.locator('#viewsMenu .popToggle').click();
-    await page.selectOption('#viewPick', 'plan');
+    await page.selectOption('#loungeViewKind', 'plan');
     await expect(page.locator('#dims')).toHaveText('Dimensions: on');
-    await page.keyboard.press('Escape');                             // the Views menu shut: on a phone it reaches the top bar
     await openOptions(page);
     await page.locator('#cupboardOnly').uncheck();
   });
@@ -990,17 +988,30 @@ test.describe('things to store', () => {
   });
 });
 
-test.describe('the Views and Look menus', () => {
+// The views are in each room button's ▾ (the Views menu went, 21 Oct 2026:
+// VIEWS_MENU.md); the Look menu has Where, Looking at, eye height and looks
+test.describe('the room buttons\' views and the Look menu', () => {
   test.beforeEach(async ({ page }) => { await openRoom(page); });
+  // The Look menu open, if it isn't
+  const openLook = async page => {
+    if (!(await page.locator('#viewGroup').isVisible())) await page.locator('#viewMenu .popToggle').click();
+  };
 
-  test('a view from the list', async ({ page }) => {
-    await page.locator('#viewsMenu .popToggle').click();
-    await page.selectOption('#viewPick', 'top');
-    await expect.poll(() => view(page)).toMatchObject({ view: 'top' });
+  // A room's own view, another room's wall in 2D, and downstairs under the hallway's
+  test('a view from a room\'s list', async ({ page }) => {
+    await page.selectOption('#loungeViewKind', 'desk');
+    await expect.poll(() => view(page)).toMatchObject({ room: 'livingRoom', view: 'desk' });
+    await page.selectOption('#bedroomViewKind', 'front');
+    await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: 'front' });
+    await expect(page.locator('#dims')).toHaveText('Dimensions: on');
+    await page.selectOption('#hallwayViewKind', 'downstairs/plan');
+    await expect.poll(() => view(page)).toMatchObject({ room: 'downstairs', view: 'plan' });
+    await page.selectOption('#garageViewKind', 'garageFromAbove');
+    await expect.poll(() => view(page)).toMatchObject({ room: 'garage', view: 'garageFromAbove' });
   });
 
   test('where you are, what you look at, and eye height', async ({ page }) => {
-    await page.locator('#viewMenu .popToggle').click();
+    await openLook(page);
     await page.selectOption('#where', 'island');
     await expect.poll(() => view(page)).toMatchObject({ view: any(/^look:island:/) });
     await page.selectOption('#lookAt', 'tv');
@@ -1009,30 +1020,25 @@ test.describe('the Views and Look menus', () => {
     await expect.poll(() => view(page)).toMatchObject({ eye: 'stand-short' });
   });
 
-  // The rooms: Bird's eye and the plan stay as they are, framing the room
-  // chosen; from anywhere else you go in at its doorway. Where and Looking
-  // at offer only its places and things, and the address's view has the
-  // room.
+  // The rooms, from their buttons: Where and Looking at offer only the
+  // room's places and things, and the address's view has the room.
   test('choosing the room', async ({ page }) => {
-    await page.locator('#viewMenu .popToggle').click();
     const options = id => page.locator(`#${id} option`).evaluateAll(os => os.filter(o => o.value).map(o => o.textContent));
-    await page.selectOption('#room', 'bedroom');
+    await page.selectOption('#bedroomViewKind', 'birdseye');
     await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: 'birdseye' });
+    await openLook(page);
     expect(await options('where')).toEqual(['In the bedroom doorway, walking in', 'Lying on the bed', 'Standing beside the bed', 'Standing at the bedroom window']);
     expect(await options('lookAt')).toEqual(['Looking at the cupboards in the recess', 'Looking at the bookcase', 'Looking at the wardrobe', 'Looking at Billy', 'Looking at BillyChest', 'Looking at the Ivar', 'Looking at the bedside table by the bed', 'Looking at the bedside table by the wardrobe', 'Looking at the Kvistbro', 'Looking at the laundry basket', 'Looking at the new cupboard', 'Looking at the wicker bench', 'Looking at the window', 'Looking at the bed', 'Looking at the mirror']);
     await page.selectOption('#where', 'bed');
     await expect.poll(() => view(page)).toMatchObject({ room: 'bedroom', view: any(/^look:bed:\w+$/), eye: 'lie-tall' });
-    await page.selectOption('#room', 'hallway');
-    await expect.poll(() => view(page)).toMatchObject({ room: 'hallway', view: 'look:hallLivingDoor:bedroomDoor', eye: 'stand-tall' });
-    await page.locator('#viewsMenu .popToggle').click();
-    await page.selectOption('#viewPick', 'plan');
+    await page.selectOption('#hallwayViewKind', 'plan');
     await expect.poll(() => view(page)).toMatchObject({ room: 'hallway', view: 'plan' });
-    await page.locator('#viewMenu .popToggle').click();             // one menu open at a time
-    await page.selectOption('#room', 'livingRoom');
-    await expect.poll(() => view(page)).toMatchObject({ room: 'livingRoom', view: 'plan', eye: 'stand-tall' });
-    // Downstairs: its plan, and a place on the first floor's level
-    await page.selectOption('#room', 'downstairs');
+    await page.selectOption('#loungeViewKind', 'plan');
+    await expect.poll(() => view(page)).toMatchObject({ room: 'livingRoom', view: 'plan' });
+    // Downstairs, under the hallway's button: its plan, and a place on the first floor's level
+    await page.selectOption('#hallwayViewKind', 'downstairs/plan');
     await expect.poll(() => view(page)).toMatchObject({ room: 'downstairs', view: 'plan' });
+    await openLook(page);
     expect(await options('where')).toEqual(['Halfway down the stairs', 'At bottom of stairs', 'Outside internal door', 'Outside external door']);
     // Halfway down, looking on down: the foot, its window and the internal door
     await page.selectOption('#where', 'stairsHalfway');
@@ -1041,11 +1047,13 @@ test.describe('the Views and Look menus', () => {
     expect(await offered()).toEqual(['Looking at the foot of the stairs', 'Looking at the window at the foot of the stairs', 'Looking at the internal door', 'Looking at the shoe rack']);
     await page.selectOption('#where', 'outsideFlatDoor');
     await expect.poll(() => view(page)).toMatchObject({ room: 'downstairs', view: any(/^look:outsideFlatDoor:\w+$/), eye: 'stand-tall' });
-    // The garage: in at its door, looking in at Sean; Looking in and Looking
-    // out, each not offering the wall you stand at
-    await page.selectOption('#room', 'garage');
-    await expect.poll(() => view(page)).toMatchObject({ room: 'garage', view: 'look:garageLookingIn:sean', eye: 'stand-tall' });
+    // The garage: Looking in and Looking out, each not offering the wall you stand at
+    await page.selectOption('#garageViewKind', 'birdseye');
+    await expect.poll(() => view(page)).toMatchObject({ room: 'garage', view: 'birdseye' });
+    await openLook(page);
     expect(await options('where')).toEqual(['Looking in', 'Looking out', 'Looking in from outside']);
+    await page.selectOption('#where', 'garageLookingIn');
+    await expect.poll(() => view(page)).toMatchObject({ room: 'garage', view: 'look:garageLookingIn:sean', eye: 'stand-tall' });
     const garageThings = ['Looking at Sean', 'Looking at Billy', 'Looking at BillyChest', 'Looking at Metal', 'Looking at Yellow', 'Looking at the scaffold bench', 'Looking at Small Billy', 'Looking at Potters', 'Looking at Biltong', 'Looking at Trellis', 'Looking at the pine cupboard', 'Looking at the Ivar'];
     expect(await offered()).toEqual([...garageThings, 'Looking at the back wall']);
     await page.selectOption('#where', 'garageLookingOut');
@@ -1054,19 +1062,21 @@ test.describe('the Views and Look menus', () => {
     await expect.poll(() => view(page)).toMatchObject({ room: 'garage', view: any(/^look:garageOutside:\w+$/), eye: 'stand-tall' });
   });
 
+  // Saved in the Look menu, listed in its room's ▾
   test('saving and deleting a view', async ({ page }) => {
-    await page.locator('#viewsMenu .popToggle').click();
+    await openLook(page);
     page.once('dialog', d => d.accept('Test view'));
     await page.click('#saveView');
-    await expect(page.locator('#viewPick option[value="saved:Test view"]')).toHaveCount(1);
+    await expect(page.locator('#loungeViewKind option[value="saved:Test view"]')).toHaveCount(1);
+    await expect(page.locator('#bedroomViewKind option[value="saved:Test view"]')).toHaveCount(0);
     await expect(page.locator('#deleteView')).toBeVisible();
     page.once('dialog', d => d.accept());
     await page.click('#deleteView');
-    await expect(page.locator('#viewPick option[value="saved:Test view"]')).toHaveCount(0);
+    await expect(page.locator('#loungeViewKind option[value="saved:Test view"]')).toHaveCount(0);
   });
 
   test('saving and deleting a look', async ({ page }) => {
-    await page.locator('#viewMenu .popToggle').click();
+    await openLook(page);
     await page.selectOption('#where', 'window2');
     page.once('dialog', d => d.accept('Test look'));
     await page.click('#saveLook');
@@ -1189,8 +1199,7 @@ test.describe('the 2D views\' door sizes, and the cutting list', () => {
 
   test('the door sizes button', async ({ page }) => {
     await openRoom(page, PLAN);
-    await page.locator('#viewsMenu .popToggle').click();
-    const button = page.locator('#doorDims');
+    const button = page.locator('#doorDims');                    // on show in a 2D view, at the bottom right
     await expect(button).toHaveText('Door sizes: on');
     await button.click();
     await expect(button).toHaveText('Door sizes: off');

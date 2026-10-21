@@ -43,36 +43,34 @@
   <button id="reload" class="chip" title="Load the page afresh, every setting back to its default">Reload</button>
   <button id="reset" class="chip" title="Forget everything this device remembers, saved views, looks and configurations too, and load the newest page">Reset</button>
 </div>
-<!-- The views list, and where you are and what you look at: menus of their
-     own at the top right, opening below them -->
+<!-- Where you are and what you look at: a menu of its own at the top
+     right, opening below it (the views are in the room buttons' ▾) -->
 <div id="topRight">
-  <div id="viewsMenu" class="pop">
-    <button class="popToggle" aria-label="Views" title="Views: preset, saved and built-in" aria-controls="viewsGroup" aria-expanded="false">☰</button>
-    <div id="viewsGroup" class="group" role="group" aria-label="Views">
-      <span class="tag">Views</span>
-      <select id="viewPick" class="pick" aria-label="Views"></select>
-      <button id="saveView" class="chip" title="Keep where you've moved to, as a named view">Save</button>
-      <button id="deleteView" class="chip" title="Delete this saved view" hidden>Delete</button>
-      <button id="dims" class="chip" data-mode="2d" title="The 2D views' dimensions">Dimensions: on</button>
-      <button id="doorDims" class="chip" data-mode="2d" title="Each cupboard door's size, on the door">Door sizes: on</button>
-    </div>
-  </div>
   <div id="viewMenu" class="pop">
-    <button class="popToggle" aria-label="Look" title="Look: the room, where you are in it, what you're looking at, your eye height" aria-controls="viewGroup" aria-expanded="false">☰</button>
+    <button class="popToggle" aria-label="Look" title="Look: where you are in the room on screen, what you're looking at, your eye height" aria-controls="viewGroup" aria-expanded="false">☰</button>
     <div id="viewGroup" class="group" role="group" aria-label="Look">
       <span class="tag">Look</span>
-      <select id="room" class="pick" aria-label="Room"></select>
       <select id="where" class="pick" aria-label="Where you are"></select>
       <select id="lookAt" class="pick" aria-label="Looking at"></select>
       <select id="eye" class="pick" aria-label="Eye height"></select>
       <select id="lookPick" class="pick" aria-label="Looks"></select>
-      <button id="saveLook" class="chip" title="Keep this Where, Looking at and eye height, by name: it aims at the thing wherever it is">Save</button>
-      <button id="deleteLook" class="chip" title="Delete this saved look" hidden>Delete</button>
+      <button id="saveLook" class="chip" title="Keep this Where, Looking at and eye height, by name: it aims at the thing wherever it is">Save look</button>
+      <button id="deleteLook" class="chip" title="Delete this saved look" hidden>Delete look</button>
+      <button id="saveView" class="chip" title="Keep where you've moved to, as a named view: it's listed in its room's ▾">Save view</button>
+      <button id="deleteView" class="chip" title="Delete this saved view" hidden>Delete view</button>
     </div>
   </div>
 </div>
-<!-- The configurations: a menu of their own at the bottom right -->
+<!-- The configurations: a menu of their own at the bottom right, with the
+     2D views' chips above it -->
 <div id="corner">
+  <!-- In a 2D view, its dimensions and the doors' sizes (the kit shows
+       these only then: data-mode), clear of the top bar, which they'd
+       cover on a phone -->
+  <div id="flatChips">
+    <button id="dims" class="chip" data-mode="2d" title="The 2D views' dimensions">Dimensions: on</button>
+    <button id="doorDims" class="chip" data-mode="2d" title="Each cupboard door's size, on the door">Door sizes: on</button>
+  </div>
   <div id="configurationMenu" class="pop">
     <div id="configurationGroup" class="group" role="group" aria-label="Configuration">
       <span class="tag">Configuration</span>

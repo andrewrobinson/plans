@@ -49,14 +49,17 @@ export const world = new THREE.Group();
 
 // What the page shows, which the dimensions and the things to store's labels
 // follow: a 2D view or not (flat), which (flatView: 'plan', 'back', …) and
-// the room the plan is of (flatRoom); the cupboard on its own (Cupboard
-// only); the Dimensions and Door sizes buttons; and See-through, every
-// corner cupboard's boards drawn faint. The hallway is hidden in the wall
-// views, which are the living room's: its stairwell would hang below their
-// floor
+// the room it's of (flatRoom); the cupboard on its own (Cupboard only);
+// the Dimensions and Door sizes buttons; and See-through, every corner
+// cupboard's boards drawn faint. The hallway is hidden in the lounge's and
+// the bedroom's wall views: its stairwell would hang below their floor
 // See-through is set on the cupboards' materials, which keep it, and isn't
 // kept here (ui_paradigm_analysis.md: the view's switches are to leave this
 // module's state)
+// The rooms whose wall views the hallway's stairwell would hang below the
+// floor of, next door (the hallway's group holds downstairs and the garage
+// too, which the garage's own wall views need)
+const STAIRWELL_SHOWS_IN = ['livingRoom', 'bedroom'];
 let flat = false, flatView = null, flatRoom = 'livingRoom', cupboardOnly = false, showDims = true, showDoorDims = true;
 export function setDisplay(shown) {
   if ('seeThrough' in shown) for (const materials of [CUPBOARD_MATERIALS, BEDROOM_MATERIALS]) seeThrough(materials, shown.seeThrough);
@@ -66,8 +69,22 @@ export function setDisplay(shown) {
   if ('cupboardOnly' in shown) cupboardOnly = shown.cupboardOnly;
   if ('showDims' in shown) showDims = shown.showDims;
   if ('showDoorDims' in shown) showDoorDims = shown.showDoorDims;
-  hallway.visible = !flat || flatView === 'plan';
+  hallway.visible = !flat || flatView === 'plan' || !STAIRWELL_SHOWS_IN.includes(flatRoom);
 }
+
+// Each room's box, in the living room's mm (x0 < x1, y0 < y1), its floor
+// and its ceiling's height: for the 2D views of its walls (living_room.js's
+// wallView()) and their dimensions. The 2D wall views look along x or y at
+// the wall on that side: 'back' at y0, 'front' at y1, 'left' at x0, 'right'
+// at x1. Downstairs has a plan but no wall views
+export const ROOM_BOXES = {
+  livingRoom: { x0: 0, x1: ROOM_WIDTH, y0: 0, y1: ROOM_DEPTH, floor: 0, ceiling: CEILING_HEIGHT },
+  bedroom: { x0: OTHER_ROOM_CORNER.x, x1: OTHER_ROOM_CORNER.x + OTHER_ROOM.length, y0: OTHER_ROOM_CORNER.y,
+    y1: OTHER_ROOM_CORNER.y + OTHER_ROOM.recessBack, floor: 0, ceiling: OTHER_ROOM.ceiling },
+  hallway: { x0: HALLWAY.xEnd, x1: HALLWAY.x0, y0: 0, y1: HALLWAY.ySetBack, floor: 0, ceiling: CEILING_HEIGHT },
+  garage: { x0: GARAGE_CORNER.x, x1: GARAGE_CORNER.x + GARAGE.length, y0: GARAGE_CORNER.y, y1: GARAGE_CORNER.y + GARAGE.width,
+    floor: ENTRANCE.floor, ceiling: ENTRANCE.floor + GARAGE.height },
+};
 
 // Room coordinates in mm: x along the back wall from the left wall, y from
 // the back wall towards the front, z up. The scene is y-up in metres:
@@ -999,6 +1016,8 @@ function updateDims() {
     chain([KITCHEN_RECESS_BACK_WALL_X, KITCHEN_RECESS_BACK_WALL_X + KITCHEN_DEPTH, 0], (v, off) => P(v, ROOM_DEPTH + 250 + off, CEILING_HEIGHT), dims); // the recess and kitchen depth
     chain([0, ROOM_WIDTH], (v, off) => P(v, ROOM_DEPTH + 250 + off, CEILING_HEIGHT), dims);
     chain([0, R, ...(above === 1 || above >= 3 ? [shelfDepth] : []), ROOM_DEPTH], (v, off) => P(ROOM_WIDTH + 250 + off, v, CEILING_HEIGHT), dims);
+  } else if (flatRoom !== 'livingRoom') {
+    roomWallDims(ROOM_BOXES[flatRoom], flatView, dims);
   } else if (flatView === 'back') {
     chain(alongBack, (v, off) => P(v, ROOM_DEPTH, -200 - off), dims);
     chain([0, ...backWallHeights(option), CEILING_HEIGHT], (v, off) => P(ROOM_WIDTH + 250 + off, ROOM_DEPTH, v), dims);
@@ -1019,6 +1038,21 @@ function updateDims() {
     chain([0, radiator.bottom, radiator.top, sill, top, CEILING_HEIGHT], (v, off) => P(ROOM_WIDTH, -250 - off, v), dims);
   }
   doorDims(dims);
+}
+
+// Another room's wall, seen from inside: the wall's length, under it, and
+// the room's height, beside it
+function roomWallDims(box, view, g) {
+  if (!box) return;
+  const { x0, x1, y0, y1, floor: f, ceiling: c } = box;
+  const alongX = view === 'back' || view === 'front', y = view === 'back' ? y1 : y0, x = view === 'left' ? x1 : x0;
+  if (alongX) {
+    chain([x0, x1], (v, off) => P(v, y, f - 200 - off), g);
+    chain([f, c], (v, off) => P(x1 + 250 + off, y, v), g);
+  } else {
+    chain([y0, y1], (v, off) => P(x, v, f - 200 - off), g);
+    chain([f, c], (v, off) => P(x, y1 + 250 + off, v), g);
+  }
 }
 
 // The bedroom's plan: along its hallway wall (the door's opening), its
@@ -1964,7 +1998,7 @@ export function startAgain() {
 
 // What the page reads, besides the functions exported where they're defined
 export {
-  flat, flatView, cupboardOnly, showDims, showDoorDims, drawStored,
+  flat, flatView, flatRoom, cupboardOnly, showDims, showDoorDims, drawStored,
   BACK_WALL_KEYS, CHAIR_TURN, CURRENT, CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE,
   DEFAULT_CONFIGURATION, DRESSERS, DRESSER_SLIDERS, FINISHES, LARDERS,
   LARDER_SLIDERS, OPTIONS, PACKINGS, SCHEMA, SHELF_WOODS, SOFAS,

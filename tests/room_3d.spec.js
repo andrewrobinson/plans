@@ -515,7 +515,7 @@ test.describe('the controls', () => {
 
 test.describe('the pop-up menus', () => {
   test.beforeEach(async ({ page }) => { await openRoom(page); });
-  const MENUS = ['#viewsMenu', '#viewMenu', '#configurationMenu'];
+  const MENUS = ['#viewMenu', '#configurationMenu'];
 
   test('each opens on its button and closes the others', async ({ page }) => {
     for (const menu of MENUS) {
@@ -540,11 +540,10 @@ test.describe('the pop-up menus', () => {
     await expect(page.locator('#viewGroup')).toBeHidden();
   });
 
-  test('Views: a 2D view goes into the address, with its Dimensions button', async ({ page }) => {
-    await page.locator('#viewsMenu .popToggle').click();
+  test('a 2D view goes into the address, with its Dimensions button', async ({ page }) => {
     const dims = page.locator('#dims');
     await expect(dims).toBeHidden();                            // 3D views have no dimensions
-    await page.selectOption('#viewPick', 'plan');
+    await page.selectOption('#loungeViewKind', 'plan');
     await expect.poll(async () => (await viewOf(page)).view).toBe('plan');
     await expect(dims).toHaveText('Dimensions: on');
     await dims.click();

@@ -118,6 +118,8 @@ Leave the top left ☰ (Other options) as the one ☰? Changes screenshots.
 
 **Decided (19 Oct 2026): a.** *Views ▾*, *Look ▾*, *Configuration ▾*,
 checked to still fit on a phone. The top left ☰ (Other options) stays as it is.
+Since 21 Oct 2026 there's no Views menu (VIEWS_MENU.md): only *Look ▾* and
+*Configuration ▾* are left to do.
 
 ### Step 2: make Reload and Reset safe
 

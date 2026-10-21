@@ -34,7 +34,7 @@ import { shoeBoxesControls } from './shoe_boxes.js';
 import { garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './garage.js';
 import { cupboardControls, copyControls, idIn } from './cupboard_controls.js';
 import { CASTOR_DESK } from './castor_desk.js';
-import { world, setDisplay, flat, flatView, cupboardOnly, showDims, showDoorDims, build,
+import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, showDims, showDoorDims, build,
   drawStored, turnDoors, describe, settle, cupboardRows, startAgain, BACK_WALL_KEYS, CHAIR_TURN, CURRENT,
   CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES,
   LARDERS, LARDER_SLIDERS, OPTIONS, PACKINGS, SCHEMA, SHELF_WOODS, SOFAS, SOFA_SLIDERS, STORED,
@@ -57,7 +57,7 @@ scene.add(world);
 // the island, the desk or the outside of the outer wall: the kit's, with
 // the view's cut, and with the cupboard on its own, only its parts.
 const applyCut = cutViews(scene, {
-  get cut() { return flat && flatView && !cupboardOnly ? builtInViews[flatView].cut : null; },   // on its own, the cupboard needs no cut
+  get cut() { return flat && flatView && !cupboardOnly ? (builtInViews[flatView].rooms?.[flatRoom] ?? builtInViews[flatView]).cut : null; },   // on its own, the cupboard needs no cut
   get only() { return cupboardOnly ? cupboardPart : null; },
 });
 
@@ -863,8 +863,35 @@ const GARAGE_FLOOR = ENTRANCE.floor * MM;
 // top as in the living room's, with room round it for its dimensions
 const PLAN_MARGIN = 1.4;                                        // metres, chosen
 const planOf = ({ x, y, w, d }) => ({ position: [x, 20, y + 0.001], target: [x, 0, y], fit: [w + PLAN_MARGIN, d + PLAN_MARGIN] });
+// A room's wall, in 2D (`side`: 'back', 'front', 'left' or 'right', as
+// ROOM_BOXES in flat_model.js has them), seen from inside the room: framed
+// on the wall's length and the room's height, with what's in the nearer
+// part of the room left out (the cut), as the living room's own wall views
+// are. Those are kept as they were drawn; the other rooms' are worked out
+const WALL_VIEW = {
+  far: 30,                         // metres from the room to the camera, as the living room's (the 2D camera is straight on)
+  margin: 1.2,                     // metres round the wall for its dimensions (chosen)
+  high: 3.2,                       // metres of height framed, as the living room's
+  eye: 1.0,                        // metres above the floor the wall's framed on, as the living room's
+  cut: 0.4,                        // the share of the room's depth kept, from the wall (the living room's back wall view keeps 2240 of 5379)
+};
+function wallView({ x0, x1, y0, y1, floor: f }, side) {
+  const m = v => v * MM, cx = m((x0 + x1) / 2), cy = m((y0 + y1) / 2), h = m(f) + WALL_VIEW.eye;
+  const w = x1 - x0, d = y1 - y0, { far, margin, high, cut } = WALL_VIEW;
+  return {
+    back: { position: [cx, h, m(y1) + far], target: [cx, h, m(y0)], fit: [m(w) + margin, high], cut: ['y', y0 + cut * d, 1] },
+    front: { position: [cx, h, m(y0) - far], target: [cx, h, m(y1)], fit: [m(w) + margin, high], cut: ['y', y1 - cut * d, -1] },
+    left: { position: [m(x1) + far, h, cy], target: [m(x0), h, cy], fit: [m(d) + margin, high], cut: ['x', x0 + cut * w, 1] },
+    right: { position: [m(x0) - far, h, cy], target: [m(x1), h, cy], fit: [m(d) + margin, high], cut: ['x', x1 - cut * w, -1] },
+  }[side];
+}
+// The other rooms' wall views, for builtInViews' wall views' `rooms`
+const OTHER_ROOMS_WITH_WALLS = ['bedroom', 'hallway', 'garage'];
+const otherWalls = side => Object.fromEntries(OTHER_ROOMS_WITH_WALLS.map(room => [room, wallView(ROOM_BOXES[room], side)]));
 const builtInViews = {
-  top:    { label: 'Top', title: 'Straight down from above', position: [1.92, 9.5, 2.9], target: [1.92, 0, 2.86] },
+  // From high in the lounge's corner by the desk: not offered (the room
+  // buttons' ▾ don't list it), but Packing's view when there's no corner
+  // cupboard to stand in front of
   corner: { label: 'Corner', title: 'From high in the corner by the desk', position: [4.6, 3.4, 5.4], target: [1.0, 1.0, 1.0] },
   // High above the windows, looking down across the room towards the door
   // and the kitchen. The outer wall and ceiling only show from inside, so
@@ -886,16 +913,17 @@ const builtInViews = {
   stairsSide: { label: 'Stairs from the side', title: 'The stairwell from beside it, past the TV wall', room: 'hallway',
     position: [-2.035, 2.861, -4.124], target: [-2.346, 0.105, 2.19], hfov: 66 },
   // The wall views leave out what's on the camera's side of their cut (see
-  // applyCut): the back wall view everything past the return wall, the left
-  // wall view the island, the dresser and beyond, the front wall view
-  // everything short of the island's far end, the right wall view everything
-  // left of the desk recess
+  // applyCut): in the living room, the back wall view everything past the
+  // return wall, the left wall view the island, the dresser and beyond, the
+  // front wall view everything short of the island's far end, the right
+  // wall view everything left of the desk recess; the other rooms' as
+  // wallView() works them out
   plan:   { label: 'Plan (2D)', position: [1.4, 20, 2.861], target: [1.4, 0, 2.86], fit: [6.0, 6.9],    // back wall at the top
     rooms: { bedroom: planOf(BEDROOM_AREA), hallway: planOf(HALLWAY_AREA), downstairs: planOf(ENTRANCE_AREA), garage: planOf(GARAGE_AREA) } },
-  back:   { label: 'Back wall (2D)', position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1] },        // facing the back wall
-  left:   { label: 'Left wall (2D)', position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 700, 1] },         // facing the left wall, back wall on the right
-  front:  { label: 'Front wall (2D)', position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1] },   // facing the front wall, left wall on the right
-  right:  { label: 'Right wall (2D)', position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 2220, -1] },   // facing the right wall, back wall on the left
+  back:   { label: 'Back wall (2D)', position: [1.9, 1.0, 30], target: [1.9, 1.0, 0], fit: [5.0, 3.2], cut: ['y', 2240, 1], rooms: otherWalls('back') },        // facing the back wall
+  left:   { label: 'Left wall (2D)', position: [30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.0, 3.2], cut: ['x', 700, 1], rooms: otherWalls('left') },         // facing the left wall, back wall on the right
+  front:  { label: 'Front wall (2D)', position: [1.37, 1.0, -30], target: [1.37, 1.0, 0], fit: [6.2, 3.2], cut: ['y', 4300, -1], rooms: otherWalls('front') },   // facing the front wall, left wall on the right
+  right:  { label: 'Right wall (2D)', position: [-30, 1.0, 2.7], target: [0, 1.0, 2.7], fit: [7.2, 3.2], cut: ['x', 2220, -1], rooms: otherWalls('right') },   // facing the right wall, back wall on the left
 };
 
 // Packing: standing back from the corner cupboard's door (PACK_BACK, below),
@@ -1049,8 +1077,8 @@ const viewKit = ViewKit.create({
   },
   chair: { object: deskChair, rest: CHAIR_TURN, eyes: 150 },
   el: {
-    room: document.getElementById('room'), where: document.getElementById('where'), lookAt: document.getElementById('lookAt'), eye: document.getElementById('eye'),
-    views: document.getElementById('viewPick'), save: document.getElementById('saveView'), remove: document.getElementById('deleteView'),
+    where: document.getElementById('where'), lookAt: document.getElementById('lookAt'), eye: document.getElementById('eye'),
+    save: document.getElementById('saveView'), remove: document.getElementById('deleteView'),   // the views are listed in the room buttons' ▾ (fillRoomKinds())
     looks: document.getElementById('lookPick'), saveLook: document.getElementById('saveLook'), removeLook: document.getElementById('deleteLook'),
   },
   hooks: {
@@ -1073,6 +1101,7 @@ const viewKit = ViewKit.create({
       frameCupboard();                                          // on its own, framed to fill the screen
     },
     isFlat: () => flat,
+    viewsChanged: () => fillRoomKinds(),
     resize: () => resize(),
     writeAddress: () => writeAddress(true),
   },
@@ -1145,30 +1174,77 @@ const ROOM_BUTTONS = {
   hallway: { name: 'Hallway', drawer: 'hallPanel', options: 'Hallway and stairs' },
 };
 const optionsOf = room => ROOM_BUTTONS[room] ?? ROOM_BUTTONS.hallway;     // downstairs: the hallway's
-// How a room's button shows it: views that frame every room (builtInViews'),
-// then any of the room's own
-const ROOM_VIEW_KINDS = [['birdseye', "Bird's eye"], ['plan', 'Plan (2D)']];
-const ROOMS_OWN_VIEWS = { hallway: [['stairsSide', 'Stairs from the side']] };
-const viewKindsOf = room => [...ROOM_VIEW_KINDS, ...(ROOMS_OWN_VIEWS[room] ?? [])];
+// What each room's button offers in its ▾ (the Views menu went, 21 Oct
+// 2026, as VIEWS_MENU.md says): the views that frame any room (Bird's eye,
+// Plan), the room's four walls in 2D (each named as the room's own wall),
+// the room's config-defined views (living_room.views.js) and the views saved
+// in it on this device. The hallway's carries downstairs too, which has no
+// button. A choice's value is the view's id, or "downstairs/<id>" for
+// downstairs' under the hallway's
+const WHOLE_ROOM_VIEWS = [['birdseye', "Bird's eye"], ['plan', 'Plan (2D)']];
+const WALL_NAMES = {
+  livingRoom: { back: 'Back wall, the TV', left: 'Left wall, the door', front: 'Front wall, the kitchen', right: 'Right wall, the windows' },
+  bedroom: { back: 'Hallway wall', front: 'Chimney breast', left: 'Window wall', right: 'Kitchen-side wall' },
+  hallway: { back: "Stairs' outside wall", front: 'Bedroom side', right: 'Lounge door wall', left: 'WC wall' },
+  garage: { left: 'Back wall', right: 'Door', back: 'Right-hand wall, going in', front: 'Left-hand wall, going in' },
+};
+const BUTTON_ALSO = { hallway: ['downstairs'] };                   // rooms with no button of their own, under this one's
+const ROOMS_OWN_BUILT_IN = { stairsSide: 'hallway' };             // built-in views of one room alone, by id: theirs
+const configViewsIn = room => Object.entries(ROOM_VIEWS.views).filter(([, v]) => (v.room ?? 'livingRoom') === room);
+const savedViewsIn = room => viewKit.savedViews.filter(v => (v.room ?? 'livingRoom') === room);
+// Its choices, in groups: [heading, [[value, label], …]]
+function roomViewChoices(room) {
+  const ownRoom = r => (prefixed => [
+    [prefixed('Whole room'), WHOLE_ROOM_VIEWS.map(([id, label]) => [id, label])],
+    ...(WALL_NAMES[r] ? [[prefixed('Walls'), Object.entries(WALL_NAMES[r]).map(([id, label]) => [id, `${label} (2D)`])]] : []),
+    [prefixed('Views'), [...Object.entries(ROOMS_OWN_BUILT_IN).filter(([, at]) => at === r).map(([id]) => [id, builtInViews[id].label]),
+      ...configViewsIn(r).map(([id, v]) => [id, v.label])]],
+    [prefixed('Saved on this device'), savedViewsIn(r).map(v => [`saved:${v.name}`, v.name])],
+  ])(heading => (r === room ? heading : `${ROOM_VIEWS.rooms[r].label}: ${heading.toLowerCase()}`));
+  const groups = [...ownRoom(room), ...(BUTTON_ALSO[room] ?? []).flatMap(other =>
+    ownRoom(other).map(([heading, choices]) => [heading, choices.map(([id, label]) => [`${other}/${id}`, label])]))];
+  return groups.filter(([, choices]) => choices.length);
+}
+// A choice's room and view: "downstairs/plan" is downstairs' plan, else the button's room's
+function choiceOf(room, value) {
+  const at = value.indexOf('/');
+  return at < 0 ? { room, id: value } : { room: value.slice(0, at), id: value.slice(at + 1) };
+}
 const viewKindKey = room => `room_3d:viewKind:${room}`;
+// The room's choice, as last made on this device, if it's still offered (a saved view may have gone)
 function viewKindOf(room) {
-  try { return localStorage.getItem(viewKindKey(room)) ?? ROOM_VIEW_KINDS[0][0]; } catch (e) { return ROOM_VIEW_KINDS[0][0]; }
+  let kind = null;
+  try { kind = localStorage.getItem(viewKindKey(room)); } catch (e) { /* not important */ }
+  const offered = roomViewChoices(room).flatMap(([, choices]) => choices.map(([value]) => value));
+  return offered.includes(kind) ? kind : WHOLE_ROOM_VIEWS[0][0];
 }
 // To room, as its button's dropdown says: the drawers shut, and the whole
 // room shown (not Cupboard only)
 function goToRoom(room) {
   drawers.setMenu(null);
   if (cupboardOnly) setCupboardOnly(false);
-  viewKit.showRoom(room, viewKindOf(room));
+  const { room: to, id } = choiceOf(room, viewKindOf(room));
+  viewKit.showRoom(to, id);
+}
+// Each button's ▾ filled with its choices, the one last made chosen: again
+// whenever a view's saved or deleted
+const roomKinds = {};
+function fillRoomKinds() {
+  for (const [room, kind] of Object.entries(roomKinds)) {
+    kind.replaceChildren(...roomViewChoices(room).map(([heading, choices]) => {
+      const group = Object.assign(document.createElement('optgroup'), { label: heading });
+      group.append(...choices.map(([value, label]) => Object.assign(document.createElement('option'), { value, textContent: label })));
+      return group;
+    }));
+    kind.value = viewKindOf(room);
+  }
 }
 for (const [room, { name }] of Object.entries(ROOM_BUTTONS)) {
   const id = `${name.toLowerCase()}View`;                           // loungeView, bedroomView and so on
   const split = Object.assign(document.createElement('div'), { className: 'split' });
   const go = Object.assign(document.createElement('button'), { id, className: 'chip', textContent: name, title: `Go to the ${name.toLowerCase()}` });   // the room's name alone, short for the phone's top bar (asked for, 19 Oct 2026)
-  const kind = Object.assign(document.createElement('select'), { id: `${id}Kind`, className: 'pick' });
-  kind.setAttribute('aria-label', `${name} view: seen from`);
-  kind.append(...viewKindsOf(room).map(([value, label]) => Object.assign(document.createElement('option'), { value, textContent: label })));
-  kind.value = viewKindOf(room);
+  const kind = roomKinds[room] = Object.assign(document.createElement('select'), { id: `${id}Kind`, className: 'pick' });
+  kind.setAttribute('aria-label', `${name}: how to see it`);
   go.addEventListener('click', () => goToRoom(room));
   kind.addEventListener('change', () => {
     try { localStorage.setItem(viewKindKey(room), kind.value); } catch (e) { /* not important */ }
@@ -1179,6 +1255,7 @@ for (const [room, { name }] of Object.entries(ROOM_BUTTONS)) {
   split.append(go, kindBox);
   document.getElementById('roomViews').append(split);
 }
+fillRoomKinds();
 
 // The settings drawers, one open at a time, all closed to start on every
 // screen: Other options (the wicker bench, the colours in this view),

@@ -45,8 +45,8 @@ live beside it.
 | Lines | Element | What it is on screen |
 |---|---|---|
 | 29 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
-| 37–45 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge**, **Bedroom**, **Garage**, **Hallway** (the room's name alone, short for a phone), each going to its room, with a ▾ dropdown of Bird's eye or Plan, and for the Hallway also Stairs from the side), Share, **Stored: on/off** (`#storedToggle`, shows or hides the things to store in the lounge), 📷 (Screenshot), Reload (the page afresh, nothing in the address) and Reset (once confirmed, forgets everything on the device, saved views, looks and configurations too, and drops the offline copy; `resetButton()` in kit/floor_kit.js). On a phone, while a sheet's open, only ☰ shows |
-| 48–73 | `#topRight` | Two pop-up menus at the top right: **Views** (`#viewsMenu`, purple) and **Look** (`#viewMenu`, blue) |
+| 37–45 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge**, **Bedroom**, **Garage**, **Hallway** (the room's name alone, short for a phone), each going to its room, with a ▾ dropdown of all that room's views: Bird's eye, Plan, its four walls in 2D, its config-defined views and those saved in it, and under the Hallway's, downstairs' too; `fillRoomKinds()` in living_room.js, as VIEWS_MENU.md has it), Share, **Stored: on/off** (`#storedToggle`, shows or hides the things to store in the lounge), 📷 (Screenshot), Reload (the page afresh, nothing in the address) and Reset (once confirmed, forgets everything on the device, saved views, looks and configurations too, and drops the offline copy; `resetButton()` in kit/floor_kit.js). On a phone, while a sheet's open, only ☰ shows |
+| 48–66 | `#topRight` | The **Look** pop-up menu (`#viewMenu`, blue): Where, Looking at, eye height, looks, and Save view / Delete view. The Views menu went on 21 Oct 2026 (VIEWS_MENU.md); in a 2D view the Dimensions and Door sizes chips (`#flatChips`) show at the bottom right, above Configuration |
 | 75–85 | `#corner` | The **Configuration** pop-up menu at the bottom right (`#configurationMenu`, green) |
 | 87–89 | `#bottomLeft` | The options button (`#roomOptions`), named for the room in view: Lounge, Bedroom or Garage options, or Hallway and stairs. It moves clear of an open drawer, onto a sheet's top edge on a phone |
 | 90 | `#tip` | A tooltip that follows the pointer over things to store |
@@ -172,8 +172,8 @@ The lounge's are index.html's own; the bedroom's are a copy of them,
 | 386–403 | **The address**: `writeAddress()` | The configuration and the view, packed into the URL `#hash` (section 5) |
 | **404–791** | **Control wiring** | **`change(edits, { look })`** (404), the two cupboards' controls (`loungeCupboard`, `bedroomCupboardControls`, `showBedroomCupboard()`), then one event listener per slider, radio group and dropdown, each calling it (sections 4 and 5); the colour pickers (`colourPicker()`, the bedroom cupboard's too); `sizeEdits()` |
 | 787–922 | Built-in views and "anchors" (things the Look menu can aim at), and the Packing view | The 2D views' framing (`flatFit`, `flatPerM`), and the kit's `flatViews()` |
-| 923–1007 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Views and Look dropdowns to `kit/view_kit.js`; `hooks.place()` tells the model what's shown (`setDisplay()`) |
-| 1008–1100 | The view as JSON; **the rooms' buttons and the drawers**; Reload, Share and offline support | `viewNow()`, `readDisplay()`; `ROOM_BUTTONS` (each room's name, drawer and options), the split buttons (`goToRoom()`, each room's Bird's eye or Plan kept on this device, and a room's own views from `ROOMS_OWN_VIEWS`: the hallway's Stairs from the side, `builtInViews.stairsSide`), `DRAWERS` (Other, Lounge, Bedroom, Garage, Hallway and stairs), the options button (`showRoomOptions()`, from `hooks.place()`) |
+| 923–1007 | `ViewKit.create({...})`, the pop-up menus and `SceneKit.create` | Hands the Look dropdowns to `kit/view_kit.js` (it lists the views itself only if given a views list; the page lists them in the room buttons' ▾); `hooks.place()` tells the model what's shown (`setDisplay()`) |
+| 1008–1100 | The view as JSON; **the rooms' buttons and the drawers**; Reload, Share and offline support | `viewNow()`, `readDisplay()`; `ROOM_BUTTONS` (each room's name, drawer and options), the split buttons (`goToRoom()`, each room's choice kept on this device; `roomViewChoices()`: Bird's eye and Plan, the room's walls (`WALL_NAMES`, `wallView()`), its config-defined and saved views, and under the hallway's, downstairs' as `downstairs/<id>`), `DRAWERS` (Other, Lounge, Bedroom, Garage, Hallway and stairs), the options button (`showRoomOptions()`, from `hooks.place()`) |
 | 1101–1152 | The rooms' modules' controls and `syncControls()` | `roomEdits()` (their settings' places in `state` as the configuration's paths); the model's `settle()`, then every slider, radio, switch and dropdown in step with the settings |
 | 1153–1193 | **`window.plans`** (steps 6a to 6c) | `get()`, `export()`, `load()`, `view()`, `schema()` and `snapshot()`, for the tests and the browser console (section 5) |
 | 1194–1209 | **Startup** and the render loop | The URL hash unpacked (awaited) and read into `state`, then `syncControls()`, `show()`, the view; the kit's `startLoop()` |
@@ -327,7 +327,7 @@ The one exception is `<details>`, which is pure HTML.
 The JS doesn't move the drawers. It only switches a class on `<body>`, and the
 CSS does the movement and the animation.
 
-### b) The three pop-up menus (Views, Look, Scenes)
+### b) The two pop-up menus (Look, Configuration)
 
 | Part | Where |
 |---|---|
@@ -354,8 +354,8 @@ open/closed state in `localStorage`, using the `toggle` event.
 The `<select>` elements in the HTML are **empty** (e.g. `<select id="where"
 class="pick"></select>`). JS adds every `<option>`:
 
-- Views and Look (`#viewPick`, `#room`, `#where`, `#lookAt`, `#eye`, `#lookPick`) are filled by
-  `kit/view_kit.js`, Where and Looking at again each time the room changes. The page passes the elements in to `ViewKit.create()`.
+- Look (`#where`, `#lookAt`, `#eye`, `#lookPick`) is filled by
+  `kit/view_kit.js`, Where and Looking at again each time the room changes. The room buttons' ▾ (`#loungeViewKind` and so on) are filled by `fillRoomKinds()` in living_room.js, again when a view's saved or deleted. The page passes the elements in to `ViewKit.create()`.
 - Configuration (`#configurationPick`) is filled by `kit/configuration_kit.js`, through `ConfigurationKit.create()`.
 - The rest are filled in the module (section 4).
 
@@ -574,7 +574,7 @@ shared by those objects, and anything that follows that colour.
 
 ### Views and Look
 
-The Views and Look dropdowns don't change the model. They move the **camera**.
+The room buttons' ▾ and the Look dropdowns don't change the model. They move the **camera**.
 `kit/view_kit.js` handles the dropdowns and calls back into the page through the
 `hooks.place()` function, which sets `camera.position` and
 `controls.target`.

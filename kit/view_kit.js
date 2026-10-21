@@ -45,15 +45,17 @@ const person = key => key.split('-').slice(1).join('-');
 //   chair: { object, rest, eyes } a swivel chair: the object to turn, its
 //     turn when no one's in it (radians), and how far your eyes are in
 //     front of its middle (mm)
-//   el: { where, lookAt, eye, views, save, remove, hint } the controls, and
-//     optionally { room } to choose the room, and { looks, saveLook,
-//     removeLook } for saved looks
+//   el: { where, lookAt, eye, save, remove, hint } the controls, and
+//     optionally { views } the views list (else the page lists them, with
+//     hooks.viewsChanged and `savedViews`), { room } to choose the room,
+//     and { looks, saveLook, removeLook } for saved looks
 //   hints: { flat, orbit, person } what the hint says in each case
 //   hooks: {
 //     place(view, id, room)   put the cameras at the view (2D or 3D), then resize and update
 //     isFlat()          in a 2D view
 //     resize()          after the lens changes
 //     writeAddress()    write the page address, with view() as its view
+//     viewsChanged()    optional: a view was saved or deleted
 //   }
 export function create(o) {
   const { THREE, camera, controls, canvas, config, builtIn = {}, origins = {}, anchors = {}, computed = {}, actions = {}, chair = null, el, hints, hooks } = o;
@@ -249,7 +251,10 @@ export function create(o) {
   const choice = (value, label, title = '') => Object.assign(document.createElement('option'), { value, textContent: label, title });
   const unset = label => Object.assign(choice('', label), { disabled: true });
   const viewUnset = unset('');
+  // The views list, if the page has one (else the page lists them itself:
+  // hooks.viewsChanged(), after one's saved or deleted, and `savedViews`)
   function fillViews() {
+    if (!el.views) return;
     el.views.replaceChildren(viewUnset);
     const group = (label, choices) => {
       if (!choices.length) return;
@@ -390,7 +395,7 @@ export function create(o) {
     [...el.lookAt.options].forEach(op => { op.disabled = !op.value || (roomOf(PLACES[lookPlace]) === room && cannotSee(lookPlace, op.value)); });
     if (el.room) el.room.value = room;
     viewUnset.textContent = viewId ? 'Views' : 'Your view (not saved)';
-    el.views.value = looking ? '' : viewId;
+    if (el.views) el.views.value = looking ? '' : viewId;
     if (postured || asPerson) el.eye.value = eye;
     else if (viewId) el.eye.value = '';
     el.remove.hidden = !viewId.startsWith('saved:');
@@ -410,7 +415,7 @@ export function create(o) {
   // The last 3D view chosen here, to go back to from the 2D views
   let startView = load('startView');
   if (!startView || !is3dView(startView)) startView = firstView;
-  el.views.addEventListener('change', () => {
+  el.views?.addEventListener('change', () => {
     setView(el.views.value);
     if (!hooks.isFlat()) remember('startView', startView = viewId);
   });
@@ -457,6 +462,7 @@ export function create(o) {
       return;
     }
     fillViews();
+    hooks.viewsChanged?.();
     remember('startView', startView = viewId = `saved:${name}`);
     showChoices(postured);
     writeView();
@@ -466,6 +472,7 @@ export function create(o) {
     if (!window.confirm(`Delete the saved view "${name}"?`)) return;
     storeSavedViews(savedViews().filter(v => v.name !== name));
     fillViews();
+    hooks.viewsChanged?.();
     if (startView === viewId) remember('startView', startView = firstView);
     viewId = '';
     showChoices(false);
@@ -532,6 +539,7 @@ export function create(o) {
     // The room changed: work the view out again, if it's worked out from it
     refresh() { if (follows) setView(viewId); },
     get viewId() { return viewId; },
+    get savedViews() { return savedViews(); },
     get room() { return room; },
     get startView() { return startView; },
     get hfov() { return hfov; },

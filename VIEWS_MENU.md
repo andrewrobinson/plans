@@ -120,9 +120,24 @@ tell which belong where.
 
 ## Choices (to decide before anything's built)
 
-**Decided (21 Oct 2026), in outline:** the Views menu goes, and each room's
-button (its ▾) gains that room's 2D views, as D a and B a. The details
-(below) are still to choose before it's built.
+**Decided and built (21 Oct 2026):** the Views menu goes, and each room's
+button (its ▾) lists all that room's views, as D a, B a, C (dropped, but
+Corner kept unlisted as Packing's view with no cupboard), E a:
+
+- Each ▾: Bird's eye, Plan (2D), the room's four walls in 2D (each named as
+  that room's own wall: `WALL_NAMES` in living_room.js), its config-defined
+  views, and the views saved in it. The other rooms' walls are framed and
+  cut by `wallView()` from `ROOM_BOXES` (flat_model.js), with the wall's
+  length and the room's height as dimensions; the lounge's stay as drawn.
+- Top is gone, and Corner is no longer listed.
+- Save view and Delete view are in the Look menu; a saved view is listed in
+  its room's ▾.
+- Dimensions and Door sizes show in a 2D view at the bottom right, above
+  Configuration (at the top right they'd cover the top bar on a phone).
+- Downstairs' views are under the Hallway's ▾ ("Downstairs: …").
+- Look's Room list is gone: Where and Looking at are the room on screen's.
+
+The section below is the analysis as it was written, before this.
 
 Each step stands alone. They overlap with `UI_CRITIQUE.md`'s step 1
 (*Views ▾*, agreed) and its step 8 (two places to choose a view, listed

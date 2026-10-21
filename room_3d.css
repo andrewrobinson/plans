@@ -23,9 +23,10 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
   position: fixed; top: 12px; left: 12px; right: 68px; z-index: 4; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
   pointer-events: none;
 }
-/* The views list and look (where you are and what you look at): menu
-   buttons at the top right, each opening its group below it; the configurations:
-   a menu button at the bottom right, opening above */
+/* Look (where you are and what you look at): a menu button at the top
+   right, opening its group below it; the configurations: a menu button at
+   the bottom right, opening above, and above it, in a 2D view, the
+   Dimensions and Door sizes chips */
 #corner { position: fixed; right: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
 .pop { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
 .pop > .group { display: none; background: rgba(255, 255, 255, 0.92); }
@@ -36,7 +37,7 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 }
 .popToggle { color: var(--tint); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 0 0 2px var(--tint); }
 #viewMenu { --tint: #1f4e79; }
-#viewsMenu { --tint: #6a3d9a; }
+#flatChips { display: flex; gap: 8px; pointer-events: none; }
 /* In front of the top bar: an open menu here can reach it on a phone */
 #topRight { position: fixed; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
 #configurationMenu { --tint: #2e7d4f; }
@@ -63,7 +64,7 @@ body.reloading canvas { opacity: 0.2; transition: opacity 0.25s; }
   pointer-events: auto; height: 44px; min-width: 0; max-width: 100%; border: none; border-radius: 10px; padding: 0 10px;
   background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); font: inherit; font-size: 14px; cursor: pointer;
 }
-#where, #lookAt, #eye, #lookPick, #viewPick, #configurationPick { flex: none; }
+#where, #lookAt, #eye, #lookPick, #configurationPick { flex: none; }
 /* The option on show, in Lounge options: the drawer's width, framed as its
    other dropdowns are */
 .drawer select.pick { display: block; width: 100%; height: 36px; box-shadow: none; border: 1px solid #999; border-radius: 6px; }
