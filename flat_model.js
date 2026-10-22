@@ -443,7 +443,7 @@ const BEDROOM_MATERIALS = makeMaterials();
 // The things to store, for the shelves to be cut round: each { name, h, x,
 // y, z, w, d }, in STORED's order, none while they're not shown
 const storedThings = () => (!state.stored.shown ? [] : STORED.map((s, k) => {
-  const { x, y, z } = state.stored.spots[k], [w, d] = storedSize(k);
+  const { x, y, z } = storedSpots()[k], [w, d] = storedSize(k);
   return { name: s.name, h: s.h, x, y, z, w, d };
 }));
 
@@ -572,7 +572,7 @@ const colourOf = code => RAL[code] ? { name: RAL[code][0], hex: RAL[code][1] } :
 
 // Each box's default (`room`) is the room as it is now: its own finishes. The
 // cupboards (and the bench with them) default to whatever the woodwork is.
-const dresserMat = material(0xc9a877), dresserDoorMat = material(0xd8bd92);   // set by setRal() below
+const dresserMat = material(0xc9a877), dresserDoorMat = material(0xd8bd92);   // set by applyColour() below
 const COLOUR_TARGETS = {
   floor: { mats: [floorMat], room: 3 },
   cupboard: { mats: [carcassMat, doorMat, benchMat], follows: 'woodwork' },
@@ -592,10 +592,9 @@ function shownCode(target) {
   return state.colours[target] || room || (follows ? shownCode(follows) : 0);
 }
 
-function setRal(target, code) {
+// A colour target's materials coloured as its setting (state.colours) says
+function applyColour(target) {
   const { mats } = COLOUR_TARGETS[target];
-  if (code && !colourOf(code)) return null;
-  state.colours[target] = code || 0;
   // Every target resolves to a colour: its own, its room finish, or the one it follows
   const colour = colourOf(shownCode(target));
   mats.forEach(m => {
@@ -608,11 +607,10 @@ function setRal(target, code) {
   });
   // Anything that follows this target, and is on its default, follows it now
   for (const [other, t] of Object.entries(COLOUR_TARGETS)) {
-    if (t.follows === target && !state.colours[other]) setRal(other, 0);
+    if (t.follows === target && !state.colours[other]) applyColour(other);
   }
-  return code ? colour.name : '';
 }
-for (const target of Object.keys(COLOUR_TARGETS)) setRal(target, state.colours[target]);   // the room as it is now, with AI Olive cupboards
+for (const target of Object.keys(COLOUR_TARGETS)) applyColour(target);   // the room as it is now, with AI Olive cupboards
 
 // ---------------------------------------------------------------------------
 // The bench's base cupboards (option 9's), drawn by drawBench()
@@ -658,15 +656,17 @@ const DRESSER_SLIDERS = [['w', 'dresserW', 900, 1415, 5], ['h', 'dresserH', 1500
 // Start with the dresser chosen in dressers.js (a link keeps its own)
 const DRESSERS = DRESSER_MODELS.list;
 for (const [k] of DRESSER_SLIDERS) state.dresser[k] = DRESSERS[DRESSER_MODELS.start]?.[k] ?? state.dresser[k];
-function placeDresser() {
-  state.dresser.upperD = Math.min(state.dresser.upperD, state.dresser.baseD);
+// Where it stands along the front wall, worked out from its width: centred
+// between the counter's end and the desk recess, x0 to x1
+export function dresserSpan() {
   const from = KITCHEN.frontRunTo + KITCHEN.counterPast, gap = DESK_RECESS.x0 - from;   // 1415 clear
-  state.dresser.x0 = Math.round(from + (gap - state.dresser.w) / 2);
-  state.dresser.x1 = state.dresser.x0 + state.dresser.w;
+  const x0 = Math.round(from + (gap - state.dresser.w) / 2);
+  return { x0, x1: x0 + state.dresser.w };
 }
 function dresser(g) {
   // Its width is overall, with the top's 20 overhang each side, so the body is 40 narrower
-  const { h, baseD, baseH, upperD, drawer } = state.dresser, x0 = state.dresser.x0 + 20, x1 = state.dresser.x1 - 20, w = state.dresser.w - 40;
+  const span = dresserSpan();
+  const { h, baseD, baseH, upperD, drawer } = state.dresser, x0 = span.x0 + 20, x1 = span.x1 - 20, w = state.dresser.w - 40;
   const yb = ROOM_DEPTH - baseD, yu = ROOM_DEPTH - upperD;                         // the fronts of the base and the upper part
   const doorTop = baseH - TOP_T - drawer - 3;                    // the doors stop under the drawers
   box({ from: [x0, yb + 18, 0], to: [x1, ROOM_DEPTH, baseH - TOP_T] }, dresserMat, g);      // base, behind its fronts
@@ -687,7 +687,7 @@ function dresser(g) {
   box({ from: [x0 - 20, yu - 20, h - 40], to: [x1 + 20, ROOM_DEPTH, h] }, dresserMat, g);   // top, 20 proud
   const shelfTops = [1, 2, 3].map(k => Math.round(baseH + k * (h - 40 - baseH) / 4));   // evenly up the upper part
   for (const top of shelfTops) box({ from: [x0 + 18, yu, top - 22], to: [x1 - 18, ROOM_DEPTH - 12, top] }, shelfMat, g);
-  return ` A dresser on the front wall between the sink and the desk (x ${state.dresser.x0}-${state.dresser.x1}): ${state.dresser.w} wide overall (its body ${w}), ${h} high, ${baseD} deep up to ${baseH} ` +
+  return ` A dresser on the front wall between the sink and the desk (x ${span.x0}-${span.x1}): ${state.dresser.w} wide overall (its body ${w}), ${h} high, ${baseD} deep up to ${baseH} ` +
     `(two drawers over two doors, under a wooden top), then ${upperD} deep with three open shelves.`;
 }
 
@@ -942,7 +942,7 @@ function frontSpan() {
     return { x0, x1, heights: [0, KITCHEN.island.top] };
   }
   if (state.cornerCupboard.option === CURRENT_ROOM) return null;
-  if (state.frontPiece === 'dresser') return { x0: state.dresser.x0, x1: state.dresser.x1, heights: [0, state.dresser.baseH, state.dresser.h] };
+  if (state.frontPiece === 'dresser') return { ...dresserSpan(), heights: [0, state.dresser.baseH, state.dresser.h] };
   if (state.frontPiece === 'bookshelf') {
     const { w, h } = state.otherRoom.bookcase;
     return { x0: frontX0(w), x1: frontX0(w) + w, heights: [0, h] };
@@ -1147,6 +1147,10 @@ const PACKINGS = [
 ];
 const sizeOf = (k, turned) => turned ? [STORED[k].d, STORED[k].w] : [STORED[k].w, STORED[k].d];
 state.stored.spots = STORED.map(() => ({ x: 0, y: 0, turned: false, z: 0 }));   // z: how high it stands, as on a shelf
+// Where they are (state.stored.where), by the configuration's words: by the
+// window, in the cupboard, or moved by hand
+const STORED_WHERE = { window: 0, cupboard: 1, byHand: 2 };
+const BY_HAND = STORED_WHERE.byHand;
 // Where they are now (the user's photo, 18 Oct 2026; estimated from it), in
 // STORED's order, each its back left corner: where Cornwall stands
 // (LOUNGE_NOW), the ladders against the left wall at its door end, the
@@ -1164,12 +1168,12 @@ const STORED_NOW = [
   { x: 820, y: 1380, turned: false, z: ON_THE_FLOOR },           // the tub
   { x: 30, y: 30, turned: false, z: ON_THE_FLOOR },              // Rack 2
 ];
-Object.assign(state.stored, { shown: true, where: 2, spots: structuredClone(STORED_NOW) });   // shown, as they are now
+Object.assign(state.stored, { shown: true, where: BY_HAND, spots: structuredClone(STORED_NOW) });   // shown, as they are now
 const storedGroup = new THREE.Group();
 world.add(storedGroup);
 const storedMats = STORED.map(s => new THREE.MeshStandardMaterial({ color: s.colour, roughness: 0.7 }));
 const storedLineMat = new THREE.LineBasicMaterial({ color: 0x1f4e79, depthTest: false });
-const storedSize = k => sizeOf(k, state.stored.spots[k].turned);
+const storedSize = k => sizeOf(k, storedSpots()[k].turned);
 
 // A thing's short name printed flat on its top face, along its longer side,
 // reading the right way up when facing the back wall
@@ -1236,10 +1240,16 @@ function fitOf(k, { x, y, turned, z = 0 }, spaces) {
   }
   return roomy === all ? 'fits' : !any ? 'out' : any === all ? 'tall' : 'sticks';
 }
+// Where the things stand: state.stored.spots, the settings, once they're
+// moved by hand (where is BY_HAND); else worked out, by the window or in
+// the cupboard as their packing has them (placeStored()), and never kept
+// in the settings (REFACTOR_PLAN.md item 13)
+let packedSpots = STORED.map(() => ({ x: 0, y: 0, turned: false, z: 0 }));
+export const storedSpots = () => (state.stored.where === BY_HAND ? state.stored.spots : packedSpots);
 // Put the things where state.stored.where says, in its packing
-function placeStored() {
-  const { packing, where, spots: stored } = state.stored;
-  if (where === 2) return;                                       // moved by hand: leave them
+export function placeStored() {
+  const { packing, where } = state.stored;
+  if (where === BY_HAND) return;                                 // moved by hand: where they were put
   const pack = PACKINGS[packing].at;
   // flip: the packing turned to run the other way (its x and y swapped).
   // A packing stands on the floor (z 0), wherever they were before
@@ -1258,7 +1268,7 @@ function placeStored() {
       if (fit > best) [best, spots] = [fit, tryThis];
     }
   }
-  spots.forEach((spot, k) => Object.assign(stored[k], spot));
+  packedSpots = spots;
 }
 
 // In the plan: the cupboard's inside (a rectangle, or an L of two), outlined
@@ -1282,7 +1292,7 @@ function planFit(spaces, fits) {
   const cells = [];
   STORED.forEach((s, k) => {
     if (fits[k] !== 'sticks') return;
-    const { x, y } = state.stored.spots[k], [w, d] = storedSize(k);
+    const { x, y } = storedSpots()[k], [w, d] = storedSize(k);
     let ox0 = Infinity, oy0 = Infinity, ox1 = -Infinity, oy1 = -Infinity;
     for (let cx = x; cx < x + w; cx += 20) for (let cy = y; cy < y + d; cy += 20) {
       const c = [cx + 10, cy + 10];
@@ -1312,7 +1322,7 @@ function planFit(spaces, fits) {
 }
 
 function drawStored() {
-  const { shown, where: placed, spots: stored } = state.stored;
+  const { shown, where: placed } = state.stored, stored = storedSpots();
   storedGroup.traverse(o => {
     o.geometry?.dispose();
     if (o.isSprite || o.material?.map) {                        // labels have their own materials
@@ -1384,9 +1394,7 @@ let bedroomCupboard = null;  // the bedroom's own corner cupboard (BEDROOM_PLACE
 // till now)
 function buildBedroomCupboard(onShow) {
   bedroomCupboard = null;
-  const settings = state.bedroomCupboard;
-  if (settings.T === 0 && optionOf(settings.option).needsLeft) settings.option = 7;
-  if (settings.option !== onShow) doors.bedroomCupboardSecond = 0;
+  if (state.bedroomCupboard.option !== onShow) doors.bedroomCupboardSecond = 0;
   if (!state.otherRoom.newCupboardOn) return showNewCupboard(null);
   bedroomCupboard = makeCupboard(cupboardSettings('bedroomCupboard'), BEDROOM_PLACE, BEDROOM_MATERIALS);
   bedroomCupboard.drawShelves([]);
@@ -1673,7 +1681,7 @@ const spotOrHome = (path, setting) => Config.other(path, setting, v => (v === nu
 // The things to store's places are read only when they've been moved by
 // hand; otherwise they're worked out from the packing (placeStored())
 function readStoredSpots(spots, was, settings) {
-  if (settings.stored.where !== 2 || !Array.isArray(spots)) return undefined;
+  if (settings.stored.where !== BY_HAND || !Array.isArray(spots)) return undefined;
   const finite = v => typeof v === 'number' && Number.isFinite(v);
   return was.map((spot, k) => {
     const { x, y, turned, z } = spots[k] ?? {};
@@ -1796,8 +1804,8 @@ const SCHEMA = Config.withDefaults([
   // The things to store: shown or not, which packing, and where
   Config.onOff('thingsToStore.shown', 'stored.shown'),
   Config.number('thingsToStore.packing', 'stored.packing', 0, PACKINGS.length - 1, 1, { onSteps: true }),
-  Config.choice('thingsToStore.where', 'stored.where', { window: 0, cupboard: 1, byHand: 2 }),
-  Config.other('thingsToStore.spots', 'stored.spots', readStoredSpots),
+  Config.choice('thingsToStore.where', 'stored.where', STORED_WHERE),
+  Config.other('thingsToStore.spots', 'stored.spots', readStoredSpots, (spots, settings) => (settings.stored.where === BY_HAND ? structuredClone(spots) : undefined)),   // only when they're settings
 ], state);
 // The settings as a configuration, and a configuration read into them. One
 // of version 1 had the doors in it (`doors`), which are the view's now, so
@@ -1814,6 +1822,7 @@ function readConfiguration(configuration) {
     return;
   }
   Config.readConfiguration(SCHEMA, configuration, state);
+  holdSettings();
 }
 const DEFAULT_CONFIGURATION = Config.defaultConfiguration(SCHEMA, { version: CONFIGURATION_VERSION });
 
@@ -1839,7 +1848,22 @@ function entryFor(path) {
 export function setAll(edits) {
   const refused = edits.filter(([path, value]) => !Config.readEntry(entryFor(path), value, state));
   for (const [path, value] of refused) console.error(`${JSON.stringify(value)} isn't a setting for ${path}: left as it was`);
+  holdSettings();
   return refused.length === 0;
+}
+// Settings held to what can be built, as they're set or read, so building
+// writes none (REFACTOR_PLAN.md item 13): each cupboard's option 8 needs a
+// left-wall cupboard, so with none it's option 7, the L; the dresser's
+// upper part is never deeper than its base; and the shelves, pictures and
+// shoe boxes over the stairs stay on their walls and sills and clear of
+// each other (stair_walls.js's settleStairWalls())
+function holdSettings() {
+  for (const piece of ['cornerCupboard', 'bedroomCupboard']) {
+    const settings = state[piece];
+    if (settings.T === 0 && optionOf(settings.option).needsLeft) settings.option = 7;
+  }
+  state.dresser.upperD = Math.min(state.dresser.upperD, state.dresser.baseD);
+  settleStairWalls(state.stairWalls);
 }
 export const set = (path, value) => setAll([[path, value]]);
 // A setting's value, as the configuration has it
@@ -1900,17 +1924,15 @@ const pieceBoxes = () => Object.fromEntries(Object.entries(namedPieces()).map(([
 // ---------------------------------------------------------------------------
 // Building
 // ---------------------------------------------------------------------------
-// Worked out from the settings before anything's drawn, some kept in them
-// for the menus to show: the colours' materials, the shelves' wood, the TV's
-// size and the heights above the bench, where the dresser stands, and where
-// the island is
+// Worked out from the settings before anything's drawn, none of it kept in
+// them (REFACTOR_PLAN.md item 13): the colours' materials, the shelves'
+// wood, the TV's size and the heights above the bench, and where the
+// island is
 export function settle() {
-  for (const target of Object.keys(COLOUR_TARGETS)) setRal(target, state.colours[target]);
+  for (const target of Object.keys(COLOUR_TARGETS)) applyColour(target);
   applyShelfWood();
   benchHeights();
-  placeDresser();
   placeIsland();
-  settleStairWalls(state.stairWalls);
 }
 // The shelves' wood, and option 9's oak, from state.shelfWood: one colour,
 // or the shelves' and the oak's
@@ -1922,20 +1944,18 @@ function applyShelfWood() {
   }
 }
 
-// Build option `no` and everything round it, in every room. Option 8 falls back
-// to 7 with no left-wall cupboard. A new option starts with its second door
+// Build the option chosen and everything round it, in every room, reading
+// the settings and writing none. A new option starts with its second door
 // shut; rebuilding the same one (a size changed) leaves the doors as they
 // were. Then the things to store are placed (drawStored() draws them).
 // `onShow`: each cupboard's option on show till now (optionsOnShow()), when
 // the menus have already set new ones. Returns the option built, whether
 // it's the one built before, and the description of what's round it
 // (describe())
-export function build(no, onShow = optionsOnShow()) {
+export function build(onShow = optionsOnShow()) {
   settle();
-  if (state.cornerCupboard.T === 0 && optionOf(no).needsLeft) no = 7;
-  const option = optionOf(no);
+  const no = state.cornerCupboard.option, option = optionOf(no);
   const same = no === onShow.cornerCupboard && Boolean(cupboard);
-  state.cornerCupboard.option = no;
   const group = buildOption();
   if (benchDrawn()) drawBench(option, group);
   else keepTvPlace(option);
@@ -1956,14 +1976,14 @@ export function build(no, onShow = optionsOnShow()) {
   return { option, same, aboveText };
 }
 
-// Build option `no` and draw everything that follows from it, in the order
+// Build the option chosen and draw everything that follows from it, in the order
 // each needs (REFACTOR_PLAN.md item 6), as both the page and buildFlat()
 // do: build(), the things to store (and the cupboard's shelves cut round
 // them), the doors turned, and last the dimensions, of the shelves and
 // doors as drawn. Returns build()'s, and what drawStored() says of the
 // things to store
-export function rebuild(no, onShow = optionsOnShow()) {
-  const built = build(no, onShow);
+export function rebuild(onShow = optionsOnShow()) {
+  const built = build(onShow);
   const storedText = drawStored();
   turnDoors();
   updateDims();
@@ -2018,7 +2038,7 @@ export function buildFlat(configuration, view = {}) {
   readConfiguration(configuration);                             // (one of version 1 has doors)
   readDoors(view.doors);
   setDisplay({ flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true, ...view });
-  const { option, aboveText } = rebuild(state.cornerCupboard.option);
+  const { option, aboveText } = rebuild();
   return {
     world,
     configuration: configurationNow(),
@@ -2058,8 +2078,8 @@ export {
   currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat,
   islandOnWall, islandTopMat, kitchenMat, larderHeight, larderOwnSize,
-  cupboardSettings, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces, placeDresser,
-  placeStored, readConfiguration, readShelves, screenMat, setRal, shelfMat,
+  cupboardSettings, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces,
+  readConfiguration, readShelves, screenMat, shelfMat,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, state, storedGroup,
   storedMats, storedSize, tvAt, tvMat, updateDims, worktopMat,
 };

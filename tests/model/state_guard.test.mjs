@@ -11,6 +11,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildFlat, readConfiguration, startAgain, state } from '../../flat_model.js';
+import { savedConfigurations, displayOf } from './flat.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const MODEL = 'flat_model.js';
@@ -67,4 +69,22 @@ test('only the model writes state', () => {
   }
   assert.ok(importers.includes('living_room.js'), 'living_room.js imports state (else this guards nothing)');
   assert.deepEqual(writes, [], 'state written outside the model: change it through set(path, value) or setAll(edits)');
+});
+
+// ...and building writes none of it (REFACTOR_PLAN.md item 13, 22 Oct
+// 2026): what's worked out (the dresser's place, where the things to
+// store stand when packed) is the build's, and what's held to what can be
+// built (option 8 with no left-wall cupboard, the stairs' walls) is held as
+// a setting is set or read. So every saved configuration's settings, as
+// read, are as they were once it's built
+test('building writes no settings', () => {
+  const changed = [];
+  for (const { name, configuration, view } of savedConfigurations()) {
+    startAgain();
+    readConfiguration(configuration);
+    const read = JSON.stringify(state);
+    buildFlat(configuration, view ? displayOf(view) : {});
+    if (JSON.stringify(state) !== read) changed.push(name);
+  }
+  assert.deepEqual(changed, [], 'building changed these configurations\' settings');
 });

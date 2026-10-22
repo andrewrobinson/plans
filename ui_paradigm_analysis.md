@@ -7,8 +7,9 @@ during 6d; line numbers are as of commit `dd0ac8b`.
 
 **Where it stands (22 Oct 2026):** recommendation 1's first half
 (`set(path, value)`) is done, and 2 (the doors in the view, option C,
-`REFACTOR_PLAN.md` item 12); 5 is item 13 and 1's second half item 15
-(`state`'s track); 3, 4 and 6 are on no list yet.
+`REFACTOR_PLAN.md` item 12) and 5 (what's worked out out of `state`, item
+13); 1's second half is item 15 (`state`'s track, to decide); 3, 4 and 6
+are on no list yet.
 
 In short: the split is sound and in line with well-known patterns. It still
 blurs in four places, most already on `REFACTOR_PLAN.md`'s list.
@@ -41,7 +42,7 @@ the URL as the shareable state, a pure build, dependencies passed in).
 | **MVC, MVVM** | The model (`flat_model.js`, no page needed) is apart from the view and controls (`living_room.js`); `syncControls()` is the view-model's binding | The display switches (`flat`, `flatView`, `flatRoom`, `cupboardOnly`, `showDims`, `showDoorDims`) are the model's module globals, set by `setDisplay()` (`flat_model.js:49`) |
 | **One-way data flow** (Elm, Redux, Flux) | `changeSettings(edit)` → `syncControls()` → `show()` → `writeAddress()` (`living_room.js:395`) is one loop, one way | The settings are changed in place, not replaced; the door sliders take a second route (`update()`), a fast path |
 | **One source of truth** | Planned | Two today: `state`, flat with its short names (`flat_model.js:205`), and the configuration, mapped both ways by `SCHEMA`. The configuration is only `state` written out. `set(path, value)` fixes it |
-| **Don't store what's worked out** | The snapshot is never stored | `settle()` keeps worked-out values (the TV's size, where the dresser stands) beside the settings, so the order of calls matters |
+| **Don't store what's worked out** | The snapshot is never stored | Done (22 Oct 2026): `settle()` and `placeStored()` used to keep worked-out values (where the dresser stands, the packed things' places) beside the settings; now the build writes no settings, and what's held to what can be built is held as it's set or read (`holdSettings()`) |
 | **What's drawn = f(settings)**; a functional core in an imperative shell | `buildFlat(configuration, view)` is pure from outside: the same input gives the same snapshot, which is why 1,728 generated configurations test in Node | Inside, it resets and changes one module-level flat and one `world` (`startAgain()`). 6d.5's `makeCupboard()` is the first instance in place of a singleton |
 | **A retained scene graph** | three.js's `world` is a cache rebuilt from the configuration; the doors turn without a rebuild | Fine as it is |
 | **The URL as the state** (Excalidraw's `#json=`, the TypeScript playground, Google Maps' camera) | The full document, not changes from defaults, so a link never changes meaning when a default does; versioned. The document and the view apart in the URL, as Maps keeps a place apart from its camera | `writeAddress()` sets `location.hash` unless told to replace, so Back may step through every slider move (check in the browser) |

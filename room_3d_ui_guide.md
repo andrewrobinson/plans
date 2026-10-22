@@ -80,7 +80,7 @@ The floor plan: the room's size (`ROOM_WIDTH`, `ROOM_DEPTH`, `CEILING_HEIGHT`, `
 
 ### stair_walls.js (413 lines): the shelves and pictures over the stairs
 
-The three walls round the stairwell (`WALLS`: the WC wall, the lounge door wall and the TV wall, each a start, a way along and a way out into the hallway), each wall's shelves and picture and the L-shaped shelves on the TV and WC walls (`STAIR_WALLS_START`, the settings in `state.stairWalls`), their configuration entries (`STAIR_WALLS_SCHEMA`), the rule keeping a wall's shelves and picture apart (`keepApart()`, `settleStairWalls()`, called from `settle()`), the drawing (`drawStairWalls()`, from `build()`) and the menu block in `#stairWallsBlock` (`stairWallsControls()`). It holds the shoe boxes' settings too (`state.stairWalls.shoeBoxes`), as spans on the walls they stand against (`boxSpansOn()`), which `keepApart()` keeps the shelves and pictures clear of, and says why a box can't go where it's asked (`shoeBoxRefusal()`). What was agreed: HALLWAY_SHELVES.md.
+The three walls round the stairwell (`WALLS`: the WC wall, the lounge door wall and the TV wall, each a start, a way along and a way out into the hallway), each wall's shelves and picture and the L-shaped shelves on the TV and WC walls (`STAIR_WALLS_START`, the settings in `state.stairWalls`), their configuration entries (`STAIR_WALLS_SCHEMA`), the rule keeping a wall's shelves and picture apart (`keepApart()`, `settleStairWalls()`, called from the model's `holdSettings()` as settings are set or read), the drawing (`drawStairWalls()`, from `build()`) and the menu block in `#stairWallsBlock` (`stairWallsControls()`). It holds the shoe boxes' settings too (`state.stairWalls.shoeBoxes`), as spans on the walls they stand against (`boxSpansOn()`), which `keepApart()` keeps the shelves and pictures clear of, and says why a box can't go where it's asked (`shoeBoxRefusal()`). What was agreed: HALLWAY_SHELVES.md.
 
 ### shoe_boxes.js (236 lines): the shoe boxes on the sills
 
@@ -123,14 +123,14 @@ group the page adds to its scene. The corner cupboard itself is
 | 61–196 | Materials and the fixed room's fittings | The cupboard's materials (from `CUPBOARD_MATERIALS`), the bench's; `KITCHEN`, the front wall's faces, desk, chair, island, room door |
 | 202–276 | **`state`, the settings** | One object holding every setting: the corner cupboard's in `cornerCupboard` (`option`, `T`, `R`, `F`, `BOARD`, `LEG`, …), then `BENCH`, `above`, `colours`, `sofa`, `stored` … (the doors' angles are the view's, `doors` beside it, `DOORS_SCHEMA`). The drawing code reads it; the menus change it only through `set()` |
 | 277–315 | The corner cupboards, as the rooms have them | `cupboardSettings(piece)` (a copy of `state[piece]`, as `state.cornerCupboard`), `LIVING_ROOM_PLACE`, `BEDROOM_PLACE` and `BEDROOM_MATERIALS`, `storedThings()` (for the living room's shelves to be cut round) |
-| 316–809 | Bench, TV and shelves; colours; the base cupboards, dresser, larders, island, sofa, front wall | `benchWall()`, `setRal()`, `baseCupboards()`, `placeDresser()`, `placeIsland()`, `sofa()`, `frontWall()` |
+| 316–809 | Bench, TV and shelves; colours; the base cupboards, dresser, larders, island, sofa, front wall | `benchWall()`, `applyColour()`, `baseCupboards()`, `dresserSpan()`, `placeIsland()`, `sofa()`, `frontWall()` |
 | 810–948 | 2D dimensions | `updateDims()` (following `setDisplay()`), the other rooms' plans, `cupboardPart()`, `doorDims()`, `cuttingList()` (the instance's, for the page) |
 | 949–1185 | Things to store | `STORED`, `PACKINGS`, `placeStored()`, `drawStored()` (which gives the menu's text) |
 | 1186–1317 | The cupboards, the back wall's pieces, the option and its bench | `cupboard`, `livingGroup`, `bedroomCupboard`, `buildBedroomCupboard()`, `BACK_WALL_PIECES`, `withoutBench()`, `buildOption()` (`makeCupboard()`), `drawBench()` |
 | 1318–1443 | **The configuration** | `SLIDER_RANGES`, `cupboardEntries(design, setting)` (a corner cupboard's entries), `SCHEMA` (with the other rooms' entries from their modules), `configurationNow()`, `readConfiguration()` |
-| 1444–1481 | **Changing the settings, by path** | **`set(path, value)`**, `setAll(edits)`, `get(path)`, `wordAt()` (the configuration's word for a page's value), `pathOfSetting()` (a path from a place in `state`) |
+| 1444–1481 | **Changing the settings, by path** | **`set(path, value)`**, `setAll(edits)` (then `holdSettings()`: option 8 with no left-wall cupboard as 7, the dresser's upper depth, the stairs' walls), `get(path)`, `wordAt()` (the configuration's word for a page's value), `pathOfSetting()` (a path from a place in `state`) |
 | 1482–1515 | What's shown, for the snapshot | `dimensionFigures()`, each piece's box (`pieceBoxes()`) |
-| 1516–1617 | **Building** | `settle()` (what's worked out first), **`build(i, onShow)`**, `turnDoors()` (the cupboard's through its `turnDoors()`), `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
+| 1516–1617 | **Building** | `settle()` (what's worked out first, none of it kept in the settings), **`build(onShow)`** (the option chosen, writing no settings), `turnDoors()` (the cupboard's through its `turnDoors()`), `describe()`, **`buildFlat(configuration, view)`**, `cupboardRows()` |
 | 1618–1645 | `startAgain()` and what the page reads | The settings as the page starts, put back before a configuration's read |
 
 ### corner_cupboard.js (933 lines): the corner cupboard
@@ -588,7 +588,7 @@ roomHinge.rotation.y = turn(doors.room);
 
 `colourPicker()` builds each colour dropdown and its ◀ ▶
 buttons. A choice goes through `change([[`colours.${target}`, code]])`;
-`settle()` then has `setRal()` set `.color` on the three.js **materials**
+`settle()` then has `applyColour()` set `.color` on the three.js **materials**
 shared by those objects, and anything that follows that colour.
 
 ### Views and Look

@@ -51,7 +51,8 @@ export const choice = (path, state, choices) => ({
 });
 export const colour = (path, state, isColour) => ({ path, state, kind: 'colour', isColour });
 // read(value, was, settings): the page's value, or undefined to leave it as
-// it was; write(value): the configuration's
+// it was; write(value, settings): the configuration's, or undefined to
+// leave it out
 export const other = (path, state, read, write = v => structuredClone(v)) => ({ path, state, kind: 'other', read, write });
 
 // ---------------------------------------------------------------------------
@@ -76,11 +77,12 @@ function readValue(entry, value, was, settings) {
     default: throw new Error(`no such kind of setting: ${entry.kind}`);
   }
 }
-// The page's value as the configuration's
-function writeValue(entry, value) {
+// The page's value as the configuration's (an 'other' entry's write is
+// given the settings too, so it can leave a value out: undefined)
+function writeValue(entry, value, settings) {
   switch (entry.kind) {
     case 'choice': return entry.choices.find(([, page]) => page === value)?.[0];
-    case 'other': return entry.write(value);
+    case 'other': return entry.write(value, settings);
     default: return value;
   }
 }
@@ -88,7 +90,7 @@ function writeValue(entry, value) {
 // One setting, by its entry: its value in `settings` as the configuration
 // writes it, and a configuration's value read into `settings`, if it passes
 // its check (true if it did)
-export const configurationValue = (entry, settings) => writeValue(entry, valueAt(settings, entry.state));
+export const configurationValue = (entry, settings) => writeValue(entry, valueAt(settings, entry.state), settings);
 export function readEntry(entry, value, settings) {
   const read = readValue(entry, value, valueAt(settings, entry.state), settings);
   if (read === undefined) return false;
@@ -105,10 +107,13 @@ export const entryAt = (schema, path) => schema.find(entry => entry.path === pat
 export const entryOfSetting = (schema, setting) => schema.find(entry => entry.state === setting);
 
 // The configuration of `settings`: every entry's value, in the schema's
-// order, after `head` (as its version)
+// order, after `head` (as its version), bar any its entry leaves out
 export function writeConfiguration(schema, settings, head = {}) {
   const configuration = structuredClone(head);
-  for (const entry of schema) setValueAt(configuration, entry.path, configurationValue(entry, settings));
+  for (const entry of schema) {
+    const value = configurationValue(entry, settings);
+    if (value !== undefined) setValueAt(configuration, entry.path, value);
+  }
   return configuration;
 }
 // A configuration read into `settings`, entry by entry, in the schema's

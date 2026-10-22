@@ -22,9 +22,10 @@ lobby and route, in blue).
 
 ## Next steps
 
-1. **Decide on `state`'s track** (`REFACTOR_PLAN.md`'s 11 to 16). Done
-   before it, all on main by 21 Oct 2026: the tests phase, the UI fixes
-   and the refactor's small items.
+1. **Decide on the rest of `state`'s track** (`REFACTOR_PLAN.md`'s 14 to
+   16). Done: its 11 to 13 (22 Oct 2026), and before them, on main by 21
+   Oct 2026, the tests phase, the UI fixes and the refactor's small
+   items.
 2. **Measurements still to come in** (`MEASUREMENTS_NEEDED.md`, with
    `drawings/measure_sheet.html`; the values come back as "A = 2240"
    lines, to go into `room_dimensions.md` and the model):

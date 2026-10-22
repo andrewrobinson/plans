@@ -20,20 +20,16 @@ through the model; check the diff holds only the new setting.
 ## Left to do
 
 Done, and so gone from here (in `git log`): the tests (items 1 to 5), the
-small, standalone items (6 to 10), all on main by 21 Oct 2026; item 11, the
-option held as its number, and 12, the door angles in the view (22 Oct
-2026). Each step
+small, standalone items (6 to 10), all on main by 21 Oct 2026; items 11 to 13
+(22 Oct 2026): the option held as its number, the door angles in the
+view, and what's worked out out of `state`. Each step
 keeps what the page does (no snapshot or screenshot changes) unless it
 says otherwise. Before starting, decide with the user how far to go
-(decided 22 Oct 2026: 11 to 13, then stop and decide on 14 to 16).
+(decided 22 Oct 2026: 11 to 13, then stop and decide on 14 to 16; 11 to
+13 done, so 14 to 16 are to decide).
 
 **`state`'s track**
 
-13. **What's worked out leaves `state`** (`ui_paradigm_analysis.md`,
-    recommendation 5): `settle()` and `placeStored()` keep worked-out values
-    (the TV's size, where the dresser stands, the things to store's places)
-    beside the settings, so the order of calls matters; `build()` turns
-    option 8 into 7.
 14. **`state` in the configuration's shape, a room at a time**: the
     lounge's `billyOn`, `billyMove` and `billyLying` become
     `pieces.billy.in.livingRoom.*`, and so on, the bedroom's and the

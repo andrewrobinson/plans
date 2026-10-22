@@ -45,7 +45,7 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, state, storedGroup, storedMats,
-  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles } from './flat_model.js';
+  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE, floor, otherRoom, hallway, entrance, bathroom } from './floor.js';
 
@@ -139,7 +139,7 @@ const liftInputs = STORED.map((s, k) => {
   storedLifts.append(Object.assign(document.createElement('label'), { textContent: s.name }), input);
   return input;
 });
-function showLifts() { liftInputs.forEach((input, k) => { input.value = state.stored.spots[k].z; }); }
+function showLifts() { liftInputs.forEach((input, k) => { input.value = storedSpots()[k].z; }); }
 // The things to store's settings, by their keys in the configuration's
 // thingsToStore: changing them (without building the flat again: their own
 // redraw follows), and one's value. Where they are, as the configuration
@@ -149,9 +149,10 @@ const setStored = edits => setAll(edits.map(([key, value]) => [storedAt(key), va
 const storedValue = key => get(storedAt(key));
 const BY_HAND = 'byHand', BY_THE_WINDOW = 'window';
 // Thing k moved by hand: its spot changed by `change` ({ x, y }, { z } or
-// { turned }), the others kept where they are
+// { turned }), the others kept where they are (packed, they're the
+// model's, not settings, till now)
 function moveStored(k, change) {
-  const spots = storedValue('spots');
+  const spots = structuredClone(storedSpots());
   spots[k] = { ...spots[k], ...change };
   setStored([['where', BY_HAND], ['spots', spots]]);           // by hand first, as only then are the spots read
 }
@@ -217,14 +218,14 @@ renderer.domElement.addEventListener('pointerdown', e => {
   e.stopImmediatePropagation();
   const now = performance.now();
   if (lastTap.k === k && now - lastTap.t < 350) {                // a double-click or double-tap turns it round
-    moveStored(k, { turned: !state.stored.spots[k].turned });
+    moveStored(k, { turned: !storedSpots()[k].turned });
     lastTap = { k: -1, t: 0 };
     showStored();
     writeAddress();
     return;
   }
   lastTap = { k, t: now };
-  storedDrag = { k, dx: x - state.stored.spots[k].x, dy: y - state.stored.spots[k].y };
+  storedDrag = { k, dx: x - storedSpots()[k].x, dy: y - storedSpots()[k].y };
   renderer.domElement.setPointerCapture(e.pointerId);
 }, { capture: true });
 renderer.domElement.addEventListener('pointermove', e => {
@@ -350,11 +351,11 @@ for (const name of Object.keys(DESK_RADIOS)) {
 }
 
 
-// Show option `no`: the model builds it and all that's drawn from it
+// Show the option chosen: the model builds it and all that's drawn from it
 // (rebuild()), then the menus, the view and the rest of the page follow.
 // onShow: the option on show till now, when the menus have already set it
-function show(no, onShow) {
-  const { option, same, aboveText, storedText } = rebuild(no, onShow);
+function show(onShow) {
+  const { option, same, aboveText, storedText } = rebuild(onShow);
   showInMenus(option, state.cornerCupboard.option, aboveText);
   if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
   redrawAround(storedText);
@@ -443,7 +444,7 @@ function change(edits, { look = false } = {}) {
   const onShow = optionsOnShow();                              // before they change
   setAll(edits);
   syncControls();
-  show(state.cornerCupboard.option, onShow);
+  show(onShow);
   if (look) viewKit.refresh();
 }
 
@@ -603,7 +604,7 @@ const tvSlider = document.getElementById('tvSize');
 // its slider's range, at its path in the piece's design
 const sizeEdits = (design, sliders, sizes) => sliders.filter(([k]) => Number.isFinite(sizes[k]))
   .map(([k, , lo, hi]) => [`${design}.${k}`, Math.min(hi, Math.max(lo, sizes[k]))]);
-// The dresser's sliders (it's placed again from its sizes by settle())
+// The dresser's sliders (it's placed from its width as it's drawn, the model's dresserSpan())
 const setDresser = sizes => sizeEdits('pieces.dresser.design', DRESSER_SLIDERS, sizes);
 function showDresser() {
   for (const [k, id] of DRESSER_SLIDERS) {                       // the upper depth may have been held to the base's
@@ -1015,7 +1016,7 @@ function pointOn(piece, [across, along]) {
 const DESK_SEAT_BACK = 350;
 const anchors = {
   // Wherever they are, else where they'd be on the front wall
-  dresser: () => pieces.dresser ? middleOf(pieces.dresser) : [(state.dresser.x0 + state.dresser.x1) / 2, ROOM_DEPTH - state.dresser.baseD / 2, state.dresser.h / 2],
+  dresser: () => pieces.dresser ? middleOf(pieces.dresser) : [(dresserSpan().x0 + dresserSpan().x1) / 2, ROOM_DEPTH - state.dresser.baseD / 2, state.dresser.h / 2],
   larder: () => pieces.larder ? middleOf(pieces.larder) : [frontFrom() + frontGap() / 2, ROOM_DEPTH - 250, 1000],
   island: () => middleOf(islandGroup),
   sofa: () => pieces.sofa ? middleOf(pieces.sofa) : [ROOM_WIDTH / 2, 2400, 500],
@@ -1376,7 +1377,7 @@ for (const sec of DRAWER_SECTIONS) {
 }
 
 function syncControls() {
-  settle();                                                     // the TV's size, the colours and the dresser's place, worked out
+  settle();                                                     // the TV's size and the colours, worked out
   const { BENCH, above, shelfDepth, tv, frontPiece, island } = state;
   const slide = (id, value, text = value) => {
     document.getElementById(id).value = String(value);
@@ -1434,7 +1435,7 @@ function loadConfiguration(configuration) {
   startAgain();
   readConfiguration(configuration);
   syncControls();
-  show(state.cornerCupboard.option);
+  show();
   viewKit.refresh();
   drawSoon();                                                   // not in answer to an event, so asked for
 }
@@ -1506,7 +1507,7 @@ const [startingConfiguration, startingView] = await Promise.all([Config.unpack(c
 if (startingConfiguration) readConfiguration(startingConfiguration);
 addressRead = true;
 syncControls();
-show(state.cornerCupboard.option);
+show();
 // A number box for each millimetre slider, now each shows its value: not
 // the angles (in °: turns, doors, the shoe rack's slope), the TV (a list of
 // sizes) or the shelves' counts

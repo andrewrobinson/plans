@@ -1242,51 +1242,7 @@ window.ROOM_CONFIGURATIONS = {
         "thingsToStore": {
           "shown": true,
           "packing": 0,
-          "where": "cupboard",
-          "spots": [
-            {
-              "x": 568,
-              "y": 298,
-              "turned": true,
-              "z": 0
-            },
-            {
-              "x": 118,
-              "y": 18,
-              "turned": false,
-              "z": 0
-            },
-            {
-              "x": 18,
-              "y": 18,
-              "turned": true,
-              "z": 0
-            },
-            {
-              "x": 118,
-              "y": 238,
-              "turned": false,
-              "z": 0
-            },
-            {
-              "x": 518,
-              "y": 18,
-              "turned": false,
-              "z": 0
-            },
-            {
-              "x": 18,
-              "y": 558,
-              "turned": false,
-              "z": 0
-            },
-            {
-              "x": 718,
-              "y": 298,
-              "turned": true,
-              "z": 0
-            }
-          ]
+          "where": "cupboard"
         }
       },
     },
