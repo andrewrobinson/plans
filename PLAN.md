@@ -84,7 +84,7 @@ Smaller pieces, any time:
   prototypes need no code, and a printable spec for the maker from the
   finished design.
 - **Engineering drawings** from each cupboard's snapshot.
-- **`menu_demo/`** keeps its own copy of the room; its `room.js` could load
+- **`demos/menu_demo/`** keeps its own copy of the room; its `room.js` could load
   the walls from `floor.js`.
 
 ## The design to build

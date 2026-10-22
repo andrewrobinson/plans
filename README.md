@@ -28,7 +28,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | File | What |
 | --- | --- |
 | `index.html` | The page and its menus |
-| `controls_demo.html` | A demo of the page's controls and menus beside others it could use (notes/UI_CRITIQUE.md's agreed steps); it touches nothing in the model |
+| `demos/controls_demo.html` | A demo of the page's controls and menus beside others it could use (notes/UI_CRITIQUE.md's agreed steps); it touches nothing in the model |
 | `floor.js` | The walls, doors and windows: the living room's, the hallway's (`HALLWAY`, with the stairs), downstairs (`ENTRANCE`) and the bedroom's (`OTHER_ROOM`, in its own u, v mm) |
 | `flat_model.js` | The model: the living room's fittings and cupboard options, the settings and the configuration's schema, the dimensions, cutting list and things to store, with no page, so Node builds it too (`buildFlat()`) |
 | `living_room.js` | The page: the menus and controls, the built-in views, the configurations and the page address |

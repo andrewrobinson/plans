@@ -6,7 +6,7 @@ segmented controls are still to do. The aim is to make the
 page simpler to use, for me and for a designer (`SHARING.md` has the
 sharing side, set aside for now). It builds on `UI_CRITIQUE.md`'s problem
 3, "Too many settings to find anything", and on the Tabs card in
-`controls_demo.html`.
+`demos/controls_demo.html`.
 
 ## What's wrong
 
@@ -73,7 +73,7 @@ and not a piece. Each piece's group would be a field of its entry in
 
 ## How it's built
 
-- A small `kit/tabs_kit.js`, from `controls_demo.html`'s tabs: a
+- A small `kit/tabs_kit.js`, from `demos/controls_demo.html`'s tabs: a
   `role=tablist` of buttons, a `role=tabpanel` around each tab's sections,
   arrow keys to move between tabs, and the last tab kept by drawer.
 - `index.html` wraps the existing `<details class="sec">` in each drawer
@@ -91,7 +91,7 @@ and not a piece. Each piece's group would be a field of its entry in
 ## Next: segmented controls
 
 These are radio groups of two to five short choices, which would become
-one row of joined buttons (`controls_demo.html`'s Segmented control card).
+one row of joined buttons (`demos/controls_demo.html`'s Segmented control card).
 Candidates in Lounge options:
 
 - The bench's height: 700, 780, 800, 900

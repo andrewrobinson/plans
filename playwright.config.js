@@ -1,4 +1,4 @@
-// Browser tests for index.html (the living room) and menu_demo.html. See REFACTOR_PLAN.md.
+// Browser tests for index.html (the living room) and demos/menu_demo.html. See REFACTOR_PLAN.md.
 //
 //   npm test                   run every test, in both browsers: before merging or deploying
 //   npm run test:quick         every test in WebKit only (iPhone size): quicker, while working
@@ -37,10 +37,10 @@ module.exports = defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
-    // The controls tests (controls.spec.js) check plain JavaScript, the same
+    // The controls tests (tests/controls/) check plain JavaScript, the same
     // in any browser, so they run once, in the faster one: headless Chrome
     // draws the 3D view in software, at about a quarter of WebKit's speed
-    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } }, testIgnore: /controls\.spec\.js/ },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } }, testIgnore: /tests\/controls\// },
     // Safari's engine at phone size, close to the phone the app is used on
     { name: 'iphone', use: { ...devices['iPhone 13'] } },
   ],

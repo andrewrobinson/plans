@@ -76,7 +76,7 @@ Comments point at these by number; each is in `git log`.
 | Step | What it did |
 |---|---|
 | 1 to 4 | The browser tests, one `state`, the engine in `kit/`, the rooms' files |
-| 5 | Readable code in the style of `menu_demo/` (16 Oct 2026) |
+| 5 | Readable code in the style of `demos/menu_demo/` (16 Oct 2026) |
 | 6a | Saved snapshots beside the tests' configurations, checked exactly |
 | 6b | The configuration as JSON, and the address as it, compressed |
 | 6c | The model in `flat_model.js`, built and tested in Node |

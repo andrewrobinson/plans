@@ -1,4 +1,4 @@
-// menu_demo.html: one test group per KIND in the page, to learn Playwright
+// demos/menu_demo.html: one test group per KIND in the page, to learn Playwright
 // on a page small enough to read alongside. Run just this file with
 //
 //   npx playwright test menu_demo
@@ -33,7 +33,7 @@ const { test, expect } = require('./helpers');
 
 // Every test starts with the page open at its defaults
 test.beforeEach(async ({ page }) => {
-  await page.goto('menu_demo.html');
+  await page.goto('demos/menu_demo.html');
 });
 
 // The text area that shows the state. Many tests check it, as the page's
@@ -292,7 +292,7 @@ test.describe('KIND 10: the state in the address', () => {
   // same-document navigation, like clicking a link to a heading. The page's
   // startup code, which reads the address, wouldn't run. So go, then reload.
   async function openWith(page, hash) {
-    await page.goto(`menu_demo.html${hash}`);
+    await page.goto(`demos/menu_demo.html${hash}`);
     await page.reload();
   }
 
@@ -342,7 +342,7 @@ test.describe('KIND 10: the state in the address', () => {
 // slightly differently.
 test.describe('how it looks', () => {
   test('the drawer open, with the doors style', async ({ page }) => {
-    await page.goto('menu_demo.html#style=doors&width=1200');
+    await page.goto('demos/menu_demo.html#style=doors&width=1200');
     await page.reload();                         // see KIND 10
     await burger(page).click();
     await expect(page.locator('#panel')).toBeInViewport();
