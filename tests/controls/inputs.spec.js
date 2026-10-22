@@ -354,3 +354,40 @@ test.describe('switches and buttons', () => {
     await page.locator('#cupboardOnly').uncheck();
   });
 });
+
+// The browser's history: one entry per change, a slider's whole drag being
+// one, and Back and Forward taking the page's settings with them
+test.describe('Back and Forward', () => {
+  // A drag: moves through the values, then let go (its 'change' event)
+  const drag = (page, id, values) => page.locator(`#${id}`).evaluate((el, vs) => {
+    for (const v of vs) {
+      el.value = v;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }, values);
+  const entries = page => page.evaluate(() => history.length);
+  const TOP = at('pieces.cornerCupboard.design.TOP');
+  const REAR = at('pieces.cornerCupboard.design.R');
+
+  test('a drag is one change, undone by Back', async ({ page }) => {
+    await openDrawer(page);
+    await OPTION(7)(page);
+    await settledHash(page);
+    const [startEntries, startTop, startRear] = [await entries(page), await TOP(page), await REAR(page)];
+    await drag(page, 'top', [2100, 2050, 2000]);
+    await settledHash(page);
+    await drag(page, 'rear', [500, 450]);
+    await settledHash(page);
+    expect(await entries(page), 'one entry per drag').toBe(startEntries + 2);
+
+    await page.evaluate(() => history.back());
+    await expect.poll(() => REAR(page), 'Back undoes the second drag').toBe(startRear);
+    expect(await TOP(page)).toBe('2000');
+    await page.evaluate(() => history.back());
+    await expect.poll(() => TOP(page), '...then the first').toBe(startTop);
+    await page.evaluate(() => history.forward());
+    await expect.poll(() => TOP(page), 'Forward redoes it').toBe('2000');
+    await expect(page.locator('#topValue')).toHaveText('2000');
+  });
+});

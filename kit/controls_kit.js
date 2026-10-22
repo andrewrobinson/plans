@@ -76,6 +76,7 @@ function numberBox(slider, value) {
     if (box.value === '' || !Number.isFinite(Number(box.value))) return follow();
     slider.value = box.value;                               // held to its range and step, as the slider holds it
     slider.dispatchEvent(new Event('input', { bubbles: true }));
+    slider.dispatchEvent(new Event('change', { bubbles: true }));   // as a slider let go: one change, for the page's history
     follow();
   });
 }

@@ -148,19 +148,56 @@ function redrawAround(storedText) {
   showDoors();
 }
 
-// Nothing's written till the page has read its own address, at the start
-let addressWrites = 0;
+// Nothing's written till the page has read its own address, at the start.
+// Each change adds an entry to the browser's history, so Back undoes one at
+// a time (notes/ui_paradigm_analysis.md, recommendation 4); a slider's
+// drag is one change (`sliderDrag`), and a write asked to replace, or made
+// while Back or Forward is followed, rewrites the entry it's on. A write
+// overtaken by a later one is dropped, its entry left to the later one.
+let addressWrites = 0, entryWanted = false, followingHistory = false;
 async function writeAddress(replace = false) {
   if (!addressRead) return;
   const write = ++addressWrites;
+  if (!replace && !followingHistory && sliderDrag.wantsEntry()) entryWanted = true;
   const configuration = configurationNow(), view = viewNow();
   configurationKit?.refresh();
   const hash = `#${await Config.pack(configuration)}~${await Config.pack(view)}`;
   if (write !== addressWrites) return;
+  const addEntry = entryWanted;
+  entryWanted = false;
   try {
-    if (replace) history.replaceState(null, '', hash);
-    else location.hash = hash;
+    if (addEntry) history.pushState(null, '', hash);
+    else history.replaceState(null, '', hash);
   } catch (e) { /* not important */ }
+}
+
+// A slider's drag, from its first move till it's let go (its 'change'
+// event; a number typed in its box sends one too): its first move adds an
+// entry and the rest rewrite it. Any other change adds one each time.
+const sliderDrag = (() => {
+  let underway = false, entryAdded = false;
+  const isSlider = target => target instanceof HTMLInputElement && target.type === 'range';
+  document.addEventListener('input', e => { if (isSlider(e.target)) underway = true; }, true);
+  document.addEventListener('change', e => { if (isSlider(e.target)) underway = entryAdded = false; }, true);
+  return {
+    wantsEntry() {
+      if (!underway) return true;
+      if (entryAdded) return false;
+      entryAdded = true;
+      return true;
+    },
+  };
+})();
+
+// Back and Forward: the configuration in the address they go to, loaded by
+// load(configuration), the view left as it is
+function followHistory(load) {
+  window.addEventListener('popstate', async () => {
+    const configuration = await Config.unpack(location.hash.slice(1).split('~')[0]);
+    if (!configuration) return;
+    followingHistory = true;
+    try { load(configuration); } finally { followingHistory = false; }
+  });
 }
 
 window.addEventListener('keydown', e => {
@@ -210,5 +247,5 @@ about.addEventListener('toggle', () => {
 // What the other pieces of the model use
 export {
   DESK_RADIOS, DOOR_SLIDERS, about, bedroomCupboardControls, change, deskRadios, loungeCupboard, show, 
-  turnDoorsTo, update, writeAddress
+  followHistory, turnDoorsTo, update, writeAddress
 };

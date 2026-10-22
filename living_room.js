@@ -62,7 +62,7 @@ import {
 } from './floor.js';
 import { camera, controls, flatCamera, flatControls } from './page/stage.js';
 import './page/stored_controls.js';
-import { show } from './page/controls.js';
+import { followHistory, show } from './page/controls.js';
 import './page/colours.js';
 import './page/piece_controls.js';
 import './page/views.js';
@@ -171,6 +171,7 @@ const [configurationText, viewText] = startingAddress.split('~');
 const [startingConfiguration, startingView] = await Promise.all([Config.unpack(configurationText), Config.unpack(viewText)]);
 if (startingConfiguration) readConfiguration(startingConfiguration);
 addressRead = true;
+followHistory(loadConfiguration);
 syncControls();
 show();
 // A number box for each millimetre slider, now each shows its value: not

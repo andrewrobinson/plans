@@ -13,7 +13,8 @@ doors' options are in git (`git show 05f88b7:ui_paradigm_analysis.md`).
    to each build, as `buildFlat(configuration, view)` already does in Node.
    *Open.*
 4. **No history entry per slider move**: `replaceState` while a slider's
-   dragged, a new entry for a choice. *Open.*
+   dragged, a new entry for a choice. Done (22 Oct 2026): one entry per change, a drag
+   being one, and Back and Forward load the address's configuration.
 5. **Worked-out values out of the settings**: done.
 6. **Instances for every piece**, as `makeCupboard()` is, so `world` and
    the page's imports from the model shrink. *Open.*
