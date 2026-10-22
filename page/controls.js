@@ -152,14 +152,16 @@ function redrawAround(storedText) {
 // Nothing's written till the page has read its own address, at the start.
 // Each change adds an entry to the browser's history, so Back undoes one at
 // a time (notes/ui_paradigm_analysis.md, recommendation 4); a slider's
-// drag is one change (`sliderDrag`), and a write asked to replace, or made
-// while Back or Forward is followed, rewrites the entry it's on. A write
-// overtaken by a later one is dropped, its entry left to the later one.
+// drag is one change (`sliderDrag`), and a write asked to replace, made
+// while Back or Forward is followed, or not in answer to the user (the
+// page's own, as it opens: they'd leave entries that Back seems to do
+// nothing on) rewrites the entry it's on. A write overtaken by a later one
+// is dropped, its entry left to the later one.
 let addressWrites = 0, entryWanted = false, followingHistory = false;
 async function writeAddress(replace = false) {
   if (!addressRead) return;
   const write = ++addressWrites;
-  if (!replace && !followingHistory && sliderDrag.wantsEntry()) entryWanted = true;
+  if (!replace && !followingHistory && userJustActed() && sliderDrag.wantsEntry()) entryWanted = true;
   const configuration = configurationNow(), view = viewNow();
   configurationKit?.refresh();
   const hash = `#${await Config.pack(configuration)}~${await Config.pack(view)}`;
@@ -171,6 +173,10 @@ async function writeAddress(replace = false) {
     else history.replaceState(null, '', hash);
   } catch (e) { /* not important */ }
 }
+
+// Whether the user has just clicked, tapped or typed (the browser's
+// transient activation, a few seconds); where it isn't known, taken as yes
+const userJustActed = () => navigator.userActivation?.isActive ?? true;
 
 // A slider's drag, from its first move till it's let go (its 'change'
 // event; a number typed in its box sends one too): its first move adds an

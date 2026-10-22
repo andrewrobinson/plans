@@ -356,38 +356,50 @@ test.describe('switches and buttons', () => {
 });
 
 // The browser's history: one entry per change, a slider's whole drag being
-// one, and Back and Forward taking the page's settings with them
+// one, and Back and Forward taking the page's settings with them. Dragged
+// with the mouse: an entry is added only in answer to the user, which a
+// scripted event isn't
 test.describe('Back and Forward', () => {
-  // A drag: moves through the values, then let go (its 'change' event)
-  const drag = (page, id, values) => page.locator(`#${id}`).evaluate((el, vs) => {
-    for (const v of vs) {
-      el.value = v;
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    el.dispatchEvent(new Event('change', { bubbles: true }));
-  }, values);
+  // A drag of a slider's thumb from where it stands to `value`, in steps
+  const DRAG_STEPS = 5;                                          // chosen: several input events, as a hand's drag gives
+  async function drag(page, id, value) {
+    const slider = page.locator(`#${id}`);
+    await slider.scrollIntoViewIfNeeded();
+    const { min, max, now } = await slider.evaluate(el => ({ min: Number(el.min), max: Number(el.max), now: Number(el.value) }));
+    const box = await slider.boundingBox();
+    const xOf = v => box.x + box.width * (v - min) / (max - min);
+    const y = box.y + box.height / 2;
+    await page.mouse.move(xOf(now), y);
+    await page.mouse.down();
+    await page.mouse.move(xOf(value), y, { steps: DRAG_STEPS });
+    await page.mouse.up();
+  }
   const entries = page => page.evaluate(() => history.length);
-  const TOP = at('pieces.cornerCupboard.design.TOP');
-  const REAR = at('pieces.cornerCupboard.design.R');
+  const SOFA_X = at('pieces.sofa.in.livingRoom.move.x');
+  const SOFA_Y = at('pieces.sofa.in.livingRoom.move.y');
 
   test('a drag is one change, undone by Back', async ({ page }) => {
     await openDrawer(page);
-    await OPTION(7)(page);
     await settledHash(page);
-    const [startEntries, startTop, startRear] = [await entries(page), await TOP(page), await REAR(page)];
-    await drag(page, 'top', [2100, 2050, 2000]);
+    const startEntries = await entries(page);
+    expect(startEntries, 'none added as the page opens').toBeLessThanOrEqual(2);   // the page, after the browser's blank one
+    const [startX, startY] = [await SOFA_X(page), await SOFA_Y(page)];
+    await drag(page, 'sofaX', 600);
     await settledHash(page);
-    await drag(page, 'rear', [500, 450]);
+    const draggedX = await SOFA_X(page);
+    expect(draggedX).not.toBe(startX);
+    await drag(page, 'sofaY', 2000);
     await settledHash(page);
+    expect(await SOFA_Y(page)).not.toBe(startY);
     expect(await entries(page), 'one entry per drag').toBe(startEntries + 2);
 
-    await page.evaluate(() => history.back());
-    await expect.poll(() => REAR(page), 'Back undoes the second drag').toBe(startRear);
-    expect(await TOP(page)).toBe('2000');
-    await page.evaluate(() => history.back());
-    await expect.poll(() => TOP(page), '...then the first').toBe(startTop);
-    await page.evaluate(() => history.forward());
-    await expect.poll(() => TOP(page), 'Forward redoes it').toBe('2000');
-    await expect(page.locator('#topValue')).toHaveText('2000');
+    await page.goBack();
+    await expect.poll(() => SOFA_Y(page), 'Back undoes the second drag').toBe(startY);
+    expect(await SOFA_X(page)).toBe(draggedX);
+    await page.goBack();
+    await expect.poll(() => SOFA_X(page), '...then the first').toBe(startX);
+    await page.goForward();
+    await expect.poll(() => SOFA_X(page), 'Forward redoes it').toBe(draggedX);
+    await expect(page.locator('#sofaXValue')).toHaveText(draggedX);
   });
 });
