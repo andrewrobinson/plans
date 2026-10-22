@@ -142,12 +142,18 @@ function drawOuterWall() {
   windows.forEach((w, k) => { radiators[k] = drawRadiator(k); });
 }
 // The radiators, one under each window (0 nearest the back wall); the
-// first can be taken out, so it's hidden (flat_model.js's firstRadiator())
+// first can be taken out, so it's hidden (flat_model.js's firstRadiator()).
+// Each is a group, not a bare mesh: the cut views (floor_kit.js's
+// cutViews()) set every mesh visible again on each change of view, but
+// leave groups as they are
 export const radiators = [];
 const radMat = material(0xf6f6f4);
 function drawRadiator(k) {
   const { windows, radiator } = OUTER, mid = (windows[k].y[0] + windows[k].y[1]) / 2;
-  return box({ from: [ROOM_WIDTH - radiator.out, mid - radiator.width / 2, radiator.bottom], to: [ROOM_WIDTH - radiator.out + radiator.thick, mid + radiator.width / 2, radiator.top] }, radMat, floor);
+  const group = new THREE.Group();
+  box({ from: [ROOM_WIDTH - radiator.out, mid - radiator.width / 2, radiator.bottom], to: [ROOM_WIDTH - radiator.out + radiator.thick, mid + radiator.width / 2, radiator.top] }, radMat, group);
+  floor.add(group);
+  return group;
 }
 
 // ---------------------------------------------------------------------------
