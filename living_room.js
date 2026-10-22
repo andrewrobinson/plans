@@ -374,8 +374,8 @@ function showInMenus(option, no, aboveText) {
   shown('tvBlock', (benchDrawn() && aboveHasTv(above)) || daybedTvShown());   // the bench's TV, or the daybed's
   shown('shelfBlock', benchDrawn() && aboveHasShelves(above));   // only with shelves above the bench
   shown('benchDetails', benchDrawn());
-  const piece = no === CURRENT_ROOM || islandOnWall() ? 'none' : config.livingRoom.frontWall;   // the dresser or a larder, if either is drawn
-  shown('frontBlock', !(no === CURRENT_ROOM || islandOnWall()));
+  const piece = islandOnWall() ? 'none' : config.livingRoom.frontWall;   // the dresser or a larder, if either is drawn
+  shown('frontBlock', !islandOnWall());   // in every option, the room as it is too (asked for, 22 Oct 2026)
   shown('islandMoveBlock', config.pieces.island.in.livingRoom.at === 'room');         // moving and turning: out there only
   for (const [k, id, unit] of [['x', 'islandX', ''], ['y', 'islandY', ''], ['turn', 'islandTurn', '°']]) {
     document.getElementById(id).value = String(config.pieces.island.in.livingRoom[k]);
@@ -563,10 +563,11 @@ shelfSelect.addEventListener('change', () => change([['colours.shelves', Number(
 function updatePalette() {
   const { shelves: shelfWood } = config.colours, above = config.pieces.aboveBench.design.what, { option } = config.pieces.cornerCupboard.design;
   const current = option === CURRENT_ROOM;                       // the room as it is, no cupboards
+  const paintedFront = !islandOnWall() && ['dresser', 'larder'].includes(config.livingRoom.frontWall);   // in the dresser colour
   const hex = m => `#${m.color.getHexString().toUpperCase()}`;
   const rows = [
     ...(current ? [] : [['Cupboards and bench', hex(carcassMat), colourOf(shownCode('cupboard')).name], ['Handles', hex(handleMat)]]),
-    ...(current ? [] : [['Dresser', hex(dresserMat), colourOf(shownCode('dresser')).name]]),
+    ...(paintedFront ? [['Dresser', hex(dresserMat), colourOf(shownCode('dresser')).name]] : []),
     ['Shelves', hex(shelfMat), SHELF_WOODS[shelfWood].name],
     ...(option === 9 ? [['Tower shelves and oak top', hex(oakMat), SHELF_WOODS[shelfWood].name]] : []),
     ...(aboveHasTv(above) ? [['TV', hex(tvMat)], ['TV screen', hex(screenMat)]] : []),

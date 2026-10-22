@@ -995,12 +995,11 @@ function sofaByIsland({ turn, x0, x1, y0, y1 }) {
   if (level && y1 > iy0 && y0 < iy1) return ' It runs into the island.';
   return level && iy0 >= y1 && turn === 0 ? ` Behind it, ${iy0 - y1} to the island.` : '';
 }
-function frontWall(g, no) {
+function frontWall(g) {
   if (islandOnWall()) {
     const { x0, x1, y0 } = islandSpot();
     return ` The kitchen island against the front wall between the sink and the desk, its ${config.pieces.island.in.livingRoom.at === 'out' ? 'long' : 'short'} side out (x ${x0}-${x1}), coming ${ROOM_DEPTH - y0} out from the wall to y ${y0}.`;
   }
-  if (no === CURRENT_ROOM) return '';
   if (config.livingRoom.frontWall === 'dresser') return dresser(pieces.dresser = placePiece(g));
   if (config.livingRoom.frontWall === 'bookshelf') return bookcaseOnFrontWall(g);
   const L = currentLarder();
@@ -1027,7 +1026,6 @@ function frontSpan() {
     const { x0, x1 } = islandSpot();
     return { x0, x1, heights: [0, KITCHEN.island.top] };
   }
-  if (config.pieces.cornerCupboard.design.option === CURRENT_ROOM) return null;
   if (config.livingRoom.frontWall === 'dresser') return { ...dresserSpan(), heights: [0, config.pieces.dresser.design.baseH, config.pieces.dresser.design.h] };
   if (config.livingRoom.frontWall === 'bookshelf') {
     const { w, h } = config.pieces.bookcase.design;
@@ -2288,7 +2286,7 @@ export function build(onShow = optionsOnShow()) {
   const clearFrom = option.clearFrom(cupboardSettings());
   const backWall = benchDrawn() ? benchWall(clearFrom, group)
     : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('') + tvAboveDaybed(group);
-  const aboveText = backWall + frontWall(group, no) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + chairAtDaybedDesk();
+  const aboveText = backWall + frontWall(group) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + chairAtDaybedDesk();
   if (!same) doors.second = 0;
   drawOtherRoom(config);                                         // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard

@@ -12,7 +12,7 @@
       "shelves": 0
     },
     "livingRoom": {
-      "frontWall": "dresser"
+      "frontWall": "none"
     },
     "pieces": {
       "cornerCupboard": {

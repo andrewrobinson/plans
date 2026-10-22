@@ -50,16 +50,13 @@ async function openDrawer(page, address = '', room = 'lounge') {
 // is: no cupboard or bench, Billy and BillyChest on the back wall), so a
 // control is on show: a cupboard; the bench, once Billy and BillyChest are
 // off the back wall (they stand in its place); the dresser or a larder on
-// the front wall, which a cupboard option has; a sofa
+// the front wall, offered in the room as it is too; a sofa
 const OPTION = n => page => pickOption(page, n);
 async function BENCH(page) {
   for (const id of ['billyOn', 'billyChestOn']) await toggle(page, id, false);
   await toggle(page, 'benchOn', true);
 }
-const onTheFrontWall = piece => async page => {
-  await OPTION(10)(page);
-  await page.check(`input[name=frontPiece][value="${piece}"]`);
-};
+const onTheFrontWall = piece => page => page.check(`input[name=frontPiece][value="${piece}"]`);
 const DRESSER = onTheFrontWall('dresser');
 const LARDER = onTheFrontWall('larder');
 const SOFA = page => page.selectOption('#sofaPick', 'merton');
