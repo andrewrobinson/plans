@@ -7,9 +7,12 @@ html, body { margin: 0; height: 100%; background: #eef0f2; font-family: Helvetic
    Other options (opened by ☰), and Lounge, Bedroom, Garage, and Hallway
    and stairs options (by the options button, for the room in view). They open below the top bar, which stays in front, so its
    buttons can still be used (--below-bar is set by the page, as the bar can
-   take two rows). The model always fills the screen. */
+   take two rows). The model always fills the screen. --drawer-width: 380
+   on a desktop, so the Lounge's four tabs fit (chosen, 22 Oct 2026; 340
+   before) */
+:root { --drawer-width: min(380px, 88vw); }
 .drawer {
-  position: fixed; top: var(--below-bar, 0); left: 0; bottom: 0; width: 340px; max-width: 88vw; overflow: auto; z-index: 3;
+  position: fixed; top: var(--below-bar, 0); left: 0; bottom: 0; width: var(--drawer-width); overflow: auto; z-index: 3;
   background: rgba(255, 255, 255, 0.97); padding: 12px 14px 24px; box-sizing: border-box;
   box-shadow: 2px 0 14px rgba(0, 0, 0, 0.2); font-size: 13px; line-height: 1.45;
   transform: translateX(-105%); transition: transform 0.25s ease;
@@ -90,7 +93,7 @@ body.reloading canvas { opacity: 0.2; transition: opacity 0.25s; }
 /* An open drawer leaves the room live beside it (kit/floor_kit.js frames
    the views clear of it), and the options button moves clear of it too, to
    close it again */
-body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLeft { left: calc(min(340px, 88vw) + 12px); }
+body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLeft { left: calc(var(--drawer-width) + 12px); }
 /* On phones held upright (up to 600 wide, kit/floor_kit.js's SHEET_WIDTH)
    the drawers are a sheet from the bottom, --sheet high, the room above it;
    its handle drags it taller or shorter, and the options button sits on its
@@ -125,6 +128,27 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
 /* A section that doesn't fold (Other options' This page), headed as the others */
 .drawer div.sec { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; }
 .drawer .sec > .secHead { font-weight: bold; font-size: 14px; color: #1f4e79; padding: 2px 0; }
+/* The long drawers' tabs (kit/tabs_kit.js, MENU_TABS.md): a row under the
+   drawer's title that stays in view as the drawer scrolls, the chosen tab
+   underlined in the sections' blue. The row runs the drawer's full width
+   (its 14px side padding taken back) and sticks at its top edge (its 12px
+   top padding taken back), and scrolls sideways if its tabs don't fit.
+   Spaced closely enough that the Lounge's four fit in 375 (measured at 361,
+   22 Oct 2026) */
+.drawer .tablist {
+  position: sticky; top: -12px; z-index: 1; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+  margin: 6px -14px 0; padding: 0 8px; background: #fff; border-bottom: 1px solid #ccc;
+}
+.drawer .tablist button[role=tab] {
+  border: none; border-radius: 0; background: none; color: #555; padding: 9px 6px 7px; white-space: nowrap; font-size: 13px;
+  border-bottom: 3px solid transparent;
+}
+.drawer .tablist button[aria-selected=true] { color: #1f4e79; border-bottom-color: #1f4e79; font-weight: bold; }
+.drawer .tabpanel[hidden] { display: none; }
+/* On a phone, the sheet: the tabs under its handle, which stays at the top */
+@media (max-width: 600px) { .drawer .tablist { top: 22px; } }
+/* The first section in a tab, straight under the tabs: no rule over it */
+.drawer .tabpanel > .sec:first-child, .drawer .tabpanel > .depth:first-child { border-top: none; margin-top: 4px; }
 .drawer input[type=range] { width: 100%; }
 /* The number box in a millimetre slider's label (kit/controls_kit.js's
    numberBoxes()), wide enough for 4 digits and a decimal, chosen */

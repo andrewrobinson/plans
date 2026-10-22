@@ -5,7 +5,7 @@
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
-const { test, expect, openOptions, openSection, openRoom, addressOf, readAddress, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
+const { test, expect, openOptions, openTab, openSection, openRoom, addressOf, readAddress, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot } = require('./helpers');
 const { ADDRESSES } = require('./addresses');
 
 // The configurations in living_room.configurations.js, read the way the page reads them
@@ -105,6 +105,68 @@ test.describe('the bar and menus look the same', () => {
   test('Lounge options open', async ({ page }) => {
     await openOptions(page);
     await expect(page).toHaveScreenshot('controls-lounge-options.png', CONTROLS_ONLY);
+  });
+});
+
+// The long drawers' tabs (MENU_TABS.md): choosing one shows its sections
+// and hides the others', the arrow keys move between them, the drawer opens
+// on the one last used, and on either device each drawer's tabs fit across
+// it without scrolling sideways
+test.describe('the drawers\' tabs', () => {
+  test.beforeEach(async ({ page }) => { await openRoom(page); });
+  const chosen = (page, tabs) => page.locator(`#${tabs} [role=tab][aria-selected=true]`);
+  const tab = (page, tabs, name) => page.locator(`#${tabs} [role=tab]`, { hasText: name });
+
+  test('a tab shows its sections, and the description is under them all', async ({ page }) => {
+    await openOptions(page);
+    await expect(chosen(page, 'loungeTabs')).toHaveText('Cupboard');
+    await expect(page.locator('#secCupboard')).toBeVisible();
+    await expect(page.locator('#secSofa')).toBeHidden();
+    await tab(page, 'loungeTabs', 'Furniture').click();
+    await expect(page.locator('#secSofa')).toBeVisible();
+    await expect(page.locator('#secCupboard')).toBeHidden();
+    await expect(page.locator('#about')).toBeAttached();
+    expect(await page.locator('#about').evaluate(d => !d.closest('.tabpanel'))).toBe(true);
+  });
+
+  test('the arrow keys, Home and End move between tabs', async ({ page }) => {
+    await openOptions(page);
+    await tab(page, 'loungeTabs', 'Cupboard').focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(chosen(page, 'loungeTabs')).toHaveText('Furniture');
+    await page.keyboard.press('End');
+    await expect(chosen(page, 'loungeTabs')).toHaveText('Colours & stored');
+    await page.keyboard.press('ArrowRight');                     // round the end
+    await expect(chosen(page, 'loungeTabs')).toHaveText('Cupboard');
+    await page.keyboard.press('ArrowLeft');
+    await expect(chosen(page, 'loungeTabs')).toHaveText('Colours & stored');
+    await expect(page.locator('#secStored')).toBeVisible();
+  });
+
+  test('a drawer opens on the tab last used', async ({ page }) => {
+    await openOptions(page);
+    await tab(page, 'loungeTabs', 'Walls & doors').click();
+    await openRoom(page);
+    await openOptions(page);
+    await expect(chosen(page, 'loungeTabs')).toHaveText('Walls & doors');
+    await expect(page.locator('#secFrontWall')).toBeVisible();
+  });
+
+  test('the garage\'s pieces are in their groups\' tabs', async ({ page }) => {
+    await openOptions(page, 'garage');
+    await expect(page.locator('#garageTabs [role=tab]')).toHaveText(['Cupboards & shelves', 'Tables & benches', 'Boxes']);
+    await expect(page.locator('#garageDoorBlock')).toBeVisible();   // the door, above the tabs
+    await tab(page, 'garageTabs', 'Boxes').click();
+    await expect(page.locator('#garage_trellis_on')).toBeVisible();
+    await expect(page.locator('#garage_sean_on')).toBeHidden();
+  });
+
+  test('each drawer\'s tabs fit across it', async ({ page }) => {
+    for (const [room, tabs] of [['lounge', 'loungeTabs'], ['hallway', 'hallTabs'], ['garage', 'garageTabs']]) {
+      await openOptions(page, room);
+      const { across, needed } = await page.locator(`#${tabs} .tablist`).evaluate(l => ({ across: l.clientWidth, needed: l.scrollWidth }));
+      expect(needed, `${tabs}: ${needed} needed, ${across} across`).toBeLessThanOrEqual(across);
+    }
   });
 });
 
@@ -220,9 +282,14 @@ test.describe('the settings drawers', () => {
 // as it is, with no cupboard or bench, Billy and BillyChest on the back
 // wall and the Drift by them. Each test switches on what it needs: a
 // cupboard (which has the front wall's choices), or the bench, once Billy
-// and BillyChest are off the back wall, where they stand in its place
-const withCupboard = page => pickOption(page, 10);
+// and BillyChest are off the back wall, where they stand in its place.
+// Each leaves its own tab of Lounge options chosen: Cupboard, Furniture
+async function withCupboard(page) {
+  await openTab(page, 'Cupboard');
+  await pickOption(page, 10);
+}
 async function withBench(page) {
+  await openTab(page, 'Furniture');
   for (const id of ['#billyOn', '#billyChestOn']) await page.locator(id).uncheck();
   await page.locator('#benchOn').check();
 }
@@ -254,6 +321,7 @@ test.describe('the controls', () => {
   // following the slider; none beside the angles
   test('a millimetre slider\'s number can be typed', async ({ page }) => {
     await withBench(page);
+    await openTab(page, 'Cupboard');
     await pickOption(page, 7);
     const box = page.locator('#rearBox');
     await box.fill('520');
@@ -382,6 +450,7 @@ test.describe('the controls', () => {
   // its place, move) and in the bedroom (in.bedroom.on), each on its
   // own; in the bench's place, with the bookshelf too if it's on
   test('the pine cupboard can be on the back wall and in the bedroom, each on its own', async ({ page }) => {
+    await openTab(page, 'Furniture');
     await expect(page.locator('#pineMoveBlock')).toBeHidden();
     await page.locator('#pineOn').check();
     await expect(page.locator('#benchOn')).toBeDisabled();
@@ -408,6 +477,7 @@ test.describe('the controls', () => {
   // the pine cupboard; lying, it's 2020 along its wall. On the back wall,
   // lying, as the page opens, moved to where it is now
   test('Billy can be on the back wall and in the bedroom, standing or lying', async ({ page }) => {
+    await openTab(page, 'Furniture');
     await page.locator('#billyOn').uncheck();
     await expect(page.locator('#billyMoveBlock')).toBeHidden();
     await page.locator('#billyOn').check();
@@ -436,6 +506,7 @@ test.describe('the controls', () => {
   // bedroom (on any wall), each on its own. In the living room's corner as
   // the page opens
   test('BillyChest can be on the back wall and in the bedroom', async ({ page }) => {
+    await openTab(page, 'Furniture');
     expect(await setting(page, 'pieces.billyChest.in.livingRoom.on')).toBe(true);
     await expect(page.locator('#benchOn')).toBeDisabled();
     await page.locator('#billyChestHome').click();                    // against the cupboards, where the bench starts
@@ -456,6 +527,7 @@ test.describe('the controls', () => {
   // The Ivar: in the lounge to start, lying by the first radiator; moved
   // and put back; standing; and in the bedroom and garage, each on its own
   test('the Ivar is by the first radiator, and can go to the bedroom and garage', async ({ page }) => {
+    await openTab(page, 'Furniture');
     expect(await setting(page, 'pieces.ivar.in.livingRoom.on')).toBe(true);
     expect(await setting(page, 'pieces.ivar.in.livingRoom.lying')).toBe(true);
     await expect(page.locator('#ivarXValue')).toHaveText('3291');      // 830 out from the radiator's front, at 3706
@@ -475,6 +547,7 @@ test.describe('the controls', () => {
 
   // The Drift, a daybed: its As a bed switch only for it, 1980 wide as a bed
   test('the Drift sofa can be laid out as a bed', async ({ page }) => {
+    await openTab(page, 'Furniture');
     await page.selectOption('#sofaPick', 'merton');                    // the Drift, as the page opens
     await expect(page.locator('#sofaAsBedRow')).toBeHidden();
     await page.selectOption('#sofaPick', 'drift');
@@ -535,6 +608,7 @@ test.describe('the controls', () => {
 
   test('the front-wall piece shows the dresser or larder settings', async ({ page }) => {
     await withCupboard(page);
+    await openTab(page, 'Walls & doors');
     await page.check('input[name=frontPiece][value="larder"]');
     await expect(page.locator('#larderBlock')).toBeVisible();
     await expect(page.locator('#dresserBlock')).toBeHidden();
@@ -556,7 +630,9 @@ test.describe('the controls', () => {
   // (in.livingRoom.on) and in the bedroom (in.bedroom.on), each on its own
   test('a bookcase can be on either wall and in the bedroom, each on its own', async ({ page }) => {
     await withCupboard(page);
+    await openTab(page, 'Walls & doors');
     await page.check('input[name=frontPiece][value="bookshelf"]');
+    await openTab(page, 'Furniture');
     await page.locator('#bookshelfOn').check();
     expect(await setting(page, 'livingRoom.frontWall')).toBe('bookshelf');
     expect(await setting(page, 'pieces.bookcase.in.livingRoom.on')).toBe(true);
@@ -571,6 +647,7 @@ test.describe('the controls', () => {
 
   // Its place, in.livingRoom.move: null where it starts, else { x, y, turn }
   test('the bookshelf in the bench\'s place can be moved and turned', async ({ page }) => {
+    await openTab(page, 'Furniture');
     await expect(page.locator('#bookshelfMoveBlock')).toBeHidden();
     await page.locator('#bookshelfOn').check();
     await expect(page.locator('#bookshelfMoveBlock')).toBeVisible();
@@ -589,6 +666,7 @@ test.describe('the controls', () => {
   // The sofa's place, in.livingRoom.move: null where it starts, centred on the TV,
   // else its middle's x and y and how far it's turned, in quarter turns
   test('the sofa can be moved and turned, and its place round-trips through the address', async ({ page }) => {
+    await openTab(page, 'Furniture');
     await page.selectOption('#sofaPick', 'merton');
     await page.click('#sofaHome');                                     // the Drift's place by Billy, as the page opens
     expect(await setting(page, 'pieces.sofa.in.livingRoom.move')).toBe(null);               // where it starts, facing the TV
@@ -614,6 +692,7 @@ test.describe('the controls', () => {
   });
 
   test('the island can only be moved when it is out in the room', async ({ page }) => {
+    await openTab(page, 'Walls & doors');
     await expect(page.locator('#islandMoveBlock')).toBeVisible();
     await page.check('input[name=islandAt][value="out"]');
     await expect(page.locator('#islandMoveBlock')).toBeHidden();

@@ -47,6 +47,12 @@ list stays.
    - Looking from the hallway into a room. *Still wanted?* The page is
      used a room at a time (the user, 19 Oct 2026).
 
+3. **Segmented controls** (`MENU_TABS.md`'s last part): the short radio
+   groups in Lounge options as one row of joined buttons. The tabs before
+   them are built (22 Oct 2026).
+4. **Sharing with a designer** (`SHARING.md`, set aside 22 Oct 2026):
+   named links, a set to present, perhaps a shared board. After the UI.
+
 Smaller pieces, any time:
 
 - **Find a setting** (`UI_CRITIQUE.md`'s step 6, put off till steps 1 to 3

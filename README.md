@@ -53,7 +53,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | `living_room.configurations.js`, `dressers.js`, `larders.js`, `sofas.js` | Named configurations and furniture catalogues, for editing |
 | `kit/config_kit.js` | The configuration: reading and writing it through a schema, and packing it for the address |
 | `tests/` | The browser tests, the saved configurations (`configs/`) and snapshots (`snapshots/`), and the model's tests in Node (`model/`) |
-| `kit/` | The engine: `floor_kit.js`, `view_kit.js` (views, rooms, Where and Looking at), `configuration_kit.js` (the Configuration list) |
+| `kit/` | The engine: `floor_kit.js`, `view_kit.js` (views, rooms, Where and Looking at), `configuration_kit.js` (the Configuration list), `tabs_kit.js` (the long drawers' tabs) |
 | `drawings/` | The floor plans, and `measure_sheet.html` for sending measurements |
 
 The notes:

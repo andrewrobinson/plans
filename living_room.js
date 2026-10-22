@@ -29,6 +29,7 @@ import * as ConfigurationKit from './kit/configuration_kit.js';
 import * as Config from './kit/config_kit.js';
 import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, QUARTER_TURN, BED_SPOTS } from './other_room.js';
 import { SIZE_LABEL, numberBoxes } from './kit/controls_kit.js';
+import { drawerTabs, showTabOf } from './kit/tabs_kit.js';
 import { wickerBenches, wickerBenchControls } from './wicker_bench.js';
 import { shoeRack, shoeRackControls } from './shoe_rack.js';
 import { stairWallsControls, shoeBoxRefusal } from './stair_walls.js';
@@ -1413,6 +1414,9 @@ const syncGarage = garageControls(document.getElementById('garageBlock'), edits 
   turnDoorsTo({ garage: word });
   viewKit.writeView();                                          // the view's, as the door sliders'
 });
+// The long drawers' tabs (MENU_TABS.md): Lounge, Hallway and stairs, and
+// Garage options, the garage's built by garage.js, so after it
+drawerTabs();
 // The drawers' sections open or closed as they were left here, those the
 // rooms' modules build too (Bedroom options' Bed, Extras and Recess
 // cupboards), so after them
@@ -1469,7 +1473,7 @@ function syncControls() {
 // ---------------------------------------------------------------------------
 // window.plans: the settings and what's made of them, for the tests and the
 // browser console (REFACTOR_PLAN.md, steps 6a and 6b). Only load() changes
-// the page.
+// the settings.
 //   get()       the settings (the model's config), as JSON, with the view's doors' angles
 //   export()    the settings as a configuration (SCHEMA, above)
 //   load(json)  shows a configuration, keeping the view
@@ -1480,6 +1484,8 @@ function syncControls() {
 //               dimension figures on show, the description and each piece's
 //               box, which the
 //               tests save beside each address (tests/snapshots/)
+//   showTabOf(id) shows the drawer's tab holding the element with that id,
+//               for a test to reach a control in a tab not chosen
 // ---------------------------------------------------------------------------
 function settingsNow() {
   return { ...JSON.parse(JSON.stringify(config)), doors: doorAngles() };
@@ -1543,6 +1549,7 @@ window.plans = {
   export: configurationNow,
   load: loadConfiguration,
   view: viewNow,
+  showTabOf: elementId => showTabOf(document.getElementById(elementId)),
   schema: () => [...SCHEMA, ...DOORS_SCHEMA].map(({ read, write, isColour, also, ...entry }) => structuredClone(entry)),
   snapshot: () => ({
     configuration: configurationNow(),

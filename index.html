@@ -131,437 +131,457 @@
      shelves and pictures over the stairs, the shoe boxes on the sills, the shoe rack at the foot of the
      stairs and the two doors downstairs, a drawer of its own, opened from
      the hallway or downstairs (the wicker bench, in any room, is in Other
-     options) -->
+     options). Two tabs (MENU_TABS.md): Upstairs and Downstairs -->
 <div id="hallPanel" class="drawer">
   <div class="head">
     <h1>Hallway and stairs options</h1>
     <button id="hallClose" class="close" aria-label="Close hallway and stairs options">✕</button>
   </div>
-  <details class="sec" id="secBathroom" open>
-    <summary>The bathroom and WC</summary>
-    <label class="switch"><input type="checkbox" id="bathroomShown"> Show the bathroom and WC</label>
-    <div class="hint">Hide them to see the hallway and stairs past them: the WC wall stays, for its shelves and picture.</div>
-  </details>
-  <details class="sec" id="secStairWalls">
-    <summary>Shelves and pictures over the stairs</summary>
-    <div class="hint">On the three walls that rise from the hallway floor to the ceiling round the stairwell, high up, heights from the hallway floor. On one wall the shelves and the picture are kept apart: one moved onto the other goes along the wall, past it.</div>
-    <div id="stairWallsBlock"></div>
-  </details>
-  <details class="sec" id="secShoeBoxes">
-    <summary>Shoe boxes on the sills</summary>
-    <div class="hint">A box on each of the white sills either side of the top of the stairs, open on the side facing the stairs. Heights from the sill. On the TV and WC walls the shelves and pictures are kept clear of them.</div>
-    <div id="shoeBoxesBlock"></div>
-  </details>
-  <details class="sec" id="secShoeRack">
-    <summary>The shoe rack (downstairs)</summary>
-    <div class="hint">An open rack of shelves at the foot of the stairs, on its floor between the bottom step and the back wall.</div>
-    <div id="shoeRackBlock"></div>
-  </details>
-  <details class="sec" id="secDownstairsDoors" open>
-    <summary>Doors downstairs</summary>
-    <label for="flatDoor">Internal door (yours), downstairs: <span id="flatDoorValue">0°</span></label>
-    <input id="flatDoor" type="range" min="0" max="90" value="0">
-    <label for="outsideDoor">External door, downstairs: <span id="outsideDoorValue">0°</span></label>
-    <input id="outsideDoor" type="range" min="0" max="90" value="0">
-  </details>
+  <div class="tabs" id="hallTabs" data-label="Hallway and stairs options">
+    <div class="tablist"></div>
+    <div class="tabpanel" data-tab="Upstairs">
+      <details class="sec" id="secBathroom" open>
+        <summary>The bathroom and WC</summary>
+        <label class="switch"><input type="checkbox" id="bathroomShown"> Show the bathroom and WC</label>
+        <div class="hint">Hide them to see the hallway and stairs past them: the WC wall stays, for its shelves and picture.</div>
+      </details>
+      <details class="sec" id="secStairWalls">
+        <summary>Shelves and pictures over the stairs</summary>
+        <div class="hint">On the three walls that rise from the hallway floor to the ceiling round the stairwell, high up, heights from the hallway floor. On one wall the shelves and the picture are kept apart: one moved onto the other goes along the wall, past it.</div>
+        <div id="stairWallsBlock"></div>
+      </details>
+      <details class="sec" id="secShoeBoxes">
+        <summary>Shoe boxes on the sills</summary>
+        <div class="hint">A box on each of the white sills either side of the top of the stairs, open on the side facing the stairs. Heights from the sill. On the TV and WC walls the shelves and pictures are kept clear of them.</div>
+        <div id="shoeBoxesBlock"></div>
+      </details>
+    </div>
+    <div class="tabpanel" data-tab="Downstairs">
+      <details class="sec" id="secShoeRack">
+        <summary>The shoe rack (downstairs)</summary>
+        <div class="hint">An open rack of shelves at the foot of the stairs, on its floor between the bottom step and the back wall.</div>
+        <div id="shoeRackBlock"></div>
+      </details>
+      <details class="sec" id="secDownstairsDoors" open>
+        <summary>Doors downstairs</summary>
+        <label for="flatDoor">Internal door (yours), downstairs: <span id="flatDoorValue">0°</span></label>
+        <input id="flatDoor" type="range" min="0" max="90" value="0">
+        <label for="outsideDoor">External door, downstairs: <span id="outsideDoorValue">0°</span></label>
+        <input id="outsideDoor" type="range" min="0" max="90" value="0">
+      </details>
+    </div>
+  </div>
 </div>
 
-<!-- Lounge options: the living room's, a drawer of its own: its corner
-     cupboard (the option and its settings), the front wall and the island,
-     the sofa, the back wall, its doors and colours, the things to store
-     and the description -->
+<!-- Lounge options: the living room's, a drawer of its own, in four tabs
+     (MENU_TABS.md; kit/tabs_kit.js makes the buttons): Cupboard (the
+     option and its settings), Furniture (the sofa, the back wall, the
+     speakers, the Ivar, the tables and the desk), Walls & doors (the front
+     wall and the island, the doors) and Colours & stored; under them, the
+     description, which is the whole room's -->
 <div id="loungePanel" class="drawer">
   <div class="head">
     <h1>Lounge options</h1>
     <button id="loungeClose" class="close" aria-label="Close lounge options">✕</button>
   </div>
-  <details class="sec" id="secCupboard" open>
-    <summary>The corner cupboard</summary>
-    <label for="current">Option</label>
-    <select id="current" class="pick" aria-label="Cupboard option"></select>
-    <label class="switch" title="Hide the rest of the room and show the cupboard's dimensions"><input type="checkbox" id="cupboardOnly"> Cupboard only, with dimensions</label>
-    <div id="cupboardControls">
-      <div id="depthBlock">
-        <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
-        <input id="depth" type="range" min="290" max="800" step="1" value="290">
-      </div>
-      <div id="leftLenBlock">
-        <label for="leftLen" title="Out from the back wall">Left-wall cupboard length: <span id="leftLenValue">1200</span></label>
-        <input id="leftLen" type="range" min="1000" max="1329" step="1" value="1200">
-      </div>
-      <div id="rearBlock">
-        <label for="rear"><span id="rearLabel">Back-wall cupboard depth</span>: <span id="rearValue">330</span></label>
-        <input id="rear" type="range" min="300" max="800" step="10" value="330">
-      </div>
-      <label for="board">Board thickness: <span id="boardValue">18</span></label>
-      <input id="board" type="range" min="12" max="25" step="1" value="18">
-      <label class="switch" id="xrayRow"><input type="checkbox" id="xray"> See-through cupboards</label>
-      <div id="wardBlock">
-        <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
-        <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
-        <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
-        <input id="ward" type="range" min="600" max="1400" step="50" value="900">
-        <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
-        <input id="tower" type="range" min="0" max="600" step="50" value="400">
-      </div>
-      <div id="cornerBlock">
-        <label for="cornerW">Corner cupboard width: <span id="cornerWValue">800</span></label>
-        <input id="cornerW" type="range" min="500" max="1200" step="10" value="800">
-        <label for="cornerD" title="Out along the left wall">Corner cupboard depth: <span id="cornerDValue">650</span></label>
-        <input id="cornerD" type="range" min="0" max="1329" step="1" value="650">
-        <div id="sideShelfBlock">
-          <label class="switch"><input type="checkbox" id="sideShelfOn"> Show side bookshelf</label>
-          <div id="sideShelfDetails">
-            <label for="sideW">Side bookshelf width: <span id="sideWValue">400</span></label>
-            <input id="sideW" type="range" min="200" max="800" step="10" value="400">
-            <label for="sideD">Side bookshelf depth: <span id="sideDValue">330</span></label>
-            <input id="sideD" type="range" min="150" max="800" step="10" value="330">
+  <div class="tabs" id="loungeTabs" data-label="Lounge options">
+    <div class="tablist"></div>
+    <div class="tabpanel" data-tab="Cupboard">
+      <details class="sec" id="secCupboard" open>
+        <summary>The corner cupboard</summary>
+        <label for="current">Option</label>
+        <select id="current" class="pick" aria-label="Cupboard option"></select>
+        <label class="switch" title="Hide the rest of the room and show the cupboard's dimensions"><input type="checkbox" id="cupboardOnly"> Cupboard only, with dimensions</label>
+        <div id="cupboardControls">
+          <div id="depthBlock">
+            <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>
+            <input id="depth" type="range" min="290" max="800" step="1" value="290">
+          </div>
+          <div id="leftLenBlock">
+            <label for="leftLen" title="Out from the back wall">Left-wall cupboard length: <span id="leftLenValue">1200</span></label>
+            <input id="leftLen" type="range" min="1000" max="1329" step="1" value="1200">
+          </div>
+          <div id="rearBlock">
+            <label for="rear"><span id="rearLabel">Back-wall cupboard depth</span>: <span id="rearValue">330</span></label>
+            <input id="rear" type="range" min="300" max="800" step="10" value="330">
+          </div>
+          <label for="board">Board thickness: <span id="boardValue">18</span></label>
+          <input id="board" type="range" min="12" max="25" step="1" value="18">
+          <label class="switch" id="xrayRow"><input type="checkbox" id="xray"> See-through cupboards</label>
+          <div id="wardBlock">
+            <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
+            <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
+            <label for="ward">Double-door cupboard width: <span id="wardValue">900</span></label>
+            <input id="ward" type="range" min="600" max="1400" step="50" value="900">
+            <label for="tower">Shelving tower width: <span id="towerValue">400</span></label>
+            <input id="tower" type="range" min="0" max="600" step="50" value="400">
+          </div>
+          <div id="cornerBlock">
+            <label for="cornerW">Corner cupboard width: <span id="cornerWValue">800</span></label>
+            <input id="cornerW" type="range" min="500" max="1200" step="10" value="800">
+            <label for="cornerD" title="Out along the left wall">Corner cupboard depth: <span id="cornerDValue">650</span></label>
+            <input id="cornerD" type="range" min="0" max="1329" step="1" value="650">
+            <div id="sideShelfBlock">
+              <label class="switch"><input type="checkbox" id="sideShelfOn"> Show side bookshelf</label>
+              <div id="sideShelfDetails">
+                <label for="sideW">Side bookshelf width: <span id="sideWValue">400</span></label>
+                <input id="sideW" type="range" min="200" max="800" step="10" value="400">
+                <label for="sideD">Side bookshelf depth: <span id="sideDValue">330</span></label>
+                <input id="sideD" type="range" min="150" max="800" step="10" value="330">
+              </div>
+            </div>
+            <div id="deskBlock">
+              <label class="switch" title="A desk that folds down from the cupboard's side facing the windows, where it's clear of the bookshelf or the bench"><input type="checkbox" id="deskOn"> Fold-down desk</label>
+              <div id="deskDetails">
+                <label for="deskW">Desk width, along the side: <span id="deskWValue">780</span></label>
+                <input id="deskW" type="range" min="300" max="1200" step="10" value="780">
+                <label for="deskD">Desk depth, out from the side: <span id="deskDValue">500</span></label>
+                <input id="deskD" type="range" min="300" max="700" step="10" value="500">
+                <label for="deskH">Desk height, open: <span id="deskHValue">740</span></label>
+                <input id="deskH" type="range" min="650" max="800" step="10" value="740">
+              </div>
+            </div>
+          </div>
+          <div id="legBlock">
+            <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
+            <input id="leg" type="range" min="400" max="1200" step="1" value="600">
+            <label for="legD">Back-wall cupboard depth: <span id="legDValue">600</span></label>
+            <input id="legD" type="range" min="330" max="1000" step="1" value="600">
+            <label for="shelvesBack">Shelves in the back-wall leg and corner (tops, mm)</label>
+            <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
+            <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
+            <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
+          </div>
+          <div id="diagBlock">
+            <label for="diagRun">Back-wall leg length: <span id="diagRunValue">700</span></label>
+            <input id="diagRun" type="range" min="400" max="1200" step="10" value="700">
+            <label for="diagBack" title="Where the diagonal starts on the back-wall leg, in from the leg’s end">Diagonal in, back-wall leg: <span id="diagBackValue">0</span></label>
+            <input id="diagBack" type="range" min="0" max="1800" step="10" value="0">
+            <label for="diagLeft" title="Where the diagonal starts on the left-wall leg, in from the leg’s end">Diagonal in, left-wall leg: <span id="diagLeftValue">0</span></label>
+            <input id="diagLeft" type="range" min="0" max="2700" step="10" value="0">
+          </div>
+          <!-- The cupboard's height last, in every option (asked for, 18 Oct 2026) -->
+          <label for="top">Cupboard height: <span id="topValue">ceiling</span></label>
+          <input id="top" type="range" min="1800" max="2450" step="10" value="2450">
+        </div>
+        <!-- The corner cupboard's cutting list, folded away till opened (the
+             bedroom cupboard has its own, in Bedroom options) -->
+        <details id="loungeCutting">
+          <summary>Cutting list</summary>
+          <div id="loungeCutList" class="cutList"></div>
+        </details>
+      </details>
+    </div>
+    <div class="tabpanel" data-tab="Furniture">
+      <details class="sec" id="secSofa" open>
+        <summary>Sofa</summary>
+        <div id="sofaBlock">
+          <label for="sofaPick">Sofa, facing the TV</label>
+          <select id="sofaPick"></select>
+          <label class="switch" id="sofaAsBedRow"><input type="checkbox" id="sofaAsBed"> As a bed (its arms let down)</label>
+          <div id="sofaFrontBlock">
+            <div id="sofaFrontRow">
+              <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
+              <input id="sofaFront" type="range" min="1000" max="3500" step="50" value="1900">
+            </div>
+            <label for="sofaX">Sofa's middle from the left wall: <span id="sofaXValue"></span></label>
+            <input id="sofaX" type="range">
+            <label for="sofaY">Sofa's middle from the TV wall: <span id="sofaYValue"></span></label>
+            <input id="sofaY" type="range">
+            <label for="sofaTurn">Sofa turned (360° is 0° again)</label>
+            <select id="sofaTurn">
+              <option value="0">0°, facing the TV wall</option>
+              <option value="90">90°, facing the right-hand wall</option>
+              <option value="180">180°, facing the front wall</option>
+              <option value="270">270°, facing the left wall</option>
+            </select>
+            <div class="row"><button id="sofaHome">Reset location</button></div>
+            <label for="sofaW">Sofa width: <span id="sofaWValue">1690</span></label>
+            <input id="sofaW" type="range" min="1200" max="2600" step="10" value="1690">
+            <label for="sofaD">Sofa depth: <span id="sofaDValue">1000</span></label>
+            <input id="sofaD" type="range" min="700" max="1200" step="10" value="1000">
+            <label for="sofaH">Sofa height: <span id="sofaHValue">920</span></label>
+            <input id="sofaH" type="range" min="600" max="1100" step="10" value="920">
           </div>
         </div>
-        <div id="deskBlock">
-          <label class="switch" title="A desk that folds down from the cupboard's side facing the windows, where it's clear of the bookshelf or the bench"><input type="checkbox" id="deskOn"> Fold-down desk</label>
-          <div id="deskDetails">
-            <label for="deskW">Desk width, along the side: <span id="deskWValue">780</span></label>
-            <input id="deskW" type="range" min="300" max="1200" step="10" value="780">
-            <label for="deskD">Desk depth, out from the side: <span id="deskDValue">500</span></label>
-            <input id="deskD" type="range" min="300" max="700" step="10" value="500">
-            <label for="deskH">Desk height, open: <span id="deskHValue">740</span></label>
-            <input id="deskH" type="range" min="650" max="800" step="10" value="740">
+      </details>
+      <details class="sec" id="secBench" open>
+        <summary>The back wall: bench, TV and shelves</summary>
+        <label class="switch"><input type="checkbox" id="benchOn" checked> Bench</label>
+        <label class="switch" title="The radiator under the window nearest the back wall; off, it's taken out, pipes and all"><input type="checkbox" id="firstRadiatorOn" checked> First window's radiator</label>
+        <label class="switch" title="A bookcase like the bedroom's against the back wall, in place of the bench"><input type="checkbox" id="bookshelfOn"> Bookshelf</label>
+        <div id="bookshelfMoveBlock" class="depth">
+          <label for="bookshelfX" title="The bookshelf’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="bookshelfXValue"></span></label>
+          <input id="bookshelfX" type="range">
+          <label for="bookshelfY" title="The bookshelf’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="bookshelfYValue"></span></label>
+          <input id="bookshelfY" type="range">
+          <label for="bookshelfTurn">Bookshelf turned: <span id="bookshelfTurnValue"></span></label>
+          <input id="bookshelfTurn" type="range">
+          <div class="row"><button id="bookshelfHome">Reset location</button></div>
+        </div>
+        <label class="switch" title="The bedroom's pine cupboard on the back wall, in place of the bench"><input type="checkbox" id="pineOn"> Pine cupboard</label>
+        <div id="pineMoveBlock" class="depth">
+          <label for="pineX" title="The pine cupboard’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="pineXValue"></span></label>
+          <input id="pineX" type="range">
+          <label for="pineY" title="The pine cupboard’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="pineYValue"></span></label>
+          <input id="pineY" type="range">
+          <label for="pineTurn">Pine cupboard turned: <span id="pineTurnValue"></span></label>
+          <input id="pineTurn" type="range">
+          <div class="row"><button id="pineHome">Reset location</button></div>
+        </div>
+        <label class="switch" title="Billy, from the garage, on the back wall in place of the bench"><input type="checkbox" id="billyOn"> Billy</label>
+        <div id="billyMoveBlock" class="depth">
+          <label class="switch"><input type="checkbox" id="billyLying"> Lying on its long side, open side out</label>
+          <label for="billyX" title="Billy’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="billyXValue"></span></label>
+          <input id="billyX" type="range">
+          <label for="billyY" title="Billy’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="billyYValue"></span></label>
+          <input id="billyY" type="range">
+          <label for="billyTurn">Billy turned: <span id="billyTurnValue"></span></label>
+          <input id="billyTurn" type="range">
+          <div class="row"><button id="billyHome">Reset location</button></div>
+        </div>
+        <label class="switch" title="BillyChest, from the garage, on the back wall in place of the bench"><input type="checkbox" id="billyChestOn"> BillyChest</label>
+        <div id="billyChestMoveBlock" class="depth">
+          <label for="billyChestX" title="BillyChest’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="billyChestXValue"></span></label>
+          <input id="billyChestX" type="range">
+          <label for="billyChestY" title="BillyChest’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="billyChestYValue"></span></label>
+          <input id="billyChestY" type="range">
+          <label for="billyChestTurn">BillyChest turned: <span id="billyChestTurnValue"></span></label>
+          <input id="billyChestTurn" type="range">
+          <div class="row"><button id="billyChestHome">Reset location</button></div>
+        </div>
+        <label class="switch" title="The daybed with a desk and bookcase (B&amp;Q), on the back wall in place of the bench"><input type="checkbox" id="deskDaybedOn"> Daybed with desk</label>
+        <div id="deskDaybedMoveBlock" class="depth">
+          <label class="switch"><input type="checkbox" id="deskDaybedRight"> Desk at the right-hand end</label>
+          <label class="switch" title="Centred on its bed, 150 above it, while it's against the back wall; its size is the TV size below"><input type="checkbox" id="deskDaybedTv"> TV on the wall above it</label>
+          <div id="deskDaybedChair">Chair at its desk, pulled up:
+            <label><input type="radio" name="deskDaybedChair" value="none"> None</label>
+            <label title="An armless task chair, 460 seat, 600 base (estimated)"><input type="radio" name="deskDaybedChair" value="small"> Smaller, armless</label>
+            <label title="The office chair from the kitchen desk"><input type="radio" name="deskDaybedChair" value="office"> Office chair</label>
+          </div>
+          <label for="deskDaybedX" title="The daybed’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="deskDaybedXValue"></span></label>
+          <input id="deskDaybedX" type="range">
+          <label for="deskDaybedY" title="The daybed’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="deskDaybedYValue"></span></label>
+          <input id="deskDaybedY" type="range">
+          <label for="deskDaybedTurn">Daybed turned: <span id="deskDaybedTurnValue"></span></label>
+          <input id="deskDaybedTurn" type="range">
+          <div class="row"><button id="deskDaybedHome">Reset location</button></div>
+        </div>
+        <div id="benchDetails">
+        <div id="bench" class="depth">Bench height:
+          <label><input type="radio" name="bench" value="700"> 700</label>
+          <label><input type="radio" name="bench" value="780" checked> 780</label>
+          <label><input type="radio" name="bench" value="800"> 800</label>
+          <label><input type="radio" name="bench" value="900"> 900</label>
+        </div>
+        <div id="above" class="depth">Above the bench:
+          <label><input type="radio" name="above" value="nothing"> Nothing</label>
+          <label><input type="radio" name="above" value="shelves"> Shelves</label>
+          <label><input type="radio" name="above" value="tv"> TV</label>
+          <label><input type="radio" name="above" value="tvAndShelves" checked> TV and shelves</label>
+          <label><input type="radio" name="above" value="tvAndTopShelf"> TV and top shelf</label>
+        </div>
+        </div>
+        <div id="tvBlock">
+          <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
+          <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
+        </div>
+        <div id="shelfBlock">
+          <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
+          <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+        </div>
+      </details>
+      <details class="sec" id="secSpeakers">
+        <summary>Speakers</summary>
+        <div id="speakersOn">The Fenris A5 pair, on:
+          <label><input type="radio" name="speakersOn" value="none"> Nothing (not shown)</label>
+          <label title="Either side of the TV"><input type="radio" name="speakersOn" value="bench"> The bench</label>
+          <label title="Billy lying on its side in the lounge, one near each end"><input type="radio" name="speakersOn" value="billy"> Billy, lying</label>
+          <label title="The daybed's bookcase top, either side of the TV above it"><input type="radio" name="speakersOn" value="deskDaybed"> The daybed</label>
+          <label id="speakersOnCupboardRow" title="The corner cupboard's top, when it stops short of the ceiling"><input type="radio" name="speakersOn" value="cupboard"> The corner cupboard</label>
+        </div>
+        <div id="speakerSpacingBlock" class="depth">
+          <label for="speakerSpacing" title="The distance between the speakers’ middles">Between their middles: <span id="speakerSpacingValue"></span></label>
+          <input id="speakerSpacing" type="range" min="400" max="3000" step="10">
+        </div>
+      </details>
+      <details class="sec" id="secIvar" open>
+        <summary>Ivar</summary>
+        <label class="switch"><input type="checkbox" id="ivarOn"> In the lounge</label>
+        <div id="ivarMoveBlock" class="depth">
+          <label class="switch"><input type="checkbox" id="ivarLying"> Lying on its side</label>
+          <label for="ivarX" title="Ivar’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="ivarXValue"></span></label>
+          <input id="ivarX" type="range">
+          <label for="ivarY" title="Ivar’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="ivarYValue"></span></label>
+          <input id="ivarY" type="range">
+          <label for="ivarTurn">Ivar turned: <span id="ivarTurnValue"></span></label>
+          <input id="ivarTurn" type="range">
+          <div class="row"><button id="ivarHome">Reset location</button></div>
+        </div>
+      </details>
+      <details class="sec" id="secCornwall">
+        <summary>Cornwall table</summary>
+        <label class="switch"><input type="checkbox" id="cornwallOn"> In the lounge</label>
+        <div id="cornwallMoveBlock" class="depth">
+          <label class="switch"><input type="checkbox" id="cornwallLegsOff"> Legs off, on the floor</label>
+          <label for="cornwallX" title="The Cornwall table’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="cornwallXValue"></span></label>
+          <input id="cornwallX" type="range">
+          <label for="cornwallY" title="The Cornwall table’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="cornwallYValue"></span></label>
+          <input id="cornwallY" type="range">
+          <label for="cornwallTurn">Cornwall table turned: <span id="cornwallTurnValue"></span></label>
+          <input id="cornwallTurn" type="range">
+          <div class="row"><button id="cornwallHome">Reset location</button></div>
+        </div>
+      </details>
+      <details class="sec" id="secChesham">
+        <summary>Chesham table</summary>
+        <label class="switch"><input type="checkbox" id="cheshamOn"> In the lounge</label>
+        <div id="cheshamMoveBlock" class="depth">
+          <label class="switch"><input type="checkbox" id="cheshamOnItsEnd"> On its end, its top against the wall</label>
+          <label for="cheshamX" title="The Chesham table’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="cheshamXValue"></span></label>
+          <input id="cheshamX" type="range">
+          <label for="cheshamY" title="The Chesham table’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="cheshamYValue"></span></label>
+          <input id="cheshamY" type="range">
+          <label for="cheshamTurn">Chesham table turned: <span id="cheshamTurnValue"></span></label>
+          <input id="cheshamTurn" type="range">
+          <div class="row"><button id="cheshamHome">Reset location</button></div>
+        </div>
+      </details>
+      <details class="sec" id="secCastorDesk">
+        <summary>Desk on castors</summary>
+        <label class="switch"><input type="checkbox" id="castorDeskOn"> In the lounge</label>
+        <div id="castorDeskMoveBlock" class="depth">
+          <label title="Its back against the left wall, between the corner cupboard and the door frame"><input type="radio" name="castorDeskAt" value="byTheDoor"> Parked by the door</label>
+          <label title="Centred on the TV, just out from the bench, where you sit facing the TV"><input type="radio" name="castorDeskAt" value="atTheTv"> At the TV</label>
+          <label for="castorDeskX" title="The desk’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="castorDeskXValue"></span></label>
+          <input id="castorDeskX" type="range">
+          <label for="castorDeskY" title="The desk’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="castorDeskYValue"></span></label>
+          <input id="castorDeskY" type="range">
+          <label for="castorDeskTurn">Desk turned: <span id="castorDeskTurnValue"></span></label>
+          <input id="castorDeskTurn" type="range">
+          <div class="row"><button id="castorDeskHome">Reset location</button></div>
+        </div>
+      </details>
+    </div>
+    <div class="tabpanel" data-tab="Walls &amp; doors">
+      <details class="sec" id="secFrontWall" open>
+        <summary>The front wall and the island</summary>
+        <div id="islandBlock" class="depth">Kitchen island:
+          <label><input type="radio" name="islandAt" value="room" checked> Out there</label>
+          <label><input type="radio" name="islandAt" value="out"> Against the front wall, long side out</label>
+          <label><input type="radio" name="islandAt" value="along"> Against the front wall, short side out</label>
+          <label><input type="radio" name="islandAt" value="none"> None</label>
+        </div>
+        <div id="islandMoveBlock">
+          <label for="islandX">Island's middle from the left wall: <span id="islandXValue">1395</span></label>
+          <input id="islandX" type="range" min="0" max="3838" step="5" value="1395">
+          <label for="islandY">Island's middle from the back wall: <span id="islandYValue">3571</span></label>
+          <input id="islandY" type="range" min="0" max="5379" step="5" value="3571">
+          <label for="islandTurn">Island turned: <span id="islandTurnValue">0°</span></label>
+          <input id="islandTurn" type="range" min="0" max="180" step="5" value="0">
+        </div>
+        <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
+          <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
+          <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
+          <label><input type="radio" name="frontPiece" value="bookshelf"> Bookshelf</label>
+          <label><input type="radio" name="frontPiece" value="none"> Nothing</label>
+        </div>
+        <div id="dresserBlock">
+          <label for="dresserPick">Dresser</label>
+          <select id="dresserPick"></select>
+          <label for="dresserW">Dresser width: <span id="dresserWValue">1320</span></label>
+          <input id="dresserW" type="range" min="900" max="1415" step="5" value="1320">
+          <label for="dresserH">Dresser height: <span id="dresserHValue">2100</span></label>
+          <input id="dresserH" type="range" min="1500" max="2400" step="10" value="2100">
+          <label for="dresserBaseD">Dresser base depth: <span id="dresserBaseDValue">400</span></label>
+          <input id="dresserBaseD" type="range" min="300" max="600" step="10" value="400">
+          <label for="dresserBaseH">Dresser base height: <span id="dresserBaseHValue">900</span></label>
+          <input id="dresserBaseH" type="range" min="700" max="1000" step="10" value="900">
+          <label for="dresserUpperD">Dresser upper depth: <span id="dresserUpperDValue">290</span></label>
+          <input id="dresserUpperD" type="range" min="150" max="600" step="10" value="290">
+        </div>
+        <div id="larderBlock">
+          <label for="larderPick">Larder</label>
+          <select id="larderPick"></select>
+          <label for="larderW">Larder width: <span id="larderWValue">1100</span></label>
+          <input id="larderW" type="range" min="400" max="1500" step="10" value="1100">
+          <label for="larderH">Larder height: <span id="larderHValue">1950</span></label>
+          <input id="larderH" type="range" min="1500" max="2400" step="10" value="1950">
+          <label for="larderD">Larder depth: <span id="larderDValue">510</span></label>
+          <input id="larderD" type="range" min="300" max="700" step="10" value="510">
+        </div>
+        <div id="bookshelfBlock">
+          <div class="hint">A bookcase like the bedroom's, at its sizes: these sliders and the Bedroom options' are the same.</div>
+          <div id="bookshelfSizes"></div>
+        </div>
+      </details>
+      <details class="sec" id="secDoors" open>
+        <summary>Doors</summary>
+        <div id="tallBlock">
+          <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
+          <input id="tallDoor" type="range" min="0" max="180" value="0">
+        </div>
+        <div id="secondBlock">
+          <label for="secondDoor"><span id="secondLabel"></span>: <span id="secondDoorValue">0°</span></label>
+          <input id="secondDoor" type="range" min="0" max="180" value="0">
+        </div>
+        <div id="deskDoorBlock" class="depth">Fold-down desk:
+          <label title="Standing up against the cupboard's side"><input type="radio" name="deskShown" id="deskFolded" value="foldedAway" checked> Folded away</label>
+          <label title="Level, on its brackets"><input type="radio" name="deskShown" id="deskDown" value="down"> Down, ready to use</label>
+        </div>
+        <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
+        <input id="roomDoor" type="range" min="0" max="110" value="90">
+      </details>
+    </div>
+    <div class="tabpanel" data-tab="Colours &amp; stored">
+      <details class="sec" id="secColours">
+        <summary>Colours</summary>
+        <div class="colours">
+          <div class="colhead">Cupboards</div>
+          <div class="colrow">
+            <button id="colPrev" aria-label="Previous named colour">◀</button>
+            <select id="ral-cupboard" aria-label="Cupboard colour"></select>
+            <button id="colNext" aria-label="Next named colour">▶</button>
+            <span class="swatch" id="cupboardSwatch"></span>
+          </div>
+          <div class="colrow" id="otherRow" hidden>
+            <select id="ral-other" aria-label="Other cupboard colour"></select>
+          </div>
+          <div class="colhead" style="margin-top: 8px">Dresser and larder</div>
+          <div class="colrow">
+            <button id="dresserPrev" aria-label="Previous named dresser colour">◀</button>
+            <select id="ral-dresser" aria-label="Dresser colour"></select>
+            <button id="dresserNext" aria-label="Next named dresser colour">▶</button>
+            <span class="swatch" id="dresserSwatch"></span>
+          </div>
+          <div class="colrow" id="dresserOtherRow" hidden>
+            <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
+          </div>
+          <div class="colhead" style="margin-top: 8px">Shelves (both cupboards)</div>
+          <div class="colrow">
+            <select id="shelfWood" aria-label="Shelf colour"></select>
+            <span class="swatch" id="shelfSwatch"></span>
+          </div>
+          <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
+        </div>
+      </details>
+      <details class="sec" id="secStored">
+        <summary>Things to store</summary>
+        <div id="storedBlock">
+          <select id="storedPacking" aria-label="Packing"></select>
+          <div class="depth">
+            <label><input type="radio" name="storedWhere" value="window" checked> By the middle window</label>
+            <label><input type="radio" name="storedWhere" value="cupboard"> In the corner cupboard</label>
+          </div>
+          <div id="storedInfo"></div>
+          <div id="storedLifts"></div>
+          <div class="row">
+            <button id="storedPack">Pack them again</button>
           </div>
         </div>
-      </div>
-      <div id="legBlock">
-        <label for="leg">Back-wall leg width: <span id="legValue">600</span></label>
-        <input id="leg" type="range" min="400" max="1200" step="1" value="600">
-        <label for="legD">Back-wall cupboard depth: <span id="legDValue">600</span></label>
-        <input id="legD" type="range" min="330" max="1000" step="1" value="600">
-        <label for="shelvesBack">Shelves in the back-wall leg and corner (tops, mm)</label>
-        <input id="shelvesBack" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
-        <label for="shelvesLeft">Shelves in the left-wall leg (tops, mm)</label>
-        <input id="shelvesLeft" class="shelves" type="text" inputmode="numeric" value="600, 1200, 1800">
-      </div>
-      <div id="diagBlock">
-        <label for="diagRun">Back-wall leg length: <span id="diagRunValue">700</span></label>
-        <input id="diagRun" type="range" min="400" max="1200" step="10" value="700">
-        <label for="diagBack" title="Where the diagonal starts on the back-wall leg, in from the leg’s end">Diagonal in, back-wall leg: <span id="diagBackValue">0</span></label>
-        <input id="diagBack" type="range" min="0" max="1800" step="10" value="0">
-        <label for="diagLeft" title="Where the diagonal starts on the left-wall leg, in from the leg’s end">Diagonal in, left-wall leg: <span id="diagLeftValue">0</span></label>
-        <input id="diagLeft" type="range" min="0" max="2700" step="10" value="0">
-      </div>
-      <!-- The cupboard's height last, in every option (asked for, 18 Oct 2026) -->
-      <label for="top">Cupboard height: <span id="topValue">ceiling</span></label>
-      <input id="top" type="range" min="1800" max="2450" step="10" value="2450">
+      </details>
     </div>
-    <!-- The corner cupboard's cutting list, folded away till opened (the
-         bedroom cupboard has its own, in Bedroom options) -->
-    <details id="loungeCutting">
-      <summary>Cutting list</summary>
-      <div id="loungeCutList" class="cutList"></div>
-    </details>
-  </details>
-  <details class="sec" id="secFrontWall" open>
-    <summary>The front wall and the island</summary>
-    <div id="islandBlock" class="depth">Kitchen island:
-      <label><input type="radio" name="islandAt" value="room" checked> Out there</label>
-      <label><input type="radio" name="islandAt" value="out"> Against the front wall, long side out</label>
-      <label><input type="radio" name="islandAt" value="along"> Against the front wall, short side out</label>
-      <label><input type="radio" name="islandAt" value="none"> None</label>
-    </div>
-    <div id="islandMoveBlock">
-      <label for="islandX">Island's middle from the left wall: <span id="islandXValue">1395</span></label>
-      <input id="islandX" type="range" min="0" max="3838" step="5" value="1395">
-      <label for="islandY">Island's middle from the back wall: <span id="islandYValue">3571</span></label>
-      <input id="islandY" type="range" min="0" max="5379" step="5" value="3571">
-      <label for="islandTurn">Island turned: <span id="islandTurnValue">0°</span></label>
-      <input id="islandTurn" type="range" min="0" max="180" step="5" value="0">
-    </div>
-    <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
-      <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
-      <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
-      <label><input type="radio" name="frontPiece" value="bookshelf"> Bookshelf</label>
-      <label><input type="radio" name="frontPiece" value="none"> Nothing</label>
-    </div>
-    <div id="dresserBlock">
-      <label for="dresserPick">Dresser</label>
-      <select id="dresserPick"></select>
-      <label for="dresserW">Dresser width: <span id="dresserWValue">1320</span></label>
-      <input id="dresserW" type="range" min="900" max="1415" step="5" value="1320">
-      <label for="dresserH">Dresser height: <span id="dresserHValue">2100</span></label>
-      <input id="dresserH" type="range" min="1500" max="2400" step="10" value="2100">
-      <label for="dresserBaseD">Dresser base depth: <span id="dresserBaseDValue">400</span></label>
-      <input id="dresserBaseD" type="range" min="300" max="600" step="10" value="400">
-      <label for="dresserBaseH">Dresser base height: <span id="dresserBaseHValue">900</span></label>
-      <input id="dresserBaseH" type="range" min="700" max="1000" step="10" value="900">
-      <label for="dresserUpperD">Dresser upper depth: <span id="dresserUpperDValue">290</span></label>
-      <input id="dresserUpperD" type="range" min="150" max="600" step="10" value="290">
-    </div>
-    <div id="larderBlock">
-      <label for="larderPick">Larder</label>
-      <select id="larderPick"></select>
-      <label for="larderW">Larder width: <span id="larderWValue">1100</span></label>
-      <input id="larderW" type="range" min="400" max="1500" step="10" value="1100">
-      <label for="larderH">Larder height: <span id="larderHValue">1950</span></label>
-      <input id="larderH" type="range" min="1500" max="2400" step="10" value="1950">
-      <label for="larderD">Larder depth: <span id="larderDValue">510</span></label>
-      <input id="larderD" type="range" min="300" max="700" step="10" value="510">
-    </div>
-    <div id="bookshelfBlock">
-      <div class="hint">A bookcase like the bedroom's, at its sizes: these sliders and the Bedroom options' are the same.</div>
-      <div id="bookshelfSizes"></div>
-    </div>
-  </details>
-  <details class="sec" id="secSofa" open>
-    <summary>Sofa</summary>
-    <div id="sofaBlock">
-      <label for="sofaPick">Sofa, facing the TV</label>
-      <select id="sofaPick"></select>
-      <label class="switch" id="sofaAsBedRow"><input type="checkbox" id="sofaAsBed"> As a bed (its arms let down)</label>
-      <div id="sofaFrontBlock">
-        <div id="sofaFrontRow">
-          <label for="sofaFront">Sofa front from the TV wall: <span id="sofaFrontValue">1900</span></label>
-          <input id="sofaFront" type="range" min="1000" max="3500" step="50" value="1900">
-        </div>
-        <label for="sofaX">Sofa's middle from the left wall: <span id="sofaXValue"></span></label>
-        <input id="sofaX" type="range">
-        <label for="sofaY">Sofa's middle from the TV wall: <span id="sofaYValue"></span></label>
-        <input id="sofaY" type="range">
-        <label for="sofaTurn">Sofa turned (360° is 0° again)</label>
-        <select id="sofaTurn">
-          <option value="0">0°, facing the TV wall</option>
-          <option value="90">90°, facing the right-hand wall</option>
-          <option value="180">180°, facing the front wall</option>
-          <option value="270">270°, facing the left wall</option>
-        </select>
-        <div class="row"><button id="sofaHome">Reset location</button></div>
-        <label for="sofaW">Sofa width: <span id="sofaWValue">1690</span></label>
-        <input id="sofaW" type="range" min="1200" max="2600" step="10" value="1690">
-        <label for="sofaD">Sofa depth: <span id="sofaDValue">1000</span></label>
-        <input id="sofaD" type="range" min="700" max="1200" step="10" value="1000">
-        <label for="sofaH">Sofa height: <span id="sofaHValue">920</span></label>
-        <input id="sofaH" type="range" min="600" max="1100" step="10" value="920">
-      </div>
-    </div>
-  </details>
-  <details class="sec" id="secBench" open>
-    <summary>The back wall: bench, TV and shelves</summary>
-    <label class="switch"><input type="checkbox" id="benchOn" checked> Bench</label>
-    <label class="switch" title="The radiator under the window nearest the back wall; off, it's taken out, pipes and all"><input type="checkbox" id="firstRadiatorOn" checked> First window's radiator</label>
-    <label class="switch" title="A bookcase like the bedroom's against the back wall, in place of the bench"><input type="checkbox" id="bookshelfOn"> Bookshelf</label>
-    <div id="bookshelfMoveBlock" class="depth">
-      <label for="bookshelfX" title="The bookshelf’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="bookshelfXValue"></span></label>
-      <input id="bookshelfX" type="range">
-      <label for="bookshelfY" title="The bookshelf’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="bookshelfYValue"></span></label>
-      <input id="bookshelfY" type="range">
-      <label for="bookshelfTurn">Bookshelf turned: <span id="bookshelfTurnValue"></span></label>
-      <input id="bookshelfTurn" type="range">
-      <div class="row"><button id="bookshelfHome">Reset location</button></div>
-    </div>
-    <label class="switch" title="The bedroom's pine cupboard on the back wall, in place of the bench"><input type="checkbox" id="pineOn"> Pine cupboard</label>
-    <div id="pineMoveBlock" class="depth">
-      <label for="pineX" title="The pine cupboard’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="pineXValue"></span></label>
-      <input id="pineX" type="range">
-      <label for="pineY" title="The pine cupboard’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="pineYValue"></span></label>
-      <input id="pineY" type="range">
-      <label for="pineTurn">Pine cupboard turned: <span id="pineTurnValue"></span></label>
-      <input id="pineTurn" type="range">
-      <div class="row"><button id="pineHome">Reset location</button></div>
-    </div>
-    <label class="switch" title="Billy, from the garage, on the back wall in place of the bench"><input type="checkbox" id="billyOn"> Billy</label>
-    <div id="billyMoveBlock" class="depth">
-      <label class="switch"><input type="checkbox" id="billyLying"> Lying on its long side, open side out</label>
-      <label for="billyX" title="Billy’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="billyXValue"></span></label>
-      <input id="billyX" type="range">
-      <label for="billyY" title="Billy’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="billyYValue"></span></label>
-      <input id="billyY" type="range">
-      <label for="billyTurn">Billy turned: <span id="billyTurnValue"></span></label>
-      <input id="billyTurn" type="range">
-      <div class="row"><button id="billyHome">Reset location</button></div>
-    </div>
-    <label class="switch" title="BillyChest, from the garage, on the back wall in place of the bench"><input type="checkbox" id="billyChestOn"> BillyChest</label>
-    <div id="billyChestMoveBlock" class="depth">
-      <label for="billyChestX" title="BillyChest’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="billyChestXValue"></span></label>
-      <input id="billyChestX" type="range">
-      <label for="billyChestY" title="BillyChest’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="billyChestYValue"></span></label>
-      <input id="billyChestY" type="range">
-      <label for="billyChestTurn">BillyChest turned: <span id="billyChestTurnValue"></span></label>
-      <input id="billyChestTurn" type="range">
-      <div class="row"><button id="billyChestHome">Reset location</button></div>
-    </div>
-    <label class="switch" title="The daybed with a desk and bookcase (B&amp;Q), on the back wall in place of the bench"><input type="checkbox" id="deskDaybedOn"> Daybed with desk</label>
-    <div id="deskDaybedMoveBlock" class="depth">
-      <label class="switch"><input type="checkbox" id="deskDaybedRight"> Desk at the right-hand end</label>
-      <label class="switch" title="Centred on its bed, 150 above it, while it's against the back wall; its size is the TV size below"><input type="checkbox" id="deskDaybedTv"> TV on the wall above it</label>
-      <div id="deskDaybedChair">Chair at its desk, pulled up:
-        <label><input type="radio" name="deskDaybedChair" value="none"> None</label>
-        <label title="An armless task chair, 460 seat, 600 base (estimated)"><input type="radio" name="deskDaybedChair" value="small"> Smaller, armless</label>
-        <label title="The office chair from the kitchen desk"><input type="radio" name="deskDaybedChair" value="office"> Office chair</label>
-      </div>
-      <label for="deskDaybedX" title="The daybed’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="deskDaybedXValue"></span></label>
-      <input id="deskDaybedX" type="range">
-      <label for="deskDaybedY" title="The daybed’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="deskDaybedYValue"></span></label>
-      <input id="deskDaybedY" type="range">
-      <label for="deskDaybedTurn">Daybed turned: <span id="deskDaybedTurnValue"></span></label>
-      <input id="deskDaybedTurn" type="range">
-      <div class="row"><button id="deskDaybedHome">Reset location</button></div>
-    </div>
-    <div id="benchDetails">
-    <div id="bench" class="depth">Bench height:
-      <label><input type="radio" name="bench" value="700"> 700</label>
-      <label><input type="radio" name="bench" value="780" checked> 780</label>
-      <label><input type="radio" name="bench" value="800"> 800</label>
-      <label><input type="radio" name="bench" value="900"> 900</label>
-    </div>
-    <div id="above" class="depth">Above the bench:
-      <label><input type="radio" name="above" value="nothing"> Nothing</label>
-      <label><input type="radio" name="above" value="shelves"> Shelves</label>
-      <label><input type="radio" name="above" value="tv"> TV</label>
-      <label><input type="radio" name="above" value="tvAndShelves" checked> TV and shelves</label>
-      <label><input type="radio" name="above" value="tvAndTopShelf"> TV and top shelf</label>
-    </div>
-    </div>
-    <div id="tvBlock">
-      <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
-      <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
-    </div>
-    <div id="shelfBlock">
-      <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
-      <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
-    </div>
-  </details>
-  <details class="sec" id="secSpeakers">
-    <summary>Speakers</summary>
-    <div id="speakersOn">The Fenris A5 pair, on:
-      <label><input type="radio" name="speakersOn" value="none"> Nothing (not shown)</label>
-      <label title="Either side of the TV"><input type="radio" name="speakersOn" value="bench"> The bench</label>
-      <label title="Billy lying on its side in the lounge, one near each end"><input type="radio" name="speakersOn" value="billy"> Billy, lying</label>
-      <label title="The daybed's bookcase top, either side of the TV above it"><input type="radio" name="speakersOn" value="deskDaybed"> The daybed</label>
-      <label id="speakersOnCupboardRow" title="The corner cupboard's top, when it stops short of the ceiling"><input type="radio" name="speakersOn" value="cupboard"> The corner cupboard</label>
-    </div>
-    <div id="speakerSpacingBlock" class="depth">
-      <label for="speakerSpacing" title="The distance between the speakers’ middles">Between their middles: <span id="speakerSpacingValue"></span></label>
-      <input id="speakerSpacing" type="range" min="400" max="3000" step="10">
-    </div>
-  </details>
-  <details class="sec" id="secIvar" open>
-    <summary>Ivar</summary>
-    <label class="switch"><input type="checkbox" id="ivarOn"> In the lounge</label>
-    <div id="ivarMoveBlock" class="depth">
-      <label class="switch"><input type="checkbox" id="ivarLying"> Lying on its side</label>
-      <label for="ivarX" title="Ivar’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="ivarXValue"></span></label>
-      <input id="ivarX" type="range">
-      <label for="ivarY" title="Ivar’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="ivarYValue"></span></label>
-      <input id="ivarY" type="range">
-      <label for="ivarTurn">Ivar turned: <span id="ivarTurnValue"></span></label>
-      <input id="ivarTurn" type="range">
-      <div class="row"><button id="ivarHome">Reset location</button></div>
-    </div>
-  </details>
-  <details class="sec" id="secCornwall">
-    <summary>Cornwall table</summary>
-    <label class="switch"><input type="checkbox" id="cornwallOn"> In the lounge</label>
-    <div id="cornwallMoveBlock" class="depth">
-      <label class="switch"><input type="checkbox" id="cornwallLegsOff"> Legs off, on the floor</label>
-      <label for="cornwallX" title="The Cornwall table’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="cornwallXValue"></span></label>
-      <input id="cornwallX" type="range">
-      <label for="cornwallY" title="The Cornwall table’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="cornwallYValue"></span></label>
-      <input id="cornwallY" type="range">
-      <label for="cornwallTurn">Cornwall table turned: <span id="cornwallTurnValue"></span></label>
-      <input id="cornwallTurn" type="range">
-      <div class="row"><button id="cornwallHome">Reset location</button></div>
-    </div>
-  </details>
-  <details class="sec" id="secChesham">
-    <summary>Chesham table</summary>
-    <label class="switch"><input type="checkbox" id="cheshamOn"> In the lounge</label>
-    <div id="cheshamMoveBlock" class="depth">
-      <label class="switch"><input type="checkbox" id="cheshamOnItsEnd"> On its end, its top against the wall</label>
-      <label for="cheshamX" title="The Chesham table’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="cheshamXValue"></span></label>
-      <input id="cheshamX" type="range">
-      <label for="cheshamY" title="The Chesham table’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="cheshamYValue"></span></label>
-      <input id="cheshamY" type="range">
-      <label for="cheshamTurn">Chesham table turned: <span id="cheshamTurnValue"></span></label>
-      <input id="cheshamTurn" type="range">
-      <div class="row"><button id="cheshamHome">Reset location</button></div>
-    </div>
-  </details>
-  <details class="sec" id="secCastorDesk">
-    <summary>Desk on castors</summary>
-    <label class="switch"><input type="checkbox" id="castorDeskOn"> In the lounge</label>
-    <div id="castorDeskMoveBlock" class="depth">
-      <label title="Its back against the left wall, between the corner cupboard and the door frame"><input type="radio" name="castorDeskAt" value="byTheDoor"> Parked by the door</label>
-      <label title="Centred on the TV, just out from the bench, where you sit facing the TV"><input type="radio" name="castorDeskAt" value="atTheTv"> At the TV</label>
-      <label for="castorDeskX" title="The desk’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="castorDeskXValue"></span></label>
-      <input id="castorDeskX" type="range">
-      <label for="castorDeskY" title="The desk’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="castorDeskYValue"></span></label>
-      <input id="castorDeskY" type="range">
-      <label for="castorDeskTurn">Desk turned: <span id="castorDeskTurnValue"></span></label>
-      <input id="castorDeskTurn" type="range">
-      <div class="row"><button id="castorDeskHome">Reset location</button></div>
-    </div>
-  </details>
-  <details class="sec" id="secDoors" open>
-    <summary>Doors</summary>
-    <div id="tallBlock">
-      <label for="tallDoor">Left-wall cupboard door: <span id="tallDoorValue">0°</span></label>
-      <input id="tallDoor" type="range" min="0" max="180" value="0">
-    </div>
-    <div id="secondBlock">
-      <label for="secondDoor"><span id="secondLabel"></span>: <span id="secondDoorValue">0°</span></label>
-      <input id="secondDoor" type="range" min="0" max="180" value="0">
-    </div>
-    <div id="deskDoorBlock" class="depth">Fold-down desk:
-      <label title="Standing up against the cupboard's side"><input type="radio" name="deskShown" id="deskFolded" value="foldedAway" checked> Folded away</label>
-      <label title="Level, on its brackets"><input type="radio" name="deskShown" id="deskDown" value="down"> Down, ready to use</label>
-    </div>
-    <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
-    <input id="roomDoor" type="range" min="0" max="110" value="90">
-  </details>
-  <details class="sec" id="secColours">
-    <summary>Colours</summary>
-    <div class="colours">
-      <div class="colhead">Cupboards</div>
-      <div class="colrow">
-        <button id="colPrev" aria-label="Previous named colour">◀</button>
-        <select id="ral-cupboard" aria-label="Cupboard colour"></select>
-        <button id="colNext" aria-label="Next named colour">▶</button>
-        <span class="swatch" id="cupboardSwatch"></span>
-      </div>
-      <div class="colrow" id="otherRow" hidden>
-        <select id="ral-other" aria-label="Other cupboard colour"></select>
-      </div>
-      <div class="colhead" style="margin-top: 8px">Dresser and larder</div>
-      <div class="colrow">
-        <button id="dresserPrev" aria-label="Previous named dresser colour">◀</button>
-        <select id="ral-dresser" aria-label="Dresser colour"></select>
-        <button id="dresserNext" aria-label="Next named dresser colour">▶</button>
-        <span class="swatch" id="dresserSwatch"></span>
-      </div>
-      <div class="colrow" id="dresserOtherRow" hidden>
-        <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
-      </div>
-      <div class="colhead" style="margin-top: 8px">Shelves (both cupboards)</div>
-      <div class="colrow">
-        <select id="shelfWood" aria-label="Shelf colour"></select>
-        <span class="swatch" id="shelfSwatch"></span>
-      </div>
-      <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
-    </div>
-  </details>
-  <details class="sec" id="secStored">
-    <summary>Things to store</summary>
-    <div id="storedBlock">
-      <select id="storedPacking" aria-label="Packing"></select>
-      <div class="depth">
-        <label><input type="radio" name="storedWhere" value="window" checked> By the middle window</label>
-        <label><input type="radio" name="storedWhere" value="cupboard"> In the corner cupboard</label>
-      </div>
-      <div id="storedInfo"></div>
-      <div id="storedLifts"></div>
-      <div class="row">
-        <button id="storedPack">Pack them again</button>
-      </div>
-    </div>
-  </details>
+  </div>
   <details class="sec" id="about">
     <summary>Description</summary>
     <div id="summary"></div>

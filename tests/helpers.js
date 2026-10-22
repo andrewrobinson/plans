@@ -132,7 +132,12 @@ async function openOptions(page, room = 'lounge') {
   if (await button.getAttribute('aria-expanded') !== 'true') await button.click();
 }
 
-// Open a menu's section (a <details>, by its id), its triangle pointing down
-const openSection = (page, id) => page.locator(`#${id}`).evaluate(d => { d.open = true; });
+// Choose a tab, by its name, in the drawer that's open (MENU_TABS.md)
+// (its whole name: the garage's Cupboards & shelves isn't the lounge's Cupboard)
+const openTab = (page, name) => page.locator('.drawer').getByRole('tab', { name, exact: true }).filter({ visible: true }).click();
 
-module.exports = { test, expect: base.expect, openOptions, openSection, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot };
+// Open a menu's section (a <details>, by its id), its triangle pointing
+// down, choosing its drawer's tab first if it's in one
+const openSection = (page, id) => page.evaluate(id => { window.plans.showTabOf(id); document.getElementById(id).open = true; }, id);
+
+module.exports = { test, expect: base.expect, openOptions, openTab, openSection, openRoom, addressOf, readAddress, edited, configurationOf, viewOf, pickOption, setting, optionShown, expectSnapshot };

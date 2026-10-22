@@ -108,6 +108,7 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 // sizes set in Bedroom options (`bedroomSizes`), as its copy in the living
 // room. Each can be taken out, as the bedroom's furniture. Their sizes are the
 // user's: w along its back, d out from it, h high; their colours chosen.
+// Each is in a group, a tab in Garage options (GROUPS, below)
 // Yellow sits on the scaffold bench and Biltong on Trellis, so those two
 // have a height above the floor (`lifted`); Small Billy and Potters stand
 // a little off the wall behind them, held off by the floor's and the
@@ -118,21 +119,23 @@ const steel = material(0x7d8288);                  // grey, as steel shelving
 const newPine = material(0xe3c48f);                // pale, as new construction timber
 const scaffoldBoard = material(0xc9a66b);          // a scaffold board's sandy pine
 const PIECES = {
-  sean: { label: 'Sean', w: 2500, d: 535, h: 1575, mat: newPine, shape: 'timber shelves' },
-  billy: { label: 'Billy', ...BILLY, shape: 'billy', canLie: true },
-  billyChest: { label: 'BillyChest', ...BILLY_CHEST, shape: 'billyChest' },
-  metal: { label: 'Metal', w: 710, d: 670, h: 895, mat: steel, shape: 'table' },
-  yellow: { label: 'Yellow', w: 875, d: 310, h: 700, mat: material(0xe2b93b), shape: 'box', lifted: true },
-  scaffoldBench: { label: 'Scaffold bench', w: 1820, d: 220, h: 438, mat: scaffoldBoard, shape: 'bench' },
-  smallBilly: { label: 'Small Billy', w: 600, d: 290, h: 1540, mat: white, shape: 'box', offWall: true },
-  potters: { label: 'Potters', w: 430, d: 390, h: 1535, mat: material(0x9a7b55), shape: 'shelves', offWall: true },   // a mid wood
-  biltong: { label: 'Biltong', w: 940, d: 445, h: 460, mat: material(0x8a6a4a), shape: 'open box', lifted: true },
-  trellis: { label: 'Trellis', w: 860, d: 720, h: 750, mat: material(0x6f8a5a), shape: 'open box' },   // a garden green
-  pine: { label: 'Pine cupboard', ...sizesOf(OTHER_ROOM_START.pieces.pineCupboard.design), shape: 'pine', bedroomSizes: true },
-  ivar: { label: 'Ivar', ...IVAR, shape: 'ivar' },
+  sean: { group: 'shelves', label: 'Sean', w: 2500, d: 535, h: 1575, mat: newPine, shape: 'timber shelves' },
+  billy: { group: 'shelves', label: 'Billy', ...BILLY, shape: 'billy', canLie: true },
+  billyChest: { group: 'shelves', label: 'BillyChest', ...BILLY_CHEST, shape: 'billyChest' },
+  metal: { group: 'tables', label: 'Metal', w: 710, d: 670, h: 895, mat: steel, shape: 'table' },
+  yellow: { group: 'shelves', label: 'Yellow', w: 875, d: 310, h: 700, mat: material(0xe2b93b), shape: 'box', lifted: true },
+  scaffoldBench: { group: 'tables', label: 'Scaffold bench', w: 1820, d: 220, h: 438, mat: scaffoldBoard, shape: 'bench' },
+  smallBilly: { group: 'shelves', label: 'Small Billy', w: 600, d: 290, h: 1540, mat: white, shape: 'box', offWall: true },
+  potters: { group: 'shelves', label: 'Potters', w: 430, d: 390, h: 1535, mat: material(0x9a7b55), shape: 'shelves', offWall: true },   // a mid wood
+  biltong: { group: 'boxes', label: 'Biltong', w: 940, d: 445, h: 460, mat: material(0x8a6a4a), shape: 'open box', lifted: true },
+  trellis: { group: 'boxes', label: 'Trellis', w: 860, d: 720, h: 750, mat: material(0x6f8a5a), shape: 'open box' },   // a garden green
+  pine: { group: 'shelves', label: 'Pine cupboard', ...sizesOf(OTHER_ROOM_START.pieces.pineCupboard.design), shape: 'pine', bedroomSizes: true },
+  ivar: { group: 'shelves', label: 'Ivar', ...IVAR, shape: 'ivar' },
 };
 function sizesOf({ w, d, h }) { return { w, d, h }; }
 const PIECE_KEYS = Object.keys(PIECES);
+// Garage options' tabs, the pieces by their group (MENU_TABS.md, chosen)
+const GROUPS = { shelves: 'Cupboards & shelves', tables: 'Tables & benches', boxes: 'Boxes' };
 const LYING_KEYS = PIECE_KEYS.filter(piece => PIECES[piece].canLie);
 
 // Their make, chosen as typical, none measured: the table's top and legs,
@@ -386,10 +389,40 @@ function openBox(w, d, h, mat, g) {
   box({ from: [-w / 2 + t, d - t, t], to: [w / 2 - t, d, h] }, mat, g);
 }
 
+// Garage options' door radios: not shown, open or closed
+function doorBlock() {
+  return `<div id="garageDoorBlock" class="depth">Garage door:` +
+    Object.entries(GARAGE_DOOR).map(([value, label]) => `<label><input type="radio" name="garageDoor" value="${value}"> ${label}</label>`).join('') +
+    `<div class="hint">Up and over: its top runs back on a rail under the ceiling, its bottom swings out, at most ${GARAGE.door.swingOut / 1000} m (marked on the ground when it's open).</div></div>`;
+}
+
+// A piece's part of Garage options: its name and sizes, its In the garage
+// switch, and its place's sliders and Reset, hidden while it's out
+function pieceBlock(piece, id) {
+  const { label, w, d, h, bedroomSizes } = PIECES[piece];
+  const sizes = bedroomSizes ? 'its sizes as in Bedroom options' : `${w} wide, ${d} deep, ${h} high`;
+  return `<div class="depth"><div><b>${label}</b> (${sizes})</div>` +
+    `<label class="switch"><input type="checkbox" id="${id(`${piece}.on`)}"> In the garage</label>` +
+    `<div id="${id(`${piece}.details`)}">` +                // hidden while it's out (asked for, 18 Oct 2026)
+    (PIECES[piece].canLie ? lyingSwitch(id(`${piece}.lying`)) : '') +
+    placeSliders(piece).map(slider(id)).join('') +
+    `<div class="row"><button data-reset="${piece}">Reset location</button></div></div></div>`;
+}
+
+// The pieces in their groups' tabs, empty of buttons till kit/tabs_kit.js
+// adds them
+function pieceTabs(id) {
+  const tab = ([group, name]) => `<div class="tabpanel" data-tab="${name}">` +
+    PIECE_KEYS.filter(piece => PIECES[piece].group === group).map(piece => pieceBlock(piece, id)).join('') + '</div>';
+  return `<div class="tabs" id="garageTabs" data-label="Garage options"><div class="tablist"></div>${Object.entries(GROUPS).map(tab).join('')}</div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Garage options' block, built into `container`, laid out as Bedroom
-// options: for each piece its name and sizes, its In the garage switch, and
-// while it's in, the sliders that place it and a button to put it back. change(edits) is
+// options: the door's radios, then a tab for each group of pieces (GROUPS;
+// kit/tabs_kit.js makes the tab buttons), with, for each piece, its name and
+// sizes, its In the garage switch, and while it's in, the sliders that place
+// it and a button to put it back. change(edits) is
 // called with a list of [path, value], each path the configuration's, and turnDoor(word) with the door's
 // (the view's: the page puts its radios in step); the function returned
 // puts the other controls in step with the settings `s`
@@ -397,19 +430,7 @@ function openBox(w, d, h, mat, g) {
 export function garageControls(container, change, turnDoor) {
   const id = path => `garage_${path.replace('.', '_')}`;
   const doorRadios = () => container.querySelectorAll('input[name=garageDoor]');
-  container.innerHTML = `<div id="garageDoorBlock" class="depth">Garage door:` +
-    Object.entries(GARAGE_DOOR).map(([value, label]) => `<label><input type="radio" name="garageDoor" value="${value}"> ${label}</label>`).join('') +
-    `<div class="hint">Up and over: its top runs back on a rail under the ceiling, its bottom swings out, at most ${GARAGE.door.swingOut / 1000} m (marked on the ground when it's open).</div></div>` +
-    PIECE_KEYS.map(piece => {
-    const { label, w, d, h, bedroomSizes } = PIECES[piece];
-    const sizes = bedroomSizes ? 'its sizes as in Bedroom options' : `${w} wide, ${d} deep, ${h} high`;
-    return `<div class="depth"><div><b>${label}</b> (${sizes})</div>` +
-      `<label class="switch"><input type="checkbox" id="${id(`${piece}.on`)}"> In the garage</label>` +
-      `<div id="${id(`${piece}.details`)}">` +                // hidden while it's out (asked for, 18 Oct 2026)
-      (PIECES[piece].canLie ? lyingSwitch(id(`${piece}.lying`)) : '') +
-      placeSliders(piece).map(slider(id)).join('') +
-      `<div class="row"><button data-reset="${piece}">Reset location</button></div></div></div>`;
-  }).join('');
+  container.innerHTML = doorBlock() + pieceTabs(id);
 
   doorRadios().forEach(r => r.addEventListener('change', () => turnDoor(r.value)));
   // Settings changed, [name, value] pairs, as edits by their paths

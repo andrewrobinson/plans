@@ -37,13 +37,17 @@ const any = expect.stringMatching;
 
 // The page with a drawer open (a room's options, as openOptions() takes
 // them, the lounge's unless given, or 'other' for Other options), and every
-// section in every drawer unfolded, at an address (the page as it opens
-// unless given)
+// section in every drawer unfolded and every tab's sections shown at once
+// (these tests are of the controls; the tabs have their own), at an address
+// (the page as it opens unless given)
 async function openDrawer(page, address = '', room = 'lounge') {
   await openRoom(page, address);
   if (room === 'other') await page.click('#menu');
   else await openOptions(page, room);
-  await page.evaluate(() => document.querySelectorAll('.drawer details').forEach(d => { d.open = true; }));
+  await page.evaluate(() => {
+    document.querySelectorAll('.drawer details').forEach(d => { d.open = true; });
+    document.querySelectorAll('.drawer .tabpanel').forEach(p => { p.hidden = false; });
+  });
 }
 
 // What to do first, from the page as it opens (option 16, the room as it
