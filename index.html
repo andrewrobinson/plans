@@ -176,8 +176,8 @@
 <!-- Lounge options: the living room's, a drawer of its own, in four tabs
      (notes/MENU_TABS.md; kit/tabs_kit.js makes the buttons): Cupboard (the
      option and its settings), Furniture (the sofa, the back wall, the
-     speakers, the Ivar, the tables and the desk), Walls & doors (the front
-     wall and the island, the doors) and Colours & stored; under them, the
+     front wall and the island, the speakers, the Ivar, the tables and the
+     desk), Walls & doors (the doors) and Colours & stored; under them, the
      description, which is the whole room's -->
 <div id="loungePanel" class="drawer">
   <div class="head">
@@ -394,6 +394,59 @@
           <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
         </div>
       </details>
+      <details class="sec" id="secFrontWall" open>
+        <summary>The front wall and the island</summary>
+        <div id="islandBlock" class="depth">Kitchen island:
+          <span class="seg" role="radiogroup" aria-label="Kitchen island">
+          <label title="Out in the room"><input type="radio" name="islandAt" value="room" checked> In room</label>
+          <label title="Against the front wall, long side out"><input type="radio" name="islandAt" value="out"> Long side</label>
+          <label title="Against the front wall, short side out"><input type="radio" name="islandAt" value="along"> Short side</label>
+          <label><input type="radio" name="islandAt" value="none"> None</label></span>
+        </div>
+        <div id="islandMoveBlock">
+          <label for="islandX">Island's middle from the left wall: <span id="islandXValue">1395</span></label>
+          <input id="islandX" type="range" min="0" max="3838" step="5" value="1395">
+          <label for="islandY">Island's middle from the back wall: <span id="islandYValue">3571</span></label>
+          <input id="islandY" type="range" min="0" max="5379" step="5" value="3571">
+          <label for="islandTurn">Island turned: <span id="islandTurnValue">0°</span></label>
+          <input id="islandTurn" type="range" min="0" max="180" step="5" value="0">
+        </div>
+        <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
+          <span class="seg" role="radiogroup" aria-label="Front wall">
+          <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
+          <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
+          <label><input type="radio" name="frontPiece" value="bookshelf"> Bookshelf</label>
+          <label><input type="radio" name="frontPiece" value="none"> None</label></span>
+        </div>
+        <div id="dresserBlock">
+          <label for="dresserPick">Dresser</label>
+          <select id="dresserPick"></select>
+          <label for="dresserW">Dresser width: <span id="dresserWValue">1320</span></label>
+          <input id="dresserW" type="range" min="900" max="1415" step="5" value="1320">
+          <label for="dresserH">Dresser height: <span id="dresserHValue">2100</span></label>
+          <input id="dresserH" type="range" min="1500" max="2400" step="10" value="2100">
+          <label for="dresserBaseD">Dresser base depth: <span id="dresserBaseDValue">400</span></label>
+          <input id="dresserBaseD" type="range" min="300" max="600" step="10" value="400">
+          <label for="dresserBaseH">Dresser base height: <span id="dresserBaseHValue">900</span></label>
+          <input id="dresserBaseH" type="range" min="700" max="1000" step="10" value="900">
+          <label for="dresserUpperD">Dresser upper depth: <span id="dresserUpperDValue">290</span></label>
+          <input id="dresserUpperD" type="range" min="150" max="600" step="10" value="290">
+        </div>
+        <div id="larderBlock">
+          <label for="larderPick">Larder</label>
+          <select id="larderPick"></select>
+          <label for="larderW">Larder width: <span id="larderWValue">1100</span></label>
+          <input id="larderW" type="range" min="400" max="1500" step="10" value="1100">
+          <label for="larderH">Larder height: <span id="larderHValue">1950</span></label>
+          <input id="larderH" type="range" min="1500" max="2400" step="10" value="1950">
+          <label for="larderD">Larder depth: <span id="larderDValue">510</span></label>
+          <input id="larderD" type="range" min="300" max="700" step="10" value="510">
+        </div>
+        <div id="bookshelfBlock">
+          <div class="hint">A bookcase like the bedroom's, at its sizes: these sliders and the Bedroom options' are the same.</div>
+          <div id="bookshelfSizes"></div>
+        </div>
+      </details>
       <details class="sec" id="secSpeakers">
         <summary>Speakers</summary>
         <div id="speakersOn">The Fenris A5 pair, on:
@@ -468,59 +521,6 @@
       </details>
     </div>
     <div class="tabpanel" data-tab="Walls &amp; doors">
-      <details class="sec" id="secFrontWall" open>
-        <summary>The front wall and the island</summary>
-        <div id="islandBlock" class="depth">Kitchen island:
-          <span class="seg" role="radiogroup" aria-label="Kitchen island">
-          <label title="Out in the room"><input type="radio" name="islandAt" value="room" checked> In room</label>
-          <label title="Against the front wall, long side out"><input type="radio" name="islandAt" value="out"> Long side</label>
-          <label title="Against the front wall, short side out"><input type="radio" name="islandAt" value="along"> Short side</label>
-          <label><input type="radio" name="islandAt" value="none"> None</label></span>
-        </div>
-        <div id="islandMoveBlock">
-          <label for="islandX">Island's middle from the left wall: <span id="islandXValue">1395</span></label>
-          <input id="islandX" type="range" min="0" max="3838" step="5" value="1395">
-          <label for="islandY">Island's middle from the back wall: <span id="islandYValue">3571</span></label>
-          <input id="islandY" type="range" min="0" max="5379" step="5" value="3571">
-          <label for="islandTurn">Island turned: <span id="islandTurnValue">0°</span></label>
-          <input id="islandTurn" type="range" min="0" max="180" step="5" value="0">
-        </div>
-        <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
-          <span class="seg" role="radiogroup" aria-label="Front wall">
-          <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
-          <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
-          <label><input type="radio" name="frontPiece" value="bookshelf"> Bookshelf</label>
-          <label><input type="radio" name="frontPiece" value="none"> None</label></span>
-        </div>
-        <div id="dresserBlock">
-          <label for="dresserPick">Dresser</label>
-          <select id="dresserPick"></select>
-          <label for="dresserW">Dresser width: <span id="dresserWValue">1320</span></label>
-          <input id="dresserW" type="range" min="900" max="1415" step="5" value="1320">
-          <label for="dresserH">Dresser height: <span id="dresserHValue">2100</span></label>
-          <input id="dresserH" type="range" min="1500" max="2400" step="10" value="2100">
-          <label for="dresserBaseD">Dresser base depth: <span id="dresserBaseDValue">400</span></label>
-          <input id="dresserBaseD" type="range" min="300" max="600" step="10" value="400">
-          <label for="dresserBaseH">Dresser base height: <span id="dresserBaseHValue">900</span></label>
-          <input id="dresserBaseH" type="range" min="700" max="1000" step="10" value="900">
-          <label for="dresserUpperD">Dresser upper depth: <span id="dresserUpperDValue">290</span></label>
-          <input id="dresserUpperD" type="range" min="150" max="600" step="10" value="290">
-        </div>
-        <div id="larderBlock">
-          <label for="larderPick">Larder</label>
-          <select id="larderPick"></select>
-          <label for="larderW">Larder width: <span id="larderWValue">1100</span></label>
-          <input id="larderW" type="range" min="400" max="1500" step="10" value="1100">
-          <label for="larderH">Larder height: <span id="larderHValue">1950</span></label>
-          <input id="larderH" type="range" min="1500" max="2400" step="10" value="1950">
-          <label for="larderD">Larder depth: <span id="larderDValue">510</span></label>
-          <input id="larderD" type="range" min="300" max="700" step="10" value="510">
-        </div>
-        <div id="bookshelfBlock">
-          <div class="hint">A bookcase like the bedroom's, at its sizes: these sliders and the Bedroom options' are the same.</div>
-          <div id="bookshelfSizes"></div>
-        </div>
-      </details>
       <details class="sec" id="secDoors" open>
         <summary>Doors</summary>
         <div id="tallBlock">
@@ -597,76 +597,87 @@
 
 <!-- Bedroom options: the bedroom's furniture, where each piece stands and
      its sizes, a drawer of its own (the sliders are other_room.js's); its
-     door and the carpet's colour -->
+     door and the carpet's colour. Three tabs (notes/MENU_TABS.md): Cupboard
+     (the New cupboard switch and its section), Furniture (the rest of the
+     furniture and the carpet's colour) and Doors -->
 <div id="bedPanel" class="drawer">
   <div class="head">
     <h1>Bedroom options</h1>
     <button id="bedClose" class="close" aria-label="Close bedroom options">✕</button>
   </div>
-  <!-- The New cupboard switch, then the new cupboard's own section, then
-       the rest of the bedroom's furniture (other_room.js) -->
-  <div id="otherRoomTop"></div>
-  <details class="sec" id="secBedroomCupboard" open>
-    <summary>The new cupboard</summary>
-    <div class="hint" id="bedroomCupboardOff">Its own corner cupboard, by the chimney breast: switch on New cupboard (above) to see it.</div>
-    <div id="bedroomCupboardBlock">
-      <label for="bedroomCupboardCurrent">Option</label>
-      <select id="bedroomCupboardCurrent" class="pick" aria-label="Bedroom cupboard option"></select>
-      <!-- The lounge cupboard's sliders and its door sliders, copied by
-           living_room.js (cupboard_controls.js's copyControls()) -->
-      <div id="bedroomCupboardControls"></div>
-      <div id="bedroomCupboardDoors"></div>
-      <div class="colours">
-        <div class="colhead">Its colour</div>
-        <div class="colrow">
-          <button id="bedroomCupboardColPrev" aria-label="Previous named bedroom cupboard colour">◀</button>
-          <select id="ral-bedroomCupboard" aria-label="Bedroom cupboard colour"></select>
-          <button id="bedroomCupboardColNext" aria-label="Next named bedroom cupboard colour">▶</button>
-          <span class="swatch" id="bedroomCupboardSwatch"></span>
+  <div class="tabs" id="bedTabs" data-label="Bedroom options">
+    <div class="tablist"></div>
+    <!-- The New cupboard switch, then the new cupboard's own section; the
+         rest of the bedroom's furniture is in Furniture (other_room.js) -->
+    <div class="tabpanel" data-tab="Cupboard">
+      <div id="otherRoomTop"></div>
+      <details class="sec" id="secBedroomCupboard" open>
+        <summary>The new cupboard</summary>
+        <div class="hint" id="bedroomCupboardOff">Its own corner cupboard, by the chimney breast: switch on New cupboard (above) to see it.</div>
+        <div id="bedroomCupboardBlock">
+          <label for="bedroomCupboardCurrent">Option</label>
+          <select id="bedroomCupboardCurrent" class="pick" aria-label="Bedroom cupboard option"></select>
+          <!-- The lounge cupboard's sliders and its door sliders, copied by
+               living_room.js (cupboard_controls.js's copyControls()) -->
+          <div id="bedroomCupboardControls"></div>
+          <div id="bedroomCupboardDoors"></div>
+          <div class="colours">
+            <div class="colhead">Its colour</div>
+            <div class="colrow">
+              <button id="bedroomCupboardColPrev" aria-label="Previous named bedroom cupboard colour">◀</button>
+              <select id="ral-bedroomCupboard" aria-label="Bedroom cupboard colour"></select>
+              <button id="bedroomCupboardColNext" aria-label="Next named bedroom cupboard colour">▶</button>
+              <span class="swatch" id="bedroomCupboardSwatch"></span>
+            </div>
+            <div class="colrow" id="bedroomCupboardOtherRow" hidden>
+              <select id="ral-bedroomCupboard-other" aria-label="Other bedroom cupboard colour"></select>
+            </div>
+          </div>
+          <details id="bedroomCutting">
+            <summary>Cutting list</summary>
+            <div id="bedroomCutList" class="cutList"></div>
+          </details>
         </div>
-        <div class="colrow" id="bedroomCupboardOtherRow" hidden>
-          <select id="ral-bedroomCupboard-other" aria-label="Other bedroom cupboard colour"></select>
-        </div>
-      </div>
-      <details id="bedroomCutting">
-        <summary>Cutting list</summary>
-        <div id="bedroomCutList" class="cutList"></div>
       </details>
     </div>
-  </details>
-  <div id="otherRoomBlock"></div>
-  <details class="sec" id="secBedroomDoors" open>
-    <summary>Doors</summary>
-    <label for="bedroomDoor">Bedroom door: <span id="bedroomDoorValue">90°</span></label>
-    <input id="bedroomDoor" type="range" min="0" max="180" value="90">
-    <div id="bedroomDoorSwings" class="depth">It swings, going in:
-      <span class="seg" role="radiogroup" aria-label="Door swings">
-      <label title="Right, as now"><input type="radio" name="bedroomDoorSwings" value="right" checked> Right</label>
-      <label><input type="radio" name="bedroomDoorSwings" value="left"> Left</label></span>
+    <div class="tabpanel" data-tab="Furniture">
+      <div id="otherRoomBlock"></div>
+      <details class="sec" id="secBedroomColours">
+        <summary>Colours</summary>
+        <div class="colours">
+          <div class="colhead">Carpet (bedroom and stairs)</div>
+          <div class="colrow">
+            <button id="carpetPrev" aria-label="Previous named carpet colour">◀</button>
+            <select id="ral-carpet" aria-label="Carpet colour"></select>
+            <button id="carpetNext" aria-label="Next named carpet colour">▶</button>
+            <span class="swatch" id="carpetSwatch"></span>
+          </div>
+          <div class="colrow" id="carpetOtherRow" hidden>
+            <select id="ral-carpet-other" aria-label="Other carpet colour"></select>
+          </div>
+          <div class="hint">The carpet, the bedroom's and the stairs', is Cormar's Hampstead in Dormouse, drawn in its colour in the photo from the bedroom doorway. Screen colours are approximate.</div>
+        </div>
+      </details>
     </div>
-    <div id="bedroomDoorMustBlock">
-      <label for="bedroomDoorMustOpenTo">It must open to: <span id="bedroomDoorMustOpenToValue">90°</span></label>
-      <input id="bedroomDoorMustOpenTo" type="range" min="45" max="90" value="90">
+    <div class="tabpanel" data-tab="Doors">
+      <details class="sec" id="secBedroomDoors" open>
+        <summary>Doors</summary>
+        <label for="bedroomDoor">Bedroom door: <span id="bedroomDoorValue">90°</span></label>
+        <input id="bedroomDoor" type="range" min="0" max="180" value="90">
+        <div id="bedroomDoorSwings" class="depth">It swings, going in:
+          <span class="seg" role="radiogroup" aria-label="Door swings">
+          <label title="Right, as now"><input type="radio" name="bedroomDoorSwings" value="right" checked> Right</label>
+          <label><input type="radio" name="bedroomDoorSwings" value="left"> Left</label></span>
+        </div>
+        <div id="bedroomDoorMustBlock">
+          <label for="bedroomDoorMustOpenTo">It must open to: <span id="bedroomDoorMustOpenToValue">90°</span></label>
+          <input id="bedroomDoorMustOpenTo" type="range" min="45" max="90" value="90">
+        </div>
+        <label class="switch"><input type="checkbox" id="bedroomDoorSwingShown"> Show its swing on the floor</label>
+        <div class="hint" id="bedroomDoorText"></div>
+      </details>
     </div>
-    <label class="switch"><input type="checkbox" id="bedroomDoorSwingShown"> Show its swing on the floor</label>
-    <div class="hint" id="bedroomDoorText"></div>
-  </details>
-  <details class="sec" id="secBedroomColours">
-    <summary>Colours</summary>
-    <div class="colours">
-      <div class="colhead">Carpet (bedroom and stairs)</div>
-      <div class="colrow">
-        <button id="carpetPrev" aria-label="Previous named carpet colour">◀</button>
-        <select id="ral-carpet" aria-label="Carpet colour"></select>
-        <button id="carpetNext" aria-label="Next named carpet colour">▶</button>
-        <span class="swatch" id="carpetSwatch"></span>
-      </div>
-      <div class="colrow" id="carpetOtherRow" hidden>
-        <select id="ral-carpet-other" aria-label="Other carpet colour"></select>
-      </div>
-      <div class="hint">The carpet, the bedroom's and the stairs', is Cormar's Hampstead in Dormouse, drawn in its colour in the photo from the bedroom doorway. Screen colours are approximate.</div>
-    </div>
-  </details>
+  </div>
 </div>
 
 <!-- Garage options: Sean, Billy, BillyChest and the rest, whether each is in the

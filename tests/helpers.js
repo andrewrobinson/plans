@@ -132,9 +132,14 @@ async function openOptions(page, room = 'lounge') {
   if (await button.getAttribute('aria-expanded') !== 'true') await button.click();
 }
 
+// The drawer that's open, by the body's class (as room_3d.css slides it in):
+// the closed ones are only slid off the screen, so Playwright counts them
+// visible, and the lounge and bedroom both have a Furniture tab
+const OPEN_DRAWER = 'body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, body.garage-open #garagePanel, body.hall-open #hallPanel';
+
 // Choose a tab, by its name, in the drawer that's open (notes/MENU_TABS.md)
 // (its whole name: the garage's Cupboards & shelves isn't the lounge's Cupboard)
-const openTab = (page, name) => page.locator('.drawer').getByRole('tab', { name, exact: true }).filter({ visible: true }).click();
+const openTab = (page, name) => page.locator(OPEN_DRAWER).getByRole('tab', { name, exact: true }).click();
 
 // Open a menu's section (a <details>, by its id), its triangle pointing
 // down, choosing its drawer's tab first if it's in one

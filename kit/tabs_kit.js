@@ -1,5 +1,5 @@
 // The tabs kit: tabs across the top of a long drawer (notes/MENU_TABS.md), so
-// Lounge, Hallway and stairs, and Garage options each show one group of
+// Lounge, Hallway and stairs, Bedroom and Garage options each show one group of
 // sections at a time. From demos/controls_demo.html's Tabs card.
 //
 // In the page, a drawer's tabs are a .tabs holding an empty .tablist and a

@@ -155,7 +155,7 @@ test.describe('the drawers\' tabs', () => {
     await openRoom(page);
     await openOptions(page);
     await expect(chosen(page, 'loungeTabs')).toHaveText('Walls & doors');
-    await expect(page.locator('#secFrontWall')).toBeVisible();
+    await expect(page.locator('#secDoors')).toBeVisible();
   });
 
   test('the garage\'s pieces are in their groups\' tabs', async ({ page }) => {
@@ -168,7 +168,7 @@ test.describe('the drawers\' tabs', () => {
   });
 
   test('each drawer\'s tabs fit across it', DESKTOP, async ({ page }) => {
-    for (const [room, tabs] of [['lounge', 'loungeTabs'], ['hallway', 'hallTabs'], ['garage', 'garageTabs']]) {
+    for (const [room, tabs] of [['lounge', 'loungeTabs'], ['hallway', 'hallTabs'], ['bedroom', 'bedTabs'], ['garage', 'garageTabs']]) {
       await openOptions(page, room);
       const { across, needed } = await page.locator(`#${tabs} .tablist`).evaluate(l => ({ across: l.clientWidth, needed: l.scrollWidth }));
       expect(needed, `${tabs}: ${needed} needed, ${across} across`).toBeLessThanOrEqual(across);
@@ -414,6 +414,7 @@ test.describe('the controls', () => {
   // The bedroom's lower recess cupboard (pieces.recessCupboards) and mirror (pieces.mirror)
   test('the bedroom\'s reset buttons, and the mirror\'s wall', async ({ page }) => {
     await openOptions(page, 'bedroom');
+    await openTab(page, 'Furniture');
     for (const section of ['extras', 'recess']) await openSection(page, `secOtherRoom_${section}`);
     const recess = page.locator('#otherRoomPiece_recess');
     const mirror = page.locator('#otherRoomPiece_mirror');
@@ -472,6 +473,7 @@ test.describe('the controls', () => {
     await expect(page.locator('#benchOn')).toBeDisabled();            // the bookshelf's still there
     expect(await setting(page, 'pieces.pineCupboard.in.bedroom.on')).toBe(true);
     await openOptions(page, 'bedroom');
+    await openTab(page, 'Furniture');
     await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_cupboardOn').uncheck();
     expect(await setting(page, 'pieces.pineCupboard.in.bedroom.on')).toBe(false);
@@ -497,6 +499,7 @@ test.describe('the controls', () => {
     expect(await setting(page, 'pieces.billy.in.livingRoom.move')).toBe(null);
     expect(await setting(page, 'pieces.billy.in.bedroom.on')).toBe(false);          // the bedroom's its own
     await openOptions(page, 'bedroom');
+    await openTab(page, 'Furniture');
     await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_billyOn').check();
     expect(await setting(page, 'pieces.billy.in.bedroom')).toMatchObject({ wall: 'breast', along: 2569, lying: false });
@@ -521,6 +524,7 @@ test.describe('the controls', () => {
     await page.locator('#billyChestHome').click();
     expect(await setting(page, 'pieces.billyChest.in.livingRoom.move')).toBe(null);
     await openOptions(page, 'bedroom');
+    await openTab(page, 'Furniture');
     await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_billyChestOn').check();
     await page.selectOption('#otherRoom_billyChest_wall', 'window');
@@ -544,6 +548,7 @@ test.describe('the controls', () => {
     await page.locator('#ivarLying').uncheck();
     await expect(page.locator('#ivarXValue')).toHaveText('3306');      // standing, 800 out
     await openOptions(page, 'bedroom');
+    await openTab(page, 'Furniture');
     await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_ivarOn').check();
     expect(await setting(page, 'pieces.ivar.in.bedroom.on')).toBe(true);
@@ -587,6 +592,7 @@ test.describe('the controls', () => {
   // controls hidden while it's out of the bedroom
   test('Bedroom options: its sections, and a piece out shows only its switch', async ({ page }) => {
     await openOptions(page, 'bedroom');
+    await openTab(page, 'Furniture');
     for (const section of ['bed', 'extras', 'recess']) await expect(page.locator(`#secOtherRoom_${section}`)).not.toHaveAttribute('open', '');
     await expect(page.locator('#secOtherRoom_bed #otherRoomPiece_kvistbro')).toHaveCount(1);
     await expect(page.locator('#secOtherRoom_extras #otherRoomPiece_billy')).toHaveCount(1);
@@ -605,6 +611,7 @@ test.describe('the controls', () => {
   test('the bedroom mirror can be switched on and off', async ({ page }) => {
     expect(await setting(page, 'pieces.mirror.in.bedroom.on')).toBe(false);
     await openOptions(page, 'bedroom');
+    await openTab(page, 'Furniture');
     await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_mirrorOn').check();
     expect(await setting(page, 'pieces.mirror.in.bedroom.on')).toBe(true);
@@ -614,7 +621,7 @@ test.describe('the controls', () => {
 
   test('the front-wall piece shows the dresser or larder settings', async ({ page }) => {
     await withCupboard(page);
-    await openTab(page, 'Walls & doors');
+    await openTab(page, 'Furniture');
     await page.check('input[name=frontPiece][value="larder"]');
     await expect(page.locator('#larderBlock')).toBeVisible();
     await expect(page.locator('#dresserBlock')).toBeHidden();
@@ -636,14 +643,14 @@ test.describe('the controls', () => {
   // (in.livingRoom.on) and in the bedroom (in.bedroom.on), each on its own
   test('a bookcase can be on either wall and in the bedroom, each on its own', async ({ page }) => {
     await withCupboard(page);
-    await openTab(page, 'Walls & doors');
-    await page.check('input[name=frontPiece][value="bookshelf"]');
     await openTab(page, 'Furniture');
+    await page.check('input[name=frontPiece][value="bookshelf"]');
     await page.locator('#bookshelfOn').check();
     expect(await setting(page, 'livingRoom.frontWall')).toBe('bookshelf');
     expect(await setting(page, 'pieces.bookcase.in.livingRoom.on')).toBe(true);
     expect(await setting(page, 'pieces.bookcase.in.bedroom.on')).toBe(true);
     await openOptions(page, 'bedroom');
+    await openTab(page, 'Furniture');
     await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_bookcaseOn').uncheck();
     expect(await setting(page, 'pieces.bookcase.in.bedroom.on')).toBe(false);
@@ -698,7 +705,7 @@ test.describe('the controls', () => {
   });
 
   test('the island can only be moved when it is out in the room', async ({ page }) => {
-    await openTab(page, 'Walls & doors');
+    await openTab(page, 'Furniture');
     await expect(page.locator('#islandMoveBlock')).toBeVisible();
     await page.check('input[name=islandAt][value="out"]');
     await expect(page.locator('#islandMoveBlock')).toBeHidden();

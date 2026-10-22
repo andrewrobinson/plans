@@ -19,7 +19,8 @@ bottom sheet, and finding a setting means scrolling past everything else.
 
 1. **Tabs in three drawers:** Lounge options, Hallway and stairs, and
    Garage options. Bedroom options (3 sections) and Other options (2) are
-   short enough to stay as they are.
+   short enough to stay as they are. (Bedroom options was given tabs
+   after all, 22 Oct 2026: below.)
 2. **The tabs sit under the drawer's title** and stay there as the drawer
    scrolls. The folding sections stay inside each tab, as they are now.
 3. **Each drawer opens on the tab last used**, kept in localStorage as the
@@ -33,8 +34,8 @@ bottom sheet, and finding a setting means scrolling past everything else.
 | Tab | Sections |
 |---|---|
 | **Cupboard** | The corner cupboard (with its cutting list) |
-| **Furniture** | Sofa; The back wall: bench, TV and shelves; Speakers; Ivar; Cornwall table; Chesham table; Desk on castors |
-| **Walls & doors** | The front wall and the island; Doors |
+| **Furniture** | Sofa; The back wall: bench, TV and shelves; The front wall and the island; Speakers; Ivar; Cornwall table; Chesham table; Desk on castors |
+| **Walls & doors** | Doors |
 | **Colours & stored** | Colours; Things to store; Description |
 
 ### Hallway and stairs: two tabs
@@ -43,6 +44,14 @@ bottom sheet, and finding a setting means scrolling past everything else.
 |---|---|
 | **Upstairs** | The bathroom and WC; Shelves and pictures over the stairs; Shoe boxes on the sills |
 | **Downstairs** | The shoe rack (downstairs); Doors downstairs |
+
+### Bedroom options: three tabs (22 Oct 2026)
+
+| Tab | Sections |
+|---|---|
+| **Cupboard** | The New cupboard switch; The new cupboard |
+| **Furniture** | The bed and what's by it; Extras; The recess cupboards; Colours (the carpet) |
+| **Doors** | Doors (kept a tab of its own, as doors are to be a concept of their own later) |
 
 ### Garage options: grouped, then tabbed
 
