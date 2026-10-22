@@ -158,8 +158,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -835,8 +839,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -1467,8 +1475,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -2136,8 +2148,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -2807,8 +2823,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -3432,8 +3452,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -4057,8 +4081,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -4683,8 +4711,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -5351,8 +5383,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -5976,8 +6012,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -6644,8 +6684,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -7316,8 +7360,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {
@@ -7988,8 +8036,12 @@ window.ROOM_CONFIGURATIONS = {
                 "at": "room",
                 "x": 1395,
                 "y": 3571,
-                "turn": 0
+                "turn": 0,
+                "chairs": "in"
               }
+            },
+            "design": {
+              "layout": "standard"
             }
           },
           "sofa": {

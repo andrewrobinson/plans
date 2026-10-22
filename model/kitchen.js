@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { MM, material, box, hinge } from '../kit/floor_kit.js';
 import { officeChair } from '../work_chairs.js';
+import { tornviken, placeTornviken, TORNVIKEN, ISLAND_LAYOUTS, ISLAND_CHAIRS } from '../tornviken.js';
 import {
   ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, FRIDGE_W, RECESS_FROM, KITCHEN_DEPTH, 
   KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, SINK_RECESS, DESK_TOP, DOOR_HINGE_AT, ROOM_DOOR, ROOM_DOOR_H, 
@@ -15,7 +16,8 @@ import { handleMat, islandMat, islandTopMat, kitchenMat, roomDoorMat, worktopMat
 
 
 let deskChair = null;            // the office chair
-let islandGroup = null;          // the kitchen island
+let tornvikenIsland = null;              // the kitchen island (tornviken.js): its group, layouts and chairs
+let islandGroup = null;          // and its group, which moves
 const CHAIR_TURN = THREE.MathUtils.degToRad(-160);   // as it stands: facing back into the room, 20° towards the door
 // The kitchen and island as they are, as rough blocks in their real colours
 // for comparing with the cupboard options: an L of 590-deep units in the
@@ -32,10 +34,9 @@ const KITCHEN = {
   // The front-wall run stands at the back of the sink recess (SINK_RECESS)
   alcove: { x: [SINK_RECESS.x0, SINK_RECESS.x1], top: SINK_RECESS.top, depth: SINK_RECESS.depth },
   sink: { x: [-250, 550] },      // a stainless sink below the alcove (estimated)
-  // The loose island: its top 770 wide x 1260 long, 900 high, its long edge
-  // 1010 from the door wall and its short end 2941 from the back wall; the top
-  // overhangs the base by 10 all round (all measured)
-  island: { x: 1010, y: 2941, width: 770, length: 1260, top: 900, overhang: 10, topT: 40 },   // topT: the top's thickness (estimated)
+  // The loose island (tornviken.js): its long edge 1010 from the door wall
+  // and its short end 2941 from the back wall (measured)
+  island: { x: 1010, y: 2941, width: TORNVIKEN.width, length: TORNVIKEN.length, top: TORNVIKEN.top },
 };
 {
   const { from, depth, worktop, worktopT, worktopProud, tall, wallUnits, wallDepth, frontRunTo, counterPast, island } = KITCHEN;
@@ -109,13 +110,10 @@ const KITCHEN = {
   face(alcove.depth, aTop - worktop, tileMat, a1, (worktop + aTop) / 2, ROOM_DEPTH + alcove.depth / 2, [0, -Math.PI / 2]);   // its right side (the left is the kitchen recess's wall)
   face(alcove.depth, worktop, wallMat, a1, worktop / 2, ROOM_DEPTH + alcove.depth / 2, [0, -Math.PI / 2]);
   face(a1 - a0, alcove.depth, tileMat, (a0 + a1) / 2, aTop, ROOM_DEPTH + alcove.depth / 2, [Math.PI / 2, 0]);    // its top, facing down
-  // The island, in a group of its own so it can be moved (see placeIsland):
-  // drawn round its middle, its long side along y
-  const { width, length, top, overhang, topT } = island;
-  islandGroup = new THREE.Group();
+  // The island, in a group of its own so it can be moved (see placeIsland)
+  tornvikenIsland = tornviken(islandMat, islandTopMat);
+  islandGroup = tornvikenIsland.group;
   world.add(islandGroup);
-  box({ from: [overhang - width / 2, overhang - length / 2, 0], to: [width / 2 - overhang, length / 2 - overhang, top - topT] }, islandMat, islandGroup);   // the base, under the top
-  box({ from: [-width / 2, -length / 2, top - topT], to: [width / 2, length / 2, top] }, islandTopMat, islandGroup);                                        // the oak top
 }
 
 // Room door: 760 x 44 x 1978, hinged at (0, 1400), opens into the room
@@ -150,13 +148,14 @@ function islandSpot() {
   return { x0, x1: x0 + along, y0: ROOM_DEPTH - out, y1: ROOM_DEPTH, turned: at === 'along' };
 }
 function placeIsland() {
-  const { x0, x1, y0, y1, turned, angle } = islandSpot();
+  const { x0, x1, y0, y1, turned, angle } = islandSpot(), { at, chairs } = config.pieces.island.in.livingRoom;
   islandGroup.position.set((x0 + x1) / 2 * MM, 0, (y0 + y1) / 2 * MM);
-  islandGroup.rotation.y = angle ?? (turned ? Math.PI / 2 : 0);
-  islandGroup.visible = config.pieces.island.in.livingRoom.at !== 'none';
+  islandGroup.rotation.y = angle ?? (turned ? Math.PI / 2 : 0);   // turned, its chairs' side faces out into the room
+  islandGroup.visible = at !== 'none';
+  placeTornviken(tornvikenIsland, config.pieces.island.design.layout, chairs, at === 'along');
 }
 
 // What the other pieces of the model use
 export {
-  CHAIR_TURN, ISLAND_AT, KITCHEN, deskChair, islandGroup, islandOnWall, islandSpot, placeIsland, roomHinge
+  CHAIR_TURN, ISLAND_AT, ISLAND_CHAIRS, ISLAND_LAYOUTS, KITCHEN, deskChair, islandGroup, islandOnWall, islandSpot, placeIsland, roomHinge
 };

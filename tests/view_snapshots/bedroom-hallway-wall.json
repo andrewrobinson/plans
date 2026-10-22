@@ -36,7 +36,7 @@
     "dresser": null,
     "larder": null,
     "sofa": "all",
-    "island": "all",
+    "island": "part",
     "ivar.livingRoom": "all",
     "chesham.livingRoom": null,
     "cornwall.livingRoom": null,

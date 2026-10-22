@@ -109,6 +109,7 @@ function showInMenus(option, no, aboveText) {
   const piece = islandOnWall() ? 'none' : config.livingRoom.frontWall;   // the dresser or a larder, if either is drawn
   shown('frontBlock', !islandOnWall());   // in every option, the room as it is too (asked for, 22 Oct 2026)
   shown('islandMoveBlock', config.pieces.island.in.livingRoom.at === 'room');         // moving and turning: out there only
+  shown('islandSeatBlock', config.pieces.island.in.livingRoom.at !== 'none');
   for (const [k, id, unit] of [['x', 'islandX', ''], ['y', 'islandY', ''], ['turn', 'islandTurn', '°']]) {
     document.getElementById(id).value = String(config.pieces.island.in.livingRoom[k]);
     document.getElementById(`${id}Value`).textContent = `${config.pieces.island.in.livingRoom[k]}${unit}`;

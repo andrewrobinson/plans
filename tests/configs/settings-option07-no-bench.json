@@ -135,8 +135,12 @@
             "at": "out",
             "x": 1000,
             "y": 2000,
-            "turn": 170
+            "turn": 170,
+            "chairs": "in"
           }
+        },
+        "design": {
+          "layout": "standard"
         }
       },
       "sofa": {

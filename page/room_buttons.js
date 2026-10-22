@@ -254,6 +254,8 @@ function syncControls() {
   showLarder();
   showSofa();
   check('islandAt', island.at);
+  check('islandLayout', config.pieces.island.design.layout);
+  check('islandChairs', island.chairs);
   syncOtherRoom(config);
   syncWickerBench(config);
   syncShoeRack(config);

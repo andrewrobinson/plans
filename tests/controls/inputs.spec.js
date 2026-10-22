@@ -191,6 +191,19 @@ test.describe('radio buttons', () => {
     expect(await hash(page)).toBe(before);
   });
 
+  test('the island\'s shelves and chairs', async ({ page }) => {
+    const before = await hash(page);
+    for (const value of ['facing', 'trolleys', 'drawers', 'standard']) {
+      await page.check(`input[name=islandLayout][value="${value}"]`);
+      expect(await setting(page, 'pieces.island.design.layout')).toBe(value);
+    }
+    for (const value of ['out', 'none', 'in']) {
+      await page.check(`input[name=islandChairs][value="${value}"]`);
+      expect(await setting(page, 'pieces.island.in.livingRoom.chairs')).toBe(value);
+    }
+    expect(await hash(page)).toBe(before);
+  });
+
   test('what\'s on the front wall', async ({ page }) => {
     await OPTION(10)(page);                                      // the room as it is has nothing there
     const before = await settledHash(page);

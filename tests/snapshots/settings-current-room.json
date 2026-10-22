@@ -139,8 +139,12 @@
             "at": "none",
             "x": 1395,
             "y": 3571,
-            "turn": 0
+            "turn": 0,
+            "chairs": "in"
           }
+        },
+        "design": {
+          "layout": "standard"
         }
       },
       "sofa": {
@@ -650,9 +654,9 @@
         0
       ],
       "to": [
-        1570,
+        1628,
         5379,
-        900
+        920
       ],
       "shown": false
     },
