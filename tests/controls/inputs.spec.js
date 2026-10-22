@@ -212,6 +212,7 @@ test.describe('radio buttons', () => {
     await expect(page.locator('#islandLayoutRow')).toBeHidden();
     await endsAndBack(page, 'islandLength', at('pieces.island.design.custom.length'));
     await endsAndBack(page, 'islandWidth', at('pieces.island.design.custom.width'));
+    await endsAndBack(page, 'islandOverhang', at('pieces.island.design.custom.overhang'));
     await page.check('input[name=islandType][value="ikea"]');
     await expect(page.locator('#islandSizeBlock')).toBeHidden();
     expect(await hash(page)).toBe(before);

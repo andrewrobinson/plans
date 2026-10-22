@@ -119,7 +119,7 @@ function showInMenus(option, no, aboveText) {
     document.getElementById(id).value = String(config.pieces.island.in.livingRoom[k]);
     document.getElementById(`${id}Value`).textContent = `${config.pieces.island.in.livingRoom[k]}${unit}`;
   }
-  for (const [k, id] of [['length', 'islandLength'], ['width', 'islandWidth']]) {
+  for (const [k, id] of [['length', 'islandLength'], ['width', 'islandWidth'], ['overhang', 'islandOverhang']]) {
     document.getElementById(id).value = String(config.pieces.island.design.custom[k]);
     document.getElementById(`${id}Value`).textContent = String(config.pieces.island.design.custom[k]);
   }

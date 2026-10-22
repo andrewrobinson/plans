@@ -3,7 +3,8 @@
 // to back, drawers on both the kitchen side (-x) and the window side (+x),
 // under a grey oak effect worktop at the kitchen's height; the worktop runs
 // on past the units at one end (-y, the TV wall's) for two ROSENTORP stools
-// (rosentorp.js) facing along it. Its length and width come from sliders.
+// (rosentorp.js) facing along it. Its length, width and overhang come from
+// sliders.
 // Drawn round its middle, its long side along y, like TORNVIKEN;
 // model/kitchen.js says where it stands.
 //
@@ -17,10 +18,10 @@ import { rosentorpChair, ROSENTORP } from './rosentorp.js';
 // panels; the rest estimated
 export const CUSTOM_ISLAND = {
   length: 2400, width: 950,     // the worktop, as it starts (the plan)
+  overhang: 400,                // how far it runs past the units for the stools' knees, as it starts (chosen: 2400 leaves 2000, two units each side, as the render)
   top: 894, topT: 40,           // as the kitchen's worktop (KITCHEN.worktop, measured; its thickness estimated)
   unitMax: 1000,                // the units' widest, as the plan's "1000 3 Drw"
   endPanelT: 16,                // the plan's "BEP 16" end panels
-  stoolEnd: 400,                // how far the worktop runs past the units for the stools' knees (chosen: 2400 leaves 2000, two units each side, as the render)
   proud: 20,                    // how far the worktop stands out past the fronts along each side (estimated, as the kitchen's)
   plinth: 150, plinthBack: 50,  // the plinth's height, and how far it's set back under the fronts (estimated)
   drawers: 3,                   // each unit's drawers, as the plan's "3 Drw"
@@ -28,8 +29,10 @@ export const CUSTOM_ISLAND = {
   frontT: 18,                   // the fronts' thickness (estimated)
 };
 // The stools: pushed in, their fronts stop this short of the end panel;
-// pulled out, they're this much further out (both chosen, as TORNVIKEN's)
-const STOOL_CLEAR = 20, STOOL_OUT = 300;
+// pulled out, as if sat at, their backs stand this far past the worktop's
+// end, whatever the overhang (both chosen: pulled out at a 400 overhang
+// it's 300 further out than pushed in, as TORNVIKEN's)
+const STOOL_CLEAR = 20, STOOL_OUT_PAST_TOP = 370;
 
 const worktopMat = material(0x9c958c);   // grey oak effect (the plan)
 const carcassMat = material(0xf2f2ee);   // white
@@ -43,31 +46,31 @@ export function customIsland(frontMat) {
   return { group, body, frontMat, chairs: [rosentorpChair(), rosentorpChair()], size: null };
 }
 
-// Its size ({ length, width }, its worktop's) and where its stools are ('in',
+// Its size ({ length, width, overhang }, its worktop's) and where its stools are ('in',
 // 'out' or 'none')
 export function placeCustomIsland(island, size, chairsAt) {
-  if (island.size?.length !== size.length || island.size?.width !== size.width) {
+  if (['length', 'width', 'overhang'].some(k => island.size?.[k] !== size[k])) {
     redraw(island, size);
     island.size = { ...size };
   }
   placeStools(island, size, chairsAt);
 }
 
-function redraw({ body, frontMat }, { length, width }) {
+function redraw({ body, frontMat }, { length, width, overhang }) {
   for (const m of [...body.children]) { body.remove(m); m.geometry?.dispose(); }
   const { top, topT } = CUSTOM_ISLAND;
   box({ from: [-width / 2, -length / 2, top - topT], to: [width / 2, length / 2, top] }, worktopMat, body);
-  drawUnits(body, frontMat, length, width);
+  drawUnits(body, frontMat, length, width, overhang);
 }
 
 // Where the units run, along y: from past the stools' end to the far end
-const unitsFrom = length => -length / 2 + CUSTOM_ISLAND.stoolEnd;
+const unitsFrom = (length, overhang) => -length / 2 + overhang;
 
 // The units back to back between two end panels, a plinth under them, and
 // each side's drawer fronts
-function drawUnits(body, frontMat, length, width) {
+function drawUnits(body, frontMat, length, width, overhang) {
   const { top, topT, endPanelT, proud, plinth, plinthBack, frontT } = CUSTOM_ISLAND;
-  const y0 = unitsFrom(length), y1 = length / 2, under = top - topT;
+  const y0 = unitsFrom(length, overhang), y1 = length / 2, under = top - topT;
   const face = width / 2 - proud;                     // the fronts' faces, either side of the middle
   for (const y of [y0, y1 - endPanelT]) box({ from: [-face, y, 0], to: [face, y + endPanelT, under] }, carcassMat, body);   // end panels
   const inner = face - frontT;                        // the carcasses' fronts, behind the doors
@@ -91,9 +94,10 @@ function drawFronts(body, frontMat, side, y0, y1, back, face) {
 }
 
 // The stools side by side under the worktop's end, facing along it (+y)
-function placeStools({ group, chairs }, { length, width }, chairsAt) {
-  const out = chairsAt === 'out' ? STOOL_OUT : 0;
-  const y = unitsFrom(length) - STOOL_CLEAR - ROSENTORP.depth / 2 - out;
+function placeStools({ group, chairs }, { length, width, overhang }, chairsAt) {
+  const pushedIn = unitsFrom(length, overhang) - STOOL_CLEAR - ROSENTORP.depth / 2;
+  const pulledOut = -length / 2 - STOOL_OUT_PAST_TOP + ROSENTORP.depth / 2;
+  const y = chairsAt === 'out' ? pulledOut : pushedIn;
   chairs.forEach((chair, k) => {
     if (chairsAt === 'none') { group.remove(chair); return; }   // taken out, so the island's size leaves it out
     chair.position.set((k ? 1 : -1) * width / 4 * MM, 0, y * MM);

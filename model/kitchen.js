@@ -139,7 +139,7 @@ Object.assign(config.pieces.island.in.livingRoom, ISLAND_HOME);
 // Which island it is: IKEA's TORNVIKEN or the custom one, and the size of
 // the one shown (its top's)
 const ISLAND_TYPES = ['ikea', 'custom'];
-Object.assign(config.pieces.island.design.custom, { length: CUSTOM_ISLAND.length, width: CUSTOM_ISLAND.width });
+Object.assign(config.pieces.island.design.custom, { length: CUSTOM_ISLAND.length, width: CUSTOM_ISLAND.width, overhang: CUSTOM_ISLAND.overhang });
 function islandSize() {
   const { type, custom } = config.pieces.island.design;
   if (type === 'custom') return { width: custom.width, length: custom.length, top: CUSTOM_ISLAND.top };

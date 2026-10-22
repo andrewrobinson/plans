@@ -153,6 +153,7 @@ const LIVING_ROOM_SCHEMA = [
   Config.choice('pieces.island.design.layout', ISLAND_LAYOUTS),
   fromSlider('pieces.island.design.custom.length', 'islandLength'),
   fromSlider('pieces.island.design.custom.width', 'islandWidth'),
+  fromSlider('pieces.island.design.custom.overhang', 'islandOverhang'),
   Config.choice('pieces.island.in.livingRoom.chairs', ISLAND_CHAIRS),
   Config.choice('pieces.sofa.design.model', [NO_SOFA, ...Object.keys(SOFAS)]),
   ...SOFA_SLIDERS.map(([key, id]) => fromSlider(`pieces.sofa.design.${key}`, id, { clamp: true })),

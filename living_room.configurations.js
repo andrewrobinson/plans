@@ -167,7 +167,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -853,7 +854,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -1494,7 +1496,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -2172,7 +2175,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -2852,7 +2856,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -3486,7 +3491,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -4120,7 +4126,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -4755,7 +4762,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -5432,7 +5440,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -6066,7 +6075,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -6743,7 +6753,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -7424,7 +7435,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },
@@ -8105,7 +8117,8 @@ window.ROOM_CONFIGURATIONS = {
               "layout": "standard",
               "custom": {
                 "length": 2400,
-                "width": 950
+                "width": 950,
+                "overhang": 400
               }
             }
           },

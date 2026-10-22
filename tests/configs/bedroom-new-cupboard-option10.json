@@ -148,7 +148,8 @@
           "layout": "standard",
           "custom": {
             "length": 2400,
-            "width": 950
+            "width": 950,
+            "overhang": 400
           }
         }
       },

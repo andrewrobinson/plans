@@ -263,7 +263,7 @@ for (const [k, id] of [['x', 'islandX'], ['y', 'islandY'], ['turn', 'islandTurn'
 }
 // Which island, the custom one's size, IKEA's layout, and the chairs
 document.querySelectorAll('input[name=islandType]').forEach(r => r.addEventListener('change', () => change([['pieces.island.design.type', r.value]])));
-for (const [k, id] of [['length', 'islandLength'], ['width', 'islandWidth']]) {
+for (const [k, id] of [['length', 'islandLength'], ['width', 'islandWidth'], ['overhang', 'islandOverhang']]) {
   document.getElementById(id).addEventListener('input', e => change([[`pieces.island.design.custom.${k}`, Number(e.target.value)]]));
 }
 document.querySelectorAll('input[name=islandLayout]').forEach(r => r.addEventListener('change', () => change([['pieces.island.design.layout', r.value]])));
