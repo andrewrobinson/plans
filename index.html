@@ -55,9 +55,11 @@
   <label class="chip switch" title="Show or hide the things to store, in the lounge"><input type="checkbox" id="storedToggle" checked> Stored</label>
   <button id="screenshot" class="chip" aria-label="Screenshot" title="Screenshot: copy a picture of the view on show">📷</button>
 </div>
-<!-- Where you are and what you look at: a menu of its own at the top
-     right, Look ▾, opening below it (the views are in the room buttons' ▾).
-     The corner menus are named in words, not ☰ (UI_CRITIQUE.md, step 1) -->
+<!-- At the top right, each opening below it, one at a time: where you are
+     and what you look at, Look ▾ (the views are in the room buttons' ▾),
+     and under it the configurations, Configs ▾ (moved from the bottom
+     right, 22 Oct 2026, as its list ran off a phone's screen there). The
+     corner menus are named in words, not ☰ (UI_CRITIQUE.md, step 1) -->
 <div id="topRight">
   <div id="viewMenu" class="pop">
     <button class="chip popToggle" title="Look: where you are in the room on screen, what you're looking at, your eye height" aria-controls="viewGroup" aria-expanded="false">Look ▾</button>
@@ -73,9 +75,17 @@
       <button id="deleteView" class="chip" title="Delete this saved view" hidden>Delete view</button>
     </div>
   </div>
+  <div id="configurationMenu" class="pop">
+    <button class="chip popToggle" title="Configurations: every setting in every room, by name" aria-controls="configurationGroup" aria-expanded="false">Configs ▾</button>
+    <div id="configurationGroup" class="group" role="group" aria-label="Configuration">
+      <span class="tag">Configuration</span>
+      <select id="configurationPick" class="pick" aria-label="Configurations"></select>
+      <button id="saveConfiguration" class="chip" title="Keep every setting in every room (not where you're looking from), as a named configuration">Save</button>
+      <button id="deleteConfiguration" class="chip" title="Delete this saved configuration" hidden>Delete</button>
+    </div>
+  </div>
 </div>
-<!-- The configurations: a menu of their own at the bottom right,
-     Configuration ▴, opening above it, with the 2D views' chips above that -->
+<!-- At the bottom right, the 2D views' chips -->
 <div id="corner">
   <!-- In a 2D view, its dimensions and the doors' sizes (the kit shows
        these only then: data-mode), clear of the top bar, which they'd
@@ -83,15 +93,6 @@
   <div id="flatChips">
     <button id="dims" class="chip" data-mode="2d" title="The 2D views' dimensions">Dimensions: on</button>
     <button id="doorDims" class="chip" data-mode="2d" title="Each cupboard door's size, on the door">Door sizes: on</button>
-  </div>
-  <div id="configurationMenu" class="pop">
-    <div id="configurationGroup" class="group" role="group" aria-label="Configuration">
-      <span class="tag">Configuration</span>
-      <select id="configurationPick" class="pick" aria-label="Configurations"></select>
-      <button id="saveConfiguration" class="chip" title="Keep every setting in every room (not where you're looking from), as a named configuration">Save</button>
-      <button id="deleteConfiguration" class="chip" title="Delete this saved configuration" hidden>Delete</button>
-    </div>
-    <button class="chip popToggle" title="Configurations: every setting in every room, by name" aria-controls="configurationGroup" aria-expanded="false">Configuration ▴</button>
   </div>
 </div>
 <!-- At the bottom left: the options for the room in view (its drawer) -->

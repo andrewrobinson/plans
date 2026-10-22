@@ -46,9 +46,9 @@ live beside it.
 |---|---|---|
 | 29 | `#view` | An empty div that fills the screen. JS puts the three.js `<canvas>` inside it |
 | 30–42 | `#loading` | The screen greyed with **Loading…** (or **Loading Pretty…**, a configuration's name kept in sessionStorage as it's chosen) while the page loads, from before any code comes till the room's first drawn (`startLoop()`'s `onFirstDraw`); shown again as a configuration's chosen (`showLoading()` in living_room.js), as that loads the page again. Above everything, taking the clicks |
-| 37–45 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge**, **Bedroom**, **Garage**, **Hallway** (the room's name alone, short for a phone), each going to its room, with a ▾ dropdown of all that room's views: Bird's eye, Plan, its four walls in 2D, its config-defined views and those saved in it, and under the Hallway's, downstairs' too; `fillRoomKinds()` in living_room.js, as VIEWS_MENU.md has it), Share, **Stored** (a switch, `#storedToggle`, shows or hides the things to store in the lounge) and 📷 (Screenshot); it keeps clear of Look ▾ (`--clear-of-look` in room_3d.css). On a phone, while a sheet's open, only ☰ shows |
-| 48–66 | `#topRight` | The **Look ▾** pop-up menu (`#viewMenu`, blue): Where, Looking at, eye height, looks, and Save view / Delete view. The Views menu went on 21 Oct 2026 (VIEWS_MENU.md); in a 2D view the Dimensions and Door sizes chips (`#flatChips`) show at the bottom right, above Configuration |
-| 75–85 | `#corner` | The **Configuration ▴** pop-up menu at the bottom right (`#configurationMenu`, green) |
+| 37–45 | `#bar` | The top bar: ☰ (`#menu`, opens **Other options**), `#roomViews` (living_room.js puts a split button there for each room: **Lounge**, **Bedroom**, **Garage**, **Hallway** (the room's name alone, short for a phone), each going to its room, with a ▾ dropdown of all that room's views: Bird's eye, Plan, its four walls in 2D, its config-defined views and those saved in it, and under the Hallway's, downstairs' too; `fillRoomKinds()` in living_room.js, as VIEWS_MENU.md has it), Share, **Stored** (a switch, `#storedToggle`, shows or hides the things to store in the lounge) and 📷 (Screenshot); it keeps clear of Look ▾ and Configs ▾ (`--clear-of-look` in room_3d.css). On a phone, while a sheet's open, only ☰ shows |
+| 48–76 | `#topRight` | The **Look ▾** pop-up menu (`#viewMenu`, blue): Where, Looking at, eye height, looks, and Save view / Delete view. Under it the **Configs ▾** pop-up menu (`#configurationMenu`, green): the configurations, Save and Delete (moved from the bottom right on 22 Oct 2026: its list ran off a phone's screen there). Each opens below its button, one at a time. The Views menu went on 21 Oct 2026 (VIEWS_MENU.md) |
+| 78–86 | `#corner` | In a 2D view, the Dimensions and Door sizes chips (`#flatChips`) at the bottom right |
 | 87–89 | `#bottomLeft` | The options button (`#roomOptions`), named for the room in view: Lounge, Bedroom or Garage options, or Hallway and stairs. It moves clear of an open drawer, onto a sheet's top edge on a phone |
 | 90 | `#tip` | A tooltip that follows the pointer over things to store |
 | **91–105** | `#panel` | **Other options**: `#secWickerBench` (the wicker bench, in any room), `#palette`, the colours in this view, and `#thisPage`: Reload (the page afresh, nothing in the address) and Reset (in red; once confirmed, forgets everything on the device, saved views, looks and configurations too, and drops the offline copy; `resetButton()` in kit/floor_kit.js) |
@@ -296,7 +296,7 @@ rule therefore gives each menu button its own colour.
 
 ### One class for many buttons
 
-The floating text buttons (Lounge options, Share, Look ▾, Configuration ▴,
+The floating text buttons (Lounge options, Share, Look ▾, Configs ▾,
 Dimensions, the room buttons, and the menus' Save and Delete) all have `class="chip"` in the
 HTML, and one `.chip` rule styles them. To give a new button the same look, add `class="chip"` to it.
 
@@ -351,9 +351,9 @@ CSS does the movement and the animation.
 | CSS | `.pop > .group { display: none }` hides the group. `.pop.open > .group { display: flex }` shows it |
 | JS | `setPop(open)` adds `open` to the menu clicked and removes it from the others, and sets `aria-expanded` for screen readers. Escape, or a click outside the menus that isn't on the 3D view, closes them |
 
-Configuration opens upwards for a reason. In `#configurationMenu` the group comes **before** the
-button in the HTML, and `#corner` stacks its children in a column
-from the bottom of the screen.
+Both open downwards: in each the button comes **before** the group in the
+HTML, and `#topRight` stacks them in a column from the top of the screen.
+(Configuration opened upwards from the bottom right until 22 Oct 2026.)
 
 ### c) The collapsible sections in the drawer
 

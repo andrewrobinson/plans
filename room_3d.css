@@ -18,18 +18,18 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
 .drawer h1 { font-size: 15px; margin: 0; }
 .drawer .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
 .drawer .close { font-size: 18px; line-height: 1; padding: 4px 10px; }
-/* The top bar, clear of Look ▾ at the top right: --clear-of-look is its
-   width (measured, 72 on the desktop, 21 Oct 2026) and the gaps either
-   side of it */
-:root { --clear-of-look: 92px; }
+/* The top bar, clear of the menus at the top right, Look ▾ and Configs ▾
+   under it: --clear-of-look is the wider's width (Configs ▾, measured, 88
+   on the desktop, 22 Oct 2026) and the gaps either side of it */
+:root { --clear-of-look: 110px; }
 #bar {
   position: fixed; top: 12px; left: 12px; right: var(--clear-of-look); z-index: 4; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
   pointer-events: none;
 }
-/* Look (where you are and what you look at): a menu button at the top
-   right, opening its group below it; the configurations: a menu button at
-   the bottom right, opening above, and above it, in a 2D view, the
-   Dimensions and Door sizes chips */
+/* Look (where you are and what you look at) and the configurations: menu
+   buttons at the top right, one under the other, each opening its group
+   below it; at the bottom right, in a 2D view, the Dimensions and Door
+   sizes chips */
 #corner { position: fixed; right: 12px; bottom: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
 .pop { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
 .pop > .group { display: none; background: rgba(255, 255, 255, 0.92); }
@@ -38,7 +38,7 @@ body.menu-open #panel, body.lounge-open #loungePanel, body.bed-open #bedPanel, b
   pointer-events: auto; width: 44px; height: 44px; border-radius: 10px; border: none; font-size: 22px;
   background: rgba(255, 255, 255, 0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); cursor: pointer;
 }
-/* The corner menus' buttons, Look ▾ and Configuration ▴: chips named in
+/* The corner menus' buttons, Look ▾ and Configs ▾: chips named in
    words, in their menu's colour */
 .popToggle { color: var(--tint); }
 #viewMenu { --tint: #1f4e79; }
@@ -63,7 +63,7 @@ body.reloading canvas { opacity: 0.2; transition: opacity 0.25s; }
   border-radius: 12px; background: rgba(255, 255, 255, 0.55); box-shadow: inset 0 0 0 2px var(--tint); }
 .group .tag { font-size: 11px; font-weight: bold; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tint); }
 #viewGroup { --tint: #1f4e79; }
-#viewGroup { max-width: min(900px, calc(100vw - 24px)); box-sizing: border-box; justify-content: flex-end; }
+#viewGroup, #configurationGroup { max-width: min(900px, calc(100vw - 24px)); box-sizing: border-box; justify-content: flex-end; }
 #viewsGroup { flex-wrap: nowrap; }
 /* The dropdowns at the top right and bottom right: the views, where you
    are, your eye height, the looks and the configurations */
@@ -107,9 +107,9 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
      the screen above the sheet: padded just enough that they fit in three
      rows on a 390-wide phone (measured, 19 Oct 2026) */
   #bar { gap: 6px; }
-  #bar .chip, #bar .pick, #menu, #viewMenu .popToggle { height: 36px; font-size: 13px; }
-  #bar .chip, #viewMenu .popToggle { padding: 0 7px; }
-  :root { --clear-of-look: 76px; }   /* Look ▾ as small as the bar's chips: 54 wide in Chrome (measured), a little over for Safari's font */
+  #bar .chip, #bar .pick, #menu, #topRight .popToggle { height: 36px; font-size: 13px; }
+  #bar .chip, #topRight .popToggle { padding: 0 7px; }
+  :root { --clear-of-look: 92px; }   /* Configs ▾ as small as the bar's chips: 70 wide in Chrome (measured), a little over for Safari's font */
   #menu { width: 36px; font-size: 18px; }
   /* 16px, as a phone's browser zooms in on a smaller box being typed in */
   .drawer input.numberBox { font-size: 16px; }
