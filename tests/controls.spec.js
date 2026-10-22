@@ -498,14 +498,14 @@ test.describe('the wicker bench', () => {
     await slide(page, 'wickerBench_w', 1200);
     await slide(page, 'wickerBench_bedroom_u', 2000);
     expect(await readout(page, 'wickerBench_w')).toBe('1200');
-    expect(await setting(page, 'wickerBench')).toMatchObject({ w: 1200, d: 410, h: 450, legs: 80 });
-    expect(await setting(page, 'wickerBench.hallway')).toEqual({ on: false, along: 1470, across: 1372, turn: 0 });
-    expect(await setting(page, 'wickerBench.bedroom')).toEqual({ on: true, u: 2000, v: 1985, turn: 0 });
-    expect(await setting(page, 'wickerBench.livingRoom')).toEqual({ on: false, x: 3686, y: 2910, turn: 90 });
+    expect(await setting(page, 'pieces.wickerBench.design')).toMatchObject({ w: 1200, d: 410, h: 450, legs: 80 });
+    expect(await setting(page, 'pieces.wickerBench.in.hallway')).toEqual({ on: false, along: 1470, across: 1372, turn: 0 });
+    expect(await setting(page, 'pieces.wickerBench.in.bedroom')).toEqual({ on: true, u: 2000, v: 1985, turn: 0 });
+    expect(await setting(page, 'pieces.wickerBench.in.livingRoom')).toEqual({ on: false, x: 3686, y: 2910, turn: 90 });
     await page.locator('#wickerBenchBlock [data-reset="bedroom"]').evaluate(b => b.click());
-    expect(await setting(page, 'wickerBench.bedroom')).toEqual({ on: true, u: 1360, v: 1985, turn: 0 });
+    expect(await setting(page, 'pieces.wickerBench.in.bedroom')).toEqual({ on: true, u: 1360, v: 1985, turn: 0 });
     await page.locator('#wickerBenchBlock [data-reset="sizes"]').evaluate(b => b.click());
-    expect(await setting(page, 'wickerBench')).toMatchObject({ w: 920, d: 410, h: 450, legs: 80 });
+    expect(await setting(page, 'pieces.wickerBench.design')).toMatchObject({ w: 920, d: 410, h: 450, legs: 80 });
   });
 });
 
@@ -698,10 +698,10 @@ test('the desk on castors parks by the door and wheels out to the TV', async ({ 
 // opens; its switch shows its settings
 test('the shoe rack is out to start, its switch showing its settings', async ({ page }) => {
   await openDrawer(page, '', 'hallway');
-  expect(await setting(page, 'shoeRack.on')).toBe(false);
+  expect(await setting(page, 'pieces.shoeRack.in.hallway.on')).toBe(false);
   await expect(page.locator('#shoeRack_block')).toBeHidden();
   await page.locator('#shoeRack_on').check();
-  expect(await setting(page, 'shoeRack.on')).toBe(true);
+  expect(await setting(page, 'pieces.shoeRack.in.hallway.on')).toBe(true);
   await expect(page.locator('#shoeRack_block')).toBeVisible();
 });
 
@@ -709,12 +709,12 @@ test('the shoe rack is out to start, its switch showing its settings', async ({ 
 // hidden by their switch, to see the hallway and stairs past them
 test('the bathroom and WC can be hidden', async ({ page }) => {
   await openDrawer(page, '', 'hallway');
-  expect(await setting(page, 'bathroomShown')).toBe(true);
+  expect(await setting(page, 'hallway.bathroomShown')).toBe(true);
   await expect(page.locator('#bathroomShown')).toBeChecked();
   await page.locator('#bathroomShown').uncheck();
-  expect(await setting(page, 'bathroomShown')).toBe(false);
+  expect(await setting(page, 'hallway.bathroomShown')).toBe(false);
   await page.locator('#bathroomShown').check();
-  expect(await setting(page, 'bathroomShown')).toBe(true);
+  expect(await setting(page, 'hallway.bathroomShown')).toBe(true);
 });
 
 // The shelves and pictures over the stairs (stair_walls.js, agreed 19 Oct
@@ -724,95 +724,95 @@ test('the bathroom and WC can be hidden', async ({ page }) => {
 // all where it can't fit; the L-shaped shelves on the TV and WC walls
 test.describe('the shelves and pictures over the stairs', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, '', 'hallway'); });
-  const wall = (page, key) => setting(page, `stairWalls.${key}`);
+  const wall = (page, key) => setting(page, `hallway.${key}`);
 
   test('are off to start, at the user’s sizes, each switch showing its sliders', async ({ page }) => {
-    for (const key of ['wc', 'lounge', 'tv']) {
+    for (const key of ['wcWall', 'loungeWall', 'tvWall']) {
       expect((await wall(page, key)).shelves.on).toBe(false);
       expect((await wall(page, key)).picture.on).toBe(false);
       await expect(page.locator(`#stairWalls_${key}_shelves_block`)).toBeHidden();
       await expect(page.locator(`#stairWalls_${key}_picture_block`)).toBeHidden();
     }
-    expect((await wall(page, 'corner')).on).toBe(false);
-    await toggle(page, 'stairWalls_wc_picture_on', true);
-    await expect(page.locator('#stairWalls_wc_picture_block')).toBeVisible();
-    expect(await setting(page, 'stairWalls.wc.picture')).toEqual({ on: true, height: 1420, width: 670, tall: 930, along: 830 });
-    await toggle(page, 'stairWalls_tv_shelves_on', true);
-    await expect(page.locator('#stairWalls_tv_shelves_alongLabel')).toHaveText('Middle, from the lounge door wall');
+    expect((await wall(page, 'cornerShelves')).on).toBe(false);
+    await toggle(page, 'stairWalls_wcWall_picture_on', true);
+    await expect(page.locator('#stairWalls_wcWall_picture_block')).toBeVisible();
+    expect(await setting(page, 'hallway.wcWall.picture')).toEqual({ on: true, height: 1420, width: 670, tall: 930, along: 830 });
+    await toggle(page, 'stairWalls_tvWall_shelves_on', true);
+    await expect(page.locator('#stairWalls_tvWall_shelves_alongLabel')).toHaveText('Middle, from the lounge door wall');
   });
 
   test('the TV wall’s shelves go the wall’s length, and lower', async ({ page }) => {
-    await toggle(page, 'stairWalls_tv_shelves_on', true);
-    expect(await slide(page, 'stairWalls_tv_shelves_width', 5000)).toBe('2330');
-    expect(await slide(page, 'stairWalls_tv_shelves_height', 0)).toBe('200');
-    expect(await wall(page, 'tv')).toMatchObject({ shelves: { width: 2330, along: 1165, height: 200 } });   // held to the wall
+    await toggle(page, 'stairWalls_tvWall_shelves_on', true);
+    expect(await slide(page, 'stairWalls_tvWall_shelves_width', 5000)).toBe('2330');
+    expect(await slide(page, 'stairWalls_tvWall_shelves_height', 0)).toBe('200');
+    expect(await wall(page, 'tvWall')).toMatchObject({ shelves: { width: 2330, along: 1165, height: 200 } });   // held to the wall
   });
 
   test('on the TV wall, the picture and shelves keep apart', async ({ page }) => {
-    await slide(page, 'stairWalls_tv_picture_along', 1900);            // out of the shelves' way first: 1300 to 2500, held to 1730
-    await toggle(page, 'stairWalls_tv_picture_on', true);
-    await slide(page, 'stairWalls_tv_picture_width', 600);             // 1430 to 2030, as held
-    await slide(page, 'stairWalls_tv_shelves_along', 700);             // 100 to 1300
-    await toggle(page, 'stairWalls_tv_shelves_on', true);
+    await slide(page, 'stairWalls_tvWall_picture_along', 1900);            // out of the shelves' way first: 1300 to 2500, held to 1730
+    await toggle(page, 'stairWalls_tvWall_picture_on', true);
+    await slide(page, 'stairWalls_tvWall_picture_width', 600);             // 1430 to 2030, as held
+    await slide(page, 'stairWalls_tvWall_shelves_along', 700);             // 100 to 1300
+    await toggle(page, 'stairWalls_tvWall_shelves_on', true);
     // The picture moved onto the shelves goes past them: 1300 + 50 apart + 300
-    await slide(page, 'stairWalls_tv_picture_along', 1000);
-    expect((await wall(page, 'tv')).picture.along).toBe(1650);
+    await slide(page, 'stairWalls_tvWall_picture_along', 1000);
+    expect((await wall(page, 'tvWall')).picture.along).toBe(1650);
     // Shrunk to 400 high and raised as far as it goes, its top 50 under the
     // ceiling (2443), it's above the shelves, so it can go over them
-    await slide(page, 'stairWalls_tv_picture_tall', 400);
-    await slide(page, 'stairWalls_tv_picture_height', 2200);
-    expect((await wall(page, 'tv')).picture.height).toBe(2193);
-    await slide(page, 'stairWalls_tv_picture_along', 700);
-    expect((await wall(page, 'tv')).picture.along).toBe(700);
+    await slide(page, 'stairWalls_tvWall_picture_tall', 400);
+    await slide(page, 'stairWalls_tvWall_picture_height', 2200);
+    expect((await wall(page, 'tvWall')).picture.height).toBe(2193);
+    await slide(page, 'stairWalls_tvWall_picture_along', 700);
+    expect((await wall(page, 'tvWall')).picture.along).toBe(700);
     // Spaced out, the shelves reach up to it, so they go along, past it: 1000 + 50 + 600
-    await slide(page, 'stairWalls_tv_shelves_spacing', 500);
-    expect((await wall(page, 'tv')).shelves).toEqual({ on: true, count: 3, height: 1000, width: 1200, along: 1650, spacing: 500, depth: 240 });
-    expect(await readout(page, 'stairWalls_tv_shelves_along')).toBe('1650');
+    await slide(page, 'stairWalls_tvWall_shelves_spacing', 500);
+    expect((await wall(page, 'tvWall')).shelves).toEqual({ on: true, count: 3, height: 1000, width: 1200, along: 1650, spacing: 500, depth: 240 });
+    expect(await readout(page, 'stairWalls_tvWall_shelves_along')).toBe('1650');
   });
 
   test('on the lounge door wall, the shelves won’t squeeze past the picture, and stay under the ceiling', async ({ page }) => {
     // 1200 wide, they fit on neither side of the picture (the wall is
     // 1327): left off, saying why
-    await toggle(page, 'stairWalls_lounge_picture_on', true);
-    await toggle(page, 'stairWalls_lounge_shelves_on', true);
-    expect((await wall(page, 'lounge')).shelves.on).toBe(false);
-    await expect(page.locator('#stairWalls_lounge_shelves_blocked')).toBeVisible();
+    await toggle(page, 'stairWalls_loungeWall_picture_on', true);
+    await toggle(page, 'stairWalls_loungeWall_shelves_on', true);
+    expect((await wall(page, 'loungeWall')).shelves.on).toBe(false);
+    await expect(page.locator('#stairWalls_loungeWall_shelves_blocked')).toBeVisible();
     // Without the picture they go up; raised as far as they go with three
     // 500 apart, the top shelf 150 under the ceiling: 2443 − 150 − 2 × 500
-    await toggle(page, 'stairWalls_lounge_picture_on', false);
-    await toggle(page, 'stairWalls_lounge_shelves_on', true);
-    await expect(page.locator('#stairWalls_lounge_shelves_blocked')).toBeHidden();
-    await slide(page, 'stairWalls_lounge_shelves_count', 3);
-    await slide(page, 'stairWalls_lounge_shelves_spacing', 500);
-    await slide(page, 'stairWalls_lounge_shelves_height', 2300);
-    expect((await wall(page, 'lounge')).shelves.height).toBe(1293);
+    await toggle(page, 'stairWalls_loungeWall_picture_on', false);
+    await toggle(page, 'stairWalls_loungeWall_shelves_on', true);
+    await expect(page.locator('#stairWalls_loungeWall_shelves_blocked')).toBeHidden();
+    await slide(page, 'stairWalls_loungeWall_shelves_count', 3);
+    await slide(page, 'stairWalls_loungeWall_shelves_spacing', 500);
+    await slide(page, 'stairWalls_loungeWall_shelves_height', 2300);
+    expect((await wall(page, 'loungeWall')).shelves.height).toBe(1293);
   });
 
   test('the L-shaped shelves take the TV and WC walls’ own, and keep clear of their pictures', async ({ page }) => {
-    await toggle(page, 'stairWalls_tv_shelves_on', true);
-    await toggle(page, 'stairWalls_corner_on', true);
-    expect(await wall(page, 'corner')).toEqual({ on: true, count: 3, height: 1000, spacing: 440, depth: 240, tvLength: 1200, wcLength: 1200 });
-    await expect(page.locator('#stairWalls_tv_shelves_on')).toBeDisabled();
-    await expect(page.locator('#stairWalls_wc_shelves_on')).toBeDisabled();
-    await expect(page.locator('#stairWalls_tv_shelves_replaced')).toBeVisible();
-    await expect(page.locator('#stairWalls_tv_shelves_block')).toBeHidden();
+    await toggle(page, 'stairWalls_tvWall_shelves_on', true);
+    await toggle(page, 'stairWalls_cornerShelves_on', true);
+    expect(await wall(page, 'cornerShelves')).toEqual({ on: true, count: 3, height: 1000, spacing: 440, depth: 240, tvLength: 1200, wcLength: 1200 });
+    await expect(page.locator('#stairWalls_tvWall_shelves_on')).toBeDisabled();
+    await expect(page.locator('#stairWalls_wcWall_shelves_on')).toBeDisabled();
+    await expect(page.locator('#stairWalls_tvWall_shelves_replaced')).toBeVisible();
+    await expect(page.locator('#stairWalls_tvWall_shelves_block')).toBeHidden();
     // The WC wall's picture, where the L's arm is (0 to 1200 along it),
     // has nowhere to go beside it: left off
-    await toggle(page, 'stairWalls_wc_picture_on', true);
-    expect((await wall(page, 'wc')).picture.on).toBe(false);
-    await expect(page.locator('#stairWalls_wc_picture_blocked')).toBeVisible();
+    await toggle(page, 'stairWalls_wcWall_picture_on', true);
+    expect((await wall(page, 'wcWall')).picture.on).toBe(false);
+    await expect(page.locator('#stairWalls_wcWall_picture_blocked')).toBeVisible();
     // With the arm shorter it goes past it: 600 + 50 + 335
-    await slide(page, 'stairWalls_corner_wcLength', 600);
-    await toggle(page, 'stairWalls_wc_picture_on', true);
-    expect((await wall(page, 'wc')).picture).toEqual({ on: true, height: 1420, width: 670, tall: 930, along: 985 });
+    await slide(page, 'stairWalls_cornerShelves_wcLength', 600);
+    await toggle(page, 'stairWalls_wcWall_picture_on', true);
+    expect((await wall(page, 'wcWall')).picture).toEqual({ on: true, height: 1420, width: 670, tall: 930, along: 985 });
     // ...and then the arm can't grow back onto it
-    await slide(page, 'stairWalls_corner_wcLength', 1200);
-    expect((await wall(page, 'corner')).wcLength).toBe(600);
-    await expect(page.locator('#stairWalls_corner_blocked')).toBeVisible();
+    await slide(page, 'stairWalls_cornerShelves_wcLength', 1200);
+    expect((await wall(page, 'cornerShelves')).wcLength).toBe(600);
+    await expect(page.locator('#stairWalls_cornerShelves_blocked')).toBeVisible();
     // Off, the walls' own shelves are back
-    await toggle(page, 'stairWalls_corner_on', false);
-    await expect(page.locator('#stairWalls_tv_shelves_on')).toBeEnabled();
-    await expect(page.locator('#stairWalls_tv_shelves_block')).toBeVisible();
+    await toggle(page, 'stairWalls_cornerShelves_on', false);
+    await expect(page.locator('#stairWalls_tvWall_shelves_on')).toBeEnabled();
+    await expect(page.locator('#stairWalls_tvWall_shelves_block')).toBeVisible();
   });
 });
 
@@ -823,8 +823,8 @@ test.describe('the shelves and pictures over the stairs', () => {
 // one, which isn't made longer where it would meet them
 test.describe('the shoe boxes on the sills', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, '', 'hallway'); });
-  const shoeBox = (page, key) => setting(page, `stairWalls.shoeBoxes.${key}`);
-  const wall = (page, key) => setting(page, `stairWalls.${key}`);
+  const shoeBox = (page, key) => setting(page, `hallway.shoeBoxes.${key}`);
+  const wall = (page, key) => setting(page, `hallway.${key}`);
 
   test('are off to start, each switch showing its sliders', async ({ page }) => {
     expect(await shoeBox(page, 'left')).toEqual({ on: false, from: 0, length: 1200, width: 240, height: 370 });
@@ -864,11 +864,11 @@ test.describe('the shoe boxes on the sills', () => {
 
   test('on the TV wall, the shelves keep clear of the right one', async ({ page }) => {
     await toggle(page, 'shoeBoxes_right_on', true);                                 // 0 to 1200 along, 300 high
-    await toggle(page, 'stairWalls_tv_shelves_on', true);
-    await slide(page, 'stairWalls_tv_shelves_width', 600);                          // 880 to 1480
+    await toggle(page, 'stairWalls_tvWall_shelves_on', true);
+    await slide(page, 'stairWalls_tvWall_shelves_width', 600);                          // 880 to 1480
     // Brought down onto the box, the shelves go along past it: 1200 + 50 + 300
-    await slide(page, 'stairWalls_tv_shelves_height', 200);
-    expect((await wall(page, 'tv')).shelves).toMatchObject({ height: 200, along: 1550 });
+    await slide(page, 'stairWalls_tvWall_shelves_height', 200);
+    expect((await wall(page, 'tvWall')).shelves).toMatchObject({ height: 200, along: 1550 });
     // The box made longer would meet them: not made, saying why
     await slide(page, 'shoeBoxes_right_length', 2000);
     expect((await shoeBox(page, 'right')).length).toBe(1200);
@@ -886,13 +886,16 @@ test.describe('the shoe rack', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'hallway'); });
 
   test('it can be resized and put back', async ({ page }) => {
-    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
+    expect(await setting(page, 'pieces.shoeRack.in.hallway.on')).toBe(true);
+    expect(await setting(page, 'pieces.shoeRack.design')).toEqual({ w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
     await slide(page, 'shoeRack_d', 250);
     await slide(page, 'shoeRack_h', 900);
     await slide(page, 'shoeRack_slope', 30);
-    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 250, h: 900, bevel: true, slope: 30, shoes: true, bevelDoor: 72 });
+    expect(await setting(page, 'pieces.shoeRack.in.hallway.on')).toBe(true);
+    expect(await setting(page, 'pieces.shoeRack.design')).toEqual({ w: 460, d: 250, h: 900, bevel: true, slope: 30, shoes: true, bevelDoor: 72 });
     await page.locator('#shoeRackBlock [data-reset="sizes"]').evaluate(b => b.click());
-    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
+    expect(await setting(page, 'pieces.shoeRack.in.hallway.on')).toBe(true);
+    expect(await setting(page, 'pieces.shoeRack.design')).toEqual({ w: 460, d: 300, h: 1290, bevel: true, slope: 45, shoes: true, bevelDoor: 72 });
   });
 
   // The bevel, on to start: the well's whole width, cut where the internal
@@ -908,7 +911,8 @@ test.describe('the shoe rack', () => {
     await expect(page.locator('#shoeRack_door')).toContainText('at 80°, its front is 153 wide');
     await expect(page.locator('#shoeRack_fits')).toContainText('up to 424 long');   // 300 / cos 45°
     await page.locator('#shoeRack_bevel').uncheck();
-    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 300, h: 1290, bevel: false, slope: 45, shoes: true, bevelDoor: 80 });
+    expect(await setting(page, 'pieces.shoeRack.in.hallway.on')).toBe(true);
+    expect(await setting(page, 'pieces.shoeRack.design')).toEqual({ w: 460, d: 300, h: 1290, bevel: false, slope: 45, shoes: true, bevelDoor: 80 });
     await expect(page.locator('#shoeRack_w')).toBeEnabled();
     await expect(page.locator('#shoeRack_bevelDoor')).toBeHidden();
     await expect(page.locator('#shoeRack_door')).toContainText('opens to 65.5°');  // the door stops on its corner
@@ -918,7 +922,8 @@ test.describe('the shoe rack', () => {
     await slide(page, 'shoeRack_slope', 30);
     await expect(page.locator('#shoeRack_fits')).toContainText('up to 231 long');   // 200 / cos 30°
     await page.locator('#shoeRack_shoes').uncheck();
-    expect(await setting(page, 'shoeRack')).toEqual({ on: true, w: 460, d: 200, h: 1290, bevel: false, slope: 30, shoes: false, bevelDoor: 80 });
+    expect(await setting(page, 'pieces.shoeRack.in.hallway.on')).toBe(true);
+    expect(await setting(page, 'pieces.shoeRack.design')).toEqual({ w: 460, d: 200, h: 1290, bevel: false, slope: 30, shoes: false, bevelDoor: 80 });
   });
 });
 

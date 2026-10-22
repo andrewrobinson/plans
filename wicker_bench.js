@@ -5,10 +5,13 @@
 // 2026). Called the wicker bench to keep it apart from the living room's
 // bench along its back wall.
 //
-// living_room.js holds the settings (state.wickerBench, starting as
-// WICKER_BENCH_START); this file gives their entries in the configuration
-// (WICKER_BENCH_SCHEMA), says how it looks, draws it in each room
-// (drawWickerBench()) and makes its menu block (wickerBenchControls()).
+// The model (flat_model.js) holds the settings, as the configuration has
+// them: pieces.wickerBench, its design and its place in each room
+// (`in.hallway`), starting as WICKER_BENCH_START. This file names each as
+// its controls do ('w', 'hallway.along': settingPath() gives its path),
+// gives their entries in the configuration (WICKER_BENCH_SCHEMA), says how
+// it looks, draws it in each room (drawWickerBench()) and makes its menu
+// block (wickerBenchControls()).
 import * as THREE from 'three';
 import { MM, material, box, valueAt, makeCanvas } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
@@ -46,7 +49,9 @@ const step5 = mm => Math.round(mm / 5) * 5;        // onto the place sliders' st
 const radiatorFront = ROOM_WIDTH - OUTER.radiator.out;
 const middleWindow = OUTER.windows[1].y;
 
-export const WICKER_BENCH_START = {
+// The settings as they start, by their names in the controls
+// (WICKER_BENCH_START is them laid out as the configuration is, below)
+const AS_IT_STARTS = {
   w: BENCH.w, d: BENCH.d, h: BENCH.h, legs: BENCH.legs,
   // along: from the living room door's wall; across: from the outside wall
   // behind the stairs (the living room's y)
@@ -87,8 +92,8 @@ const ROOMS = {
 };
 const ROOM_KEYS = Object.keys(ROOMS);
 
-// The sliders, as other_room.js's: [path in state.wickerBench, label,
-// lowest, highest, step, unit, tip]
+// The sliders, as other_room.js's: [the setting's name (settingPath()),
+// label, lowest, highest, step, unit, tip]
 const SIZE_SLIDERS = [['w', 400, 2000], ['d', 250, 800], ['h', 250, 900]].map(([k, lo, hi]) => [k, SIZE_LABEL[k], lo, hi, 10, ''])
   .concat([['legs', 'Legs', 0, 300, 5, '']]);
 const placeSliders = room => [
@@ -98,17 +103,25 @@ const placeSliders = room => [
 const SLIDERS = [...SIZE_SLIDERS, ...ROOM_KEYS.flatMap(placeSliders)];
 
 const SIZE_KEYS = SIZE_SLIDERS.map(([k]) => k);
+// A setting's path in the configuration, by its name here: a size ('w') is
+// its design's, a place ('hallway.along') its place in that room
+const settingPath = name => {
+  const [room, key] = name.includes('.') ? name.split('.') : [null, name];
+  return room ? `pieces.wickerBench.in.${room}.${key}` : `pieces.wickerBench.design.${key}`;
+};
+const SETTING_NAMES = [...SLIDERS.map(([name]) => name), ...ROOM_KEYS.map(room => `${room}.on`)];
+export const WICKER_BENCH_START = {};
+for (const name of SETTING_NAMES) Config.setValueAt(WICKER_BENCH_START, settingPath(name), valueAt(AS_IT_STARTS, name));
 // The configuration's entries (kit/config_kit.js): its design, then for each
 // room whether it's there and its place, each held to its slider's range,
 // its turn to quarter turns
-function sliderEntry([path, , lo, hi, step]) {
-  const [room, key] = path.includes('.') ? path.split('.') : [null, path];
-  const at = room ? `pieces.wickerBench.in.${room}.${key}` : `pieces.wickerBench.design.${key}`;
-  return Config.number(at, `wickerBench.${path}`, lo, hi, step, { onSteps: key === 'turn' });
+function sliderEntry([name, , lo, hi, step]) {
+  const path = settingPath(name);
+  return Config.number(path, path, lo, hi, step, { onSteps: name.endsWith('.turn') });
 }
 export const WICKER_BENCH_SCHEMA = [
   ...SIZE_SLIDERS.map(sliderEntry),
-  ...ROOM_KEYS.flatMap(room => [Config.onOff(`pieces.wickerBench.in.${room}.on`, `wickerBench.${room}.on`), ...placeSliders(room).map(sliderEntry)]),
+  ...ROOM_KEYS.flatMap(room => [Config.onOff(settingPath(`${room}.on`), settingPath(`${room}.on`)), ...placeSliders(room).map(sliderEntry)]),
 ];
 
 // ---------------------------------------------------------------------------
@@ -119,13 +132,14 @@ export const WICKER_BENCH_SCHEMA = [
 // but still placed, so Looking at it aims at its spot)
 export const wickerBenches = { hallway: null, bedroom: null, livingRoom: null };
 
-export function drawWickerBench(s) {
+// `bench`: its piece of the settings, pieces.wickerBench
+export function drawWickerBench(bench) {
   for (const room of ROOM_KEYS) {
     if (wickerBenches[room]) wickerBenches[room].removeFromParent();
-    const g = wickerBench(s), [x, y] = ROOMS[room].at(s[room]);
+    const here = bench.in[room], g = wickerBench(bench.design), [x, y] = ROOMS[room].at(here);
     g.position.set(x * MM, 0, y * MM);
-    g.rotation.y = THREE.MathUtils.degToRad(-s[room].turn);
-    g.visible = s[room].on;
+    g.rotation.y = THREE.MathUtils.degToRad(-here.turn);
+    g.visible = here.on;
     ROOMS[room].group.add(g);
     wickerBenches[room] = g;
   }
@@ -223,8 +237,9 @@ function leg(x, y, high) {
 // The menu's block, built into `container`: its sizes, with a button to put
 // them back as they started, then for each room a switch and, while it's
 // on, the sliders that place it there and a button to put it back.
-// change(edits) is called with a list of [path, value]; the function
-// returned puts the controls in step with the settings `s`.
+// change(edits) is called with a list of [path, value], each path the
+// configuration's; the function returned puts the controls in step with
+// the settings `s`.
 // ---------------------------------------------------------------------------
 export function wickerBenchControls(container, change) {
   const id = path => `wickerBench_${path.replace('.', '_')}`;
@@ -234,23 +249,26 @@ export function wickerBenchControls(container, change) {
     ROOM_KEYS.map(room => `<div class="depth"><label class="switch"><input type="checkbox" id="${id(`${room}.on`)}"> ${ROOMS[room].label}</label>` +
       `<div id="${id(room)}">${placeSliders(room).map(slider(id)).join('')}${reset(room, 'Reset location')}</div></div>`).join('');
 
-  for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
-  for (const room of ROOM_KEYS) document.getElementById(id(`${room}.on`)).addEventListener('change', e => change([[`${room}.on`, e.target.checked]]));
+  // Settings changed, [name, value] pairs, as edits by their paths
+  const changeNamed = edits => change(edits.map(([name, value]) => [settingPath(name), value]));
+  for (const [name] of SLIDERS) document.getElementById(id(name)).addEventListener('input', e => changeNamed([[name, Number(e.target.value)]]));
+  for (const room of ROOM_KEYS) document.getElementById(id(`${room}.on`)).addEventListener('change', e => changeNamed([[`${room}.on`, e.target.checked]]));
   container.querySelectorAll('button[data-reset]').forEach(b => b.addEventListener('click', () => {
     const what = b.dataset.reset;
-    const paths = what === 'sizes' ? SIZE_KEYS : placeSliders(what).map(([path]) => path);
-    change(paths.map(path => [path, valueAt(WICKER_BENCH_START, path)]));
+    const names = what === 'sizes' ? SIZE_KEYS : placeSliders(what).map(([name]) => name);
+    changeNamed(names.map(name => [name, valueAt(AS_IT_STARTS, name)]));
   }));
 
   return s => {
-    for (const [path, , , , , unit] of SLIDERS) {
-      const value = valueAt(s, path);
-      document.getElementById(id(path)).value = String(value);
-      document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
+    const at = name => valueAt(s, settingPath(name));
+    for (const [name, , , , , unit] of SLIDERS) {
+      const value = at(name);
+      document.getElementById(id(name)).value = String(value);
+      document.getElementById(`${id(name)}Value`).textContent = `${value}${unit}`;
     }
     for (const room of ROOM_KEYS) {
-      document.getElementById(id(`${room}.on`)).checked = s[room].on;
-      document.getElementById(id(room)).hidden = !s[room].on;
+      document.getElementById(id(`${room}.on`)).checked = at(`${room}.on`);
+      document.getElementById(id(room)).hidden = !at(`${room}.on`);
     }
   };
 }

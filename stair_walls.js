@@ -5,8 +5,9 @@
 // high up, from the hallway floor. None bought yet, so all sliders,
 // starting at the sizes and places the user set, all off to start.
 //
-// flat_model.js holds the settings (state.stairWalls, starting as
-// STAIR_WALLS_START); this file gives their entries in the configuration
+// flat_model.js holds the settings (state.hallway, as the configuration's
+// hallway, starting as STAIR_WALLS_START: each wall by its name there,
+// wcWall, loungeWall and tvWall, and the L, cornerShelves); this file gives their entries in the configuration
 // (STAIR_WALLS_SCHEMA), keeps a wall's shelves and picture apart
 // (keepApart()), draws them (drawStairWalls()) and makes the menu block
 // (stairWallsControls()). It holds the shoe boxes on the sills' settings
@@ -31,19 +32,19 @@ const WALLS = {
   // The WC wall: the wall shared with the bathroom at the hallway's far
   // end, over the stairwell and on to the lobby. Its bottom over the well
   // is still to measure (floor.js draws it at the hallway floor's level)
-  wc: { label: 'The WC wall', where: 'At the hallway’s far end, over the stairwell: the wall shared with the bathroom.',
+  wcWall: { label: 'The WC wall', where: 'At the hallway’s far end, over the stairwell: the wall shared with the bathroom.',
     alongFrom: 'the TV wall', start: [HALLWAY.xEnd, HALLWAY.yHallOut], dir: [0, 1], out: [1, 0], length: BATHROOM.yLobby - HALLWAY.yHallOut },
   // The lounge door wall: in front of you as you take the first step
   // down, the hallway side of the living room door's wall, over the
   // winders, as far as the door's frame
-  lounge: { label: 'The lounge door wall', where: 'In front of you as you take the first step down: the hallway side of the living room door’s wall, over the winders.',
+  loungeWall: { label: 'The lounge door wall', where: 'In front of you as you take the first step down: the hallway side of the living room door’s wall, over the winders.',
     alongFrom: 'the TV wall', start: [HALLWAY.x0, HALLWAY.yHallOut], dir: [0, 1], out: [-1, 0], length: DOOR_FRAME_STARTS_AT - HALLWAY.yHallOut },
   // The TV wall (asked for, 19 Oct 2026): on the right going down the
   // stairs, the stairwell's outside wall, in line with the lounge's TV
   // wall (its back wall), from the lounge door wall to the WC wall
   // Its shelves can be as long as the wall and start lower (asked for,
   // 19 Oct 2026): ranges of their own, set below
-  tv: { label: 'The TV wall', where: 'On your right going down the stairs: the stairwell’s outside wall, in line with the lounge’s TV wall.',
+  tvWall: { label: 'The TV wall', where: 'On your right going down the stairs: the stairwell’s outside wall, in line with the lounge’s TV wall.',
     alongFrom: 'the lounge door wall', start: [HALLWAY.x0, HALLWAY.yHallOut], dir: [-1, 0], out: [0, 1], length: HALLWAY.length },
 };
 const WALL_KEYS = Object.keys(WALLS);
@@ -76,21 +77,21 @@ const pictureMat = material(0xffffff);     // a blank white picture (agreed)
 // the TV wall and the WC wall, joined in the corner where they meet,
 // replacing those walls' own shelves while they're on. Each arm's length
 // is from the corner; the rest as the TV wall's shelves start (the user's)
-const CORNER_WALLS = ['tv', 'wc'];
+const CORNER_WALLS = ['tvWall', 'wcWall'];
 const CORNER_START = { on: false, count: 3, height: 1000, spacing: 440, depth: 240, tvLength: 1200, wcLength: 1200 };
 
 const STAIR_WALLS_START = {
   shoeBoxes: SHOE_BOXES_START,
-  corner: CORNER_START,
-  wc: {
+  cornerShelves: CORNER_START,
+  wcWall: {
     shelves: { on: false, count: 2, height: 1350, width: 1200, along: 810, spacing: 440, depth: 220 },
     picture: { on: false, height: 1420, width: 670, tall: 930, along: 830 },
   },
-  lounge: {
+  loungeWall: {
     shelves: { on: false, count: 2, height: 1290, width: 1200, along: 600, spacing: 300, depth: 200 },
     picture: { on: false, height: 1220, width: 680, tall: 1000, along: 660 },
   },
-  tv: {
+  tvWall: {
     shelves: { on: false, count: 3, height: 1000, width: 1200, along: 1180, spacing: 440, depth: 240 },
     picture: { on: false, height: 1430, width: 1200, tall: 1000, along: 1160 },
   },
@@ -117,7 +118,7 @@ const SLIDERS = { shelves: SHELF_SLIDERS, picture: PICTURE_SLIDERS };
 const ITEMS = Object.keys(SLIDERS);
 // A wall's own ends for a slider, where they differ: the TV wall's shelves
 // as long as the wall, and lower
-const WALL_RANGES = { tv: { shelves: { width: [300, wallLength('tv')], height: [TV_WALL_LOWEST_SHELF, 2300] } } };
+const WALL_RANGES = { tvWall: { shelves: { width: [300, wallLength('tvWall')], height: [TV_WALL_LOWEST_SHELF, 2300] } } };
 const rangeOf = (wall, item, key) => {
   const [, , lo, hi, step] = SLIDERS[item].find(([k]) => k === key);
   const [ownLo, ownHi] = WALL_RANGES[wall]?.[item]?.[key] ?? [lo, hi ?? wallLength(wall)];
@@ -128,24 +129,24 @@ const rangeOf = (wall, item, key) => {
 const CORNER_SLIDERS = [
   ['count', 'Shelves', 1, 3, 1],
   ['height', 'Lowest shelf, above the hallway floor', TV_WALL_LOWEST_SHELF, 2300, 10],
-  ['tvLength', 'Along the TV wall, from the corner', 300, wallLength('tv'), 10],
-  ['wcLength', 'Along the WC wall, from the corner', 400, wallLength('wc'), 10],
+  ['tvLength', 'Along the TV wall, from the corner', 300, wallLength('tvWall'), 10],
+  ['wcLength', 'Along the WC wall, from the corner', 400, wallLength('wcWall'), 10],
   ['spacing', 'Spacing, shelf to shelf', 200, 500, 10],
   ['depth', 'Depth', 150, 300, 10],
 ];
 
-// The configuration's entries: hallway.<wall>Wall.<shelves|picture>.<key>,
+// The configuration's entries: hallway.<wall>.<shelves|picture>.<key>,
 // and the L's, hallway.cornerShelves.<key>
 export const STAIR_WALLS_SCHEMA = [
   ...WALL_KEYS.flatMap(wall => ITEMS.flatMap(item => [
-    Config.onOff(`hallway.${wall}Wall.${item}.on`, `stairWalls.${wall}.${item}.on`),
+    Config.onOff(`hallway.${wall}.${item}.on`, `hallway.${wall}.${item}.on`),
     ...SLIDERS[item].map(([key]) => {
       const [lo, hi, step] = rangeOf(wall, item, key);
-      return Config.number(`hallway.${wall}Wall.${item}.${key}`, `stairWalls.${wall}.${item}.${key}`, lo, hi, step);
+      return Config.number(`hallway.${wall}.${item}.${key}`, `hallway.${wall}.${item}.${key}`, lo, hi, step);
     }),
   ])),
-  Config.onOff('hallway.cornerShelves.on', 'stairWalls.corner.on'),
-  ...CORNER_SLIDERS.map(([key, , lo, hi, step]) => Config.number(`hallway.cornerShelves.${key}`, `stairWalls.corner.${key}`, lo, hi, step)),
+  Config.onOff('hallway.cornerShelves.on', 'hallway.cornerShelves.on'),
+  ...CORNER_SLIDERS.map(([key, , lo, hi, step]) => Config.number(`hallway.cornerShelves.${key}`, `hallway.cornerShelves.${key}`, lo, hi, step)),
 ];
 
 // ---------------------------------------------------------------------------
@@ -231,13 +232,13 @@ function cornerUnderCeiling(c) {
 // One of the L's arms, as shelves on its wall: on the TV wall it runs back
 // from the wall's far end, on the WC wall out from its start
 function cornerArm(wall, c) {
-  const length = wall === 'tv' ? c.tvLength : c.wcLength;
-  const along = wall === 'tv' ? wallLength('tv') - length / 2 : length / 2;
+  const length = wall === 'tvWall' ? c.tvLength : c.wcLength;
+  const along = wall === 'tvWall' ? wallLength('tvWall') - length / 2 : length / 2;
   return { on: c.on, count: c.count, height: c.height, spacing: c.spacing, depth: c.depth, width: length, along };
 }
-const cornerOn = (state, wall) => state.corner.on && CORNER_WALLS.includes(wall);
+const cornerOn = (state, wall) => state.cornerShelves.on && CORNER_WALLS.includes(wall);
 // The shelves on a wall: its own, or, while the L is on, its arm
-const shelvesOn = (state, wall) => (cornerOn(state, wall) ? cornerArm(wall, state.corner) : state[wall].shelves);
+const shelvesOn = (state, wall) => (cornerOn(state, wall) ? cornerArm(wall, state.cornerShelves) : state[wall].shelves);
 // Whether the L meets the picture on either of its walls, or a shoe box
 const cornerMeetsPicture = (state, c) => CORNER_WALLS.some(wall => overlap(shelvesSpan(cornerArm(wall, c)), pictureSpan(state[wall].picture)));
 const cornerMeetsBox = (state, c) => CORNER_WALLS.some(wall => boxSpansOn(state, wall).some(span => overlap(shelvesSpan(cornerArm(wall, c)), span)));
@@ -250,17 +251,17 @@ const cornerMeetsBox = (state, c) => CORNER_WALLS.some(wall => boxSpansOn(state,
 export function settleStairWalls(state) {
   for (const key of Object.keys(state.shoeBoxes)) state.shoeBoxes[key] = onTheSill(key, state.shoeBoxes[key]);
   state.shoeBoxes = levelled(state.shoeBoxes);
-  if (state.corner.on) state.corner = cornerUnderCeiling(state.corner);
-  if (state.corner.on) {
+  if (state.cornerShelves.on) state.cornerShelves = cornerUnderCeiling(state.cornerShelves);
+  if (state.cornerShelves.on) {
     for (const key of Object.keys(state.shoeBoxes)) {
-      if (cornerMeetsBox({ ...state, shoeBoxes: { [key]: state.shoeBoxes[key] } }, state.corner)) state.shoeBoxes[key] = { ...state.shoeBoxes[key], on: false };
+      if (cornerMeetsBox({ ...state, shoeBoxes: { [key]: state.shoeBoxes[key] } }, state.cornerShelves)) state.shoeBoxes[key] = { ...state.shoeBoxes[key], on: false };
     }
   }
   for (const wall of WALL_KEYS) {
     const { picture } = state[wall], boxes = boxSpansOn(state, wall);
     if (picture.on) state[wall] = { ...state[wall], picture: onTheWall(wall, 'picture', picture) };
     if (cornerOn(state, wall)) {
-      const kept = keepApart(wall, { shelves: cornerArm(wall, state.corner), picture: state[wall].picture }, 'picture', boxes);
+      const kept = keepApart(wall, { shelves: cornerArm(wall, state.cornerShelves), picture: state[wall].picture }, 'picture', boxes);
       state[wall] = { ...state[wall], picture: kept ? kept.picture : { ...state[wall].picture, on: false } };
     } else {
       const kept = keepApart(wall, state[wall], 'shelves', boxes);
@@ -298,13 +299,13 @@ function shelvesAlong(wall, s, a0, a1) {
 // The L: the TV wall's arm runs right into the corner, the WC wall's
 // starts behind it, a shelf's depth out, so each shelf is one joined L
 function drawCorner(c) {
-  shelvesAlong(WALLS.tv, c, wallLength('tv') - c.tvLength, wallLength('tv'));
-  shelvesAlong(WALLS.wc, c, c.depth, c.wcLength);
+  shelvesAlong(WALLS.tvWall, c, wallLength('tvWall') - c.tvLength, wallLength('tvWall'));
+  shelvesAlong(WALLS.wcWall, c, c.depth, c.wcLength);
 }
 
 export function drawStairWalls(state) {
   clearDrawing(stairWalls);
-  if (state.corner.on) drawCorner(state.corner);
+  if (state.cornerShelves.on) drawCorner(state.cornerShelves);
   for (const key of WALL_KEYS) {
     const wall = WALLS[key], { shelves: s, picture: p } = state[key];
     if (!cornerOn(state, key) && shelvesSpan(s)) shelvesAlong(wall, s, s.along - s.width / 2, s.along + s.width / 2);
@@ -320,7 +321,7 @@ export function drawStairWalls(state) {
 // ---------------------------------------------------------------------------
 // The menu's block, built into `container`: for each wall, its shelves and
 // its picture, each a switch and its sliders, then the L-shaped shelves.
-// change(edits) is called with a list of [path in state.stairWalls, value];
+// change(edits) is called with a list of [path in the hallway's settings, value];
 // an edit that would put shelves and a picture on top of one another moves
 // the one changed along the wall, clear of the other, or isn't made if it
 // can't be (the L, fixed in its corner, isn't moved). The function
@@ -347,7 +348,7 @@ export function stairWallsControls(container, change) {
     `<div class="depth"><div><b>${WALLS[wall].label}</b></div><div class="hint">${WALLS[wall].where}</div>` +
     `${itemBlock(wall, 'shelves')}${itemBlock(wall, 'picture')}</div>`).join('') +
     `<div class="depth"><div><b>L-shaped shelves</b></div><div class="hint">One set of shelves along the TV wall and the WC wall, joined in the corner where they meet. While on, it takes the place of those walls’ own shelves.</div>` +
-    `${switchAndBlock('corner', 'L-shaped shelves', CORNER_SLIDERS.map(sliderOf('corner', (key, label) => label)).join(''))}</div>`;
+    `${switchAndBlock('cornerShelves', 'L-shaped shelves', CORNER_SLIDERS.map(sliderOf('cornerShelves', (key, label) => label)).join(''))}</div>`;
 
   let shown = null;                                                    // the settings last put in the controls
   const showSliders = (prefix, sliders, now) => {
@@ -369,14 +370,14 @@ export function stairWallsControls(container, change) {
         showSliders(`${wall}.${item}`, SLIDERS[item], s[wall][item]);
       }
       if (CORNER_WALLS.includes(wall)) {                               // its own shelves out of use while the L is on
-        const replaced = s.corner.on;
+        const replaced = s.cornerShelves.on;
         el(`${wall}.shelves.on`).disabled = replaced;
         el(`${wall}.shelves.replaced`).hidden = !replaced;
         if (replaced) el(`${wall}.shelves.block`).hidden = true;
       }
     }
-    showSwitch('corner', s.corner);
-    showSliders('corner', CORNER_SLIDERS, s.corner);
+    showSwitch('cornerShelves', s.cornerShelves);
+    showSliders('cornerShelves', CORNER_SLIDERS, s.cornerShelves);
   };
   const refuse = (prefix, why) => {
     sync(shown);
@@ -396,10 +397,10 @@ export function stairWallsControls(container, change) {
   };
   // One of the L's: under the ceiling, and clear of the pictures on its walls
   const editCorner = (key, value) => {
-    const asked = cornerUnderCeiling({ ...shown.corner, [key]: value });
-    if (asked.on && cornerMeetsPicture(shown, asked)) return refuse('corner', noRoom('the L-shaped shelves beside the pictures on the TV and WC walls'));
-    if (asked.on && cornerMeetsBox(shown, asked)) return refuse('corner', noRoom('the L-shaped shelves above the shoe boxes on the sills'));
-    change(editsTo('corner', asked));
+    const asked = cornerUnderCeiling({ ...shown.cornerShelves, [key]: value });
+    if (asked.on && cornerMeetsPicture(shown, asked)) return refuse('cornerShelves', noRoom('the L-shaped shelves beside the pictures on the TV and WC walls'));
+    if (asked.on && cornerMeetsBox(shown, asked)) return refuse('cornerShelves', noRoom('the L-shaped shelves above the shoe boxes on the sills'));
+    change(editsTo('cornerShelves', asked));
   };
   for (const wall of WALL_KEYS) {
     for (const item of ITEMS) {
@@ -407,7 +408,7 @@ export function stairWallsControls(container, change) {
       for (const [key] of SLIDERS[item]) el(`${wall}.${item}.${key}`).addEventListener('input', e => edit(wall, item, key, Number(e.target.value)));
     }
   }
-  el('corner.on').addEventListener('change', e => editCorner('on', e.target.checked));
-  for (const [key] of CORNER_SLIDERS) el(`corner.${key}`).addEventListener('input', e => editCorner(key, Number(e.target.value)));
+  el('cornerShelves.on').addEventListener('change', e => editCorner('on', e.target.checked));
+  for (const [key] of CORNER_SLIDERS) el(`cornerShelves.${key}`).addEventListener('input', e => editCorner(key, Number(e.target.value)));
   return sync;
 }

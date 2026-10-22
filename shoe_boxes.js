@@ -10,7 +10,7 @@
 // box steps down at the wall's face and its top slopes to nothing at the
 // sill's far corner. None bought yet, so all sliders, both off to start.
 //
-// stair_walls.js holds the settings (state.stairWalls.shoeBoxes, starting
+// stair_walls.js holds the settings (state.hallway.shoeBoxes, starting
 // as SHOE_BOXES_START) and keeps the walls' shelves and pictures clear of
 // the boxes; this file gives their entries in the configuration
 // (SHOE_BOXES_SCHEMA), holds each box on its sill (onTheSill()), says where
@@ -75,9 +75,9 @@ const LEVEL_LABEL = 'Top level with the left box’s';
 
 // The configuration's entries: hallway.shoeBoxes.<left|right>.<key>
 export const SHOE_BOXES_SCHEMA = SILL_KEYS.flatMap(key => [
-  Config.onOff(`hallway.shoeBoxes.${key}.on`, `stairWalls.shoeBoxes.${key}.on`),
-  ...slidersFor(SILLS[key]).map(([k, , lo, hi, step]) => Config.number(`hallway.shoeBoxes.${key}.${k}`, `stairWalls.shoeBoxes.${key}.${k}`, lo, hi, step)),
-  ...(key === 'right' ? [Config.onOff('hallway.shoeBoxes.right.levelWithLeft', 'stairWalls.shoeBoxes.right.levelWithLeft')] : []),
+  Config.onOff(`hallway.shoeBoxes.${key}.on`, `hallway.shoeBoxes.${key}.on`),
+  ...slidersFor(SILLS[key]).map(([k, , lo, hi, step]) => Config.number(`hallway.shoeBoxes.${key}.${k}`, `hallway.shoeBoxes.${key}.${k}`, lo, hi, step)),
+  ...(key === 'right' ? [Config.onOff('hallway.shoeBoxes.right.levelWithLeft', 'hallway.shoeBoxes.right.levelWithLeft')] : []),
 ]);
 
 // A box held on its sill: as long as the sill at most, its near end
@@ -179,10 +179,10 @@ export function drawShoeBoxes(boxes) {
 // ---------------------------------------------------------------------------
 // The menu's block, built into `container`: for each sill, its box's
 // switch and sliders. change(edits) is called with a list of [path in
-// state.stairWalls, value]. refusal(stairWalls, key, box) says why a box
+// state.hallway, value]. refusal(hallway, key, box) says why a box
 // can't be where it's asked to be (it would meet a wall's shelves or
 // picture), or gives null, and the edit isn't made where it can't be. The
-// function returned puts the controls in step with state.stairWalls
+// function returned puts the controls in step with state.hallway
 // ---------------------------------------------------------------------------
 export function shoeBoxesControls(container, change, refusal) {
   const id = path => `shoeBoxes_${path.replace(/\./g, '_')}`;
@@ -196,7 +196,7 @@ export function shoeBoxesControls(container, change, refusal) {
       (key === 'right' ? `<label class="switch"><input type="checkbox" id="${id('right.levelWithLeft')}"> ${LEVEL_LABEL}</label>` : '') + '</div></div>';
   }).join('');
 
-  let shown = null;                                                    // state.stairWalls as last put in the controls
+  let shown = null;                                                    // state.hallway as last put in the controls
   const sync = stairWalls => {
     shown = stairWalls;
     for (const key of SILL_KEYS) {

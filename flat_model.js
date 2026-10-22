@@ -259,7 +259,7 @@ const LOUNGE_NOW = (() => {
 // The settings: everything the menus set and the address saves, in one
 // place, changed by the menus only through set() (below). Laid out as the
 // configuration is (REFACTOR_PLAN.md item 14), a room at a time: the living
-// room's and the bedroom's so far. The cupboard's sizes keep the short names the drawing code
+// room's, the bedroom's and the hallway's so far. The cupboard's sizes keep the short names the drawing code
 // and room_dimensions.md use; a function that draws reads the ones it needs
 // at its top, as `const { T, R, BOARD } = state.pieces.cornerCupboard.design;`.
 // What's worked out from the settings isn't kept here (the heights above
@@ -371,10 +371,11 @@ const state = {
   // middle window, 1 in the corner cupboard, 2 moved by hand), and each
   // thing's { x, y, turned, z } once moved by hand (set up with STORED below)
   thingsToStore: { shown: false, packing: 0, where: 0, spots: [] },   // ...shown where they are now once STORED is set up (STORED_NOW)
-  wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
-  shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
-  stairWalls: structuredClone(STAIR_WALLS_START),     // the shelves and pictures on the walls over the stairs, and the shoe boxes on the sills, none to start (stair_walls.js, shoe_boxes.js)
-  bathroomShown: true,             // the bathroom and WC drawn, or hidden to see the hallway and stairs past them
+  // The hallway: the shelves and pictures on the walls over the stairs, and
+  // the shoe boxes on the sills, none to start (stair_walls.js,
+  // shoe_boxes.js); and the bathroom and WC drawn, or hidden to see the
+  // hallway and stairs past them
+  hallway: { ...structuredClone(STAIR_WALLS_START), bathroomShown: true },
   garage: structuredClone(GARAGE_START),              // Sean, Billy, BillyChest and the rest, in the garage: where each stands (garage.js)
 };
 // A piece's place in the living room, by its key in the living room's
@@ -385,6 +386,12 @@ const LIVING_ROOM_PIECES = { bookshelf: 'bookcase', pine: 'pineCupboard' };
 // configuration is: the bedroom's furniture, where it stands and its sizes
 // (other_room.js)
 Config.mergeInto(state, structuredClone(OTHER_ROOM_START));
+// ...and the hallway's wicker bench: its sizes, and in which rooms and
+// where (wicker_bench.js)
+Config.mergeInto(state, structuredClone(WICKER_BENCH_START));
+// ...and the shoe rack at the foot of the stairs: its sizes, and whether
+// it's there (shoe_rack.js)
+Config.mergeInto(state, structuredClone(SHOE_RACK_START));
 export const inLivingRoom = key => state.pieces[LIVING_ROOM_PIECES[key] ?? key].in.livingRoom;
 
 // How far each door is open, in degrees, up to its slider's most
@@ -1826,7 +1833,7 @@ const SCHEMA = Config.withDefaults([
   ...SHOE_RACK_SCHEMA,
   ...STAIR_WALLS_SCHEMA,
   ...SHOE_BOXES_SCHEMA,
-  Config.onOff('hallway.bathroomShown', 'bathroomShown'),
+  Config.onOff('hallway.bathroomShown', 'hallway.bathroomShown'),
   ...GARAGE_SCHEMA,
   // The things to store: shown or not, which packing, and where
   Config.onOff('thingsToStore.shown', 'thingsToStore.shown'),
@@ -1890,7 +1897,7 @@ function holdSettings() {
     if (settings.T === 0 && optionOf(settings.option).needsLeft) settings.option = 7;
   }
   state.pieces.dresser.design.upperD = Math.min(state.pieces.dresser.design.upperD, state.pieces.dresser.design.baseD);
-  settleStairWalls(state.stairWalls);
+  settleStairWalls(state.hallway);
 }
 export const set = (path, value) => setAll([[path, value]]);
 // A setting's value, as the configuration has it
@@ -1993,11 +2000,11 @@ export function build(onShow = optionsOnShow()) {
   if (!same) doors.second = 0;
   drawOtherRoom(state);                                         // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard
-  drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
-  drawShoeRack(state.shoeRack);                                 // the shoe rack, downstairs
-  drawStairWalls(state.stairWalls);                             // the shelves and pictures over the stairs
-  drawShoeBoxes(state.stairWalls.shoeBoxes);                    // and the shoe boxes on the sills
-  bathroom.visible = state.bathroomShown;                       // the bathroom and WC, or not
+  drawWickerBench(state.pieces.wickerBench);                           // the wicker bench, in each room it's on in
+  drawShoeRack(state.pieces.shoeRack);                                 // the shoe rack, downstairs
+  drawStairWalls(state.hallway);                             // the shelves and pictures over the stairs
+  drawShoeBoxes(state.hallway.shoeBoxes);                    // and the shoe boxes on the sills
+  bathroom.visible = state.hallway.bathroomShown;                       // the bathroom and WC, or not
   drawGarage(state.garage, state.pieces.pineCupboard.design);           // Sean, Billy, BillyChest and the rest, in the garage
   placeStored();                                                // the cupboard they go in may have changed
   return { option, same, aboveText };

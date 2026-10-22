@@ -1350,15 +1350,15 @@ const asWords = edits => edits.map(([path, value]) => [path, wordAt(path, value)
 // The bedroom's sliders (other_room.js)
 const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomTop'), document.getElementById('otherRoomBlock'), edits => change(asWords(edits)));
 // The wicker bench's (wicker_bench.js), in state.wickerBench, as 'hallway.along'
-const syncWickerBench = wickerBenchControls(document.getElementById('wickerBenchBlock'), edits => change(roomEdits('wickerBench', edits), { look: true }));
+const syncWickerBench = wickerBenchControls(document.getElementById('wickerBenchBlock'), edits => change(asWords(edits), { look: true }));
 // The shoe rack's (shoe_rack.js), in state.shoeRack
-const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), edits => change(roomEdits('shoeRack', edits), { look: true }));
+const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), edits => change(asWords(edits), { look: true }));
 // The shelves and pictures over the stairs (stair_walls.js), in
-// state.stairWalls, as 'wc.shelves.count'
-const syncStairWalls = stairWallsControls(document.getElementById('stairWallsBlock'), edits => change(roomEdits('stairWalls', edits)));
-// The shoe boxes on the sills (shoe_boxes.js), in state.stairWalls too,
+// state.hallway, as 'wc.shelves.count'
+const syncStairWalls = stairWallsControls(document.getElementById('stairWallsBlock'), edits => change(roomEdits('hallway', edits)));
+// The shoe boxes on the sills (shoe_boxes.js), in state.hallway too,
 // as 'shoeBoxes.left.length', kept clear of the walls' shelves and pictures
-const syncShoeBoxes = shoeBoxesControls(document.getElementById('shoeBoxesBlock'), edits => change(roomEdits('stairWalls', edits)), shoeBoxRefusal);
+const syncShoeBoxes = shoeBoxesControls(document.getElementById('shoeBoxesBlock'), edits => change(roomEdits('hallway', edits)), shoeBoxRefusal);
 // The bathroom and WC shown or hidden (Hallway and stairs options), as
 // they stand in the way of seeing the hallway and stairs
 const bathroomShown = document.getElementById('bathroomShown');
@@ -1408,11 +1408,11 @@ function syncControls() {
   showSofa();
   check('islandAt', island.at);
   syncOtherRoom(state);
-  syncWickerBench(state.wickerBench);
-  syncShoeRack(state.shoeRack);
-  syncStairWalls(state.stairWalls);
-  syncShoeBoxes(state.stairWalls);
-  bathroomShown.checked = state.bathroomShown;
+  syncWickerBench(state);
+  syncShoeRack(state);
+  syncStairWalls(state.hallway);
+  syncShoeBoxes(state.hallway);
+  bathroomShown.checked = state.hallway.bathroomShown;
   syncGarage(state.garage);
 }
 

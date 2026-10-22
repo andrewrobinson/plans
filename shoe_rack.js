@@ -5,12 +5,14 @@
 // to the window and its end against the outside wall, facing the stairs,
 // so its shelves slope down towards the window.
 //
-// living_room.js holds the settings (state.shoeRack, starting as
-// SHOE_RACK_START); this file gives their entries in the configuration
+// The model (flat_model.js) holds the settings, as the configuration has
+// them: pieces.shoeRack, its design and whether it's in the hallway,
+// starting as SHOE_RACK_START. This file reads them as one rack (rackOf():
+// its design, with `on`), gives their entries in the configuration
 // (SHOE_RACK_SCHEMA), says how it looks, draws it (drawShoeRack()) and
 // makes its menu block (shoeRackControls()).
 import * as THREE from 'three';
-import { MM, material, box, slab, valueAt } from './kit/floor_kit.js';
+import { MM, material, box, slab } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { SIZE_LABEL, slider } from './kit/controls_kit.js';
 import { hallway, HALLWAY, ENTRANCE } from './floor.js';
@@ -44,7 +46,8 @@ const shoeMat = material(0x3a2f2a);                // dark brown leather (chosen
 // ---------------------------------------------------------------------------
 const FOOT_WIDTH = HALLWAY.yWellIn - HALLWAY.yWellOut;                  // the well: 900
 
-export const SHOE_RACK_START = {
+// The rack as it starts: its design, and `on`, as rackOf() gives it
+const AS_IT_STARTS = {
   on: false,                       // there or not: there's none yet (the user's, 18 Oct 2026)
   w: RACK.w, d: RACK.d, h: RACK.h,
   bevel: true,                     // its front-left corner cut away for the internal door (below)
@@ -164,16 +167,23 @@ const SIZE_KEYS = SIZE_SLIDERS.map(([k]) => k);
 // The rack's design in the configuration, in order, and which are switches
 const DESIGN_KEYS = ['w', 'd', 'h', 'bevel', 'slope', 'shoes', 'bevelDoor'];
 const SWITCHES = ['bevel', 'shoes'];
+// A setting's path in the configuration, by its key in the rack: `on` is
+// whether it's in the hallway (it always stands in the same place
+// downstairs, so its `in` has only that), the rest its design
+const settingPath = key => (key === 'on' ? 'pieces.shoeRack.in.hallway.on' : `pieces.shoeRack.design.${key}`);
+// The rack, read from its piece of the settings (pieces.shoeRack)
+export const rackOf = piece => ({ ...piece.design, on: piece.in.hallway.on });
+export const SHOE_RACK_START = {};
+for (const key of ['on', ...DESIGN_KEYS]) Config.setValueAt(SHOE_RACK_START, settingPath(key), AS_IT_STARTS[key]);
 // The configuration's entries (kit/config_kit.js): whether it's there,
-// then its design, each size held to its slider's range. It always stands
-// in the same place downstairs, so its `in` has only `on`
+// then its design, each size held to its slider's range
 const designEntry = key => {
-  const at = `pieces.shoeRack.design.${key}`, setting = `shoeRack.${key}`;
-  if (SWITCHES.includes(key)) return Config.onOff(at, setting);
+  const path = settingPath(key);
+  if (SWITCHES.includes(key)) return Config.onOff(path, path);
   const [, , lo, hi, step] = SLIDERS.find(([k]) => k === key);
-  return Config.number(at, setting, lo, hi, step);
+  return Config.number(path, path, lo, hi, step);
 };
-export const SHOE_RACK_SCHEMA = [Config.onOff('pieces.shoeRack.in.hallway.on', 'shoeRack.on'), ...DESIGN_KEYS.map(designEntry)];
+export const SHOE_RACK_SCHEMA = [Config.onOff(settingPath('on'), settingPath('on')), ...DESIGN_KEYS.map(designEntry)];
 
 // ---------------------------------------------------------------------------
 // Drawing: the rack in its own group, its back's middle at the origin, its
@@ -184,7 +194,9 @@ export const SHOE_RACK_SCHEMA = [Config.onOff('pieces.shoeRack.in.hallway.on', '
 export let shoeRack = null;
 const FACING_THE_STAIRS = 270;     // its turn, in degrees as the group turns: its back to the window
 
-export function drawShoeRack(s) {
+// `piece`: its piece of the settings, pieces.shoeRack
+export function drawShoeRack(piece) {
+  const s = rackOf(piece);
   if (shoeRack) shoeRack.removeFromParent();
   const sized = { ...s, w: widthOf(s) };
   shoeRack = rack(sized, s.bevel ? s.bevelDoor : null);
@@ -256,8 +268,8 @@ function shelfFronts(s) {
 // ---------------------------------------------------------------------------
 // The menu's block, built into `container`: its sizes, with a button to put
 // them back as they started, and the bevel. change(edits) is called with a
-// list of [key, value]; the function returned puts the controls in step
-// with the settings `s`
+// list of [path, value], each path the configuration's; the function
+// returned puts the controls in step with the settings `s`
 // ---------------------------------------------------------------------------
 export function shoeRackControls(container, change) {
   const id = key => `shoeRack_${key}`;
@@ -273,11 +285,14 @@ export function shoeRackControls(container, change) {
     `<div id="${id('bevelSlider')}">${slider(id)(BEVEL_SLIDER)}</div>` +
     `<div class="hint" id="${id('door')}"></div></div></div>`;
 
-  for (const [key] of SLIDERS) document.getElementById(id(key)).addEventListener('input', e => change([[key, Number(e.target.value)]]));
-  for (const key of ['on', ...SWITCHES]) document.getElementById(id(key)).addEventListener('change', e => change([[key, e.target.checked]]));
-  container.querySelector('button[data-reset]').addEventListener('click', () => change(SIZE_KEYS.map(key => [key, valueAt(SHOE_RACK_START, key)])));
+  // Settings changed, [key, value] pairs, as edits by their paths
+  const changeKeyed = edits => change(edits.map(([key, value]) => [settingPath(key), value]));
+  for (const [key] of SLIDERS) document.getElementById(id(key)).addEventListener('input', e => changeKeyed([[key, Number(e.target.value)]]));
+  for (const key of ['on', ...SWITCHES]) document.getElementById(id(key)).addEventListener('change', e => changeKeyed([[key, e.target.checked]]));
+  container.querySelector('button[data-reset]').addEventListener('click', () => changeKeyed(SIZE_KEYS.map(key => [key, AS_IT_STARTS[key]])));
 
-  return s => {
+  return settings => {
+    const s = rackOf(settings.pieces.shoeRack);
     document.getElementById(id('on')).checked = s.on;
     document.getElementById(id('block')).hidden = !s.on;
     const shown = { ...s, w: widthOf(s) };                             // with the bevel, the well's width
