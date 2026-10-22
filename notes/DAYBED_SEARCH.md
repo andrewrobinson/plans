@@ -147,9 +147,14 @@ bookcases and a desk top, each from a maker with a known record.
 
 - IKEA daybed (HEMNES or BRIMNES) with BILLY bookcases along the side
   and foot, fixed to the wall, and a worktop on a BILLY or legs for the
-  desk. Someone has built a daybed nook from four BILLYs on a timber base
-  ([IKEA Hackers](https://ikeahackers.net/2018/03/daybed-reading-nook-ikea-bookshelves.html)),
-  and a desk shelf in a BILLY ([IKEA Hackers](https://ikeahackers.net/2011/04/billy-desk.html)).
+  desk. Two builds show it works (read 22 Oct 2026):
+  - Jessica of House Homemade built a daybed nook from four BILLYs on
+    timber bases, with a plywood top, bracketed to the wall
+    ([her post](http://www.househomemade.us/2018/01/built-in-daybed-with-ikea-bookshelves.html),
+    [IKEA Hackers](https://ikeahackers.net/2018/03/daybed-reading-nook-ikea-bookshelves.html)).
+  - A BILLY with its middle shelf moved to about 75 cm, a melamine top
+    screwed on and two VIKA legs, as a desk nook
+    ([IKEA Hackers](https://ikeahackers.net/2011/04/billy-desk.html)).
 - Or a joiner builds it in, which gives exactly the room's sizes.
 
 ## eBay and Amazon UK (second search)
