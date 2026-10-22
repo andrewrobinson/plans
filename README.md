@@ -36,7 +36,7 @@ The notes:
 - `room_dimensions.md`: every dimension the model uses, and the configuration's and the page address's format.
 - `MEASUREMENTS_NEEDED.md`: what's measured and what's still to measure, in "Where it's got to".
 - `REFACTOR_PLAN.md`: tidying the code.
-- `room_3d_ui_guide.md`: how the page's HTML, CSS and JS fit together.
+- `CODE_MAP.md`: which file holds what, and how the page works.
 
 ## Where it's got to (16 Oct 2026)
 

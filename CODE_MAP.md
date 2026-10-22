@@ -77,6 +77,69 @@ first, then open only the file you need. Sizes are rough line counts
 | `tests/helpers.js`, `tests/addresses.js` | Shared helpers; the saved addresses |
 | `tests/configs/`, `tests/snapshots/` | Saved configurations and their snapshots (`npm run regen` rewrites them) |
 
+## How the page works
+
+**A control's change.** Every settings control calls `change(edits, { look })`
+(`page/controls.js`), each edit `[path in the configuration, value]`, as
+`change([['pieces.bench.design.height', 900]])`. It has the model's
+`setAll()` check each against its `SCHEMA` entry, then `syncControls()`
+puts every control and readout in step, `show()` rebuilds (the model's
+`rebuild(display)`: `build()`, the things to store, the doors, the
+dimensions), `redrawAround()` does the colours, menus and address, and
+with `look` the view follows. Listeners only say what changes. A slider
+uses `input` (it rebuilds as it's dragged); radios, dropdowns and switches
+use `change`. Everything is rebuilt each time: fast enough, and the
+drawing always matches `config`.
+
+**Not rebuilt.** The doors (`turnDoorsTo()`, the view's, not the
+configuration's: `doorsNow()`, `readDoors()`, `DOORS_SCHEMA`) and the
+things to store redraw only themselves. What's shown (2D or 3D, which
+view, Cupboard only, Dimensions, Door sizes) is the page's `display`
+(`page/display.js`), given to each build. Colours: `colourPicker()`, then
+`settle()` sets the shared materials' colours.
+
+**The address** is `#<configuration>~<view>`, each deflated and in base64url
+(`kit/config_kit.js`; the format in `room_dimensions.md`). `writeAddress()`
+writes it after each change, one history entry a change (a slider's drag
+being one), and Back and Forward load the configuration in it. At start
+the page reads it before building (a top-level `await`).
+
+**`window.plans`**, for the tests and the console: `export()`, `view()`,
+`load(configuration)`, `schema()`, `get()` (`config` as JSON, with the
+doors), `snapshot()` (configuration, cutting lists, dimensions,
+description, each piece's box: `tests/snapshots/`) and `viewSnapshot()`
+(the camera, frames, cut, what each piece shows: `tests/view_snapshots/`).
+The tests read settings through `get()`, not the address.
+
+**The model in Node.** `buildFlat(configuration, view)` needs no page:
+`npm run test:model` builds every saved configuration against its snapshot,
+and about 1,700 generated ones. Canvases are stood in for by
+`makeCanvas()`.
+
+**Loading.** `index.html`'s import map points `three` at jsDelivr, so
+there's no build step, but modules need a server (`npm run serve`). The
+views and named configurations load first as classic scripts
+(`window.ROOM_VIEWS`, `window.ROOM_CONFIGURATIONS`), as only the page
+needs them.
+
+### To add a slider
+
+Its `<label>`, `<span id="xValue">` and `<input id="x" type="range">` in
+a drawer's HTML; `X` in `config` under its piece's `design` or `in`, with a
+comment; an entry in `SCHEMA` (or its module's) at the same path, as
+`fromSlider(at('X'), 'x')` in `cupboardEntries()`; an `input` listener
+calling `change([[path, Number(slider.value)]])` (a cupboard's: in
+`cupboard_controls.js`'s `CUPBOARD_SLIDERS`, the bedroom's too); set in
+`syncControls()`; used in a `build()`. Then `npm run regen` and check the
+diff adds only it.
+
+### Finding things
+
+A control's code: search for its id in quotes (`'sofaW'`) or `name=bench`.
+Its look: its `#id` or `.class` in `room_3d.css`. Hiding it for some
+options: `showInMenus()`. A board in a cupboard: `board(name, { from, to }, g)`
+in the option's `build()`, listed in the cutting list when `BOARD` thick.
+
 ## Elsewhere
 
 - `demos/`: the controls and menu demos.

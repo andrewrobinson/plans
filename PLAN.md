@@ -4,7 +4,7 @@ What's next, in order. Only what's still to do is here: what's done is in
 git history (`git log`), what was agreed for a piece in its own note
 (`notes/HALLWAY_SHELVES.md`, `notes/UI_CRITIQUE.md`, `notes/VIEWS_MENU.md`, all built), the
 model in `room_dimensions.md` and the code's layout in
-`room_3d_ui_guide.md`. `REFACTOR_PLAN.md` has the code's tidying still to do.
+`CODE_MAP.md`. `REFACTOR_PLAN.md` has the code's tidying still to do.
 
 How work goes: each piece on its own branch, only the tests a change can
 break while working (`-g`), at most one `npm run test:quick` before a

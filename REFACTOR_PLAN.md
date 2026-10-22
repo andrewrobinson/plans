@@ -1,7 +1,7 @@
 # Tidying the code: what's left
 
 Only what's still to do is here. What's done is in git history;
-`room_3d_ui_guide.md` maps where everything is now, and
+`CODE_MAP.md` maps where everything is now, and
 `room_dimensions.md` describes the configuration and how it was decided.
 
 **How to work.** A branch per step, one kind of change per commit, so any
@@ -62,7 +62,8 @@ Put off: the configurations as differences from a frozen base (would take
 thinking about it.
 
 Nothing else is on a track. `notes/ui_paradigm_analysis.md`'s
-recommendations 3, 4 and 6 are on no list yet.
+recommendations 3 and 4 are done (22 Oct 2026); 6 (every piece an instance,
+as `makeCupboard()` is) is put off by the user (22 Oct 2026).
 
 As you go (CLAUDE.md): a function's numbers named and long functions split
 when they're next changed. `stairWallsControls()` and
@@ -95,6 +96,6 @@ Comments point at these by number; each is in `git log`.
 
 ## After each step
 
-- Update `room_3d_ui_guide.md` (its map and file names), and `PLAN.md`'s
+- Update `CODE_MAP.md` (its map and file names), and `PLAN.md`'s
   next steps.
 - Commit with a message in the repo's "Plans: …" style.
