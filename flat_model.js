@@ -32,6 +32,7 @@ import { ivar, ivarSizes } from './ivar.js';
 import { CHESHAM, CORNWALL, kitchenTable, tableSizes } from './tables.js';
 import { castorDesk, castorDeskSizes } from './castor_desk.js';
 import { FENRIS_A5, fenrisA5 } from './speakers.js';
+import { DESK_DAYBED, deskDaybed } from './desk_daybed.js';
 import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard,
   QUARTER_TURN, OTHER_ROOM_SCHEMA } from './other_room.js';
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
@@ -344,7 +345,7 @@ const config = {
     island: { in: { livingRoom: { at: 'room', x: 0, y: 0, turn: 0 } } },
     // In the living room in place of the bench (and what's above it), which is
     // then off whatever its own switch says: the bedroom's bookcase and pine
-    // cupboard, and Billy and BillyChest from the garage (billy.js), each moved
+    // cupboard, Billy and BillyChest from the garage (billy.js), and the daybed with a desk and bookcase, each moved
     // round the room from there ({ x, y, turn }, see BACK_WALL_PIECES, or null
     // where it starts), Billy standing or lying on its long side, its open
     // side out
@@ -352,6 +353,10 @@ const config = {
     pineCupboard: { in: { livingRoom: { on: false, move: null } } },
     billy: { in: { livingRoom: { on: true, lying: true, move: LOUNGE_NOW.billy } } },   // where it is now
     billyChest: { in: { livingRoom: { on: true, move: LOUNGE_NOW.billyChest } } },       // in the corner, as now
+    // ...and the daybed with a desk and bookcase (desk_daybed.js), out to
+    // start, its desk at the left end or the right (deskAt), as it can be
+    // put together
+    deskDaybed: { design: { deskAt: 'left' }, in: { livingRoom: { on: false, move: null } } },
     // The Ivar (ivar.js), by the first radiator, lying on its side, as it is
     // now (IVAR_HOME), and moved round the room from there, or null where it
     // starts
@@ -1496,6 +1501,12 @@ const BACK_WALL_PIECES = {
     home: (x0, w) => ({ x: x0 + w / 2, y: 0, turn: 0 }),
     homeText: () => 'against the cupboards, where the bench starts',
   },
+  deskDaybed: {
+    sizes: () => DESK_DAYBED, draw: () => deskDaybed(config.pieces.deskDaybed.design.deskAt), short: 'the daybed',
+    get name() { return `The daybed with a desk and bookcase, its desk at the ${config.pieces.deskDaybed.design.deskAt} end`; },
+    home: (x0, w) => ({ x: x0 + w / 2, y: 0, turn: 0 }),
+    homeText: () => 'against the cupboards, where the bench starts',
+  },
 };
 // Where the bookcase's clear wall ends: at the right-hand wall, or at the
 // pine cupboard while it's in the corner there, where it starts
@@ -1941,6 +1952,9 @@ const LIVING_ROOM_SCHEMA = [
   spotOrHome('pieces.billy.in.livingRoom.move'),
   Config.onOff('pieces.billyChest.in.livingRoom.on'),
   spotOrHome('pieces.billyChest.in.livingRoom.move'),
+  Config.choice('pieces.deskDaybed.design.deskAt', ['left', 'right']),
+  Config.onOff('pieces.deskDaybed.in.livingRoom.on'),
+  spotOrHome('pieces.deskDaybed.in.livingRoom.move'),
   Config.onOff('pieces.ivar.in.livingRoom.on'),
   Config.onOff('pieces.ivar.in.livingRoom.lying'),
   spotOrHome('pieces.ivar.in.livingRoom.move'),

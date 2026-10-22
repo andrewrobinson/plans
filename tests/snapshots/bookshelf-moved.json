@@ -333,6 +333,17 @@
           }
         }
       },
+      "deskDaybed": {
+        "design": {
+          "deskAt": "left"
+        },
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "move": null
+          }
+        }
+      },
       "chesham": {
         "in": {
           "livingRoom": {

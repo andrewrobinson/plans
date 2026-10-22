@@ -360,6 +360,17 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "deskDaybed": {
+            "design": {
+              "deskAt": "left"
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "move": null
+              }
+            }
+          },
           "chesham": {
             "in": {
               "livingRoom": {
@@ -1011,6 +1022,17 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "deskDaybed": {
+            "design": {
+              "deskAt": "left"
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "move": null
+              }
+            }
+          },
           "chesham": {
             "in": {
               "livingRoom": {
@@ -1615,6 +1637,17 @@ window.ROOM_CONFIGURATIONS = {
                 "wall": "breast",
                 "along": 2569,
                 "bottom": 1400
+              }
+            }
+          },
+          "deskDaybed": {
+            "design": {
+              "deskAt": "left"
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "move": null
               }
             }
           },

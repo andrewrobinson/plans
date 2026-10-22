@@ -209,6 +209,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
 
 **The living room as it is now** (the user's photos and measurements, 18 Oct 2026, `LOUNGE_NOW` in `flat_model.js`), as the page opens: no cupboard or bench yet (option 16, the bench off) and nothing on the front wall; BillyChest in the corner by the windows, its back 90 off the window wall (for the radiator's pipe) and its drawers facing the left wall, its side against the back wall; Billy lying on its long side against the back wall, 380 from BillyChest; the Drift with its back 300 off Billy (estimated), centred on it, its futon charcoal grey (estimated from the photo); the Ivar by the first radiator, as before; the island out there. In the corner by the door are Cornwall with its legs off, 1200 along the left wall from the back wall, and Chesham on its end on it, in the corner; both hidden to start (asked for, 19 Oct 2026), each brought back by its own switch. The things to store are shown, placed by hand as in the photo (estimated), all on the floor while the tables are hidden: the ladders against the left wall where Cornwall stands, the hoover at its front, the mop's bucket and a rack by Chesham, the other rack behind that one, and the tub in front. The top bar's **Stored: on/off** button shows or hides them. The bedroom has no mirror yet, the hallway no shoe rack (its `in.hallway.on`, the Shoe rack section's **In the hallway** switch), and the garage neither Billy nor the pine cupboard. The page opened until then on option 10 with the bench and the dresser, kept as the test address `designed` (`tests/configs/designed.json`).
 - **`castorDesk`**: the desk on castors, `in.livingRoom`: `on`, `at` (`byTheDoor` or `atTheTv`) and `move`, as the Ivar's.
+- **`deskDaybed`**: the daybed with a desk and bookcase: `design.deskAt` (`left` or `right`), and `in.livingRoom`: `on` and `move`, as Billy's, standing in place of the bench.
 - **`speakers`**: the Fenris A5 pair, `in.livingRoom`: `on` (`none`, `bench`, `billy` or `cupboard`) and `spacing`, the distance between their middles on the `bench` and on `billy`, each `null` for where they start there.
 - **`thingsToStore`**: `shown`, `packing` (0 to 3, as listed), `where` (`window`, `cupboard` or `byHand`) and each thing's place, `{ "x", "y", "turned", "z" }`, in the order of the table below. Their places are read, and written, only when `where` is `byHand`; otherwise they follow the packing, worked out each time, and the configuration has no `spots`.
 
@@ -507,6 +508,18 @@ A loose desk (asked for, 20 Oct 2026) in [castor_desk.js](castor_desk.js), with 
 | **At the TV** | Centred on the TV, its back 100 out from the bench (or the back wall with no bench), so you sit facing the TV with the sofa behind you | Choosing either wheels it there; its X, Y and Turn sliders move it from there (quarter turns), and Reset location takes it back |
 
 **Seated at the desk on castors** (Where) sits 350 back from its front edge, wherever it is; "the desk on castors" is in Looking at.
+
+### The daybed with a desk and bookcase
+
+A white single daybed sold at B&Q (asked for, 22 Oct 2026; the same drawing for Abrihome's and Matteo's), in [desk_daybed.js](desk_daybed.js), to try in the lounge in place of the bench or of Billy lying. It's one of the back wall's pieces, with its own switch, **Daybed with desk**: out to start; while it's on the bench is off, as with Billy, and to have it in Billy's place, switch Billy off. It starts against the back wall where the bench would start (from the left wall in the room as it is, x 0 to 2630, clear of BillyChest at 3264), and its X, Y and Turn sliders move it, as Billy's. **Desk at the right-hand end** puts it together the other way round. No mattress comes with it: a 150-thick one is drawn (chosen), and the drawers are shut.
+
+| What | Size | Notes |
+| --- | --- | --- |
+| Daybed | 2630 long × 1140 deep × 1000 high | The maker's drawing: the bed 1900 × 900, so the bookcase behind it is 240 deep |
+| Desk's end | A column of shelves 385 wide inside (421 with its boards), full height at the back; the desk top 740 high, 1130 out from the back, on a panel at the bed's foot, open at the end for your knees; a shelf under it at the back, 340 high | Drawing; the boards 18 (estimated) |
+| Bookcase | Behind the bed, its shelves' tops at 350 (a ledge just above the mattress), 520 and 785, and its top at 1000; upright boards in its top two rows | Heights from the drawing's 15, 24.5 and 20 spaces; the uprights' places estimated |
+| End unit | 309 wide (what's left of the length), the full depth and height; niches 215 high at its top, open to the bed | Drawing; its width worked out |
+| Under the bed | Two drawers, 885 × 490 × 170, on castors 20 off the floor, under a 100-high front rail; pine slats | Drawing; the slats estimated |
 
 ### The speakers
 

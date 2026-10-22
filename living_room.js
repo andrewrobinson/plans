@@ -693,10 +693,13 @@ const roundedSpot = ({ x, y, turn }) => ({ x: Math.round(x), y: Math.round(y), t
 const backWallSwitches = {};
 // Each one's place in the living room in the configuration, by its key
 const BACK_WALL_PLACES = { bookshelf: 'pieces.bookcase.in.livingRoom', pine: 'pieces.pineCupboard.in.livingRoom', billy: 'pieces.billy.in.livingRoom',
-  billyChest: 'pieces.billyChest.in.livingRoom' };
+  billyChest: 'pieces.billyChest.in.livingRoom', deskDaybed: 'pieces.deskDaybed.in.livingRoom' };
 // Billy can also lie on its long side there
 const billyLying = document.getElementById('billyLying');
 billyLying.addEventListener('change', () => change([[`${BACK_WALL_PLACES.billy}.lying`, billyLying.checked]], { look: true }));
+// ...and the daybed's desk can be at its right-hand end
+const deskDaybedRight = document.getElementById('deskDaybedRight');
+deskDaybedRight.addEventListener('change', () => change([['pieces.deskDaybed.design.deskAt', deskDaybedRight.checked ? 'right' : 'left']], { look: true }));
 for (const key of BACK_WALL_KEYS) {
   const place = BACK_WALL_PLACES[key];
   const onSwitch = backWallSwitches[key] = document.getElementById(`${key}On`);
@@ -1409,6 +1412,7 @@ function syncControls() {
   benchSwitch.disabled = onBackWall().length > 0;
   for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = inLivingRoom(key).on;
   billyLying.checked = config.pieces.billy.in.livingRoom.lying;
+  deskDaybedRight.checked = config.pieces.deskDaybed.design.deskAt === 'right';
   showBookshelfSizes();
   check('bench', BENCH);
   check('above', above);
