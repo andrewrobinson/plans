@@ -169,8 +169,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
 
 ```json
 {
-  "version": 1,
-  "doors": { "room": 90, "tall": 0, "second": 0, "bedroom": 90, "flat": 0, "outside": 0, "bedroomCupboardTall": 0, "bedroomCupboardSecond": 0, "desk": "foldedAway", "bedroomCupboardDesk": "foldedAway", "garage": "hidden" },
+  "version": 2,
   "colours": { "floor": 0, "cupboard": 4, "wall": 0, "woodwork": 0, "dresser": 0, "carpet": 0, "bedroomCupboard": 0, "shelves": 0 },
   "livingRoom": { "frontWall": "dresser" },
   "pieces": {
@@ -195,8 +194,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
 }
 ```
 
-- **`version`**: 1. It goes up only when a setting changes its path or meaning (not when one is added). A configuration of another version isn't read: the page says so in the console and starts as it is.
-- **`doors`**: how far each door is open, in degrees (the door sliders above): the room door, the left-wall cupboard's tall door, the option's other door or doors, the bedroom's, downstairs the flat's own door and the lobby's outside door, and the bedroom cupboard's tall door and other door or doors; each cupboard's fold-down desk, `desk` and `bedroomCupboardDesk`, as words, `foldedAway` or `down`; and `garage`, the garage door: `hidden` (not drawn, to start), `open` or `closed`.
+- **`version`**: 2. It goes up only when a setting changes its path or meaning (not when one is added): 2 since the doors went into the view (22 Oct 2026). Version 1 had them as `doors`, and is still read, its doors as the view's. A configuration of any other version isn't read: the page says so in the console and starts as it is.
 - **`colours`**: a code for each colour box. 0 is the default (the room as it is now); 1 to 13 are the room's finishes, the named cupboard colours and the carpet's (see "The room's finishes"); four-figure codes are RAL colours. `shelves` is the shelf colour, 0 to 3 as listed in the table above.
 - **`livingRoom.frontWall`**: what's on the front wall between the sink and the desk: `dresser`, `larder`, `none` or `bookshelf`.
 - **`pieces`**: each piece once, with its **`design`** (its sizes and choices) and **`in`**: for each room it can be in, whether it's there (`on`) and where, in that room's own mm, as its sliders give it: `x` and `y` in the living room and the garage, `u` and `v` in the bedroom, `along` and `across` in the hallway, and `turn`, in quarter turns. A piece that only ever stands in one place has no `in`. A `move` of `null` is where the piece starts (against the back wall, or facing the TV), else `{ "x", "y", "turn" }`.
@@ -219,10 +217,11 @@ The view:
 
 ```json
 { "version": 1, "room": "livingRoom", "view": "birdseye", "camera": null, "eye": "sit-tall",
-  "dimensions": true, "doorSizes": true, "cupboardOnly": false, "seeThrough": false }
+  "dimensions": true, "doorSizes": true, "cupboardOnly": false, "seeThrough": false,
+  "doors": { "room": 90, "tall": 0, "second": 0, "bedroom": 90, "flat": 0, "outside": 0, "bedroomCupboardTall": 0, "bedroomCupboardSecond": 0, "desk": "foldedAway", "bedroomCupboardDesk": "foldedAway", "garage": "hidden" } }
 ```
 
-`room` is the room chosen: `livingRoom`, `hallway`, `bedroom`, `downstairs` or `garage`. `view` is a listed view's id (as `desk`, `plan` or `look:desk:tv`); for anywhere else (moved by hand, or a view saved on a device) it's `null`, and `camera` is `{ "kind", "position", "target", "fov" }`: `cam` (orbiting), `walk` (as a person) or `seat` (in the chair), the camera's place and aim in mm, in the scene's axes (x, height, y), and its angle across in degrees. 2D views keep their id only, not any panning or zooming. `eye` is the eye height. Then the Dimensions, Door sizes, Cupboard only and See-through switches, so a link shows them as they were.
+`room` is the room chosen: `livingRoom`, `hallway`, `bedroom`, `downstairs` or `garage`. `view` is a listed view's id (as `desk`, `plan` or `look:desk:tv`); for anywhere else (moved by hand, or a view saved on a device) it's `null`, and `camera` is `{ "kind", "position", "target", "fov" }`: `cam` (orbiting), `walk` (as a person) or `seat` (in the chair), the camera's place and aim in mm, in the scene's axes (x, height, y), and its angle across in degrees. 2D views keep their id only, not any panning or zooming. `eye` is the eye height. Then the Dimensions, Door sizes, Cupboard only and See-through switches, so a link shows them as they were. Last, **`doors`**: how far each door is open, in degrees (the door sliders above): the room door, the left-wall cupboard's tall door, the option's other door or doors, the bedroom's, downstairs the flat's own door and the lobby's outside door, and the bedroom cupboard's tall door and other door or doors; each cupboard's fold-down desk, `desk` and `bedroomCupboardDesk`, as words, `foldedAway` or `down`; and `garage`, the garage door: `hidden` (not drawn, to start), `open` or `closed`. They're the view's, not the configuration's (`REFACTOR_PLAN.md` item 12, decided 17 Oct 2026 in `ui_paradigm_analysis.md`, option C): a door's angle changes nothing that's made, so it's how you're looking, as the camera is. So Packing and walking in, which turn doors, leave the configuration as it was, a configuration chosen keeps the doors as they are, and the doors stay where a view left them when you go to another. Saved views and looks don't keep them (decided 22 Oct 2026).
 
 ### How the configuration was decided (16 Oct 2026)
 

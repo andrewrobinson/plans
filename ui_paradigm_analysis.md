@@ -5,10 +5,10 @@ configuration, the snapshot, the view, the address) and 6d's (the corner
 cupboard's module), against the usual UI patterns. Written 17 Oct 2026,
 during 6d; line numbers are as of commit `dd0ac8b`.
 
-**Where it stands (21 Oct 2026):** recommendation 1's first half
-(`set(path, value)`) is done; 1's second half, 2 and 5 are
-`REFACTOR_PLAN.md`'s items 15, 12 and 13 (`state`'s track, still to
-decide); 3, 4 and 6 are on no list yet.
+**Where it stands (22 Oct 2026):** recommendation 1's first half
+(`set(path, value)`) is done, and 2 (the doors in the view, option C,
+`REFACTOR_PLAN.md` item 12); 5 is item 13 and 1's second half item 15
+(`state`'s track); 3, 4 and 6 are on no list yet.
 
 In short: the split is sound and in line with well-known patterns. It still
 blurs in four places, most already on `REFACTOR_PLAN.md`'s list.

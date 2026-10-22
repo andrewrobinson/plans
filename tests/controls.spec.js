@@ -549,14 +549,14 @@ test.describe('the garage', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'garage'); });
 
   // Its door: not shown to start, then open (a canopy, its bottom 1 m out)
-  // or closed, in the configuration's doors, and back
+  // or closed, in the view's doors, and back
   test('the garage door: not shown, open or closed', async ({ page }) => {
     const before = await settledHash(page);
     await expect(page.locator('input[name=garageDoor][value="hidden"]')).toBeChecked();
     for (const state of ['open', 'closed', 'hidden']) {
       await page.check(`input[name=garageDoor][value="${state}"]`);
-      expect(await setting(page, 'garage.door')).toBe(state);
-      await expect.poll(async () => readAddress(await hash(page)).configuration.doors.garage).toBe(state);   // in the link too
+      expect(await setting(page, 'doors.garage')).toBe(state);
+      await expect.poll(async () => readAddress(await hash(page)).view.doors.garage).toBe(state);   // in the link too
     }
     await expect.poll(() => hash(page)).toBe(before);
   });

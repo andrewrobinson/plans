@@ -17,7 +17,7 @@ import { pack, unpack, valueAt, setValueAt } from '../../kit/config_kit.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT } from '../../floor.js';
 
 const PAGE = 'https://andrewrobinson.github.io/plans/index.html';
-const DEFAULT = structuredClone(buildFlat({ version: 1 }).configuration);
+const DEFAULT = structuredClone(buildFlat({ version: 2 }).configuration);
 const OPTION = 'pieces.cornerCupboard.design.option';
 const BOARD = 'pieces.cornerCupboard.design.BOARD';
 const OPTION_NUMBERS = OPTIONS.map(o => o.no);

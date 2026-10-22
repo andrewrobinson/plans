@@ -121,7 +121,7 @@ group the page adds to its scene. The corner cupboard itself is
 | 1–39 | What the file is for, `import`s | three.js, the kit's drawing helpers, the configuration kit, `corner_cupboard.js`, the data modules (`dressers.js`, `larders.js`, `sofas.js`), the other rooms' modules and `floor.js` |
 | 40–59 | **`world`** and **`setDisplay()`** | What the page shows that the drawing follows: 2D or not, which view and room, Cupboard only, the Dimensions and Door sizes buttons (the hallway's hidden in the wall views) |
 | 61–196 | Materials and the fixed room's fittings | The cupboard's materials (from `CUPBOARD_MATERIALS`), the bench's; `KITCHEN`, the front wall's faces, desk, chair, island, room door |
-| 202–276 | **`state`, the settings** | One object holding every setting: the corner cupboard's in `cornerCupboard` (`option`, `T`, `R`, `F`, `BOARD`, `LEG`, …), then `BENCH`, `above`, `colours`, `sofa`, `stored`, `doors` … The drawing code reads it; the menus change it only through `set()` |
+| 202–276 | **`state`, the settings** | One object holding every setting: the corner cupboard's in `cornerCupboard` (`option`, `T`, `R`, `F`, `BOARD`, `LEG`, …), then `BENCH`, `above`, `colours`, `sofa`, `stored` … (the doors' angles are the view's, `doors` beside it, `DOORS_SCHEMA`). The drawing code reads it; the menus change it only through `set()` |
 | 277–315 | The corner cupboards, as the rooms have them | `cupboardSettings(piece)` (a copy of `state[piece]`, as `state.cornerCupboard`), `LIVING_ROOM_PLACE`, `BEDROOM_PLACE` and `BEDROOM_MATERIALS`, `storedThings()` (for the living room's shelves to be cut round) |
 | 316–809 | Bench, TV and shelves; colours; the base cupboards, dresser, larders, island, sofa, front wall | `benchWall()`, `setRal()`, `baseCupboards()`, `placeDresser()`, `placeIsland()`, `sofa()`, `frontWall()` |
 | 810–948 | 2D dimensions | `updateDims()` (following `setDisplay()`), the other rooms' plans, `cupboardPart()`, `doorDims()`, `cuttingList()` (the instance's, for the page) |
@@ -433,7 +433,7 @@ Option 10 alone shows `sideShelfBlock` in it, the Show side bookshelf switch
 (`DESK`), with its width, depth and height sliders in `deskDetails` when it's
 on. Whether the desk is folded away or down is two radios in the Doors
 section (`deskDoorBlock`, shown while there's a desk), as words in the
-configuration's `doors.desk` (`DESK_SHOWN` in `flat_model.js`).
+view's `doors.desk` (`DESK_SHOWN` in `flat_model.js`).
 
 ### Dropdowns are filled by JS
 
@@ -573,10 +573,12 @@ fast enough for a model of this size, and it means the 3D model always matches
 ### The faster path for doors
 
 The door sliders don't rebuild. Each sets its angle through
-`turnDoorsTo({ name: degrees })`, which `set()`s `doors.<name>` (they're
-in the configuration, so a saved configuration keeps them) and calls `update()`, which
-only rotates the existing hinge objects and puts the sliders in step.
-Packing and walking in turn them the same way:
+`turnDoorsTo({ name: degrees })`, which gives it to the model's
+`setDoors()` (the doors are the view's, not the configuration's: the
+view's `doors`, read by `readDoors()` and written by `doorsNow()`,
+checked by `DOORS_SCHEMA`) and calls `update()`, which only rotates the
+existing hinge objects, draws the garage door, and puts the door controls
+in step. Packing and walking in turn them the same way:
 
 ```js
 roomHinge.rotation.y = turn(doors.room);
@@ -634,10 +636,11 @@ For the tests and the browser console (REFACTOR_PLAN.md, steps 6a and
 - `plans.view()`: the view, as the address holds it.
 - `plans.load(configuration)`: shows a configuration, everything it leaves
   out as the page starts, keeping the view.
-- `plans.schema()`: the configuration's entries, bar their functions.
-- `plans.get()`: the settings, `state` as JSON, with the doors' angles as
-  `doors` (`room`, `tall`, `second`, `bedroom`, `flat`, `outside`, in
-  degrees). The tests read settings through it (`setting(page, 'garage.sean')`
+- `plans.schema()`: the configuration's entries, then the view's doors'
+  (`DOORS_SCHEMA`), bar their functions.
+- `plans.get()`: the settings, `state` as JSON, with the view's doors'
+  angles as `doors` (`room`, `tall`, `second`, `bedroom`, `flat`,
+  `outside` and so on, in degrees; the garage door's as its word). The tests read settings through it (`setting(page, 'garage.sean')`
   in `tests/helpers.js`), not from the address, so a new address format
   leaves them alone.
 - `plans.snapshot()`: what the page makes of them: `configuration` (as

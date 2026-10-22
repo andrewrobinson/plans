@@ -174,7 +174,6 @@ const MOST_OFF_WALL = 200;
 // out; Billy and the pine cupboard out too since 18 Oct, as they are in the
 // living room and the bedroom
 export const GARAGE_START = {
-  door: 'hidden',
   sean: { on: true, x: 1255, y: 2865, turn: 180 },
   billy: { on: false, x: 0, y: 1920, turn: 270, lying: false },   // out, as now (18 Oct 2026): in the living room
   billyChest: { on: false, x: 0, y: 1100, turn: 270 },
@@ -218,8 +217,7 @@ function pieceEntries(piece) {
     }),
   ];
 }
-// ...and the door, with the flat's doors
-export const GARAGE_SCHEMA = [Config.choice('doors.garage', 'garage.door', Object.keys(GARAGE_DOOR)), ...PIECE_KEYS.flatMap(pieceEntries)];
+export const GARAGE_SCHEMA = PIECE_KEYS.flatMap(pieceEntries);
 
 // ---------------------------------------------------------------------------
 // Drawing: each piece in its own group, its back's middle at the origin,
@@ -239,9 +237,10 @@ swingMat.depthWrite = false;
 // The door: closed, filling the doorway just inside the end wall; or open,
 // level on its rail just under the opening's head, its bottom edge as far
 // out in front as it ever swings (door.swingOut), the rest inside, with
-// that ground in front marked faintly; or not drawn
+// that ground in front marked faintly; or not drawn. It's the view's, with
+// the flat's doors (flat_model.js's turnDoors())
 const SWING_MARK = 2;                                  // the mark's height off the ground, so it isn't lost in it
-function drawGarageDoor(state) {
+export function drawGarageDoor(state) {
   doorGroup.clear();
   const { length: L, width: W, door } = GARAGE;
   const d0 = (W - door.width) / 2, d1 = d0 + door.width;
@@ -258,7 +257,6 @@ export const garagePieces = Object.fromEntries(PIECE_KEYS.map(piece => [piece, n
 
 // `pineSizes`: the pine cupboard's sizes as set in Bedroom options
 export function drawGarage(s, pineSizes) {
-  drawGarageDoor(s.door);
   clearDrawing(furniture);
   for (const piece of PIECE_KEYS) {
     const sizes = PIECES[piece].bedroomSizes ? sizesOf(pineSizes) : {};
@@ -375,10 +373,11 @@ function openBox(w, d, h, mat, g) {
 // Garage options' block, built into `container`, laid out as Bedroom
 // options: for each piece its name and sizes, its In the garage switch, and
 // while it's in, the sliders that place it and a button to put it back. change(edits) is
-// called with a list of [path, value]; the function returned puts the
-// controls in step with the settings `s`
+// called with a list of [path, value], and turnDoor(word) with the door's
+// (the view's: the page puts its radios in step); the function returned
+// puts the other controls in step with the settings `s`
 // ---------------------------------------------------------------------------
-export function garageControls(container, change) {
+export function garageControls(container, change, turnDoor) {
   const id = path => `garage_${path.replace('.', '_')}`;
   const doorRadios = () => container.querySelectorAll('input[name=garageDoor]');
   container.innerHTML = `<div id="garageDoorBlock" class="depth">Garage door:` +
@@ -395,7 +394,7 @@ export function garageControls(container, change) {
       `<div class="row"><button data-reset="${piece}">Reset location</button></div></div></div>`;
   }).join('');
 
-  doorRadios().forEach(r => r.addEventListener('change', () => change([['door', r.value]])));
+  doorRadios().forEach(r => r.addEventListener('change', () => turnDoor(r.value)));
   for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
   for (const piece of PIECE_KEYS) document.getElementById(id(`${piece}.on`)).addEventListener('change', e => change([[`${piece}.on`, e.target.checked]]));
   for (const piece of LYING_KEYS) document.getElementById(id(`${piece}.lying`)).addEventListener('change', e => change([[`${piece}.lying`, e.target.checked]]));
@@ -404,7 +403,6 @@ export function garageControls(container, change) {
   }));
 
   return s => {
-    doorRadios().forEach(r => { r.checked = r.value === s.door; });
     for (const [path, , , , , unit] of SLIDERS) {
       const value = valueAt(s, path);
       document.getElementById(id(path)).value = String(value);

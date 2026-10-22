@@ -19,20 +19,7 @@ window.ROOM_CONFIGURATIONS = {
     // measurements: the page's defaults that day
     oct18: { label: '18 October 2026', title: 'The rooms as they are on 18 October 2026: the lounge with no cupboard yet, the tables in the corner by the door',
       configuration: {
-        "version": 1,
-        "doors": {
-          "room": 90,
-          "tall": 0,
-          "second": 0,
-          "bedroom": 90,
-          "flat": 0,
-          "outside": 0,
-          "bedroomCupboardTall": 0,
-          "bedroomCupboardSecond": 0,
-          "desk": "foldedAway",
-          "bedroomCupboardDesk": "foldedAway",
-          "garage": "hidden"
-        },
+        "version": 2,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -676,20 +663,7 @@ window.ROOM_CONFIGURATIONS = {
     // the first window's radiator is where it would go
     option12: { label: 'Option 12', title: 'The lounge like the photo: a 900 × 1150 corner cupboard, as high as the doorway, holding the things to store, a fold-down desk on its side, lit shelves beside it, the bench, the TV and one shelf',
       configuration: {
-        "version": 1,
-        "doors": {
-          "room": 90,
-          "tall": 0,
-          "second": 0,
-          "bedroom": 90,
-          "flat": 0,
-          "outside": 0,
-          "bedroomCupboardTall": 0,
-          "bedroomCupboardSecond": 0,
-          "desk": "down",
-          "bedroomCupboardDesk": "foldedAway",
-          "garage": "hidden"
-        },
+        "version": 2,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -1329,20 +1303,7 @@ window.ROOM_CONFIGURATIONS = {
     // cupboard, bar the yellow tub, left in the lounge by the corner cupboard
     pretty: { label: 'Pretty', title: 'Option 12 with a 327-deep, 1880-high corner cupboard and the desk on castors parked by the door; the bedroom with the new cupboard as option 8, holding the things to store',
       configuration: {
-        "version": 1,
-        "doors": {
-          "room": 90,
-          "tall": 0,
-          "second": 0,
-          "bedroom": 90,
-          "flat": 0,
-          "outside": 0,
-          "bedroomCupboardTall": 0,
-          "bedroomCupboardSecond": 0,
-          "desk": "foldedAway",
-          "bedroomCupboardDesk": "foldedAway",
-          "garage": "hidden"
-        },
+        "version": 2,
         "colours": {
           "floor": 0,
           "cupboard": 4,

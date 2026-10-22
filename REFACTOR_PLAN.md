@@ -21,16 +21,14 @@ through the model; check the diff holds only the new setting.
 
 Done, and so gone from here (in `git log`): the tests (items 1 to 5), the
 small, standalone items (6 to 10), all on main by 21 Oct 2026; item 11, the
-option held as its number (22 Oct 2026). Each step
+option held as its number, and 12, the door angles in the view (22 Oct
+2026). Each step
 keeps what the page does (no snapshot or screenshot changes) unless it
 says otherwise. Before starting, decide with the user how far to go
 (decided 22 Oct 2026: 11 to 13, then stop and decide on 14 to 16).
 
 **`state`'s track**
 
-12. **The door angles into the view** (decided 17 Oct 2026,
-    `ui_paradigm_analysis.md`): out of the configuration (`doors.*`), so
-    Packing and walking in no longer change the flat.
 13. **What's worked out leaves `state`** (`ui_paradigm_analysis.md`,
     recommendation 5): `settle()` and `placeStored()` keep worked-out values
     (the TV's size, where the dresser stands, the things to store's places)

@@ -45,7 +45,7 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, state, storedGroup, storedMats,
-  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES } from './flat_model.js';
+  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE, floor, otherRoom, hallway, entrance, bathroom } from './floor.js';
 
@@ -295,7 +295,7 @@ for (const [name, [min, max, step]] of Object.entries(BEDROOM_CUPBOARD_RANGES)) 
   Object.assign(document.getElementById(idIn(BEDROOM_CUPBOARD)(name)), { min, max, step });
 }
 
-// The door sliders, by their names in the configuration's doors. The entrance's two
+// The door sliders, by their names in the view's doors. The entrance's two
 // doors (floor.js's ENTRANCE) are the flat's own, into the stairs' foot,
 // and the shared lobby's outside door; the bedroom cupboard's are copies of
 // the lounge cupboard's
@@ -311,12 +311,14 @@ const DOOR_SLIDERS = {
 };
 // Each cupboard's fold-down desk, folded away or down (its two radios, by
 // their name, each worth its word in the configuration: flat_model.js's
-// DESK_SHOWN), by its name in the configuration's doors
+// DESK_SHOWN), by its name in the view's doors
 const DESK_RADIOS = { desk: 'deskShown', bedroomCupboardDesk: idIn(BEDROOM_CUPBOARD)('deskShown') };
 const deskRadios = name => [...document.getElementsByName(DESK_RADIOS[name])];
-// The doors turned to their angles in the configuration's doors (the
-// model's turnDoors()), and their sliders put in step with them
-const doorAt = name => `doors.${name}`;
+// ...and the garage door's, not shown, open or closed (Garage options,
+// garage.js's garageControls())
+const garageDoorRadios = () => [...document.getElementsByName('garageDoor')];
+// The doors turned to their angles in the view's doors (the model's
+// turnDoors()), and their controls put in step with them
 function update() {
   turnDoors();
   if (dims) updateDims();                                       // the doors' labels go with them
@@ -325,17 +327,20 @@ function update() {
 // The cut and the doors' controls, with the doors as turned
 function showDoors() {
   applyCut();                                                   // the doors may have moved across a cut
+  const shown = doorsNow();
   for (const [name, slider] of Object.entries(DOOR_SLIDERS)) {
-    const angle = get(doorAt(name));
-    slider.value = String(angle);
-    document.getElementById(`${slider.id}Value`).textContent = `${angle}°`;
+    slider.value = String(shown[name]);
+    document.getElementById(`${slider.id}Value`).textContent = `${shown[name]}°`;
   }
-  for (const name of Object.keys(DESK_RADIOS)) for (const radio of deskRadios(name)) radio.checked = radio.value === get(doorAt(name));
+  for (const name of Object.keys(DESK_RADIOS)) for (const radio of deskRadios(name)) radio.checked = radio.value === shown[name];
+  for (const radio of garageDoorRadios()) radio.checked = radio.value === shown.garage;
 }
-// Doors turned, { name: degrees } (a fold-down desk's, its word): set() like any setting, but nothing's
-// built again, as a door's angle changes nothing that's made (the fast path)
+// Doors turned, { name: degrees } (a fold-down desk's or the garage
+// door's, its word): the view's, so nothing's built again, as a door's
+// angle changes nothing that's made (the fast path). The address follows
+// from the controls (below, with the view kit) or the view that turned them
 function turnDoorsTo(angles) {
-  setAll(Object.entries(angles).map(([name, angle]) => [doorAt(name), angle]));
+  setDoors(Object.entries(angles));
   update();
 }
 
@@ -432,8 +437,8 @@ window.addEventListener('keydown', e => {
 // value] pairs, each value the configuration's), then every control is put
 // in step with them (syncControls()), the option is built again round them
 // (show()), and, with look, the view follows anything looked at that's
-// moved. (The things to store and the doors change theirs with set() too,
-// but redraw only themselves.)
+// moved. (The things to store change theirs with set() too, but redraw
+// only themselves; the doors are the view's, turnDoorsTo().)
 function change(edits, { look = false } = {}) {
   const onShow = optionsOnShow();                              // before they change
   setAll(edits);
@@ -1118,6 +1123,7 @@ const viewKit = ViewKit.create({
 });
 // The doors' angles into the address a moment after they stop, as the view's
 Object.values(DOOR_SLIDERS).forEach(d => d.addEventListener('input', viewKit.writeView));
+for (const radio of Object.keys(DESK_RADIOS).flatMap(deskRadios)) radio.addEventListener('change', viewKit.writeView);
 // The screen greyed while the page loads (index.html's #loading): shown as
 // it starts, and hidden once the room's first drawn (startLoop(), at the
 // end); shown again as a configuration's chosen, which loads the page
@@ -1168,17 +1174,22 @@ doorDimsButton.addEventListener('click', () => {
 });
 
 // The view, as JSON: the view kit's (the room, the view or the camera, the
-// eye height), then the switches for what's shown, so a link shows them
-// too. Reading one sets the switches it has, then the view
+// eye height), then the switches for what's shown and the doors, so a link
+// shows them too. Reading one sets the switches and doors it has, then the
+// view
 const VIEW_VERSION = 1;            // up only when a field changes its meaning
 const viewNow = () => ({ version: VIEW_VERSION, ...viewKit.view(),
-  dimensions: showDims, doorSizes: showDoorDims, cupboardOnly, seeThrough: xray });
+  dimensions: showDims, doorSizes: showDoorDims, cupboardOnly, seeThrough: xray, doors: doorsNow() });
 function readDisplay(view) {
   const given = key => typeof view?.[key] === 'boolean';
   if (given('dimensions')) setDims(view.dimensions);
   if (given('doorSizes')) setDoorDims(view.doorSizes);
   if (given('cupboardOnly')) setCupboardOnly(view.cupboardOnly);
   if (given('seeThrough')) setSeeThrough(view.seeThrough);
+  if (view?.doors && typeof view.doors === 'object') {
+    readDoors(view.doors);
+    update();
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1348,7 +1359,10 @@ const syncShoeBoxes = shoeBoxesControls(document.getElementById('shoeBoxesBlock'
 const bathroomShown = document.getElementById('bathroomShown');
 bathroomShown.addEventListener('change', () => change([['hallway.bathroomShown', bathroomShown.checked]]));
 // The garage's (garage.js), in state.garage, as 'sean.x'
-const syncGarage = garageControls(document.getElementById('garageBlock'), edits => change(roomEdits('garage', edits), { look: true }));
+const syncGarage = garageControls(document.getElementById('garageBlock'), edits => change(roomEdits('garage', edits), { look: true }), word => {
+  turnDoorsTo({ garage: word });
+  viewKit.writeView();                                          // the view's, as the door sliders'
+});
 // The drawers' sections open or closed as they were left here, those the
 // rooms' modules build too (Bedroom options' Bed, Extras and Recess
 // cupboards), so after them
@@ -1400,18 +1414,19 @@ function syncControls() {
 // window.plans: the settings and what's made of them, for the tests and the
 // browser console (REFACTOR_PLAN.md, steps 6a and 6b). Only load() changes
 // the page.
-//   get()       the settings: state, as JSON, the doors' angles with them
+//   get()       the settings: state, as JSON, with the view's doors' angles
 //   export()    the settings as a configuration (SCHEMA, above)
 //   load(json)  shows a configuration, keeping the view
 //   view()      the view, as JSON
-//   schema()    the configuration's entries, bar their functions
+//   schema()    the configuration's entries, then the view's doors', bar
+//               their functions
 //   snapshot()  the configuration, each corner cupboard's cutting list, the
 //               dimension figures on show, the description and each piece's
 //               box, which the
 //               tests save beside each address (tests/snapshots/)
 // ---------------------------------------------------------------------------
 function settingsNow() {
-  return JSON.parse(JSON.stringify(state));
+  return { ...JSON.parse(JSON.stringify(state)), doors: doorAngles() };
 }
 // Show a configuration in place of the settings on show: everything it
 // leaves out as the page starts. The view stays, bar following what moves
@@ -1472,7 +1487,7 @@ window.plans = {
   export: configurationNow,
   load: loadConfiguration,
   view: viewNow,
-  schema: () => SCHEMA.map(({ read, write, isColour, also, ...entry }) => structuredClone(entry)),
+  schema: () => [...SCHEMA, ...DOORS_SCHEMA].map(({ read, write, isColour, also, ...entry }) => structuredClone(entry)),
   snapshot: () => ({
     configuration: configurationNow(),
     cupboards: cupboardRows(),

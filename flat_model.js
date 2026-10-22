@@ -36,7 +36,7 @@ import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA
 import { drawShoeRack, shoeRack, SHOE_RACK_START, SHOE_RACK_SCHEMA } from './shoe_rack.js';
 import { drawStairWalls, settleStairWalls, STAIR_WALLS_START, STAIR_WALLS_SCHEMA } from './stair_walls.js';
 import { drawShoeBoxes, SHOE_BOXES_SCHEMA } from './shoe_boxes.js';
-import { drawGarage, garagePieces, GARAGE, GARAGE_CORNER, GARAGE_START, GARAGE_SCHEMA } from './garage.js';
+import { drawGarage, drawGarageDoor, garagePieces, GARAGE, GARAGE_CORNER, GARAGE_DOOR, GARAGE_START, GARAGE_SCHEMA } from './garage.js';
 import { floor, drawFloor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, floorMat, FRIDGE_W, RECESS_FROM,
   KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, SINK_RECESS, DESK_TOP,
   DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat,
@@ -302,8 +302,8 @@ const state = {
     // open, and its top's height when open (chosen with the user, 20 Oct
     // 2026: 780 fills the 820 the photo layout's side leaves, 20 clear each
     // end; 500 deep for a laptop and arms; 740, a usual desk height).
-    // Whether it's folded away or down is with the doors' angles (doors.desk,
-    // DESK_SHOWN)
+    // Whether it's folded away or down is with the doors' angles, in the
+    // view (doors.desk, DESK_SHOWN)
     DESK: false,
     DESK_W: 780,
     DESK_D: 500,
@@ -360,15 +360,22 @@ const state = {
   stairWalls: structuredClone(STAIR_WALLS_START),     // the shelves and pictures on the walls over the stairs, and the shoe boxes on the sills, none to start (stair_walls.js, shoe_boxes.js)
   bathroomShown: true,             // the bathroom and WC drawn, or hidden to see the hallway and stairs past them
   garage: structuredClone(GARAGE_START),              // Sean, Billy, BillyChest and the rest, in the garage: where each stands (garage.js)
-  // How far each door is open, in degrees, up to its slider's most
-  // (index.html): the room door, the left-wall cupboard's tall door, the
-  // option's other door or doors, the bedroom's, downstairs the flat's
-  // own door and the lobby's outside door, and the bedroom cupboard's tall
-  // and other doors. Set by the door sliders and by some views (the room
-  // door shut on walking in, the cupboard's open for packing); the doors are
-  // turned by update(), without rebuilding
-  doors: { room: 90, tall: 0, second: 0, bedroom: 90, flat: 0, outside: 0, bedroomCupboardTall: 0, bedroomCupboardSecond: 0, desk: 0, bedroomCupboardDesk: 0 },
 };
+
+// How far each door is open, in degrees, up to its slider's most
+// (index.html): the room door, the left-wall cupboard's tall door, the
+// option's other door or doors, the bedroom's, downstairs the flat's own
+// door and the lobby's outside door, and the bedroom cupboard's tall and
+// other doors; each fold-down desk folded away (0) or down (90,
+// DESK_SHOWN); and the garage door, not shown, open or closed (garage.js's
+// GARAGE_DOOR). They're the view's, not the configuration's: a door's
+// angle changes nothing that's made, so it's how you're looking, as the
+// camera is (REFACTOR_PLAN.md item 12, decided 17 Oct 2026 in
+// ui_paradigm_analysis.md). Set by the door controls and by some views (the
+// room door shut on walking in, the cupboard's open for packing), and
+// turned by turnDoors(), without rebuilding
+const DOORS_START = { room: 90, tall: 0, second: 0, bedroom: 90, flat: 0, outside: 0, bedroomCupboardTall: 0, bedroomCupboardSecond: 0, desk: 0, bedroomCupboardDesk: 0, garage: 'hidden' };
+const doors = structuredClone(DOORS_START);
 
 
 // ---------------------------------------------------------------------------
@@ -1379,7 +1386,7 @@ function buildBedroomCupboard(onShow) {
   bedroomCupboard = null;
   const settings = state.bedroomCupboard;
   if (settings.T === 0 && optionOf(settings.option).needsLeft) settings.option = 7;
-  if (settings.option !== onShow) state.doors.bedroomCupboardSecond = 0;
+  if (settings.option !== onShow) doors.bedroomCupboardSecond = 0;
   if (!state.otherRoom.newCupboardOn) return showNewCupboard(null);
   bedroomCupboard = makeCupboard(cupboardSettings('bedroomCupboard'), BEDROOM_PLACE, BEDROOM_MATERIALS);
   bedroomCupboard.drawShelves([]);
@@ -1626,7 +1633,7 @@ const readShelves = text => shelfTopsOf(String(text).split(/[^0-9]+/).map(Number
 // it's a two-way map onto state, which the drawing code still reads.
 // Ranges are the sliders' in index.html, unless an entry says.
 // ---------------------------------------------------------------------------
-const CONFIGURATION_VERSION = 1;   // up only when a setting changes its path or meaning
+const CONFIGURATION_VERSION = 2;   // up only when a setting changes its path or meaning: 2 when the doors went into the view (22 Oct 2026)
 // The ranges of the sliders the schema's numbers follow, chosen, as in
 // index.html: [lowest, highest, step], by the slider's id. A test checks
 // they agree with index.html's (room_3d.spec.js). The dresser's, larder's
@@ -1717,10 +1724,16 @@ function cupboardEntries(design, setting, ceiling, { id = name => name, ranges =
 // or down, ready to use (level, 90°). Its angle is kept with the doors'
 const DESK_ANGLES = ['desk', 'bedroomCupboardDesk'];
 export const DESK_SHOWN = { foldedAway: 0, down: 90 };
+// The doors' entries, in the view's doors (`doors`, above), each by its
+// name: the sliders' angles (roomDoor, tallDoor and so on), the fold-down
+// desks and the garage door
+const SLIDER_DOORS = Object.keys(DOORS_START).filter(name => !DESK_ANGLES.includes(name) && name !== 'garage');
+export const DOORS_SCHEMA = Config.withDefaults([
+  ...SLIDER_DOORS.map(name => fromSlider(name, name, `${name}Door`)),
+  ...DESK_ANGLES.map(name => Config.choice(name, name, DESK_SHOWN)),
+  Config.choice('garage', 'garage', Object.keys(GARAGE_DOOR)),
+], doors);
 const LIVING_ROOM_SCHEMA = [
-  ...Object.keys(state.doors).filter(name => !DESK_ANGLES.includes(name))
-    .map(name => fromSlider(`doors.${name}`, `doors.${name}`, `${name}Door`)),   // the sliders roomDoor, tallDoor and so on
-  ...DESK_ANGLES.map(name => Config.choice(`doors.${name}`, `doors.${name}`, DESK_SHOWN)),
   ...Object.keys(COLOUR_TARGETS).map(key => Config.colour(`colours.${key}`, `colours.${key}`, isColour)),
   Config.number('colours.shelves', 'shelfWood', 0, SHELF_WOODS.length - 1, 1, { onSteps: true }),
   Config.choice('livingRoom.frontWall', 'frontPiece', FRONT_PIECES),
@@ -1786,9 +1799,16 @@ const SCHEMA = Config.withDefaults([
   Config.choice('thingsToStore.where', 'stored.where', { window: 0, cupboard: 1, byHand: 2 }),
   Config.other('thingsToStore.spots', 'stored.spots', readStoredSpots),
 ], state);
-// The settings as a configuration, and a configuration read into them
+// The settings as a configuration, and a configuration read into them. One
+// of version 1 had the doors in it (`doors`), which are the view's now, so
+// they're read as the view's, and the rest as it is: a link from before
+// keeps working
 const configurationNow = () => Config.writeConfiguration(SCHEMA, state, { version: CONFIGURATION_VERSION });
 function readConfiguration(configuration) {
+  if (configuration?.version === 1) {
+    readDoors(configuration.doors);
+    configuration = { ...configuration, version: CONFIGURATION_VERSION };
+  }
   if (configuration?.version !== CONFIGURATION_VERSION) {
     console.warn(`A configuration of version ${configuration?.version}, not ${CONFIGURATION_VERSION}: the page starts as it is`);
     return;
@@ -1923,7 +1943,7 @@ export function build(no, onShow = optionsOnShow()) {
   const backWall = benchDrawn() ? benchWall(clearFrom, group)
     : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('');
   const aboveText = backWall + frontWall(group, no) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group);
-  if (!same) state.doors.second = 0;
+  if (!same) doors.second = 0;
   drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard
   drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
@@ -1953,15 +1973,30 @@ export function rebuild(no, onShow = optionsOnShow()) {
 const turn = degrees => THREE.MathUtils.degToRad(degrees);
 
 
-// The doors turned to their angles in state.doors (they don't rebuild),
-// each corner cupboard's second doors stopping at its room's walls
+// The doors as the view writes them, and a view's doors read in: any it
+// leaves out, or that fail their check, stay as they were
+export const doorsNow = () => Config.writeConfiguration(DOORS_SCHEMA, doors);
+export const readDoors = given => Config.readConfiguration(DOORS_SCHEMA, given ?? {}, doors);
+// Doors turned, as setAll() changes settings: [name, value] pairs, each
+// value the view's (a desk's word). Returns whether every one was taken
+export function setDoors(edits) {
+  const refused = edits.filter(([name, value]) => !Config.readEntry(Config.entryAt(DOORS_SCHEMA, name), value, doors));
+  for (const [name, value] of refused) console.error(`${JSON.stringify(value)} isn't an angle for the ${name} door: left as it was`);
+  return refused.length === 0;
+}
+// The doors' angles as they're drawn (a desk's in degrees), for the tests
+export const doorAngles = () => structuredClone(doors);
+
+// The doors turned to their angles (they don't rebuild), each corner
+// cupboard's second doors stopping at its room's walls, and the garage
+// door drawn as it is
 export function turnDoors() {
-  const { doors } = state;
   cupboard?.turnDoors(doors);
   bedroomCupboard?.turnDoors({ tall: doors.bedroomCupboardTall, second: doors.bedroomCupboardSecond, desk: doors.bedroomCupboardDesk });
   roomHinge.rotation.y = turn(doors.room);
   bedroomHinge.rotation.y = -turn(doors.bedroom);              // it opens the other way, into the bedroom
   for (const [h, name] of [[flatDoorHinge, 'flat'], [outsideDoorHinge, 'outside']]) h.rotation.y = (h.userData.dir ?? 1) * turn(doors[name]);
+  drawGarageDoor(doors.garage);
 }
 
 // The description of the option built: its summary (without the bench, if
@@ -1974,11 +2009,14 @@ export function describe(option, aboveText) {
 
 // The flat built from a configuration, with no page, seen as `view` shows it
 // (setDisplay()'s fields: a 2D view's id and room, and the switches, for the
-// dimensions): what the page's snapshot holds (tests/snapshots/), the
-// description as HTML
+// dimensions; and its doors, as the view writes them, any left out as they
+// start): what the page's snapshot holds (tests/snapshots/), the
+// description as HTML, and the doors as turned
 export function buildFlat(configuration, view = {}) {
   startAgain();
-  readConfiguration(configuration);
+  Object.assign(doors, structuredClone(DOORS_START));
+  readConfiguration(configuration);                             // (one of version 1 has doors)
+  readDoors(view.doors);
   setDisplay({ flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true, ...view });
   const { option, aboveText } = rebuild(state.cornerCupboard.option);
   return {
@@ -1988,6 +2026,7 @@ export function buildFlat(configuration, view = {}) {
     dimensions: dimensionFigures(),
     description: describe(option, aboveText),
     boxes: pieceBoxes(),
+    doors: doorsNow(),
   };
 }
 // Each corner cupboard's cutting list as rows: the living room's and the

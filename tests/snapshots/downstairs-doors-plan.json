@@ -1,19 +1,6 @@
 {
   "configuration": {
-    "version": 1,
-    "doors": {
-      "room": 90,
-      "tall": 0,
-      "second": 0,
-      "bedroom": 90,
-      "flat": 60,
-      "outside": 45,
-      "bedroomCupboardTall": 0,
-      "bedroomCupboardSecond": 0,
-      "desk": "foldedAway",
-      "bedroomCupboardDesk": "foldedAway",
-      "garage": "hidden"
-    },
+    "version": 2,
     "colours": {
       "floor": 0,
       "cupboard": 4,

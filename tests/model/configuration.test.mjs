@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { buildFlat, configurationNow, get, set, setAll, startAgain } from '../../flat_model.js';
 import { setValueAt } from '../../kit/config_kit.js';
 
-const DEFAULT = structuredClone(buildFlat({ version: 1 }).configuration);
+const DEFAULT = structuredClone(buildFlat({ version: 2 }).configuration);
 // The default configuration with settings changed, as { path: value };
 // undefined takes one out
 function edited(changes) {
@@ -53,7 +53,23 @@ test('set(path, value) changes the configuration at its path, and only with a va
 });
 
 test('a configuration of another version isn\'t read', () => {
-  assert.deepStrictEqual(read(edited({ version: 2, 'pieces.cornerCupboard.design.option': 7 })), DEFAULT);
+  assert.deepStrictEqual(read(edited({ version: 3, 'pieces.cornerCupboard.design.option': 7 })), DEFAULT);
+});
+
+// The doors are the view's (REFACTOR_PLAN.md item 12): not in the
+// configuration, which ignores any given it; taken from the view, each
+// checked as a setting is, those it leaves out as they start. A
+// configuration of version 1 had them, and is still read, its doors as the
+// view's
+test('the doors are the view\'s, and a version 1 configuration\'s doors are read as the view\'s', () => {
+  assert.equal(DEFAULT.doors, undefined);
+  const start = buildFlat({ version: 2 }).doors;
+  assert.deepStrictEqual(buildFlat({ ...DEFAULT, doors: { room: 0 } }).doors, start);
+  assert.deepStrictEqual(buildFlat(DEFAULT, { doors: { room: 0, tall: 500, desk: 'down', garage: 'open' } }).doors,
+    { ...start, room: 0, desk: 'down', garage: 'open' });                                      // 500 is past the tall door's 180
+  const old = buildFlat({ ...edited({ 'pieces.cornerCupboard.design.option': 7 }), version: 1, doors: { second: 170, garage: 'closed' } });
+  assert.deepStrictEqual(old.configuration, edited({ 'pieces.cornerCupboard.design.option': 7 }));
+  assert.deepStrictEqual(old.doors, { ...start, second: 170, garage: 'closed' });
 });
 
 // The garage's things: their places kept, held to the garage, in quarter
