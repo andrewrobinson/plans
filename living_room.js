@@ -47,7 +47,7 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, benchStandIns, optionOf, namedPieces, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, config, storedGroup, storedMats,
-  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots, inLivingRoom, aboveHasTv, aboveHasShelves, NO_SOFA,
+  storedSize, drawn, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots, inLivingRoom, aboveHasTv, aboveHasShelves, NO_SOFA,
   speakerSpacingNow, cupboardTopForSpeakers, daybedTvShown, bedroomDoorText } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE, floor, otherRoom, hallway, entrance, bathroom } from './floor.js';
@@ -1065,7 +1065,7 @@ const anchors = {
     const at = packingSpot();
     return at ? [at.x, at.y, 1200] : [400, 400, 1200];
   },
-  tv: () => tvAt ?? [ROOM_WIDTH / 2, 0, 1400],
+  tv: () => drawn.tvAt ?? [ROOM_WIDTH / 2, 0, 1400],
   // Option 10's fold-down desk, as open: the middle of its top, and sitting
   // at it, facing the cupboard's side; with no desk, where option 12's
   // would be (living_room.configurations.js)
@@ -1094,8 +1094,8 @@ const anchors = {
   kvistbro: () => middleOf(otherRoomPieces.kvistbro),
   laundryBasket: () => middleOf(otherRoomPieces.laundryBasket),
   newCupboard: () => {                                          // with none (switched off, or option 16), the pine cupboard's spot
-    const drawn = new THREE.Box3().setFromObject(otherRoomPieces.newCupboard);
-    return middleOf(drawn.isEmpty() ? otherRoomPieces.cupboard : otherRoomPieces.newCupboard);
+    const newBox = new THREE.Box3().setFromObject(otherRoomPieces.newCupboard);
+    return middleOf(newBox.isEmpty() ? otherRoomPieces.cupboard : otherRoomPieces.newCupboard);
   },
   mirror: () => middleOf(otherRoomPieces.mirror),
   bedPillow: () => pointOn(otherRoomPieces.bed, BED_SPOTS.pillow),
