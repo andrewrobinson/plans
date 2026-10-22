@@ -5,11 +5,11 @@ configuration, the snapshot, the view, the address) and 6d's (the corner
 cupboard's module), against the usual UI patterns. Written 17 Oct 2026,
 during 6d; line numbers are as of commit `dd0ac8b`.
 
-**Where it stands (22 Oct 2026):** recommendation 1's first half
-(`set(path, value)`) is done, and 2 (the doors in the view, option C,
-`REFACTOR_PLAN.md` item 12) and 5 (what's worked out out of `state`, item
-13); 1's second half is item 15 (`state`'s track, to decide); 3, 4 and 6
-are on no list yet.
+**Where it stands (22 Oct 2026):** recommendations 1 (`set(path, value)`,
+then the configuration as the store: the model's `config`,
+`REFACTOR_PLAN.md` items 14 and 15), 2 (the doors in the view, option C,
+item 12) and 5 (what's worked out out of the settings, item 13) are done;
+3, 4 and 6 are on no list yet.
 
 In short: the split is sound and in line with well-known patterns. It still
 blurs in four places, most already on `REFACTOR_PLAN.md`'s list.

@@ -211,7 +211,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
 - **`castorDesk`**: the desk on castors, `in.livingRoom`: `on`, `at` (`byTheDoor` or `atTheTv`) and `move`, as the Ivar's.
 - **`thingsToStore`**: `shown`, `packing` (0 to 3, as listed), `where` (`window`, `cupboard` or `byHand`) and each thing's place, `{ "x", "y", "turned", "z" }`, in the order of the table below. Their places are read, and written, only when `where` is `byHand`; otherwise they follow the packing, worked out each time, and the configuration has no `spots`.
 
-Each setting has an entry in the schema (`SCHEMA` in `flat_model.js`, with the other rooms' entries from their modules, `OTHER_ROOM_SCHEMA` and so on): its path in the configuration, its place in the page's settings (`state`), its kind (a number with its range and step, on or off, a choice, a colour) and its default. Reading a configuration, a setting left out takes its default, one not in the schema is ignored, and one out of its range or of the wrong kind keeps its default. Steps aren't checked (saved designs have sizes between them), bar quarter turns. A new setting needs its entry; new pieces go in `pieces`.
+Each setting has an entry in the schema (`SCHEMA` in `flat_model.js`, with the other rooms' entries from their modules, `OTHER_ROOM_SCHEMA` and so on): its path in the configuration (and in the page's settings, `config`, held as the configuration is: `REFACTOR_PLAN.md` items 14 and 15), its kind (a number with its range and step, on or off, a choice, a colour) and its default. Reading a configuration, a setting left out takes its default, one not in the schema is ignored, and one out of its range or of the wrong kind keeps its default. Steps aren't checked (saved designs have sizes between them), bar quarter turns. A new setting needs its entry; new pieces go in `pieces`.
 
 The view:
 
@@ -245,7 +245,7 @@ second part.
 | Choices | Words (`above: "tvAndShelves"`); options by number (7 to 11, 16); colours stay codes; sizes in mm |
 | `version` | 1; up only when a setting changes its path or meaning. Missing settings take their defaults, unknown ones are ignored, another version is ignored with a warning |
 | The view | A document of its own: `room`, `view` (or `camera`), `eye`, and the display switches |
-| Door angles | In the configuration, as the flat's state. Since decided (17 Oct 2026) to move into the view (`REFACTOR_PLAN.md`), not done yet |
+| Door angles | In the configuration, as the flat's state. Moved into the view on 22 Oct 2026 (`REFACTOR_PLAN.md` item 12) |
 | The address | `#<configuration>~<view>`, each the full JSON, deflated and base64url'd. The full configuration, not changes from defaults, so a link never changes meaning when a default does |
 | Schema entries | Each module's list (`OTHER_ROOM_SCHEMA`, …), ranges written in it (`SLIDER_RANGES`, checked against the sliders by a browser test), defaults from its `…_START`; the general code in `kit/config_kit.js` |
 | JSON in and out of the page | Only `window.plans`: `export()`, `view()`, `load(json)`, `snapshot()`, for the tests and the browser console |

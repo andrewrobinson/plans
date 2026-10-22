@@ -20,33 +20,18 @@ through the model; check the diff holds only the new setting.
 ## Left to do
 
 Done, and so gone from here (in `git log`): the tests (items 1 to 5), the
-small, standalone items (6 to 10), all on main by 21 Oct 2026; items 11 to 13
-(22 Oct 2026): the option held as its number, the door angles in the
-view, and what's worked out out of `state`. Each step
-keeps what the page does (no snapshot or screenshot changes) unless it
-says otherwise. Before starting, decide with the user how far to go
-(decided 22 Oct 2026: 11 to 13, then stop and decide on 14 to 16; 11 to
-13 done, so 14 to 16 are to decide).
+small, standalone items (6 to 10), all on main by 21 Oct 2026; and
+`state`'s track, items 11 to 16 (22 Oct 2026): the option held as its
+number, the door angles in the view, what's worked out out of the
+settings, the settings laid out as the configuration is (a room at a
+time), the configuration as the store (the model's `config`, each choice
+by its word, the schema's entries a path each), and the controls tests
+from the page as it opens. Each step kept what the page does (no snapshot
+or screenshot changes) unless it said otherwise.
 
-**`state`'s track**
-
-14. **`state` in the configuration's shape, a room at a time**: the
-    lounge's `billyOn`, `billyMove` and `billyLying` become
-    `pieces.billy.in.livingRoom.*`, and so on, the bedroom's and the
-    garage's likewise, till each schema entry maps a path onto itself. The
-    shoe boxes get their own place (now in `state.stairWalls.shoeBoxes`).
-    One room per step.
-15. **The configuration as the store, `state` going**
-    (`ui_paradigm_analysis.md`, recommendation 1's second half): after 14,
-    a rename. `flat_model.js` reads `state.` in 113 places.
-
-**Then**
-
-16. **The controls tests from the page as it opens**: today they start
-    from `designed` (option 10 with the bench and the dresser), so the
-    default page's controls are tested only where a test sets them. All of
-    them moved, each switching on what it needs. The largest job here;
-    after 14 and 15, which change the paths the tests read.
+Nothing's left on a track. What's below is for as you go, or any time;
+`ui_paradigm_analysis.md`'s recommendations 3, 4 and 6 are on no list
+yet.
 
 As you go (CLAUDE.md): a function's numbers named and long functions split
 when they're next changed; `stairWallsControls()` (about 80 lines) is the
