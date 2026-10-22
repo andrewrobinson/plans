@@ -57,9 +57,9 @@
       "bedroomCupboard": {
         "design": {
           "option": 8,
-          "T": 396,
-          "R": 400,
-          "F": 2192,
+          "T": 400,
+          "R": 300,
+          "F": 1967,
           "BOARD": 18,
           "TOP": 0,
           "LEG": 1422,
@@ -76,9 +76,9 @@
               1800
             ]
           },
-          "DIAG_RUN": 1450,
+          "DIAG_RUN": 1458,
           "DIAG_BACK": 1090,
-          "DIAG_LEFT": 1440,
+          "DIAG_LEFT": 1240,
           "WARD": 900,
           "WARD_D": 600,
           "TOWER": 400,
@@ -602,13 +602,13 @@
     },
     "bedroom": {
       "door": {
-        "swings": "right",
+        "swings": "left",
         "mustOpenTo": 90,
-        "swingShown": false
+        "swingShown": true
       }
     },
     "thingsToStore": {
-      "shown": true,
+      "shown": false,
       "packing": 0,
       "where": "byHand",
       "spots": [
@@ -768,7 +768,7 @@
       {
         "kind": "Panels",
         "length": 2445,
-        "width": 2174,
+        "width": 1949,
         "shaped": false,
         "count": 1,
         "parts": [
@@ -778,7 +778,7 @@
       {
         "kind": "Panels",
         "length": 2445,
-        "width": 1846,
+        "width": 1858,
         "shaped": false,
         "count": 1,
         "parts": [
@@ -792,23 +792,23 @@
         "shaped": false,
         "count": 1,
         "parts": [
-          "Back-wall end"
-        ]
-      },
-      {
-        "kind": "Panels",
-        "length": 2445,
-        "width": 378,
-        "shaped": false,
-        "count": 1,
-        "parts": [
           "Left-wall end"
         ]
       },
       {
         "kind": "Panels",
-        "length": 2156,
-        "width": 1810,
+        "length": 2445,
+        "width": 282,
+        "shaped": false,
+        "count": 1,
+        "parts": [
+          "Back-wall end"
+        ]
+      },
+      {
+        "kind": "Panels",
+        "length": 1931,
+        "width": 1822,
         "shaped": true,
         "count": 2,
         "parts": [
@@ -829,7 +829,7 @@
       {
         "kind": "Doors",
         "length": 2439,
-        "width": 476,
+        "width": 409,
         "shaped": false,
         "count": 3,
         "parts": [
@@ -839,7 +839,7 @@
       {
         "kind": "Doors",
         "length": 2439,
-        "width": 247,
+        "width": 277,
         "shaped": false,
         "count": 2,
         "parts": [
@@ -848,8 +848,8 @@
       },
       {
         "kind": "Shelves",
-        "length": 2156,
-        "width": 1810,
+        "length": 1931,
+        "width": 1822,
         "shaped": true,
         "count": 3,
         "parts": [
@@ -936,8 +936,8 @@
     "speakers.livingRoom": null,
     "bedroomCupboard": {
       "from": [
-        -2991,
-        3170,
+        -3003,
+        3395,
         0
       ],
       "to": [

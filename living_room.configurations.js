@@ -1313,13 +1313,16 @@ window.ROOM_CONFIGURATIONS = {
     // (level with the side bookshelf) and 1880 high (inside it's 864 × 291,
     // too shallow for the things to store) and the kitchen tables hidden; its fold-down desk off, as the bookshelf covers the
     // cupboard's side, and the desk on castors parked by the door in its
-    // place. The bedroom from their second link: the new cupboard on, as
-    // option 8 with its diagonal (T 396, R 400, F 2192, DIAG_RUN 1450, its
-    // straight fronts 1090 and 1440), the bookcase, the pine cupboard and the
-    // bedside table by it out, and the recess cupboards 448 deep. The things
-    // to store placed by hand from their third link: in the bedroom's new
-    // cupboard, bar the yellow tub, left in the lounge by the corner cupboard
-    pretty: { label: 'Pretty', title: 'Option 12 with a 327-deep, 1880-high corner cupboard and the desk on castors parked by the door; the bedroom with the new cupboard as option 8, holding the things to store',
+    // place. The bedroom from their second link, as updated from their link
+    // of 22 Oct 2026: the new cupboard on, as option 8 with its diagonal
+    // (T 400, R 300, F 1967, DIAG_RUN 1458, its straight fronts 1090 and
+    // 1240), clear of the bedroom door, which swings left going in, its swing
+    // shown on the floor; the bookcase, the pine cupboard and the bedside
+    // table by it out, and the recess cupboards 448 deep. The things to store
+    // hidden, still placed by hand from their third link (in the bedroom's new
+    // cupboard as it was, bar the yellow tub, left in the lounge by the
+    // corner cupboard)
+    pretty: { label: 'Pretty', title: 'Option 12 with a 327-deep, 1880-high corner cupboard and the desk on castors parked by the door; the bedroom with the new cupboard as option 8 and its door swinging left',
       configuration: {
         "version": 2,
         "colours": {
@@ -1378,9 +1381,9 @@ window.ROOM_CONFIGURATIONS = {
           "bedroomCupboard": {
             "design": {
               "option": 8,
-              "T": 396,
-              "R": 400,
-              "F": 2192,
+              "T": 400,
+              "R": 300,
+              "F": 1967,
               "BOARD": 18,
               "TOP": 0,
               "LEG": 1422,
@@ -1397,9 +1400,9 @@ window.ROOM_CONFIGURATIONS = {
                   1800
                 ]
               },
-              "DIAG_RUN": 1450,
+              "DIAG_RUN": 1458,
               "DIAG_BACK": 1090,
-              "DIAG_LEFT": 1440,
+              "DIAG_LEFT": 1240,
               "WARD": 900,
               "WARD_D": 600,
               "TOWER": 400,
@@ -1923,13 +1926,13 @@ window.ROOM_CONFIGURATIONS = {
         },
         "bedroom": {
           "door": {
-            "swings": "right",
+            "swings": "left",
             "mustOpenTo": 90,
-            "swingShown": false
+            "swingShown": true
           }
         },
         "thingsToStore": {
-          "shown": true,
+          "shown": false,
           "packing": 0,
           "where": "byHand",
           "spots": [
