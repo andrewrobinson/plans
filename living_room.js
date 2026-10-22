@@ -36,13 +36,13 @@ import { garage, garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './g
 import { cupboardControls, copyControls, idIn } from './cupboard_controls.js';
 import { CASTOR_DESK } from './castor_desk.js';
 import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, showDims, showDoorDims, rebuild,
-  drawStored, turnDoors, describe, settle, cupboardRows, startAgain, BACK_WALL_KEYS, CHAIR_TURN, CURRENT,
+  drawStored, turnDoors, describe, settle, cupboardRows, startAgain, BACK_WALL_KEYS, CHAIR_TURN, CURRENT_ROOM,
   CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES,
   LARDERS, LARDER_SLIDERS, OPTIONS, PACKINGS, SCHEMA, SHELF_WOODS, SOFAS, SOFA_SLIDERS, STORED,
   TV_H, TV_SIZES, TV_W, benchDrawn, carcassMat, colourOf, configurationNow, cornerTooShallow,
   cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, deskSpot, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
-  kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionAt, namedPieces, pieceBoxes, pieces,
+  kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, state, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES } from './flat_model.js';
@@ -95,8 +95,8 @@ function frameCupboard() {
 // room's, in Lounge options, or the bedroom's, in Bedroom options
 function cuttingListHtml(piece) {
   const design = key => get(`pieces.${piece}.design.${key}`);
-  const option = OPTIONS[optionAt(design('option'))];
-  if (option === OPTIONS[CURRENT]) return '<b>No cutting list</b>: no cupboard in this option.';
+  const option = optionOf(design('option'));
+  if (option.no === CURRENT_ROOM) return '<b>No cutting list</b>: no cupboard in this option.';
   const kinds = cuttingList(piece);
   let boards = 0, area = 0;
   const rows = CUT_KINDS.filter(k => kinds.has(k)).map(kind => {
@@ -345,19 +345,19 @@ for (const name of Object.keys(DESK_RADIOS)) {
 }
 
 
-// Show option i: the model builds it and all that's drawn from it
+// Show option `no`: the model builds it and all that's drawn from it
 // (rebuild()), then the menus, the view and the rest of the page follow.
-// onShow: the option on show till now, when the menus have already set i
-function show(i, onShow) {
-  const { option, same, aboveText, storedText } = rebuild(i, onShow);
+// onShow: the option on show till now, when the menus have already set it
+function show(no, onShow) {
+  const { option, same, aboveText, storedText } = rebuild(no, onShow);
   showInMenus(option, state.cornerCupboard.option, aboveText);
   if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
   redrawAround(storedText);
 }
 
-// The menus for option i: the option list, the description, and only the
+// The menus for option `no`: the option list, the description, and only the
 // blocks of controls that apply to it
-function showInMenus(option, i, aboveText) {
+function showInMenus(option, no, aboveText) {
   const { above } = state;
   loungeCupboard.showBlocks();
   showBedroomCupboard();
@@ -366,8 +366,8 @@ function showInMenus(option, i, aboveText) {
   shown('tvBlock', above >= 2);
   shown('shelfBlock', above === 1 || above >= 3);               // only with shelves above the bench
   shown('benchDetails', benchDrawn());
-  const piece = i === CURRENT || islandOnWall() ? 'none' : state.frontPiece;   // the dresser or a larder, if either is drawn
-  shown('frontBlock', !(i === CURRENT || islandOnWall()));
+  const piece = no === CURRENT_ROOM || islandOnWall() ? 'none' : state.frontPiece;   // the dresser or a larder, if either is drawn
+  shown('frontBlock', !(no === CURRENT_ROOM || islandOnWall()));
   shown('islandMoveBlock', state.island.at === 'room');         // moving and turning: out there only
   for (const [k, id, unit] of [['x', 'islandX', ''], ['y', 'islandY', ''], ['turn', 'islandTurn', '°']]) {
     document.getElementById(id).value = String(state.island.move[k]);
@@ -424,7 +424,7 @@ async function writeAddress(replace = false) {
 
 window.addEventListener('keydown', e => {
   const n = Number(e.key);
-  if (n >= 1 && optionAt(n) >= 0) loungeCupboard.choose(optionAt(n));
+  if (optionOf(n)) loungeCupboard.choose(n);
 });
 
 // Every settings control changes the settings through here, by their paths
@@ -450,7 +450,7 @@ const loungeCupboard = cupboardControls({ piece: 'cornerCupboard', change, hasBe
 // room (no cupboard), and no left-wall front to the door frame (there's no
 // door on its walls)
 const bedroomCupboardControls = cupboardControls({ piece: BEDROOM_CUPBOARD, id: idIn(BEDROOM_CUPBOARD), change,
-  options: OPTIONS.map((o, i) => i).filter(i => i !== CURRENT) });
+  options: OPTIONS.map(o => o.no).filter(no => no !== CURRENT_ROOM) });
 // Its block shown only while it's there (Bedroom options' New cupboard switch)
 function showBedroomCupboard() {
   const on = state.otherRoom.newCupboardOn;
@@ -553,13 +553,13 @@ shelfSelect.addEventListener('change', () => change([['colours.shelves', Number(
 // whose materials are local to their drawing code are listed by value.
 function updatePalette() {
   const { shelfWood, above } = state, { option } = state.cornerCupboard;
-  const current = option === OPTIONS.length - 1;                // the room as it is, no cupboards
+  const current = option === CURRENT_ROOM;                       // the room as it is, no cupboards
   const hex = m => `#${m.color.getHexString().toUpperCase()}`;
   const rows = [
     ...(current ? [] : [['Cupboards and bench', hex(carcassMat), colourOf(shownCode('cupboard')).name], ['Handles', hex(handleMat)]]),
     ...(current ? [] : [['Dresser', hex(dresserMat), colourOf(shownCode('dresser')).name]]),
     ['Shelves', hex(shelfMat), SHELF_WOODS[shelfWood].name],
-    ...(OPTIONS[option].no === 9 ? [['Tower shelves and oak top', hex(oakMat), SHELF_WOODS[shelfWood].name]] : []),
+    ...(option === 9 ? [['Tower shelves and oak top', hex(oakMat), SHELF_WOODS[shelfWood].name]] : []),
     ...(above >= 2 ? [['TV', hex(tvMat)], ['TV screen', hex(screenMat)]] : []),
     ['Walls', hex(wallMat), colourOf(shownCode('wall')).name],
     ['Door, frame and sills', hex(frameMat), colourOf(shownCode('woodwork')).name],
@@ -947,7 +947,7 @@ function packingSpot() {
   // An L (back-wall leg Dl deep, left-wall leg T deep): standing diagonally
   // in front of its inside corner, looking into it, to see into both legs
   const lCorner = Dl => mid(T, Dl, Math.SQRT1_2, Math.SQRT1_2);
-  switch (OPTIONS[state.cornerCupboard.option].no) {
+  switch (state.cornerCupboard.option) {
     case 7:                                                      // an L: in front of its inside corner; else the back-wall leg's door
       return T ? lCorner(LEG_D) : mid(T + LEG / 2, LEG_D, 0, 1);
     case 8: {                                                    // the diagonal doors' middle
@@ -1313,8 +1313,8 @@ reloadButton(document.getElementById('reload'), () => ['room_3d:startView', ...O
 resetButton(document.getElementById('reset'));
 // Share: the link is always to the published page, so it works for others
 // even when this copy is on a local server
-shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => OPTIONS[state.cornerCupboard.option].name);
-screenshotButton(document.getElementById('screenshot'), renderer.domElement, draw, () => OPTIONS[state.cornerCupboard.option].name);
+shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => optionOf(state.cornerCupboard.option).name);
+screenshotButton(document.getElementById('screenshot'), renderer.domElement, draw, () => optionOf(state.cornerCupboard.option).name);
 resize();
 
 workOffline('sw.js');

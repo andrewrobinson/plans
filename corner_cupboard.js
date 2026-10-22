@@ -5,7 +5,7 @@
 // constants: each builder is given
 //
 //   settings   the cupboard's piece of the configuration: `option` (its
-//              index in OPTIONS), T, R, F, BOARD, TOP, LEG, LEG_D,
+//              number, 7 to 11 or 16), T, R, F, BOARD, TOP, LEG, LEG_D,
 //              L_SHELVES, DIAG_RUN, DIAG_BACK, DIAG_LEFT, WARD, WARD_D, TOWER,
 //              CORNER_W, CORNER_D, SIDE_SHELF, SIDE_W, SIDE_D, DESK, DESK_W,
 //              DESK_D, DESK_H
@@ -504,7 +504,7 @@ function cornerDoorsToWindows(job, g) {
 // as option 9's tower. Where it's deeper than the cupboard (or there's no
 // cupboard), it has a side of its own there. Its boards are part of the
 // cupboard, so they're in its cutting list.
-const sideShelfOn = s => s.SIDE_SHELF && OPTIONS[s.option].no === 10;
+const sideShelfOn = s => s.SIDE_SHELF && s.option === 10;
 const sideShelfW = s => (sideShelfOn(s) ? s.SIDE_W : 0);   // how far it takes the bench along
 const SIDE_SHELVES = 5;
 const sideShelfTops = ({ BOARD }, H) => [...Array(SIDE_SHELVES).keys()].map(k => Math.round(BOARD + (k + 1) * (H - 2 * BOARD) / (SIDE_SHELVES + 1)));
@@ -549,7 +549,7 @@ const OAK_FACE = 1;                // the oak writing surface on the flap's top,
 // flap's far edge
 const BRACKET = { bar: 25, drop: 300, in: 80, short: 50 };
 
-const deskOn = s => s.DESK && OPTIONS[s.option].no === 10 && !cornerTooShallow(s, 'kitchen');
+const deskOn = s => s.DESK && s.option === 10 && !cornerTooShallow(s, 'kitchen');
 // The side's run clear of what stands against it along the back wall: the
 // side bookshelf, or with none the bench (R deep), from `from` out to the
 // cupboard's end
@@ -600,7 +600,7 @@ function foldDownDesk(job, g) {
   return [flap, ...arms];
 }
 function deskText(s) {
-  if (!s.DESK || OPTIONS[s.option].no !== 10 || cornerTooShallow(s, 'kitchen')) return '';
+  if (!s.DESK || s.option !== 10 || cornerTooShallow(s, 'kitchen')) return '';
   const spot = deskSpot(s), { from, to } = deskRun(s);
   if (!spot) return `No room for the fold-down desk: the side has only ${Math.max(0, to - from)} clear (it needs ${DESK_LEAST + 2 * DESK_CLEAR}). `;
   const { x, w, d, h } = spot;
@@ -769,11 +769,13 @@ export const OPTIONS = [
   },
 ];
 // Each option's number is the one in its name. The list starts at 7 (options
-// 1 to 6 were taken out), so options are found by number, never by their
-// place in the list: optionAt(9) is option 9's index, -1 if there's none.
+// 1 to 6 were taken out), so an option is held and found by its number,
+// never by its place in the list: optionOf(9) is option 9, undefined if
+// there's none.
 for (const o of OPTIONS) o.no = parseInt(o.name, 10);
-export const optionAt = no => OPTIONS.findIndex(o => o.no === no);
-export const CURRENT = OPTIONS.length - 1;
+export const optionOf = no => OPTIONS.find(o => o.no === no);
+// Option 16, the room as it is with no cupboards (the living room's to start)
+export const CURRENT_ROOM = 16;
 
 // A corner cupboard: the chosen option (settings.option) built into a new
 // group, standing in place's back-left corner, and what's asked of it.
@@ -795,7 +797,7 @@ export const CURRENT = OPTIONS.length - 1;
 export function makeCupboard(settings, place, materials) {
   const job = cupboardJob(settings, place, materials);
   const group = new THREE.Group();
-  const { tall = [], second = [], desk = [] } = OPTIONS[settings.option].build(job, group);
+  const { tall = [], second = [], desk = [] } = optionOf(settings.option).build(job, group);
   const shelfGroup = new THREE.Group();                          // drawn into by drawShelves()
   shelfGroup.userData.cupShelves = true;                         // so its dimensions know the shelves from an open tower's
   group.add(shelfGroup);
@@ -834,7 +836,7 @@ export function insideSpaces(settings, place) {
   const rect = (x0, y0, x1, y1, h) => ({ poly: rectPoly(x0, y0, x1, y1), h });
   const full = cupboardHeight(settings, place) - 2 * B;                                  // inside a full-height cupboard
   const leftLeg = from => T ? [rect(B, from, T - B, F - B, full)] : [];
-  const no = OPTIONS[settings.option].no;
+  const no = settings.option;
   switch (no) {
     case 7:                                                      // the full-height L, one space round the corner
       return [rect(B, B, T + LEG - B, LEG_D - B, full), ...leftLeg(LEG_D - B)];

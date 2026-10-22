@@ -20,16 +20,14 @@ through the model; check the diff holds only the new setting.
 ## Left to do
 
 Done, and so gone from here (in `git log`): the tests (items 1 to 5), the
-small, standalone items (6 to 10), all on main by 21 Oct 2026. Each step
+small, standalone items (6 to 10), all on main by 21 Oct 2026; item 11, the
+option held as its number (22 Oct 2026). Each step
 keeps what the page does (no snapshot or screenshot changes) unless it
 says otherwise. Before starting, decide with the user how far to go
-(`PLAN.md`'s next step).
+(decided 22 Oct 2026: 11 to 13, then stop and decide on 14 to 16).
 
 **`state`'s track**
 
-11. **The option held as its number** (7 to 11, 16) in `state`, as the
-   configuration has it, not its index in `OPTIONS`; `optionAt()` only
-   where the list is indexed, and `CURRENT` no longer "the last one".
 12. **The door angles into the view** (decided 17 Oct 2026,
     `ui_paradigm_analysis.md`): out of the configuration (`doors.*`), so
     Packing and walking in no longer change the flat.

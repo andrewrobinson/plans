@@ -7,7 +7,7 @@
 // index.html's own, in Lounge options; the bedroom's are a copy of them
 // (copyControls()), in Bedroom options, each id with the piece's name
 // before it. living_room.js makes both.
-import { OPTIONS, optionAt, get, cupboardOf, cupboardSettings, readShelves, idIn, cupboardLimits } from './flat_model.js';
+import { OPTIONS, optionOf, get, cupboardOf, cupboardSettings, readShelves, idIn, cupboardLimits } from './flat_model.js';
 import { rearLabel } from './corner_cupboard.js';
 
 // The sliders, by their ids, and the settings they change, bar the
@@ -46,7 +46,7 @@ export function copyControls(elements, piece) {
 // bedroom has none). Gives choose(i), an option chosen as from the list,
 // sync(), every control in step with the settings, and showBlocks(), only
 // the blocks that apply to its option shown
-export function cupboardControls({ piece, id = name => name, change, options = OPTIONS.map((o, i) => i), hasBench = () => false }) {
+export function cupboardControls({ piece, id = name => name, change, options = OPTIONS.map(o => o.no), hasBench = () => false }) {
   const at = key => `pieces.${piece}.design.${key}`;
   const value = key => get(at(key));
   const set = (key, v) => change([[at(key), v]]);
@@ -66,10 +66,10 @@ export function cupboardControls({ piece, id = name => name, change, options = O
   // The option list; choosing an option (not a link to one): with no
   // left-wall cupboard, an option with a default for it gets one
   const list = el('current');
-  list.innerHTML = options.map(i => `<option value="${i}">${OPTIONS[i].name}</option>`).join('');
+  list.innerHTML = options.map(no => `<option value="${no}">${optionOf(no).name}</option>`).join('');
   list.addEventListener('change', () => choose(Number(list.value)));
-  function choose(i) {
-    const { no, defaultLeft } = OPTIONS[i];
+  function choose(no) {
+    const { defaultLeft } = optionOf(no);
     const edits = [[at('option'), no]];
     if (value('T') === 0 && defaultLeft) edits.push([at('T'), defaultLeft]);
     change(edits);
@@ -105,9 +105,9 @@ export function cupboardControls({ piece, id = name => name, change, options = O
 
   // After it's built, as option 8 falls back to 7 with no left-wall cupboard
   function showBlocks() {
-    const i = optionAt(value('option')), option = OPTIONS[i], { no } = option;
-    [...list.options].forEach(o => { o.disabled = value('T') === 0 && Boolean(OPTIONS[Number(o.value)].needsLeft); });
-    list.value = String(i);
+    const no = value('option'), option = optionOf(no);
+    [...list.options].forEach(o => { o.disabled = value('T') === 0 && Boolean(optionOf(Number(o.value)).needsLeft); });
+    list.value = String(no);
     const shown = (name, yes) => { el(name).style.display = yes ? '' : 'none'; };
     shown('tallBlock', Boolean(cupboardOf(piece)?.doors.tall.length));
     shown('legBlock', no === 7);

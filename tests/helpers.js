@@ -117,7 +117,6 @@ async function expectSnapshot(page, name, { of = 'model' } = {}) {
 // address format leaves them alone (REFACTOR_PLAN.md, step 6a).
 const setting = (page, path) => page.evaluate(p => p.split('.').reduce((o, k) => o?.[k], window.plans.get()), path);
 // The option on show: its number, from the option list
-// (state.cornerCupboard.option is its place in OPTIONS)
 const optionShown = page => page.locator('#current option:checked').evaluate(o => parseInt(o.textContent, 10));
 
 // Open the options of `room` ('lounge', 'bedroom', 'garage' or 'hallway'):
