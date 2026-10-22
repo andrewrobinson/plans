@@ -385,6 +385,18 @@
       <input id="billyChestTurn" type="range">
       <div class="row"><button id="billyChestHome">Reset location</button></div>
     </div>
+    <label class="switch" title="The daybed with a desk and bookcase (B&amp;Q), on the back wall in place of the bench"><input type="checkbox" id="deskDaybedOn"> Daybed with desk</label>
+    <div id="deskDaybedMoveBlock" class="depth">
+      <label class="switch"><input type="checkbox" id="deskDaybedRight"> Desk at the right-hand end</label>
+      <label class="switch" title="Centred on its bed, 150 above it, while it's against the back wall; its size is the TV size below"><input type="checkbox" id="deskDaybedTv"> TV on the wall above it</label>
+      <label for="deskDaybedX" title="The daybed’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="deskDaybedXValue"></span></label>
+      <input id="deskDaybedX" type="range">
+      <label for="deskDaybedY" title="The daybed’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="deskDaybedYValue"></span></label>
+      <input id="deskDaybedY" type="range">
+      <label for="deskDaybedTurn">Daybed turned: <span id="deskDaybedTurnValue"></span></label>
+      <input id="deskDaybedTurn" type="range">
+      <div class="row"><button id="deskDaybedHome">Reset location</button></div>
+    </div>
     <div id="benchDetails">
     <div id="bench" class="depth">Bench height:
       <label><input type="radio" name="bench" value="700"> 700</label>
@@ -399,6 +411,7 @@
       <label><input type="radio" name="above" value="tvAndShelves" checked> TV and shelves</label>
       <label><input type="radio" name="above" value="tvAndTopShelf"> TV and top shelf</label>
     </div>
+    </div>
     <div id="tvBlock">
       <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
       <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
@@ -407,7 +420,6 @@
       <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
       <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
     </div>
-    </div>
   </details>
   <details class="sec" id="secSpeakers">
     <summary>Speakers</summary>
@@ -415,6 +427,7 @@
       <label><input type="radio" name="speakersOn" value="none"> Nothing (not shown)</label>
       <label title="Either side of the TV"><input type="radio" name="speakersOn" value="bench"> The bench</label>
       <label title="Billy lying on its side in the lounge, one near each end"><input type="radio" name="speakersOn" value="billy"> Billy, lying</label>
+      <label title="The daybed's bookcase top, either side of the TV above it"><input type="radio" name="speakersOn" value="deskDaybed"> The daybed</label>
       <label id="speakersOnCupboardRow" title="The corner cupboard's top, when it stops short of the ceiling"><input type="radio" name="speakersOn" value="cupboard"> The corner cupboard</label>
     </div>
     <div id="speakerSpacingBlock" class="depth">

@@ -360,6 +360,18 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "deskDaybed": {
+            "design": {
+              "deskAt": "left"
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "tvAbove": false,
+                "move": null
+              }
+            }
+          },
           "chesham": {
             "in": {
               "livingRoom": {
@@ -393,7 +405,8 @@ window.ROOM_CONFIGURATIONS = {
                 "on": "none",
                 "spacing": {
                   "bench": null,
-                  "billy": null
+                  "billy": null,
+                  "deskDaybed": null
                 }
               }
             }
@@ -1018,6 +1031,18 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "deskDaybed": {
+            "design": {
+              "deskAt": "left"
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "tvAbove": false,
+                "move": null
+              }
+            }
+          },
           "chesham": {
             "in": {
               "livingRoom": {
@@ -1051,7 +1076,8 @@ window.ROOM_CONFIGURATIONS = {
                 "on": "none",
                 "spacing": {
                   "bench": null,
-                  "billy": null
+                  "billy": null,
+                  "deskDaybed": null
                 }
               }
             }
@@ -1632,6 +1658,18 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "deskDaybed": {
+            "design": {
+              "deskAt": "left"
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "tvAbove": false,
+                "move": null
+              }
+            }
+          },
           "chesham": {
             "in": {
               "livingRoom": {
@@ -1665,7 +1703,8 @@ window.ROOM_CONFIGURATIONS = {
                 "on": "none",
                 "spacing": {
                   "bench": null,
-                  "billy": null
+                  "billy": null,
+                  "deskDaybed": null
                 }
               }
             }

@@ -762,7 +762,7 @@ test('the speakers stand on Billy, the bench or the corner cupboard', async ({ p
   expect(await page.locator('#speakerSpacing').getAttribute('max')).toBe('1850');   // Billy's 2020, less a speaker
   await expect(page.locator('#summary')).toContainText('on Billy, lying on its side, their middles 1650 apart');
   await slide(page, 'speakerSpacing', 1200);
-  expect(await setting(page, 'pieces.speakers.in.livingRoom.spacing')).toEqual({ bench: null, billy: 1200 });
+  expect(await setting(page, 'pieces.speakers.in.livingRoom.spacing')).toEqual({ bench: null, billy: 1200, deskDaybed: null });
   await BENCH(page);
   await expect(page.locator('#summary')).toContainText('No speakers: they go on Billy, which isn\'t in the lounge');
   await putOn('bench');
@@ -775,6 +775,36 @@ test('the speakers stand on Billy, the bench or the corner cupboard', async ({ p
   await expect(page.locator('#speakerSpacingBlock')).toBeHidden();
   await expect(page.locator('#summary')).toContainText('on the corner cupboard, 2100 high, spread evenly along its 800');
   expect((await box()).from[2]).toBe(2100);
+});
+
+// The daybed with a desk and bookcase (asked for, 22 Oct 2026): out to
+// start; on in Billy's place, its sliders shown, the bench off; its desk
+// switched to the right-hand end; moved, and put back
+test('the daybed with a desk stands on the back wall, its desk at either end', async ({ page }) => {
+  await openDrawer(page);
+  await expect(page.locator('#deskDaybedMoveBlock')).toBeHidden();
+  await toggle(page, 'billyOn', false);
+  await toggle(page, 'deskDaybedOn', true);
+  await expect(page.locator('#deskDaybedMoveBlock')).toBeVisible();
+  await expect(page.locator('#benchOn')).toBeDisabled();
+  await expect(page.locator('#summary')).toContainText('The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high) on the back wall');
+  await toggle(page, 'deskDaybedRight', true);
+  expect(await setting(page, 'pieces.deskDaybed.design.deskAt')).toBe('right');
+  await expect(page.locator('#summary')).toContainText('its desk at the right end');
+  await slide(page, 'deskDaybedY', 1500);
+  expect(await setting(page, 'pieces.deskDaybed.in.livingRoom.move')).toEqual({ x: 1315, y: 1500, turn: 0 });
+  await page.locator('#deskDaybedHome').click();
+  expect(await setting(page, 'pieces.deskDaybed.in.livingRoom.move')).toBe(null);
+  // The TV above it, sized by the TV size slider, shown with it; and the
+  // speakers on it, either side of the TV
+  await expect(page.locator('#tvBlock')).toBeHidden();
+  await toggle(page, 'deskDaybedTv', true);
+  await expect(page.locator('#tvBlock')).toBeVisible();
+  await expect(page.locator('#summary')).toContainText('Above the daybed: a 75" TV (1680 × 960), centred on its bed');
+  await page.locator('input[name=speakersOn][value=deskDaybed]').evaluate(el => { el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); });
+  await expect(page.locator('#speakerSpacingValue')).toHaveText('2050');
+  await slide(page, 'speakerSpacing', 1800);
+  expect(await setting(page, 'pieces.speakers.in.livingRoom.spacing.deskDaybed')).toBe(1800);
 });
 
 // The shoe rack, downstairs (pieces.shoeRack): not there yet, as the page
