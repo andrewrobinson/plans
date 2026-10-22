@@ -111,8 +111,9 @@ async function expectSnapshot(page, name, { of = 'model' } = {}) {
   base.expect(actual, `what the page makes of it, as saved in ${path.relative(path.join(__dirname, '..'), file)}`).toEqual(saved);
 }
 
-// A setting, by its path in window.plans.get() (`state` in living_room.js,
-// and the doors' angles as `doors`), as 'garage.sean' or 'dresser.w'. The
+// A setting, by its path in window.plans.get() (the model's config, laid out
+// as the configuration is, and the view's doors' angles as `doors`), as
+// 'pieces.sean.in.garage' or 'pieces.dresser.design.w'. The
 // tests read the settings this way rather than from the address, so a new
 // address format leaves them alone (REFACTOR_PLAN.md, step 6a).
 const setting = (page, path) => page.evaluate(p => p.split('.').reduce((o, k) => o?.[k], window.plans.get()), path);

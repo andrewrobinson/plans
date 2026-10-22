@@ -20,7 +20,7 @@
 //
 // An ES module: living_room.js imports it.
 export const SOFA_MODELS = {
-  start: 'drift',                  // the sofa to start with: '' for none (a link keeps its own); the Drift, as now (18 Oct 2026)
+  start: 'drift',                  // the sofa to start with: 'none' for none (a link keeps its own); the Drift, as now (18 Oct 2026)
   front: 1900,                     // its front from the TV wall, to start with (1000 to 3500)
   list: {
     // Habitat x Morris & Co. Merton Sunflower fabric 2 seater sofa:

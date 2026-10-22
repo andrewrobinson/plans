@@ -26,7 +26,8 @@ const SAVED = [
   // The lounge as it is now (18 Oct 2026), as the page opens
   'default',
   // Option 10 with the bench and the dresser, as the page opened until
-  // then: the controls' tests start from it, as they were written for it
+  // then (the controls' tests started from it until 22 Oct 2026, when they
+  // moved to the page as it opens: REFACTOR_PLAN.md item 16)
   'designed',
   // Each option, from the default page: options 7 and 8 with the 600
   // left-wall cupboard the page picks for them, the current room (option 16)

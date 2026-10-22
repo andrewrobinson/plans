@@ -4,16 +4,16 @@
 // room_3d.spec.js checks how saved addresses look; this checks the controls
 // that set them. It runs in one browser only (playwright.config.js).
 // The settings are read through window.plans.get() (setting(), by their
-// paths in `state` in living_room.js), not from the address, so a new
-// address format leaves these tests alone.
+// paths in the configuration, as the model's config holds them), not from
+// the address, so a new address format leaves these tests alone. Each test
+// starts from the page as it opens (the rooms as they are) and switches on
+// what it needs through the controls (REFACTOR_PLAN.md item 16).
 const { test, expect, openOptions, openRoom, addressOf, readAddress, configurationOf, edited, pickOption, setting, optionShown } = require('./helpers');
 const { ADDRESSES } = require('./addresses');
 
 // A saved address's configuration (tests/configs/), with settings changed
 // (as edited() takes them), seen in the plan
 const saved = name => ADDRESSES.find(a => a.name === name);
-// Option 10 with the bench and the dresser, where these tests start
-const DESIGNED = addressOf(saved('designed').configuration, saved('designed').view);
 const inPlan = (name, changes = {}) => addressOf(edited(saved(name).configuration, changes), saved('view-plan').view);
 
 const hash = page => page.evaluate(() => location.hash);
@@ -28,7 +28,7 @@ async function settledHash(page) {
     if (await hash(page) === was) return was;
   }
 }
-// The things to store: whether they're shown, which packing, where (state.stored)
+// The things to store: whether they're shown, which packing, where (thingsToStore)
 const storedHead = async page => { const { shown, packing, where } = await setting(page, 'thingsToStore'); return { shown, packing, where }; };
 // The view in the address: the room, the view's id (or the camera), the eye
 // height and the switches for what's shown
@@ -37,17 +37,31 @@ const any = expect.stringMatching;
 
 // The page with a drawer open (a room's options, as openOptions() takes
 // them, the lounge's unless given, or 'other' for Other options), and every
-// section in every drawer unfolded, at an address (DESIGNED unless given)
-async function openDrawer(page, address = DESIGNED, room = 'lounge') {
+// section in every drawer unfolded, at an address (the page as it opens
+// unless given)
+async function openDrawer(page, address = '', room = 'lounge') {
   await openRoom(page, address);
   if (room === 'other') await page.click('#menu');
   else await openOptions(page, room);
   await page.evaluate(() => document.querySelectorAll('.drawer details').forEach(d => { d.open = true; }));
 }
 
-// What to do first, so a slider is on show
+// What to do first, from the page as it opens (option 16, the room as it
+// is: no cupboard or bench, Billy and BillyChest on the back wall), so a
+// control is on show: a cupboard; the bench, once Billy and BillyChest are
+// off the back wall (they stand in its place); the dresser or a larder on
+// the front wall, which a cupboard option has; a sofa
 const OPTION = n => page => pickOption(page, n);
-const LARDER = page => page.check('input[name=frontPiece][value="larder"]');
+async function BENCH(page) {
+  for (const id of ['billyOn', 'billyChestOn']) await toggle(page, id, false);
+  await toggle(page, 'benchOn', true);
+}
+const onTheFrontWall = piece => async page => {
+  await OPTION(10)(page);
+  await page.check(`input[name=frontPiece][value="${piece}"]`);
+};
+const DRESSER = onTheFrontWall('dresser');
+const LARDER = onTheFrontWall('larder');
 const SOFA = page => page.selectOption('#sofaPick', 'merton');
 const LEFT_CUPBOARD = page => slide(page, 'depth', 600);
 
@@ -158,6 +172,7 @@ test.describe('sliders, to each end and back', () => {
   // Only option 10 has it: option 11's doors open where it would stand. Off,
   // its sliders are hidden; on, it takes the bench's start along by its width
   test('option 10\'s side bookshelf', async ({ page }) => {
+    await BENCH(page);
     await OPTION(10)(page);
     await expect(page.locator('#sideShelfDetails')).toBeHidden();
     await toggle(page, 'sideShelfOn', true);
@@ -199,12 +214,14 @@ test.describe('sliders, to each end and back', () => {
   });
 
   test('the bench', async ({ page }) => {
+    await BENCH(page);
     await endsAndBack(page, 'shelfDepth', at('pieces.aboveBench.design.shelfDepth'));
     const TV = { 0: [32, '32" (720 × 440)'], 14: [86, '86" (1930 × 1110)'] };   // the ends of TV_SIZES
     await endsAndBack(page, 'tvSize', at('pieces.aboveBench.design.tv'), { text: v => TV[v][1], setting: v => TV[v][0] });
   });
 
   test('the dresser', async ({ page }) => {
+    await DRESSER(page);
     await endsAndBack(page, 'dresserW', at('pieces.dresser.design.w'));
     await endsAndBack(page, 'dresserH', at('pieces.dresser.design.h'));
     await endsAndBack(page, 'dresserBaseH', at('pieces.dresser.design.baseH'));
@@ -249,7 +266,8 @@ test.describe('radio buttons', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page); });
 
   test('bench height', async ({ page }) => {
-    const before = await hash(page);
+    await BENCH(page);
+    const before = await settledHash(page);
     await page.check('input[name=bench][value="900"]');
     expect(await setting(page, 'pieces.bench.design.height')).toBe(900);
     await page.check('input[name=bench][value="780"]');
@@ -272,8 +290,9 @@ test.describe('radio buttons', () => {
   });
 
   test('what\'s on the front wall', async ({ page }) => {
-    const before = await hash(page);
-    for (const value of ['larder', 'none', 'dresser']) {
+    await OPTION(10)(page);                                      // the room as it is has nothing there
+    const before = await settledHash(page);
+    for (const value of ['larder', 'dresser', 'none']) {
       await page.check(`input[name=frontPiece][value="${value}"]`);
       expect(await setting(page, 'livingRoom.frontWall')).toBe(value);
     }
@@ -355,6 +374,7 @@ test.describe('dropdowns', () => {
   });
 
   test('the dresser: a listed one, then Custom once a slider moves', async ({ page }) => {
+    await DRESSER(page);
     await page.selectOption('#dresserPick', 'inglesham');
     expect(await setting(page, 'pieces.dresser.design')).toMatchObject({ w: 1000, h: 1930, baseD: 420, baseH: 830, upperD: 420 });
     await expect(page.locator('#dresserWValue')).toHaveText('1000');
@@ -373,6 +393,7 @@ test.describe('dropdowns', () => {
   });
 
   test('the sofa: one, then none', async ({ page }) => {
+    await page.selectOption('#sofaPick', 'none');                         // the Drift, as the page opens
     await expect(page.locator('#sofaFrontBlock')).toBeHidden();
     await SOFA(page);
     expect(await setting(page, 'pieces.sofa.design.model')).toBe('merton');
@@ -398,7 +419,7 @@ test.describe('the bedroom\'s cupboard', () => {
     await pickOption(page, 7, 'bedroomCupboardCurrent');
     await expect(page.locator('#bedroomCupboardLegBlock')).toBeVisible();
     await expect(page.locator('#bedroomCupboardLeftLenBlock')).toBeVisible();
-    expect(await optionShown(page)).toBe(10);                               // the lounge's as it was
+    expect(await optionShown(page)).toBe(16);                               // the lounge's as it was, the room as it is
     expect(await at('pieces.bedroomCupboard.design.option')(page)).not.toBe(await at('pieces.cornerCupboard.design.option')(page));
     await endsAndBack(page, 'bedroomCupboardRear', at('pieces.bedroomCupboard.design.R'));
     await endsAndBack(page, 'bedroomCupboardLeg', at('pieces.bedroomCupboard.design.LEG'));
@@ -485,7 +506,7 @@ test.describe('switches and buttons', () => {
   });
 });
 
-// The wicker bench (state.wickerBench): its sizes, then whether it's on and
+// The wicker bench (pieces.wickerBench): its sizes, then whether it's on and
 // where in the hallway, the bedroom and the living room, each on its own
 test.describe('the wicker bench', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'other'); });
@@ -509,14 +530,15 @@ test.describe('the wicker bench', () => {
   });
 });
 
-// What's by the bed (state.otherRoom): the two Knarrevik bedside tables and
-// the Kvistbro on the walls, the laundry basket anywhere. Off in the
-// designed address, on in the default
+// What's by the bed: the two Knarrevik bedside tables and the Kvistbro on
+// the walls, the laundry basket anywhere. All in, as the page opens
 test.describe('what\'s by the bed', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'bedroom'); });
 
-  test('each can be put in, moved and put back', async ({ page }) => {
-    expect(await setting(page, 'pieces.kvistbro.in.bedroom.on')).toBe(false);
+  test('each can be taken out, put in, moved and put back', async ({ page }) => {
+    expect(await setting(page, 'pieces.kvistbro.in.bedroom.on')).toBe(true);
+    await toggle(page, 'otherRoom_kvistbroOn', false);
+    await expect(page.locator('#otherRoomPiece_kvistbroDetails')).toBeHidden();
     await toggle(page, 'otherRoom_kvistbroOn', true);
     await page.selectOption('#otherRoom_kvistbro_wall', 'window');
     expect(await setting(page, 'pieces.kvistbro.in.bedroom')).toMatchObject({ wall: 'window', along: 400 });     // as far along as it was
@@ -539,7 +561,7 @@ test.describe('what\'s by the bed', () => {
   });
 });
 
-// The garage, in Garage options (state.garage): Sean, Billy and BillyChest,
+// The garage, in Garage options (each piece's place in.garage): Sean, Billy and BillyChest,
 // each on, x, y and turn; then Metal, Yellow (with its height above the
 // floor, z), the scaffold bench, Small Billy (with its gap from the wall,
 // off), Potters (likewise), Biltong (with its height), Trellis and the
@@ -562,6 +584,7 @@ test.describe('the garage', () => {
   });
 
   test('Sean and Billy can be moved and turned, and put back', async ({ page }) => {
+    await toggle(page, 'garage_billy_on', true);                       // out, as the page opens (in the lounge)
     expect(await setting(page, 'pieces.sean.in.garage')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
     expect(await setting(page, 'pieces.billy.in.garage')).toEqual({ on: true, x: 0, y: 1920, turn: 270, lying: false });
     await slide(page, 'garage_sean_x', 2000);
@@ -578,6 +601,7 @@ test.describe('the garage', () => {
 
   // Billy can lie on its long side, and stand again, where it is
   test('Billy can lie down in the garage', async ({ page }) => {
+    await toggle(page, 'garage_billy_on', true);
     await toggle(page, 'garage_billy_lying', true);
     expect(await setting(page, 'pieces.billy.in.garage')).toEqual({ on: true, x: 0, y: 1920, turn: 270, lying: true });
     await toggle(page, 'garage_billy_lying', false);
@@ -607,16 +631,17 @@ test.describe('the garage', () => {
   test('Yellow and Biltong can be raised and lowered, and put back', async ({ page }) => {
     expect(await setting(page, 'pieces.yellow.in.garage')).toEqual({ on: true, x: 3390, y: 2550, turn: 0, z: 438 });
     expect(await setting(page, 'pieces.scaffoldBench.in.garage')).toEqual({ on: true, x: 3430, y: 2650, turn: 0 });
-    expect(await setting(page, 'pieces.biltong.in.garage')).toEqual({ on: true, x: 580, y: 1070, turn: 90, z: 750 });
+    expect(await setting(page, 'pieces.biltong.in.garage')).toEqual({ on: true, x: 580, y: 1490, turn: 90, z: 750 });
     expect(await page.locator('#garage_metal_z').count()).toBe(0);
-    expect(await setting(page, 'pieces.pineCupboard.in.garage')).toEqual({ on: true, x: 1425, y: 0, turn: 0 });
+    expect(await setting(page, 'pieces.pineCupboard.in.garage')).toEqual({ on: false, x: 1425, y: 0, turn: 0 });   // out, as the page opens (in the bedroom)
+    await toggle(page, 'garage_pine_on', true);
     await toggle(page, 'garage_pine_on', false);
     await slide(page, 'garage_pine_turn', 90);
     expect(await setting(page, 'pieces.pineCupboard.in.garage')).toEqual({ on: false, x: 1425, y: 0, turn: 90 });
     await slide(page, 'garage_yellow_z', 0);
     await toggle(page, 'garage_biltong_on', false);
     expect(await setting(page, 'pieces.yellow.in.garage')).toEqual({ on: true, x: 3390, y: 2550, turn: 0, z: 0 });
-    expect(await setting(page, 'pieces.biltong.in.garage')).toEqual({ on: false, x: 580, y: 1070, turn: 90, z: 750 });
+    expect(await setting(page, 'pieces.biltong.in.garage')).toEqual({ on: false, x: 580, y: 1490, turn: 90, z: 750 });
     await page.locator('#garageBlock [data-reset="yellow"]').evaluate(b => b.click());
     expect(await setting(page, 'pieces.yellow.in.garage')).toEqual({ on: true, x: 3390, y: 2550, turn: 0, z: 438 });
   });
@@ -673,7 +698,9 @@ test.describe('the kitchen tables', () => {
 // front of the TV, centred on it, its back 100 out from the bench; moved from
 // there by hand, and Reset location takes it back
 test('the desk on castors parks by the door and wheels out to the TV', async ({ page }) => {
-  await openDrawer(page);                                       // option 10 with the bench: the TV's middle at x 2319
+  await openDrawer(page);
+  await BENCH(page);
+  await OPTION(10)(page);                                       // option 10 with the bench: the TV's middle at x 2319
   const box = () => page.evaluate(() => window.plans.snapshot().boxes['castorDesk.livingRoom']);
   expect(await box()).toBe(null);
   await expect(page.locator('#castorDeskMoveBlock')).toBeHidden();
@@ -694,7 +721,7 @@ test('the desk on castors parks by the door and wheels out to the TV', async ({ 
   expect(await box()).toBe(null);
 });
 
-// The shoe rack, downstairs (state.shoeRack): not there yet, as the page
+// The shoe rack, downstairs (pieces.shoeRack): not there yet, as the page
 // opens; its switch shows its settings
 test('the shoe rack is out to start, its switch showing its settings', async ({ page }) => {
   await openDrawer(page, '', 'hallway');
@@ -880,10 +907,13 @@ test.describe('the shoe boxes on the sills', () => {
   });
 });
 
-// ...and, from the designed page, where it's in: its sizes, bevel, shelves'
-// slope, shoes and the door angle its bevel's cut for
+// ...and, switched in: its sizes, bevel, shelves' slope, shoes and the door
+// angle its bevel's cut for
 test.describe('the shoe rack', () => {
-  test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'hallway'); });
+  test.beforeEach(async ({ page }) => {
+    await openDrawer(page, undefined, 'hallway');
+    await toggle(page, 'shoeRack_on', true);
+  });
 
   test('it can be resized and put back', async ({ page }) => {
     expect(await setting(page, 'pieces.shoeRack.in.hallway.on')).toBe(true);
@@ -928,19 +958,19 @@ test.describe('the shoe rack', () => {
 });
 
 test.describe('things to store', () => {
-  // Shown or hidden from the top bar (asked for, 19 Oct 2026), which on a
-  // phone is hidden while a drawer's open: so before opening Lounge options
-  // and after closing it
-  async function showStoredThenOpen(page) {
-    await openRoom(page, DESIGNED);
-    await page.click('#storedToggle');
+  // Shown as the page opens, where they are now (placed by hand); packed by
+  // the middle window, with option 10, so there's a corner cupboard to pack
+  // them into. Shown or hidden from the top bar (asked for, 19 Oct 2026),
+  // which on a phone is hidden while a drawer's open: so after closing it
+  async function packedByTheWindow(page) {
+    await openDrawer(page);
     await expect(page.locator('#storedToggle')).toBeChecked();
-    await openOptions(page, 'lounge');
-    await page.evaluate(() => document.querySelectorAll('.drawer details').forEach(d => { d.open = true; }));
+    await OPTION(10)(page);
+    await page.click('#storedPack');
   }
 
   test('shown, packed, and where they go', async ({ page }) => {
-    await showStoredThenOpen(page);
+    await packedByTheWindow(page);
     expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 'window' });
     await expect(page.locator('#storedInfo')).toContainText('Standing on the floor they take');
     await page.selectOption('#storedPacking', '2');
@@ -955,7 +985,7 @@ test.describe('things to store', () => {
   });
 
   test('off the floor, then packed again', async ({ page }) => {
-    await showStoredThenOpen(page);
+    await packedByTheWindow(page);
     const lift = page.locator('#storedLifts input').first();             // Rack 1
     await lift.fill('300');
     await lift.press('Tab');
@@ -1165,7 +1195,8 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   await openDrawer(page);
   const start = await hash(page);
   const step = async (what, path, value) => expect(await setting(page, path), what).toBe(value);
-  expect(await optionShown(page), 'option 10, as the page opens').toBe(10);
+  expect(await optionShown(page), 'option 16, the room as it is, as the page opens').toBe(16);
+  await OPTION(10)(page);
   await step('...with a left-wall cupboard', 'pieces.cornerCupboard.design.T', 600);
   await page.check('input[name=islandAt][value="out"]');              // the island in the corner, against the counter
   await step('the island in the corner', 'pieces.island.in.livingRoom.at', 'out');
@@ -1183,13 +1214,13 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   await OPTION(9)(page);
   expect(await optionShown(page), 'option 9').toBe(9);
   await expect(page.locator('#summary')).toContainText('A larder on the front wall');
-  await expect(page.locator('#summary')).toContainText('A sofa facing the TV');
+  await expect(page.locator('#summary')).toContainText('A sofa, the Merton 2 Seater');   // where the Drift stands now, by Billy
 
-  // Back as it started
-  await page.selectOption('#sofaPick', 'none');
-  await page.check('input[name=frontPiece][value="dresser"]');
-  await OPTION(10)(page);
-  expect(await hash(page)).toBe(start);
+  // Back as it started: the Drift, nothing on the front wall, the room as it is
+  await page.selectOption('#sofaPick', 'drift');
+  await page.check('input[name=frontPiece][value="none"]');
+  await OPTION(16)(page);
+  expect(await settledHash(page)).toBe(start);
 });
 
 // The cutting list is in Lounge options (the bedroom cupboard's in Bedroom
