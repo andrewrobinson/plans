@@ -345,6 +345,7 @@
           "livingRoom": {
             "on": false,
             "tvAbove": false,
+            "chair": "small",
             "move": null
           }
         }

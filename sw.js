@@ -27,6 +27,7 @@ const FILES = [
   './castor_desk.js',
   './speakers.js',
   './desk_daybed.js',
+  './work_chairs.js',
   './wicker_bench.js',
   './shoe_rack.js',
   './stair_walls.js',

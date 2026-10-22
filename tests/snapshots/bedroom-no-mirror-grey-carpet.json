@@ -337,6 +337,7 @@
           "livingRoom": {
             "on": false,
             "tvAbove": false,
+            "chair": "small",
             "move": null
           }
         }
@@ -768,6 +769,7 @@
     "cornwall.livingRoom": null,
     "castorDesk.livingRoom": null,
     "speakers.livingRoom": null,
+    "workChair.livingRoom": null,
     "bedroomCupboard": null,
     "bed": {
       "from": [

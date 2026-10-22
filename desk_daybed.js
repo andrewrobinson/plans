@@ -39,6 +39,11 @@ const MATTRESS_T = 150;                            // the mattress drawn on it (
 // daybed's middle, its desk at the left end or the right
 export const DAYBED_TOP_D = BACK_D;
 export const bedMiddle = deskAt => (COLUMN_W + BED_L / 2 - DESK_DAYBED.w / 2) * (deskAt === 'right' ? -1 : 1);
+// ...and where you sit at its desk: the desk's open end, along it from the
+// daybed's middle, which way is out from there (-1 to the left), the desk's
+// width in from there, and the knee space under it, out from the back
+export const deskOpenEnd = deskAt => ({ x: (deskAt === 'right' ? 1 : -1) * DESK_DAYBED.w / 2, outward: deskAt === 'right' ? 1 : -1,
+  width: COLUMN_W, knee: [BACK_D, DESK_D] });
 const whiteMat = material(0xf4f3ef);
 const slatMat = material(0xe0c9a0);                // the slats' pale pine
 const mattressMat = material(0xd9d6cf);            // a plain light grey cover

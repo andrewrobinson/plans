@@ -368,6 +368,7 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "tvAbove": false,
+                "chair": "small",
                 "move": null
               }
             }
@@ -1039,6 +1040,7 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "tvAbove": false,
+                "chair": "small",
                 "move": null
               }
             }
@@ -1669,6 +1671,7 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "tvAbove": false,
+                "chair": "small",
                 "move": null
               }
             }
@@ -2336,6 +2339,7 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": true,
                 "tvAbove": true,
+                "chair": "small",
                 "move": {
                   "x": 2285,
                   "y": 0,

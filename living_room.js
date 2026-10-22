@@ -703,6 +703,9 @@ deskDaybedRight.addEventListener('change', () => change([['pieces.deskDaybed.des
 // ...and the TV can hang on the wall above it
 const deskDaybedTv = document.getElementById('deskDaybedTv');
 deskDaybedTv.addEventListener('change', () => change([[`${BACK_WALL_PLACES.deskDaybed}.tvAbove`, deskDaybedTv.checked]], { look: true }));
+// ...and the work chair at its desk, or none (the summary says the room to sit there either way)
+const deskDaybedChair = [...document.getElementsByName('deskDaybedChair')];
+for (const radio of deskDaybedChair) radio.addEventListener('change', () => change([[`${BACK_WALL_PLACES.deskDaybed}.chair`, radio.value]], { look: true }));
 for (const key of BACK_WALL_KEYS) {
   const place = BACK_WALL_PLACES[key];
   const onSwitch = backWallSwitches[key] = document.getElementById(`${key}On`);
@@ -1435,6 +1438,7 @@ function syncControls() {
   billyLying.checked = config.pieces.billy.in.livingRoom.lying;
   deskDaybedRight.checked = config.pieces.deskDaybed.design.deskAt === 'right';
   deskDaybedTv.checked = config.pieces.deskDaybed.in.livingRoom.tvAbove;
+  for (const radio of deskDaybedChair) radio.checked = radio.value === config.pieces.deskDaybed.in.livingRoom.chair;
   showBookshelfSizes();
   check('bench', BENCH);
   check('above', above);

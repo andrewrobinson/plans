@@ -345,6 +345,7 @@
           "livingRoom": {
             "on": true,
             "tvAbove": true,
+            "chair": "small",
             "move": {
               "x": 2285,
               "y": 0,
@@ -825,7 +826,7 @@
     ]
   },
   "dimensions": [],
-  "description": "A 2010-high cupboard in the corner, 540 along the back wall and 1329 out along the left wall, right up to the door frame, with a pair of 481 doors on its side, facing the windows (y 340-1329). Behind the doors it runs back to the back wall. No bench: the daybed stands there instead. Inside, within its 18 boards (rear panels against the walls included): 504 × 1293, 1974 high. The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high) in place of the bench, moved: the middle of its back at x 2285, y 0, facing the front wall. Above the daybed: a 75\" TV (1680 × 960), centred on its bed, from 1150 to 2110. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.): 1690 wide, 1000 deep, 920 high, its seat at 505. Its front is 1900 from the TV wall (x 1496-3186, y 1900-2900). Behind it, 41 to the island. The speakers (Argon Fenris A5, 170 wide, 220 deep, 280 high) on the daybed's bookcase, either side of the TV above it, their middles 2050 apart.From option 11 (new)",
+  "description": "A 2010-high cupboard in the corner, 540 along the back wall and 1329 out along the left wall, right up to the door frame, with a pair of 481 doors on its side, facing the windows (y 340-1329). Behind the doors it runs back to the back wall. No bench: the daybed stands there instead. Inside, within its 18 boards (rear panels against the walls included): 504 × 1293, 1974 high. The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high) in place of the bench, moved: the middle of its back at x 2285, y 0, facing the front wall. Above the daybed: a 75\" TV (1680 × 960), centred on its bed, from 1150 to 2110. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.): 1690 wide, 1000 deep, 920 high, its seat at 505. Its front is 1900 from the TV wall (x 1496-3186, y 1900-2900). Behind it, 41 to the island. The speakers (Argon Fenris A5, 170 wide, 220 deep, 280 high) on the daybed's bookcase, either side of the TV above it, their middles 2050 apart. At the daybed's desk there's 408 from its end to the corner cupboard. Pulled up to it, the smaller armless chair (drawn) reaches 430 past it, 22 short; the office chair reaches 470 past it, 62 short.From option 11 (new)",
   "boxes": {
     "livingRoom": {
       "from": [
@@ -895,6 +896,19 @@
         3451,
         242,
         1280
+      ],
+      "shown": true
+    },
+    "workChair.livingRoom": {
+      "from": [
+        540,
+        385,
+        40
+      ],
+      "to": [
+        1140,
+        985,
+        900
       ],
       "shown": true
     },

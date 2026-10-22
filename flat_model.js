@@ -32,7 +32,8 @@ import { ivar, ivarSizes } from './ivar.js';
 import { CHESHAM, CORNWALL, kitchenTable, tableSizes } from './tables.js';
 import { castorDesk, castorDeskSizes } from './castor_desk.js';
 import { FENRIS_A5, fenrisA5 } from './speakers.js';
-import { DESK_DAYBED, DAYBED_TOP_D, deskDaybed, bedMiddle } from './desk_daybed.js';
+import { DESK_DAYBED, DAYBED_TOP_D, deskDaybed, bedMiddle, deskOpenEnd } from './desk_daybed.js';
+import { WORK_CHAIRS, officeChair } from './work_chairs.js';
 import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard,
   QUARTER_TURN, OTHER_ROOM_SCHEMA } from './other_room.js';
 import { DOOR_SWINGS, SWING_WAYS, sweepInto, opensTo } from './bedroom_door.js';
@@ -191,23 +192,10 @@ const islandTopMat = material(0xd6a562);                                        
   }
   // The office chair, swivelled round to face the room as it was for the
   // desk-chair photo, with you (the desk-chair view) sitting in it
-  deskChair = new THREE.Group();
+  deskChair = officeChair();
   deskChair.position.set((dx0 + DESK_W / 2) * MM, 0, (deskFront - 350) * MM);   // centred on the desk, 350 out from it
   deskChair.rotation.y = CHAIR_TURN;
   world.add(deskChair);
-  const cx = 0, cy = 0;                                          // the chair's own centre
-  // Seat at 590 and headrest top at 1400 (measured); the rest estimated
-  const SEAT = 590, CHAIR_TOP = 1400;
-  box({ from: [cx - 250, cy - 250, SEAT - 70], to: [cx + 250, cy + 250, SEAT] }, blackMat, deskChair);                   // seat
-  box({ from: [cx - 230, cy - 280, SEAT], to: [cx + 230, cy - 230, CHAIR_TOP - 250] }, blackMat, deskChair);             // back
-  box({ from: [cx - 140, cy - 290, CHAIR_TOP - 230], to: [cx + 140, cy - 240, CHAIR_TOP] }, blackMat, deskChair);       // headrest
-  for (const side of [-1, 1]) {                                                                  // armrests, making it 600 wide (measured)
-    box({ from: [cx + side * 300 - (side > 0 ? 50 : 0), cy - 200, SEAT + 200], to: [cx + side * 300 + (side < 0 ? 50 : 0), cy + 150, SEAT + 230] }, blackMat, deskChair);
-    box({ from: [cx + side * 275 - 10, cy - 40, SEAT], to: [cx + side * 275 + 10, cy, SEAT + 200] }, blackMat, deskChair);
-  }
-  box({ from: [cx - 25, cy - 25, 80], to: [cx + 25, cy + 25, SEAT - 70] }, blackMat, deskChair);                         // column
-  box({ from: [cx - 320, cy - 25, 40], to: [cx + 320, cy + 25, 80] }, blackMat, deskChair);                              // base
-  box({ from: [cx - 25, cy - 320, 40], to: [cx + 25, cy + 320, 80] }, blackMat, deskChair);
   face(a1 - a0, CEILING_HEIGHT - aTop, wallMat, (a0 + a1) / 2, (aTop + CEILING_HEIGHT) / 2, ROOM_DEPTH, intoRoom);        // above it
   face(a1 - a0, aTop - worktop, tileMat, (a0 + a1) / 2, (worktop + aTop) / 2, aBack, intoRoom);   // the alcove's tiled back
   face(a1 - a0, worktop, wallMat, (a0 + a1) / 2, worktop / 2, aBack, intoRoom);                     // behind the units
@@ -356,8 +344,9 @@ const config = {
     billyChest: { in: { livingRoom: { on: true, move: LOUNGE_NOW.billyChest } } },       // in the corner, as now
     // ...and the daybed with a desk and bookcase (desk_daybed.js), out to
     // start, its desk at the left end or the right (deskAt), as it can be
-    // put together; and the TV on the wall above it, or not
-    deskDaybed: { design: { deskAt: 'left' }, in: { livingRoom: { on: false, move: null, tvAbove: false } } },
+    // put together; the TV on the wall above it, or not; and the work chair
+    // at its desk: none, or one of WORK_CHAIRS (the smaller, for who'll use it)
+    deskDaybed: { design: { deskAt: 'left' }, in: { livingRoom: { on: false, move: null, tvAbove: false, chair: 'small' } } },
     // The Ivar (ivar.js), by the first radiator, lying on its side, as it is
     // now (IVAR_HOME), and moved round the room from there, or null where it
     // starts
@@ -876,7 +865,8 @@ function placePiece(g) {
 // a bookcase like the bedroom's or nothing, in every option but the current room.
 // The configuration names them as here.
 const FRONT_PIECES = ['dresser', 'larder', 'none', 'bookshelf'];
-const pieces = { dresser: null, larder: null, sofa: null, ivar: null, chesham: null, cornwall: null, castorDesk: null, speakers: null };   // where each is drawn now, to look at
+const pieces = { dresser: null, larder: null, sofa: null, ivar: null, chesham: null, cornwall: null, castorDesk: null, speakers: null, workChair: null };
+let backWallDrawn = {};            // the back wall's pieces as drawn, by their keys   // where each is drawn now, to look at
 const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;
 const frontGap = () => DESK_RECESS.x0 - frontFrom();             // 1415
 const frontX0 = w => Math.round(frontFrom() + (frontGap() - w) / 2);   // a piece w wide, centred there
@@ -1567,6 +1557,7 @@ function pieceOnBenchWall(key, x0, g) {
   piece.position.set(x * MM, 0, y * MM);
   piece.rotation.y = THREE.MathUtils.degToRad(-turn);
   g.add(piece);
+  backWallDrawn[key] = piece;
   const named = `${name} (${w} wide, ${d} deep, ${h} high)`;
   if (moved) return ` ${named} in place of the bench, moved: the middle of its back at x ${x}, y ${y}, facing ${FACING[turn]}.`;
   return ` ${named} on the back wall, ${homeText(x0, w)}.`;
@@ -1592,6 +1583,79 @@ function tvAboveDaybed(g) {
   if ('missing' in tv) return tv.missing;
   drawTv(tv.middle, tv.bottom, g);
   return ` Above the daybed: ${tvWords(inches)} TV (${TV_W} × ${TV_H}), centred on its bed, from ${tv.bottom} to ${tv.bottom + TV_H}.`;
+}
+
+// ---------------------------------------------------------------------------
+// The work chair at the daybed's desk (asked for, 22 Oct 2026): pulled up,
+// in use, at the desk's open end and facing it, centred on the knee space
+// under it, its seat's front SEAT_UNDER_DESK under the desk top; it moves
+// and turns with the daybed. And the room there is to sit: from the desk's
+// end to the nearest thing beyond it (the corner cupboard, another piece, a
+// wall) across the office chair's width, said in the summary, with how far
+// each chair reaches past the end and whether it fits
+// ---------------------------------------------------------------------------
+const SEAT_UNDER_DESK = 100;       // the seat's front under the desk top (chosen: pulled up to work)
+const WALL_NAMES = { left: 'the left wall', right: 'the right-hand wall', back: 'the back wall', front: 'the front wall' };
+// How far a chair reaches past the desk's end, pulled up: its seat's back
+// half, less what's under the desk, and its base behind that
+const chairReach = ({ seatHalf, baseHalf }) => seatHalf - SEAT_UNDER_DESK + baseHalf;
+// What could be in the way, as [name, box in the scene] for each of their
+// solid parts: the room's walls, the corner cupboard, the island and the
+// living room's loose pieces, but not the daybed itself
+function obstacles(daybed) {
+  const solid = 100;                                            // the walls' boxes' thickness, behind their faces (chosen)
+  const wall = (x0, y0, x1, y1) => new THREE.Box3(new THREE.Vector3(x0 * MM, 0, y0 * MM), new THREE.Vector3(x1 * MM, CEILING_HEIGHT * MM, y1 * MM));
+  const found = [[WALL_NAMES.left, wall(-solid, 0, 0, ROOM_DEPTH)], [WALL_NAMES.right, wall(ROOM_WIDTH, 0, ROOM_WIDTH + solid, ROOM_DEPTH)],
+    [WALL_NAMES.back, wall(0, -solid, ROOM_WIDTH, 0)], [WALL_NAMES.front, wall(0, ROOM_DEPTH, ROOM_WIDTH, ROOM_DEPTH + solid)]];
+  const named = [[cupboard?.group, 'the corner cupboard'], [islandGroup, 'the island'], [pieces.sofa, 'the sofa'], [pieces.ivar, 'the Ivar'],
+    [pieces.chesham, 'Chesham'], [pieces.cornwall, 'Cornwall'], [pieces.castorDesk, 'the desk on castors'],
+    ...Object.entries(backWallDrawn).filter(([, piece]) => piece !== daybed).map(([key, piece]) => [piece, BACK_WALL_PIECES[key].short])];
+  for (const [object, name] of named) {
+    object?.updateMatrixWorld(true);
+    object?.traverse(o => { if (o.isMesh) found.push([name, new THREE.Box3().setFromObject(o)]); });
+  }
+  return found;
+}
+// The room beyond the desk's end (`end`, deskOpenEnd()'s) across a band `half`
+// either side of `across`, out from the back: { gap, name }, to the nearest
+// thing there, negative for something reaching in over the desk's end (as
+// far as the desk's width). Worked out in the daybed's own frame, as it
+// stands and turns
+function roomBeyond(daybed, { x, outward, width }, across, half) {
+  daybed.updateMatrixWorld(true);
+  const toDaybed = daybed.matrixWorld.clone().invert();
+  let nearest = { gap: Infinity, name: '' };
+  for (const [name, box] of obstacles(daybed)) {
+    const local = box.clone().applyMatrix4(toDaybed);           // exact, the daybed turned in quarter turns
+    const [lo, hi, out0, out1] = [local.min.x, local.max.x, local.min.z, local.max.z].map(v => v / MM);
+    if (out1 <= across - half || out0 >= across + half) continue;   // not across the chair's way
+    if (outward < 0 ? lo >= x + width : hi <= x - width) continue;   // not out to the desk's end: no matter to the chair
+    const gap = Math.round(outward < 0 ? x - hi : lo - x);
+    if (gap < nearest.gap) nearest = { gap, name };
+  }
+  return nearest;
+}
+// The chair drawn into the daybed, and a sentence for the summary
+function chairAtDaybedDesk() {
+  const daybed = backWallDrawn.deskDaybed;
+  if (!daybed) return '';
+  const end = deskOpenEnd(config.pieces.deskDaybed.design.deskAt), across = (end.knee[0] + end.knee[1]) / 2;
+  const { gap, name } = roomBeyond(daybed, end, across, WORK_CHAIRS.office.baseHalf);
+  const chosen = WORK_CHAIRS[config.pieces.deskDaybed.in.livingRoom.chair];
+  if (chosen) {
+    const chair = chosen.draw();
+    chair.position.set((end.x - end.outward * (SEAT_UNDER_DESK - chosen.seatHalf)) * MM, 0, across * MM);
+    chair.rotation.y = -end.outward * Math.PI / 2;              // facing the desk
+    daybed.add(chair);
+    pieces.workChair = chair;
+  }
+  if (gap < 0) return ` At the daybed's desk there's no room to sit: ${name} ${-gap < end.width ? `reaches ${-gap} in over its end` : 'stands across its end'}.`;
+  if (gap === 0) return ` At the daybed's desk there's no room to sit: ${name} is right up against its end.`;
+  const fits = chair => {
+    const spare = gap - chairReach(chair);
+    return `${chair.name}${chair === chosen ? ' (drawn)' : ''} reaches ${chairReach(chair)} past it, ${spare >= 0 ? `${spare} to spare` : `${-spare} short`}`;
+  };
+  return ` At the daybed's desk there's ${gap} from its end to ${name}. Pulled up to it, ${Object.values(WORK_CHAIRS).map(fits).join('; ')}.`;
 }
 
 // The Ivar in the living room, where it is now (the user's, 18 Oct 2026):
@@ -1830,7 +1894,8 @@ function buildOption() {
   }
   livingGroup = new THREE.Group();
   world.add(livingGroup);
-  pieces.dresser = pieces.larder = pieces.sofa = pieces.ivar = pieces.chesham = pieces.cornwall = pieces.castorDesk = pieces.speakers = null;
+  pieces.dresser = pieces.larder = pieces.sofa = pieces.ivar = pieces.chesham = pieces.cornwall = pieces.castorDesk = pieces.speakers = pieces.workChair = null;
+  backWallDrawn = {};
   cupboard = makeCupboard(cupboardSettings(), LIVING_ROOM_PLACE, CUPBOARD_MATERIALS);
   livingGroup.add(cupboard.group);
   return livingGroup;
@@ -2030,6 +2095,7 @@ const LIVING_ROOM_SCHEMA = [
   Config.choice('pieces.deskDaybed.design.deskAt', ['left', 'right']),
   Config.onOff('pieces.deskDaybed.in.livingRoom.on'),
   Config.onOff('pieces.deskDaybed.in.livingRoom.tvAbove'),
+  Config.choice('pieces.deskDaybed.in.livingRoom.chair', ['none', ...Object.keys(WORK_CHAIRS)]),
   spotOrHome('pieces.deskDaybed.in.livingRoom.move'),
   Config.onOff('pieces.ivar.in.livingRoom.on'),
   Config.onOff('pieces.ivar.in.livingRoom.lying'),
@@ -2169,6 +2235,7 @@ const namedPieces = () => ({
   dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup, 'ivar.livingRoom': pieces.ivar,
   'chesham.livingRoom': pieces.chesham, 'cornwall.livingRoom': pieces.cornwall, 'castorDesk.livingRoom': pieces.castorDesk,
   'speakers.livingRoom': pieces.speakers,
+  'workChair.livingRoom': pieces.workChair,
   bedroomCupboard: otherRoomPieces.newCupboard,
   bed: otherRoomPieces.bed, bookcase: otherRoomPieces.bookcase, pineCupboard: otherRoomPieces.cupboard, mirror: otherRoomPieces.mirror,
   'billy.bedroom': otherRoomPieces.billy, 'billyChest.bedroom': otherRoomPieces.billyChest, 'ivar.bedroom': otherRoomPieces.ivar,
@@ -2221,7 +2288,7 @@ export function build(onShow = optionsOnShow()) {
   const clearFrom = option.clearFrom(cupboardSettings());
   const backWall = benchDrawn() ? benchWall(clearFrom, group)
     : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('') + tvAboveDaybed(group);
-  const aboveText = backWall + frontWall(group, no) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group);
+  const aboveText = backWall + frontWall(group, no) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + chairAtDaybedDesk();
   if (!same) doors.second = 0;
   drawOtherRoom(config);                                         // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard

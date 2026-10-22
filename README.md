@@ -42,6 +42,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | `tables.js` | The kitchen tables, Chesham and Cornwall: on their legs, Chesham on its end, Cornwall with its legs off |
 | `castor_desk.js` | The desk on castors, parked by the door or wheeled out to the TV |
 | `desk_daybed.js` | The daybed with a desk and bookcase, on the lounge's back wall in place of the bench or Billy |
+| `work_chairs.js` | The work chairs: the office chair at the kitchen desk, and a smaller armless one for the daybed's desk |
 | `speakers.js` | The Fenris A5 speakers, a pair on the bench, on Billy or on the corner cupboard |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |

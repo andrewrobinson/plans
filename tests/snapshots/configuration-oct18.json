@@ -349,6 +349,7 @@
           "livingRoom": {
             "on": false,
             "tvAbove": false,
+            "chair": "small",
             "move": null
           }
         }
@@ -751,6 +752,7 @@
     },
     "castorDesk.livingRoom": null,
     "speakers.livingRoom": null,
+    "workChair.livingRoom": null,
     "bedroomCupboard": null,
     "bed": {
       "from": [

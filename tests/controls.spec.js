@@ -805,6 +805,18 @@ test('the daybed with a desk stands on the back wall, its desk at either end', a
   await expect(page.locator('#speakerSpacingValue')).toHaveText('2050');
   await slide(page, 'speakerSpacing', 1800);
   expect(await setting(page, 'pieces.speakers.in.livingRoom.spacing.deskDaybed')).toBe(1800);
+  // The chair at its desk: the smaller one to start; with the desk at the
+  // left end against the left wall there's no room, slid against BillyChest
+  // there's 635 (the sofa out, which stands across it as the page opens)
+  await toggle(page, 'deskDaybedRight', false);
+  await page.selectOption('#sofaPick', 'none');
+  await expect(page.locator('input[name=deskDaybedChair][value=small]')).toBeChecked();
+  await expect(page.locator('#summary')).toContainText('At the daybed\'s desk there\'s no room to sit: the left wall is right up against its end.');
+  await slide(page, 'deskDaybedX', 1950);
+  await expect(page.locator('#summary')).toContainText('At the daybed\'s desk there\'s 635 from its end to the left wall.');
+  await page.locator('input[name=deskDaybedChair][value=office]').evaluate(el => { el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); });
+  expect(await setting(page, 'pieces.deskDaybed.in.livingRoom.chair')).toBe('office');
+  await expect(page.locator('#summary')).toContainText('the office chair (drawn) reaches 470 past it, 165 to spare');
 });
 
 // The shoe rack, downstairs (pieces.shoeRack): not there yet, as the page

@@ -345,6 +345,7 @@
           "livingRoom": {
             "on": false,
             "tvAbove": false,
+            "chair": "small",
             "move": null
           }
         }
@@ -934,6 +935,7 @@
       "shown": true
     },
     "speakers.livingRoom": null,
+    "workChair.livingRoom": null,
     "bedroomCupboard": {
       "from": [
         -3003,

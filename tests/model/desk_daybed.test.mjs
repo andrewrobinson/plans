@@ -65,3 +65,32 @@ test('the speakers on its bookcase, either side of the TV, their fronts flush wi
   assert.equal(box.to[0] - box.from[0] - 170, 1680 + 2 * 100 + 170);
   assert.deepEqual([box.from[2], box.to[1] - 2], [1000, 240]);   // on its top; the badge 2 proud of the front
 });
+
+// The daybed in Billy's place, its back's middle at x (slid along the back
+// wall), and a chair at its desk
+function atX(x, edit = () => {}) {
+  const configuration = structuredClone(DEFAULT_CONFIGURATION);
+  configuration.pieces.billy.in.livingRoom.on = false;
+  configuration.pieces.deskDaybed.in.livingRoom = { on: true, move: { x, y: 0, turn: 0 }, tvAbove: false, chair: 'small' };
+  edit(configuration);
+  return buildFlat(configuration);
+}
+
+test('the chair at its desk: pulled up at the open end, and the room there said', () => {
+  const built = atX(1950);                                    // slid against BillyChest: its desk's end at 635
+  assert.match(built.description, /At the daybed's desk there's 635 from its end to the left wall\. Pulled up to it, the smaller armless chair \(drawn\) reaches 430 past it, 205 to spare; the office chair reaches 470 past it, 165 to spare\./);
+  const chair = built.boxes['workChair.livingRoom'];
+  assert.deepEqual([chair.from[0], chair.to[0]], [635 - 430, 635 + 170]);   // its base 300 either side of a centre 130 out from the end
+});
+
+test('the chair\'s room, with a corner cupboard in the way, or the desk at the other end', () => {
+  const cupboard = atX(1950, c => { c.pieces.cornerCupboard.design.option = 10; });   // its 800 along the back wall
+  assert.match(cupboard.description, /no room to sit: the corner cupboard reaches 165 in over its end\./);
+  const right = atX(1315, c => {
+    Object.assign(c.pieces.deskDaybed, { design: { deskAt: 'right' } });
+    c.pieces.deskDaybed.in.livingRoom.chair = 'office';
+    c.pieces.sofa.design.model = 'none';                      // the Drift, as the page opens, stands across that end
+  });
+  assert.match(right.description, /there's 634 from its end to BillyChest\..*the office chair \(drawn\) reaches 470 past it, 164 to spare/);
+  assert.equal(atX(1950, c => { c.pieces.deskDaybed.in.livingRoom.chair = 'none'; }).boxes['workChair.livingRoom'], null);
+});
