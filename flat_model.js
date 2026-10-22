@@ -257,103 +257,120 @@ const LOUNGE_NOW = (() => {
 
 // ---------------------------------------------------------------------------
 // The settings: everything the menus set and the address saves, in one
-// place, changed by the menus only through set() (below). The cupboard's
-// sizes keep the short names the drawing code and room_dimensions.md use; a
-// function that draws reads the ones it needs at its top, as
-// `const { T, R, BOARD } = state.cornerCupboard;`. What's worked out from the
-// settings isn't kept here (the heights above the bench, the TV's width and
-// height, where the dresser stands), and nor is the view (kit/view_kit.js).
+// place, changed by the menus only through set() (below). Laid out as the
+// configuration is (REFACTOR_PLAN.md item 14), a room at a time: the living
+// room's so far. The cupboard's sizes keep the short names the drawing code
+// and room_dimensions.md use; a function that draws reads the ones it needs
+// at its top, as `const { T, R, BOARD } = state.pieces.cornerCupboard.design;`.
+// What's worked out from the settings isn't kept here (the heights above
+// the bench, the TV's width and height, where the dresser stands), and nor
+// is the view (kit/view_kit.js).
 // ---------------------------------------------------------------------------
 const state = {
-  // The living room's corner cupboard: its piece of the configuration
-  // (pieces.cornerCupboard.design), as corner_cupboard.js's
-  // CUPBOARD_SETTINGS, which cupboardSettings() gives makeCupboard()
-  cornerCupboard: {
-    option: 10,                      // the option on show, by its number (7 to 11, or 16): 10 here, for the bedroom's copy; the living room's is set to 16 below OPTIONS
-    // The left-wall cupboard's depth from the wall: 0 (none), or 300 to 800 in
-    // 10s. Option 8 needs it, so it's unavailable at 0. Everything
-    // along the back wall starts from it. 600 to start, as option 7 has when
-    // chosen.
-    T: 600,
-    R: 330,                          // the rear-wall cupboards' and bench's depth from the back wall: 300 to 800
-    F: 1200,                         // the left-wall cupboard's front, out from the back wall: 1000 up to the room's door (cupboardLimits()). Its inside leg along the left wall is F - R
-    // The thickness of the boards (MDF or chipboard) every cupboard is built
-    // from, 12 to 25: the same for all of them. Cupboards' outside sizes stay
-    // as set, so thicker boards take room from the inside.
-    BOARD: 18,
-    TOP: 0,                          // how high the full-height parts stand: 0 to the ceiling, or 1800 up to it (asked for, 18 Oct 2026)
-    LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200 (the bedroom's to its recess). Its door is LEG - BOARD - 2 * DOOR_GAP wide, or more doors past MAX_DOOR_W. Option 8 has its own, DIAG_RUN
-    LEG_D: 600,                      // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench, which stays R deep
-    L_SHELVES: { back: [600, 1200, 1800], left: [600, 1200, 1800] },   // ...and its shelf tops in the back-wall leg (with the inside corner) and the left-wall leg
-    DIAG_RUN: 700,                   // option 8's back-wall leg, inside along the back wall from the left-wall cupboard: 400 up to the room's limit (700 as it was first drawn)
-    DIAG_BACK: 0,                    // ...its front running straight in from the back-wall leg's end before the diagonal starts: 0 (none) on
-    DIAG_LEFT: 0,                    // ...and likewise from the left-wall leg's end (both asked for, 18 Oct 2026)
-    WARD: 900,                       // option 9's full-height double-door cupboard on the back wall: 600 to 1400 wide
-    WARD_D: 600,                     // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench and tower, which stay R deep
-    TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)
-    CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200 (the bedroom's to its recess). Option 10's doors are (CORNER_W - BOARD - 3 * DOOR_GAP) / 2 wide each, or two pairs past MAX_DOOR_W
-    CORNER_D: 650,                   // ...and out along the left wall, in place of F: 0 to 1329 (the door frame; the bedroom's to its door's swing). Too shallow (cornerTooShallow()), it isn't built
-    SIDE_SHELF: false,               // option 10's full-height side bookshelf, between the corner cupboard and the TV: drawn or not
-    SIDE_W: 400,                     // ...its width along the back wall, 200 to 800, the cupboard's side included (it shares it)
-    SIDE_D: 330,                     // ...and its depth from the back wall, 150 to 800
-    // Option 10's fold-down desk, on the cupboard's side facing the windows
-    // (corner_cupboard.js's foldDownDesk()): drawn or not, its width along
-    // the side (held to the side's clear run), how far it reaches out when
-    // open, and its top's height when open (chosen with the user, 20 Oct
-    // 2026: 780 fills the 820 the photo layout's side leaves, 20 clear each
-    // end; 500 deep for a laptop and arms; 740, a usual desk height).
-    // Whether it's folded away or down is with the doors' angles, in the
-    // view (doors.desk, DESK_SHOWN)
-    DESK: false,
-    DESK_W: 780,
-    DESK_D: 500,
-    DESK_H: 740,
+  // Each piece once, with its design and the rooms it's in, as the
+  // configuration has it (room_dimensions.md)
+  pieces: {
+    // The living room's corner cupboard: its design, as corner_cupboard.js's
+    // CUPBOARD_SETTINGS, which cupboardSettings() gives makeCupboard()
+    cornerCupboard: { design: {
+      option: 10,                      // the option on show, by its number (7 to 11, or 16): 10 here, for the bedroom's copy; the living room's is set to 16 below OPTIONS
+      // The left-wall cupboard's depth from the wall: 0 (none), or 300 to 800 in
+      // 10s. Option 8 needs it, so it's unavailable at 0. Everything
+      // along the back wall starts from it. 600 to start, as option 7 has when
+      // chosen.
+      T: 600,
+      R: 330,                          // the rear-wall cupboards' and bench's depth from the back wall: 300 to 800
+      F: 1200,                         // the left-wall cupboard's front, out from the back wall: 1000 up to the room's door (cupboardLimits()). Its inside leg along the left wall is F - R
+      // The thickness of the boards (MDF or chipboard) every cupboard is built
+      // from, 12 to 25: the same for all of them. Cupboards' outside sizes stay
+      // as set, so thicker boards take room from the inside.
+      BOARD: 18,
+      TOP: 0,                          // how high the full-height parts stand: 0 to the ceiling, or 1800 up to it (asked for, 18 Oct 2026)
+      LEG: 600,                        // option 7's back-wall leg, inside along the back wall: 400 to 1200 (the bedroom's to its recess). Its door is LEG - BOARD - 2 * DOOR_GAP wide, or more doors past MAX_DOOR_W. Option 8 has its own, DIAG_RUN
+      LEG_D: 600,                      // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench, which stays R deep
+      L_SHELVES: { back: [600, 1200, 1800], left: [600, 1200, 1800] },   // ...and its shelf tops in the back-wall leg (with the inside corner) and the left-wall leg
+      DIAG_RUN: 700,                   // option 8's back-wall leg, inside along the back wall from the left-wall cupboard: 400 up to the room's limit (700 as it was first drawn)
+      DIAG_BACK: 0,                    // ...its front running straight in from the back-wall leg's end before the diagonal starts: 0 (none) on
+      DIAG_LEFT: 0,                    // ...and likewise from the left-wall leg's end (both asked for, 18 Oct 2026)
+      WARD: 900,                       // option 9's full-height double-door cupboard on the back wall: 600 to 1400 wide
+      WARD_D: 600,                     // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench and tower, which stay R deep
+      TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)
+      CORNER_W: 800,                   // options 10 and 11's full-height corner cupboard, along the back wall: 500 to 1200 (the bedroom's to its recess). Option 10's doors are (CORNER_W - BOARD - 3 * DOOR_GAP) / 2 wide each, or two pairs past MAX_DOOR_W
+      CORNER_D: 650,                   // ...and out along the left wall, in place of F: 0 to 1329 (the door frame; the bedroom's to its door's swing). Too shallow (cornerTooShallow()), it isn't built
+      SIDE_SHELF: false,               // option 10's full-height side bookshelf, between the corner cupboard and the TV: drawn or not
+      SIDE_W: 400,                     // ...its width along the back wall, 200 to 800, the cupboard's side included (it shares it)
+      SIDE_D: 330,                     // ...and its depth from the back wall, 150 to 800
+      // Option 10's fold-down desk, on the cupboard's side facing the windows
+      // (corner_cupboard.js's foldDownDesk()): drawn or not, its width along
+      // the side (held to the side's clear run), how far it reaches out when
+      // open, and its top's height when open (chosen with the user, 20 Oct
+      // 2026: 780 fills the 820 the photo layout's side leaves, 20 clear each
+      // end; 500 deep for a laptop and arms; 740, a usual desk height).
+      // Whether it's folded away or down is with the doors' angles, in the
+      // view (doors.desk, DESK_SHOWN)
+      DESK: false,
+      DESK_W: 780,
+      DESK_D: 500,
+      DESK_H: 740,
+    } },
+    // The bedroom's corner cupboard (its New cupboard): its own settings, as
+    // the living room's. To start, a copy of the living room's (set below
+    // OPTIONS)
+    bedroomCupboard: { design: null },
+    // The bench along the back wall: its height (700, 780, 800 or 900), and
+    // drawn, with what's above it; off, the back wall's bare (there's none
+    // yet: LOUNGE_NOW)
+    bench: { design: { height: 780 }, in: { livingRoom: { on: false } } },
+    // Above the bench: what (0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4
+    // TV and top shelf), the shelves' depth (150 to 400) and the TV's size in
+    // inches, one of TV_SIZES
+    aboveBench: { design: { what: 3, shelfDepth: 250, tv: 75 } },
+    // The dresser's, larder's and sofa's sizes, and which larder and sofa:
+    // these until set from dressers.js, larders.js and sofas.js below
+    dresser: { design: { w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290 } },
+    larder: { design: { model: '', w: 1100, h: 1950, d: 510 } },
+    sofa: {
+      design: { model: '', w: 1690, d: 1000, h: 920,   // model '' for none
+        asBed: false },          // a daybed (the Drift) laid out as a bed, its arms down
+      in: { livingRoom: { front: 1900,                 // its front from the TV wall
+        move: LOUNGE_NOW.sofa } },   // ...or moved and turned from there: { x, y, turn } (see sofaSpot), or null where it starts
+    },
+    // Where the island is, one of ISLAND_AT; out there, where its middle is
+    // and how far it's turned (ISLAND_HOME to start)
+    island: { in: { livingRoom: { at: 'room', x: 0, y: 0, turn: 0 } } },
+    // In the living room in place of the bench (and what's above it), which is
+    // then off whatever its own switch says: the bedroom's bookcase and pine
+    // cupboard, and Billy and BillyChest from the garage (billy.js), each moved
+    // round the room from there ({ x, y, turn }, see BACK_WALL_PIECES, or null
+    // where it starts), Billy standing or lying on its long side, its open
+    // side out
+    bookcase: { in: { livingRoom: { on: false, move: null } } },
+    pineCupboard: { in: { livingRoom: { on: false, move: null } } },
+    billy: { in: { livingRoom: { on: true, lying: true, move: LOUNGE_NOW.billy } } },   // where it is now
+    billyChest: { in: { livingRoom: { on: true, move: LOUNGE_NOW.billyChest } } },       // in the corner, as now
+    // The Ivar (ivar.js), by the first radiator, lying on its side, as it is
+    // now (IVAR_HOME), and moved round the room from there, or null where it
+    // starts
+    ivar: { in: { livingRoom: { on: true, lying: true, move: null } } },
+    // The kitchen tables (tables.js), in the corner by the door, as it is now
+    // (LOUNGE_NOW), hidden to start (asked for, 19 Oct 2026): Chesham on its
+    // end, its top against the wall behind it (else on its legs), Cornwall
+    // on the floor with its legs off (else on its legs); each moved round the
+    // room from there, as the Ivar
+    chesham: { in: { livingRoom: { on: false, onItsEnd: true, move: null } } },
+    cornwall: { in: { livingRoom: { on: false, legsOff: true, move: null } } },
+    // The desk on castors (castor_desk.js), off to start, parked by the door
+    // ('door') or wheeled out in front of the TV ('tv'): CASTOR_DESK_HOMES;
+    // and moved from there, as the Ivar
+    castorDesk: { in: { livingRoom: { on: false, at: 'door', move: null } } },
   },
-  // The bedroom's corner cupboard (its New cupboard): its own settings, as
-  // the living room's, its piece pieces.bedroomCupboard.design. To start, a
-  // copy of the living room's (set below OPTIONS)
-  bedroomCupboard: null,
-  benchOn: false,                  // the bench drawn, with what's above it; off, the back wall's bare (there's none yet: LOUNGE_NOW)
-  bookshelfOn: false,              // the bedroom's bookcase on the back wall in place of the bench (and what's above it), which is then off whatever benchOn says
-  bookshelfMove: null,             // ...and moved round the room from there: { x, y, turn } (see BACK_WALL_PIECES), or null where it starts
-  pineOn: false,                   // the bedroom's pine cupboard likewise, in place of the bench
-  pineMove: null,                  // ...and moved round the room from there, as the bookshelf
-  billyOn: true,                   // Billy, from the garage (billy.js), likewise
-  billyMove: LOUNGE_NOW.billy,     // ...and moved round the room from there, as the bookshelf: where it is now
-  billyLying: true,                // ...and standing, or lying on its long side, its open side out
-  billyChestOn: true,              // BillyChest, from the garage (billy.js), likewise
-  billyChestMove: LOUNGE_NOW.billyChest,   // ...and moved round the room from there, as the bookshelf: in the corner, as now
-  ivarOn: true,                    // the Ivar (ivar.js), by the first radiator, as it is now (IVAR_HOME)
-  ivarLying: true,                 // ...lying on its side
-  ivarMove: null,                  // ...and moved round the room from there: { x, y, turn }, or null where it starts
-  cheshamOn: false,                // the Chesham kitchen table (tables.js), in the corner by the door, as it is now (LOUNGE_NOW); hidden to start (asked for, 19 Oct 2026)
-  cheshamOnItsEnd: true,           // ...on its end, its top against the wall behind it; else standing on its legs
-  cheshamMove: null,               // ...and moved round the room from there, as the Ivar
-  castorDeskOn: false,             // the desk on castors (castor_desk.js), off to start
-  castorDeskAt: 'door',            // ...parked by the door ('door') or wheeled out in front of the TV ('tv'): CASTOR_DESK_HOMES
-  castorDeskMove: null,            // ...and moved round the room from there, as the Ivar
-  cornwallOn: false,               // the Cornwall kitchen table (tables.js), likewise
-  cornwallLegsOff: true,           // ...on the floor with its legs off; else on its legs
-  cornwallMove: null,              // ...and moved round the room from there, as the Ivar
-  BENCH: 780,                      // the bench's height: 700, 780, 800 or 900
-  above: 3,                        // above the bench: 0 nothing, 1 shelves, 2 TV, 3 TV and shelves, 4 TV and top shelf
-  shelfDepth: 250,                 // the shelves above the bench: 150 to 400 deep
-  tv: 75,                          // the TV's size in inches, one of TV_SIZES
-  colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0 },   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
-  shelfWood: 0,                    // the shelves' wood, which of SHELF_WOODS
-  frontPiece: 'none',              // on the front wall between the sink and the desk: one of FRONT_PIECES (none yet)
-  // The dresser's, larder's and sofa's sizes, and which larder and sofa:
-  // these until set from dressers.js, larders.js and sofas.js below
-  dresser: { w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290, drawer: 160 },
-  larder: { key: '', size: { w: 1100, h: 1950, d: 510 } },
-  sofa: { key: '', front: 1900, size: { w: 1690, d: 1000, h: 920 },     // key '' for none; front: its front from the TV wall
-          asBed: false,          // a daybed (the Drift) laid out as a bed, its arms down
-          move: LOUNGE_NOW.sofa },   // ...or moved and turned from there: { x, y, turn } (see sofaSpot), or null where it starts
-  island: { at: 'room', move: null },   // where the island is, one of ISLAND_AT; out there, where its middle is and how far it's turned (ISLAND_HOME to start)
+  colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0,   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
+    shelves: 0 },                  // the shelves' wood, which of SHELF_WOODS
+  livingRoom: { frontWall: 'none' },   // on the front wall between the sink and the desk: one of FRONT_PIECES (none yet)
   // The things to store: shown or not, which of PACKINGS, where (0 by the
   // middle window, 1 in the corner cupboard, 2 moved by hand), and each
-  // thing's { x, y, turned, z } (set up with STORED below)
-  stored: { shown: false, packing: 0, where: 0, spots: [] },   // ...shown where they are now once STORED is set up (STORED_NOW)
+  // thing's { x, y, turned, z } once moved by hand (set up with STORED below)
+  thingsToStore: { shown: false, packing: 0, where: 0, spots: [] },   // ...shown where they are now once STORED is set up (STORED_NOW)
   otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
   wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
   shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
@@ -361,6 +378,11 @@ const state = {
   bathroomShown: true,             // the bathroom and WC drawn, or hidden to see the hallway and stairs past them
   garage: structuredClone(GARAGE_START),              // Sean, Billy, BillyChest and the rest, in the garage: where each stands (garage.js)
 };
+// A piece's place in the living room, by its key in the living room's
+// controls (BACK_WALL_KEYS, the tables, the Ivar, the desk on castors):
+// the bookshelf is the bookcase, and the pine the pine cupboard
+const LIVING_ROOM_PIECES = { bookshelf: 'bookcase', pine: 'pineCupboard' };
+export const inLivingRoom = key => state.pieces[LIVING_ROOM_PIECES[key] ?? key].in.livingRoom;
 
 // How far each door is open, in degrees, up to its slider's most
 // (index.html): the room door, the left-wall cupboard's tall door, the
@@ -380,14 +402,14 @@ const doors = structuredClone(DOORS_START);
 
 // ---------------------------------------------------------------------------
 // The corner cupboard: corner_cupboard.js's makeCupboard() makes it from its
-// settings (its piece of the configuration, state.cornerCupboard), the living
+// settings (its piece of the configuration, state.pieces.cornerCupboard.design), the living
 // room as its place, and its materials; buildOption() keeps it in
 // `cupboard`. Its shelves are drawn round the things to store (from
 // drawStored()).
 // ---------------------------------------------------------------------------
 // A corner cupboard's settings, by its piece's name in state: a copy, so a
 // cupboard built from them isn't changed by the menus till it's built again
-const cupboardSettings = (piece = 'cornerCupboard') => ({ ...state[piece] });
+const cupboardSettings = (piece = 'cornerCupboard') => ({ ...state.pieces[piece].design });
 // The living room, as the cupboard stands in it: its back-left corner,
 // and the room door it can meet (760 x 44, hinged at y 1400 on the left wall)
 const LIVING_ROOM_PLACE = {
@@ -401,7 +423,7 @@ const LIVING_ROOM_PLACE = {
 // (3682 to the window wall) and its left wall along the kitchen-side wall
 // (2841 out to the hallway wall), under the bedroom's 2445 ceiling. No door
 // on its walls (the bedroom's is in the far one). Its settings
-// (state.bedroomCupboard), colour (colours.bedroomCupboard, following the
+// (state.pieces.bedroomCupboard.design), colour (colours.bedroomCupboard, following the
 // living room's unless set), doors, materials, shelves and cutting list are
 // its own; its shelves' wood is the flat's.
 const BEDROOM_PLACE = { width: OTHER_ROOM.length, depth: OTHER_ROOM.breastFace, ceiling: OTHER_ROOM.ceiling, door: null };
@@ -431,7 +453,7 @@ function clearOfBedroomDoor(deep) {
 // the room door's frame starts 1329 out along the left wall); in the
 // bedroom, the back-wall sizes go to the recess and the left-wall ones to
 // the door's swing.
-export function cupboardLimits(piece, settings = state[piece]) {
+export function cupboardLimits(piece, settings = state.pieces[piece].design) {
   const { T, R, F, DIAG_RUN, CORNER_W } = settings;
   const onSteps = (v, name) => Math.floor(v / SLIDER_RANGES[name][2]) * SLIDER_RANGES[name][2];   // where its slider can stop
   const diagonal = { DIAG_BACK: onSteps(DIAG_RUN - MIN_DIAGONAL, 'diagBack'), DIAG_LEFT: onSteps(F - R - MIN_DIAGONAL, 'diagLeft') };
@@ -442,7 +464,7 @@ export function cupboardLimits(piece, settings = state[piece]) {
 const BEDROOM_MATERIALS = makeMaterials();
 // The things to store, for the shelves to be cut round: each { name, h, x,
 // y, z, w, d }, in STORED's order, none while they're not shown
-const storedThings = () => (!state.stored.shown ? [] : STORED.map((s, k) => {
+const storedThings = () => (!state.thingsToStore.shown ? [] : STORED.map((s, k) => {
   const { x, y, z } = storedSpots()[k], [w, d] = storedSize(k);
   return { name: s.name, h: s.h, x, y, z, w, d };
 }));
@@ -470,8 +492,8 @@ const TV_SIZES = [[32, 720, 440], [40, 900, 500], [42, 930, 540], [43, 970, 570]
 // 60 below the ceiling there's no top shelf.
 let TV_W, TV_H, SHELF_TOPS, TV_BOTTOM, TV_SHELF_TOPS, TV_MIDDLE_SHELF;
 function benchHeights() {
-  const { BENCH } = state;
-  [, TV_W, TV_H] = TV_SIZES.find(([inches]) => inches === state.tv);
+  const BENCH = state.pieces.bench.design.height;
+  [, TV_W, TV_H] = TV_SIZES.find(([inches]) => inches === state.pieces.aboveBench.design.tv);
   SHELF_TOPS = [BENCH + 420, BENCH + 770, BENCH + 1120];
   TV_BOTTOM = BENCH + 320;
   const top = Math.max(BENCH + 1300, TV_BOTTOM + TV_H + TV_GAP);
@@ -482,12 +504,12 @@ const tvMat = material(0x1a1a1a);
 const screenMat = new THREE.MeshStandardMaterial({ color: 0x0c1824, roughness: 0.3, metalness: 0.2 });
 
 function shelves(x0, x1, g, tops = SHELF_TOPS) {
-  for (const top of tops) box({ from: [x0, 0, top - SHELF_T], to: [x1, state.shelfDepth, top] }, shelfMat, g);
+  for (const top of tops) box({ from: [x0, 0, top - SHELF_T], to: [x1, state.pieces.aboveBench.design.shelfDepth, top] }, shelfMat, g);
 }
 
 let tvAt = null;                   // the TV's middle, room [x, y, height], or where it would be
 function benchWall(x0, g) {
-  const { above, shelfDepth } = state, { R } = state.cornerCupboard;
+  const { what: above, shelfDepth } = state.pieces.aboveBench.design, { R } = state.pieces.cornerCupboard.design;
   const span = ROOM_WIDTH - x0;
   tvAt = [(x0 + ROOM_WIDTH) / 2, 0, TV_BOTTOM + TV_H / 2];
   if (above === 0 || span <= 0) return '';                         // nothing, or no bench (the current room)
@@ -496,7 +518,7 @@ function benchWall(x0, g) {
 }
 
 function benchWallItems(x0, span, g) {
-  const { above, shelfDepth, tv } = state;
+  const { what: above, shelfDepth, tv } = state.pieces.aboveBench.design;
   if (above === 1) {
     shelves(x0, ROOM_WIDTH, g);
     return ` Above the bench: three ${shelfDepth}-deep shelves, ${span} long, at ${SHELF_TOPS.join(', ')}.`;
@@ -620,7 +642,7 @@ const TOP_T = 30;                                               // the bench top
 // Base cupboards along the bench, x0 to W: a recessed plinth, doors about 450
 // wide hinged in pairs, and an oak top at BENCH. Returns how many doors.
 function baseCupboards(x0, g) {
-  const { BENCH } = state, { R, BOARD } = state.cornerCupboard;
+  const BENCH = state.pieces.bench.design.height, { R, BOARD } = state.pieces.cornerCupboard.design;
   box({ from: [x0, 0, PLINTH], to: [ROOM_WIDTH, R - BOARD, BENCH - TOP_T] }, carcassMat, g);   // carcass behind the doors
   box({ from: [x0, 0, 0], to: [ROOM_WIDTH, R - 60, PLINTH] }, carcassMat, g);              // plinth, set back 60
   box({ from: [x0, 0, BENCH - TOP_T], to: [ROOM_WIDTH, R, BENCH] }, oakMat, g);            // top
@@ -655,18 +677,20 @@ const DRESSER_SLIDERS = [['w', 'dresserW', 900, 1415, 5], ['h', 'dresserH', 1500
   ['baseD', 'dresserBaseD', 300, 600, 10], ['baseH', 'dresserBaseH', 700, 1000, 10], ['upperD', 'dresserUpperD', 150, 600, 10]];
 // Start with the dresser chosen in dressers.js (a link keeps its own)
 const DRESSERS = DRESSER_MODELS.list;
-for (const [k] of DRESSER_SLIDERS) state.dresser[k] = DRESSERS[DRESSER_MODELS.start]?.[k] ?? state.dresser[k];
+for (const [k] of DRESSER_SLIDERS) state.pieces.dresser.design[k] = DRESSERS[DRESSER_MODELS.start]?.[k] ?? state.pieces.dresser.design[k];
 // Where it stands along the front wall, worked out from its width: centred
 // between the counter's end and the desk recess, x0 to x1
+// Its drawers' fronts' height (estimated, as drawn from the start)
+const DRESSER_DRAWER_H = 160;
 export function dresserSpan() {
   const from = KITCHEN.frontRunTo + KITCHEN.counterPast, gap = DESK_RECESS.x0 - from;   // 1415 clear
-  const x0 = Math.round(from + (gap - state.dresser.w) / 2);
-  return { x0, x1: x0 + state.dresser.w };
+  const x0 = Math.round(from + (gap - state.pieces.dresser.design.w) / 2);
+  return { x0, x1: x0 + state.pieces.dresser.design.w };
 }
 function dresser(g) {
   // Its width is overall, with the top's 20 overhang each side, so the body is 40 narrower
   const span = dresserSpan();
-  const { h, baseD, baseH, upperD, drawer } = state.dresser, x0 = span.x0 + 20, x1 = span.x1 - 20, w = state.dresser.w - 40;
+  const drawer = DRESSER_DRAWER_H, { h, baseD, baseH, upperD } = state.pieces.dresser.design, x0 = span.x0 + 20, x1 = span.x1 - 20, w = state.pieces.dresser.design.w - 40;
   const yb = ROOM_DEPTH - baseD, yu = ROOM_DEPTH - upperD;                         // the fronts of the base and the upper part
   const doorTop = baseH - TOP_T - drawer - 3;                    // the doors stop under the drawers
   box({ from: [x0, yb + 18, 0], to: [x1, ROOM_DEPTH, baseH - TOP_T] }, dresserMat, g);      // base, behind its fronts
@@ -687,7 +711,7 @@ function dresser(g) {
   box({ from: [x0 - 20, yu - 20, h - 40], to: [x1 + 20, ROOM_DEPTH, h] }, dresserMat, g);   // top, 20 proud
   const shelfTops = [1, 2, 3].map(k => Math.round(baseH + k * (h - 40 - baseH) / 4));   // evenly up the upper part
   for (const top of shelfTops) box({ from: [x0 + 18, yu, top - 22], to: [x1 - 18, ROOM_DEPTH - 12, top] }, shelfMat, g);
-  return ` A dresser on the front wall between the sink and the desk (x ${span.x0}-${span.x1}): ${state.dresser.w} wide overall (its body ${w}), ${h} high, ${baseD} deep up to ${baseH} ` +
+  return ` A dresser on the front wall between the sink and the desk (x ${span.x0}-${span.x1}): ${state.pieces.dresser.design.w} wide overall (its body ${w}), ${h} high, ${baseD} deep up to ${baseH} ` +
     `(two drawers over two doors, under a wooden top), then ${upperD} deep with three open shelves.`;
 }
 
@@ -696,7 +720,7 @@ function dresser(g) {
 // the front wall from x0, facing into the room. Its parts stack from the
 // floor up. Returns a description.
 const LARDERS = LARDER_MODELS.list;
-state.larder.key = Object.hasOwn(LARDERS, LARDER_MODELS.start ?? '') ? LARDER_MODELS.start : Object.keys(LARDERS)[0] ?? '';
+state.pieces.larder.design.model = Object.hasOwn(LARDERS, LARDER_MODELS.start ?? '') ? LARDER_MODELS.start : Object.keys(LARDERS)[0] ?? '';
 // The larder's sizes can be changed from its sliders: [key, slider id,
 // lowest, highest]. Choosing a larder sets them to its own.
 const partHeight = p => p.legs ?? p.plinth ?? p.top ?? p.cornice ?? p.h ?? 0;
@@ -704,14 +728,14 @@ const larderHeight = L => L.parts.reduce((t, p) => t + partHeight(p), 0);
 const larderDepth = L => Math.max(L.d, ...L.parts.map(p => p.d ?? 0));
 const LARDER_SLIDERS = [['w', 'larderW', 400, 1500, 10], ['h', 'larderH', 1500, 2400, 10], ['d', 'larderD', 300, 700, 10]];
 const larderOwnSize = L => ({ w: L.w, h: larderHeight(L), d: L.d });
-if (LARDERS[state.larder.key]) state.larder.size = larderOwnSize(LARDERS[state.larder.key]);
+if (LARDERS[state.pieces.larder.design.model]) Object.assign(state.pieces.larder.design, larderOwnSize(LARDERS[state.pieces.larder.design.model]));
 // The larder chosen, at the sliders' sizes: a change of height goes on (or
 // comes off) its tallest doors, and parts set back from its front (a
 // shallower top section) stay set back as much
 function currentLarder() {
-  const L = LARDERS[state.larder.key];
+  const L = LARDERS[state.pieces.larder.design.model];
   if (!L) return null;
-  const { w, h, d } = state.larder.size;
+  const { w, h, d } = state.pieces.larder.design;
   const parts = L.parts.map(p => (p.d ? { ...p, d: p.d + d - L.d } : p));
   let tallest = -1;
   parts.forEach((p, k) => { if (p.doors && (tallest < 0 || p.h > parts[tallest].h)) tallest = k; });
@@ -794,13 +818,13 @@ const widerThanFrontGap = w => (w > frontGap() ? ` It's ${w - frontGap()} wider 
 // its long side along the wall, centred there ('along', short side out); or
 // not there at all ('none'), as the configuration names them.
 const ISLAND_AT = ['room', 'along', 'out', 'none'];
-const islandOnWall = () => state.island.at === 'along' || state.island.at === 'out';   // in the dresser or larder's place
+const islandOnWall = () => state.pieces.island.in.livingRoom.at === 'along' || state.pieces.island.in.livingRoom.at === 'out';   // in the dresser or larder's place
 // Out there, the island can be moved and turned from its sliders: where its
 // middle is, and how far it's turned (0 to 180°). It starts where it is.
 const ISLAND_HOME = { x: KITCHEN.island.x + KITCHEN.island.width / 2, y: KITCHEN.island.y + KITCHEN.island.length / 2, turn: 0 };
-state.island.move = { ...ISLAND_HOME };
+Object.assign(state.pieces.island.in.livingRoom, ISLAND_HOME);
 function islandSpot() {
-  const { width, length } = KITCHEN.island, { at, move } = state.island;
+  const { width, length } = KITCHEN.island, move = state.pieces.island.in.livingRoom, { at } = move;
   if (at === 'room') {
     // The floor it covers, as a box square to the walls round it turned
     const a = THREE.MathUtils.degToRad(move.turn);
@@ -817,34 +841,34 @@ function placeIsland() {
   const { x0, x1, y0, y1, turned, angle } = islandSpot();
   islandGroup.position.set((x0 + x1) / 2 * MM, 0, (y0 + y1) / 2 * MM);
   islandGroup.rotation.y = angle ?? (turned ? Math.PI / 2 : 0);
-  islandGroup.visible = state.island.at !== 'none';
+  islandGroup.visible = state.pieces.island.in.livingRoom.at !== 'none';
 }
 // A sofa from sofas.js, in any option: facing the TV, centred on it,
-// its front state.sofa.front from the TV wall. Returns a description.
+// its front state.pieces.sofa.in.livingRoom.front from the TV wall. Returns a description.
 const SOFAS = SOFA_MODELS.list;
-state.sofa.key = Object.hasOwn(SOFAS, SOFA_MODELS.start ?? '') ? SOFA_MODELS.start : '';
-state.sofa.front = SOFA_MODELS.front ?? 1900;
+state.pieces.sofa.design.model = Object.hasOwn(SOFAS, SOFA_MODELS.start ?? '') ? SOFA_MODELS.start : '';
+state.pieces.sofa.in.livingRoom.front = SOFA_MODELS.front ?? 1900;
 // The sofa's sizes can be changed from its sliders: [key, slider id,
 // lowest, highest]. Choosing a sofa sets them to its own.
 // Height from 600, for the Drift's 670 (asked for, 18 Oct 2026)
 const SOFA_SLIDERS = [['w', 'sofaW', 1200, 2600, 10], ['d', 'sofaD', 700, 1200, 10], ['h', 'sofaH', 600, 1100, 10]];
 const sofaOwnSize = S => ({ w: S.w, d: S.d, h: S.h });
-if (SOFAS[state.sofa.key]) state.sofa.size = sofaOwnSize(SOFAS[state.sofa.key]);
+if (SOFAS[state.pieces.sofa.design.model]) Object.assign(state.pieces.sofa.design, sofaOwnSize(SOFAS[state.pieces.sofa.design.model]));
 // The sofa chosen, at the sliders' sizes: the seat keeps its depth (the back
 // gets thinner) unless that leaves less than 150 for the back, and the arms
 // stay as they are, under the top of the back. A daybed's width is the
-// floor it covers, wider as a bed (state.sofa.asBed); `sofaW` is its
+// floor it covers, wider as a bed (state.pieces.sofa.design.asBed); `sofaW` is its
 // slider's, as a sofa
 function currentSofa() {
-  const S = SOFAS[state.sofa.key];
+  const S = SOFAS[state.pieces.sofa.design.model];
   if (!S) return null;
-  const { w, d, h } = state.sofa.size, own = sofaOwnSize(S);
+  const { w, d, h } = state.pieces.sofa.design, own = sofaOwnSize(S);
   const resized = own.w !== w || own.d !== d || own.h !== h;
   const label = resized ? `${S.label}, resized` : S.label;
   if (S.daybed) {
     // Worked out from the catalogue's own sizes (S), before w becomes the
     // floor it covers: wider as a bed
-    const asBed = state.sofa.asBed, frame = daybedFrame(S, w, asBed);
+    const asBed = state.pieces.sofa.design.asBed, frame = daybedFrame(S, w, asBed);
     return { ...S, label: asBed ? `${label}, as a bed` : label, w: frame.width, sofaW: w, frame, d, h, asBed,
       seatD: Math.min(S.seatD, d - 150) };
   }
@@ -854,15 +878,15 @@ const sofaMat = material(0x9da3a6);
 // Where the sofa stands: the middle of the floor it covers, room x and y,
 // and how far it's turned, in quarter turns as the bookshelf (360 is 0
 // again). It starts centred on the TV, facing it, its front
-// state.sofa.front from the TV wall; its sliders move it from there.
+// state.pieces.sofa.in.livingRoom.front from the TV wall; its sliders move it from there.
 const SOFA_FACING = { 0: 'the TV wall', 90: 'the right-hand wall', 180: 'the front wall', 270: 'the left wall' };
 function sofaHome(S) {
-  return { x: (tvAt ?? [ROOM_WIDTH / 2])[0], y: state.sofa.front + S.d / 2, turn: 0 };
+  return { x: (tvAt ?? [ROOM_WIDTH / 2])[0], y: state.pieces.sofa.in.livingRoom.front + S.d / 2, turn: 0 };
 }
 // Where it is now, and the floor it covers (x0 to x1, y0 to y1), square to
 // the walls, as it's turned
 function sofaSpot() {
-  const S = currentSofa(), { x, y, turn } = state.sofa.move ?? sofaHome(S);
+  const S = currentSofa(), { x, y, turn } = state.pieces.sofa.in.livingRoom.move ?? sofaHome(S);
   const sideways = turn % 180 !== 0;
   const across = sideways ? S.d : S.w, along = sideways ? S.w : S.d;
   const x0 = Math.round(x - across / 2), y0 = Math.round(y - along / 2);
@@ -871,7 +895,7 @@ function sofaSpot() {
 // Drawn in a group of its own, its middle at the group's origin and its
 // front to -y (facing the TV wall), then moved and turned into place
 function sofa(g) {
-  if (!SOFAS[state.sofa.key]) return '';
+  if (!SOFAS[state.pieces.sofa.design.model]) return '';
   const spot = sofaSpot(), { S } = spot, sub = new THREE.Group(), cushion = 150;
   const x0 = -S.w / 2, x1 = S.w / 2, y0 = -S.d / 2, y1 = S.d / 2;
   sub.position.set(spot.x * MM, 0, spot.y * MM);
@@ -897,13 +921,13 @@ function sofaText(spot) {
   const { S, x, y, turn, x0, x1, y0, y1 } = spot;
   const sizes = `the ${S.label}: ${S.w} wide, ${S.d} deep, ${S.h} high, its seat at ${S.seatH}.`;
   const floor = `(x ${x0}-${x1}, y ${y0}-${y1})`;
-  if (!state.sofa.move) return ` A sofa facing the TV, ${sizes} Its front is ${y0} from the TV wall ${floor}.${sofaByIsland(spot)}`;
+  if (!state.pieces.sofa.in.livingRoom.move) return ` A sofa facing the TV, ${sizes} Its front is ${y0} from the TV wall ${floor}.${sofaByIsland(spot)}`;
   return ` A sofa, ${sizes} Moved: its middle at x ${Math.round(x)}, y ${Math.round(y)}, facing ${SOFA_FACING[turn]} ${floor}.${sofaByIsland(spot)}`;
 }
 // Whether the sofa's floor runs into the island's, or how far behind it the
 // island starts (where the sofa's square to the TV, its back to the island)
 function sofaByIsland({ turn, x0, x1, y0, y1 }) {
-  if (state.island.at === 'none') return '';
+  if (state.pieces.island.in.livingRoom.at === 'none') return '';
   const { x0: ix0, x1: ix1, y0: iy0, y1: iy1 } = islandSpot();
   const level = x0 < ix1 && x1 > ix0;
   if (level && y1 > iy0 && y0 < iy1) return ' It runs into the island.';
@@ -912,13 +936,13 @@ function sofaByIsland({ turn, x0, x1, y0, y1 }) {
 function frontWall(g, no) {
   if (islandOnWall()) {
     const { x0, x1, y0 } = islandSpot();
-    return ` The kitchen island against the front wall between the sink and the desk, its ${state.island.at === 'out' ? 'long' : 'short'} side out (x ${x0}-${x1}), coming ${ROOM_DEPTH - y0} out from the wall to y ${y0}.`;
+    return ` The kitchen island against the front wall between the sink and the desk, its ${state.pieces.island.in.livingRoom.at === 'out' ? 'long' : 'short'} side out (x ${x0}-${x1}), coming ${ROOM_DEPTH - y0} out from the wall to y ${y0}.`;
   }
   if (no === CURRENT_ROOM) return '';
-  if (state.frontPiece === 'dresser') return dresser(pieces.dresser = placePiece(g));
-  if (state.frontPiece === 'bookshelf') return bookcaseOnFrontWall(g);
+  if (state.livingRoom.frontWall === 'dresser') return dresser(pieces.dresser = placePiece(g));
+  if (state.livingRoom.frontWall === 'bookshelf') return bookcaseOnFrontWall(g);
   const L = currentLarder();
-  if (state.frontPiece !== 'larder' || !L) return '';
+  if (state.livingRoom.frontWall !== 'larder' || !L) return '';
   const x0 = larderFrontX0(L);
   const text = larder(pieces.larder = placePiece(g), L, x0);
   return ` A larder on the front wall between the sink and the desk (x ${x0}-${x0 + L.w}): the ${text}.` + widerThanFrontGap(L.w);
@@ -941,20 +965,20 @@ function frontSpan() {
     const { x0, x1 } = islandSpot();
     return { x0, x1, heights: [0, KITCHEN.island.top] };
   }
-  if (state.cornerCupboard.option === CURRENT_ROOM) return null;
-  if (state.frontPiece === 'dresser') return { ...dresserSpan(), heights: [0, state.dresser.baseH, state.dresser.h] };
-  if (state.frontPiece === 'bookshelf') {
+  if (state.pieces.cornerCupboard.design.option === CURRENT_ROOM) return null;
+  if (state.livingRoom.frontWall === 'dresser') return { ...dresserSpan(), heights: [0, state.pieces.dresser.design.baseH, state.pieces.dresser.design.h] };
+  if (state.livingRoom.frontWall === 'bookshelf') {
     const { w, h } = state.otherRoom.bookcase;
     return { x0: frontX0(w), x1: frontX0(w) + w, heights: [0, h] };
   }
   const L = currentLarder();
-  if (state.frontPiece !== 'larder' || !L) return null;
+  if (state.livingRoom.frontWall !== 'larder' || !L) return null;
   return { x0: larderFrontX0(L), x1: larderFrontX0(L) + L.w, heights: [0, larderHeight(L)] };
 }
 // The bedroom's New cupboard starts as option 10 (its list has no current
 // room); the living room has no cupboard yet, the current room (LOUNGE_NOW)
-state.bedroomCupboard = structuredClone(state.cornerCupboard);
-state.cornerCupboard.option = CURRENT_ROOM;
+state.pieces.bedroomCupboard.design = structuredClone(state.pieces.cornerCupboard.design);
+state.pieces.cornerCupboard.design.option = CURRENT_ROOM;
 
 
 // ---------------------------------------------------------------------------
@@ -969,7 +993,7 @@ const P = (x, y, z) => new THREE.Vector3(x * MM, z * MM, y * MM);
 
 // Heights of what's above the bench: shelf tops, and the TV's bottom and top
 function aboveHeights(x0) {
-  const { above } = state;
+  const above = state.pieces.aboveBench.design.what;
   const tv = [TV_BOTTOM, TV_BOTTOM + TV_H];
   if (above === 1) return SHELF_TOPS;
   if (above === 2) return tv;
@@ -985,8 +1009,8 @@ function aboveHeights(x0) {
 // it, or the bookcase's top in its place (unless it's been moved off the
 // wall), or nothing with neither
 function backWallHeights(option) {
-  if (benchDrawn()) return [state.BENCH, ...aboveHeights(option.clearFrom(cupboardSettings()))];
-  const againstWall = key => { const m = state[`${key}Move`]; return !m || (m.y === 0 && m.turn === 0); };
+  if (benchDrawn()) return [state.pieces.bench.design.height, ...aboveHeights(option.clearFrom(cupboardSettings()))];
+  const againstWall = key => { const m = inLivingRoom(key).move; return !m || (m.y === 0 && m.turn === 0); };
   return onBackWall().filter(againstWall).map(key => BACK_WALL_PIECES[key].sizes().h);
 }
 
@@ -1003,8 +1027,8 @@ function updateDims() {
   if (!flat || !showDims || !flatView) return;
   dims = new THREE.Group();
   world.add(dims);
-  const { BENCH, above, shelfDepth } = state, { T, R, F } = state.cornerCupboard;
-  const option = optionOf(state.cornerCupboard.option), settings = cupboardSettings();
+  const BENCH = state.pieces.bench.design.height, { what: above, shelfDepth } = state.pieces.aboveBench.design, { T, R, F } = state.pieces.cornerCupboard.design;
+  const option = optionOf(state.pieces.cornerCupboard.design.option), settings = cupboardSettings();
   const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks(settings) : []), option.benchFrom(settings), option.clearFrom(settings), ROOM_WIDTH];
   const alongLeft = [0, R, ...(option.front ? [option.front(settings)] : T || option.fixedWidth ? [F] : []), DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, DOOR_HINGE_AT + ROOM_DOOR, FRAME_END];
   if (flatView === 'plan' && flatRoom === 'bedroom') {
@@ -1146,8 +1170,8 @@ const PACKINGS = [
   { name: '580 × 1770, no side over 600', at: [[0, 0, 1], [300, 0, 1], [0, 800, 0], [0, 900, 0], [300, 380, 1], [0, 1220, 0], [150, 0, 1]] },
 ];
 const sizeOf = (k, turned) => turned ? [STORED[k].d, STORED[k].w] : [STORED[k].w, STORED[k].d];
-state.stored.spots = STORED.map(() => ({ x: 0, y: 0, turned: false, z: 0 }));   // z: how high it stands, as on a shelf
-// Where they are (state.stored.where), by the configuration's words: by the
+state.thingsToStore.spots = STORED.map(() => ({ x: 0, y: 0, turned: false, z: 0 }));   // z: how high it stands, as on a shelf
+// Where they are (state.thingsToStore.where), by the configuration's words: by the
 // window, in the cupboard, or moved by hand
 const STORED_WHERE = { window: 0, cupboard: 1, byHand: 2 };
 const BY_HAND = STORED_WHERE.byHand;
@@ -1168,7 +1192,7 @@ const STORED_NOW = [
   { x: 820, y: 1380, turned: false, z: ON_THE_FLOOR },           // the tub
   { x: 30, y: 30, turned: false, z: ON_THE_FLOOR },              // Rack 2
 ];
-Object.assign(state.stored, { shown: true, where: BY_HAND, spots: structuredClone(STORED_NOW) });   // shown, as they are now
+Object.assign(state.thingsToStore, { shown: true, where: BY_HAND, spots: structuredClone(STORED_NOW) });   // shown, as they are now
 const storedGroup = new THREE.Group();
 world.add(storedGroup);
 const storedMats = STORED.map(s => new THREE.MeshStandardMaterial({ color: s.colour, roughness: 0.7 }));
@@ -1213,7 +1237,7 @@ function insideText() {
     const [x0, x1] = spanOf(poly, 0), [y0, y1] = spanOf(poly, 1);
     return `${Math.round(x1 - x0)} × ${Math.round(y1 - y0)}${poly.length > 4 ? ' at most' : ''}`;
   });
-  return ` Inside, within its ${state.cornerCupboard.BOARD} boards (rear panels against the walls included): ${sizes.join(spaces.length > 1 ? ' along the back wall and ' : '')}` +
+  return ` Inside, within its ${state.pieces.cornerCupboard.design.BOARD} boards (rear panels against the walls included): ${sizes.join(spaces.length > 1 ? ' along the back wall and ' : '')}` +
     `${spaces.length > 1 ? ' along the left wall' : ''}, ${spaces[0].h} high.`;
 }
 function inPoly([px, py], poly) {
@@ -1240,15 +1264,15 @@ function fitOf(k, { x, y, turned, z = 0 }, spaces) {
   }
   return roomy === all ? 'fits' : !any ? 'out' : any === all ? 'tall' : 'sticks';
 }
-// Where the things stand: state.stored.spots, the settings, once they're
+// Where the things stand: state.thingsToStore.spots, the settings, once they're
 // moved by hand (where is BY_HAND); else worked out, by the window or in
 // the cupboard as their packing has them (placeStored()), and never kept
 // in the settings (REFACTOR_PLAN.md item 13)
 let packedSpots = STORED.map(() => ({ x: 0, y: 0, turned: false, z: 0 }));
-export const storedSpots = () => (state.stored.where === BY_HAND ? state.stored.spots : packedSpots);
-// Put the things where state.stored.where says, in its packing
+export const storedSpots = () => (state.thingsToStore.where === BY_HAND ? state.thingsToStore.spots : packedSpots);
+// Put the things where state.thingsToStore.where says, in its packing
 export function placeStored() {
-  const { packing, where } = state.stored;
+  const { packing, where } = state.thingsToStore;
   if (where === BY_HAND) return;                                 // moved by hand: where they were put
   const pack = PACKINGS[packing].at;
   // flip: the packing turned to run the other way (its x and y swapped).
@@ -1322,7 +1346,7 @@ function planFit(spaces, fits) {
 }
 
 function drawStored() {
-  const { shown, where: placed } = state.stored, stored = storedSpots();
+  const { shown, where: placed } = state.thingsToStore, stored = storedSpots();
   storedGroup.traverse(o => {
     o.geometry?.dispose();
     if (o.isSprite || o.material?.map) {                        // labels have their own materials
@@ -1372,7 +1396,7 @@ function drawStored() {
   const where = !spaces.length
     ? (placed === 1 ? ' This option has no corner cupboard, so they stay by the middle window.' : '')
     : placed === 1 || inCupboard
-      ? ` In option ${state.cornerCupboard.option}'s corner cupboard: ${fits.filter(f => f === 'fits').length} of ${STORED.length} fit` +
+      ? ` In option ${state.pieces.cornerCupboard.design.option}'s corner cupboard: ${fits.filter(f => f === 'fits').length} of ${STORED.length} fit` +
         (misfits.length ? `; not ${misfits.join(', ')}.` : '.') + (cupboard.shelfCutText(storedThings()) || ' No shelves need cutting back.')
       : '';
   return `Standing on the floor they take ${area} (${((x1 - x0) * (y1 - y0) / 1e6).toFixed(2)} m², for ` +
@@ -1394,7 +1418,7 @@ let bedroomCupboard = null;  // the bedroom's own corner cupboard (BEDROOM_PLACE
 // till now)
 function buildBedroomCupboard(onShow) {
   bedroomCupboard = null;
-  if (state.bedroomCupboard.option !== onShow) doors.bedroomCupboardSecond = 0;
+  if (state.pieces.bedroomCupboard.design.option !== onShow) doors.bedroomCupboardSecond = 0;
   if (!state.otherRoom.newCupboardOn) return showNewCupboard(null);
   bedroomCupboard = makeCupboard(cupboardSettings('bedroomCupboard'), BEDROOM_PLACE, BEDROOM_MATERIALS);
   bedroomCupboard.drawShelves([]);
@@ -1405,12 +1429,12 @@ function buildBedroomCupboard(onShow) {
 export const cupboardOf = piece => ({ cornerCupboard: cupboard, bedroomCupboard })[piece] ?? null;
 // The options on show, each cupboard's, as build() is told them when the
 // menus have already set new ones
-export const optionsOnShow = () => ({ cornerCupboard: state.cornerCupboard.option, bedroomCupboard: state.bedroomCupboard.option });
+export const optionsOnShow = () => ({ cornerCupboard: state.pieces.cornerCupboard.design.option, bedroomCupboard: state.pieces.bedroomCupboard.design.option });
 
 // The pieces that can stand in the living room in place of the bench (the
 // back wall's Bookshelf, Pine cupboard, Billy and BillyChest switches), the
 // bedroom's at their bedroom sizes, Billy (standing or lying) and BillyChest
-// at their own: its settings are state[`${key}On`] and state[`${key}Move`],
+// at their own: its settings are inLivingRoom(key).on and .move,
 // its controls `${key}On`, `${key}X` and so on. Where one stands: the middle
 // of its back, room x and y, and how far it's turned, in quarter turns (as
 // in the bedroom), which way it faces given in FACING. Each starts with its
@@ -1436,8 +1460,8 @@ const BACK_WALL_PIECES = {
     homeText: () => 'in the corner by the right-hand wall',
   },
   billy: {
-    sizes: () => billySizes(state.billyLying), draw: () => billy(state.billyLying), short: 'Billy',
-    get name() { return state.billyLying ? 'Billy, from the garage, lying on its long side' : 'Billy, from the garage'; },
+    sizes: () => billySizes(state.pieces.billy.in.livingRoom.lying), draw: () => billy(state.pieces.billy.in.livingRoom.lying), short: 'Billy',
+    get name() { return state.pieces.billy.in.livingRoom.lying ? 'Billy, from the garage, lying on its long side' : 'Billy, from the garage'; },
     home: (x0, w) => ({ x: x0 + w / 2, y: 0, turn: 0 }),
     homeText: () => 'against the cupboards, where the bench starts',
   },
@@ -1449,18 +1473,18 @@ const BACK_WALL_PIECES = {
 };
 // Where the bookcase's clear wall ends: at the right-hand wall, or at the
 // pine cupboard while it's in the corner there, where it starts
-const pineInCorner = () => state.pineOn && !state.pineMove;
+const pineInCorner = () => state.pieces.pineCupboard.in.livingRoom.on && !state.pieces.pineCupboard.in.livingRoom.move;
 const clearTo = () => (pineInCorner() ? ROOM_WIDTH - state.otherRoom.cupboard.w : ROOM_WIDTH);
 const BACK_WALL_KEYS = Object.keys(BACK_WALL_PIECES);
 const FACING = { 0: 'the front wall', 90: 'the left wall', 180: 'the back wall', 270: 'the right wall' };
-const onBackWall = () => BACK_WALL_KEYS.filter(key => state[`${key}On`]);
+const onBackWall = () => BACK_WALL_KEYS.filter(key => inLivingRoom(key).on);
 // The bench is drawn when it's on and nothing stands in its place
-const benchDrawn = () => state.benchOn && onBackWall().length === 0;
-const spotOf = key => state[`${key}Move`] ?? BACK_WALL_PIECES[key].home(optionOf(state.cornerCupboard.option).clearFrom(cupboardSettings()), BACK_WALL_PIECES[key].sizes().w);
+const benchDrawn = () => state.pieces.bench.in.livingRoom.on && onBackWall().length === 0;
+const spotOf = key => inLivingRoom(key).move ?? BACK_WALL_PIECES[key].home(optionOf(state.pieces.cornerCupboard.design.option).clearFrom(cupboardSettings()), BACK_WALL_PIECES[key].sizes().w);
 // Draw one, clear of the bench wall from x0. Returns a sentence for the summary.
 function pieceOnBenchWall(key, x0, g) {
   const { sizes, draw, name, homeText } = BACK_WALL_PIECES[key], { w, d, h } = sizes();
-  const moved = state[`${key}Move`], { x, y, turn } = spotOf(key);
+  const moved = inLivingRoom(key).move, { x, y, turn } = spotOf(key);
   const piece = draw({ w, d, h });                              // drawn with its back's middle at its origin, facing out
   piece.position.set(x * MM, 0, y * MM);
   piece.rotation.y = THREE.MathUtils.degToRad(-turn);
@@ -1477,23 +1501,23 @@ function pieceOnBenchWall(key, x0, g) {
 // and its turn: turned 0°, its back faces the back wall and its length runs
 // out from the radiator. Its sliders move it from there
 function ivarHome() {
-  const { windows: [first], radiator } = OUTER, { w, d } = ivarSizes(state.ivarLying);
+  const { windows: [first], radiator } = OUTER, { w, d } = ivarSizes(state.pieces.ivar.in.livingRoom.lying);
   const radiatorMiddle = (first.y[0] + first.y[1]) / 2, radiatorFront = ROOM_WIDTH - radiator.out;
   return { x: radiatorFront - w / 2, y: radiatorMiddle - d / 2, turn: 0 };
 }
-const ivarSpot = () => state.ivarMove ?? ivarHome();
+const ivarSpot = () => state.pieces.ivar.in.livingRoom.move ?? ivarHome();
 
 // The kitchen tables in the living room, each starting where it is now
 // (LOUNGE_NOW) and moved from there by its sliders. A table on top of
 // another where they overlap (Chesham on Cornwall) stands on it
 const TABLES = {
-  cornwall: { table: CORNWALL, name: 'The Cornwall table', pose: () => ({ legsOff: state.cornwallLegsOff }),
-    posed: () => (state.cornwallLegsOff ? 'on the floor with its legs off' : 'on its legs') },
-  chesham: { table: CHESHAM, name: 'The Chesham table', pose: () => ({ onItsEnd: state.cheshamOnItsEnd }),
-    posed: () => (state.cheshamOnItsEnd ? 'on its end, its top against the wall behind it' : 'on its legs') },
+  cornwall: { table: CORNWALL, name: 'The Cornwall table', pose: () => ({ legsOff: state.pieces.cornwall.in.livingRoom.legsOff }),
+    posed: () => (state.pieces.cornwall.in.livingRoom.legsOff ? 'on the floor with its legs off' : 'on its legs') },
+  chesham: { table: CHESHAM, name: 'The Chesham table', pose: () => ({ onItsEnd: state.pieces.chesham.in.livingRoom.onItsEnd }),
+    posed: () => (state.pieces.chesham.in.livingRoom.onItsEnd ? 'on its end, its top against the wall behind it' : 'on its legs') },
 };
 const TABLE_KEYS = Object.keys(TABLES);                         // Cornwall first, as Chesham may stand on it
-const tableSpot = key => state[`${key}Move`] ?? LOUNGE_NOW[key];
+const tableSpot = key => inLivingRoom(key).move ?? LOUNGE_NOW[key];
 // Where a piece stands on the floor, in the scene: its box's x and z
 const footprint = piece => { piece.updateMatrixWorld(true); return new THREE.Box3().setFromObject(piece); };
 const overlaps = (a, b) => a.min.x < b.max.x && b.min.x < a.max.x && a.min.z < b.max.z && b.min.z < a.max.z;
@@ -1502,7 +1526,7 @@ function tablesInLivingRoom(g) {
   const drawn = [];
   let text = '';
   for (const key of TABLE_KEYS) {
-    if (!state[`${key}On`]) continue;
+    if (!inLivingRoom(key).on) continue;
     const { table, name, pose, posed } = TABLES[key], { x, y, turn } = tableSpot(key), { w, d, h } = tableSizes(table, pose());
     const piece = kitchenTable(table, pose());
     piece.position.set(x * MM, 0, y * MM);
@@ -1527,9 +1551,9 @@ function tablesInLivingRoom(g) {
 const CASTOR_DESK_CLEAR = { door: 20, tv: 100 };   // chosen
 const CASTOR_DESK_HOMES = {
   door: () => ({ x: 0, y: DOOR_FRAME_STARTS_AT - CASTOR_DESK_CLEAR.door - castorDeskSizes().w / 2, turn: 270 }),   // its back to the left wall
-  tv: () => ({ x: tvAt[0], y: (benchDrawn() ? state.cornerCupboard.R : 0) + CASTOR_DESK_CLEAR.tv, turn: 0 }),     // its back to the TV
+  tv: () => ({ x: tvAt[0], y: (benchDrawn() ? state.pieces.cornerCupboard.design.R : 0) + CASTOR_DESK_CLEAR.tv, turn: 0 }),     // its back to the TV
 };
-const castorDeskSpot = () => state.castorDeskMove ?? CASTOR_DESK_HOMES[state.castorDeskAt]();
+const castorDeskSpot = () => state.pieces.castorDesk.in.livingRoom.move ?? CASTOR_DESK_HOMES[state.pieces.castorDesk.in.livingRoom.at]();
 const CASTOR_DESK_WHERE = {
   door: () => `parked by the door: its back against the left wall, ${CASTOR_DESK_CLEAR.door} short of the door frame`,
   tv: () => `in front of the TV, centred on it, its back ${CASTOR_DESK_CLEAR.tv} out from the ${benchDrawn() ? 'bench' : 'back wall'}, facing away from it`,
@@ -1538,7 +1562,7 @@ const CASTOR_DESK_WHERE = {
 // bench wall (it uses where the TV is). Returns a sentence for the summary,
 // saying if it stands where the cupboard is
 function castorDeskInLivingRoom(g) {
-  if (!state.castorDeskOn) return '';
+  if (!state.pieces.castorDesk.in.livingRoom.on) return '';
   const { x, y, turn } = castorDeskSpot(), { w, d, h } = castorDeskSizes();
   const piece = castorDesk();
   piece.position.set(x * MM, 0, y * MM);
@@ -1547,20 +1571,20 @@ function castorDeskInLivingRoom(g) {
   const clash = cupboard && overlaps(footprint(piece), footprint(cupboard.group)) ? ' It stands where the corner cupboard is.' : '';
   g.add(piece);
   pieces.castorDesk = piece;
-  const where = state.castorDeskMove ? `moved: the middle of its back at x ${Math.round(x)}, y ${Math.round(y)}, facing ${FACING[turn]}` : CASTOR_DESK_WHERE[state.castorDeskAt]();
+  const where = state.pieces.castorDesk.in.livingRoom.move ? `moved: the middle of its back at x ${Math.round(x)}, y ${Math.round(y)}, facing ${FACING[turn]}` : CASTOR_DESK_WHERE[state.pieces.castorDesk.in.livingRoom.at]();
   return ` The desk on castors (${w} long, ${d} deep, ${h} high), ${where}.${clash}`;
 }
 // Drawn into the option's group if it's in. Returns a sentence for the summary
 function ivarInLivingRoom(g) {
-  if (!state.ivarOn) return '';
-  const { x, y, turn } = ivarSpot(), { w, d, h } = ivarSizes(state.ivarLying);
-  const piece = ivar(state.ivarLying);
+  if (!state.pieces.ivar.in.livingRoom.on) return '';
+  const { x, y, turn } = ivarSpot(), { w, d, h } = ivarSizes(state.pieces.ivar.in.livingRoom.lying);
+  const piece = ivar(state.pieces.ivar.in.livingRoom.lying);
   piece.position.set(x * MM, 0, y * MM);
   piece.rotation.y = THREE.MathUtils.degToRad(-turn);
   g.add(piece);
   pieces.ivar = piece;
-  const named = `The Ivar, ${state.ivarLying ? 'lying on its side' : 'standing'} (${w} long, ${d} wide, ${h} high)`;
-  if (state.ivarMove) return ` ${named}, moved: the middle of its back at x ${Math.round(x)}, y ${Math.round(y)}.`;
+  const named = `The Ivar, ${state.pieces.ivar.in.livingRoom.lying ? 'lying on its side' : 'standing'} (${w} long, ${d} wide, ${h} high)`;
+  if (state.pieces.ivar.in.livingRoom.move) return ` ${named}, moved: the middle of its back at x ${Math.round(x)}, y ${Math.round(y)}.`;
   return ` ${named}, against the first radiator, ${w} out into the room.`;
 }
 
@@ -1599,7 +1623,7 @@ function buildOption() {
 // starts to the right-hand wall, R deep and BENCH high: base cupboards for
 // option 9, a bench top for the rest
 function drawBench(option, group) {
-  const { BENCH } = state, { R } = state.cornerCupboard, from = option.benchFrom(cupboardSettings());
+  const BENCH = state.pieces.bench.design.height, { R } = state.pieces.cornerCupboard.design, from = option.benchFrom(cupboardSettings());
   const bench = new THREE.Group();
   group.add(bench);
   if (option.no === 9) baseCupboards(from, bench);
@@ -1628,7 +1652,7 @@ const SHELF_WOODS = [
 // Shelf tops from 100 up to under the top board (of `board` thickness,
 // under `ceiling`: the living room cupboard's unless given), each once, in
 // order: as typed, any numbers in the text, and from a configuration
-const shelfTopsOf = (tops, board = state.cornerCupboard.BOARD, ceiling = CEILING_HEIGHT) =>
+const shelfTopsOf = (tops, board = state.pieces.cornerCupboard.design.BOARD, ceiling = CEILING_HEIGHT) =>
   [...new Set(tops.filter(v => v >= 100 && v <= ceiling - 2 * board))].sort((a, b) => a - b);
 const readShelves = text => shelfTopsOf(String(text).split(/[^0-9]+/).map(Number));
 
@@ -1681,7 +1705,7 @@ const spotOrHome = (path, setting) => Config.other(path, setting, v => (v === nu
 // The things to store's places are read only when they've been moved by
 // hand; otherwise they're worked out from the packing (placeStored())
 function readStoredSpots(spots, was, settings) {
-  if (settings.stored.where !== BY_HAND || !Array.isArray(spots)) return undefined;
+  if (settings.thingsToStore.where !== BY_HAND || !Array.isArray(spots)) return undefined;
   const finite = v => typeof v === 'number' && Number.isFinite(v);
   return was.map((spot, k) => {
     const { x, y, turned, z } = spots[k] ?? {};
@@ -1743,55 +1767,55 @@ export const DOORS_SCHEMA = Config.withDefaults([
 ], doors);
 const LIVING_ROOM_SCHEMA = [
   ...Object.keys(COLOUR_TARGETS).map(key => Config.colour(`colours.${key}`, `colours.${key}`, isColour)),
-  Config.number('colours.shelves', 'shelfWood', 0, SHELF_WOODS.length - 1, 1, { onSteps: true }),
-  Config.choice('livingRoom.frontWall', 'frontPiece', FRONT_PIECES),
-  ...cupboardEntries('pieces.cornerCupboard.design', 'cornerCupboard', CEILING_HEIGHT),
-  ...cupboardEntries('pieces.bedroomCupboard.design', 'bedroomCupboard', BEDROOM_PLACE.ceiling, { id: idIn('bedroomCupboard'), ranges: BEDROOM_CUPBOARD_RANGES }),
+  Config.number('colours.shelves', 'colours.shelves', 0, SHELF_WOODS.length - 1, 1, { onSteps: true }),
+  Config.choice('livingRoom.frontWall', 'livingRoom.frontWall', FRONT_PIECES),
+  ...cupboardEntries('pieces.cornerCupboard.design', 'pieces.cornerCupboard.design', CEILING_HEIGHT),
+  ...cupboardEntries('pieces.bedroomCupboard.design', 'pieces.bedroomCupboard.design', BEDROOM_PLACE.ceiling, { id: idIn('bedroomCupboard'), ranges: BEDROOM_CUPBOARD_RANGES }),
   // The bench along the back wall, and what's above it
-  Config.choice('pieces.bench.design.height', 'BENCH', [700, 780, 800, 900]),
-  Config.onOff('pieces.bench.in.livingRoom.on', 'benchOn'),
-  Config.choice('pieces.aboveBench.design.what', 'above', { nothing: 0, shelves: 1, tv: 2, tvAndShelves: 3, tvAndTopShelf: 4 }),
-  fromSlider('pieces.aboveBench.design.shelfDepth', 'shelfDepth', 'shelfDepth'),
-  Config.choice('pieces.aboveBench.design.tv', 'tv', TV_SIZES.map(([inches]) => inches)),
+  Config.choice('pieces.bench.design.height', 'pieces.bench.design.height', [700, 780, 800, 900]),
+  Config.onOff('pieces.bench.in.livingRoom.on', 'pieces.bench.in.livingRoom.on'),
+  Config.choice('pieces.aboveBench.design.what', 'pieces.aboveBench.design.what', { nothing: 0, shelves: 1, tv: 2, tvAndShelves: 3, tvAndTopShelf: 4 }),
+  fromSlider('pieces.aboveBench.design.shelfDepth', 'pieces.aboveBench.design.shelfDepth', 'shelfDepth'),
+  Config.choice('pieces.aboveBench.design.tv', 'pieces.aboveBench.design.tv', TV_SIZES.map(([inches]) => inches)),
   // The dresser, the larder and the sofa: each a model from dressers.js,
   // larders.js or sofas.js, and its sizes (the larder's and the sofa's held
   // to their sliders' ends)
-  ...DRESSER_SLIDERS.map(([key, id]) => fromSlider(`pieces.dresser.design.${key}`, `dresser.${key}`, id)),
-  Config.choice('pieces.larder.design.model', 'larder.key', Object.keys(LARDERS)),
-  ...LARDER_SLIDERS.map(([key, id]) => fromSlider(`pieces.larder.design.${key}`, `larder.size.${key}`, id, { clamp: true })),
-  Config.choice('pieces.island.in.livingRoom.at', 'island.at', ISLAND_AT),
-  Config.number('pieces.island.in.livingRoom.x', 'island.move.x', 0, ROOM_WIDTH, 5),
-  Config.number('pieces.island.in.livingRoom.y', 'island.move.y', 0, ROOM_DEPTH, 5),
-  fromSlider('pieces.island.in.livingRoom.turn', 'island.move.turn', 'islandTurn'),
-  Config.choice('pieces.sofa.design.model', 'sofa.key', { none: '', ...Object.fromEntries(Object.keys(SOFAS).map(key => [key, key])) }),
-  ...SOFA_SLIDERS.map(([key, id]) => fromSlider(`pieces.sofa.design.${key}`, `sofa.size.${key}`, id, { clamp: true })),
-  Config.onOff('pieces.sofa.design.asBed', 'sofa.asBed'),
-  fromSlider('pieces.sofa.in.livingRoom.front', 'sofa.front', 'sofaFront'),
-  spotOrHome('pieces.sofa.in.livingRoom.move', 'sofa.move'),
+  ...DRESSER_SLIDERS.map(([key, id]) => fromSlider(`pieces.dresser.design.${key}`, `pieces.dresser.design.${key}`, id)),
+  Config.choice('pieces.larder.design.model', 'pieces.larder.design.model', Object.keys(LARDERS)),
+  ...LARDER_SLIDERS.map(([key, id]) => fromSlider(`pieces.larder.design.${key}`, `pieces.larder.design.${key}`, id, { clamp: true })),
+  Config.choice('pieces.island.in.livingRoom.at', 'pieces.island.in.livingRoom.at', ISLAND_AT),
+  Config.number('pieces.island.in.livingRoom.x', 'pieces.island.in.livingRoom.x', 0, ROOM_WIDTH, 5),
+  Config.number('pieces.island.in.livingRoom.y', 'pieces.island.in.livingRoom.y', 0, ROOM_DEPTH, 5),
+  fromSlider('pieces.island.in.livingRoom.turn', 'pieces.island.in.livingRoom.turn', 'islandTurn'),
+  Config.choice('pieces.sofa.design.model', 'pieces.sofa.design.model', { none: '', ...Object.fromEntries(Object.keys(SOFAS).map(key => [key, key])) }),
+  ...SOFA_SLIDERS.map(([key, id]) => fromSlider(`pieces.sofa.design.${key}`, `pieces.sofa.design.${key}`, id, { clamp: true })),
+  Config.onOff('pieces.sofa.design.asBed', 'pieces.sofa.design.asBed'),
+  fromSlider('pieces.sofa.in.livingRoom.front', 'pieces.sofa.in.livingRoom.front', 'sofaFront'),
+  spotOrHome('pieces.sofa.in.livingRoom.move', 'pieces.sofa.in.livingRoom.move'),
   // The bedroom's pieces (other_room.js), then the bookcase and the pine
   // cupboard in the living room, in place of the bench
   ...OTHER_ROOM_SCHEMA,
-  Config.onOff('pieces.bookcase.in.livingRoom.on', 'bookshelfOn'),
-  spotOrHome('pieces.bookcase.in.livingRoom.move', 'bookshelfMove'),
-  Config.onOff('pieces.pineCupboard.in.livingRoom.on', 'pineOn'),
-  spotOrHome('pieces.pineCupboard.in.livingRoom.move', 'pineMove'),
-  Config.onOff('pieces.billy.in.livingRoom.on', 'billyOn'),
-  Config.onOff('pieces.billy.in.livingRoom.lying', 'billyLying'),
-  spotOrHome('pieces.billy.in.livingRoom.move', 'billyMove'),
-  Config.onOff('pieces.billyChest.in.livingRoom.on', 'billyChestOn'),
-  spotOrHome('pieces.billyChest.in.livingRoom.move', 'billyChestMove'),
-  Config.onOff('pieces.ivar.in.livingRoom.on', 'ivarOn'),
-  Config.onOff('pieces.ivar.in.livingRoom.lying', 'ivarLying'),
-  spotOrHome('pieces.ivar.in.livingRoom.move', 'ivarMove'),
-  Config.onOff('pieces.chesham.in.livingRoom.on', 'cheshamOn'),
-  Config.onOff('pieces.chesham.in.livingRoom.onItsEnd', 'cheshamOnItsEnd'),
-  spotOrHome('pieces.chesham.in.livingRoom.move', 'cheshamMove'),
-  Config.onOff('pieces.castorDesk.in.livingRoom.on', 'castorDeskOn'),
-  Config.choice('pieces.castorDesk.in.livingRoom.at', 'castorDeskAt', { byTheDoor: 'door', atTheTv: 'tv' }),
-  spotOrHome('pieces.castorDesk.in.livingRoom.move', 'castorDeskMove'),
-  Config.onOff('pieces.cornwall.in.livingRoom.on', 'cornwallOn'),
-  Config.onOff('pieces.cornwall.in.livingRoom.legsOff', 'cornwallLegsOff'),
-  spotOrHome('pieces.cornwall.in.livingRoom.move', 'cornwallMove'),
+  Config.onOff('pieces.bookcase.in.livingRoom.on', 'pieces.bookcase.in.livingRoom.on'),
+  spotOrHome('pieces.bookcase.in.livingRoom.move', 'pieces.bookcase.in.livingRoom.move'),
+  Config.onOff('pieces.pineCupboard.in.livingRoom.on', 'pieces.pineCupboard.in.livingRoom.on'),
+  spotOrHome('pieces.pineCupboard.in.livingRoom.move', 'pieces.pineCupboard.in.livingRoom.move'),
+  Config.onOff('pieces.billy.in.livingRoom.on', 'pieces.billy.in.livingRoom.on'),
+  Config.onOff('pieces.billy.in.livingRoom.lying', 'pieces.billy.in.livingRoom.lying'),
+  spotOrHome('pieces.billy.in.livingRoom.move', 'pieces.billy.in.livingRoom.move'),
+  Config.onOff('pieces.billyChest.in.livingRoom.on', 'pieces.billyChest.in.livingRoom.on'),
+  spotOrHome('pieces.billyChest.in.livingRoom.move', 'pieces.billyChest.in.livingRoom.move'),
+  Config.onOff('pieces.ivar.in.livingRoom.on', 'pieces.ivar.in.livingRoom.on'),
+  Config.onOff('pieces.ivar.in.livingRoom.lying', 'pieces.ivar.in.livingRoom.lying'),
+  spotOrHome('pieces.ivar.in.livingRoom.move', 'pieces.ivar.in.livingRoom.move'),
+  Config.onOff('pieces.chesham.in.livingRoom.on', 'pieces.chesham.in.livingRoom.on'),
+  Config.onOff('pieces.chesham.in.livingRoom.onItsEnd', 'pieces.chesham.in.livingRoom.onItsEnd'),
+  spotOrHome('pieces.chesham.in.livingRoom.move', 'pieces.chesham.in.livingRoom.move'),
+  Config.onOff('pieces.castorDesk.in.livingRoom.on', 'pieces.castorDesk.in.livingRoom.on'),
+  Config.choice('pieces.castorDesk.in.livingRoom.at', 'pieces.castorDesk.in.livingRoom.at', { byTheDoor: 'door', atTheTv: 'tv' }),
+  spotOrHome('pieces.castorDesk.in.livingRoom.move', 'pieces.castorDesk.in.livingRoom.move'),
+  Config.onOff('pieces.cornwall.in.livingRoom.on', 'pieces.cornwall.in.livingRoom.on'),
+  Config.onOff('pieces.cornwall.in.livingRoom.legsOff', 'pieces.cornwall.in.livingRoom.legsOff'),
+  spotOrHome('pieces.cornwall.in.livingRoom.move', 'pieces.cornwall.in.livingRoom.move'),
 ];
 const SCHEMA = Config.withDefaults([
   ...LIVING_ROOM_SCHEMA,
@@ -1802,10 +1826,10 @@ const SCHEMA = Config.withDefaults([
   Config.onOff('hallway.bathroomShown', 'bathroomShown'),
   ...GARAGE_SCHEMA,
   // The things to store: shown or not, which packing, and where
-  Config.onOff('thingsToStore.shown', 'stored.shown'),
-  Config.number('thingsToStore.packing', 'stored.packing', 0, PACKINGS.length - 1, 1, { onSteps: true }),
-  Config.choice('thingsToStore.where', 'stored.where', STORED_WHERE),
-  Config.other('thingsToStore.spots', 'stored.spots', readStoredSpots, (spots, settings) => (settings.stored.where === BY_HAND ? structuredClone(spots) : undefined)),   // only when they're settings
+  Config.onOff('thingsToStore.shown', 'thingsToStore.shown'),
+  Config.number('thingsToStore.packing', 'thingsToStore.packing', 0, PACKINGS.length - 1, 1, { onSteps: true }),
+  Config.choice('thingsToStore.where', 'thingsToStore.where', STORED_WHERE),
+  Config.other('thingsToStore.spots', 'thingsToStore.spots', readStoredSpots, (spots, settings) => (settings.thingsToStore.where === BY_HAND ? structuredClone(spots) : undefined)),   // only when they're settings
 ], state);
 // The settings as a configuration, and a configuration read into them. One
 // of version 1 had the doors in it (`doors`), which are the view's now, so
@@ -1859,10 +1883,10 @@ export function setAll(edits) {
 // each other (stair_walls.js's settleStairWalls())
 function holdSettings() {
   for (const piece of ['cornerCupboard', 'bedroomCupboard']) {
-    const settings = state[piece];
+    const settings = state.pieces[piece].design;
     if (settings.T === 0 && optionOf(settings.option).needsLeft) settings.option = 7;
   }
-  state.dresser.upperD = Math.min(state.dresser.upperD, state.dresser.baseD);
+  state.pieces.dresser.design.upperD = Math.min(state.pieces.dresser.design.upperD, state.pieces.dresser.design.baseD);
   settleStairWalls(state.stairWalls);
 }
 export const set = (path, value) => setAll([[path, value]]);
@@ -1934,10 +1958,10 @@ export function settle() {
   benchHeights();
   placeIsland();
 }
-// The shelves' wood, and option 9's oak, from state.shelfWood: one colour,
+// The shelves' wood, and option 9's oak, from state.colours.shelves: one colour,
 // or the shelves' and the oak's
 function applyShelfWood() {
-  const [shelves, oak = shelves] = [].concat(SHELF_WOODS[state.shelfWood].hex);
+  const [shelves, oak = shelves] = [].concat(SHELF_WOODS[state.colours.shelves].hex);
   for (const materials of [CUPBOARD_MATERIALS, BEDROOM_MATERIALS]) {    // both cupboards'
     materials.shelf.color.set(shelves);
     materials.oak.color.set(oak);
@@ -1954,7 +1978,7 @@ function applyShelfWood() {
 // (describe())
 export function build(onShow = optionsOnShow()) {
   settle();
-  const no = state.cornerCupboard.option, option = optionOf(no);
+  const no = state.pieces.cornerCupboard.design.option, option = optionOf(no);
   const same = no === onShow.cornerCupboard && Boolean(cupboard);
   const group = buildOption();
   if (benchDrawn()) drawBench(option, group);
@@ -2023,8 +2047,8 @@ export function turnDoors() {
 // it's off), where the things to store go, what's round it, and its source,
 // as HTML
 export function describe(option, aboveText) {
-  const summary = state.cornerCupboard.T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary;
-  return `${withoutBench(summary(cupboardSettings(), LIVING_ROOM_PLACE, { BENCH: state.BENCH }))}${insideText()}${aboveText}<div class="src">From ${option.source}</div>`;
+  const summary = state.pieces.cornerCupboard.design.T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary;
+  return `${withoutBench(summary(cupboardSettings(), LIVING_ROOM_PLACE, { BENCH: state.pieces.bench.design.height }))}${insideText()}${aboveText}<div class="src">From ${option.source}</div>`;
 }
 
 // The flat built from a configuration, with no page, seen as `view` shows it
@@ -2052,8 +2076,8 @@ export function buildFlat(configuration, view = {}) {
 // Each corner cupboard's cutting list as rows: the living room's and the
 // bedroom's own, while it's there (none for the current room)
 export const cupboardRows = () => ({
-  livingRoom: state.cornerCupboard.option === CURRENT_ROOM ? null : cupboard.cuttingRows(),
-  bedroom: bedroomCupboard && state.bedroomCupboard.option !== CURRENT_ROOM ? bedroomCupboard.cuttingRows() : null,
+  livingRoom: state.pieces.cornerCupboard.design.option === CURRENT_ROOM ? null : cupboard.cuttingRows(),
+  bedroom: bedroomCupboard && state.pieces.bedroomCupboard.design.option !== CURRENT_ROOM ? bedroomCupboard.cuttingRows() : null,
 });
 
 // The settings as the page starts, and putting them back so: everything,

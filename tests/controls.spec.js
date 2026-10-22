@@ -29,7 +29,7 @@ async function settledHash(page) {
   }
 }
 // The things to store: whether they're shown, which packing, where (state.stored)
-const storedHead = async page => { const { shown, packing, where } = await setting(page, 'stored'); return { shown, packing, where }; };
+const storedHead = async page => { const { shown, packing, where } = await setting(page, 'thingsToStore'); return { shown, packing, where }; };
 // The view in the address: the room, the view's id (or the camera), the eye
 // height and the switches for what's shown
 const view = async page => readAddress(await hash(page)).view;
@@ -94,16 +94,16 @@ test.describe('sliders, to each end and back', () => {
 
   test('the corner cupboard\'s sizes', async ({ page }) => {
     await OPTION(7)(page);                                       // for the left-wall depth slider
-    await endsAndBack(page, 'depth', at('cornerCupboard.T'), { text: v => (v < 300 ? 'none' : v), setting: v => (v < 300 ? 0 : v) });
-    await endsAndBack(page, 'rear', at('cornerCupboard.R'));
-    await endsAndBack(page, 'board', at('cornerCupboard.BOARD'));
+    await endsAndBack(page, 'depth', at('pieces.cornerCupboard.design.T'), { text: v => (v < 300 ? 'none' : v), setting: v => (v < 300 ? 0 : v) });
+    await endsAndBack(page, 'rear', at('pieces.cornerCupboard.design.R'));
+    await endsAndBack(page, 'board', at('pieces.cornerCupboard.design.BOARD'));
   });
 
   // Its height: at the slider's far right up to the ceiling (TOP 0), else
   // as high as it's set, the description saying so
   test('the cupboard\'s height', async ({ page }) => {
     await OPTION(7)(page);
-    await endsAndBack(page, 'top', at('cornerCupboard.TOP'), { text: v => (v >= 2450 ? 'ceiling' : v), setting: v => (v >= 2450 ? 0 : v) });
+    await endsAndBack(page, 'top', at('pieces.cornerCupboard.design.TOP'), { text: v => (v >= 2450 ? 'ceiling' : v), setting: v => (v >= 2450 ? 0 : v) });
     await slide(page, 'top', 2000);
     await expect(page.locator('#summary')).toContainText('Both legs of the L run 2000 high, from the floor');
     await expect(page.locator('#summary')).toContainText('Doors 1994 high');
@@ -111,8 +111,8 @@ test.describe('sliders, to each end and back', () => {
 
   test('option 7\'s sliders', async ({ page }) => {
     await OPTION(7)(page);
-    await endsAndBack(page, 'leg', at('cornerCupboard.LEG'));
-    await endsAndBack(page, 'legD', at('cornerCupboard.LEG_D'));
+    await endsAndBack(page, 'leg', at('pieces.cornerCupboard.design.LEG'));
+    await endsAndBack(page, 'legD', at('pieces.cornerCupboard.design.LEG_D'));
   });
 
   // Option 8's back-wall leg, and where its diagonal starts on each leg: a
@@ -121,9 +121,9 @@ test.describe('sliders, to each end and back', () => {
   test('option 8\'s sliders', async ({ page }) => {
     await OPTION(8)(page);
     await expect(page.locator('#diagBlock')).toBeVisible();
-    await endsAndBack(page, 'diagRun', at('cornerCupboard.DIAG_RUN'));
-    await endsAndBack(page, 'diagBack', at('cornerCupboard.DIAG_BACK'), { text: v => Math.min(v, 600), setting: v => Math.min(v, 600) });
-    await endsAndBack(page, 'diagLeft', at('cornerCupboard.DIAG_LEFT'), { text: v => Math.min(v, 770), setting: v => Math.min(v, 770) });
+    await endsAndBack(page, 'diagRun', at('pieces.cornerCupboard.design.DIAG_RUN'));
+    await endsAndBack(page, 'diagBack', at('pieces.cornerCupboard.design.DIAG_BACK'), { text: v => Math.min(v, 600), setting: v => Math.min(v, 600) });
+    await endsAndBack(page, 'diagLeft', at('pieces.cornerCupboard.design.DIAG_LEFT'), { text: v => Math.min(v, 770), setting: v => Math.min(v, 770) });
     await slide(page, 'diagLeft', 400);
     await slide(page, 'diagBack', 300);
     await expect(page.locator('#summary')).toContainText('Its front runs straight 400 in from the left-wall leg\'s end (a 394 door) and 300 in from the back-wall leg\'s end (a 276 door)');
@@ -134,9 +134,9 @@ test.describe('sliders, to each end and back', () => {
 
   test('option 9\'s sliders', async ({ page }) => {
     await OPTION(9)(page);
-    await endsAndBack(page, 'ward', at('cornerCupboard.WARD'));
-    await endsAndBack(page, 'wardD', at('cornerCupboard.WARD_D'));
-    await endsAndBack(page, 'tower', at('cornerCupboard.TOWER'));
+    await endsAndBack(page, 'ward', at('pieces.cornerCupboard.design.WARD'));
+    await endsAndBack(page, 'wardD', at('pieces.cornerCupboard.design.WARD_D'));
+    await endsAndBack(page, 'tower', at('pieces.cornerCupboard.design.TOWER'));
   });
 
   // Their depth replaces the left-wall cupboard front's radio buttons. At its
@@ -145,8 +145,8 @@ test.describe('sliders, to each end and back', () => {
     for (const n of [10, 11]) {
       await OPTION(n)(page);
       await expect(page.locator('#leftLenBlock')).toBeHidden();
-      await endsAndBack(page, 'cornerW', at('cornerCupboard.CORNER_W'));
-      await endsAndBack(page, 'cornerD', at('cornerCupboard.CORNER_D'));
+      await endsAndBack(page, 'cornerW', at('pieces.cornerCupboard.design.CORNER_W'));
+      await endsAndBack(page, 'cornerD', at('pieces.cornerCupboard.design.CORNER_D'));
       await slide(page, 'cornerD', 0);
       await expect(page.locator('#summary')).toContainText('too shallow to build');
       await slide(page, 'cornerD', 1200);
@@ -161,12 +161,12 @@ test.describe('sliders, to each end and back', () => {
     await OPTION(10)(page);
     await expect(page.locator('#sideShelfDetails')).toBeHidden();
     await toggle(page, 'sideShelfOn', true);
-    await expect.poll(() => setting(page, 'cornerCupboard.SIDE_SHELF')).toBe(true);
+    await expect.poll(() => setting(page, 'pieces.cornerCupboard.design.SIDE_SHELF')).toBe(true);
     await expect(page.locator('#summary')).toContainText('Bench 2638, from x = 1200');
-    await endsAndBack(page, 'sideW', at('cornerCupboard.SIDE_W'));
-    await endsAndBack(page, 'sideD', at('cornerCupboard.SIDE_D'));
+    await endsAndBack(page, 'sideW', at('pieces.cornerCupboard.design.SIDE_W'));
+    await endsAndBack(page, 'sideD', at('pieces.cornerCupboard.design.SIDE_D'));
     await toggle(page, 'sideShelfOn', false);
-    await expect.poll(() => setting(page, 'cornerCupboard.SIDE_SHELF')).toBe(false);
+    await expect.poll(() => setting(page, 'pieces.cornerCupboard.design.SIDE_SHELF')).toBe(false);
     await expect(page.locator('#summary')).toContainText('Bench 3038, from x = 800');
     await OPTION(11)(page);
     await expect(page.locator('#sideShelfBlock')).toBeHidden();
@@ -181,11 +181,11 @@ test.describe('sliders, to each end and back', () => {
     await expect(page.locator('#deskDetails')).toBeHidden();
     await expect(page.locator('#deskDoorBlock')).toBeHidden();
     await toggle(page, 'deskOn', true);
-    await expect.poll(() => setting(page, 'cornerCupboard.DESK')).toBe(true);
+    await expect.poll(() => setting(page, 'pieces.cornerCupboard.design.DESK')).toBe(true);
     await expect(page.locator('#summary')).toContainText('a fold-down desk 780 wide and 500 deep');
-    await endsAndBack(page, 'deskW', at('cornerCupboard.DESK_W'));
-    await endsAndBack(page, 'deskD', at('cornerCupboard.DESK_D'));
-    await endsAndBack(page, 'deskH', at('cornerCupboard.DESK_H'));
+    await endsAndBack(page, 'deskW', at('pieces.cornerCupboard.design.DESK_W'));
+    await endsAndBack(page, 'deskD', at('pieces.cornerCupboard.design.DESK_D'));
+    await endsAndBack(page, 'deskH', at('pieces.cornerCupboard.design.DESK_H'));
     await expect(page.locator('#deskFolded')).toBeChecked();
     await toggle(page, 'deskDown', true);
     await expect.poll(() => setting(page, 'doors.desk')).toBe(90);   // its angle, level
@@ -199,43 +199,43 @@ test.describe('sliders, to each end and back', () => {
   });
 
   test('the bench', async ({ page }) => {
-    await endsAndBack(page, 'shelfDepth', at('shelfDepth'));
+    await endsAndBack(page, 'shelfDepth', at('pieces.aboveBench.design.shelfDepth'));
     const TV = { 0: [32, '32" (720 × 440)'], 14: [86, '86" (1930 × 1110)'] };   // the ends of TV_SIZES
-    await endsAndBack(page, 'tvSize', at('tv'), { text: v => TV[v][1], setting: v => TV[v][0] });
+    await endsAndBack(page, 'tvSize', at('pieces.aboveBench.design.tv'), { text: v => TV[v][1], setting: v => TV[v][0] });
   });
 
   test('the dresser', async ({ page }) => {
-    await endsAndBack(page, 'dresserW', at('dresser.w'));
-    await endsAndBack(page, 'dresserH', at('dresser.h'));
-    await endsAndBack(page, 'dresserBaseH', at('dresser.baseH'));
+    await endsAndBack(page, 'dresserW', at('pieces.dresser.design.w'));
+    await endsAndBack(page, 'dresserH', at('pieces.dresser.design.h'));
+    await endsAndBack(page, 'dresserBaseH', at('pieces.dresser.design.baseH'));
     // Its upper part is never deeper than its base (420)
-    await endsAndBack(page, 'dresserUpperD', at('dresser.upperD'), { text: v => Math.min(v, 420), setting: v => Math.min(v, 420) });
+    await endsAndBack(page, 'dresserUpperD', at('pieces.dresser.design.upperD'), { text: v => Math.min(v, 420), setting: v => Math.min(v, 420) });
     // ...so a shallower base takes the upper part (420) with it, and it stays there
-    await endsAndBack(page, 'dresserBaseD', at('dresser.baseD'), { back: false });
-    expect(await setting(page, 'dresser.upperD')).toBe(300);
+    await endsAndBack(page, 'dresserBaseD', at('pieces.dresser.design.baseD'), { back: false });
+    expect(await setting(page, 'pieces.dresser.design.upperD')).toBe(300);
   });
 
   test('the larder', async ({ page }) => {
     await LARDER(page);
-    await endsAndBack(page, 'larderW', at('larder.size.w'));
-    await endsAndBack(page, 'larderH', at('larder.size.h'));
-    await endsAndBack(page, 'larderD', at('larder.size.d'));
+    await endsAndBack(page, 'larderW', at('pieces.larder.design.w'));
+    await endsAndBack(page, 'larderH', at('pieces.larder.design.h'));
+    await endsAndBack(page, 'larderD', at('pieces.larder.design.d'));
   });
 
   test('the sofa', async ({ page }) => {
     await SOFA(page);
-    await endsAndBack(page, 'sofaFront', at('sofa.front'));
-    await endsAndBack(page, 'sofaW', at('sofa.size.w'));
-    await endsAndBack(page, 'sofaD', at('sofa.size.d'));
-    await endsAndBack(page, 'sofaH', at('sofa.size.h'));
+    await endsAndBack(page, 'sofaFront', at('pieces.sofa.in.livingRoom.front'));
+    await endsAndBack(page, 'sofaW', at('pieces.sofa.design.w'));
+    await endsAndBack(page, 'sofaD', at('pieces.sofa.design.d'));
+    await endsAndBack(page, 'sofaH', at('pieces.sofa.design.h'));
   });
 
   test('the island, out there', async ({ page }) => {
-    await endsAndBack(page, 'islandX', at('island.move.x'));
+    await endsAndBack(page, 'islandX', at('pieces.island.in.livingRoom.x'));
     // It starts at 3571 (measured), between the slider's steps of 5, so the
     // slider can't take it back there exactly
-    await endsAndBack(page, 'islandY', at('island.move.y'), { back: false });
-    await endsAndBack(page, 'islandTurn', at('island.move.turn'), { text: v => `${v}°` });
+    await endsAndBack(page, 'islandY', at('pieces.island.in.livingRoom.y'), { back: false });
+    await endsAndBack(page, 'islandTurn', at('pieces.island.in.livingRoom.turn'), { text: v => `${v}°` });
   });
 
   // The doors turn without rebuilding
@@ -251,7 +251,7 @@ test.describe('radio buttons', () => {
   test('bench height', async ({ page }) => {
     const before = await hash(page);
     await page.check('input[name=bench][value="900"]');
-    expect(await setting(page, 'BENCH')).toBe(900);
+    expect(await setting(page, 'pieces.bench.design.height')).toBe(900);
     await page.check('input[name=bench][value="780"]');
     expect(await hash(page)).toBe(before);
   });
@@ -259,14 +259,14 @@ test.describe('radio buttons', () => {
   // Its length out from the back wall, 1000 up to the room door's frame
   test('the left-wall cupboard\'s length', async ({ page }) => {
     await OPTION(7)(page);                                       // option 10, as the page opens, has its own depth instead
-    await endsAndBack(page, 'leftLen', at('cornerCupboard.F'));
+    await endsAndBack(page, 'leftLen', at('pieces.cornerCupboard.design.F'));
   });
 
   test('where the island is', async ({ page }) => {
     const before = await hash(page);
     for (const value of ['along', 'out', 'none', 'room']) {
       await page.check(`input[name=islandAt][value="${value}"]`);
-      expect(await setting(page, 'island.at')).toBe(value);
+      expect(await setting(page, 'pieces.island.in.livingRoom.at')).toBe(value);
     }
     expect(await hash(page)).toBe(before);
   });
@@ -275,7 +275,7 @@ test.describe('radio buttons', () => {
     const before = await hash(page);
     for (const value of ['larder', 'none', 'dresser']) {
       await page.check(`input[name=frontPiece][value="${value}"]`);
-      expect(await setting(page, 'frontPiece')).toBe(value);
+      expect(await setting(page, 'livingRoom.frontWall')).toBe(value);
     }
     expect(await hash(page)).toBe(before);
   });
@@ -343,7 +343,7 @@ test.describe('dropdowns', () => {
 
   test('the shelf wood', async ({ page }) => {
     await page.selectOption('#shelfWood', '2');
-    expect(await setting(page, 'shelfWood')).toBe(2);
+    expect(await setting(page, 'colours.shelves')).toBe(2);
     await expect(page.locator('#shelfSwatch')).toHaveCSS('background-color', 'rgb(138, 90, 51)');      // #8A5A33
   });
 
@@ -356,7 +356,7 @@ test.describe('dropdowns', () => {
 
   test('the dresser: a listed one, then Custom once a slider moves', async ({ page }) => {
     await page.selectOption('#dresserPick', 'inglesham');
-    expect(await setting(page, 'dresser')).toMatchObject({ w: 1000, h: 1930, baseD: 420, baseH: 830, upperD: 420 });
+    expect(await setting(page, 'pieces.dresser.design')).toMatchObject({ w: 1000, h: 1930, baseD: 420, baseH: 830, upperD: 420 });
     await expect(page.locator('#dresserWValue')).toHaveText('1000');
     await slide(page, 'dresserW', 1100);
     await expect(page.locator('#dresserPick')).toHaveValue('');           // Custom
@@ -365,8 +365,8 @@ test.describe('dropdowns', () => {
   test('the larder: a listed one, then Custom once a slider moves', async ({ page }) => {
     await LARDER(page);
     await page.selectOption('#larderPick', 'stow');
-    expect(await setting(page, 'larder.key')).toBe('stow');
-    expect(await setting(page, 'larder.size.w')).toBe(670);
+    expect(await setting(page, 'pieces.larder.design.model')).toBe('stow');
+    expect(await setting(page, 'pieces.larder.design.w')).toBe(670);
     await expect(page.locator('#larderWValue')).toHaveText('670');
     await slide(page, 'larderW', 700);
     await expect(page.locator('#larderPick')).toHaveValue('');            // Custom
@@ -375,12 +375,12 @@ test.describe('dropdowns', () => {
   test('the sofa: one, then none', async ({ page }) => {
     await expect(page.locator('#sofaFrontBlock')).toBeHidden();
     await SOFA(page);
-    expect(await setting(page, 'sofa.key')).toBe('merton');
+    expect(await setting(page, 'pieces.sofa.design.model')).toBe('merton');
     await expect(page.locator('#sofaFrontBlock')).toBeVisible();
     await slide(page, 'sofaW', 2000);
     await expect(page.locator('#sofaPick')).toHaveValue('custom');
     await page.selectOption('#sofaPick', '');
-    expect(await setting(page, 'sofa.key')).toBe('');            // none
+    expect(await setting(page, 'pieces.sofa.design.model')).toBe('');            // none
     await expect(page.locator('#sofaFrontBlock')).toBeHidden();
   });
 });
@@ -399,11 +399,11 @@ test.describe('the bedroom\'s cupboard', () => {
     await expect(page.locator('#bedroomCupboardLegBlock')).toBeVisible();
     await expect(page.locator('#bedroomCupboardLeftLenBlock')).toBeVisible();
     expect(await optionShown(page)).toBe(10);                               // the lounge's as it was
-    expect(await at('bedroomCupboard.option')(page)).not.toBe(await at('cornerCupboard.option')(page));
-    await endsAndBack(page, 'bedroomCupboardRear', at('bedroomCupboard.R'));
-    await endsAndBack(page, 'bedroomCupboardLeg', at('bedroomCupboard.LEG'));
+    expect(await at('pieces.bedroomCupboard.design.option')(page)).not.toBe(await at('pieces.cornerCupboard.design.option')(page));
+    await endsAndBack(page, 'bedroomCupboardRear', at('pieces.bedroomCupboard.design.R'));
+    await endsAndBack(page, 'bedroomCupboardLeg', at('pieces.bedroomCupboard.design.LEG'));
     await endsAndBack(page, 'bedroomCupboardTallDoor', at('doors.bedroomCupboardTall'), { text: v => `${v}°` });
-    expect(await setting(page, 'cornerCupboard.R')).toBe(330);
+    expect(await setting(page, 'pieces.cornerCupboard.design.R')).toBe(330);
     await page.selectOption('#ral-bedroomCupboard', 'other');
     await page.selectOption('#ral-bedroomCupboard-other', '7016');
     expect(await setting(page, 'colours.bedroomCupboard')).toBe(7016);
@@ -420,24 +420,24 @@ test.describe('the bedroom\'s cupboard', () => {
     await page.locator('#otherRoom_newCupboardOn').check();
     await pickOption(page, 7, 'bedroomCupboardCurrent');
     await slide(page, 'bedroomCupboardLeg', 1858);
-    expect(await setting(page, 'bedroomCupboard.LEG')).toBe(1858 - 600);  // inside, from the 600-deep left-wall leg
+    expect(await setting(page, 'pieces.bedroomCupboard.design.LEG')).toBe(1858 - 600);  // inside, from the 600-deep left-wall leg
     await slide(page, 'bedroomCupboardLeftLen', 2841);
-    expect(await setting(page, 'bedroomCupboard.F')).toBe(2103);           // the door's swing, for a 600-deep leg
+    expect(await setting(page, 'pieces.bedroomCupboard.design.F')).toBe(2103);           // the door's swing, for a 600-deep leg
     expect(await readout(page, 'bedroomCupboardLeftLen')).toBe('2103');
     await slide(page, 'bedroomCupboardDepth', 800);                        // deeper: both come in
-    expect(await setting(page, 'bedroomCupboard.F')).toBe(2071);
-    expect(await setting(page, 'bedroomCupboard.LEG')).toBe(1858 - 800);
+    expect(await setting(page, 'pieces.bedroomCupboard.design.F')).toBe(2071);
+    expect(await setting(page, 'pieces.bedroomCupboard.design.LEG')).toBe(1858 - 800);
     await slide(page, 'bedroomCupboardDepth', 400);
     await slide(page, 'bedroomCupboardLeftLen', 2841);
-    expect(await setting(page, 'bedroomCupboard.F')).toBe(2197);           // shallower, further
+    expect(await setting(page, 'pieces.bedroomCupboard.design.F')).toBe(2197);           // shallower, further
     await pickOption(page, 10, 'bedroomCupboardCurrent');
     await slide(page, 'bedroomCupboardCornerW', 1858);
-    expect(await setting(page, 'bedroomCupboard.CORNER_W')).toBe(1858);
+    expect(await setting(page, 'pieces.bedroomCupboard.design.CORNER_W')).toBe(1858);
     await slide(page, 'bedroomCupboardCornerD', 2841);
-    expect(await setting(page, 'bedroomCupboard.CORNER_D')).toBe(2071);    // 1858 wide: past the door's hinge
+    expect(await setting(page, 'pieces.bedroomCupboard.design.CORNER_D')).toBe(2071);    // 1858 wide: past the door's hinge
     await slide(page, 'bedroomCupboardTop', 2100);
-    expect(await setting(page, 'bedroomCupboard.TOP')).toBe(2100);
-    expect(await setting(page, 'cornerCupboard.TOP')).toBe(0);
+    expect(await setting(page, 'pieces.bedroomCupboard.design.TOP')).toBe(2100);
+    expect(await setting(page, 'pieces.cornerCupboard.design.TOP')).toBe(0);
   });
 });
 
@@ -451,17 +451,17 @@ test.describe('option 7\'s shelves', () => {
     await page.locator('#shelvesBack').fill('1000 500');
     await page.locator('#shelvesBack').press('Tab');                    // the list is read once you leave the box
     await expect(page.locator('#shelvesBack')).toHaveValue('500, 1000');   // sorted, and written back tidily
-    expect(await setting(page, 'cornerCupboard.L_SHELVES.back')).toEqual([500, 1000]);
+    expect(await setting(page, 'pieces.cornerCupboard.design.L_SHELVES.back')).toEqual([500, 1000]);
     await page.locator('#shelvesLeft').fill('700');
     await page.locator('#shelvesLeft').press('Tab');
-    expect(await setting(page, 'cornerCupboard.L_SHELVES.left')).toEqual([700]);
+    expect(await setting(page, 'pieces.cornerCupboard.design.L_SHELVES.left')).toEqual([700]);
   });
 
   test('tops too low, too high or not numbers are left out', async ({ page }) => {
     await page.locator('#shelvesBack').fill('50, shelf, 2500');
     await page.locator('#shelvesBack').press('Tab');
     await expect(page.locator('#shelvesBack')).toHaveValue('');
-    expect(await setting(page, 'cornerCupboard.L_SHELVES.back')).toEqual([]);         // no shelves
+    expect(await setting(page, 'pieces.cornerCupboard.design.L_SHELVES.back')).toEqual([]);         // no shelves
   });
 });
 
@@ -657,10 +657,10 @@ test.describe('the kitchen tables', () => {
     // Chesham stood up, moved out of the way, then back where it is now
     await page.locator('#cheshamOnItsEnd').uncheck();
     await slide(page, 'cheshamX', 2500);
-    expect(await setting(page, 'cheshamMove')).toEqual({ x: 2500, y: 0, turn: 0 });
+    expect(await setting(page, 'pieces.chesham.in.livingRoom.move')).toEqual({ x: 2500, y: 0, turn: 0 });
     expect(await boxOf(page, 'chesham')).toEqual({ from: [1905, 0, 0], to: [3095, 740, 730], shown: true });
     await page.locator('#cheshamHome').click();
-    expect(await setting(page, 'cheshamMove')).toBe(null);
+    expect(await setting(page, 'pieces.chesham.in.livingRoom.move')).toBe(null);
     // Out, and its settings with it
     await page.locator('#cheshamOn').uncheck();
     await expect(page.locator('#cheshamMoveBlock')).toBeHidden();
@@ -686,10 +686,10 @@ test('the desk on castors parks by the door and wheels out to the TV', async ({ 
   expect(await box()).toEqual({ from: [1844, 430, 0], to: [2794, 980, 740], shown: true });
   await expect(page.locator('#summary')).toContainText('in front of the TV, centred on it, its back 100 out from the bench');
   await slide(page, 'castorDeskY', 1500);
-  expect(await setting(page, 'castorDeskMove')).toEqual({ x: 2319, y: 1500, turn: 0 });
+  expect(await setting(page, 'pieces.castorDesk.in.livingRoom.move')).toEqual({ x: 2319, y: 1500, turn: 0 });
   await page.locator('#castorDeskHome').click();
-  expect(await setting(page, 'castorDeskMove')).toBe(null);
-  expect(await setting(page, 'castorDeskAt')).toBe('tv');
+  expect(await setting(page, 'pieces.castorDesk.in.livingRoom.move')).toBe(null);
+  expect(await setting(page, 'pieces.castorDesk.in.livingRoom.at')).toBe('tv');
   await toggle(page, 'castorDeskOn', false);
   expect(await box()).toBe(null);
 });
@@ -955,7 +955,7 @@ test.describe('things to store', () => {
     await lift.fill('300');
     await lift.press('Tab');
     expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 2 });   // as placed by hand now
-    expect(await setting(page, 'stored.spots.0.z')).toBe(300);
+    expect(await setting(page, 'thingsToStore.spots.0.z')).toBe(300);
     await page.click('#storedPack');                                   // back by the window
     expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 0 });
   });
@@ -978,13 +978,13 @@ test.describe('things to store', () => {
     await page.mouse.move(sx - 500 * perMm, sy, { steps: 5 });
     await page.mouse.up();
     expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 2 });   // moved by hand
-    const rack1 = await setting(page, 'stored.spots.0');
+    const rack1 = await setting(page, 'thingsToStore.spots.0');
     expect(rack1.x).toBeGreaterThan(2000);
     expect(rack1.x).toBeLessThan(2100);
     expect(rack1.turned).toBe(true);
     // A double-click turns it round
     await page.mouse.dblclick(sx - 500 * perMm, sy);
-    expect(await setting(page, 'stored.spots.0.turned')).toBe(false);
+    expect(await setting(page, 'thingsToStore.spots.0.turned')).toBe(false);
   });
 });
 
@@ -1161,20 +1161,20 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   const start = await hash(page);
   const step = async (what, path, value) => expect(await setting(page, path), what).toBe(value);
   expect(await optionShown(page), 'option 10, as the page opens').toBe(10);
-  await step('...with a left-wall cupboard', 'cornerCupboard.T', 600);
+  await step('...with a left-wall cupboard', 'pieces.cornerCupboard.design.T', 600);
   await page.check('input[name=islandAt][value="out"]');              // the island in the corner, against the counter
-  await step('the island in the corner', 'island.at', 'out');
+  await step('the island in the corner', 'pieces.island.in.livingRoom.at', 'out');
   await expect(page.locator('#frontBlock'), 'no dresser or larder with the island there').toBeHidden();
   await page.check('input[name=islandAt][value="room"]');             // and out there again
-  await step('the island out there', 'island.at', 'room');
+  await step('the island out there', 'pieces.island.in.livingRoom.at', 'room');
   await expect(page.locator('#frontBlock')).toBeVisible();
   await page.check('input[name=frontPiece][value="none"]');
   await page.check('input[name=frontPiece][value="dresser"]');
-  await step('the dresser', 'frontPiece', 'dresser');
+  await step('the dresser', 'livingRoom.frontWall', 'dresser');
   await page.check('input[name=frontPiece][value="larder"]');
-  await step('the larder', 'frontPiece', 'larder');
+  await step('the larder', 'livingRoom.frontWall', 'larder');
   await SOFA(page);
-  await step('the sofa', 'sofa.key', 'merton');
+  await step('the sofa', 'pieces.sofa.design.model', 'merton');
   await OPTION(9)(page);
   expect(await optionShown(page), 'option 9').toBe(9);
   await expect(page.locator('#summary')).toContainText('A larder on the front wall');

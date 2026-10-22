@@ -45,7 +45,7 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, state, storedGroup, storedMats,
-  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots } from './flat_model.js';
+  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots, inLivingRoom } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE, floor, otherRoom, hallway, entrance, bathroom } from './floor.js';
 
@@ -165,7 +165,7 @@ function showStored() {
 }
 // Their part of the menu, `storedText` what drawStored() said of them
 function showStoredMenu(storedText) {
-  const { shown, packing, where } = state.stored;
+  const { shown, packing, where } = state.thingsToStore;
   document.getElementById('storedInfo').textContent = storedText;
   showLifts();
   document.getElementById('storedToggle').checked = shown;
@@ -210,7 +210,7 @@ function storedUnder(e, cam = flatCamera) {
   const hit = raycaster.intersectObjects(storedGroup.children, false).find(h => h.object.userData.stored !== undefined);
   return { k: hit ? hit.object.userData.stored : -1, x: raycaster.ray.origin.x / MM, y: raycaster.ray.origin.z / MM };
 }
-const canDrag = () => state.stored.shown && flat && flatView === 'plan';
+const canDrag = () => state.thingsToStore.shown && flat && flatView === 'plan';
 renderer.domElement.addEventListener('pointerdown', e => {
   if (!canDrag()) return;
   const { k, x, y } = storedUnder(e);
@@ -246,7 +246,7 @@ renderer.domElement.addEventListener('pointermove', e => {
 const tip = document.getElementById('tip');
 let tipTimer = null;
 function showTip(e) {
-  const { k } = state.stored.shown && !storedDrag ? storedUnder(e, flat ? flatCamera : camera) : { k: -1 };
+  const { k } = state.thingsToStore.shown && !storedDrag ? storedUnder(e, flat ? flatCamera : camera) : { k: -1 };
   if (k < 0) {
     tip.style.display = 'none';
     return;
@@ -356,7 +356,7 @@ for (const name of Object.keys(DESK_RADIOS)) {
 // onShow: the option on show till now, when the menus have already set it
 function show(onShow) {
   const { option, same, aboveText, storedText } = rebuild(onShow);
-  showInMenus(option, state.cornerCupboard.option, aboveText);
+  showInMenus(option, state.pieces.cornerCupboard.design.option, aboveText);
   if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
   redrawAround(storedText);
 }
@@ -364,7 +364,7 @@ function show(onShow) {
 // The menus for option `no`: the option list, the description, and only the
 // blocks of controls that apply to it
 function showInMenus(option, no, aboveText) {
-  const { above } = state;
+  const above = state.pieces.aboveBench.design.what;
   loungeCupboard.showBlocks();
   showBedroomCupboard();
   document.getElementById('summary').innerHTML = describe(option, aboveText);
@@ -372,18 +372,18 @@ function showInMenus(option, no, aboveText) {
   shown('tvBlock', above >= 2);
   shown('shelfBlock', above === 1 || above >= 3);               // only with shelves above the bench
   shown('benchDetails', benchDrawn());
-  const piece = no === CURRENT_ROOM || islandOnWall() ? 'none' : state.frontPiece;   // the dresser or a larder, if either is drawn
+  const piece = no === CURRENT_ROOM || islandOnWall() ? 'none' : state.livingRoom.frontWall;   // the dresser or a larder, if either is drawn
   shown('frontBlock', !(no === CURRENT_ROOM || islandOnWall()));
-  shown('islandMoveBlock', state.island.at === 'room');         // moving and turning: out there only
+  shown('islandMoveBlock', state.pieces.island.in.livingRoom.at === 'room');         // moving and turning: out there only
   for (const [k, id, unit] of [['x', 'islandX', ''], ['y', 'islandY', ''], ['turn', 'islandTurn', '°']]) {
-    document.getElementById(id).value = String(state.island.move[k]);
-    document.getElementById(`${id}Value`).textContent = `${state.island.move[k]}${unit}`;
+    document.getElementById(id).value = String(state.pieces.island.in.livingRoom[k]);
+    document.getElementById(`${id}Value`).textContent = `${state.pieces.island.in.livingRoom[k]}${unit}`;
   }
   shown('dresserBlock', piece === 'dresser');
   shown('larderBlock', piece === 'larder');
   shown('bookshelfBlock', piece === 'bookshelf');
   for (const key of BACK_WALL_KEYS) {
-    shown(`${key}MoveBlock`, state[`${key}On`]);
+    shown(`${key}MoveBlock`, inLivingRoom(key).on);
     showPlace(key);                                             // where it starts follows the option's clear wall
   }
   showIvar();
@@ -548,8 +548,8 @@ refreshColours();
 const shelfSelect = document.getElementById('shelfWood');
 shelfSelect.innerHTML = SHELF_WOODS.map((w, i) => `<option value="${i}">${w.name}</option>`).join('');
 function showShelfWood() {
-  shelfSelect.value = String(state.shelfWood);
-  document.getElementById('shelfSwatch').style.background = [].concat(SHELF_WOODS[state.shelfWood].hex)[0];
+  shelfSelect.value = String(state.colours.shelves);
+  document.getElementById('shelfSwatch').style.background = [].concat(SHELF_WOODS[state.colours.shelves].hex)[0];
 }
 showShelfWood();
 shelfSelect.addEventListener('change', () => change([['colours.shelves', Number(shelfSelect.value)]]));
@@ -558,7 +558,7 @@ shelfSelect.addEventListener('change', () => change([['colours.shelves', Number(
 // read from the model's own materials so it follows the choices above. Parts
 // whose materials are local to their drawing code are listed by value.
 function updatePalette() {
-  const { shelfWood, above } = state, { option } = state.cornerCupboard;
+  const { shelves: shelfWood } = state.colours, above = state.pieces.aboveBench.design.what, { option } = state.pieces.cornerCupboard.design;
   const current = option === CURRENT_ROOM;                       // the room as it is, no cupboards
   const hex = m => `#${m.color.getHexString().toUpperCase()}`;
   const rows = [
@@ -582,7 +582,7 @@ function updatePalette() {
     ['Chair, monitors and riser', '#222222'],
     ['Window panes (blinds)', '#CFE3EF', 'See-through: shows as about #B8C0BF'],
     ['Radiators', '#F6F6F4'],
-    ...(state.stored.shown ? STORED.map((t, k) => [t.name, hex(storedMats[k]), 'to store']) : []),
+    ...(state.thingsToStore.shown ? STORED.map((t, k) => [t.name, hex(storedMats[k]), 'to store']) : []),
   ];
   document.getElementById('paletteList').innerHTML = rows.map(([what, value, name]) =>
     `<div class="colrow"><span class="swatch" style="background:${value}"></span>` +
@@ -608,8 +608,8 @@ const sizeEdits = (design, sliders, sizes) => sliders.filter(([k]) => Number.isF
 const setDresser = sizes => sizeEdits('pieces.dresser.design', DRESSER_SLIDERS, sizes);
 function showDresser() {
   for (const [k, id] of DRESSER_SLIDERS) {                       // the upper depth may have been held to the base's
-    document.getElementById(id).value = String(state.dresser[k]);
-    document.getElementById(`${id}Value`).textContent = state.dresser[k];
+    document.getElementById(id).value = String(state.pieces.dresser.design[k]);
+    document.getElementById(`${id}Value`).textContent = state.pieces.dresser.design[k];
   }
   showDresserPick();
 }
@@ -623,7 +623,7 @@ const dresserCustom = Object.assign(document.createElement('option'), { value: '
 dresserPick.append(dresserCustom, ...Object.entries(DRESSERS).map(([id, d]) =>
   Object.assign(document.createElement('option'), { value: id, textContent: `${d.label} (${d.w} × ${d.h})` })));
 function showDresserPick() {
-  const match = Object.entries(DRESSERS).find(([, d]) => DRESSER_SLIDERS.every(([k]) => d[k] === state.dresser[k]));
+  const match = Object.entries(DRESSERS).find(([, d]) => DRESSER_SLIDERS.every(([k]) => d[k] === state.pieces.dresser.design[k]));
   dresserPick.value = match ? match[0] : '';
 }
 // Looking at the dresser: at it as it is now
@@ -636,7 +636,7 @@ sofaPick.append(Object.assign(document.createElement('option'), { value: '', tex
 const sofaCustom = Object.assign(document.createElement('option'), { value: 'custom', disabled: true });
 sofaPick.insertBefore(sofaCustom, sofaPick.options[1] ?? null);
 function showSofa() {
-  const { key, front, size } = state.sofa, own = SOFAS[key] && sofaOwnSize(SOFAS[key]);
+  const size = state.pieces.sofa.design, { model: key } = size, { front } = state.pieces.sofa.in.livingRoom, own = SOFAS[key] && sofaOwnSize(SOFAS[key]);
   sofaCustom.textContent = `Custom: the ${SOFAS[key]?.label ?? 'sofa'}, resized`;
   sofaPick.value = !key ? '' : SOFA_SLIDERS.every(([k]) => own[k] === size[k]) ? key : 'custom';
   sofaSlider.value = front;
@@ -647,8 +647,8 @@ function showSofa() {
   }
   document.getElementById('sofaFrontBlock').style.display = key ? '' : 'none';
   document.getElementById('sofaAsBedRow').style.display = SOFAS[key]?.daybed ? '' : 'none';   // a daybed only
-  sofaAsBed.checked = state.sofa.asBed;
-  document.getElementById('sofaFrontRow').style.display = state.sofa.move ? 'none' : '';   // moved, its sliders say where
+  sofaAsBed.checked = state.pieces.sofa.design.asBed;
+  document.getElementById('sofaFrontRow').style.display = state.pieces.sofa.in.livingRoom.move ? 'none' : '';   // moved, its sliders say where
 }
 const setSofaSize = sizes => sizeEdits('pieces.sofa.design', SOFA_SLIDERS, sizes);
 for (const [key, id] of SOFA_SLIDERS) {
@@ -718,16 +718,16 @@ ivarOn.addEventListener('change', () => change([[`${IVAR_PLACE}.on`, ivarOn.chec
 ivarLying.addEventListener('change', () => change([[`${IVAR_PLACE}.lying`, ivarLying.checked]], { look: true }));
 placeControls('ivar', IVAR_PLACE, ivarSpot);
 function showIvar() {
-  ivarOn.checked = state.ivarOn;
-  ivarLying.checked = state.ivarLying;
-  document.getElementById('ivarMoveBlock').style.display = state.ivarOn ? '' : 'none';
+  ivarOn.checked = state.pieces.ivar.in.livingRoom.on;
+  ivarLying.checked = state.pieces.ivar.in.livingRoom.lying;
+  document.getElementById('ivarMoveBlock').style.display = state.pieces.ivar.in.livingRoom.on ? '' : 'none';
   showPlace('ivar', ivarSpot());
 }
 // The kitchen tables: each in the lounge or not, in its pose (Cornwall's
 // legs off, Chesham on its end) or not, and moved from where it is now
 // (flat_model.js's LOUNGE_NOW)
 const TABLE_POSES = { cornwall: 'legsOff', chesham: 'onItsEnd' };
-// A switch's name, its id and its setting in state alike: cornwallOn, cornwallLegsOff
+// A switch's id, by its table and its setting in the table's place: cornwallOn, cornwallLegsOff
 const tableSwitchName = (key, setting) => `${key}${setting[0].toUpperCase()}${setting.slice(1)}`;
 const tableSwitch = (key, setting) => document.getElementById(tableSwitchName(key, setting));
 for (const [key, pose] of Object.entries(TABLE_POSES)) {
@@ -740,8 +740,8 @@ for (const [key, pose] of Object.entries(TABLE_POSES)) {
 }
 function showTables() {
   for (const [key, pose] of Object.entries(TABLE_POSES)) {
-    for (const setting of ['on', pose]) tableSwitch(key, setting).checked = state[tableSwitchName(key, setting)];
-    document.getElementById(`${key}MoveBlock`).style.display = state[`${key}On`] ? '' : 'none';
+    for (const setting of ['on', pose]) tableSwitch(key, setting).checked = inLivingRoom(key)[setting];
+    document.getElementById(`${key}MoveBlock`).style.display = inLivingRoom(key).on ? '' : 'none';
     showPlace(key, tableSpot(key));
   }
 }
@@ -756,9 +756,9 @@ for (const radio of castorDeskAt) {
 }
 placeControls('castorDesk', CASTOR_DESK_PLACE, castorDeskSpot);
 function showCastorDesk() {
-  castorDeskOn.checked = state.castorDeskOn;
+  castorDeskOn.checked = state.pieces.castorDesk.in.livingRoom.on;
   for (const radio of castorDeskAt) radio.checked = radio.value === get(`${CASTOR_DESK_PLACE}.at`);
-  document.getElementById('castorDeskMoveBlock').style.display = state.castorDeskOn ? '' : 'none';
+  document.getElementById('castorDeskMoveBlock').style.display = state.pieces.castorDesk.in.livingRoom.on ? '' : 'none';
   showPlace('castorDesk', castorDeskSpot());
 }
 function showPlace(key, at = spotOf(key)) {
@@ -780,10 +780,10 @@ sofaTurn.addEventListener('change', () => change([[`${SOFA_PLACE}.move`, { ...so
 document.getElementById('sofaHome').addEventListener('click', () => change([[`${SOFA_PLACE}.move`, null]], { look: true }));
 // Where the sofa is, to the nearest mm (the TV's middle may fall on a half)
 function sofaPlace() {
-  return roundedSpot(state.sofa.move ?? sofaHome(currentSofa()));
+  return roundedSpot(state.pieces.sofa.in.livingRoom.move ?? sofaHome(currentSofa()));
 }
 function showSofaPlace() {
-  if (!SOFAS[state.sofa.key]) return;
+  if (!SOFAS[state.pieces.sofa.design.model]) return;
   const { x, y, turn } = sofaPlace();
   for (const [suffix, v] of [['X', x], ['Y', y]]) {
     document.getElementById(`sofa${suffix}`).value = String(v);
@@ -823,7 +823,7 @@ larderPick.append(larderCustom, ...Object.entries(LARDERS).map(([id, L]) =>
   Object.assign(document.createElement('option'), { value: id, textContent: `${L.label} (${L.w} × ${larderHeight(L)})` })));
 const setLarderSize = sizes => sizeEdits('pieces.larder.design', LARDER_SLIDERS, sizes);
 function showLarder() {
-  const { key, size } = state.larder;
+  const size = state.pieces.larder.design, { model: key } = size;
   for (const [k, id] of LARDER_SLIDERS) {
     document.getElementById(id).value = String(size[k]);
     document.getElementById(`${id}Value`).textContent = size[k];
@@ -948,12 +948,12 @@ const builtInViews = {
 // Returns the middle of the door opening (or for an L, its inside corner)
 // and the way out of it.
 function packingSpot() {
-  const { T, R, F, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = state.cornerCupboard;
+  const { T, R, F, LEG, LEG_D, WARD, WARD_D, CORNER_W, CORNER_D } = state.pieces.cornerCupboard.design;
   const mid = (x, y, nx, ny) => ({ x, y, nx, ny });
   // An L (back-wall leg Dl deep, left-wall leg T deep): standing diagonally
   // in front of its inside corner, looking into it, to see into both legs
   const lCorner = Dl => mid(T, Dl, Math.SQRT1_2, Math.SQRT1_2);
-  switch (state.cornerCupboard.option) {
+  switch (state.pieces.cornerCupboard.design.option) {
     case 7:                                                      // an L: in front of its inside corner; else the back-wall leg's door
       return T ? lCorner(LEG_D) : mid(T + LEG / 2, LEG_D, 0, 1);
     case 8: {                                                    // the diagonal doors' middle
@@ -1016,13 +1016,13 @@ function pointOn(piece, [across, along]) {
 const DESK_SEAT_BACK = 350;
 const anchors = {
   // Wherever they are, else where they'd be on the front wall
-  dresser: () => pieces.dresser ? middleOf(pieces.dresser) : [(dresserSpan().x0 + dresserSpan().x1) / 2, ROOM_DEPTH - state.dresser.baseD / 2, state.dresser.h / 2],
+  dresser: () => pieces.dresser ? middleOf(pieces.dresser) : [(dresserSpan().x0 + dresserSpan().x1) / 2, ROOM_DEPTH - state.pieces.dresser.design.baseD / 2, state.pieces.dresser.design.h / 2],
   larder: () => pieces.larder ? middleOf(pieces.larder) : [frontFrom() + frontGap() / 2, ROOM_DEPTH - 250, 1000],
   island: () => middleOf(islandGroup),
   sofa: () => pieces.sofa ? middleOf(pieces.sofa) : [ROOM_WIDTH / 2, 2400, 500],
   // Sitting on it: in the middle, eyes over the back of the seat
   sofaSeat: () => {
-    if (!SOFAS[state.sofa.key] || !pieces.sofa) return [ROOM_WIDTH / 2, 2500];
+    if (!SOFAS[state.pieces.sofa.design.model] || !pieces.sofa) return [ROOM_WIDTH / 2, 2500];
     const S = currentSofa();
     return pointOn(pieces.sofa, [0, -S.d / 2 + S.seatD - 100]);
   },
@@ -1325,8 +1325,8 @@ reloadButton(document.getElementById('reload'), () => ['room_3d:startView', ...O
 resetButton(document.getElementById('reset'));
 // Share: the link is always to the published page, so it works for others
 // even when this copy is on a local server
-shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => optionOf(state.cornerCupboard.option).name);
-screenshotButton(document.getElementById('screenshot'), renderer.domElement, draw, () => optionOf(state.cornerCupboard.option).name);
+shareButton(document.getElementById('share'), 'https://andrewrobinson.github.io/plans/index.html', () => optionOf(state.pieces.cornerCupboard.design.option).name);
+screenshotButton(document.getElementById('screenshot'), renderer.domElement, draw, () => optionOf(state.pieces.cornerCupboard.design.option).name);
 resize();
 
 workOffline('sw.js');
@@ -1378,7 +1378,8 @@ for (const sec of DRAWER_SECTIONS) {
 
 function syncControls() {
   settle();                                                     // the TV's size and the colours, worked out
-  const { BENCH, above, shelfDepth, tv, frontPiece, island } = state;
+  const BENCH = state.pieces.bench.design.height, { what: above, shelfDepth, tv } = state.pieces.aboveBench.design;
+  const { frontWall: frontPiece } = state.livingRoom, island = state.pieces.island.in.livingRoom;
   const slide = (id, value, text = value) => {
     document.getElementById(id).value = String(value);
     document.getElementById(`${id}Value`).textContent = text;
@@ -1388,8 +1389,8 @@ function syncControls() {
   bedroomCupboardControls.sync();
   benchSwitch.checked = benchDrawn();
   benchSwitch.disabled = onBackWall().length > 0;
-  for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = state[`${key}On`];
-  billyLying.checked = state.billyLying;
+  for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = inLivingRoom(key).on;
+  billyLying.checked = state.pieces.billy.in.livingRoom.lying;
   showBookshelfSizes();
   check('bench', BENCH);
   check('above', above);
