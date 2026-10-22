@@ -114,9 +114,62 @@ US only (ideas, or the maker's name to look for in the UK):
 - **Latitude Run "Waneta"**: desk, bookcase, drawers, charging; particle
   board, pine, MDF ([Wayfair CA](https://www.wayfair.ca/Latitude-Run%C2%AEs-Waneta-Collection-X14447921.html)).
 
-None found was solid wood. For better build in the same shape, the routes
-are a kids' cabin/mid-sleeper maker with a solid-wood range, or having the
-shape made.
+None found was solid wood.
+
+## Reputable UK makers (second search)
+
+No reputable UK or European maker sells this exact shape: a bed at floor
+level, wrapped in an L of bookcase, with a desk at the foot. That shape
+only comes from the Merax-type flat-pack sellers. The nearest from known
+brands put the desk *under* a raised bed instead:
+
+- **Stompa** (UK): mid and high sleepers with desk, shelves and bookcase.
+  Classic high sleeper about £700 (was £1,000); pine and MDF.
+  ([beds with desks](https://www.stompa.com/stompa-kids-beds/beds-with-desks),
+  [John Lewis](https://www.johnlewis.com/brand/stompa/_/N-1z13u3v))
+- **Julian Bowen** (UK): Neptune mid sleeper with desk, about £329;
+  Pegasus high sleeper with wardrobe and desk.
+  ([Lionshome](https://www.lionshome.co.uk/furniture-single-beds/julian-bowen/))
+- **Mathy by Bols** (Belgium, solid pine, handmade): Dominique beds with
+  desk and a "tree bookcase" that fixes to the foot of the bed, £1,600 to
+  £2,200, 4–12 weeks.
+  ([Cuckooland](https://www.cuckooland.com/brand/mathy-by-bols/kids-mid-sleeper-bed-with-drawers-and-rolling-desk),
+  [Bedkingdom](https://www.bedkingdom.co.uk/mathy-by-bols-dominique-mid-sleeper-bed-with-drawers-desk.html))
+- **John Lewis** "beds with desks" range
+  ([list](https://www.johnlewis.com/browse/furniture/bedroom/beds/desk-included/_/N-c7oZlqcd)).
+
+All of these are sold as children's beds and look it.
+
+### Build it from parts
+
+Likely the best quality for the money: a plain daybed plus fixed
+bookcases and a desk top, each from a maker with a known record.
+
+- IKEA daybed (HEMNES or BRIMNES) with BILLY bookcases along the side
+  and foot, fixed to the wall, and a worktop on a BILLY or legs for the
+  desk. Someone has built a daybed nook from four BILLYs on a timber base
+  ([IKEA Hackers](https://ikeahackers.net/2018/03/daybed-reading-nook-ikea-bookshelves.html)),
+  and a desk shelf in a BILLY ([IKEA Hackers](https://ikeahackers.net/2011/04/billy-desk.html)).
+- Or a joiner builds it in, which gives exactly the room's sizes.
+
+## eBay and Amazon UK (second search)
+
+- **eBay UK, Merax**, 3ft daybed with bookcase, desk, 2 drawers, USB:
+  238 x 116 x 100 cm, 74 kg, new, 9 available
+  ([listing](https://www.ebay.co.uk/itm/128068510265)). 25 cm shorter and
+  25 kg lighter than the B&Q/Joybuy one, so a different, smaller version.
+- **Amazon UK**: 3ft single with desk, bookcase headboard, LED and 2
+  drawers, about £270; corner daybeds with drawers, LED and charging but no
+  desk, £160–£190. Budget brands, ratings around 3.9/5.
+  ([single bed with desk](https://www.amazon.co.uk/single-bed-desk/s?k=single+bed+with+desk),
+  [L-shaped bed](https://www.amazon.co.uk/l-shaped-bed/s?k=l+shaped+bed),
+  [single bed with bookshelf](https://www.amazon.co.uk/single-bed-bookshelf/s?k=single+bed+with+bookshelf))
+- **ManoMano**: a single with bookcase and drawers, about £188
+  ([singles](https://www.manomano.co.uk/cat/single+bed+190cm)).
+- **eBay UK** "bookcase bed" search
+  ([search](https://www.ebay.co.uk/shop/bookcase-bed?_nkw=bookcase+bed)).
+
+These are all the same kind of seller as B&Q's.
 
 ## Still to check
 
