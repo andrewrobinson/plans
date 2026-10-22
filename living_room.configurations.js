@@ -367,6 +367,7 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
+                "tvAbove": false,
                 "move": null
               }
             }
@@ -404,7 +405,8 @@ window.ROOM_CONFIGURATIONS = {
                 "on": "none",
                 "spacing": {
                   "bench": null,
-                  "billy": null
+                  "billy": null,
+                  "deskDaybed": null
                 }
               }
             }
@@ -1029,6 +1031,7 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
+                "tvAbove": false,
                 "move": null
               }
             }
@@ -1066,7 +1069,8 @@ window.ROOM_CONFIGURATIONS = {
                 "on": "none",
                 "spacing": {
                   "bench": null,
-                  "billy": null
+                  "billy": null,
+                  "deskDaybed": null
                 }
               }
             }
@@ -1647,6 +1651,7 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
+                "tvAbove": false,
                 "move": null
               }
             }
@@ -1684,7 +1689,8 @@ window.ROOM_CONFIGURATIONS = {
                 "on": "none",
                 "spacing": {
                   "bench": null,
-                  "billy": null
+                  "billy": null,
+                  "deskDaybed": null
                 }
               }
             }

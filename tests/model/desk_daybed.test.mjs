@@ -39,3 +39,29 @@ test('out to start; on, in place of the bench, said where', () => {
   assert.match(description, /The daybed with a desk and bookcase, its desk at the right end \(2630 wide, 1140 deep, 1000 high\) on the back wall/);
   assert.match(description, /No bench: BillyChest and the daybed stand there instead/);
 });
+
+// The daybed in the room as it opens, in Billy's place, with the TV above it
+// and the speakers on it
+function withTvAndSpeakers(edit = () => {}) {
+  const configuration = structuredClone(DEFAULT_CONFIGURATION);
+  configuration.pieces.billy.in.livingRoom.on = false;
+  configuration.pieces.deskDaybed.in.livingRoom = { on: true, move: null, tvAbove: true };
+  configuration.pieces.speakers.in.livingRoom.on = 'deskDaybed';
+  edit(configuration);
+  return buildFlat(configuration);
+}
+
+test('the TV above it: centred on its bed, 150 over its top', () => {
+  const { description } = withTvAndSpeakers();
+  assert.match(description, /Above the daybed: a 75" TV \(1680 × 960\), centred on its bed, from 1150 to 2110\./);
+  const pulledOut = withTvAndSpeakers(c => { c.pieces.deskDaybed.in.livingRoom.move = { x: 1500, y: 500, turn: 0 }; });
+  assert.match(pulledOut.description, /No TV above the daybed: it isn't against the back wall\./);
+});
+
+test('the speakers on its bookcase, either side of the TV, their fronts flush with it', () => {
+  const box = withTvAndSpeakers().boxes['speakers.livingRoom'];
+  const bedMiddle = 421 + 1900 / 2;                          // its desk's column, then half its bed, from the left wall
+  assert.equal((box.from[0] + box.to[0]) / 2, bedMiddle);
+  assert.equal(box.to[0] - box.from[0] - 170, 1680 + 2 * 100 + 170);
+  assert.deepEqual([box.from[2], box.to[1] - 2], [1000, 240]);   // on its top; the badge 2 proud of the front
+});

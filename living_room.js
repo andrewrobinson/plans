@@ -47,7 +47,7 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, config, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots, inLivingRoom, aboveHasTv, aboveHasShelves, NO_SOFA,
-  speakerSpacingNow, cupboardTopForSpeakers } from './flat_model.js';
+  speakerSpacingNow, cupboardTopForSpeakers, daybedTvShown } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE, floor, otherRoom, hallway, entrance, bathroom } from './floor.js';
 
@@ -371,8 +371,8 @@ function showInMenus(option, no, aboveText) {
   showBedroomCupboard();
   document.getElementById('summary').innerHTML = describe(option, aboveText);
   const shown = (id, yes) => { document.getElementById(id).style.display = yes ? '' : 'none'; };
-  shown('tvBlock', aboveHasTv(above));
-  shown('shelfBlock', aboveHasShelves(above));               // only with shelves above the bench
+  shown('tvBlock', (benchDrawn() && aboveHasTv(above)) || daybedTvShown());   // the bench's TV, or the daybed's
+  shown('shelfBlock', benchDrawn() && aboveHasShelves(above));   // only with shelves above the bench
   shown('benchDetails', benchDrawn());
   const piece = no === CURRENT_ROOM || islandOnWall() ? 'none' : config.livingRoom.frontWall;   // the dresser or a larder, if either is drawn
   shown('frontBlock', !(no === CURRENT_ROOM || islandOnWall()));
@@ -700,6 +700,9 @@ billyLying.addEventListener('change', () => change([[`${BACK_WALL_PLACES.billy}.
 // ...and the daybed's desk can be at its right-hand end
 const deskDaybedRight = document.getElementById('deskDaybedRight');
 deskDaybedRight.addEventListener('change', () => change([['pieces.deskDaybed.design.deskAt', deskDaybedRight.checked ? 'right' : 'left']], { look: true }));
+// ...and the TV can hang on the wall above it
+const deskDaybedTv = document.getElementById('deskDaybedTv');
+deskDaybedTv.addEventListener('change', () => change([[`${BACK_WALL_PLACES.deskDaybed}.tvAbove`, deskDaybedTv.checked]], { look: true }));
 for (const key of BACK_WALL_KEYS) {
   const place = BACK_WALL_PLACES[key];
   const onSwitch = backWallSwitches[key] = document.getElementById(`${key}On`);
@@ -769,7 +772,7 @@ function showCastorDesk() {
 }
 // The speakers: on nothing, or as a pair on the bench, on Billy lying, or
 // on the corner cupboard (offered only when it stops short of the ceiling,
-// or while they're on it); and, on the bench and Billy, how far apart,
+// or while they're on it); and, on the bench, Billy and the daybed, how far apart,
 // each place keeping its own (flat_model.js's speakerSpacingNow())
 const SPEAKERS_PLACE = 'pieces.speakers.in.livingRoom';
 const speakersOn = [...document.getElementsByName('speakersOn')], speakerSpacing = document.getElementById('speakerSpacing');
@@ -1413,6 +1416,7 @@ function syncControls() {
   for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = inLivingRoom(key).on;
   billyLying.checked = config.pieces.billy.in.livingRoom.lying;
   deskDaybedRight.checked = config.pieces.deskDaybed.design.deskAt === 'right';
+  deskDaybedTv.checked = config.pieces.deskDaybed.in.livingRoom.tvAbove;
   showBookshelfSizes();
   check('bench', BENCH);
   check('above', above);

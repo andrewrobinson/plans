@@ -32,7 +32,7 @@ import { ivar, ivarSizes } from './ivar.js';
 import { CHESHAM, CORNWALL, kitchenTable, tableSizes } from './tables.js';
 import { castorDesk, castorDeskSizes } from './castor_desk.js';
 import { FENRIS_A5, fenrisA5 } from './speakers.js';
-import { DESK_DAYBED, deskDaybed } from './desk_daybed.js';
+import { DESK_DAYBED, DAYBED_TOP_D, deskDaybed, bedMiddle } from './desk_daybed.js';
 import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard,
   QUARTER_TURN, OTHER_ROOM_SCHEMA } from './other_room.js';
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
@@ -355,8 +355,8 @@ const config = {
     billyChest: { in: { livingRoom: { on: true, move: LOUNGE_NOW.billyChest } } },       // in the corner, as now
     // ...and the daybed with a desk and bookcase (desk_daybed.js), out to
     // start, its desk at the left end or the right (deskAt), as it can be
-    // put together
-    deskDaybed: { design: { deskAt: 'left' }, in: { livingRoom: { on: false, move: null } } },
+    // put together; and the TV on the wall above it, or not
+    deskDaybed: { design: { deskAt: 'left' }, in: { livingRoom: { on: false, move: null, tvAbove: false } } },
     // The Ivar (ivar.js), by the first radiator, lying on its side, as it is
     // now (IVAR_HOME), and moved round the room from there, or null where it
     // starts
@@ -373,9 +373,9 @@ const config = {
     // and moved from there, as the Ivar
     castorDesk: { in: { livingRoom: { on: false, at: 'byTheDoor', move: null } } },
     // The speakers (speakers.js), a pair: on nothing to start ('none'), or
-    // on one of SPEAKER_PLACES; and on the bench and on Billy, the distance
+    // on one of SPEAKER_PLACES; and on the bench, Billy and the daybed, the distance
     // between their middles, or null for where they start there
-    speakers: { in: { livingRoom: { on: 'none', spacing: { bench: null, billy: null } } } },
+    speakers: { in: { livingRoom: { on: 'none', spacing: { bench: null, billy: null, deskDaybed: null } } } },
   },
   colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0,   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
     shelves: 0 },                  // the shelves' wood, which of SHELF_WOODS
@@ -538,6 +538,16 @@ function shelves(x0, x1, g, tops = SHELF_TOPS) {
 }
 
 let tvAt = null;                   // the TV's middle, room [x, y, height], or where it would be
+// The TV on the back wall, its middle at x along it and its bottom that
+// high: its case 50 deep and its screen, 15 in from its edges; tvAt there
+function drawTv(middle, bottom, g) {
+  const tx = middle - TV_W / 2;
+  tvAt = [middle, 0, bottom + TV_H / 2];
+  box({ from: [tx, 0, bottom], to: [tx + TV_W, 50, bottom + TV_H] }, tvMat, g);
+  box({ from: [tx + 15, 50, bottom + 15], to: [tx + TV_W - 15, 52, bottom + TV_H - 15] }, screenMat, g, false);
+}
+// "a 75"" or "an 85"", for the summary
+const tvWords = inches => `${String(inches).startsWith('8') ? 'an' : 'a'} ${inches}"`;
 function benchWall(x0, g) {
   const { what: above, shelfDepth } = config.pieces.aboveBench.design, { R } = config.pieces.cornerCupboard.design;
   const span = ROOM_WIDTH - x0;
@@ -561,11 +571,8 @@ function benchWallItems(x0, span, g) {
     shelves(x0, ROOM_WIDTH, g, tops);
     return none + ` ${shelfDepth}-deep shelves right across, ${span} long, at ${tops.join(' and ')}.`;
   }
-  const tx = x0 + (span - TV_W) / 2;                               // centred on the clear wall
-  tvAt = [tx + TV_W / 2, 0, TV_BOTTOM + TV_H / 2];
-  box({ from: [tx, 0, TV_BOTTOM], to: [tx + TV_W, 50, TV_BOTTOM + TV_H] }, tvMat, g);
-  box({ from: [tx + 15, 50, TV_BOTTOM + 15], to: [tx + TV_W - 15, 52, TV_BOTTOM + TV_H - 15] }, screenMat, g, false);
-  const tvText = ` Above the bench: ${String(tv).startsWith('8') ? 'an' : 'a'} ${tv}" TV (${TV_W} × ${TV_H}), centred on the ${span} of clear wall, from ${TV_BOTTOM} to ${TV_BOTTOM + TV_H}.`;
+  drawTv(x0 + span / 2, TV_BOTTOM, g);                             // centred on the clear wall
+  const tvText = ` Above the bench: ${tvWords(tv)} TV (${TV_W} × ${TV_H}), centred on the ${span} of clear wall, from ${TV_BOTTOM} to ${TV_BOTTOM + TV_H}.`;
   const [below, over] = TV_SHELF_TOPS;
   const noTop = ` No room for a shelf above it: it would be within 60 of the ceiling.`;
   if (above === 'tv') return tvText;
@@ -1531,6 +1538,28 @@ function pieceOnBenchWall(key, x0, g) {
   return ` ${named} on the back wall, ${homeText(x0, w)}.`;
 }
 
+// The TV on the wall above the daybed (asked for, 22 Oct 2026), while the
+// daybed stands with its back to the back wall: centred on its bed, its
+// bottom TV_GAP clear of the daybed's top, at the TV size above the bench's.
+// Where it is: { middle, bottom } along the back wall; or { missing }, the
+// summary's sentence saying why it isn't there ('' when it's not asked for)
+function daybedTv() {
+  const place = config.pieces.deskDaybed.in.livingRoom, { tv: inches } = config.pieces.aboveBench.design;
+  if (!place.on || !place.tvAbove) return { missing: '' };
+  const { x, y, turn } = spotOf('deskDaybed'), bottom = DESK_DAYBED.h + TV_GAP;
+  if (y !== 0 || turn !== 0) return { missing: ' No TV above the daybed: it isn\'t against the back wall.' };
+  if (bottom + TV_H > CEILING_HEIGHT) return { missing: ` No room for the ${inches}" TV above the daybed: it would reach ${bottom + TV_H}, past the ceiling.` };
+  return { middle: x + bedMiddle(config.pieces.deskDaybed.design.deskAt), bottom };
+}
+export const daybedTvShown = () => !('missing' in daybedTv());
+// Drawn into the option's group, if it's there. Returns a sentence for the summary
+function tvAboveDaybed(g) {
+  const tv = daybedTv(), { tv: inches } = config.pieces.aboveBench.design;
+  if ('missing' in tv) return tv.missing;
+  drawTv(tv.middle, tv.bottom, g);
+  return ` Above the daybed: ${tvWords(inches)} TV (${TV_W} × ${TV_H}), centred on its bed, from ${tv.bottom} to ${tv.bottom + TV_H}.`;
+}
+
 // The Ivar in the living room, where it is now (the user's, 18 Oct 2026):
 // by the first radiator (the one nearest the back wall), a 300 side to the
 // radiator's front and centred on it, 830 out into the room as it lies on
@@ -1628,6 +1657,8 @@ function ivarInLivingRoom(g) {
 // ---------------------------------------------------------------------------
 // The speakers (speakers.js), as a pair, facing out from the front of what
 // they stand on, side by side along it (chosen with the user, 22 Oct 2026):
+// - on the daybed's bookcase, as on the bench, centred on its bed and on
+//   the TV above it while there's one;
 // - on the bench, centred on the TV (or where it would be), each starting
 //   SPEAKER_TV_CLEAR clear of its side, or SPEAKER_SPACING_NO_TV apart with
 //   no TV above the bench;
@@ -1636,11 +1667,11 @@ function ivarInLivingRoom(g) {
 // - on the corner cupboard's part along the back wall
 //   (corner_cupboard.js's topAlongBackWall()) when it stops short of the
 //   ceiling, spread evenly along it, the gaps beside and between them alike.
-// On the bench and Billy their spacing (between their middles) can be set,
+// On the bench, Billy and the daybed their spacing (between their middles) can be set,
 // held to what they stand on. Where their place isn't there, they aren't
 // drawn and the summary says why; the choice is kept
 // ---------------------------------------------------------------------------
-const SPEAKER_PLACES = ['none', 'bench', 'billy', 'cupboard'];
+const SPEAKER_PLACES = ['none', 'bench', 'billy', 'deskDaybed', 'cupboard'];
 const SPEAKER_SET_BACK = 20;                // their fronts back from the front edge of what they stand on (chosen)
 const SPEAKER_TV_CLEAR = 100;               // on the bench, each starting this far clear of the TV's side (chosen)
 const SPEAKER_SPACING_NO_TV = 1500;         // on the bench with no TV, their middles this far apart to start (chosen)
@@ -1667,6 +1698,15 @@ const SPEAKER_SURFACES = {
     const { w, d, h } = billySizes(true);
     return { spot: spotOf('billy'), x0: -w / 2, x1: w / 2, front: d, top: h, middle: 0,
       start: w - 2 * SPEAKER_BILLY_END - FENRIS_A5.w, on: 'on Billy, lying on its side' };
+  },
+  // On the daybed's bookcase top, as deep as they are with 20 to spare, so
+  // their fronts are flush with its edge
+  deskDaybed() {
+    if (!config.pieces.deskDaybed.in.livingRoom.on) return { missing: 'the daybed, which isn\'t in the lounge' };
+    const { w, h } = DESK_DAYBED, tvShown = daybedTvShown();
+    return { spot: spotOf('deskDaybed'), x0: -w / 2, x1: w / 2, front: DAYBED_TOP_D, setBack: 0, top: h, middle: bedMiddle(config.pieces.deskDaybed.design.deskAt),
+      start: tvShown ? TV_W + 2 * SPEAKER_TV_CLEAR + FENRIS_A5.w : SPEAKER_SPACING_NO_TV,
+      on: tvShown ? 'on the daybed\'s bookcase, either side of the TV above it' : 'on the daybed\'s bookcase, centred on its bed' };
   },
   cupboard() {
     const top = Cupboard.topAlongBackWall(cupboardSettings(), LIVING_ROOM_PLACE);
@@ -1720,7 +1760,7 @@ function speakersInLivingRoom(g) {
   const pair = new THREE.Group();
   for (const side of [-1, 1]) {
     const speaker = fenrisA5();
-    speaker.position.set((surface.middle + side * spacing / 2) * MM, surface.top * MM, (surface.front - SPEAKER_SET_BACK - d) * MM);
+    speaker.position.set((surface.middle + side * spacing / 2) * MM, surface.top * MM, (surface.front - (surface.setBack ?? SPEAKER_SET_BACK) - d) * MM);
     pair.add(speaker);
   }
   pair.position.set(surface.spot.x * MM, 0, surface.spot.y * MM);
@@ -1954,6 +1994,7 @@ const LIVING_ROOM_SCHEMA = [
   spotOrHome('pieces.billyChest.in.livingRoom.move'),
   Config.choice('pieces.deskDaybed.design.deskAt', ['left', 'right']),
   Config.onOff('pieces.deskDaybed.in.livingRoom.on'),
+  Config.onOff('pieces.deskDaybed.in.livingRoom.tvAbove'),
   spotOrHome('pieces.deskDaybed.in.livingRoom.move'),
   Config.onOff('pieces.ivar.in.livingRoom.on'),
   Config.onOff('pieces.ivar.in.livingRoom.lying'),
@@ -2130,7 +2171,7 @@ export function build(onShow = optionsOnShow()) {
   else keepTvPlace(option);
   const clearFrom = option.clearFrom(cupboardSettings());
   const backWall = benchDrawn() ? benchWall(clearFrom, group)
-    : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('');
+    : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('') + tvAboveDaybed(group);
   const aboveText = backWall + frontWall(group, no) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group);
   if (!same) doors.second = 0;
   drawOtherRoom(config);                                         // the bedroom's furniture

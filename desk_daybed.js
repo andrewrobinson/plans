@@ -34,6 +34,11 @@ const DRAWER_GAP = 20;                             // the drawers off the floor,
 const SLATS = { n: 14, w: 70, t: 18 };             // the bed's slats: how many, how wide, how thick
 const SLAT_TOP = DRAWER_GAP + DRAWER.h + RAIL_H - 40;   // the slats' top, in the rails
 const MATTRESS_T = 150;                            // the mattress drawn on it (none comes with it): chosen
+// What stands on it or above it (flat_model.js): the bookcase's top, BACK_D
+// deep at its full height; and the bed's middle along it, from the
+// daybed's middle, its desk at the left end or the right
+export const DAYBED_TOP_D = BACK_D;
+export const bedMiddle = deskAt => (COLUMN_W + BED_L / 2 - DESK_DAYBED.w / 2) * (deskAt === 'right' ? -1 : 1);
 const whiteMat = material(0xf4f3ef);
 const slatMat = material(0xe0c9a0);                // the slats' pale pine
 const mattressMat = material(0xd9d6cf);            // a plain light grey cover

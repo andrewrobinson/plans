@@ -344,6 +344,7 @@
         "in": {
           "livingRoom": {
             "on": false,
+            "tvAbove": false,
             "move": null
           }
         }
@@ -381,7 +382,8 @@
             "on": "none",
             "spacing": {
               "bench": null,
-              "billy": null
+              "billy": null,
+              "deskDaybed": null
             }
           }
         }
