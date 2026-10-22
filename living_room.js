@@ -42,7 +42,7 @@ import { garage, garagePieces, garageControls, GARAGE, GARAGE_CORNER } from './g
 import { cupboardControls, copyControls, idIn } from './cupboard_controls.js';
 import { CASTOR_DESK } from './castor_desk.js';
 import {
-  world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, showDims, showDoorDims, rebuild, 
+  world, ROOM_BOXES, rebuild, 
   drawStored, turnDoors, describe, settle, cupboardRows, startAgain, BACK_WALL_KEYS, CHAIR_TURN, CURRENT_ROOM, 
   CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, DRESSERS, DRESSER_SLIDERS, FINISHES, LARDERS, LARDER_SLIDERS, OPTIONS, 
   PACKINGS, SCHEMA, SHELF_WOODS, SOFAS, SOFA_SLIDERS, STORED, TV_H, TV_SIZES, TV_W, benchDrawn, carcassMat, 
@@ -56,6 +56,7 @@ import {
   storedSpots, inLivingRoom, aboveHasTv, aboveHasShelves, NO_SOFA, speakerSpacingNow, cupboardTopForSpeakers, 
   daybedTvShown, bedroomDoorText
 } from './flat_model.js';
+import { display } from './page/display.js';
 import {
   ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM, OTHER_ROOM_CORNER, 
   carpetMat, HALLWAY, ENTRANCE, floor, otherRoom, hallway, entrance, bathroom
@@ -130,15 +131,15 @@ function howMuchShown(objects) {
 }
 const roomMm = v => [v.x, v.z, v.y].map(n => Math.round(n / MM) || 0);   // scene metres to the room's mm (|| 0: no -0)
 function viewSnapshot() {
-  const [cam, ctl] = flat ? [flatCamera, flatControls] : [camera, controls];
+  const [cam, ctl] = display.flat ? [flatCamera, flatControls] : [camera, controls];
   return {
     room: viewKit.room,
     view: viewKit.viewId || null,
-    flat,
+    flat: display.flat,
     camera: { at: roomMm(cam.position), aim: roomMm(ctl.target) },
-    frames: flat ? flatFit.map(m => Math.round(m / MM)) : null,
+    frames: display.flat ? flatFit.map(m => Math.round(m / MM)) : null,
     cut: viewCut(),
-    cupboardOnly,
+    cupboardOnly: display.cupboardOnly,
     shown: {
       ...Object.fromEntries(Object.entries(ROOM_SHELLS).map(([room, objects]) => [`shell.${room}`, howMuchShown(objects())])),
       ...Object.fromEntries(Object.entries(namedPieces()).map(([name, object]) => [name, howMuchShown([object])])),

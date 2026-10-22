@@ -12,6 +12,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `room_3d.css` | 216 | The page's styles; each menu's colour is its `--tint` |
 | `living_room.js` | 220 | Imports the page's pieces in the order they set it up, and passes names between them; `window.plans` (for the tests and console) and starting the page |
 | `page/stage.js` | 3 | The renderer, cameras and controls (`createStage()`), with the model in the scene |
+| `page/display.js` | 15 | What the page shows (`display`, given to each build) and `setDisplay` |
 | `page/stored_controls.js` | 160 | The things to store's menu, lifting and dragging them, the cutting lists: `showStored`, `moveStored`, `restow` |
 | `page/controls.js` | 185 | `change(edits)`, which every control goes through; `show()`, `showInMenus()`, `redrawAround()`; the doors' sliders; the address (`writeAddress`) |
 | `page/colours.js` | 125 | The colour pickers and palette: `colourPicker`, `updatePalette` |
@@ -30,7 +31,7 @@ first, then open only the file you need. Sizes are rough line counts
 | File | Lines | What, and its main names |
 |---|---|---|
 | `flat_model.js` | 340 | Builds the flat from its pieces: `build`, `rebuild`, `settle`, `turnDoors`, `describe`, `buildFlat`, `startAgain`; what the page and tests import |
-| `model/state.js` | 270 | Shared state: `world`, `config` (every setting), what's shown (`setDisplay`), `drawn`, `ROOM_BOXES`, `inLivingRoom` |
+| `model/state.js` | 270 | Shared state: `world`, `config` (every setting), what's shown as the page opens (`DISPLAY_START`, given to each build), `showHallway`, `drawn`, `ROOM_BOXES`, `inLivingRoom` |
 | `model/materials.js` | 15 | The materials things are drawn in |
 | `model/slider_ranges.js` | 15 | `SLIDER_RANGES`: the sliders' ranges the settings are held to |
 | `model/settings.js` | 250 | The schema (`SCHEMA`), reading and writing a configuration, `set`, `get`, `setAll`, `DEFAULT_CONFIGURATION` |

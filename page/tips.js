@@ -8,9 +8,10 @@ import { shoeRack } from '../shoe_rack.js';
 import { garagePieces } from '../garage.js';
 import { CASTOR_DESK } from '../castor_desk.js';
 import {
-  flat, SOFAS, STORED, cupboardSettings, currentSofa, deskSpot, frontFrom, frontGap, islandGroup, pieces, config, 
+  SOFAS, STORED, cupboardSettings, currentSofa, deskSpot, frontFrom, frontGap, islandGroup, pieces, config, 
   storedSize, drawn, dresserSpan
 } from '../flat_model.js';
+import { display } from './display.js';
 import { ROOM_WIDTH, ROOM_DEPTH, floor } from '../floor.js';
 import { camera, flatCamera, packingSpot, renderer, storedDrag, storedUnder } from '../living_room.js';
 
@@ -19,7 +20,7 @@ import { camera, flatCamera, packingSpot, renderer, storedDrag, storedUnder } fr
 const tip = document.getElementById('tip');
 let tipTimer = null;
 function showTip(e) {
-  const { k } = config.thingsToStore.shown && !storedDrag ? storedUnder(e, flat ? flatCamera : camera) : { k: -1 };
+  const { k } = config.thingsToStore.shown && !storedDrag ? storedUnder(e, display.flat ? flatCamera : camera) : { k: -1 };
   if (k < 0) {
     tip.style.display = 'none';
     return;

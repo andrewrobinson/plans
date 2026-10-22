@@ -11,9 +11,10 @@ import { stairWallsControls, shoeBoxRefusal } from '../stair_walls.js';
 import { shoeBoxesControls } from '../shoe_boxes.js';
 import { garage, garageControls } from '../garage.js';
 import {
-  cupboardOnly, settle, BACK_WALL_KEYS, TV_H, TV_SIZES, TV_W, benchDrawn, benchStandIns, optionOf, config, 
+  settle, BACK_WALL_KEYS, TV_H, TV_SIZES, TV_W, benchDrawn, benchStandIns, optionOf, config, 
   inLivingRoom, bedroomDoorText
 } from '../flat_model.js';
+import { display } from './display.js';
 import { hallway } from '../floor.js';
 import {
   backWallSwitches, bedroomCupboardControls, benchSwitch, billyLying, builtInViews, change, controls, 
@@ -84,7 +85,7 @@ function viewKindOf(room) {
 // room shown (not Cupboard only)
 function goToRoom(room) {
   drawers.setMenu(null);
-  if (cupboardOnly) setCupboardOnly(false);
+  if (display.cupboardOnly) setCupboardOnly(false);
   const { room: to, id } = choiceOf(room, viewKindOf(room));
   viewKit.showRoom(to, id);
 }

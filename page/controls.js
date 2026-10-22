@@ -8,6 +8,7 @@ import {
   islandOnWall, optionOf, pieces, setAll, optionsOnShow, config, updateDims, BEDROOM_CUPBOARD_RANGES, doorsNow, 
   setDoors, inLivingRoom, aboveHasTv, aboveHasShelves, daybedTvShown
 } from '../flat_model.js';
+import { display } from './display.js';
 import {
   addressRead, applyCut, configurationKit, showCastorDesk, showCuttingLists, showIvar, showPlace, showSofaPlace, 
   showSpeakers, showStoredMenu, showTables, syncControls, updatePalette, viewKit, viewNow, xray
@@ -56,7 +57,7 @@ const garageDoorRadios = () => [...document.getElementsByName('garageDoor')];
 // turnDoors()), and their controls put in step with them
 function update() {
   turnDoors();
-  if (dims) updateDims();                                       // the doors' labels go with them
+  if (dims) updateDims(display);                                       // the doors' labels go with them
   showDoors();
 }
 // The cut and the doors' controls, with the doors as turned
@@ -89,7 +90,7 @@ for (const name of Object.keys(DESK_RADIOS)) {
 // (rebuild()), then the menus, the view and the rest of the page follow.
 // onShow: the option on show till now, when the menus have already set it
 function show(onShow) {
-  const { option, same, aboveText, storedText } = rebuild(onShow);
+  const { option, same, aboveText, storedText } = rebuild(display, onShow);
   showInMenus(option, config.pieces.cornerCupboard.design.option, aboveText);
   if (!same) viewKit.refresh();                                 // to the new option's cupboard (doors open, if packing), or TV
   redrawAround(storedText);

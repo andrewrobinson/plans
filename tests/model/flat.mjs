@@ -31,7 +31,7 @@ export const savedSnapshot = name => readJson(path.join(ROOT, 'tests', 'snapshot
 // a `fit`); any other is 3D
 const FLAT_VIEWS = ['plan', 'back', 'left', 'front', 'right'];
 // What the page shows, from a view as the address holds it, in the model's
-// terms (setDisplay()), with its doors
+// terms (DISPLAY_START's fields), with its doors
 export const displayOf = view => ({
   flat: FLAT_VIEWS.includes(view.view),
   flatView: FLAT_VIEWS.includes(view.view) ? view.view : null,

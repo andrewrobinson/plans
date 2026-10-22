@@ -8,9 +8,10 @@ import * as Config from '../kit/config_kit.js';
 import { popMenus, flatViews, cutViews } from '../kit/floor_kit.js';
 import { GARAGE_CORNER } from '../garage.js';
 import {
-  setDisplay, flat, flatView, flatRoom, cupboardOnly, showDims, showDoorDims, CHAIR_TURN, configurationNow, 
+  CHAIR_TURN, configurationNow, 
   cupboard, cupboardPart, deskChair, dims, updateDims, doorsNow, readDoors
 } from '../flat_model.js';
+import { display, setDisplay } from './display.js';
 import { OTHER_ROOM_CORNER } from '../floor.js';
 import {
   DESK_RADIOS, DOOR_SLIDERS, anchors, builtInViews, camera, change, controls, deskRadios, drawers, fillRoomKinds, 
@@ -24,26 +25,26 @@ import {
 // the island, the desk or the outside of the outer wall: the kit's, with
 // the view's cut, and with the cupboard on its own, only its parts.
 // The view's cut, [axis, where in mm, the camera's side], or null
-const viewCut = () => (flat && flatView && !cupboardOnly ? (builtInViews[flatView].rooms?.[flatRoom] ?? builtInViews[flatView]).cut : null);   // on its own, the cupboard needs no cut
+const viewCut = () => (display.flat && display.flatView && !display.cupboardOnly ? (builtInViews[display.flatView].rooms?.[display.flatRoom] ?? builtInViews[display.flatView]).cut : null);   // on its own, the cupboard needs no cut
 const applyCut = cutViews(scene, {
   get cut() { return viewCut(); },
-  get only() { return cupboardOnly ? cupboardPart : null; },
+  get only() { return display.cupboardOnly ? cupboardPart : null; },
 });
 
 // In a 2D view, the cupboard on its own fills the screen, with room for its
 // dimensions round it
 function frameCupboard() {
-  if (!flat || !cupboardOnly || !cupboard) return;
+  if (!display.flat || !display.cupboardOnly || !cupboard) return;
   scene.updateMatrixWorld(true);
   const b = new THREE.Box3();
   cupboard.group.traverse(o => { if (o.isMesh && cupboardPart(o, false)) b.expandByObject(o); });
   if (b.isEmpty()) return;
   const c = b.getCenter(new THREE.Vector3()), size = b.getSize(new THREE.Vector3()), margin = 1.6;
   const t = flatControls.target, shift = new THREE.Vector3();
-  if (flatView === 'plan') {
+  if (display.flatView === 'plan') {
     shift.set(c.x - t.x, 0, c.z - t.z);
     flatFit = [size.x + margin, size.z + margin];
-  } else if (flatView === 'back' || flatView === 'front') {
+  } else if (display.flatView === 'back' || display.flatView === 'front') {
     shift.set(c.x - t.x, c.y - t.y, 0);
     flatFit = [size.x + margin, size.y + margin];
   } else {
@@ -71,7 +72,7 @@ let flatPerM = null;               // the 2D views' scale, pixels per metre at z
 // The 2D/3D switch, fitting the views to the screen, and the render loop:
 // kit/floor_kit.js's, reading the views' framing from here
 const { setFlat, resize, startLoop, draw, drawSoon } = flatViews({ scene, renderer, camera, controls, flatCamera, flatControls }, {
-  get flat() { return flat; },
+  get flat() { return display.flat; },
   set flat(on) { setDisplay({ flat: on }); },
   get flatFit() { return flatFit; },
   get flatPerM() { return flatPerM; },
@@ -107,14 +108,14 @@ const viewKit = ViewKit.create({
     place(v, id, room) {
       showRoomOptions(room);
       setFlat(Boolean(v.fit));
-      const [cam, ctl] = flat ? [flatCamera, flatControls] : [camera, controls];
+      const [cam, ctl] = display.flat ? [flatCamera, flatControls] : [camera, controls];
       cam.position.set(...v.position);
       ctl.target.set(...v.target);
-      setDisplay({ flatView: flat ? id : null, flatRoom: room });   // the hallway's hidden in the wall views (the model's setDisplay())
-      updateDims();
+      setDisplay({ flatView: display.flat ? id : null, flatRoom: room });   // the hallway's hidden in the wall views (setDisplay())
+      updateDims(display);
       applyCut();
       showStored();
-      if (flat) {
+      if (display.flat) {
         flatFit = v.fit;
         flatCamera.zoom = 1;
       }
@@ -122,7 +123,7 @@ const viewKit = ViewKit.create({
       ctl.update();
       frameCupboard();                                          // on its own, framed to fill the screen
     },
-    isFlat: () => flat,
+    isFlat: () => display.flat,
     viewsChanged: () => fillRoomKinds(),
     resize: () => resize(),
     writeAddress: () => writeAddress(true),
@@ -163,20 +164,20 @@ configurationKit = ConfigurationKit.create({
 const dimsButton = document.getElementById('dims'), doorDimsButton = document.getElementById('doorDims');
 function setDims(on) {
   setDisplay({ showDims: on });
-  dimsButton.textContent = `Dimensions: ${showDims ? 'on' : 'off'}`;
-  updateDims();
+  dimsButton.textContent = `Dimensions: ${display.showDims ? 'on' : 'off'}`;
+  updateDims(display);
 }
 function setDoorDims(on) {
   setDisplay({ showDoorDims: on });
-  doorDimsButton.textContent = `Door sizes: ${showDoorDims ? 'on' : 'off'}`;
-  updateDims();
+  doorDimsButton.textContent = `Door sizes: ${display.showDoorDims ? 'on' : 'off'}`;
+  updateDims(display);
 }
 dimsButton.addEventListener('click', () => {
-  setDims(!showDims);
+  setDims(!display.showDims);
   viewKit.writeView();
 });
 doorDimsButton.addEventListener('click', () => {
-  setDoorDims(!showDoorDims);
+  setDoorDims(!display.showDoorDims);
   viewKit.writeView();
 });
 
@@ -186,7 +187,7 @@ doorDimsButton.addEventListener('click', () => {
 // view
 const VIEW_VERSION = 1;            // up only when a field changes its meaning
 const viewNow = () => ({ version: VIEW_VERSION, ...viewKit.view(),
-  dimensions: showDims, doorSizes: showDoorDims, cupboardOnly, seeThrough: xray, doors: doorsNow() });
+  dimensions: display.showDims, doorSizes: display.showDoorDims, cupboardOnly: display.cupboardOnly, seeThrough: xray, doors: doorsNow() });
 function readDisplay(view) {
   const given = key => typeof view?.[key] === 'boolean';
   if (given('dimensions')) setDims(view.dimensions);

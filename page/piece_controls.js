@@ -5,11 +5,12 @@
 import { BOOKCASE_SIZES, QUARTER_TURN } from '../other_room.js';
 import { SIZE_LABEL } from '../kit/controls_kit.js';
 import {
-  setDisplay, flat, cupboardOnly, BACK_WALL_KEYS, DRESSERS, DRESSER_SLIDERS, LARDERS, LARDER_SLIDERS, SOFAS, 
+  BACK_WALL_KEYS, DRESSERS, DRESSER_SLIDERS, LARDERS, LARDER_SLIDERS, SOFAS, 
   SOFA_SLIDERS, TV_SIZES, cupboard, currentSofa, larderHeight, larderOwnSize, pieces, get, sofaHome, sofaOwnSize, 
   spotOf, ivarSpot, tableSpot, castorDeskSpot, config, updateDims, inLivingRoom, NO_SOFA, speakerSpacingNow, 
   cupboardTopForSpeakers
 } from '../flat_model.js';
+import { display, setDisplay } from './display.js';
 import { ROOM_WIDTH, ROOM_DEPTH } from '../floor.js';
 import { applyCut, change, viewKit } from '../living_room.js';
 
@@ -88,8 +89,8 @@ function setCupboardOnly(on) {
   cupboardOnlySwitch.checked = on;
   setDisplay({ cupboardOnly: on });
   applyCut();
-  updateDims();
-  if (flat) viewKit.setView(viewKit.viewId || 'plan');          // framed for it, or for the room again
+  updateDims(display);
+  if (display.flat) viewKit.setView(viewKit.viewId || 'plan');          // framed for it, or for the room again
 }
 cupboardOnlySwitch.addEventListener('change', () => {
   setCupboardOnly(cupboardOnlySwitch.checked);

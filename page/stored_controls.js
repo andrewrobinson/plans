@@ -4,9 +4,10 @@
 import * as THREE from 'three';
 import { MM } from '../kit/floor_kit.js';
 import {
-  flat, flatView, drawStored, CURRENT_ROOM, CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, PACKINGS, STORED, cupboard, 
+  drawStored, CURRENT_ROOM, CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE, PACKINGS, STORED, cupboard, 
   cuttingList, optionOf, pieces, placeStored, setAll, get, sizesInOrder, config, storedGroup, storedSpots
 } from '../flat_model.js';
+import { display } from './display.js';
 import { CEILING_HEIGHT, floor } from '../floor.js';
 import { change, flatCamera, renderer, updatePalette, writeAddress } from '../living_room.js';
 
@@ -80,7 +81,7 @@ const unlessByHand = () => (storedValue('where') === BY_HAND ? [['where', BY_THE
 // The things to store drawn (the model's drawStored()), and their part of
 // the menu put in step
 function showStored() {
-  showStoredMenu(drawStored());
+  showStoredMenu(drawStored(display));
 }
 // Their part of the menu, `storedText` what drawStored() said of them
 function showStoredMenu(storedText) {
@@ -129,7 +130,7 @@ function storedUnder(e, cam = flatCamera) {
   const hit = raycaster.intersectObjects(storedGroup.children, false).find(h => h.object.userData.stored !== undefined);
   return { k: hit ? hit.object.userData.stored : -1, x: raycaster.ray.origin.x / MM, y: raycaster.ray.origin.z / MM };
 }
-const canDrag = () => config.thingsToStore.shown && flat && flatView === 'plan';
+const canDrag = () => config.thingsToStore.shown && display.flat && display.flatView === 'plan';
 renderer.domElement.addEventListener('pointerdown', e => {
   if (!canDrag()) return;
   const { k, x, y } = storedUnder(e);

@@ -11,7 +11,8 @@ doors' options are in git (`git show 05f88b7:ui_paradigm_analysis.md`).
    changes nothing that's built, so it's how you're looking.
 3. **The display switches out of the model's module state**: give the view
    to each build, as `buildFlat(configuration, view)` already does in Node.
-   *Open.*
+   Done (22 Oct 2026): the page's `display` (page/display.js), passed to
+   `rebuild`, `updateDims` and `drawStored`.
 4. **No history entry per slider move**: `replaceState` while a slider's
    dragged, a new entry for a choice. Done (22 Oct 2026): one entry per change, a drag
    being one, and Back and Forward load the address's configuration.

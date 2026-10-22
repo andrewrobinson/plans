@@ -6,7 +6,7 @@ import * as Cupboard from '../corner_cupboard.js';
 import { MM, box, makeCanvas, dimLabel } from '../kit/floor_kit.js';
 import { spanOf } from '../corner_cupboard.js';
 import { floor, CEILING_HEIGHT } from '../floor.js';
-import { config, cupboardSettings, flat, flatView, world } from './state.js';
+import { config, cupboardSettings, world } from './state.js';
 import { LIVING_ROOM_PLACE, cupboard } from './cupboards.js';
 import { shelves } from './bench_wall.js';
 import { P } from './dimensions.js';
@@ -226,7 +226,8 @@ function planFit(spaces, fits) {
   storedGroup.add(m);
 }
 
-function drawStored() {
+// Drawn for what's shown (`display`): in the plan, packed into the cupboard's spaces
+function drawStored({ flat, flatView }) {
   const { shown, where: placed } = config.thingsToStore, stored = storedSpots();
   storedGroup.traverse(o => {
     o.geometry?.dispose();

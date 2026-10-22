@@ -10,8 +10,7 @@ import {
   OTHER_ROOM_CORNER, HALLWAY, hallway, ENTRANCE
 } from '../floor.js';
 import {
-  ROOM_BOXES, config, cupboardOnly, cupboardSettings, flat, flatRoom, flatView, inLivingRoom, showDims, 
-  showDoorDims, world
+  ROOM_BOXES, config, cupboardSettings, inLivingRoom, world
 } from './state.js';
 import { KITCHEN, MONITOR_TOP, deskShelfTops } from './kitchen.js';
 import { bedroomDoor, cupboard, cupboardOf } from './cupboards.js';
@@ -54,14 +53,16 @@ function backWallHeights(option) {
   return onBackWall().filter(againstWall).map(key => BACK_WALL_PIECES[key].sizes().h);
 }
 
-function updateDims() {
+// The dimensions for what's shown (`display`, as DISPLAY_START)
+function updateDims(display) {
+  const { flat, flatView, flatRoom, cupboardOnly, showDims } = display;
   if (dims) world.remove(dims);
   dims = null;
   if (cupboardOnly && cupboard && (!flat || showDims)) {
     dims = new THREE.Group();
     world.add(dims);
     cupboard.dims({ flat, flatView }, dims);
-    doorDims(dims);
+    doorDims(dims, display);
     return;
   }
   if (!flat || !showDims || !flatView) return;
@@ -106,7 +107,7 @@ function updateDims() {
     chain([0, ...windows.flatMap(w => w.y), ROOM_DEPTH, end], (v, off) => P(ROOM_WIDTH, v, -200 - off), dims);
     chain([0, radiator.bottom, radiator.top, sill, top, CEILING_HEIGHT], (v, off) => P(ROOM_WIDTH, -250 - off, v), dims);
   }
-  doorDims(dims);
+  doorDims(dims, display);
 }
 
 // Another room's wall, seen from inside: the wall's length, under it, and
@@ -169,7 +170,7 @@ function garagePlanDims(g) {
 // its dimensions, in the 3D and 2D views alike
 const cupboardPart = (o, withDoors = true) => Boolean(cupboard) && cupboard.partOf(o, withDoors);
 // The cupboard's door sizes, with the Door sizes button on
-function doorDims(g) {
+function doorDims(g, { flat, flatView, showDoorDims }) {
   if (cupboard && showDoorDims) cupboard.doorDims({ flat, flatView }, g);
 }
 

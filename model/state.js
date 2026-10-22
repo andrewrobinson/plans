@@ -1,5 +1,5 @@
 // The model's shared state (a piece of flat_model.js): `world`, what's drawn
-// into; what the page shows (setDisplay()); each room's box; and `config`,
+// into; what's shown as the page opens (DISPLAY_START); each room's box; and `config`,
 // the settings, held as the configuration is, with each piece's rooms and
 // places. The other pieces read these; only the setters here change the
 // lets.
@@ -25,29 +25,26 @@ import { BEDROOM_MATERIALS } from './materials.js';
 // scene's metres (room (x, y, z) mm -> (x, z, y) / 1000)
 export const world = new THREE.Group();
 
-// What the page shows, which the dimensions and the things to store's labels
-// follow: a 2D view or not (flat), which (flatView: 'plan', 'back', …) and
-// the room it's of (flatRoom); the cupboard on its own (Cupboard only);
-// the Dimensions and Door sizes buttons; and See-through, every corner
-// cupboard's boards drawn faint. The hallway is hidden in the lounge's and
-// the bedroom's wall views: its stairwell would hang below their floor
-// See-through is set on the cupboards' materials, which keep it, and isn't
-// kept here (notes/ui_paradigm_analysis.md: the view's switches are to leave this
-// module's own state)
+// What's shown (the display), which the dimensions, the things to store's
+// labels and the hallway follow, given to each build rather than kept here
+// (notes/ui_paradigm_analysis.md, recommendation 3): a 2D view or not
+// (flat), which (flatView: 'plan', 'back', …) and the room it's of
+// (flatRoom); the cupboard on its own (Cupboard only); and the Dimensions
+// and Door sizes buttons. As the page opens:
+export const DISPLAY_START = { flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true };
+
 // The rooms whose wall views the hallway's stairwell would hang below the
 // floor of, next door (the hallway's group holds downstairs and the garage
 // too, which the garage's own wall views need)
 const STAIRWELL_SHOWS_IN = ['livingRoom', 'bedroom'];
-let flat = false, flatView = null, flatRoom = 'livingRoom', cupboardOnly = false, showDims = true, showDoorDims = true;
-export function setDisplay(shown) {
-  if ('seeThrough' in shown) for (const materials of [CUPBOARD_MATERIALS, BEDROOM_MATERIALS]) seeThrough(materials, shown.seeThrough);
-  if ('flat' in shown) flat = shown.flat;
-  if ('flatView' in shown) flatView = shown.flatView;
-  if ('flatRoom' in shown) flatRoom = shown.flatRoom;
-  if ('cupboardOnly' in shown) cupboardOnly = shown.cupboardOnly;
-  if ('showDims' in shown) showDims = shown.showDims;
-  if ('showDoorDims' in shown) showDoorDims = shown.showDoorDims;
+export function showHallway({ flat, flatView, flatRoom }) {
   hallway.visible = !flat || flatView === 'plan' || !STAIRWELL_SHOWS_IN.includes(flatRoom);
+}
+
+// See-through: every corner cupboard's boards drawn faint, set on their
+// materials, which keep it
+export function seeThroughCupboards(on) {
+  for (const materials of [CUPBOARD_MATERIALS, BEDROOM_MATERIALS]) seeThrough(materials, on);
 }
 
 // Each room's box, in the living room's mm (x0 < x1, y0 < y1), its floor
@@ -310,6 +307,5 @@ config.pieces.cornerCupboard.design.option = CURRENT_ROOM;
 
 // What the other pieces of the model use
 export {
-  DOORS_START, LOUNGE_NOW, config, cupboardOnly, cupboardSettings, doors, drawn, flat, flatRoom, flatView, 
-  showDims, showDoorDims
+  DOORS_START, LOUNGE_NOW, config, cupboardSettings, doors, drawn
 };

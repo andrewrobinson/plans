@@ -12,9 +12,9 @@
 // drawn on the kit's makeCanvas().
 //
 // The page's menus change the settings by their paths in the configuration
-// (set(), setAll()) and it calls rebuild(); what the page shows that the
-// drawing follows (2D or 3D, which view, Cupboard only, the dimension
-// buttons) it sets with setDisplay().
+// (set(), setAll()) and it calls rebuild(display), with what the page
+// shows that the drawing follows (2D or 3D, which view, Cupboard only, the
+// dimension buttons; DISPLAY_START's fields).
 //
 // Its pieces are in model/ (CODE_MAP.md lists them): this file builds the
 // flat from them, turns the doors, and is what the page and the tests
@@ -64,8 +64,7 @@ import {
   bathroom, flatDoorHinge, outsideDoorHinge, radiators
 } from './floor.js';
 import {
-  DOORS_START, config, cupboardOnly, cupboardSettings, doors, drawn, flat, flatRoom, flatView, setDisplay, 
-  showDims, showDoorDims, world
+  DISPLAY_START, DOORS_START, config, cupboardSettings, doors, drawn, showHallway, world
 } from './model/state.js';
 import { CHAIR_TURN, deskChair, deskShelves, islandGroup, islandOnWall, placeIsland, roomHinge } from './model/kitchen.js';
 import {
@@ -204,11 +203,11 @@ export function build(onShow = optionsOnShow()) {
 // them), the doors turned, and last the dimensions, of the shelves and
 // doors as drawn. Returns build()'s, and what drawStored() says of the
 // things to store
-export function rebuild(onShow = optionsOnShow()) {
+export function rebuild(display, onShow = optionsOnShow()) {
   const built = build(onShow);
-  const storedText = drawStored();
+  const storedText = drawStored(display);
   turnDoors();
-  updateDims();
+  updateDims(display);
   return { ...built, storedText };
 }
 
@@ -261,7 +260,7 @@ export function describe(option, aboveText) {
 }
 
 // The flat built from a configuration, with no page, seen as `view` shows it
-// (setDisplay()'s fields: a 2D view's id and room, and the switches, for the
+// (DISPLAY_START's fields: a 2D view's id and room, and the switches, for the
 // dimensions; and its doors, as the view writes them, any left out as they
 // start): what the page's snapshot holds (tests/snapshots/), the
 // description as HTML, and the doors as turned
@@ -270,8 +269,9 @@ export function buildFlat(configuration, view = {}) {
   Object.assign(doors, structuredClone(DOORS_START));
   readConfiguration(configuration);                             // (one of version 1 has doors)
   readDoors(view.doors);
-  setDisplay({ flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true, ...view });
-  const { option, aboveText } = rebuild();
+  const display = { ...DISPLAY_START, ...view };
+  showHallway(display);
+  const { option, aboveText } = rebuild(display);
   return {
     world,
     configuration: configurationNow(),
@@ -302,7 +302,7 @@ export function startAgain() {
 
 // What the page reads, besides the functions exported where they're defined
 export {
-  flat, flatView, flatRoom, cupboardOnly, showDims, showDoorDims, drawStored,
+  drawStored,
   BACK_WALL_KEYS, CHAIR_TURN, CURRENT_ROOM, CUT_EXCEPTIONS, CUT_KINDS, CUT_RULE,
   DEFAULT_CONFIGURATION, DRESSERS, DRESSER_SLIDERS, FINISHES, LARDERS,
   LARDER_SLIDERS, OPTIONS, PACKINGS, SCHEMA, SHELF_WOODS, SOFAS,
@@ -320,7 +320,7 @@ export {
 
 // What the pieces export for the page and the tests
 export {
-  ROOM_BOXES, inLivingRoom, setDisplay, world
+  DISPLAY_START, ROOM_BOXES, inLivingRoom, seeThroughCupboards, showHallway, world
 } from './model/state.js';
 export {
   bedroomDoorOpensTo, bedroomDoorText, cupboardLimits, cupboardOf, optionsOnShow
