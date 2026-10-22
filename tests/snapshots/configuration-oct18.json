@@ -368,6 +368,17 @@
           }
         }
       },
+      "speakers": {
+        "in": {
+          "livingRoom": {
+            "on": "none",
+            "spacing": {
+              "bench": null,
+              "billy": null
+            }
+          }
+        }
+      },
       "wickerBench": {
         "design": {
           "w": 920,
@@ -719,6 +730,7 @@
       "shown": true
     },
     "castorDesk.livingRoom": null,
+    "speakers.livingRoom": null,
     "bedroomCupboard": null,
     "bed": {
       "from": [

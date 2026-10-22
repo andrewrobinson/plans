@@ -356,6 +356,17 @@
           }
         }
       },
+      "speakers": {
+        "in": {
+          "livingRoom": {
+            "on": "none",
+            "spacing": {
+              "bench": null,
+              "billy": null
+            }
+          }
+        }
+      },
       "wickerBench": {
         "design": {
           "w": 1200,

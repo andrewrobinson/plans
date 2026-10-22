@@ -364,6 +364,17 @@
           }
         }
       },
+      "speakers": {
+        "in": {
+          "livingRoom": {
+            "on": "none",
+            "spacing": {
+              "bench": null,
+              "billy": null
+            }
+          }
+        }
+      },
       "wickerBench": {
         "design": {
           "w": 920,
@@ -902,6 +913,7 @@
       ],
       "shown": true
     },
+    "speakers.livingRoom": null,
     "bedroomCupboard": {
       "from": [
         -2991,

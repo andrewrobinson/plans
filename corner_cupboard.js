@@ -55,6 +55,14 @@ export const CUPBOARD_SETTINGS = ['option', 'T', 'R', 'F', 'BOARD', 'TOP', 'LEG'
 // How high the cupboard's full-height parts stand: up to the ceiling, or
 // lower when TOP (0 for the ceiling) is set below it
 export const cupboardHeight = ({ TOP }, { ceiling }) => (TOP && TOP < ceiling ? TOP : ceiling);
+// The top of the cupboard's part along the back wall, for what stands on it
+// (the speakers): from x0 to x1 along the back wall, d deep from it, and how
+// high it is. null when there's none: option 16, or a corner cupboard too
+// shallow to build. Each option's backTop() gives the part
+export function topAlongBackWall(s, place) {
+  const top = optionOf(s.option)?.backTop?.(s);
+  return top ? { ...top, h: cupboardHeight(s, place) } : null;
+}
 // "floor to ceiling", or how high it stands when it's lower, for the summaries
 const fullHeightText = (s, place) => (cupboardHeight(s, place) < place.ceiling ? `${cupboardHeight(s, place)} high, from the floor` : 'floor to ceiling');
 // ...and "full-height", or "2100-high"
@@ -651,6 +659,7 @@ export const OPTIONS = [
     source: 'plan3/room_3d.html',
     clearFrom: ({ T, LEG }) => T + LEG,
     benchFrom: ({ T, LEG }) => T + LEG,
+    backTop: ({ T, LEG, LEG_D }) => ({ x0: 0, x1: T + LEG, d: LEG_D }),   // the back-wall leg, the corner with it
     summaryNoLeft: (s, place) => {
       const { R, BOARD, LEG, LEG_D } = s, n = doorCount(LEG - BOARD);
       return `No left-wall cupboard: a ${fullHeightWord(s, place)} cupboard on the back wall (x 0-${LEG}, ${LEG_D} deep), with ${n === 1 ? 'a' : countWord(n)} ${Math.round(doorWidth(LEG - BOARD, n))} × ${cupboardHeight(s, place) - 2 * DOOR_GAP} door${n === 1 ? '' : 's'}. Bench ${place.width - LEG}, from x = ${LEG}, ${R} deep.`;
@@ -670,6 +679,7 @@ export const OPTIONS = [
     source: 'option 7 (new)',
     clearFrom: ({ T, DIAG_RUN }) => T + DIAG_RUN,
     benchFrom: ({ T, DIAG_RUN }) => T + DIAG_RUN,
+    backTop: ({ T, R, DIAG_RUN }) => ({ x0: 0, x1: T + DIAG_RUN, d: R }),   // the back-wall leg, the corner with it
     summary: (s, place) => {
       const { T, R, F, BOARD } = s, { from, to, length, doors } = diagonal(s), { E, back, left } = diagonalFront(s);
       const gap = place.door ? roomDoorGap(s, place) : Infinity;
@@ -694,6 +704,7 @@ export const OPTIONS = [
     source: 'option 7 and the photo (new)',
     clearFrom: ({ T, WARD, TOWER }) => T + WARD + TOWER,
     benchFrom: ({ T, WARD, TOWER }) => T + WARD + TOWER,
+    backTop: ({ T, WARD, WARD_D }) => ({ x0: 0, x1: T + WARD, d: WARD_D }),   // the double-door cupboard and any left-wall leg, not the shallower tower
     marks: ({ T, WARD }) => [T + WARD],
     summary: (s, place, { BENCH }) => {
       const { T, R, F, BOARD, WARD, WARD_D, TOWER } = s, { width } = place;
@@ -719,6 +730,7 @@ export const OPTIONS = [
     front: ({ CORNER_D }) => CORNER_D,                           // its own depth out along the left wall, in place of F
     clearFrom: s => s.CORNER_W + sideShelfW(s),                  // past the side bookshelf, when there is one
     benchFrom: s => s.CORNER_W + sideShelfW(s),
+    backTop: s => (cornerTooShallow(s, 'kitchen') ? null : { x0: 0, x1: s.CORNER_W, d: s.CORNER_D }),   // the corner cupboard, not the side bookshelf
     marks: s => (sideShelfOn(s) ? [s.CORNER_W] : []),
     summary: (s, place) => {
       const { R, CORNER_D: F, BOARD, CORNER_W } = s, { door } = place;
@@ -744,6 +756,7 @@ export const OPTIONS = [
     front: ({ CORNER_D }) => CORNER_D,                           // its own depth out along the left wall, in place of F
     clearFrom: ({ CORNER_W }) => CORNER_W,
     benchFrom: ({ CORNER_W }) => CORNER_W,
+    backTop: s => (cornerTooShallow(s, 'windows') ? null : { x0: 0, x1: s.CORNER_W, d: s.CORNER_D }),
     summary: (s, place) => {
       const { R, CORNER_D: F, BOARD, CORNER_W } = s, { width, door } = place;
       return cornerTooShallow(s, 'windows') ? `${tooShallowText(s, 'windows')}Bench ${width - CORNER_W}, from x = ${CORNER_W}, ${R} deep.` : `A ${fullHeightWord(s, place)} cupboard in the corner, ${CORNER_W} along the back wall and ${F} out along the left wall` +

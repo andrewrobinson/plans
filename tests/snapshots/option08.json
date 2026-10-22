@@ -356,6 +356,17 @@
           }
         }
       },
+      "speakers": {
+        "in": {
+          "livingRoom": {
+            "on": "none",
+            "spacing": {
+              "bench": null,
+              "billy": null
+            }
+          }
+        }
+      },
       "wickerBench": {
         "design": {
           "w": 920,
@@ -725,6 +736,7 @@
     "chesham.livingRoom": null,
     "cornwall.livingRoom": null,
     "castorDesk.livingRoom": null,
+    "speakers.livingRoom": null,
     "bedroomCupboard": null,
     "bed": {
       "from": [

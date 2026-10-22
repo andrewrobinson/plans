@@ -721,6 +721,38 @@ test('the desk on castors parks by the door and wheels out to the TV', async ({ 
   expect(await box()).toBe(null);
 });
 
+// The speakers (asked for, 22 Oct 2026): on nothing to start; on Billy, as
+// it lies on the back wall as the page opens, 1650 apart, set apart by
+// their slider, held to Billy; on the bench, each place keeping its own
+// spacing; and the corner cupboard offered only once it's set below the
+// ceiling, where they're spread evenly, with no slider
+test('the speakers stand on Billy, the bench or the corner cupboard', async ({ page }) => {
+  await openDrawer(page);
+  const box = () => page.evaluate(() => window.plans.snapshot().boxes['speakers.livingRoom']);
+  const putOn = place => page.locator(`input[name=speakersOn][value=${place}]`).evaluate(el => { el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); });
+  expect(await box()).toBe(null);
+  await expect(page.locator('#speakerSpacingBlock')).toBeHidden();
+  await expect(page.locator('#speakersOnCupboardRow')).toBeHidden();
+  await putOn('billy');
+  await expect(page.locator('#speakerSpacingValue')).toHaveText('1650');
+  expect(await page.locator('#speakerSpacing').getAttribute('max')).toBe('1850');   // Billy's 2020, less a speaker
+  await expect(page.locator('#summary')).toContainText('on Billy, lying on its side, their middles 1650 apart');
+  await slide(page, 'speakerSpacing', 1200);
+  expect(await setting(page, 'pieces.speakers.in.livingRoom.spacing')).toEqual({ bench: null, billy: 1200 });
+  await BENCH(page);
+  await expect(page.locator('#summary')).toContainText('No speakers: they go on Billy, which isn\'t in the lounge');
+  await putOn('bench');
+  await expect(page.locator('#speakerSpacingValue')).toHaveText('2050');   // the 75" TV's 1680, 100 clear each side
+  expect(await box()).not.toBe(null);
+  await OPTION(10)(page);
+  await expect(page.locator('#speakersOnCupboardRow')).toBeHidden();       // to the ceiling
+  await slide(page, 'top', 2100);
+  await putOn('cupboard');
+  await expect(page.locator('#speakerSpacingBlock')).toBeHidden();
+  await expect(page.locator('#summary')).toContainText('on the corner cupboard, 2100 high, spread evenly along its 800');
+  expect((await box()).from[2]).toBe(2100);
+});
+
 // The shoe rack, downstairs (pieces.shoeRack): not there yet, as the page
 // opens; its switch shows its settings
 test('the shoe rack is out to start, its switch showing its settings', async ({ page }) => {

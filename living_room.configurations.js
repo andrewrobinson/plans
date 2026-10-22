@@ -387,6 +387,17 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "speakers": {
+            "in": {
+              "livingRoom": {
+                "on": "none",
+                "spacing": {
+                  "bench": null,
+                  "billy": null
+                }
+              }
+            }
+          },
           "wickerBench": {
             "design": {
               "w": 920,
@@ -1027,6 +1038,17 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "speakers": {
+            "in": {
+              "livingRoom": {
+                "on": "none",
+                "spacing": {
+                  "bench": null,
+                  "billy": null
+                }
+              }
+            }
+          },
           "wickerBench": {
             "design": {
               "w": 920,
@@ -1620,6 +1642,17 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              }
+            }
+          },
+          "speakers": {
+            "in": {
+              "livingRoom": {
+                "on": "none",
+                "spacing": {
+                  "bench": null,
+                  "billy": null
+                }
               }
             }
           },

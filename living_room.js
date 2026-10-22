@@ -46,7 +46,8 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, config, storedGroup, storedMats,
-  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots, inLivingRoom, aboveHasTv, aboveHasShelves, NO_SOFA } from './flat_model.js';
+  storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots, inLivingRoom, aboveHasTv, aboveHasShelves, NO_SOFA,
+  speakerSpacingNow, cupboardTopForSpeakers } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE, floor, otherRoom, hallway, entrance, bathroom } from './floor.js';
 
@@ -390,6 +391,7 @@ function showInMenus(option, no, aboveText) {
   showIvar();
   showTables();
   showCastorDesk();
+  showSpeakers();
   showSofaPlace();                                              // where it starts follows the TV
 }
 
@@ -761,6 +763,24 @@ function showCastorDesk() {
   for (const radio of castorDeskAt) radio.checked = radio.value === get(`${CASTOR_DESK_PLACE}.at`);
   document.getElementById('castorDeskMoveBlock').style.display = config.pieces.castorDesk.in.livingRoom.on ? '' : 'none';
   showPlace('castorDesk', castorDeskSpot());
+}
+// The speakers: on nothing, or as a pair on the bench, on Billy lying, or
+// on the corner cupboard (offered only when it stops short of the ceiling,
+// or while they're on it); and, on the bench and Billy, how far apart,
+// each place keeping its own (flat_model.js's speakerSpacingNow())
+const SPEAKERS_PLACE = 'pieces.speakers.in.livingRoom';
+const speakersOn = [...document.getElementsByName('speakersOn')], speakerSpacing = document.getElementById('speakerSpacing');
+for (const radio of speakersOn) radio.addEventListener('change', () => change([[`${SPEAKERS_PLACE}.on`, radio.value]], { look: true }));
+speakerSpacing.addEventListener('input', () => change([[`${SPEAKERS_PLACE}.spacing.${config.pieces.speakers.in.livingRoom.on}`, Number(speakerSpacing.value)]]));
+function showSpeakers() {
+  const { on } = config.pieces.speakers.in.livingRoom, spacing = speakerSpacingNow();
+  for (const radio of speakersOn) radio.checked = radio.value === on;
+  document.getElementById('speakersOnCupboardRow').style.display = cupboardTopForSpeakers() || on === 'cupboard' ? '' : 'none';
+  document.getElementById('speakerSpacingBlock').style.display = spacing ? '' : 'none';
+  if (!spacing) return;
+  speakerSpacing.max = String(Math.max(Number(speakerSpacing.min), Math.floor(spacing.most / 10) * 10));   // held to what they stand on, in the slider's 10s
+  speakerSpacing.value = String(Math.round(spacing.spacing));
+  document.getElementById('speakerSpacingValue').textContent = Math.round(spacing.spacing);
 }
 function showPlace(key, at = spotOf(key)) {
   const spot = roundedSpot(at);

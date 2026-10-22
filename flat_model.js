@@ -31,6 +31,7 @@ import { daybed, daybedFrame } from './daybed.js';
 import { ivar, ivarSizes } from './ivar.js';
 import { CHESHAM, CORNWALL, kitchenTable, tableSizes } from './tables.js';
 import { castorDesk, castorDeskSizes } from './castor_desk.js';
+import { FENRIS_A5, fenrisA5 } from './speakers.js';
 import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard,
   QUARTER_TURN, OTHER_ROOM_SCHEMA } from './other_room.js';
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
@@ -366,6 +367,10 @@ const config = {
     // ('byTheDoor') or wheeled out in front of the TV ('atTheTv'): CASTOR_DESK_HOMES;
     // and moved from there, as the Ivar
     castorDesk: { in: { livingRoom: { on: false, at: 'byTheDoor', move: null } } },
+    // The speakers (speakers.js), a pair: on nothing to start ('none'), or
+    // on one of SPEAKER_PLACES; and on the bench and on Billy, the distance
+    // between their middles, or null for where they start there
+    speakers: { in: { livingRoom: { on: 'none', spacing: { bench: null, billy: null } } } },
   },
   colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0,   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
     shelves: 0 },                  // the shelves' wood, which of SHELF_WOODS
@@ -825,7 +830,7 @@ function placePiece(g) {
 // a bookcase like the bedroom's or nothing, in every option but the current room.
 // The configuration names them as here.
 const FRONT_PIECES = ['dresser', 'larder', 'none', 'bookshelf'];
-const pieces = { dresser: null, larder: null, sofa: null, ivar: null, chesham: null, cornwall: null, castorDesk: null };   // where each is drawn now, to look at
+const pieces = { dresser: null, larder: null, sofa: null, ivar: null, chesham: null, cornwall: null, castorDesk: null, speakers: null };   // where each is drawn now, to look at
 const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;
 const frontGap = () => DESK_RECESS.x0 - frontFrom();             // 1415
 const frontX0 = w => Math.round(frontFrom() + (frontGap() - w) / 2);   // a piece w wide, centred there
@@ -1609,6 +1614,112 @@ function ivarInLivingRoom(g) {
   return ` ${named}, against the first radiator, ${w} out into the room.`;
 }
 
+// ---------------------------------------------------------------------------
+// The speakers (speakers.js), as a pair, facing out from the front of what
+// they stand on, side by side along it (chosen with the user, 22 Oct 2026):
+// - on the bench, centred on the TV (or where it would be), each starting
+//   SPEAKER_TV_CLEAR clear of its side, or SPEAKER_SPACING_NO_TV apart with
+//   no TV above the bench;
+// - on Billy, lying in the lounge, centred on it, each starting
+//   SPEAKER_BILLY_END in from its end; they move and turn with it;
+// - on the corner cupboard's part along the back wall
+//   (corner_cupboard.js's topAlongBackWall()) when it stops short of the
+//   ceiling, spread evenly along it, the gaps beside and between them alike.
+// On the bench and Billy their spacing (between their middles) can be set,
+// held to what they stand on. Where their place isn't there, they aren't
+// drawn and the summary says why; the choice is kept
+// ---------------------------------------------------------------------------
+const SPEAKER_PLACES = ['none', 'bench', 'billy', 'cupboard'];
+const SPEAKER_SET_BACK = 20;                // their fronts back from the front edge of what they stand on (chosen)
+const SPEAKER_TV_CLEAR = 100;               // on the bench, each starting this far clear of the TV's side (chosen)
+const SPEAKER_SPACING_NO_TV = 1500;         // on the bench with no TV, their middles this far apart to start (chosen)
+const SPEAKER_BILLY_END = 100;              // on Billy, each starting this far in from its end (chosen)
+// What they stand on, by place: in the frame of a spot ({ x, y, turn }, as
+// the pieces' spots are: x along it, y out from its back, as the back
+// wall's pieces are drawn), from x0 to x1 along it, its front edge `front`
+// out, its top `top` high; the pair centred on `middle`, `start` apart to
+// begin with (null where they can't be moved apart); and a phrase for the
+// summary. Or { missing }, why they can't stand there
+const SPEAKER_SURFACES = {
+  bench() {
+    if (!benchDrawn()) return { missing: 'the bench, which isn\'t there' };
+    const option = optionOf(config.pieces.cornerCupboard.design.option), { what } = config.pieces.aboveBench.design;
+    const x0 = option.benchFrom(cupboardSettings()), tvShown = aboveHasTv(what) && ROOM_WIDTH - x0 >= TV_W + 20;   // as benchWallItems() draws it
+    return { spot: { x: 0, y: 0, turn: 0 }, x0, x1: ROOM_WIDTH, front: config.pieces.cornerCupboard.design.R, top: config.pieces.bench.design.height,
+      middle: tvAt[0], start: tvShown ? TV_W + 2 * SPEAKER_TV_CLEAR + FENRIS_A5.w : SPEAKER_SPACING_NO_TV,
+      on: tvShown ? 'on the bench, either side of the TV' : 'on the bench, centred on it' };
+  },
+  billy() {
+    const { on, lying } = config.pieces.billy.in.livingRoom;
+    if (!on) return { missing: 'Billy, which isn\'t in the lounge' };
+    if (!lying) return { missing: 'Billy lying on its side, and it\'s standing' };
+    const { w, d, h } = billySizes(true);
+    return { spot: spotOf('billy'), x0: -w / 2, x1: w / 2, front: d, top: h, middle: 0,
+      start: w - 2 * SPEAKER_BILLY_END - FENRIS_A5.w, on: 'on Billy, lying on its side' };
+  },
+  cupboard() {
+    const top = Cupboard.topAlongBackWall(cupboardSettings(), LIVING_ROOM_PLACE);
+    if (!top) return { missing: 'the corner cupboard, and there\'s none' };
+    if (top.h >= CEILING_HEIGHT) return { missing: 'the corner cupboard, which runs to the ceiling' };
+    if (CEILING_HEIGHT - top.h < FENRIS_A5.h) return { missing: `the corner cupboard, with only ${CEILING_HEIGHT - top.h} clear above it for them, ${FENRIS_A5.h} high` };
+    const gap = (top.x1 - top.x0 - 2 * FENRIS_A5.w) / 3;
+    return { spot: { x: 0, y: 0, turn: 0 }, x0: top.x0, x1: top.x1, front: top.d, top: top.h, middle: (top.x0 + top.x1) / 2,
+      start: null, spacing: top.x1 - top.x0 - 2 * gap - FENRIS_A5.w, on: `on the corner cupboard, ${top.h} high, spread evenly along its ${top.x1 - top.x0} on the back wall` };
+  },
+};
+// The spacing on a surface: as set, or where it starts, held to what they
+// stand on (centred on its middle); `most`, the furthest apart they can be
+function speakerSpacingOn(place, surface) {
+  if (surface.start === null) return { spacing: surface.spacing, most: surface.spacing };
+  const { w } = FENRIS_A5, [least, highest] = SLIDER_RANGES.speakerSpacing;
+  const most = Math.min(highest, 2 * Math.min(surface.middle - surface.x0, surface.x1 - surface.middle) - w);
+  const asked = config.pieces.speakers.in.livingRoom.spacing[place] ?? surface.start;
+  return { spacing: Math.max(least, Math.min(asked, most)), most, held: asked > most };
+}
+// The spacing slider's, for the menu: the spacing in use and the most it
+// can be, or null where it can't be set (no speakers, the cupboard, or
+// their place isn't there)
+export function speakerSpacingNow() {
+  const { on } = config.pieces.speakers.in.livingRoom, surface = SPEAKER_SURFACES[on]?.();
+  if (!surface || surface.missing || surface.start === null) return null;
+  return speakerSpacingOn(on, surface);
+}
+// Whether the corner cupboard can be offered to stand them on: one with a
+// top along the back wall, set lower than the ceiling
+export const cupboardTopForSpeakers = () => {
+  const top = Cupboard.topAlongBackWall(cupboardSettings(), LIVING_ROOM_PLACE);
+  return Boolean(top) && top.h < CEILING_HEIGHT;
+};
+// On the bench, the shelf right across under the TV (TV and shelves) may
+// come down lower than the speakers' tops, over them: a sentence saying so
+function speakersUnderShelf(surface) {
+  const { what, shelfDepth } = config.pieces.aboveBench.design, [below] = TV_SHELF_TOPS, bench = config.pieces.bench.design.height;
+  const speakersBack = surface.front - SPEAKER_SET_BACK - FENRIS_A5.d, clear = below - SHELF_T - bench;
+  if (what !== 'tvAndShelves' || clear >= FENRIS_A5.h || shelfDepth <= speakersBack) return '';
+  return ` They clash with the shelf at ${below}: it's only ${clear} clear of the bench.`;
+}
+// Drawn into the option's group, on their place if it's there. Returns a
+// sentence for the summary
+function speakersInLivingRoom(g) {
+  const { on } = config.pieces.speakers.in.livingRoom;
+  if (on === 'none') return '';
+  const surface = SPEAKER_SURFACES[on](), { w, d, h } = FENRIS_A5;
+  if (surface.missing) return ` No speakers: they go on ${surface.missing}.`;
+  const { spacing, held } = speakerSpacingOn(on, surface);
+  const pair = new THREE.Group();
+  for (const side of [-1, 1]) {
+    const speaker = fenrisA5();
+    speaker.position.set((surface.middle + side * spacing / 2) * MM, surface.top * MM, (surface.front - SPEAKER_SET_BACK - d) * MM);
+    pair.add(speaker);
+  }
+  pair.position.set(surface.spot.x * MM, 0, surface.spot.y * MM);
+  pair.rotation.y = THREE.MathUtils.degToRad(-surface.spot.turn);
+  g.add(pair);
+  pieces.speakers = pair;
+  const apart = `their middles ${Math.round(spacing)} apart${held ? ', as far apart as it lets them' : ''}`;
+  return ` The speakers (Argon Fenris A5, ${w} wide, ${d} deep, ${h} high) ${surface.on}, ${apart}.${on === 'bench' ? speakersUnderShelf(surface) : ''}`;
+}
+
 // An option's description, with the bench off: no bench (rather than its
 // length) and nothing on the back wall (or the bookcase there), and what
 // stood on the bench at bench height
@@ -1634,7 +1745,7 @@ function buildOption() {
   }
   livingGroup = new THREE.Group();
   world.add(livingGroup);
-  pieces.dresser = pieces.larder = pieces.sofa = pieces.ivar = pieces.chesham = pieces.cornwall = pieces.castorDesk = null;
+  pieces.dresser = pieces.larder = pieces.sofa = pieces.ivar = pieces.chesham = pieces.cornwall = pieces.castorDesk = pieces.speakers = null;
   cupboard = makeCupboard(cupboardSettings(), LIVING_ROOM_PLACE, CUPBOARD_MATERIALS);
   livingGroup.add(cupboard.group);
   return livingGroup;
@@ -1700,6 +1811,7 @@ const SLIDER_RANGES = {
   deskW: [300, 1200, 10], deskD: [300, 700, 10], deskH: [650, 800, 10],
   leftLen: [1000, 1329, 1], top: [1800, 2450, 10], diagRun: [400, 1200, 10], diagBack: [0, 1800, 10], diagLeft: [0, 2700, 10],
   shelfDepth: [150, 400, 10], islandTurn: [0, 180, 5], sofaFront: [1000, 3500, 50],
+  speakerSpacing: [400, 3000, 10],   // between the speakers' middles, chosen: their 170 wide apart, to past the TV's width
 };
 for (const [, id, lo, hi, step] of [...DRESSER_SLIDERS, ...LARDER_SLIDERS, ...SOFA_SLIDERS]) SLIDER_RANGES[id] = [lo, hi, step];
 // A control's id in a copy of the living room's controls: the piece's name,
@@ -1721,6 +1833,11 @@ function fromSlider(path, id, more, range = SLIDER_RANGES[id]) {
   return { ...Config.number(path, min, max, step, more), slider: id };
 }
 const isColour = code => code === 0 || Boolean(colourOf(code));
+// The speakers' spacing on one place: on the slider's steps, or null where they start
+function speakerSpacingEntry(path) {
+  const [min, max, step] = SLIDER_RANGES.speakerSpacing;
+  return Config.other(path, v => (v === null ? null : Number.isFinite(v) && v >= min && v <= max && (v - min) % step === 0 ? v : undefined));
+}
 // A place moved to in the living room, or null where it starts
 const spotOrHome = path => Config.other(path, v => (v === null ? null : v && spotFits(v) ? { x: v.x, y: v.y, turn: v.turn } : undefined));
 // The things to store's places are read only when they've been moved by
@@ -1836,6 +1953,10 @@ const LIVING_ROOM_SCHEMA = [
   Config.onOff('pieces.cornwall.in.livingRoom.on'),
   Config.onOff('pieces.cornwall.in.livingRoom.legsOff'),
   spotOrHome('pieces.cornwall.in.livingRoom.move'),
+  // The speakers: where, and how far apart on the bench and on Billy (null
+  // for where they start)
+  Config.choice('pieces.speakers.in.livingRoom.on', SPEAKER_PLACES),
+  ...Object.keys(config.pieces.speakers.in.livingRoom.spacing).map(place => speakerSpacingEntry(`pieces.speakers.in.livingRoom.spacing.${place}`)),
 ];
 const SCHEMA = Config.withDefaults([
   ...LIVING_ROOM_SCHEMA,
@@ -1943,6 +2064,7 @@ const namedPieces = () => ({
   cornerCupboard: cupboard?.group,                              // the option's own build, without the bench
   dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup, 'ivar.livingRoom': pieces.ivar,
   'chesham.livingRoom': pieces.chesham, 'cornwall.livingRoom': pieces.cornwall, 'castorDesk.livingRoom': pieces.castorDesk,
+  'speakers.livingRoom': pieces.speakers,
   bedroomCupboard: otherRoomPieces.newCupboard,
   bed: otherRoomPieces.bed, bookcase: otherRoomPieces.bookcase, pineCupboard: otherRoomPieces.cupboard, mirror: otherRoomPieces.mirror,
   'billy.bedroom': otherRoomPieces.billy, 'billyChest.bedroom': otherRoomPieces.billyChest, 'ivar.bedroom': otherRoomPieces.ivar,
@@ -1995,7 +2117,7 @@ export function build(onShow = optionsOnShow()) {
   const clearFrom = option.clearFrom(cupboardSettings());
   const backWall = benchDrawn() ? benchWall(clearFrom, group)
     : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('');
-  const aboveText = backWall + frontWall(group, no) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group);
+  const aboveText = backWall + frontWall(group, no) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group);
   if (!same) doors.second = 0;
   drawOtherRoom(config);                                         // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard

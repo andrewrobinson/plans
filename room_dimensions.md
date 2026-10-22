@@ -209,6 +209,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
 
 **The living room as it is now** (the user's photos and measurements, 18 Oct 2026, `LOUNGE_NOW` in `flat_model.js`), as the page opens: no cupboard or bench yet (option 16, the bench off) and nothing on the front wall; BillyChest in the corner by the windows, its back 90 off the window wall (for the radiator's pipe) and its drawers facing the left wall, its side against the back wall; Billy lying on its long side against the back wall, 380 from BillyChest; the Drift with its back 300 off Billy (estimated), centred on it, its futon charcoal grey (estimated from the photo); the Ivar by the first radiator, as before; the island out there. In the corner by the door are Cornwall with its legs off, 1200 along the left wall from the back wall, and Chesham on its end on it, in the corner; both hidden to start (asked for, 19 Oct 2026), each brought back by its own switch. The things to store are shown, placed by hand as in the photo (estimated), all on the floor while the tables are hidden: the ladders against the left wall where Cornwall stands, the hoover at its front, the mop's bucket and a rack by Chesham, the other rack behind that one, and the tub in front. The top bar's **Stored: on/off** button shows or hides them. The bedroom has no mirror yet, the hallway no shoe rack (its `in.hallway.on`, the Shoe rack section's **In the hallway** switch), and the garage neither Billy nor the pine cupboard. The page opened until then on option 10 with the bench and the dresser, kept as the test address `designed` (`tests/configs/designed.json`).
 - **`castorDesk`**: the desk on castors, `in.livingRoom`: `on`, `at` (`byTheDoor` or `atTheTv`) and `move`, as the Ivar's.
+- **`speakers`**: the Fenris A5 pair, `in.livingRoom`: `on` (`none`, `bench`, `billy` or `cupboard`) and `spacing`, the distance between their middles on the `bench` and on `billy`, each `null` for where they start there.
 - **`thingsToStore`**: `shown`, `packing` (0 to 3, as listed), `where` (`window`, `cupboard` or `byHand`) and each thing's place, `{ "x", "y", "turned", "z" }`, in the order of the table below. Their places are read, and written, only when `where` is `byHand`; otherwise they follow the packing, worked out each time, and the configuration has no `spots`.
 
 Each setting has an entry in the schema (`SCHEMA` in `flat_model.js`, with the other rooms' entries from their modules, `OTHER_ROOM_SCHEMA` and so on): its path in the configuration (and in the page's settings, `config`, held as the configuration is: `REFACTOR_PLAN.md` items 14 and 15), its kind (a number with its range and step, on or off, a choice, a colour) and its default. Reading a configuration, a setting left out takes its default, one not in the schema is ignored, and one out of its range or of the wrong kind keeps its default. Steps aren't checked (saved designs have sizes between them), bar quarter turns. A new setting needs its entry; new pieces go in `pieces`.
@@ -506,6 +507,19 @@ A loose desk (asked for, 20 Oct 2026) in [castor_desk.js](castor_desk.js), with 
 | **At the TV** | Centred on the TV, its back 100 out from the bench (or the back wall with no bench), so you sit facing the TV with the sofa behind you | Choosing either wheels it there; its X, Y and Turn sliders move it from there (quarter turns), and Reset location takes it back |
 
 **Seated at the desk on castors** (Where) sits 350 back from its front edge, wherever it is; "the desk on castors" is in Looking at.
+
+### The speakers
+
+The user's pair of Argon Audio Fenris A5 active speakers, in white with their grilles on (asked for, 22 Oct 2026), in [speakers.js](speakers.js), with their own section in Lounge options, **Speakers**: on nothing to start. They stand as a pair, side by side, facing out from the front of what they're on, their fronts 20 back from its edge (chosen). Where their place isn't there (the bench off or something in its place, Billy out or standing, the cupboard to the ceiling or too low a gap above it), they aren't drawn and the description says why; the choice is kept.
+
+| What | Size or place | Notes |
+| --- | --- | --- |
+| Each speaker | 170 wide × 220 deep × 280 high, grille on | Argon's (28 × 17 × 22 cm). From the user's photo (estimated): the cabinet's upright edges rounded (15), the grey grille 8 proud of its front and 8 in from its edges, Argon's round badge low on it |
+| **On the bench** | Centred on the TV, each starting 100 clear of its side (their middles 2050 apart with the 75" TV); with no TV, 1500 apart | **Between their middles** sets it, 400 up to what the bench allows each side of the TV's middle. With TV and shelves the shelf under the TV is 195 clear of the bench, under their 280: the description says they clash |
+| **On Billy, lying** | Centred on it, each starting 100 in from its end (1650 apart) | They move and turn with Billy. **Between their middles** sets it, up to 1850 (Billy's 2020, less a speaker) |
+| **On the corner cupboard** | On the top of its part along the back wall (`topAlongBackWall()` in `corner_cupboard.js`), spread evenly along it, the gaps beside and between them alike | Offered only with a height set below the ceiling, options 7 to 11. The part: option 7's back-wall leg and 8's (the corner with them), 9's double-door cupboard (not the tower), 10's and 11's corner cupboard (not the side bookshelf). They need 280 clear above it: the cupboard 2160 high or lower |
+
+Each place keeps its own spacing.
 
 ### The wicker bench
 
