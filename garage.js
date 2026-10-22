@@ -33,7 +33,7 @@ export const GARAGE = {
   door: { width: 2134, height: 1981, thick: 40, swingOut: 1000 },
 };
 // The door as drawn (Garage options): not at all (to start), open or closed
-export const GARAGE_DOOR = { hidden: 'Not shown', open: 'Open', closed: 'Closed' };
+export const GARAGE_DOOR = { hidden: 'Hidden', open: 'Open', closed: 'Closed' };
 
 // Where it is: scaled off the user's site plan (16 Oct 2026), the flat
 // outlined in red and the garage in pink. Read with the user: the flat's
@@ -391,9 +391,9 @@ function openBox(w, d, h, mat, g) {
 
 // Garage options' door radios: not shown, open or closed
 function doorBlock() {
-  return `<div id="garageDoorBlock" class="depth">Garage door:` +
-    Object.entries(GARAGE_DOOR).map(([value, label]) => `<label><input type="radio" name="garageDoor" value="${value}"> ${label}</label>`).join('') +
-    `<div class="hint">Up and over: its top runs back on a rail under the ceiling, its bottom swings out, at most ${GARAGE.door.swingOut / 1000} m (marked on the ground when it's open).</div></div>`;
+  return `<div id="garageDoorBlock" class="depth">Garage door:<span class="seg" role="radiogroup" aria-label="Garage door">` +
+    Object.entries(GARAGE_DOOR).map(([value, label]) => `<label${value === 'hidden' ? ' title="Not shown"' : ''}><input type="radio" name="garageDoor" value="${value}"> ${label}</label>`).join('') +
+    `</span><div class="hint">Up and over: its top runs back on a rail under the ceiling, its bottom swings out, at most ${GARAGE.door.swingOut / 1000} m (marked on the ground when it's open).</div></div>`;
 }
 
 // A piece's part of Garage options: its name and sizes, its In the garage

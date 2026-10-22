@@ -355,9 +355,10 @@
           <label class="switch"><input type="checkbox" id="deskDaybedRight"> Desk at the right-hand end</label>
           <label class="switch" title="Centred on its bed, 150 above it, while it's against the back wall; its size is the TV size below"><input type="checkbox" id="deskDaybedTv"> TV on the wall above it</label>
           <div id="deskDaybedChair">Chair at its desk, pulled up:
+          <span class="seg" role="radiogroup" aria-label="Chair">
             <label><input type="radio" name="deskDaybedChair" value="none"> None</label>
-            <label title="An armless task chair, 460 seat, 600 base (estimated)"><input type="radio" name="deskDaybedChair" value="small"> Smaller, armless</label>
-            <label title="The office chair from the kitchen desk"><input type="radio" name="deskDaybedChair" value="office"> Office chair</label>
+            <label title="An armless task chair, 460 seat, 600 base (estimated)"><input type="radio" name="deskDaybedChair" value="small"> Small</label>
+            <label title="The office chair from the kitchen desk"><input type="radio" name="deskDaybedChair" value="office"> Office</label></span>
           </div>
           <label for="deskDaybedX" title="The daybed’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="deskDaybedXValue"></span></label>
           <input id="deskDaybedX" type="range">
@@ -369,17 +370,19 @@
         </div>
         <div id="benchDetails">
         <div id="bench" class="depth">Bench height:
+          <span class="seg" role="radiogroup" aria-label="Bench height">
           <label><input type="radio" name="bench" value="700"> 700</label>
           <label><input type="radio" name="bench" value="780" checked> 780</label>
           <label><input type="radio" name="bench" value="800"> 800</label>
-          <label><input type="radio" name="bench" value="900"> 900</label>
+          <label><input type="radio" name="bench" value="900"> 900</label></span>
         </div>
         <div id="above" class="depth">Above the bench:
-          <label><input type="radio" name="above" value="nothing"> Nothing</label>
+          <span class="seg" role="radiogroup" aria-label="Above the bench">
+          <label><input type="radio" name="above" value="nothing"> None</label>
           <label><input type="radio" name="above" value="shelves"> Shelves</label>
           <label><input type="radio" name="above" value="tv"> TV</label>
-          <label><input type="radio" name="above" value="tvAndShelves" checked> TV and shelves</label>
-          <label><input type="radio" name="above" value="tvAndTopShelf"> TV and top shelf</label>
+          <label title="TV and shelves"><input type="radio" name="above" value="tvAndShelves" checked> TV + shelves</label>
+          <label title="TV and top shelf"><input type="radio" name="above" value="tvAndTopShelf"> TV + top</label></span>
         </div>
         </div>
         <div id="tvBlock">
@@ -394,11 +397,12 @@
       <details class="sec" id="secSpeakers">
         <summary>Speakers</summary>
         <div id="speakersOn">The Fenris A5 pair, on:
-          <label><input type="radio" name="speakersOn" value="none"> Nothing (not shown)</label>
-          <label title="Either side of the TV"><input type="radio" name="speakersOn" value="bench"> The bench</label>
-          <label title="Billy lying on its side in the lounge, one near each end"><input type="radio" name="speakersOn" value="billy"> Billy, lying</label>
-          <label title="The daybed's bookcase top, either side of the TV above it"><input type="radio" name="speakersOn" value="deskDaybed"> The daybed</label>
-          <label id="speakersOnCupboardRow" title="The corner cupboard's top, when it stops short of the ceiling"><input type="radio" name="speakersOn" value="cupboard"> The corner cupboard</label>
+          <span class="seg" role="radiogroup" aria-label="Speakers on">
+          <label title="Not shown"><input type="radio" name="speakersOn" value="none"> None</label>
+          <label title="Either side of the TV"><input type="radio" name="speakersOn" value="bench"> Bench</label>
+          <label title="Billy lying on its side in the lounge, one near each end"><input type="radio" name="speakersOn" value="billy"> Billy</label>
+          <label title="The daybed's bookcase top, either side of the TV above it"><input type="radio" name="speakersOn" value="deskDaybed"> Daybed</label>
+          <label id="speakersOnCupboardRow" title="The corner cupboard's top, when it stops short of the ceiling"><input type="radio" name="speakersOn" value="cupboard"> Cupboard</label></span>
         </div>
         <div id="speakerSpacingBlock" class="depth">
           <label for="speakerSpacing" title="The distance between the speakers’ middles">Between their middles: <span id="speakerSpacingValue"></span></label>
@@ -451,8 +455,8 @@
         <summary>Desk on castors</summary>
         <label class="switch"><input type="checkbox" id="castorDeskOn"> In the lounge</label>
         <div id="castorDeskMoveBlock" class="depth">
-          <label title="Its back against the left wall, between the corner cupboard and the door frame"><input type="radio" name="castorDeskAt" value="byTheDoor"> Parked by the door</label>
-          <label title="Centred on the TV, just out from the bench, where you sit facing the TV"><input type="radio" name="castorDeskAt" value="atTheTv"> At the TV</label>
+          <span class="seg" role="radiogroup" aria-label="Desk on castors"><label title="Its back against the left wall, between the corner cupboard and the door frame"><input type="radio" name="castorDeskAt" value="byTheDoor"> By door</label>
+          <label title="Centred on the TV, just out from the bench, where you sit facing the TV"><input type="radio" name="castorDeskAt" value="atTheTv"> At TV</label></span>
           <label for="castorDeskX" title="The desk’s back’s middle, from the left wall">Back’s middle from the left wall: <span id="castorDeskXValue"></span></label>
           <input id="castorDeskX" type="range">
           <label for="castorDeskY" title="The desk’s back’s middle, from the back wall">Back’s middle from the back wall: <span id="castorDeskYValue"></span></label>
@@ -467,10 +471,11 @@
       <details class="sec" id="secFrontWall" open>
         <summary>The front wall and the island</summary>
         <div id="islandBlock" class="depth">Kitchen island:
-          <label><input type="radio" name="islandAt" value="room" checked> Out there</label>
-          <label><input type="radio" name="islandAt" value="out"> Against the front wall, long side out</label>
-          <label><input type="radio" name="islandAt" value="along"> Against the front wall, short side out</label>
-          <label><input type="radio" name="islandAt" value="none"> None</label>
+          <span class="seg" role="radiogroup" aria-label="Kitchen island">
+          <label title="Out in the room"><input type="radio" name="islandAt" value="room" checked> In room</label>
+          <label title="Against the front wall, long side out"><input type="radio" name="islandAt" value="out"> Long side</label>
+          <label title="Against the front wall, short side out"><input type="radio" name="islandAt" value="along"> Short side</label>
+          <label><input type="radio" name="islandAt" value="none"> None</label></span>
         </div>
         <div id="islandMoveBlock">
           <label for="islandX">Island's middle from the left wall: <span id="islandXValue">1395</span></label>
@@ -481,10 +486,11 @@
           <input id="islandTurn" type="range" min="0" max="180" step="5" value="0">
         </div>
         <div id="frontBlock" class="depth">On the front wall, between the sink and the desk:
+          <span class="seg" role="radiogroup" aria-label="Front wall">
           <label><input type="radio" name="frontPiece" value="dresser" checked> Dresser</label>
           <label><input type="radio" name="frontPiece" value="larder"> Larder</label>
           <label><input type="radio" name="frontPiece" value="bookshelf"> Bookshelf</label>
-          <label><input type="radio" name="frontPiece" value="none"> Nothing</label>
+          <label><input type="radio" name="frontPiece" value="none"> None</label></span>
         </div>
         <div id="dresserBlock">
           <label for="dresserPick">Dresser</label>
@@ -526,8 +532,9 @@
           <input id="secondDoor" type="range" min="0" max="180" value="0">
         </div>
         <div id="deskDoorBlock" class="depth">Fold-down desk:
-          <label title="Standing up against the cupboard's side"><input type="radio" name="deskShown" id="deskFolded" value="foldedAway" checked> Folded away</label>
-          <label title="Level, on its brackets"><input type="radio" name="deskShown" id="deskDown" value="down"> Down, ready to use</label>
+          <span class="seg" role="radiogroup" aria-label="Fold-down desk">
+          <label title="Standing up against the cupboard's side"><input type="radio" name="deskShown" id="deskFolded" value="foldedAway" checked> Folded</label>
+          <label title="Level, on its brackets"><input type="radio" name="deskShown" id="deskDown" value="down"> Down</label></span>
         </div>
         <label for="roomDoor">Room door: <span id="roomDoorValue">90°</span></label>
         <input id="roomDoor" type="range" min="0" max="110" value="90">
@@ -570,8 +577,8 @@
         <div id="storedBlock">
           <select id="storedPacking" aria-label="Packing"></select>
           <div class="depth">
-            <label><input type="radio" name="storedWhere" value="window" checked> By the middle window</label>
-            <label><input type="radio" name="storedWhere" value="cupboard"> In the corner cupboard</label>
+            <span class="seg" role="radiogroup" aria-label="Stored"><label title="By the middle window"><input type="radio" name="storedWhere" value="window" checked> Window</label>
+            <label title="In the corner cupboard"><input type="radio" name="storedWhere" value="cupboard"> Cupboard</label></span>
           </div>
           <div id="storedInfo"></div>
           <div id="storedLifts"></div>
@@ -633,8 +640,9 @@
     <label for="bedroomDoor">Bedroom door: <span id="bedroomDoorValue">90°</span></label>
     <input id="bedroomDoor" type="range" min="0" max="180" value="90">
     <div id="bedroomDoorSwings" class="depth">It swings, going in:
-      <label><input type="radio" name="bedroomDoorSwings" value="right" checked> Right (as now)</label>
-      <label><input type="radio" name="bedroomDoorSwings" value="left"> Left</label>
+      <span class="seg" role="radiogroup" aria-label="Door swings">
+      <label title="Right, as now"><input type="radio" name="bedroomDoorSwings" value="right" checked> Right</label>
+      <label><input type="radio" name="bedroomDoorSwings" value="left"> Left</label></span>
     </div>
     <div id="bedroomDoorMustBlock">
       <label for="bedroomDoorMustOpenTo">It must open to: <span id="bedroomDoorMustOpenToValue">90°</span></label>

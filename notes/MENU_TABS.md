@@ -1,8 +1,8 @@
 # Tabs in the long drawers
 
 Agreed with the user on 22 Oct 2026, and built that day (branch
-`menu-tabs`): the small choices are settled under "Small choices", and
-segmented controls are still to do. The aim is to make the
+`menu-tabs`): the small choices are settled under "Small choices"; segmented
+controls followed the same day (branch `segmented-controls`). The aim is to make the
 page simpler to use, for me and for a designer (`SHARING.md` has the
 sharing side, set aside for now). It builds on `UI_CRITIQUE.md`'s problem
 3, "Too many settings to find anything", and on the Tabs card in
@@ -26,7 +26,7 @@ bottom sheet, and finding a setting means scrolling past everything else.
    sections' open or closed state is now (`room_3d:<id>` in
    `living_room.js`). The tab is how the page is used, not part of the
    room, so it doesn't go in the configuration or the address.
-4. **Segmented controls come next**, as a step of their own (below).
+4. **Segmented controls**, a step of their own (below), built.
 
 ### Lounge options: four tabs
 
@@ -88,18 +88,26 @@ and not a piece. Each piece's group would be a field of its entry in
   every section; the room tests choose the tab a person would
   (`openTab()` in `tests/helpers.js`).
 
-## Next: segmented controls
+## Segmented controls (built 22 Oct 2026)
 
-These are radio groups of two to five short choices, which would become
-one row of joined buttons (`demos/controls_demo.html`'s Segmented control card).
-Candidates in Lounge options:
+Every radio group became one row of joined buttons (`.seg` in
+`room_3d.css`; the radios are still there, invisible over their buttons,
+so the page's code and the tests didn't change). Agreed with the user: all
+eleven, "None" everywhere, the long wording in each button's tooltip.
 
-- The bench's height: 700, 780, 800, 900
-- Above the bench: Nothing, Shelves, TV, TV and shelves, TV and top shelf
-- The front wall: Dresser, Larder, Bookshelf, Nothing
-- The desk: Folded away, Down
-- The island and the speakers' places, if their labels can be cut to a word
-  or two (both are long now)
+| Group | Buttons |
+|---|---|
+| The bench's height | 700 · 780 · 800 · 900 |
+| Above the bench | None · Shelves · TV · TV + shelves · TV + top |
+| Speakers on | None · Bench · Billy · Daybed · Cupboard |
+| The daybed's chair | None · Small · Office |
+| Desk on castors | By door · At TV |
+| Kitchen island | In room · Long side · Short side · None |
+| The front wall | Dresser · Larder · Bookshelf · None |
+| Option 10's fold-down desk | Folded · Down |
+| Things to store | Window · Cupboard |
+| Bedroom door swings | Right · Left |
+| Garage door (`GARAGE_DOOR`) | Hidden · Open · Closed |
 
-Which ones change, and the shorter labels, to be settled with the user
-when this step comes up.
+At 375 wide the widest, Above the bench, is 339 of the 347 there is; a
+narrower screen wraps it onto two rows.
