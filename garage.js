@@ -3,10 +3,12 @@
 // Sean, Billy and BillyChest, which can be moved about, turned and taken
 // out, and the other things the user keeps there.
 //
-// living_room.js holds the settings (state.garage, starting as
-// GARAGE_START); this file gives their entries in the configuration
-// (GARAGE_SCHEMA), says where the garage is, draws it and what's in it (drawGarage()), and
-// makes Garage options' block (garageControls()).
+// The model (flat_model.js) holds the settings, as the configuration has
+// them: each piece's place in the garage (pieces.sean.in.garage), starting
+// as GARAGE_START. This file reads them by its pieces' keys (inGarage()),
+// gives their entries in the configuration (GARAGE_SCHEMA), says where the
+// garage is, draws it and what's in it (drawGarage()), and makes Garage
+// options' block (garageControls()).
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt, clearDrawing } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
@@ -173,7 +175,9 @@ const MOST_OFF_WALL = 200;
 // 2026, sent as links; Trellis and Biltong moved 18 Oct), with BillyChest
 // out; Billy and the pine cupboard out too since 18 Oct, as they are in the
 // living room and the bedroom
-export const GARAGE_START = {
+// As they start, by the pieces' keys here (GARAGE_START is them laid out as
+// the configuration is, below)
+const AS_THEY_START = {
   sean: { on: true, x: 1255, y: 2865, turn: 180 },
   billy: { on: false, x: 0, y: 1920, turn: 270, lying: false },   // out, as now (18 Oct 2026): in the living room
   billyChest: { on: false, x: 0, y: 1100, turn: 270 },
@@ -188,7 +192,7 @@ export const GARAGE_START = {
   ivar: { on: false, x: 0, y: 1100, turn: 270 },     // out to start, at BillyChest's spot (asked for, 18 Oct 2026)
 };
 
-// The sliders, as other_room.js's: [path in state.garage, label, lowest,
+// The sliders, as other_room.js's: [the setting's name, as 'sean.x', label, lowest,
 // highest, step, unit]. The height above the floor goes up to the ceiling
 // less the piece, in 1s so it can sit on what's under it exactly; the gap
 // from the wall in 1s too, as it's small
@@ -201,19 +205,30 @@ const placeSliders = piece => [
 ];
 const SLIDERS = PIECE_KEYS.flatMap(placeSliders);
 
+// Each piece's place in the garage, in the configuration, by its key here:
+// the pine cupboard is the bedroom's, under its name there. A setting's
+// path by its name here ('sean.x'); and every piece's place, by its key,
+// from the settings (laid out as the configuration is)
+const PIECE_NAME = { pine: 'pineCupboard' };
+const placeOf = piece => `pieces.${PIECE_NAME[piece] ?? piece}.in.garage`;
+const settingPath = name => {
+  const [piece, key] = name.split('.');
+  return `${placeOf(piece)}.${key}`;
+};
+export const inGarage = settings => Object.fromEntries(PIECE_KEYS.map(piece => [piece, valueAt(settings, placeOf(piece))]));
+export const GARAGE_START = {};
+for (const piece of PIECE_KEYS) Config.setValueAt(GARAGE_START, placeOf(piece), structuredClone(AS_THEY_START[piece]));
 // The configuration's entries (kit/config_kit.js): for each piece, whether
 // it's in the garage and its place there, each held to its slider's range,
-// its turn to quarter turns. Their sizes are fixed, so they've no design
-// here; the pine cupboard is the bedroom's, under its name there
-const PIECE_NAME = { pine: 'pineCupboard' };
+// its turn to quarter turns. Their sizes are fixed, so they've no design here
 function pieceEntries(piece) {
-  const at = `pieces.${PIECE_NAME[piece] ?? piece}.in.garage`;
+  const at = placeOf(piece);
   return [
-    Config.onOff(`${at}.on`, `garage.${piece}.on`),
-    ...(PIECES[piece].canLie ? [Config.onOff(`${at}.lying`, `garage.${piece}.lying`)] : []),
-    ...placeSliders(piece).map(([path, , lo, hi, step]) => {
-      const key = path.split('.')[1];
-      return Config.number(`${at}.${key}`, `garage.${path}`, lo, hi, step, { onSteps: key === 'turn' });
+    Config.onOff(`${at}.on`, `${at}.on`),
+    ...(PIECES[piece].canLie ? [Config.onOff(`${at}.lying`, `${at}.lying`)] : []),
+    ...placeSliders(piece).map(([name, , lo, hi, step]) => {
+      const path = settingPath(name);
+      return Config.number(path, path, lo, hi, step, { onSteps: name.endsWith('.turn') });
     }),
   ];
 }
@@ -255,8 +270,10 @@ export function drawGarageDoor(state) {
 // placed, so Looking at it aims at its spot
 export const garagePieces = Object.fromEntries(PIECE_KEYS.map(piece => [piece, null]));
 
-// `pineSizes`: the pine cupboard's sizes as set in Bedroom options
-export function drawGarage(s, pineSizes) {
+// From the settings (laid out as the configuration is); `pineSizes`: the
+// pine cupboard's sizes as set in Bedroom options
+export function drawGarage(settings, pineSizes) {
+  const s = inGarage(settings);
   clearDrawing(furniture);
   for (const piece of PIECE_KEYS) {
     const sizes = PIECES[piece].bedroomSizes ? sizesOf(pineSizes) : {};
@@ -373,7 +390,7 @@ function openBox(w, d, h, mat, g) {
 // Garage options' block, built into `container`, laid out as Bedroom
 // options: for each piece its name and sizes, its In the garage switch, and
 // while it's in, the sliders that place it and a button to put it back. change(edits) is
-// called with a list of [path, value], and turnDoor(word) with the door's
+// called with a list of [path, value], each path the configuration's, and turnDoor(word) with the door's
 // (the view's: the page puts its radios in step); the function returned
 // puts the other controls in step with the settings `s`
 // ---------------------------------------------------------------------------
@@ -395,18 +412,21 @@ export function garageControls(container, change, turnDoor) {
   }).join('');
 
   doorRadios().forEach(r => r.addEventListener('change', () => turnDoor(r.value)));
-  for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
-  for (const piece of PIECE_KEYS) document.getElementById(id(`${piece}.on`)).addEventListener('change', e => change([[`${piece}.on`, e.target.checked]]));
-  for (const piece of LYING_KEYS) document.getElementById(id(`${piece}.lying`)).addEventListener('change', e => change([[`${piece}.lying`, e.target.checked]]));
+  // Settings changed, [name, value] pairs, as edits by their paths
+  const changeNamed = edits => change(edits.map(([name, value]) => [settingPath(name), value]));
+  for (const [name] of SLIDERS) document.getElementById(id(name)).addEventListener('input', e => changeNamed([[name, Number(e.target.value)]]));
+  for (const piece of PIECE_KEYS) document.getElementById(id(`${piece}.on`)).addEventListener('change', e => changeNamed([[`${piece}.on`, e.target.checked]]));
+  for (const piece of LYING_KEYS) document.getElementById(id(`${piece}.lying`)).addEventListener('change', e => changeNamed([[`${piece}.lying`, e.target.checked]]));
   container.querySelectorAll('button[data-reset]').forEach(b => b.addEventListener('click', () => {
-    change(placeSliders(b.dataset.reset).map(([path]) => [path, valueAt(GARAGE_START, path)]));
+    changeNamed(placeSliders(b.dataset.reset).map(([name]) => [name, valueAt(AS_THEY_START, name)]));
   }));
 
-  return s => {
-    for (const [path, , , , , unit] of SLIDERS) {
-      const value = valueAt(s, path);
-      document.getElementById(id(path)).value = String(value);
-      document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
+  return settings => {
+    const s = inGarage(settings);
+    for (const [name, , , , , unit] of SLIDERS) {
+      const value = valueAt(s, name);
+      document.getElementById(id(name)).value = String(value);
+      document.getElementById(`${id(name)}Value`).textContent = `${value}${unit}`;
     }
     for (const piece of PIECE_KEYS) {
       document.getElementById(id(`${piece}.on`)).checked = s[piece].on;

@@ -562,76 +562,76 @@ test.describe('the garage', () => {
   });
 
   test('Sean and Billy can be moved and turned, and put back', async ({ page }) => {
-    expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
-    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 0, y: 1920, turn: 270, lying: false });
+    expect(await setting(page, 'pieces.sean.in.garage')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
+    expect(await setting(page, 'pieces.billy.in.garage')).toEqual({ on: true, x: 0, y: 1920, turn: 270, lying: false });
     await slide(page, 'garage_sean_x', 2000);
     await slide(page, 'garage_sean_y', 1000);
     await slide(page, 'garage_sean_turn', 90);
     await slide(page, 'garage_billy_x', 4000);
-    expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 2000, y: 1000, turn: 90 });
-    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 4000, y: 1920, turn: 270, lying: false });
+    expect(await setting(page, 'pieces.sean.in.garage')).toEqual({ on: true, x: 2000, y: 1000, turn: 90 });
+    expect(await setting(page, 'pieces.billy.in.garage')).toEqual({ on: true, x: 4000, y: 1920, turn: 270, lying: false });
     expect(await readout(page, 'garage_sean_turn')).toBe('90°');
     await page.locator('#garageBlock [data-reset="sean"]').evaluate(b => b.click());
-    expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
-    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 4000, y: 1920, turn: 270, lying: false });         // Billy stays where he was put
+    expect(await setting(page, 'pieces.sean.in.garage')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
+    expect(await setting(page, 'pieces.billy.in.garage')).toEqual({ on: true, x: 4000, y: 1920, turn: 270, lying: false });         // Billy stays where he was put
   });
 
   // Billy can lie on its long side, and stand again, where it is
   test('Billy can lie down in the garage', async ({ page }) => {
     await toggle(page, 'garage_billy_lying', true);
-    expect(await setting(page, 'garage.billy')).toEqual({ on: true, x: 0, y: 1920, turn: 270, lying: true });
+    expect(await setting(page, 'pieces.billy.in.garage')).toEqual({ on: true, x: 0, y: 1920, turn: 270, lying: true });
     await toggle(page, 'garage_billy_lying', false);
-    expect(await setting(page, 'garage.billy.lying')).toBe(false);
+    expect(await setting(page, 'pieces.billy.in.garage.lying')).toBe(false);
   });
 
   // Each has its In the garage switch; taken out, its sliders are hidden,
   // as the bedroom's
   test('each can be taken out, moved and put back', async ({ page }) => {
     await toggle(page, 'garage_sean_on', false);
-    expect(await setting(page, 'garage.sean')).toEqual({ on: false, x: 1255, y: 2865, turn: 180 });
+    expect(await setting(page, 'pieces.sean.in.garage')).toEqual({ on: false, x: 1255, y: 2865, turn: 180 });
     await expect(page.locator('#garage_sean_x')).toBeHidden();
     await toggle(page, 'garage_sean_on', true);
     await expect(page.locator('#garage_sean_x')).toBeVisible();
-    expect(await setting(page, 'garage.sean')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
-    expect(await setting(page, 'garage.billyChest')).toEqual({ on: false, x: 0, y: 1100, turn: 270 });            // out to start
+    expect(await setting(page, 'pieces.sean.in.garage')).toEqual({ on: true, x: 1255, y: 2865, turn: 180 });
+    expect(await setting(page, 'pieces.billyChest.in.garage')).toEqual({ on: false, x: 0, y: 1100, turn: 270 });            // out to start
     await toggle(page, 'garage_billyChest_on', true);
     await slide(page, 'garage_billyChest_x', 3000);
     await slide(page, 'garage_billyChest_turn', 0);
-    expect(await setting(page, 'garage.billyChest')).toEqual({ on: true, x: 3000, y: 1100, turn: 0 });
+    expect(await setting(page, 'pieces.billyChest.in.garage')).toEqual({ on: true, x: 3000, y: 1100, turn: 0 });
     await page.locator('#garageBlock [data-reset="billyChest"]').evaluate(b => b.click());
-    expect(await setting(page, 'garage.billyChest')).toEqual({ on: true, x: 0, y: 1100, turn: 270 });            // put back, still in
+    expect(await setting(page, 'pieces.billyChest.in.garage')).toEqual({ on: true, x: 0, y: 1100, turn: 270 });            // put back, still in
   });
 
   // Yellow starts on the scaffold bench and Biltong on Trellis, each
   // raised by the height of what it's on; the others have no height
   test('Yellow and Biltong can be raised and lowered, and put back', async ({ page }) => {
-    expect(await setting(page, 'garage.yellow')).toEqual({ on: true, x: 3390, y: 2550, turn: 0, z: 438 });
-    expect(await setting(page, 'garage.scaffoldBench')).toEqual({ on: true, x: 3430, y: 2650, turn: 0 });
-    expect(await setting(page, 'garage.biltong')).toEqual({ on: true, x: 580, y: 1070, turn: 90, z: 750 });
+    expect(await setting(page, 'pieces.yellow.in.garage')).toEqual({ on: true, x: 3390, y: 2550, turn: 0, z: 438 });
+    expect(await setting(page, 'pieces.scaffoldBench.in.garage')).toEqual({ on: true, x: 3430, y: 2650, turn: 0 });
+    expect(await setting(page, 'pieces.biltong.in.garage')).toEqual({ on: true, x: 580, y: 1070, turn: 90, z: 750 });
     expect(await page.locator('#garage_metal_z').count()).toBe(0);
-    expect(await setting(page, 'garage.pine')).toEqual({ on: true, x: 1425, y: 0, turn: 0 });
+    expect(await setting(page, 'pieces.pineCupboard.in.garage')).toEqual({ on: true, x: 1425, y: 0, turn: 0 });
     await toggle(page, 'garage_pine_on', false);
     await slide(page, 'garage_pine_turn', 90);
-    expect(await setting(page, 'garage.pine')).toEqual({ on: false, x: 1425, y: 0, turn: 90 });
+    expect(await setting(page, 'pieces.pineCupboard.in.garage')).toEqual({ on: false, x: 1425, y: 0, turn: 90 });
     await slide(page, 'garage_yellow_z', 0);
     await toggle(page, 'garage_biltong_on', false);
-    expect(await setting(page, 'garage.yellow')).toEqual({ on: true, x: 3390, y: 2550, turn: 0, z: 0 });
-    expect(await setting(page, 'garage.biltong')).toEqual({ on: false, x: 580, y: 1070, turn: 90, z: 750 });
+    expect(await setting(page, 'pieces.yellow.in.garage')).toEqual({ on: true, x: 3390, y: 2550, turn: 0, z: 0 });
+    expect(await setting(page, 'pieces.biltong.in.garage')).toEqual({ on: false, x: 580, y: 1070, turn: 90, z: 750 });
     await page.locator('#garageBlock [data-reset="yellow"]').evaluate(b => b.click());
-    expect(await setting(page, 'garage.yellow')).toEqual({ on: true, x: 3390, y: 2550, turn: 0, z: 438 });
+    expect(await setting(page, 'pieces.yellow.in.garage')).toEqual({ on: true, x: 3390, y: 2550, turn: 0, z: 438 });
   });
 
   // Small Billy and Potters can stand off the wall behind them; the others can't
   test('Small Billy and Potters can stand off the wall, and be put back', async ({ page }) => {
-    expect(await setting(page, 'garage.smallBilly')).toEqual({ on: true, x: 2480, y: 0, turn: 0, off: 0 });
-    expect(await setting(page, 'garage.potters')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 0 });
+    expect(await setting(page, 'pieces.smallBilly.in.garage')).toEqual({ on: true, x: 2480, y: 0, turn: 0, off: 0 });
+    expect(await setting(page, 'pieces.potters.in.garage')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 0 });
     expect(await page.locator('#garage_sean_off').count()).toBe(0);
     await slide(page, 'garage_smallBilly_off', 25);
     await slide(page, 'garage_potters_off', 40);
-    expect(await setting(page, 'garage.smallBilly')).toEqual({ on: true, x: 2480, y: 0, turn: 0, off: 25 });
-    expect(await setting(page, 'garage.potters')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 40 });
+    expect(await setting(page, 'pieces.smallBilly.in.garage')).toEqual({ on: true, x: 2480, y: 0, turn: 0, off: 25 });
+    expect(await setting(page, 'pieces.potters.in.garage')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 40 });
     await page.locator('#garageBlock [data-reset="potters"]').evaluate(b => b.click());
-    expect(await setting(page, 'garage.potters')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 0 });
+    expect(await setting(page, 'pieces.potters.in.garage')).toEqual({ on: true, x: 3090, y: 0, turn: 0, off: 0 });
   });
 });
 

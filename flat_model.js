@@ -258,8 +258,8 @@ const LOUNGE_NOW = (() => {
 // ---------------------------------------------------------------------------
 // The settings: everything the menus set and the address saves, in one
 // place, changed by the menus only through set() (below). Laid out as the
-// configuration is (REFACTOR_PLAN.md item 14), a room at a time: the living
-// room's, the bedroom's and the hallway's so far. The cupboard's sizes keep the short names the drawing code
+// configuration is (REFACTOR_PLAN.md item 14): each schema entry maps a
+// path onto itself. The cupboard's sizes keep the short names the drawing code
 // and room_dimensions.md use; a function that draws reads the ones it needs
 // at its top, as `const { T, R, BOARD } = state.pieces.cornerCupboard.design;`.
 // What's worked out from the settings isn't kept here (the heights above
@@ -376,7 +376,6 @@ const state = {
   // shoe_boxes.js); and the bathroom and WC drawn, or hidden to see the
   // hallway and stairs past them
   hallway: { ...structuredClone(STAIR_WALLS_START), bathroomShown: true },
-  garage: structuredClone(GARAGE_START),              // Sean, Billy, BillyChest and the rest, in the garage: where each stands (garage.js)
 };
 // A piece's place in the living room, by its key in the living room's
 // controls (BACK_WALL_KEYS, the tables, the Ivar, the desk on castors):
@@ -392,6 +391,9 @@ Config.mergeInto(state, structuredClone(WICKER_BENCH_START));
 // ...and the shoe rack at the foot of the stairs: its sizes, and whether
 // it's there (shoe_rack.js)
 Config.mergeInto(state, structuredClone(SHOE_RACK_START));
+// ...and Sean, Billy, BillyChest and the rest, in the garage: where each
+// stands (garage.js)
+Config.mergeInto(state, structuredClone(GARAGE_START));
 export const inLivingRoom = key => state.pieces[LIVING_ROOM_PIECES[key] ?? key].in.livingRoom;
 
 // How far each door is open, in degrees, up to its slider's most
@@ -1905,13 +1907,6 @@ export const get = path => Config.configurationValue(entryFor(path), state);
 // For a control holding the page's own value (an option's place in OPTIONS,
 // `above`'s 0 to 4): the configuration's, for set()
 export const wordAt = (path, pageValue) => Config.wordFor(entryFor(path), pageValue);
-// A setting's path in the configuration, from its place in state, as the
-// rooms' modules name their controls' settings ('otherRoom.bed.u')
-export function pathOfSetting(setting) {
-  const entry = Config.entryOfSetting(SCHEMA, setting);
-  if (!entry) throw new Error(`no setting at state.${setting}`);
-  return entry.path;
-}
 
 
 // The dimensions' figures on show (only in a 2D view, or with the cupboard
@@ -2005,7 +2000,7 @@ export function build(onShow = optionsOnShow()) {
   drawStairWalls(state.hallway);                             // the shelves and pictures over the stairs
   drawShoeBoxes(state.hallway.shoeBoxes);                    // and the shoe boxes on the sills
   bathroom.visible = state.hallway.bathroomShown;                       // the bathroom and WC, or not
-  drawGarage(state.garage, state.pieces.pineCupboard.design);           // Sean, Billy, BillyChest and the rest, in the garage
+  drawGarage(state, state.pieces.pineCupboard.design);           // Sean, Billy, BillyChest and the rest, in the garage
   placeStored();                                                // the cupboard they go in may have changed
   return { option, same, aboveText };
 }

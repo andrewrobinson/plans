@@ -156,7 +156,7 @@ function overlap(p, q) {
   return true;
 }
 
-// The sliders, as other_room.js's: [path in state.shoeRack, label, lowest,
+// The sliders, as other_room.js's: [key in the rack (rackOf()), label, lowest,
 // highest, step, unit]
 const SIZE_SLIDERS = [...[['w', 300, 1200], ['d', 150, 500], ['h', 300, 2000]].map(([k, lo, hi]) => [k, SIZE_LABEL[k], lo, hi, 10, '']),
   ['slope', 'Shelves’ slope, down towards the window', 0, 45, 5, '°']];

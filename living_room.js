@@ -43,7 +43,7 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, deskSpot, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
   kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces,
-  placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, pathOfSetting, optionsOnShow,
+  placeStored, readConfiguration, screenMat, shelfMat, setAll, get, wordAt, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, state, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots, inLivingRoom } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
@@ -1336,35 +1336,30 @@ workOffline('sw.js');
 // through change(). The colours, the shelves' wood, the dresser's place and
 // the island go on the model too. The option's own controls, and the things
 // to store's, are show()'s.
-// The rooms' modules' controls name each setting by its path in their own
-// part of state (`within`), as 'bed.u' in state.otherRoom, each value the
-// page's: as edits, by their paths in the configuration
-const roomEdits = (within, edits) => edits.map(([path, value]) => {
-  const at = pathOfSetting(`${within}.${path}`);
-  return [at, wordAt(at, value)];
-});
 // A room's module's controls that name each setting by its path in the
 // configuration, each value the page's: as edits, the values as the
-// configuration words them
+// configuration words them. The stair walls' and the shoe boxes' name
+// theirs within the hallway's, as 'wcWall.shelves.on'
 const asWords = edits => edits.map(([path, value]) => [path, wordAt(path, value)]);
+const inHallway = edits => asWords(edits.map(([path, value]) => [`hallway.${path}`, value]));
 // The bedroom's sliders (other_room.js)
 const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomTop'), document.getElementById('otherRoomBlock'), edits => change(asWords(edits)));
-// The wicker bench's (wicker_bench.js), in state.wickerBench, as 'hallway.along'
+// The wicker bench's (wicker_bench.js), in pieces.wickerBench
 const syncWickerBench = wickerBenchControls(document.getElementById('wickerBenchBlock'), edits => change(asWords(edits), { look: true }));
-// The shoe rack's (shoe_rack.js), in state.shoeRack
+// The shoe rack's (shoe_rack.js), in pieces.shoeRack
 const syncShoeRack = shoeRackControls(document.getElementById('shoeRackBlock'), edits => change(asWords(edits), { look: true }));
 // The shelves and pictures over the stairs (stair_walls.js), in
 // state.hallway, as 'wc.shelves.count'
-const syncStairWalls = stairWallsControls(document.getElementById('stairWallsBlock'), edits => change(roomEdits('hallway', edits)));
+const syncStairWalls = stairWallsControls(document.getElementById('stairWallsBlock'), edits => change(inHallway(edits)));
 // The shoe boxes on the sills (shoe_boxes.js), in state.hallway too,
 // as 'shoeBoxes.left.length', kept clear of the walls' shelves and pictures
-const syncShoeBoxes = shoeBoxesControls(document.getElementById('shoeBoxesBlock'), edits => change(roomEdits('hallway', edits)), shoeBoxRefusal);
+const syncShoeBoxes = shoeBoxesControls(document.getElementById('shoeBoxesBlock'), edits => change(inHallway(edits)), shoeBoxRefusal);
 // The bathroom and WC shown or hidden (Hallway and stairs options), as
 // they stand in the way of seeing the hallway and stairs
 const bathroomShown = document.getElementById('bathroomShown');
 bathroomShown.addEventListener('change', () => change([['hallway.bathroomShown', bathroomShown.checked]]));
-// The garage's (garage.js), in state.garage, as 'sean.x'
-const syncGarage = garageControls(document.getElementById('garageBlock'), edits => change(roomEdits('garage', edits), { look: true }), word => {
+// The garage's (garage.js), each piece's place in.garage
+const syncGarage = garageControls(document.getElementById('garageBlock'), edits => change(asWords(edits), { look: true }), word => {
   turnDoorsTo({ garage: word });
   viewKit.writeView();                                          // the view's, as the door sliders'
 });
@@ -1413,7 +1408,7 @@ function syncControls() {
   syncStairWalls(state.hallway);
   syncShoeBoxes(state.hallway);
   bathroomShown.checked = state.hallway.bathroomShown;
-  syncGarage(state.garage);
+  syncGarage(state);
 }
 
 // ---------------------------------------------------------------------------

@@ -412,7 +412,7 @@ test.describe('the controls', () => {
     await expect(page.locator('#otherRoom_billy_along')).toHaveAttribute('min', '1010');   // half its 2020 lying
     expect(await setting(page, 'pieces.billy.in.bedroom')).toMatchObject({ wall: 'hallway', along: 2569, lying: true });
     expect(await setting(page, 'pieces.billy.in.livingRoom.on')).toBe(true);                     // the living room's kept
-    expect(await setting(page, 'garage.billy.on')).toBe(true);             // and the garage's
+    expect(await setting(page, 'pieces.billy.in.garage.on')).toBe(true);             // and the garage's
   });
 
   // BillyChest, as Billy but with no lying: in the living room
@@ -432,7 +432,7 @@ test.describe('the controls', () => {
     await expect(page.locator('#otherRoom_billyChest_along')).toHaveAttribute('min', '402.5');   // half its 805
     expect(await setting(page, 'pieces.billyChest.in.bedroom')).toMatchObject({ wall: 'window' });
     expect(await setting(page, 'pieces.billyChest.in.livingRoom.on')).toBe(true);                // the living room's kept
-    expect(await setting(page, 'garage.billyChest.on')).toBe(false);       // and the garage's, out as it starts
+    expect(await setting(page, 'pieces.billyChest.in.garage.on')).toBe(false);       // and the garage's, out as it starts
   });
 
   // The Ivar: in the lounge to start, lying by the first radiator; moved
@@ -451,7 +451,7 @@ test.describe('the controls', () => {
     await openSection(page, 'secOtherRoom_extras');
     await page.locator('#otherRoom_ivarOn').check();
     expect(await setting(page, 'pieces.ivar.in.bedroom.on')).toBe(true);
-    expect(await setting(page, 'garage.ivar')).toEqual({ on: false, x: 0, y: 1100, turn: 270 });
+    expect(await setting(page, 'pieces.ivar.in.garage')).toEqual({ on: false, x: 0, y: 1100, turn: 270 });
     expect(await setting(page, 'pieces.ivar.in.livingRoom.on')).toBe(true);                   // the lounge's kept
   });
 
