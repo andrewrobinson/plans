@@ -329,55 +329,16 @@ export function drawStairWalls(walls) {
 // ---------------------------------------------------------------------------
 const noRoom = what => `No room for ${what}: make one narrower, or move one above the other, first.`;
 
-export function stairWallsControls(container, change) {
-  const id = path => `stairWalls_${path.replace(/\./g, '_')}`;
-  const el = path => document.getElementById(id(path));
-  const sliderOf = (prefix, labelOf) => ([key, label, lo, hi, step]) => slider(id)([`${prefix}.${key}`, labelOf(key, label), lo, hi, step]);
-  const switchAndBlock = (prefix, label, sliders) =>
-    `<label class="switch"><input type="checkbox" id="${id(`${prefix}.on`)}"> ${label}</label>` +
-    `<div class="hint" id="${id(`${prefix}.blocked`)}" hidden></div>` +
-    `<div class="depth" id="${id(`${prefix}.block`)}">${sliders}</div>`;
-  const itemBlock = (wall, item) => {
-    const sliders = SLIDERS[item].map(([key, label, , , step]) => [key, label, ...rangeOf(wall, item, key).slice(0, 2), step])
-      .map(sliderOf(`${wall}.${item}`, (key, label) => (key === 'along' ? `${label} ${WALLS[wall].alongFrom}` : label))).join('');
-    const replaced = item === 'shelves' && CORNER_WALLS.includes(wall)
-      ? `<div class="hint" id="${id(`${wall}.shelves.replaced`)}" hidden>The L-shaped shelves are on, in place of these (below).</div>` : '';
-    return switchAndBlock(`${wall}.${item}`, item === 'shelves' ? 'Shelves' : 'A picture', sliders) + replaced;
-  };
-  container.innerHTML = WALL_KEYS.map(wall =>
-    `<div class="depth"><div><b>${WALLS[wall].label}</b></div><div class="hint">${WALLS[wall].where}</div>` +
-    `${itemBlock(wall, 'shelves')}${itemBlock(wall, 'picture')}</div>`).join('') +
-    `<div class="depth"><div><b>L-shaped shelves</b></div><div class="hint">One set of shelves along the TV wall and the WC wall, joined in the corner where they meet. While on, it takes the place of those walls’ own shelves.</div>` +
-    `${switchAndBlock('cornerShelves', 'L-shaped shelves', CORNER_SLIDERS.map(sliderOf('cornerShelves', (key, label) => label)).join(''))}</div>`;
+// The controls' ids, by their paths in the hallway's settings
+const id = path => `stairWalls_${path.replace(/\./g, '_')}`;
+const el = path => document.getElementById(id(path));
 
+export function stairWallsControls(container, change) {
+  container.innerHTML = menuHtml();
   let shown = null;                                                    // the settings last put in the controls
-  const showSliders = (prefix, sliders, now) => {
-    for (const [key] of sliders) {
-      el(`${prefix}.${key}`).value = String(now[key]);
-      document.getElementById(`${id(`${prefix}.${key}`)}Value`).textContent = String(now[key]);
-    }
-  };
-  const showSwitch = (prefix, now) => {
-    el(`${prefix}.on`).checked = now.on;
-    el(`${prefix}.blocked`).hidden = true;
-    el(`${prefix}.block`).hidden = !now.on;
-  };
   const sync = s => {
     shown = s;
-    for (const wall of WALL_KEYS) {
-      for (const item of ITEMS) {
-        showSwitch(`${wall}.${item}`, s[wall][item]);
-        showSliders(`${wall}.${item}`, SLIDERS[item], s[wall][item]);
-      }
-      if (CORNER_WALLS.includes(wall)) {                               // its own shelves out of use while the L is on
-        const replaced = s.cornerShelves.on;
-        el(`${wall}.shelves.on`).disabled = replaced;
-        el(`${wall}.shelves.replaced`).hidden = !replaced;
-        if (replaced) el(`${wall}.shelves.block`).hidden = true;
-      }
-    }
-    showSwitch('cornerShelves', s.cornerShelves);
-    showSliders('cornerShelves', CORNER_SLIDERS, s.cornerShelves);
+    showSettings(s);
   };
   const refuse = (prefix, why) => {
     sync(shown);
@@ -402,6 +363,62 @@ export function stairWallsControls(container, change) {
     if (asked.on && cornerMeetsBox(shown, asked)) return refuse('cornerShelves', noRoom('the L-shaped shelves above the shoe boxes on the sills'));
     change(editsTo('cornerShelves', asked));
   };
+  listen(edit, editCorner);
+  return sync;
+}
+
+// The menu's HTML: each wall's shelves and picture, then the L
+function menuHtml() {
+  const sliderOf = (prefix, labelOf) => ([key, label, lo, hi, step]) => slider(id)([`${prefix}.${key}`, labelOf(key, label), lo, hi, step]);
+  const switchAndBlock = (prefix, label, sliders) =>
+    `<label class="switch"><input type="checkbox" id="${id(`${prefix}.on`)}"> ${label}</label>` +
+    `<div class="hint" id="${id(`${prefix}.blocked`)}" hidden></div>` +
+    `<div class="depth" id="${id(`${prefix}.block`)}">${sliders}</div>`;
+  const itemBlock = (wall, item) => {
+    const sliders = SLIDERS[item].map(([key, label, , , step]) => [key, label, ...rangeOf(wall, item, key).slice(0, 2), step])
+      .map(sliderOf(`${wall}.${item}`, (key, label) => (key === 'along' ? `${label} ${WALLS[wall].alongFrom}` : label))).join('');
+    const replaced = item === 'shelves' && CORNER_WALLS.includes(wall)
+      ? `<div class="hint" id="${id(`${wall}.shelves.replaced`)}" hidden>The L-shaped shelves are on, in place of these (below).</div>` : '';
+    return switchAndBlock(`${wall}.${item}`, item === 'shelves' ? 'Shelves' : 'A picture', sliders) + replaced;
+  };
+  return WALL_KEYS.map(wall =>
+    `<div class="depth"><div><b>${WALLS[wall].label}</b></div><div class="hint">${WALLS[wall].where}</div>` +
+    `${itemBlock(wall, 'shelves')}${itemBlock(wall, 'picture')}</div>`).join('') +
+    `<div class="depth"><div><b>L-shaped shelves</b></div><div class="hint">One set of shelves along the TV wall and the WC wall, joined in the corner where they meet. While on, it takes the place of those walls’ own shelves.</div>` +
+    `${switchAndBlock('cornerShelves', 'L-shaped shelves', CORNER_SLIDERS.map(sliderOf('cornerShelves', (key, label) => label)).join(''))}</div>`;
+}
+
+// The settings `s` in the controls
+function showSettings(s) {
+  const showSliders = (prefix, sliders, now) => {
+    for (const [key] of sliders) {
+      el(`${prefix}.${key}`).value = String(now[key]);
+      document.getElementById(`${id(`${prefix}.${key}`)}Value`).textContent = String(now[key]);
+    }
+  };
+  const showSwitch = (prefix, now) => {
+    el(`${prefix}.on`).checked = now.on;
+    el(`${prefix}.blocked`).hidden = true;
+    el(`${prefix}.block`).hidden = !now.on;
+  };
+  for (const wall of WALL_KEYS) {
+    for (const item of ITEMS) {
+      showSwitch(`${wall}.${item}`, s[wall][item]);
+      showSliders(`${wall}.${item}`, SLIDERS[item], s[wall][item]);
+    }
+    if (CORNER_WALLS.includes(wall)) {                                 // its own shelves out of use while the L is on
+      const replaced = s.cornerShelves.on;
+      el(`${wall}.shelves.on`).disabled = replaced;
+      el(`${wall}.shelves.replaced`).hidden = !replaced;
+      if (replaced) el(`${wall}.shelves.block`).hidden = true;
+    }
+  }
+  showSwitch('cornerShelves', s.cornerShelves);
+  showSliders('cornerShelves', CORNER_SLIDERS, s.cornerShelves);
+}
+
+// Each control to its edit: a wall's (edit(wall, item, key, value)) or the L's (editCorner(key, value))
+function listen(edit, editCorner) {
   for (const wall of WALL_KEYS) {
     for (const item of ITEMS) {
       el(`${wall}.${item}.on`).addEventListener('change', e => edit(wall, item, 'on', e.target.checked));
@@ -410,5 +427,4 @@ export function stairWallsControls(container, change) {
   }
   el('cornerShelves.on').addEventListener('change', e => editCorner('on', e.target.checked));
   for (const [key] of CORNER_SLIDERS) el(`cornerShelves.${key}`).addEventListener('input', e => editCorner(key, Number(e.target.value)));
-  return sync;
 }

@@ -65,8 +65,10 @@ Nothing else is on a track. `notes/ui_paradigm_analysis.md`'s
 recommendations 3, 4 and 6 are on no list yet.
 
 As you go (CLAUDE.md): a function's numbers named and long functions split
-when they're next changed; `stairWallsControls()` (about 80 lines) is the
-first.
+when they're next changed. `stairWallsControls()` and
+`drawHallwayAndStairs()` split (22 Oct 2026); the longest left are kits'
+factories, long for their small inner functions: `flatViews()` and
+`cameraControls()` (about 100 lines each), `cupboardControls()` (90).
 
 Any time:
 
