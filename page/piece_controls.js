@@ -297,6 +297,11 @@ tvSlider.addEventListener('input', () => change([['pieces.aboveBench.design.tv',
 // The radios hold the page's 0 to 4
 const ABOVE = 'pieces.aboveBench.design.what';
 document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => change([[ABOVE, r.value]])));
+// The shelves over the desk: how many, and how deep
+const DESK_SHELVES = 'pieces.deskShelves.design';
+document.querySelectorAll('input[name=deskShelves]').forEach(r => r.addEventListener('change', () => change([[`${DESK_SHELVES}.count`, Number(r.value)]])));
+const deskShelfSlider = document.getElementById('deskShelfDepth');
+deskShelfSlider.addEventListener('input', () => change([[`${DESK_SHELVES}.depth`, Number(deskShelfSlider.value)]]));
 
 let xray = false;
 const xraySwitch = document.getElementById('xray');

@@ -135,6 +135,12 @@ window.ROOM_CONFIGURATIONS = {
               "tv": 75
             }
           },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
+            }
+          },
           "dresser": {
             "design": {
               "w": 1000,
@@ -822,6 +828,12 @@ window.ROOM_CONFIGURATIONS = {
               "tv": 75
             }
           },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
+            }
+          },
           "dresser": {
             "design": {
               "w": 1000,
@@ -1462,6 +1474,12 @@ window.ROOM_CONFIGURATIONS = {
               "what": "tvAndTopShelf",
               "shelfDepth": 250,
               "tv": 75
+            }
+          },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
             }
           },
           "dresser": {
@@ -2141,6 +2159,12 @@ window.ROOM_CONFIGURATIONS = {
               "what": "tvAndTopShelf",
               "shelfDepth": 250,
               "tv": 75
+            }
+          },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
             }
           },
           "dresser": {
@@ -2824,6 +2848,12 @@ window.ROOM_CONFIGURATIONS = {
               "tv": 75
             }
           },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
+            }
+          },
           "dresser": {
             "design": {
               "w": 1000,
@@ -3457,6 +3487,12 @@ window.ROOM_CONFIGURATIONS = {
               "what": "tvAndTopShelf",
               "shelfDepth": 250,
               "tv": 75
+            }
+          },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
             }
           },
           "dresser": {
@@ -4094,6 +4130,12 @@ window.ROOM_CONFIGURATIONS = {
               "tv": 75
             }
           },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
+            }
+          },
           "dresser": {
             "design": {
               "w": 1000,
@@ -4728,6 +4770,12 @@ window.ROOM_CONFIGURATIONS = {
               "what": "tvAndShelves",
               "shelfDepth": 250,
               "tv": 75
+            }
+          },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
             }
           },
           "dresser": {
@@ -5408,6 +5456,12 @@ window.ROOM_CONFIGURATIONS = {
               "tv": 75
             }
           },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
+            }
+          },
           "dresser": {
             "design": {
               "w": 1000,
@@ -6041,6 +6095,12 @@ window.ROOM_CONFIGURATIONS = {
               "what": "tvAndShelves",
               "shelfDepth": 250,
               "tv": 75
+            }
+          },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
             }
           },
           "dresser": {
@@ -6719,6 +6779,12 @@ window.ROOM_CONFIGURATIONS = {
               "what": "tvAndShelves",
               "shelfDepth": 250,
               "tv": 75
+            }
+          },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
             }
           },
           "dresser": {
@@ -7403,6 +7469,12 @@ window.ROOM_CONFIGURATIONS = {
               "tv": 75
             }
           },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
+            }
+          },
           "dresser": {
             "design": {
               "w": 1000,
@@ -8083,6 +8155,12 @@ window.ROOM_CONFIGURATIONS = {
               "what": "nothing",
               "shelfDepth": 250,
               "tv": 75
+            }
+          },
+          "deskShelves": {
+            "design": {
+              "count": 0,
+              "depth": 250
             }
           },
           "dresser": {

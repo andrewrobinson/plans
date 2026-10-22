@@ -13,13 +13,16 @@ import {
 } from '../floor.js';
 import { config, world } from './state.js';
 import { frontFrom, frontGap } from './front_wall.js';
-import { handleMat, islandMat, islandTopMat, kitchenMat, roomDoorMat, worktopMat } from './materials.js';
+import { handleMat, islandMat, islandTopMat, kitchenMat, roomDoorMat, shelfMat, worktopMat } from './materials.js';
 
 
 let deskChair = null;            // the office chair
 let tornvikenIsland = null;              // the kitchen island (tornviken.js): its group, layouts and chairs
 let builtInIsland = null;        // or the custom one (custom_island.js)
 let islandGroup = null;          // the group holding both, which moves
+// The monitors on the desk in the desk recess: their tops 550 above the
+// desk (measured)
+const MONITOR_TOP = DESK_TOP + 550;
 const CHAIR_TURN = THREE.MathUtils.degToRad(-160);   // as it stands: facing back into the room, 20° towards the door
 // The kitchen and island as they are, as rough blocks in their real colours
 // for comparing with the cupboard options: an L of 590-deep units in the
@@ -87,7 +90,7 @@ const KITCHEN = {
   for (const x of [dx0 + 50, dx1 - 90]) box({ from: [x, deskFront + 80, 0], to: [x + 40, dBack - 80, DESK_TOP - DESK_TOP_T] }, deskMat, world);  // legs
   // Two monitors (measured): screens 610 wide x 360 high, tops 550 above the
   // desk, spaced evenly across it
-  const MON_W = 610, MON_H = 360, monTop = DESK_TOP + 550, gap = (DESK_W - 2 * MON_W) / 3;
+  const MON_W = 610, MON_H = 360, monTop = MONITOR_TOP, gap = (DESK_W - 2 * MON_W) / 3;
   // They stand on a riser (measured): 1080 wide (centred on the desk), 230
   // deep, 100 high, black, starting 80 from the back of the recess. The screens
   // stay at their measured height, so the stands are shorter
@@ -117,6 +120,23 @@ const KITCHEN = {
   builtInIsland = customIsland(kitchenMat);
   islandGroup = new THREE.Group();
   world.add(islandGroup);
+}
+
+// Shelves over the desk, right across the desk recess wall to wall, against
+// its back: none, one or two, in the shelves' wood and as thick as the TV
+// wall's. Spaced as the TV wall's are (chosen): the first 350 above the
+// monitors' tops, the second 350 above that, which leaves 363 to the ceiling
+const DESK_SHELF_COUNTS = [0, 1, 2];
+const DESK_SHELF_PITCH = 350, DESK_SHELF_T = 25;
+const DESK_SHELF_TOPS = [1, 2].map(k => MONITOR_TOP + k * DESK_SHELF_PITCH);
+const deskShelfTops = () => DESK_SHELF_TOPS.slice(0, config.pieces.deskShelves.design.count);
+function deskShelves(g) {
+  const { count, depth } = config.pieces.deskShelves.design;
+  if (count === 0) return '';
+  const back = ROOM_DEPTH + DESK_RECESS.depth, span = ROOM_WIDTH - DESK_RECESS.x0, tops = deskShelfTops();
+  for (const top of tops) box({ from: [DESK_RECESS.x0, back - depth, top - DESK_SHELF_T], to: [ROOM_WIDTH, back, top] }, shelfMat, g);
+  return count === 1 ? ` Over the desk: a ${depth}-deep shelf right across the recess, ${span} long, at ${tops[0]}.`
+    : ` Over the desk: ${depth}-deep shelves right across the recess, ${span} long, at ${tops.join(' and ')}.`;
 }
 
 // Room door: 760 x 44 x 1978, hinged at (0, 1400), opens into the room
@@ -174,6 +194,6 @@ function placeIsland() {
 
 // What the other pieces of the model use
 export {
-  CHAIR_TURN, ISLAND_AT, ISLAND_CHAIRS, ISLAND_LAYOUTS, ISLAND_TYPES, KITCHEN, deskChair, islandGroup, islandOnWall, islandSize, islandSpot,
-  placeIsland, roomHinge
+  CHAIR_TURN, DESK_SHELF_COUNTS, ISLAND_AT, ISLAND_CHAIRS, ISLAND_LAYOUTS, ISLAND_TYPES, KITCHEN, MONITOR_TOP, deskChair, islandGroup, islandOnWall, islandSize, islandSpot,
+  deskShelfTops, deskShelves, placeIsland, roomHinge
 };

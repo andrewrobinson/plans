@@ -13,7 +13,7 @@ import { SHOE_BOXES_SCHEMA } from '../shoe_boxes.js';
 import { GARAGE_DOOR, GARAGE_SCHEMA } from '../garage.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, OTHER_ROOM, hallway } from '../floor.js';
 import { DOORS_START, config, doors } from './state.js';
-import { ISLAND_AT, ISLAND_CHAIRS, ISLAND_LAYOUTS, ISLAND_TYPES } from './kitchen.js';
+import { DESK_SHELF_COUNTS, ISLAND_AT, ISLAND_CHAIRS, ISLAND_LAYOUTS, ISLAND_TYPES } from './kitchen.js';
 import {
   BEDROOM_ALONG_BREAST, BEDROOM_PLACE, SHELF_WOODS, bedroomCupboard, cupboardLimits, shelfTopsOf, spotFits
 } from './cupboards.js';
@@ -139,6 +139,9 @@ const LIVING_ROOM_SCHEMA = [
   Config.choice('pieces.aboveBench.design.what', ABOVE_BENCH),
   fromSlider('pieces.aboveBench.design.shelfDepth', 'shelfDepth'),
   Config.choice('pieces.aboveBench.design.tv', TV_SIZES.map(([inches]) => inches)),
+  // The shelves over the desk: how many, and how deep
+  Config.choice('pieces.deskShelves.design.count', DESK_SHELF_COUNTS),
+  fromSlider('pieces.deskShelves.design.depth', 'deskShelfDepth'),
   // The dresser, the larder and the sofa: each a model from dressers.js,
   // larders.js or sofas.js, and its sizes (the larder's and the sofa's held
   // to their sliders' ends)

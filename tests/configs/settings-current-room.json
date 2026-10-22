@@ -116,6 +116,12 @@
           "tv": 86
         }
       },
+      "deskShelves": {
+        "design": {
+          "count": 0,
+          "depth": 250
+        }
+      },
       "dresser": {
         "design": {
           "w": 1370,

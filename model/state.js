@@ -228,6 +228,10 @@ const config = {
     // The speakers (speakers.js), a pair: on nothing to start ('none'), or
     // on one of SPEAKER_PLACES; and on the bench, Billy and the daybed, the distance
     // between their middles, or null for where they start there
+    // The shelves over the desk in the desk recess (model/kitchen.js): how
+    // many (0, 1 or 2, one of DESK_SHELF_COUNTS) and how deep (150 to 400;
+    // 250 to start, as the TV wall's)
+    deskShelves: { design: { count: 0, depth: 250 } },
     speakers: { in: { livingRoom: { on: 'none', spacing: { bench: null, billy: null, deskDaybed: null } } } },
   },
   colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0,   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them

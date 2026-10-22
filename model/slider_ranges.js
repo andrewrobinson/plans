@@ -17,6 +17,7 @@ const SLIDER_RANGES = {
   shelfDepth: [150, 400, 10], islandTurn: [0, 180, 5], sofaFront: [1000, 3500, 50],
   islandLength: [1200, 3000, 10], islandWidth: [600, 1200, 10],   // the custom island's worktop (chosen: round Howdens' 2400 x 950)
   islandOverhang: [400, 800, 10],   // and how far it runs past the units (the user's, 22 Oct 2026: the plan's 2400 over a 1600 carcass is 800)
+  deskShelfDepth: [150, 400, 10],   // the desk shelves', as the TV wall's shelves' (shelfDepth)
   speakerSpacing: [400, 3000, 10],   // between the speakers' middles, chosen: their 170 wide apart, to past the TV's width
   bedroomDoorMustOpenTo: [45, 90, 1],   // swinging left, how far the bedroom door must open: from half open (chosen) to flat along the wall
 };

@@ -67,7 +67,7 @@ import {
   DOORS_START, config, cupboardOnly, cupboardSettings, doors, drawn, flat, flatRoom, flatView, setDisplay, 
   showDims, showDoorDims, world
 } from './model/state.js';
-import { CHAIR_TURN, deskChair, islandGroup, islandOnWall, placeIsland, roomHinge } from './model/kitchen.js';
+import { CHAIR_TURN, deskChair, deskShelves, islandGroup, islandOnWall, placeIsland, roomHinge } from './model/kitchen.js';
 import {
   LIVING_ROOM_PLACE, SHELF_WOODS, bedroomCupboard, bedroomDoor, bedroomDoorOpensTo, buildBedroomCupboard, 
   buildOption, cupboard, drawBench, keepTvPlace, livingGroup, mustOpenTo, optionsOnShow, readShelves, 
@@ -183,7 +183,7 @@ export function build(onShow = optionsOnShow()) {
   const besideBench = onBackWall().filter(key => !benchStandIns().includes(key));   // the pine cupboard by the door
   const backWall = benchDrawn() ? besideBench.map(key => pieceOnBenchWall(key, clearFrom, group)).join('') + benchWall(clearFrom, group)
     : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('') + tvAboveDaybed(group);
-  const aboveText = backWall + frontWall(group) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + firstRadiator() + chairAtDaybedDesk();
+  const aboveText = backWall + frontWall(group) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + deskShelves(group) + firstRadiator() + chairAtDaybedDesk();
   if (!same) doors.second = 0;
   drawOtherRoom(config);                                         // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard

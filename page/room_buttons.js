@@ -246,6 +246,10 @@ function syncControls() {
   check('bench', BENCH);
   check('above', above);
   slide('shelfDepth', shelfDepth);
+  const deskShelves = config.pieces.deskShelves.design;
+  check('deskShelves', deskShelves.count);
+  slide('deskShelfDepth', deskShelves.depth);
+  document.getElementById('deskShelfBlock').style.display = deskShelves.count ? '' : 'none';
   slide('tvSize', TV_SIZES.findIndex(([inches]) => inches === tv), `${tv}" (${TV_W} × ${TV_H})`);
   refreshColours();
   showShelfWood();

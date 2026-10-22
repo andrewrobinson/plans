@@ -13,7 +13,7 @@ import {
   ROOM_BOXES, config, cupboardOnly, cupboardSettings, flat, flatRoom, flatView, inLivingRoom, showDims, 
   showDoorDims, world
 } from './state.js';
-import { KITCHEN } from './kitchen.js';
+import { KITCHEN, MONITOR_TOP, deskShelfTops } from './kitchen.js';
 import { bedroomDoor, cupboard, cupboardOf } from './cupboards.js';
 import {
   BACK_WALL_PIECES, SHELF_TOPS, TV_BOTTOM, TV_GAP, TV_H, TV_MIDDLE_SHELF, TV_SHELF_TOPS, TV_W, aboveHasShelves, 
@@ -100,7 +100,7 @@ function updateDims() {
     chain([KITCHEN_RECESS_BACK_WALL_X, alcove.x[1], KITCHEN.frontRunTo + KITCHEN.counterPast, ...(piece ? [piece.x0, piece.x1] : []), DESK_RECESS.x0, ROOM_WIDTH], (v, off) => P(v, ROOM_DEPTH, -200 - off), dims);
     if (piece) chain(piece.heights, (v, off) => P(piece.x0 + 200 + off, ROOM_DEPTH, v), dims);   // on its face
     chain([0, worktop, alcove.top, CEILING_HEIGHT], (v, off) => P(KITCHEN_RECESS_BACK_WALL_X - 250 - off, ROOM_DEPTH, v), dims);   // the kitchen side
-    chain([0, DESK_TOP, DESK_TOP + 550, CEILING_HEIGHT], (v, off) => P(ROOM_WIDTH + 250 + off, ROOM_DEPTH, v), dims);     // the desk and monitor tops
+    chain([0, DESK_TOP, MONITOR_TOP, ...deskShelfTops(), CEILING_HEIGHT], (v, off) => P(ROOM_WIDTH + 250 + off, ROOM_DEPTH, v), dims);     // the desk, monitor and shelf tops
   } else if (flatView === 'right') {
     const { windows, sill, top, radiator, end } = OUTER;
     chain([0, ...windows.flatMap(w => w.y), ROOM_DEPTH, end], (v, off) => P(ROOM_WIDTH, v, -200 - off), dims);

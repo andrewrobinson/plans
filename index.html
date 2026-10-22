@@ -394,6 +394,19 @@
           <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
         </div>
       </details>
+      <details class="sec" id="secDeskShelves">
+        <summary>Desk shelves</summary>
+        <div>Over the monitors, right across the desk recess:
+          <span class="seg" role="radiogroup" aria-label="Desk shelves">
+          <label><input type="radio" name="deskShelves" value="0"> None</label>
+          <label><input type="radio" name="deskShelves" value="1"> 1</label>
+          <label><input type="radio" name="deskShelves" value="2"> 2</label></span>
+        </div>
+        <div id="deskShelfBlock" class="depth">
+          <label for="deskShelfDepth">Shelf depth: <span id="deskShelfDepthValue">250</span></label>
+          <input id="deskShelfDepth" type="range" min="150" max="400" step="10" value="250">
+        </div>
+      </details>
       <details class="sec" id="secFrontWall" open>
         <summary>The front wall and the island</summary>
         <div id="islandBlock" class="depth">Kitchen island:
