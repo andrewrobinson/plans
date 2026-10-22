@@ -43,7 +43,7 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   TV_H, TV_SIZES, TV_W, benchDrawn, carcassMat, colourOf, configurationNow, cornerTooShallow,
   cupboard, cupboardPart, cupboardSettings, currentSofa, cuttingList, deskChair, deskSpot, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat, islandOnWall, islandTopMat,
-  kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces,
+  kitchenMat, larderHeight, larderOwnSize, oakMat, onBackWall, benchStandIns, optionOf, namedPieces, pieceBoxes, pieces,
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, config, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots, inLivingRoom, aboveHasTv, aboveHasShelves, NO_SOFA,
@@ -684,6 +684,9 @@ cupboardOnlySwitch.addEventListener('change', () => {
 // The bench: drawn, or not (and nothing above it)
 const benchSwitch = document.getElementById('benchOn');
 benchSwitch.addEventListener('change', () => change([['pieces.bench.in.livingRoom.on', benchSwitch.checked]], { look: true }));
+// The radiator under the first window: in, or taken out
+const firstRadiatorSwitch = document.getElementById('firstRadiatorOn');
+firstRadiatorSwitch.addEventListener('change', () => change([['livingRoom.firstRadiator', firstRadiatorSwitch.checked]], { look: true }));
 // The bookshelf and the pine cupboard, in place of the bench. While either
 // is on, the Bench switch is off and can't be changed; benchOn is kept, for
 // when they're off again. Moving one, and turning it in quarter turns: the
@@ -1434,7 +1437,8 @@ function syncControls() {
   loungeCupboard.sync();
   bedroomCupboardControls.sync();
   benchSwitch.checked = benchDrawn();
-  benchSwitch.disabled = onBackWall().length > 0;
+  firstRadiatorSwitch.checked = config.livingRoom.firstRadiator;
+  benchSwitch.disabled = benchStandIns().length > 0;
   for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = inLivingRoom(key).on;
   billyLying.checked = config.pieces.billy.in.livingRoom.lying;
   deskDaybedRight.checked = config.pieces.deskDaybed.design.deskAt === 'right';

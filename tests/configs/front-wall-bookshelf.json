@@ -12,7 +12,8 @@
       "shelves": 0
     },
     "livingRoom": {
-      "frontWall": "bookshelf"
+      "frontWall": "bookshelf",
+      "firstRadiator": true
     },
     "pieces": {
       "cornerCupboard": {

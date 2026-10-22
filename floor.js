@@ -131,7 +131,6 @@ function drawOuterWall() {
     face(t, y1 - y0, brickMat, mid, top, ROOM_WIDTH + reveal + t / 2, [Math.PI / 2, 0]);
     face(t, y1 - y0, brickMat, mid, sill, ROOM_WIDTH + reveal + t / 2, [-Math.PI / 2, 0]);
   }
-  const radMat = material(0xf6f6f4);
   for (const { y: [y0, y1] } of windows) {
     const mid = (y0 + y1) / 2, wide = y1 - y0;
     face(wide, top - sill, glassMat, mid, (sill + top) / 2, ROOM_WIDTH + reveal);                       // glass, at the back of the reveal
@@ -139,8 +138,16 @@ function drawOuterWall() {
     face(reveal, top - sill, wallMat, y1, (sill + top) / 2, ROOM_WIDTH + reveal / 2, [0, Math.PI]);
     face(reveal, wide, wallMat, mid, top, ROOM_WIDTH + reveal / 2, [Math.PI / 2, 0]);                  // reveal top, facing down
     box({ from: [ROOM_WIDTH - 30, y0 - 30, sill - 25], to: [ROOM_WIDTH + reveal, y1 + 30, sill] }, frameMat, floor);               // window sill
-    box({ from: [ROOM_WIDTH - radiator.out, mid - radiator.width / 2, radiator.bottom], to: [ROOM_WIDTH - radiator.out + radiator.thick, mid + radiator.width / 2, radiator.top] }, radMat, floor);  // radiator
   }
+  windows.forEach((w, k) => { radiators[k] = drawRadiator(k); });
+}
+// The radiators, one under each window (0 nearest the back wall); the
+// first can be taken out, so it's hidden (flat_model.js's firstRadiator())
+export const radiators = [];
+const radMat = material(0xf6f6f4);
+function drawRadiator(k) {
+  const { windows, radiator } = OUTER, mid = (windows[k].y[0] + windows[k].y[1]) / 2;
+  return box({ from: [ROOM_WIDTH - radiator.out, mid - radiator.width / 2, radiator.bottom], to: [ROOM_WIDTH - radiator.out + radiator.thick, mid + radiator.width / 2, radiator.top] }, radMat, floor);
 }
 
 // ---------------------------------------------------------------------------

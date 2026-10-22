@@ -775,7 +775,7 @@ export const OPTIONS = [
     source: 'the room as it is now',
     clearFrom: () => 0,                                           // what's above the bench goes on the bare back wall
     benchFrom: () => 0,
-    summary: ({ R }, { width }) => `The room as it is now, with no cupboards. Bench ${width}, the whole back wall, ${R} deep. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk.`,
+    summary: ({ R }, { width }, { benchFrom = 0 } = {}) => `The room as it is now, with no cupboards. Bench ${width - benchFrom}, ${benchFrom ? `from x ${benchFrom} (past the pine cupboard by the door) to the right-hand wall` : 'the whole back wall'}, ${R} deep. Oak floor, Crown Gallery White walls, Pure Brilliant White door, frame and ceiling, and the kitchen, island and desk.`,
     build() {
       return {};
     },

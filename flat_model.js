@@ -46,7 +46,7 @@ import { floor, drawFloor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, floo
   KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, SINK_RECESS, DESK_TOP,
   DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat,
   ceilingMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinges, drawBedroomDoorSwing, carpetMat, CARPET_COLOURS,
-  HALLWAY, hallway, ENTRANCE, bathroom, flatDoorHinge, outsideDoorHinge } from './floor.js';
+  HALLWAY, hallway, ENTRANCE, bathroom, flatDoorHinge, outsideDoorHinge, radiators } from './floor.js';
 
 // Everything drawn: the flat, the hallway and stairs, the garage, in the
 // scene's metres (room (x, y, z) mm -> (x, z, y) / 1000)
@@ -369,7 +369,8 @@ const config = {
   },
   colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0,   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
     shelves: 0 },                  // the shelves' wood, which of SHELF_WOODS
-  livingRoom: { frontWall: 'none' },   // on the front wall between the sink and the desk: one of FRONT_PIECES (none yet)
+  livingRoom: { frontWall: 'none',     // on the front wall between the sink and the desk: one of FRONT_PIECES (none yet)
+    firstRadiator: true },             // the radiator under the first window, which could be taken out (asked for, 22 Oct 2026)
   // The bedroom's door: which way it swings going in, 'right' as it is or
   // 'left' (bedroom_door.js); swinging left, how far it must be able to
   // open, which the new cupboard keeps clear of (chosen to start: right
@@ -866,6 +867,7 @@ function placePiece(g) {
 // The configuration names them as here.
 const FRONT_PIECES = ['dresser', 'larder', 'none', 'bookshelf'];
 const pieces = { dresser: null, larder: null, sofa: null, ivar: null, chesham: null, cornwall: null, castorDesk: null, speakers: null, workChair: null };
+let radiatorDrawn = null;          // the first window's radiator, while it's in (floor.js draws it)
 let backWallDrawn = {};            // the back wall's pieces as drawn, by their keys   // where each is drawn now, to look at
 const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;
 const frontGap = () => DESK_RECESS.x0 - frontFrom();             // 1415
@@ -1069,7 +1071,7 @@ function aboveHeights(x0) {
 // it, or the bookcase's top in its place (unless it's been moved off the
 // wall), or nothing with neither
 function backWallHeights(option) {
-  if (benchDrawn()) return [config.pieces.bench.design.height, ...aboveHeights(option.clearFrom(cupboardSettings()))];
+  if (benchDrawn()) return [config.pieces.bench.design.height, ...aboveHeights(wallClearFrom(option))];
   const againstWall = key => { const m = inLivingRoom(key).move; return !m || (m.y === 0 && m.turn === 0); };
   return onBackWall().filter(againstWall).map(key => BACK_WALL_PIECES[key].sizes().h);
 }
@@ -1089,7 +1091,7 @@ function updateDims() {
   world.add(dims);
   const BENCH = config.pieces.bench.design.height, { what: above, shelfDepth } = config.pieces.aboveBench.design, { T, R, F } = config.pieces.cornerCupboard.design;
   const option = optionOf(config.pieces.cornerCupboard.design.option), settings = cupboardSettings();
-  const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks(settings) : []), option.benchFrom(settings), option.clearFrom(settings), ROOM_WIDTH];
+  const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks(settings) : []), benchStart(option), wallClearFrom(option), ROOM_WIDTH];
   const alongLeft = [0, R, ...(option.front ? [option.front(settings)] : T || option.fixedWidth ? [F] : []), DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, DOOR_HINGE_AT + ROOM_DOOR, FRAME_END];
   if (flatView === 'plan' && flatRoom === 'bedroom') {
     bedroomPlanDims(dims);
@@ -1544,8 +1546,27 @@ const clearTo = () => (pineInCorner() ? ROOM_WIDTH - config.pieces.pineCupboard.
 const BACK_WALL_KEYS = Object.keys(BACK_WALL_PIECES);
 const FACING = { 0: 'the front wall', 90: 'the left wall', 180: 'the back wall', 270: 'the right wall' };
 const onBackWall = () => BACK_WALL_KEYS.filter(key => inLivingRoom(key).on);
+// The pine cupboard in the corner by the door, standing in for the corner
+// cupboard there (route b in PERMUTATIONS.md, 22 Oct 2026): moved, its back
+// to the left wall (facing the right wall), no further from it than
+// PINE_BY_DOOR_X. There it isn't in the bench's place: the bench, and what's
+// above it, start past it
+const PINE_BY_DOOR_X = 100;          // its back's furthest from the left wall, to count as against it (chosen: it stands 60 off)
+const FACING_RIGHT_WALL = 270;
+function pineByTheDoor() {
+  const { on, move } = inLivingRoom('pine');
+  return on && Boolean(move) && move.turn === FACING_RIGHT_WALL && move.x <= PINE_BY_DOOR_X;
+}
+// The back wall's pieces standing in the bench's place
+const benchStandIns = () => onBackWall().filter(key => key !== 'pine' || !pineByTheDoor());
+// Past the pine cupboard by the door, if it's there
+const pastPine = x => (pineByTheDoor() ? Math.max(x, inLivingRoom('pine').move.x + config.pieces.pineCupboard.design.d) : x);
+// Where the bench starts, and where the back wall above it is clear from,
+// for the option: past its cupboards, and past the pine cupboard by the door
+const benchStart = option => pastPine(option.benchFrom(cupboardSettings()));
+const wallClearFrom = option => pastPine(option.clearFrom(cupboardSettings()));
 // The bench is drawn when it's on and nothing stands in its place
-const benchDrawn = () => config.pieces.bench.in.livingRoom.on && onBackWall().length === 0;
+const benchDrawn = () => config.pieces.bench.in.livingRoom.on && benchStandIns().length === 0;
 const spotOf = key => inLivingRoom(key).move ?? BACK_WALL_PIECES[key].home(optionOf(config.pieces.cornerCupboard.design.option).clearFrom(cupboardSettings()), BACK_WALL_PIECES[key].sizes().w);
 // Draw one, clear of the bench wall from x0. Returns a sentence for the summary.
 function pieceOnBenchWall(key, x0, g) {
@@ -1557,6 +1578,7 @@ function pieceOnBenchWall(key, x0, g) {
   g.add(piece);
   backWallDrawn[key] = piece;
   const named = `${name} (${w} wide, ${d} deep, ${h} high)`;
+  if (key === 'pine' && pineByTheDoor()) return ` ${named} in the corner by the door, standing in for a corner cupboard: the middle of its back at x ${x}, y ${y}, facing ${FACING[turn]}.`;
   if (moved) return ` ${named} in place of the bench, moved: the middle of its back at x ${x}, y ${y}, facing ${FACING[turn]}.`;
   return ` ${named} on the back wall, ${homeText(x0, w)}.`;
 }
@@ -1605,14 +1627,22 @@ function obstacles(daybed) {
   const wall = (x0, y0, x1, y1) => new THREE.Box3(new THREE.Vector3(x0 * MM, 0, y0 * MM), new THREE.Vector3(x1 * MM, CEILING_HEIGHT * MM, y1 * MM));
   const found = [[WALL_NAMES.left, wall(-solid, 0, 0, ROOM_DEPTH)], [WALL_NAMES.right, wall(ROOM_WIDTH, 0, ROOM_WIDTH + solid, ROOM_DEPTH)],
     [WALL_NAMES.back, wall(0, -solid, ROOM_WIDTH, 0)], [WALL_NAMES.front, wall(0, ROOM_DEPTH, ROOM_WIDTH, ROOM_DEPTH + solid)]];
-  const named = [[cupboard?.group, 'the corner cupboard'], [islandGroup, 'the island'], [pieces.sofa, 'the sofa'], [pieces.ivar, 'the Ivar'],
-    [pieces.chesham, 'Chesham'], [pieces.cornwall, 'Cornwall'], [pieces.castorDesk, 'the desk on castors'],
-    ...Object.entries(backWallDrawn).filter(([, piece]) => piece !== daybed).map(([key, piece]) => [piece, BACK_WALL_PIECES[key].short])];
-  for (const [object, name] of named) {
-    object?.updateMatrixWorld(true);
-    object?.traverse(o => { if (o.isMesh) found.push([name, new THREE.Box3().setFromObject(o)]); });
-  }
+  const named = [[cupboard?.group, 'the corner cupboard'], [islandGroup, 'the island'], [radiatorDrawn, RADIATOR_NAME],
+    ...loosePieces().filter(([piece]) => piece !== daybed)];
+  for (const [object, name] of named) found.push(...meshBoxes(object).map(box => [name, box]));
   return found;
+}
+// The living room's loose pieces as drawn, as [object, name]: the sofa, the
+// Ivar, the tables, the desk on castors and the back wall's pieces
+const loosePieces = () => [[pieces.sofa, 'the sofa'], [pieces.ivar, 'the Ivar'], [pieces.chesham, 'Chesham'], [pieces.cornwall, 'Cornwall'],
+  [pieces.castorDesk, 'the desk on castors'], ...Object.entries(backWallDrawn).map(([key, piece]) => [piece, BACK_WALL_PIECES[key].short])]
+  .filter(([piece]) => piece);
+// The boxes, in the scene, of each solid part of an object (none for none)
+function meshBoxes(object) {
+  const boxes = [];
+  object?.updateMatrixWorld(true);
+  object?.traverse(o => { if (o.isMesh) boxes.push(new THREE.Box3().setFromObject(o)); });
+  return boxes;
 }
 // The room beyond the desk's end (`end`, deskOpenEnd()'s) across a band `half`
 // either side of `across`, out from the back: { gap, name }, to the nearest
@@ -1655,6 +1685,25 @@ function chairAtDaybedDesk() {
   };
   return ` At the daybed's desk there's ${gap} from its end to ${name}. Pulled up to it, ${Object.values(WORK_CHAIRS).map(fits).join('; ')}.`;
 }
+
+// The radiator under the first window (the one nearest the back wall),
+// which could be taken out, pipes and all (asked for, 22 Oct 2026), to give
+// the daybed and a chair at its desk more room. In, it's shown and any of
+// the room's pieces that runs into it is said; out, the daybed
+// can stand flush to the window wall
+const RADIATOR_NAME = 'the radiator under the first window';
+const FIRST_WINDOW = 0;
+function firstRadiator() {
+  radiators[FIRST_WINDOW].visible = config.livingRoom.firstRadiator;
+  if (!config.livingRoom.firstRadiator) return ' The radiator under the first window is taken out, and its pipes.';
+  radiatorDrawn = radiators[FIRST_WINDOW];
+  const [radiator] = meshBoxes(radiatorDrawn);
+  const meeting = loosePieces().filter(([piece]) => meshBoxes(piece).some(box => box.intersectsBox(radiator) && !touchingOnly(box, radiator)));
+  return meeting.map(([, name]) => ` ${name[0].toUpperCase()}${name.slice(1)} runs into ${RADIATOR_NAME}.`).join('');
+}
+const TOUCHING = 1e-6;             // in scene units (a thousandth of a mm): closer than that, two faces meet (chosen)
+// Two boxes that only meet at a face (a piece set against the radiator's front)
+const touchingOnly = (a, b) => ['x', 'y', 'z'].some(k => Math.abs(a.max[k] - b.min[k]) < TOUCHING || Math.abs(b.max[k] - a.min[k]) < TOUCHING);
 
 // The Ivar in the living room, where it is now (the user's, 18 Oct 2026):
 // by the first radiator (the one nearest the back wall), a 300 side to the
@@ -1782,7 +1831,7 @@ const SPEAKER_SURFACES = {
   bench() {
     if (!benchDrawn()) return { missing: 'the bench, which isn\'t there' };
     const option = optionOf(config.pieces.cornerCupboard.design.option), { what } = config.pieces.aboveBench.design;
-    const x0 = option.benchFrom(cupboardSettings()), tvShown = aboveHasTv(what) && ROOM_WIDTH - x0 >= TV_W + 20;   // as benchWallItems() draws it
+    const x0 = benchStart(option), tvShown = aboveHasTv(what) && ROOM_WIDTH - x0 >= TV_W + 20;   // as benchWallItems() draws it
     return { spot: { x: 0, y: 0, turn: 0 }, x0, x1: ROOM_WIDTH, front: config.pieces.cornerCupboard.design.R, top: config.pieces.bench.design.height,
       middle: tvAt[0], start: tvShown ? TV_W + 2 * SPEAKER_TV_CLEAR + FENRIS_A5.w : SPEAKER_SPACING_NO_TV,
       on: tvShown ? 'on the bench, either side of the TV' : 'on the bench, centred on it' };
@@ -1872,8 +1921,8 @@ function speakersInLivingRoom(g) {
 // stood on the bench at bench height
 function withoutBench(text) {
   if (benchDrawn()) return text;
-  const instead = onBackWall().map(key => BACK_WALL_PIECES[key].short).join(' and ');
-  const backWall = instead ? ` No bench: ${instead} ${onBackWall().length > 1 ? 'stand' : 'stands'} there instead.` : ' No bench, so nothing on the back wall.';
+  const instead = benchStandIns().map(key => BACK_WALL_PIECES[key].short).join(' and ');
+  const backWall = instead ? ` No bench: ${instead} ${benchStandIns().length > 1 ? 'stand' : 'stands'} there instead.` : ' No bench, so nothing on the back wall.';
   return text
     .replace(/ ?Bench (shortened to )?\d+[^.;]*? deep(;[^.]*)?\./g, backWall)
     .replace(/\. Base cupboards with \d+ doors under an oak top run on to the right-hand wall: [^.]*? deep\./, '. No base cupboards (no bench), so nothing on the back wall beyond.')
@@ -1894,6 +1943,7 @@ function buildOption() {
   world.add(livingGroup);
   pieces.dresser = pieces.larder = pieces.sofa = pieces.ivar = pieces.chesham = pieces.cornwall = pieces.castorDesk = pieces.speakers = pieces.workChair = null;
   backWallDrawn = {};
+  radiatorDrawn = null;
   cupboard = makeCupboard(cupboardSettings(), LIVING_ROOM_PLACE, CUPBOARD_MATERIALS);
   livingGroup.add(cupboard.group);
   return livingGroup;
@@ -1903,7 +1953,7 @@ function buildOption() {
 // starts to the right-hand wall, R deep and BENCH high: base cupboards for
 // option 9, a bench top for the rest
 function drawBench(option, group) {
-  const BENCH = config.pieces.bench.design.height, { R } = config.pieces.cornerCupboard.design, from = option.benchFrom(cupboardSettings());
+  const BENCH = config.pieces.bench.design.height, { R } = config.pieces.cornerCupboard.design, from = benchStart(option);
   const bench = new THREE.Group();
   group.add(bench);
   if (option.no === 9) baseCupboards(from, bench);
@@ -1913,7 +1963,7 @@ function drawBench(option, group) {
 // The bench off: nothing above it either, but the TV's place is kept for
 // the sofa to face
 function keepTvPlace(option) {
-  tvAt = [(option.clearFrom(cupboardSettings()) + ROOM_WIDTH) / 2, 0, TV_BOTTOM + TV_H / 2];
+  tvAt = [(wallClearFrom(option) + ROOM_WIDTH) / 2, 0, TV_BOTTOM + TV_H / 2];
 }
 
 
@@ -2055,6 +2105,7 @@ const LIVING_ROOM_SCHEMA = [
   ...Object.keys(COLOUR_TARGETS).map(key => Config.colour(`colours.${key}`, isColour)),
   Config.number('colours.shelves', 0, SHELF_WOODS.length - 1, 1, { onSteps: true }),
   Config.choice('livingRoom.frontWall', FRONT_PIECES),
+  Config.onOff('livingRoom.firstRadiator'),
   ...cupboardEntries('pieces.cornerCupboard.design', CEILING_HEIGHT),
   ...cupboardEntries('pieces.bedroomCupboard.design', BEDROOM_PLACE.ceiling, { id: idIn('bedroomCupboard'), ranges: BEDROOM_CUPBOARD_RANGES }),
   // The bench along the back wall, and what's above it
@@ -2283,10 +2334,11 @@ export function build(onShow = optionsOnShow()) {
   const group = buildOption();
   if (benchDrawn()) drawBench(option, group);
   else keepTvPlace(option);
-  const clearFrom = option.clearFrom(cupboardSettings());
-  const backWall = benchDrawn() ? benchWall(clearFrom, group)
+  const clearFrom = wallClearFrom(option);
+  const besideBench = onBackWall().filter(key => !benchStandIns().includes(key));   // the pine cupboard by the door
+  const backWall = benchDrawn() ? besideBench.map(key => pieceOnBenchWall(key, clearFrom, group)).join('') + benchWall(clearFrom, group)
     : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('') + tvAboveDaybed(group);
-  const aboveText = backWall + frontWall(group) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + chairAtDaybedDesk();
+  const aboveText = backWall + frontWall(group) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + firstRadiator() + chairAtDaybedDesk();
   if (!same) doors.second = 0;
   drawOtherRoom(config);                                         // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard
@@ -2360,7 +2412,7 @@ function turnBedroomDoor() {
 // as HTML
 export function describe(option, aboveText) {
   const summary = config.pieces.cornerCupboard.design.T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary;
-  return `${withoutBench(summary(cupboardSettings(), LIVING_ROOM_PLACE, { BENCH: config.pieces.bench.design.height }))}${insideText()}${aboveText}<div class="src">From ${option.source}</div>`;
+  return `${withoutBench(summary(cupboardSettings(), LIVING_ROOM_PLACE, { BENCH: config.pieces.bench.design.height, benchFrom: benchDrawn() ? benchStart(option) : 0 }))}${insideText()}${aboveText}<div class="src">From ${option.source}</div>`;
 }
 
 // The flat built from a configuration, with no page, seen as `view` shows it
@@ -2414,7 +2466,7 @@ export {
   currentSofa, cuttingList, deskChair, diagonal, dimensionFigures, dims,
   dresserMat, frontFrom, frontGap, handleMat, islandGroup, islandMat,
   islandOnWall, islandTopMat, kitchenMat, larderHeight, larderOwnSize,
-  cupboardSettings, oakMat, onBackWall, optionOf, namedPieces, pieceBoxes, pieces,
+  cupboardSettings, oakMat, onBackWall, benchStandIns, optionOf, namedPieces, pieceBoxes, pieces,
   readConfiguration, readShelves, screenMat, shelfMat,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, config, storedGroup,
   storedMats, storedSize, tvAt, tvMat, updateDims, worktopMat,

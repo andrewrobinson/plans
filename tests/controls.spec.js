@@ -773,6 +773,26 @@ test('the speakers stand on Billy, the bench or the corner cupboard', async ({ p
   await expect(page.locator('#summary')).toContainText('on the corner cupboard, 2100 high, spread evenly along its 800');
   expect((await box()).from[2]).toBe(2100);
 });
+// The first window's radiator (asked for, 22 Oct 2026): in to start; out,
+// the description says so; and the pine cupboard by the door leaves the
+// bench on, starting past it
+test('the first window\'s radiator can be taken out, and the bench starts past the pine cupboard by the door', async ({ page }) => {
+  await openDrawer(page);
+  await expect(page.locator('#firstRadiatorOn')).toBeChecked();
+  await toggle(page, 'firstRadiatorOn', false);
+  expect(await setting(page, 'livingRoom.firstRadiator')).toBe(false);
+  await expect(page.locator('#summary')).toContainText('The radiator under the first window is taken out, and its pipes.');
+  for (const id of ['billyOn', 'billyChestOn']) await toggle(page, id, false);
+  await toggle(page, 'benchOn', true);
+  await toggle(page, 'pineOn', true);
+  await expect(page.locator('#benchOn')).toBeDisabled();                 // on the back wall, in the bench's place
+  await slide(page, 'pineTurn', 270);
+  await slide(page, 'pineX', 60);
+  await slide(page, 'pineY', 710);
+  await expect(page.locator('#benchOn')).toBeEnabled();                  // by the door, beside it
+  await expect(page.locator('#summary')).toContainText('Bench 3278, from x 560 (past the pine cupboard by the door) to the right-hand wall');
+});
+
 
 // The daybed with a desk and bookcase (asked for, 22 Oct 2026): out to
 // start; on in Billy's place, its sliders shown, the bench off; its desk
