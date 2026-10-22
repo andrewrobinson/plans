@@ -126,7 +126,7 @@ const PIECES = {
   potters: { label: 'Potters', w: 430, d: 390, h: 1535, mat: material(0x9a7b55), shape: 'shelves', offWall: true },   // a mid wood
   biltong: { label: 'Biltong', w: 940, d: 445, h: 460, mat: material(0x8a6a4a), shape: 'open box', lifted: true },
   trellis: { label: 'Trellis', w: 860, d: 720, h: 750, mat: material(0x6f8a5a), shape: 'open box' },   // a garden green
-  pine: { label: 'Pine cupboard', ...sizesOf(OTHER_ROOM_START.cupboard), shape: 'pine', bedroomSizes: true },
+  pine: { label: 'Pine cupboard', ...sizesOf(OTHER_ROOM_START.pieces.pineCupboard.design), shape: 'pine', bedroomSizes: true },
   ivar: { label: 'Ivar', ...IVAR, shape: 'ivar' },
 };
 function sizesOf({ w, d, h }) { return { w, d, h }; }

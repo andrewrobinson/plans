@@ -87,6 +87,18 @@ function writeValue(entry, value, settings) {
   }
 }
 
+// `more` put into `object`: objects merged key by key, anything else (a
+// setting's value, an array) put in place of what's there. As a room's
+// module's settings, laid out as the configuration is, join the model's
+export function mergeInto(object, more) {
+  for (const [key, value] of Object.entries(more)) {
+    const isObject = v => v && typeof v === 'object' && !Array.isArray(v);
+    if (isObject(value) && isObject(object[key])) mergeInto(object[key], value);
+    else object[key] = value;
+  }
+  return object;
+}
+
 // One setting, by its entry: its value in `settings` as the configuration
 // writes it, and a configuration's value read into `settings`, if it passes
 // its check (true if it did)

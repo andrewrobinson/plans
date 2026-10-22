@@ -51,7 +51,7 @@ export const WICKER_BENCH_START = {
   // along: from the living room door's wall; across: from the outside wall
   // behind the stairs (the living room's y)
   hallway: { on: true, along: HALLWAY.well + HALLWAY.post + NEWEL_GAP + BENCH.w / 2, across: HALLWAY.yBanister + HALLWAY.railW, turn: 0 },
-  bedroom: { on: false, u: OTHER_ROOM_START.bed.u, v: BED_FOOT + BED_GAP, turn: 0 },
+  bedroom: { on: false, u: OTHER_ROOM_START.pieces.bed.in.bedroom.u, v: BED_FOOT + BED_GAP, turn: 0 },
   livingRoom: { on: false, x: radiatorFront - RADIATOR_GAP, y: step5((middleWindow[0] + middleWindow[1]) / 2), turn: 90 },
 };
 

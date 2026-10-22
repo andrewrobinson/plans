@@ -8,8 +8,11 @@
 // in the room's own u, v mm (OTHER_ROOM in floor.js: u from the window wall,
 // v from the hallway wall).
 //
-// living_room.js holds the settings (state.otherRoom, starting as
-// OTHER_ROOM_START); this file gives their entries in the configuration
+// The model (flat_model.js) holds the settings, laid out as the
+// configuration is: each piece's design and its place in the bedroom
+// (`pieces.bed.in.bedroom`), starting as OTHER_ROOM_START. This file names
+// each setting as its controls do (`bed.u`, `bookcaseOn`: settingPath()
+// gives its path), gives their entries in the configuration
 // (OTHER_ROOM_SCHEMA), says how each piece looks, draws them
 // (drawOtherRoom()), and makes the menu's sliders for them
 // (otherRoomControls()).
@@ -24,6 +27,7 @@ import { IVAR, ivar } from './ivar.js';
 import { KNARREVIK, knarrevik } from './knarrevik.js';
 import { KVISTBRO, kvistbro } from './kvistbro.js';
 import { LAUNDRY_BASKET, laundryBasket } from './laundry_basket.js';
+const { valueAt } = Config;
 
 // ---------------------------------------------------------------------------
 // The pieces' sizes, in mm. Measured 15 Oct 2026 unless it says otherwise.
@@ -143,7 +147,9 @@ const IN_FRONT_OF_THE_KVISTBRO = 20;               // the laundry basket's back 
 const BESIDE_THE_BED = BED_START_U + BED.width / 2 + BEDSIDE_GAP + KNARREVIK.w / 2;
 const BESIDE_THE_PINE_CUPBOARD = PINE_START_V - PINE.w / 2 - BEDSIDE_GAP - KNARREVIK.w / 2;
 const WINDOW_SIDE_OF_THE_BED = BED_START_U - BED.width / 2 - KVISTBRO_GAP - KVISTBRO.w / 2;
-export const OTHER_ROOM_START = {
+// The settings as they start, by their names in this file's controls
+// (OTHER_ROOM_START is them laid out as the configuration is, below)
+const AS_THEY_START = {
   // Where they stand now (from the photos, 15 Oct 2026): the bed's head
   // against the hallway wall, 680 from the window wall (measured); the
   // bookcase's back to the chimney breast, from the recess; the pine
@@ -183,7 +189,7 @@ export const OTHER_ROOM_START = {
   laundryBasket: { u: WINDOW_SIDE_OF_THE_BED, v: KVISTBRO.w + IN_FRONT_OF_THE_KVISTBRO, turn: 0 },
 };
 
-// Each slider: [the setting's path in state.otherRoom, its label, lowest,
+// Each slider: [the setting's name (settingPath()), its label, lowest,
 // highest, step, unit], in the menu's order under each piece's heading.
 // Turned goes in quarter turns, all that's needed to stand a piece square
 // to a wall (chosen 15 Oct 2026)
@@ -243,7 +249,7 @@ const PIECES = [
   { key: 'bookcase', section: 'extras', heading: 'Bookcase', sizes: sizeSliders('bookcase'), place: PLACE('bookcase'), on: 'bookcaseOn' },
   { key: 'cupboard', section: 'extras', heading: 'Pine cupboard', sizes: sizeSliders('cupboard'), place: PLACE('cupboard'), on: 'cupboardOn' },
   { key: 'billy', section: 'extras', heading: 'Billy (from the garage)', sizes: [], place: placeAlongWall('billy'), wall: 'billy.wall',
-    on: 'billyOn', switches: [['billy.lying', LYING_LABEL]], halfAlong: s => billySizes(s.billy.lying).w / 2 },
+    on: 'billyOn', switches: [['billy.lying', LYING_LABEL]], halfAlong: at => billySizes(at('billy.lying')).w / 2 },
   { key: 'billyChest', section: 'extras', heading: 'BillyChest (from the garage)', sizes: [], place: placeAlongWall('billyChest'), wall: 'billyChest.wall',
     on: 'billyChestOn', halfAlong: () => BILLY_CHEST.w / 2 },
   { key: 'ivar', section: 'extras', heading: 'Ivar', sizes: [], place: placeAlongWall('ivar'), wall: 'ivar.wall',
@@ -255,50 +261,61 @@ const PIECES = [
     switches: [['upperDrawers', 'Upper cupboard: drawers', 'Drawers over the upper cupboard’s open shelves'],
       ['upperMirrors', 'Upper cupboard: mirrors', 'Mirrors on the upper cupboard’s two tall doors']] },
 ];
-// Those on a wall (`wall` the path of its choice of wall): the mirror,
-// Billy, BillyChest, the Ivar, the bedside tables and the Kvistbro, each by its key in the settings, and how far its
-// middle must be from the wall's ends: half its width (Billy's as it stands
-// or lies); the mirror's middle may go right to the end
+// Those on a wall (`wall` the name of its choice of wall): the mirror,
+// Billy, BillyChest, the Ivar, the bedside tables and the Kvistbro, each by
+// its key, and how far its middle must be from the wall's ends, given the
+// settings by name (`at`): half its width (Billy's as it stands or lies);
+// the mirror's middle may go right to the end
 const ON_A_WALL = PIECES.filter(p => p.wall).map(p => ({ key: p.wall.split('.')[0], halfAlong: p.halfAlong ?? (() => 0) }));
 const SLIDERS = PIECES.flatMap(p => [...p.sizes, ...p.place]);
 const SWITCHES = PIECES.flatMap(p => [...(p.on ? [[p.on, IN_THE_BEDROOM]] : []), ...(p.switches ?? [])]);
 
-// The configuration's entries (kit/config_kit.js): each piece's design and
-// its place in the bedroom, each number held to its slider's range, turns
-// to quarter turns. The pine cupboard is `cupboard` here, `pineCupboard`
-// there, as it goes to other rooms too; the bedroom's own corner
-// cupboard is `bedroomCupboard`
-const CONFIG_NAME = { cupboard: 'pineCupboard' };
+// Each setting's path in the configuration, by its name here (as the
+// controls, and their ids, have it): `bookcaseOn`, whether the bookcase is
+// in the bedroom; `bed.u`, where the bed stands there; `bookcase.w`, a size,
+// the piece's design; the recess cupboards' by their own names. The pine
+// cupboard is `cupboard` here, `pineCupboard` there, as it goes to other
+// rooms too; the New cupboard is the bedroom's own corner cupboard
+const CONFIG_NAME = { cupboard: 'pineCupboard', newCupboard: 'bedroomCupboard' };
 const pieceAt = piece => `pieces.${CONFIG_NAME[piece] ?? piece}`;
-function sliderEntry(at, path) {
-  const [, , lo, hi, step] = SLIDERS.find(([p]) => p === path);
-  return Config.number(at, `otherRoom.${path}`, lo, hi, step, { onSteps: path.endsWith('.turn') });
+const DESIGN_KEYS = ['w', 'd', 'h'];
+const RECESS_KEYS = ['lowerD', 'upperDrawers', 'upperMirrors'];
+export function settingPath(name) {
+  if (RECESS_KEYS.includes(name)) return `pieces.recessCupboards.design.${name}`;
+  if (name.endsWith('On')) return `${pieceAt(name.slice(0, -'On'.length))}.in.bedroom.on`;
+  const [piece, key] = name.split('.');
+  return `${pieceAt(piece)}.${DESIGN_KEYS.includes(key) ? 'design' : 'in.bedroom'}.${key}`;
 }
-const designEntries = piece => SIZES[piece].map(([k]) => sliderEntry(`${pieceAt(piece)}.design.${k}`, `${piece}.${k}`));
-const placeEntries = (piece, keys = ['u', 'v', 'turn']) => keys.map(k => sliderEntry(`${pieceAt(piece)}.in.bedroom.${k}`, `${piece}.${k}`));
-const inBedroom = (piece, on) => Config.onOff(`${pieceAt(piece)}.in.bedroom.on`, `otherRoom.${on}`);
-// A piece on a wall's entries: whether it's there (its switch `${piece}On`), its wall and how far along
-const wallPieceEntries = piece => [inBedroom(piece, `${piece}On`),
-  Config.choice(`${pieceAt(piece)}.in.bedroom.wall`, `otherRoom.${piece}.wall`, WALL_KEYS), ...placeEntries(piece, ['along'])];
+const SETTING_NAMES = [...SLIDERS.map(([name]) => name), ...SWITCHES.map(([name]) => name), ...PIECES.filter(p => p.wall).map(p => p.wall)];
+export const OTHER_ROOM_START = {};
+for (const name of SETTING_NAMES) Config.setValueAt(OTHER_ROOM_START, settingPath(name), structuredClone(valueAt(AS_THEY_START, name)));
+
+// The configuration's entries (kit/config_kit.js), by the settings' names:
+// each piece's design and its place in the bedroom, each number held to its
+// slider's range, turns to quarter turns
+function sliderEntry(name) {
+  const [, , lo, hi, step] = SLIDERS.find(([p]) => p === name), path = settingPath(name);
+  return Config.number(path, path, lo, hi, step, { onSteps: name.endsWith('.turn') });
+}
+const onOffEntry = name => Config.onOff(settingPath(name), settingPath(name));
+const designEntries = piece => SIZES[piece].map(([k]) => sliderEntry(`${piece}.${k}`));
+const placeEntries = (piece, keys = ['u', 'v', 'turn']) => keys.map(k => sliderEntry(`${piece}.${k}`));
+const inBedroom = piece => onOffEntry(`${piece}On`);
+const wallEntry = piece => Config.choice(settingPath(`${piece}.wall`), settingPath(`${piece}.wall`), WALL_KEYS);
+// A piece on a wall's entries: whether it's there, its wall and how far along
+const wallPieceEntries = piece => [inBedroom(piece), wallEntry(piece), ...placeEntries(piece, ['along'])];
 export const OTHER_ROOM_SCHEMA = [
-  Config.onOff('pieces.bedroomCupboard.in.bedroom.on', 'otherRoom.newCupboardOn'),
+  inBedroom('newCupboard'),
   ...placeEntries('bed'),
-  ...designEntries('bookcase'), inBedroom('bookcase', 'bookcaseOn'), ...placeEntries('bookcase'),
-  ...designEntries('cupboard'), inBedroom('cupboard', 'cupboardOn'), ...placeEntries('cupboard'),
-  inBedroom('billy', 'billyOn'), Config.choice('pieces.billy.in.bedroom.wall', 'otherRoom.billy.wall', WALL_KEYS),
-  ...placeEntries('billy', ['along']), Config.onOff('pieces.billy.in.bedroom.lying', 'otherRoom.billy.lying'),
-  inBedroom('billyChest', 'billyChestOn'), Config.choice('pieces.billyChest.in.bedroom.wall', 'otherRoom.billyChest.wall', WALL_KEYS),
-  ...placeEntries('billyChest', ['along']),
-  inBedroom('ivar', 'ivarOn'), Config.choice('pieces.ivar.in.bedroom.wall', 'otherRoom.ivar.wall', WALL_KEYS),
-  ...placeEntries('ivar', ['along']),
+  ...designEntries('bookcase'), inBedroom('bookcase'), ...placeEntries('bookcase'),
+  ...designEntries('cupboard'), inBedroom('cupboard'), ...placeEntries('cupboard'),
+  inBedroom('billy'), wallEntry('billy'), ...placeEntries('billy', ['along']), onOffEntry('billy.lying'),
+  inBedroom('billyChest'), wallEntry('billyChest'), ...placeEntries('billyChest', ['along']),
+  inBedroom('ivar'), wallEntry('ivar'), ...placeEntries('ivar', ['along']),
   ...wallPieceEntries('bedsideTable'), ...wallPieceEntries('bedsideTableByCupboard'), ...wallPieceEntries('kvistbro'),
-  inBedroom('laundryBasket', 'laundryBasketOn'), ...placeEntries('laundryBasket'),
-  sliderEntry('pieces.recessCupboards.design.lowerD', 'lowerD'),
-  Config.onOff('pieces.recessCupboards.design.upperDrawers', 'otherRoom.upperDrawers'),
-  Config.onOff('pieces.recessCupboards.design.upperMirrors', 'otherRoom.upperMirrors'),
-  ...designEntries('mirror'), inBedroom('mirror', 'mirrorOn'),
-  Config.choice('pieces.mirror.in.bedroom.wall', 'otherRoom.mirror.wall', WALL_KEYS),
-  ...placeEntries('mirror', ['along', 'bottom']),
+  inBedroom('laundryBasket'), ...placeEntries('laundryBasket'),
+  sliderEntry('lowerD'), onOffEntry('upperDrawers'), onOffEntry('upperMirrors'),
+  ...designEntries('mirror'), inBedroom('mirror'), wallEntry('mirror'), ...placeEntries('mirror', ['along', 'bottom']),
 ];
 
 // ---------------------------------------------------------------------------
@@ -316,30 +333,31 @@ newCupboardSpot.rotation.y = THREE.MathUtils.degToRad(-NEW_CUPBOARD.turn);
 otherRoom.add(newCupboardSpot);
 export const otherRoomPieces = { bed: null, bookcase: null, cupboard: null, billy: null, billyChest: null, ivar: null, bedsideTable: null, bedsideTableByCupboard: null, kvistbro: null, laundryBasket: null, mirror: null, newCupboard: newCupboardSpot };   // each piece's group as drawn now, to look at
 
-// Draw everything again from the settings `s` (state.otherRoom). With the
-// bookcase, the pine cupboard or the mirror switched off it's hidden,
-// though still placed, so Looking at it aims at its spot. The new cupboard
-// takes the pine cupboard's place, so hides it too.
+// Draw everything again from the settings `s` (the model's, laid out as the
+// configuration). With a piece switched off it's hidden, though still
+// placed, so Looking at it aims at its spot. The new cupboard takes the
+// pine cupboard's place, so hides it too.
 export function drawOtherRoom(s) {
+  // A piece as it is in the bedroom, by its key here: its design, then its
+  // place there (with whether it's there, `on`)
+  const inBedroom = key => ({ ...s.pieces[CONFIG_NAME[key] ?? key].design, ...s.pieces[CONFIG_NAME[key] ?? key].in.bedroom });
+  const [bookcaseHere, pineHere, billyHere, mirrorHere] = ['bookcase', 'cupboard', 'billy', 'mirror'].map(inBedroom);
   clearDrawing(furniture);
-  otherRoomPieces.bed = place(bed(), s.bed);
-  otherRoomPieces.bookcase = place(bookcase(s.bookcase), s.bookcase);
-  otherRoomPieces.bookcase.visible = s.bookcaseOn;
-  otherRoomPieces.cupboard = place(pineCupboard(s.cupboard), s.cupboard);
-  otherRoomPieces.cupboard.visible = s.cupboardOn && !s.newCupboardOn;
-  otherRoomPieces.billy = place(billy(s.billy.lying), wallPlace(s.billy, billySizes(s.billy.lying).w / 2));
-  otherRoomPieces.billy.visible = s.billyOn;
-  otherRoomPieces.billyChest = place(billyChest(), wallPlace(s.billyChest, BILLY_CHEST.w / 2));
-  otherRoomPieces.billyChest.visible = s.billyChestOn;
-  otherRoomPieces.ivar = place(ivar(false), wallPlace(s.ivar, IVAR.w / 2));
-  otherRoomPieces.ivar.visible = s.ivarOn;
-  showPiece('bedsideTable', knarrevik(), wallPlace(s.bedsideTable, KNARREVIK.w / 2), s.bedsideTableOn);
-  showPiece('bedsideTableByCupboard', knarrevik(), wallPlace(s.bedsideTableByCupboard, KNARREVIK.w / 2), s.bedsideTableByCupboardOn);
-  showPiece('kvistbro', kvistbro(), wallPlace(s.kvistbro, KVISTBRO.w / 2), s.kvistbroOn);
-  showPiece('laundryBasket', laundryBasket(), s.laundryBasket, s.laundryBasketOn);
-  recessCupboards(s);
-  otherRoomPieces.mirror = place(mirror(s.mirror), wallPlace(s.mirror));
-  otherRoomPieces.mirror.visible = s.mirrorOn;
+  otherRoomPieces.bed = place(bed(), inBedroom('bed'));
+  otherRoomPieces.bookcase = place(bookcase(bookcaseHere), bookcaseHere);
+  otherRoomPieces.bookcase.visible = bookcaseHere.on;
+  otherRoomPieces.cupboard = place(pineCupboard(pineHere), pineHere);
+  otherRoomPieces.cupboard.visible = pineHere.on && !inBedroom('newCupboard').on;
+  otherRoomPieces.billy = place(billy(billyHere.lying), wallPlace(billyHere, billySizes(billyHere.lying).w / 2));
+  otherRoomPieces.billy.visible = billyHere.on;
+  showPiece('billyChest', billyChest(), wallPlace(inBedroom('billyChest'), BILLY_CHEST.w / 2), inBedroom('billyChest').on);
+  showPiece('ivar', ivar(false), wallPlace(inBedroom('ivar'), IVAR.w / 2), inBedroom('ivar').on);
+  for (const key of ['bedsideTable', 'bedsideTableByCupboard']) showPiece(key, knarrevik(), wallPlace(inBedroom(key), KNARREVIK.w / 2), inBedroom(key).on);
+  showPiece('kvistbro', kvistbro(), wallPlace(inBedroom('kvistbro'), KVISTBRO.w / 2), inBedroom('kvistbro').on);
+  showPiece('laundryBasket', laundryBasket(), inBedroom('laundryBasket'), inBedroom('laundryBasket').on);
+  recessCupboards(s.pieces.recessCupboards.design);
+  otherRoomPieces.mirror = place(mirror(mirrorHere), wallPlace(mirrorHere));
+  otherRoomPieces.mirror.visible = mirrorHere.on;
 }
 
 // The new cupboard: `cupboard`, its group, drawn in its own mm from its
@@ -477,14 +495,13 @@ function doorMirror(a0, a1, z0, z1, faceV) {
 // heading, its In the bedroom switch, its wall, its sliders, and buttons
 // to put its dimensions and its location back as they started, built into
 // `container`, those marked `top` into `topContainer` instead. change(edits) is called with a list of
-// [path, value] as anything changes; the function returned puts the
-// controls in step with the settings `s`.
+// [path, value] as anything changes, each path the configuration's; the
+// function returned puts the controls in step with the settings `s`.
 // ---------------------------------------------------------------------------
-const valueAt = (s, path) => path.split('.').reduce((o, k) => o[k], s);
 
 export function otherRoomControls(topContainer, container, change) {
   const id = path => `otherRoom_${path.replace('.', '_')}`;
-  let shown = OTHER_ROOM_START;                        // the settings last put in the controls
+  let shown = name => valueAt(OTHER_ROOM_START, settingPath(name));   // the settings last put in the controls, by name
   const switchHtml = ([path, label, tip]) => `<label class="switch"${tip ? ` title="${tip}"` : ''}><input type="checkbox" id="${id(path)}"> ${label}</label>`;
   // A piece's block: its heading and In the bedroom switch, then the rest
   // of its controls, hidden while it's out
@@ -502,30 +519,33 @@ export function otherRoomControls(topContainer, container, change) {
   topContainer.innerHTML = PIECES.map((piece, i) => (piece.top ? pieceBlock(piece, i) : '')).join('');
   container.innerHTML = SECTIONS.map(sectionHtml).join('');
 
-  for (const [path] of SLIDERS) document.getElementById(id(path)).addEventListener('input', e => change([[path, Number(e.target.value)]]));
-  for (const [path] of SWITCHES) document.getElementById(id(path)).addEventListener('change', e => change([[path, e.target.checked]]));
+  // Settings changed, [name, value] pairs, as edits by their paths
+  const changeNamed = edits => change(edits.map(([name, value]) => [settingPath(name), value]));
+  for (const [name] of SLIDERS) document.getElementById(id(name)).addEventListener('input', e => changeNamed([[name, Number(e.target.value)]]));
+  for (const [name] of SWITCHES) document.getElementById(id(name)).addEventListener('change', e => changeNamed([[name, e.target.checked]]));
   // A new wall keeps a piece on a wall as far along as it can
   for (const { key, halfAlong } of ON_A_WALL) {
     document.getElementById(id(`${key}.wall`)).addEventListener('change', e =>
-      change([[`${key}.wall`, e.target.value], [`${key}.along`, alongWall(e.target.value, shown[key].along, halfAlong(shown))]]));
+      changeNamed([[`${key}.wall`, e.target.value], [`${key}.along`, alongWall(e.target.value, shown(`${key}.along`), halfAlong(shown))]]));
   }
   container.querySelectorAll('button[data-reset]').forEach(b => b.addEventListener('click', () => {
     const piece = PIECES[Number(b.dataset.piece)], what = b.dataset.reset;
-    const paths = what === 'sizes' ? piece.sizes.map(([path]) => path) : [...piece.place.map(([path]) => path), ...(piece.wall ? [piece.wall] : [])];
-    change(paths.map(path => [path, valueAt(OTHER_ROOM_START, path)]));
+    const names = what === 'sizes' ? piece.sizes.map(([name]) => name) : [...piece.place.map(([name]) => name), ...(piece.wall ? [piece.wall] : [])];
+    changeNamed(names.map(name => [name, valueAt(OTHER_ROOM_START, settingPath(name))]));
   }));
 
   return s => {
-    shown = s;
-    for (const [path, , , , , unit] of SLIDERS) {
-      const value = valueAt(s, path);
-      document.getElementById(id(path)).value = String(value);
-      document.getElementById(`${id(path)}Value`).textContent = `${value}${unit}`;
+    const at = name => valueAt(s, settingPath(name));
+    shown = at;
+    for (const [name, , , , , unit] of SLIDERS) {
+      const value = at(name);
+      document.getElementById(id(name)).value = String(value);
+      document.getElementById(`${id(name)}Value`).textContent = `${value}${unit}`;
     }
-    for (const [path] of SWITCHES) document.getElementById(id(path)).checked = valueAt(s, path);
-    for (const piece of PIECES.filter(p => p.on)) document.getElementById(`otherRoomPiece_${piece.key}Details`).hidden = !s[piece.on];
-    document.getElementById(id('cupboardOn')).disabled = s.newCupboardOn;   // the new cupboard stands in its place
-    for (const { key, halfAlong } of ON_A_WALL) followWall(id, key, s[key], halfAlong(s));
+    for (const [name] of SWITCHES) document.getElementById(id(name)).checked = at(name);
+    for (const piece of PIECES.filter(p => p.on)) document.getElementById(`otherRoomPiece_${piece.key}Details`).hidden = !at(piece.on);
+    document.getElementById(id('cupboardOn')).disabled = at('newCupboardOn');   // the new cupboard stands in its place
+    for (const { key, halfAlong } of ON_A_WALL) followWall(id, key, { wall: at(`${key}.wall`), along: at(`${key}.along`) }, halfAlong(at));
   };
 }
 

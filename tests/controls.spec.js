@@ -516,25 +516,25 @@ test.describe('what\'s by the bed', () => {
   test.beforeEach(async ({ page }) => { await openDrawer(page, undefined, 'bedroom'); });
 
   test('each can be put in, moved and put back', async ({ page }) => {
-    expect(await setting(page, 'otherRoom.kvistbroOn')).toBe(false);
+    expect(await setting(page, 'pieces.kvistbro.in.bedroom.on')).toBe(false);
     await toggle(page, 'otherRoom_kvistbroOn', true);
     await page.selectOption('#otherRoom_kvistbro_wall', 'window');
-    expect(await setting(page, 'otherRoom.kvistbro')).toEqual({ wall: 'window', along: 400 });     // as far along as it was
+    expect(await setting(page, 'pieces.kvistbro.in.bedroom')).toMatchObject({ wall: 'window', along: 400 });     // as far along as it was
     await toggle(page, 'otherRoom_laundryBasketOn', true);
     await slide(page, 'otherRoom_laundryBasket_v', 1500);
     await slide(page, 'otherRoom_bedsideTable_along', 3000);
-    expect(await setting(page, 'otherRoom.laundryBasket')).toEqual({ u: 400, v: 1500, turn: 0 });
-    expect(await setting(page, 'otherRoom.bedsideTable')).toEqual({ wall: 'hallway', along: 3000 });
+    expect(await setting(page, 'pieces.laundryBasket.in.bedroom')).toMatchObject({ u: 400, v: 1500, turn: 0 });
+    expect(await setting(page, 'pieces.bedsideTable.in.bedroom')).toMatchObject({ wall: 'hallway', along: 3000 });
     await page.locator('[data-reset="place"]').evaluateAll(bs => bs.forEach(b => b.click()));
-    expect(await setting(page, 'otherRoom.kvistbro')).toEqual({ wall: 'hallway', along: 400 });
-    expect(await setting(page, 'otherRoom.laundryBasket')).toEqual({ u: 400, v: 460, turn: 0 });
-    expect(await setting(page, 'otherRoom.bedsideTable')).toEqual({ wall: 'hallway', along: 2275 });
-    expect(await setting(page, 'otherRoom.bedsideTableByCupboard')).toEqual({ wall: 'kitchen', along: 1016 });
+    expect(await setting(page, 'pieces.kvistbro.in.bedroom')).toMatchObject({ wall: 'hallway', along: 400 });
+    expect(await setting(page, 'pieces.laundryBasket.in.bedroom')).toMatchObject({ u: 400, v: 460, turn: 0 });
+    expect(await setting(page, 'pieces.bedsideTable.in.bedroom')).toMatchObject({ wall: 'hallway', along: 2275 });
+    expect(await setting(page, 'pieces.bedsideTableByCupboard.in.bedroom')).toMatchObject({ wall: 'kitchen', along: 1016 });
   });
 
   test('all four are in on the default page', async ({ page }) => {
     await openRoom(page);
-    const on = await page.evaluate(() => ['bedsideTableOn', 'bedsideTableByCupboardOn', 'kvistbroOn', 'laundryBasketOn'].map(k => window.plans.get().otherRoom[k]));
+    const on = await page.evaluate(() => ['bedsideTableOn', 'bedsideTableByCupboardOn', 'kvistbroOn', 'laundryBasketOn'].map(k => window.plans.get().pieces[k.replace(/On$/, '')].in.bedroom.on));
     expect(on).toEqual([true, true, true, true]);
   });
 });

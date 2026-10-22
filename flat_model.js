@@ -259,7 +259,7 @@ const LOUNGE_NOW = (() => {
 // The settings: everything the menus set and the address saves, in one
 // place, changed by the menus only through set() (below). Laid out as the
 // configuration is (REFACTOR_PLAN.md item 14), a room at a time: the living
-// room's so far. The cupboard's sizes keep the short names the drawing code
+// room's and the bedroom's so far. The cupboard's sizes keep the short names the drawing code
 // and room_dimensions.md use; a function that draws reads the ones it needs
 // at its top, as `const { T, R, BOARD } = state.pieces.cornerCupboard.design;`.
 // What's worked out from the settings isn't kept here (the heights above
@@ -371,7 +371,6 @@ const state = {
   // middle window, 1 in the corner cupboard, 2 moved by hand), and each
   // thing's { x, y, turned, z } once moved by hand (set up with STORED below)
   thingsToStore: { shown: false, packing: 0, where: 0, spots: [] },   // ...shown where they are now once STORED is set up (STORED_NOW)
-  otherRoom: structuredClone(OTHER_ROOM_START),   // the bedroom's furniture: where it stands and its sizes (other_room.js)
   wickerBench: structuredClone(WICKER_BENCH_START),   // the hallway's wicker bench: its sizes, and in which rooms and where (wicker_bench.js)
   shoeRack: structuredClone(SHOE_RACK_START),         // the shoe rack at the foot of the stairs: its sizes and where it stands (shoe_rack.js)
   stairWalls: structuredClone(STAIR_WALLS_START),     // the shelves and pictures on the walls over the stairs, and the shoe boxes on the sills, none to start (stair_walls.js, shoe_boxes.js)
@@ -382,6 +381,10 @@ const state = {
 // controls (BACK_WALL_KEYS, the tables, the Ivar, the desk on castors):
 // the bookshelf is the bookcase, and the pine the pine cupboard
 const LIVING_ROOM_PIECES = { bookshelf: 'bookcase', pine: 'pineCupboard' };
+// The other rooms' settings, from their modules, laid out as the
+// configuration is: the bedroom's furniture, where it stands and its sizes
+// (other_room.js)
+Config.mergeInto(state, structuredClone(OTHER_ROOM_START));
 export const inLivingRoom = key => state.pieces[LIVING_ROOM_PIECES[key] ?? key].in.livingRoom;
 
 // How far each door is open, in degrees, up to its slider's most
@@ -952,7 +955,7 @@ function frontWall(g, no) {
 // place has its own, so it's drawn whether or not there's one on the back
 // wall or in the bedroom.
 function bookcaseOnFrontWall(g) {
-  const { w, d, h } = state.otherRoom.bookcase, x0 = frontX0(w);
+  const { w, d, h } = state.pieces.bookcase.design, x0 = frontX0(w);
   const piece = bookcase({ w, d, h });                           // drawn with its back's middle at its origin, facing out
   piece.position.set((x0 + w / 2) * MM, 0, ROOM_DEPTH * MM);
   piece.rotation.y = Math.PI;                                    // facing into the room
@@ -968,7 +971,7 @@ function frontSpan() {
   if (state.pieces.cornerCupboard.design.option === CURRENT_ROOM) return null;
   if (state.livingRoom.frontWall === 'dresser') return { ...dresserSpan(), heights: [0, state.pieces.dresser.design.baseH, state.pieces.dresser.design.h] };
   if (state.livingRoom.frontWall === 'bookshelf') {
-    const { w, h } = state.otherRoom.bookcase;
+    const { w, h } = state.pieces.bookcase.design;
     return { x0: frontX0(w), x1: frontX0(w) + w, heights: [0, h] };
   }
   const L = currentLarder();
@@ -1419,7 +1422,7 @@ let bedroomCupboard = null;  // the bedroom's own corner cupboard (BEDROOM_PLACE
 function buildBedroomCupboard(onShow) {
   bedroomCupboard = null;
   if (state.pieces.bedroomCupboard.design.option !== onShow) doors.bedroomCupboardSecond = 0;
-  if (!state.otherRoom.newCupboardOn) return showNewCupboard(null);
+  if (!state.pieces.bedroomCupboard.in.bedroom.on) return showNewCupboard(null);
   bedroomCupboard = makeCupboard(cupboardSettings('bedroomCupboard'), BEDROOM_PLACE, BEDROOM_MATERIALS);
   bedroomCupboard.drawShelves([]);
   showNewCupboard(bedroomCupboard.group);
@@ -1447,7 +1450,7 @@ export const optionsOnShow = () => ({ cornerCupboard: state.pieces.cornerCupboar
 // sliders move them from there.
 const BACK_WALL_PIECES = {
   bookshelf: {
-    sizes: () => state.otherRoom.bookcase, draw: bookcase, name: "A bookcase like the bedroom's", short: 'the bookcase',
+    sizes: () => state.pieces.bookcase.design, draw: bookcase, name: "A bookcase like the bedroom's", short: 'the bookcase',
     home: (x0, w) => ({ x: Math.max(x0 + w / 2, (x0 + clearTo()) / 2), y: 0, turn: 0 }),
     homeText(x0, w) {
       const span = clearTo() - x0, beside = pineInCorner() ? ' beside the pine cupboard' : '';
@@ -1455,7 +1458,7 @@ const BACK_WALL_PIECES = {
     },
   },
   pine: {
-    sizes: () => state.otherRoom.cupboard, draw: pineCupboard, name: "The bedroom's pine cupboard", short: 'the pine cupboard',
+    sizes: () => state.pieces.pineCupboard.design, draw: pineCupboard, name: "The bedroom's pine cupboard", short: 'the pine cupboard',
     home: (x0, w) => ({ x: ROOM_WIDTH - w / 2, y: 0, turn: 0 }),
     homeText: () => 'in the corner by the right-hand wall',
   },
@@ -1474,7 +1477,7 @@ const BACK_WALL_PIECES = {
 // Where the bookcase's clear wall ends: at the right-hand wall, or at the
 // pine cupboard while it's in the corner there, where it starts
 const pineInCorner = () => state.pieces.pineCupboard.in.livingRoom.on && !state.pieces.pineCupboard.in.livingRoom.move;
-const clearTo = () => (pineInCorner() ? ROOM_WIDTH - state.otherRoom.cupboard.w : ROOM_WIDTH);
+const clearTo = () => (pineInCorner() ? ROOM_WIDTH - state.pieces.pineCupboard.design.w : ROOM_WIDTH);
 const BACK_WALL_KEYS = Object.keys(BACK_WALL_PIECES);
 const FACING = { 0: 'the front wall', 90: 'the left wall', 180: 'the back wall', 270: 'the right wall' };
 const onBackWall = () => BACK_WALL_KEYS.filter(key => inLivingRoom(key).on);
@@ -1988,14 +1991,14 @@ export function build(onShow = optionsOnShow()) {
     : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('');
   const aboveText = backWall + frontWall(group, no) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group);
   if (!same) doors.second = 0;
-  drawOtherRoom(state.otherRoom);                               // the bedroom's furniture
+  drawOtherRoom(state);                                         // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard
   drawWickerBench(state.wickerBench);                           // the wicker bench, in each room it's on in
   drawShoeRack(state.shoeRack);                                 // the shoe rack, downstairs
   drawStairWalls(state.stairWalls);                             // the shelves and pictures over the stairs
   drawShoeBoxes(state.stairWalls.shoeBoxes);                    // and the shoe boxes on the sills
   bathroom.visible = state.bathroomShown;                       // the bathroom and WC, or not
-  drawGarage(state.garage, state.otherRoom.cupboard);           // Sean, Billy, BillyChest and the rest, in the garage
+  drawGarage(state.garage, state.pieces.pineCupboard.design);           // Sean, Billy, BillyChest and the rest, in the garage
   placeStored();                                                // the cupboard they go in may have changed
   return { option, same, aboveText };
 }

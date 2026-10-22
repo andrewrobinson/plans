@@ -459,7 +459,7 @@ const bedroomCupboardControls = cupboardControls({ piece: BEDROOM_CUPBOARD, id: 
   options: OPTIONS.map(o => o.no).filter(no => no !== CURRENT_ROOM) });
 // Its block shown only while it's there (Bedroom options' New cupboard switch)
 function showBedroomCupboard() {
-  const on = state.otherRoom.newCupboardOn;
+  const on = state.pieces.bedroomCupboard.in.bedroom.on;
   document.getElementById('bedroomCupboardBlock').hidden = !on;
   document.getElementById('bedroomCupboardOff').hidden = on;
   if (on) bedroomCupboardControls.showBlocks();
@@ -802,8 +802,8 @@ for (const [k] of BOOKCASE_SIZES) {
 }
 function showBookshelfSizes() {
   for (const [k] of BOOKCASE_SIZES) {
-    document.getElementById(bookshelfSizeId(k)).value = String(state.otherRoom.bookcase[k]);
-    document.getElementById(`${bookshelfSizeId(k)}Value`).textContent = state.otherRoom.bookcase[k];
+    document.getElementById(bookshelfSizeId(k)).value = String(state.pieces.bookcase.design[k]);
+    document.getElementById(`${bookshelfSizeId(k)}Value`).textContent = state.pieces.bookcase.design[k];
   }
 }
 // The island: where it is, or against the front wall
@@ -1343,8 +1343,12 @@ const roomEdits = (within, edits) => edits.map(([path, value]) => {
   const at = pathOfSetting(`${within}.${path}`);
   return [at, wordAt(at, value)];
 });
-// The bedroom's sliders (other_room.js), in state.otherRoom
-const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomTop'), document.getElementById('otherRoomBlock'), edits => change(roomEdits('otherRoom', edits)));
+// A room's module's controls that name each setting by its path in the
+// configuration, each value the page's: as edits, the values as the
+// configuration words them
+const asWords = edits => edits.map(([path, value]) => [path, wordAt(path, value)]);
+// The bedroom's sliders (other_room.js)
+const syncOtherRoom = otherRoomControls(document.getElementById('otherRoomTop'), document.getElementById('otherRoomBlock'), edits => change(asWords(edits)));
 // The wicker bench's (wicker_bench.js), in state.wickerBench, as 'hallway.along'
 const syncWickerBench = wickerBenchControls(document.getElementById('wickerBenchBlock'), edits => change(roomEdits('wickerBench', edits), { look: true }));
 // The shoe rack's (shoe_rack.js), in state.shoeRack
@@ -1403,7 +1407,7 @@ function syncControls() {
   showLarder();
   showSofa();
   check('islandAt', island.at);
-  syncOtherRoom(state.otherRoom);
+  syncOtherRoom(state);
   syncWickerBench(state.wickerBench);
   syncShoeRack(state.shoeRack);
   syncStairWalls(state.stairWalls);
