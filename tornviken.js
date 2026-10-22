@@ -3,17 +3,18 @@
 // y, the chairs' side (the windows') towards +x and the shelves' (the
 // kitchen's) towards -x. model/kitchen.js says where it stands.
 //
-// Three layouts (asked for, 22 Oct 2026):
+// Four layouts (asked for, 22 Oct 2026):
 // - 'standard', as IKEA builds it: open shelves along the kitchen side,
 //   a back panel down the middle, knee room along the window side with a
 //   footrest bar, both chairs side by side there.
 // - 'facing', as a TORNVIKEN owner rebuilt theirs (photos): the shelves cut
 //   in half across their length and set side by side, filling the whole
-//   depth of one half of the island, with a pine panel closing them off;
-//   the other half is knee room right through, a chair on each side, facing.
-// - 'trolleys', as another owner has theirs (photo): the shelves taken out
-//   and three LOSHULT trolleys (loshult.js) rolled in along the kitchen
-//   side, which just fill the length between its legs; otherwise as IKEA's.
+//   depth of the front-wall half of the island, with a pine panel closing
+//   them off; the TV wall's half is knee room right through, a chair on
+//   each side, facing (the halves as the user asked, 22 Oct 2026).
+// - 'trolleys', as another owner has theirs (photo): IKEA's shelves, and
+//   three LOSHULT trolleys (loshult.js) in the chairs' place on the window
+//   side, which just fill the length between its legs; no chairs.
 // - 'drawers', as a third owner has theirs (photo): IKEA's, with an EKBY
 //   ALEX shelf with drawers (ekby_alex.js) hung under the top on the
 //   kitchen side, behind the legs (it's longer than the gap between them).
@@ -46,7 +47,6 @@ export const TORNVIKEN = {
 // island (or of each other, facing); pulled out, they're this much further
 // out (both chosen)
 const CHAIR_CLEAR = 20, CHAIR_OUT = 300;
-const TROLLEY_GAP = 10;   // between the trolleys and the back panel behind them (chosen)
 
 const pineMat = material(0xd9a86a), footrestMat = material(0x222222);
 
@@ -60,7 +60,8 @@ export function tornviken(baseMat, topMat) {
   const layouts = Object.fromEntries(ISLAND_LAYOUTS.map(name => [name, new THREE.Group()]));
   drawStandardShelves(layouts.standard, baseMat, topMat);
   drawFacingShelves(layouts.facing, topMat);
-  drawTrolleys(layouts.trolleys, baseMat);
+  drawStandardShelves(layouts.trolleys, baseMat, topMat, 'trolleys');
+  drawTrolleys(layouts.trolleys);
   drawStandardShelves(layouts.drawers, baseMat, topMat, 'drawers');
   drawDrawers(layouts.drawers);
   const chairs = [rosentorpChair(), rosentorpChair()];   // placeTornviken() adds those shown
@@ -72,11 +73,14 @@ export function tornviken(baseMat, topMat) {
 // there
 export function placeTornviken({ group, layouts, chairs }, layout, chairsAt, againstWall) {
   for (const [name, g] of Object.entries(layouts)) if (name === layout) group.add(g); else group.remove(g);   // only the one shown is in the scene
-  chairSpots(layout, chairsAt).forEach(({ x, y, side }, k) => {
-    chairs[k].position.set(x * MM, 0, y * MM);
-    chairs[k].rotation.y = -side * Math.PI / 2;           // facing across the island
-    const shown = chairsAt !== 'none' && !(againstWall && side < 0);
-    if (shown) group.add(chairs[k]); else group.remove(chairs[k]);   // taken out, not hidden, so the island's size leaves it out
+  const spots = chairSpots(layout, chairsAt);
+  chairs.forEach((chair, k) => {
+    const spot = spots[k];
+    const shown = spot && chairsAt !== 'none' && !(againstWall && spot.side < 0);
+    if (!shown) { group.remove(chair); return; }   // taken out, not hidden, so the island's size leaves it out
+    chair.position.set(spot.x * MM, 0, spot.y * MM);
+    chair.rotation.y = -spot.side * Math.PI / 2;     // facing across the island
+    group.add(chair);
   });
 }
 
@@ -86,18 +90,18 @@ function chairSpots(layout, chairsAt) {
   const { width, length } = TORNVIKEN;
   const out = chairsAt === 'out' ? CHAIR_OUT : 0;
   const centreFrom = knee => width / 2 - knee + CHAIR_CLEAR + out + ROSENTORP.depth / 2;   // the chair's middle, out from the island's
+  if (layout === 'trolleys') return [];                      // the trolleys are in their place
   if (layout === 'facing') {
-    const x = centreFrom(width / 2), y = length / 4;          // across the knee-room half, meeting in the middle
+    const x = centreFrom(width / 2), y = -length / 4;         // across the knee-room half, meeting in the middle
     return [{ x, y, side: 1 }, { x: -x, y, side: -1 }];
   }
   const x = centreFrom(kneeRoom(layout));
   return [{ x, y: -length / 4, side: 1 }, { x, y: length / 4, side: 1 }];
 }
-// With shelves or trolleys along the kitchen side: how deep they are, out
-// to the back panel behind them, and the knee room left under the window
-// side, past the back panel
+// With shelves along the kitchen side: how deep they are, out to the back
+// panel behind them, and the knee room left under the window side, past
+// the back panel
 const storageDepth = layout => ({
-  trolleys: LOSHULT.depth + TROLLEY_GAP,
   drawers: TORNVIKEN.leg + EKBY_ALEX.depth,     // the shelves run back to the drawers' back
 }[layout] ?? TORNVIKEN.shelfDepth);
 const kneeRoom = layout => {
@@ -119,34 +123,33 @@ function drawFrame(g, mat) {
 }
 
 // IKEA's layout: shelves along the kitchen side, a back panel behind them,
-// and a footrest bar for the chairs on the window side; as deep as `layout`
-// has them
+// and a footrest bar for the chairs on the window side (none with the
+// trolleys there); as deep as `layout` has them
 function drawStandardShelves(g, mat, shelfMat, layout = 'standard') {
   const { width, length, overhang, leg, shelves, shelfT } = TORNVIKEN;
   const x0 = overhang - width / 2, back = x0 + storageDepth(layout), y0 = overhang + leg - length / 2, y1 = length / 2 - overhang - leg;
   for (const z of shelves) box({ from: [x0, y0, z], to: [back, y1, z + shelfT] }, shelfMat, g);
-  drawBackPanel(g, mat, back);
+  drawBackPanel(g, mat, back, layout !== 'trolleys');
 }
-// The panel behind the shelves or trolleys, its kitchen side at x `back`,
-// and the chairs' footrest bar just past it
-function drawBackPanel(g, mat, back) {
+// The panel behind the shelves, its kitchen side at x `back`, and the
+// chairs' footrest bar just past it (left out with `footrest` false)
+function drawBackPanel(g, mat, back, withFootrest = true) {
   const { length, overhang, leg, top, topT, apron, shelves, panelT, footrest } = TORNVIKEN;
   const y0 = overhang + leg - length / 2, y1 = length / 2 - overhang - leg;
   box({ from: [back, y0, shelves[0]], to: [back + panelT, y1, top - topT - apron] }, mat, g);   // back panel
-  box({ from: [back + panelT + 30, y0, footrest], to: [back + panelT + 50, y1, footrest + 20] }, footrestMat, g, false);   // footrest bar
+  if (withFootrest) box({ from: [back + panelT + 30, y0, footrest], to: [back + panelT + 50, y1, footrest + 20] }, footrestMat, g, false);   // footrest bar
 }
 
-// Another owner's layout: three trolleys side by side along the kitchen
-// side, between the legs, in front of the back panel
-function drawTrolleys(g, mat) {
+// Another owner's layout: three trolleys side by side along the window
+// side, between the legs, where the chairs would be
+function drawTrolleys(g) {
   const { width, length, overhang, leg } = TORNVIKEN;
-  const x0 = overhang - width / 2, y0 = overhang + leg - length / 2;
+  const x1 = width / 2 - overhang, y0 = overhang + leg - length / 2;
   for (let k = 0; k < 3; k++) {
     const trolley = loshultTrolley();
-    trolley.position.set((x0 + LOSHULT.depth / 2) * MM, 0, (y0 + (k + 0.5) * LOSHULT.width) * MM);
+    trolley.position.set((x1 - LOSHULT.depth / 2) * MM, 0, (y0 + (k + 0.5) * LOSHULT.width) * MM);
     g.add(trolley);
   }
-  drawBackPanel(g, mat, x0 + storageDepth('trolleys'));
 }
 
 // The drawers, hung under the top behind the kitchen side's legs, in the
@@ -158,11 +161,12 @@ function drawDrawers(g) {
   g.add(drawers);
 }
 
-// The owner's layout: the shelves right across one half (-y), closed off
-// at the middle by a pine panel; knee room through the other half
+// The owner's layout: the shelves right across one half (+y, the front
+// wall's), closed off at the middle by a pine panel; knee room through the
+// other half
 function drawFacingShelves(g, shelfMat) {
   const { width, length, overhang, leg, top, topT, apron, shelves, shelfT, panelT } = TORNVIKEN;
-  const x0 = overhang + leg - width / 2, x1 = width / 2 - overhang - leg, y0 = overhang + leg - length / 2;
-  for (const z of shelves) box({ from: [x0, y0, z], to: [x1, 0, z + shelfT] }, shelfMat, g);
-  box({ from: [x0 - leg, 0, shelves[0]], to: [x1 + leg, panelT, top - topT - apron] }, pineMat, g);   // pine panel
+  const x0 = overhang + leg - width / 2, x1 = width / 2 - overhang - leg, y1 = length / 2 - overhang - leg;
+  for (const z of shelves) box({ from: [x0, 0, z], to: [x1, y1, z + shelfT] }, shelfMat, g);
+  box({ from: [x0 - leg, -panelT, shelves[0]], to: [x1 + leg, 0, top - topT - apron] }, pineMat, g);   // pine panel
 }
