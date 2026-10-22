@@ -1143,7 +1143,7 @@ test.describe('things to store', () => {
 });
 
 // The views are in each room button's ▾ (the Views menu went, 21 Oct 2026:
-// VIEWS_MENU.md); the Look menu has Where, Looking at, eye height and looks
+// notes/VIEWS_MENU.md); the Look menu has Where, Looking at, eye height and looks
 test.describe('the room buttons\' views and the Look menu', () => {
   test.beforeEach(async ({ page }) => { await openRoom(page); });
   // The Look menu open, if it isn't
@@ -1166,7 +1166,7 @@ test.describe('the room buttons\' views and the Look menu', () => {
 
   // Each room button's ▾, in full, with nothing saved on the device: its
   // headings and choices (roomViewChoices() in living_room.js), as
-  // VIEWS_MENU.md has them; and every choice goes to its room and view
+  // notes/VIEWS_MENU.md has them; and every choice goes to its room and view
   test('each room button\'s ▾ lists its views, and each one goes there', async ({ page }) => {
     const whole = [['birdseye', "Bird's eye"], ['plan', 'Plan (2D)']];
     const LISTS = {
@@ -1264,7 +1264,7 @@ test.describe('the room buttons\' views and the Look menu', () => {
     await expect(page.locator('#loungeViewKind option[value="saved:Test view"]')).toHaveCount(0);
   });
 
-  // Greyed out till there's a look to save, saying why (UI_CRITIQUE.md, step 9)
+  // Greyed out till there's a look to save, saying why (notes/UI_CRITIQUE.md, step 9)
   test('saving and deleting a look', async ({ page }) => {
     await openLook(page);
     await expect(page.locator('#saveLook')).toBeDisabled();

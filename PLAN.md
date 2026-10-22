@@ -2,7 +2,7 @@
 
 What's next, in order. Only what's still to do is here: what's done is in
 git history (`git log`), what was agreed for a piece in its own note
-(`HALLWAY_SHELVES.md`, `UI_CRITIQUE.md`, `VIEWS_MENU.md`, all built), the
+(`notes/HALLWAY_SHELVES.md`, `notes/UI_CRITIQUE.md`, `notes/VIEWS_MENU.md`, all built), the
 model in `room_dimensions.md` and the code's layout in
 `room_3d_ui_guide.md`. `REFACTOR_PLAN.md` has the code's tidying still to do.
 
@@ -47,18 +47,18 @@ list stays.
    - Looking from the hallway into a room. *Still wanted?* The page is
      used a room at a time (the user, 19 Oct 2026).
 
-3. **Segmented controls** (`MENU_TABS.md`'s last part): the short radio
+3. **Segmented controls** (`notes/MENU_TABS.md`'s last part): the short radio
    groups in Lounge options as one row of joined buttons. The tabs before
    them are built (22 Oct 2026).
-4. **Sharing with a designer** (`SHARING.md`, set aside 22 Oct 2026):
+4. **Sharing with a designer** (`notes/SHARING.md`, set aside 22 Oct 2026):
    named links, a set to present, perhaps a shared board. After the UI.
 
 Smaller pieces, any time:
 
-- **Find a setting** (`UI_CRITIQUE.md`'s step 6, put off till steps 1 to 3
+- **Find a setting** (`notes/UI_CRITIQUE.md`'s step 6, put off till steps 1 to 3
   were in, as they now are): a search box in a drawer, or across them.
   To decide.
-- **The desktop screenshots' size** (`testing_questions.md`'s question 4,
+- **The desktop screenshots' size** (`notes/testing_questions.md`'s question 4,
   still open): 1280 × 800 now, or the user's window size.
 
 - **Other parts in the cutting list**: parts not `BOARD` thick (option 9's

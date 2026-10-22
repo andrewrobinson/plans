@@ -1,6 +1,6 @@
 // The radiator under the first window, which can be taken out (asked for,
 // 22 Oct 2026), and the pine cupboard by the door, with the bench past it
-// (route b in PERMUTATIONS.md).
+// (route b in notes/PERMUTATIONS.md).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildFlat } from '../../flat_model.js';

@@ -10,7 +10,7 @@ export const SIZE_LABEL = { w: 'Width', d: 'Depth', h: 'Height' };
 // A labelled slider for [path, label, lowest, highest, step, unit, tip],
 // its ids from id(path): the slider id(path), its label's text
 // `${id(path)}Label` and its value `${id(path)}Value`. The tip, if any, is
-// the label's tooltip: what a short label leaves out (UI_CRITIQUE.md, step 9)
+// the label's tooltip: what a short label leaves out (notes/UI_CRITIQUE.md, step 9)
 export function slider(id) {
   return ([path, label, lo, hi, step, , tip]) =>
     `<label for="${id(path)}"${tip ? ` title="${tip}"` : ''}><span id="${id(path)}Label">${label}</span>: <span id="${id(path)}Value"></span></label>` +
@@ -37,7 +37,7 @@ export function resetButtons(piece, i) {
   return buttons.length ? `<div class="row">${buttons.join('')}</div>` : '';
 }
 
-// A number box in place of each chosen slider's value (UI_CRITIQUE.md,
+// A number box in place of each chosen slider's value (notes/UI_CRITIQUE.md,
 // step 3): a size or place can be typed, not only dragged to. Every slider
 // in `root` with a value (`${slider.id}Value`) for which isWanted(slider,
 // value) is true gets one, so call this once the controls show their

@@ -132,7 +132,7 @@ async function openOptions(page, room = 'lounge') {
   if (await button.getAttribute('aria-expanded') !== 'true') await button.click();
 }
 
-// Choose a tab, by its name, in the drawer that's open (MENU_TABS.md)
+// Choose a tab, by its name, in the drawer that's open (notes/MENU_TABS.md)
 // (its whole name: the garage's Cupboards & shelves isn't the lounge's Cupboard)
 const openTab = (page, name) => page.locator('.drawer').getByRole('tab', { name, exact: true }).filter({ visible: true }).click();
 

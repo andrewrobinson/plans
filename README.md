@@ -28,7 +28,7 @@ takes new screenshots and snapshots when a change is meant to show.
 | File | What |
 | --- | --- |
 | `index.html` | The page and its menus |
-| `controls_demo.html` | A demo of the page's controls and menus beside others it could use (UI_CRITIQUE.md's agreed steps); it touches nothing in the model |
+| `controls_demo.html` | A demo of the page's controls and menus beside others it could use (notes/UI_CRITIQUE.md's agreed steps); it touches nothing in the model |
 | `floor.js` | The walls, doors and windows: the living room's, the hallway's (`HALLWAY`, with the stairs), downstairs (`ENTRANCE`) and the bedroom's (`OTHER_ROOM`, in its own u, v mm) |
 | `flat_model.js` | The model: the living room's fittings and cupboard options, the settings and the configuration's schema, the dimensions, cutting list and things to store, with no page, so Node builds it too (`buildFlat()`) |
 | `living_room.js` | The page: the menus and controls, the built-in views, the configurations and the page address |
@@ -46,8 +46,8 @@ takes new screenshots and snapshots when a change is meant to show.
 | `speakers.js` | The Fenris A5 speakers, a pair on the bench, on Billy or on the corner cupboard |
 | `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
 | `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
-| `stair_walls.js` | The shelves and pictures on the walls over the stairs, and their sliders ([HALLWAY_SHELVES.md](HALLWAY_SHELVES.md)) |
-| `shoe_boxes.js` | The shoe boxes on the sills either side of the top of the stairs, and their sliders ([HALLWAY_SHELVES.md](HALLWAY_SHELVES.md)) |
+| `stair_walls.js` | The shelves and pictures on the walls over the stairs, and their sliders ([notes/HALLWAY_SHELVES.md](notes/HALLWAY_SHELVES.md)) |
+| `shoe_boxes.js` | The shoe boxes on the sills either side of the top of the stairs, and their sliders ([notes/HALLWAY_SHELVES.md](notes/HALLWAY_SHELVES.md)) |
 | `garage.js` | The garage (off the site plan, in its own x, y mm), what's in it, and Garage options' sliders |
 | `living_room.views.js` | The rooms, places (Where), things (Looking at), eye heights and config-defined views, for editing |
 | `living_room.configurations.js`, `dressers.js`, `larders.js`, `sofas.js` | Named configurations and furniture catalogues, for editing |
@@ -100,7 +100,7 @@ The notes:
   stairwell's outside wall), kept apart, all off to start; L-shaped
   shelves joining the TV and WC walls in their corner; and a switch to hide the
   bathroom and WC, which stand in the way of seeing them
-  ([HALLWAY_SHELVES.md](HALLWAY_SHELVES.md)).
+  ([notes/HALLWAY_SHELVES.md](notes/HALLWAY_SHELVES.md)).
 - **The corner cupboards** (the lounge's, and the bedroom's New cupboard)
   each have a **Cupboard height** slider, from 1800 up to the ceiling, and
   the left-wall cupboard's length is a slider. The bedroom's reaches along

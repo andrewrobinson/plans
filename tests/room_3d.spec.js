@@ -83,7 +83,7 @@ test.describe('saved addresses', () => {
 });
 
 // The page's bar and menus, the 3D view behind them hidden: what the UI
-// changes (UI_CRITIQUE.md) are meant to change, so these are retaken with
+// changes (notes/UI_CRITIQUE.md) are meant to change, so these are retaken with
 // them. The page as it opens, then each corner menu and Lounge options open
 test.describe('the bar and menus look the same', () => {
   test.beforeEach(async ({ page }) => { await openRoom(page); });
@@ -108,7 +108,7 @@ test.describe('the bar and menus look the same', () => {
   });
 });
 
-// The long drawers' tabs (MENU_TABS.md): choosing one shows its sections
+// The long drawers' tabs (notes/MENU_TABS.md): choosing one shows its sections
 // and hides the others', the arrow keys move between them, the drawer opens
 // on the one last used, and on either device each drawer's tabs fit across
 // it without scrolling sideways
@@ -170,7 +170,7 @@ test.describe('the drawers\' tabs', () => {
   });
 });
 
-// The top bar fits (REFACTOR_PLAN.md item 5, with UI_CRITIQUE.md's step 1):
+// The top bar fits (REFACTOR_PLAN.md item 5, with notes/UI_CRITIQUE.md's step 1):
 // on a phone (390 wide) its buttons take three rows at most, and on either
 // device the bar, and so its buttons, stop short of Look ▾ at the top right
 const BAR_ROWS_ON_A_PHONE = 3;          // chosen, 19 Oct 2026: about 15% of the screen
@@ -315,7 +315,7 @@ test.describe('the controls', () => {
     expect(await setting(page, 'pieces.cornerCupboard.design.BOARD')).toBe(22);
   });
 
-  // A number typed in the box beside a millimetre slider (UI_CRITIQUE.md,
+  // A number typed in the box beside a millimetre slider (notes/UI_CRITIQUE.md,
   // step 3) goes where the slider would take it: held to its range and
   // step, anything else refused; a word (none) shown beside it; the box
   // following the slider; none beside the angles
@@ -803,7 +803,7 @@ test.describe('Share and Reset', () => {
     await openRoom(page, OPTION_7);
     const remembered = ['room_3d:viewKind:bedroom', 'room_3d:secOtherRoom_extras', 'room_3d:secCupboard', 'aboutOpen', 'paletteOpen', 'room_3d:sheetHeight'];
     await page.evaluate(keys => { for (const k of keys) localStorage.setItem(k, '1'); localStorage.setItem('room_3d:savedViews', '[]'); }, remembered);
-    await page.click('#menu');                                  // in Other options (UI_CRITIQUE.md, step 2)
+    await page.click('#menu');                                  // in Other options (notes/UI_CRITIQUE.md, step 2)
     await page.click('#reload');
     await expect.poll(() => configurationOf(page).catch(() => 'loading')).toEqual(DEFAULT.configuration);
     await expect(page.locator('#reload')).toHaveText('Reload');

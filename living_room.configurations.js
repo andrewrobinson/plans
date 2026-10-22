@@ -2660,7 +2660,7 @@ window.ROOM_CONFIGURATIONS = {
           ]
         }
       } },
-    // L1 (22 Oct 2026, PERMUTATIONS.md): Daybed with someone at the daybed's
+    // L1 (22 Oct 2026, notes/PERMUTATIONS.md): Daybed with someone at the daybed's
     // desk: the first window's radiator out, the daybed flush to the window
     // wall and the option 11 corner cupboard 700 along the back wall, leaving
     // 486 for the chair (the office chair 16 to spare); the dresser on the
@@ -3287,7 +3287,7 @@ window.ROOM_CONFIGURATIONS = {
           "where": "cupboard"
         }
       } },
-    // L2 (22 Oct 2026, PERMUTATIONS.md): the daybed with no chair at its desk,
+    // L2 (22 Oct 2026, notes/PERMUTATIONS.md): the daybed with no chair at its desk,
     // so the corner cupboard can be wide: Option 12's, option 10 at 900 × 1150,
     // 2050 high, without its side bookshelf or fold-down desk, the things to
     // store packed in it; otherwise as L1
@@ -3912,7 +3912,7 @@ window.ROOM_CONFIGURATIONS = {
           "where": "cupboard"
         }
       } },
-    // L3 (22 Oct 2026, PERMUTATIONS.md): the bench in place of the daybed:
+    // L3 (22 Oct 2026, notes/PERMUTATIONS.md): the bench in place of the daybed:
     // Option 12's corner cupboard (option 10 at 900 × 1150, 2050 high, its lit
     // side bookshelf, no fold-down desk) holding the things to store, the
     // bench, its TV and top shelf, the speakers on the bench; otherwise as L1
@@ -4537,7 +4537,7 @@ window.ROOM_CONFIGURATIONS = {
           "where": "cupboard"
         }
       } },
-    // a1 narrow (22 Oct 2026, PERMUTATIONS.md, route a, step 1 towards L1):
+    // a1 narrow (22 Oct 2026, notes/PERMUTATIONS.md, route a, step 1 towards L1):
     // today's rooms (18 October 2026) with the excluded pieces gone (BillyChest, the Ivar, the tables, the dark bookcase, the bedside tables, the Kvistbro, the laundry basket), the Drift, no TV, nothing on the front wall;
     // L1's corner cupboard (option 11, 730 along the back wall, out to the door
     // frame), Billy still the bench with the speakers on it, the pine cupboard

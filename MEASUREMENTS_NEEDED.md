@@ -174,7 +174,7 @@ across the hallway and through the door frames fix where each room sits.
 - [ ] **Each door off the hallway** (the bathroom and WC): position, opening
       width, and which way it opens.
 - [ ] **The walls over the stairs** (for the shelves and pictures,
-      HALLWAY_SHELVES.md): the WC wall's bottom over the well (drawn at
+      notes/HALLWAY_SHELVES.md): the WC wall's bottom over the well (drawn at
       the hallway floor's level), and whether the ceiling over the
       stairwell is the hallway's (2443 taken).
 - [ ] **The hallway radiator,** on the other room's wall just past its

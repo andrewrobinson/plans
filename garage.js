@@ -134,7 +134,7 @@ const PIECES = {
 };
 function sizesOf({ w, d, h }) { return { w, d, h }; }
 const PIECE_KEYS = Object.keys(PIECES);
-// Garage options' tabs, the pieces by their group (MENU_TABS.md, chosen)
+// Garage options' tabs, the pieces by their group (notes/MENU_TABS.md, chosen)
 const GROUPS = { shelves: 'Cupboards & shelves', tables: 'Tables & benches', boxes: 'Boxes' };
 const LYING_KEYS = PIECE_KEYS.filter(piece => PIECES[piece].canLie);
 

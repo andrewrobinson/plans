@@ -1,5 +1,5 @@
 // Shelves and pictures over the stairs (agreed 19 Oct 2026, PLAN.md and
-// HALLWAY_SHELVES.md): on the three walls that rise from the hallway floor
+// notes/HALLWAY_SHELVES.md): on the three walls that rise from the hallway floor
 // to the ceiling round the stairwell, each wall with its own white
 // floating shelves (0 to 3) and one blank picture in a thin black frame,
 // high up, from the hallway floor. None bought yet, so all sliders,

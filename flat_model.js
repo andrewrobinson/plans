@@ -59,7 +59,7 @@ export const world = new THREE.Group();
 // cupboard's boards drawn faint. The hallway is hidden in the lounge's and
 // the bedroom's wall views: its stairwell would hang below their floor
 // See-through is set on the cupboards' materials, which keep it, and isn't
-// kept here (ui_paradigm_analysis.md: the view's switches are to leave this
+// kept here (notes/ui_paradigm_analysis.md: the view's switches are to leave this
 // module's own state)
 // The rooms whose wall views the hallway's stairwell would hang below the
 // floor of, next door (the hallway's group holds downstairs and the garage
@@ -414,7 +414,7 @@ export const inLivingRoom = key => config.pieces[LIVING_ROOM_PIECES[key] ?? key]
 // GARAGE_DOOR). They're the view's, not the configuration's: a door's
 // angle changes nothing that's made, so it's how you're looking, as the
 // camera is (REFACTOR_PLAN.md item 12, decided 17 Oct 2026 in
-// ui_paradigm_analysis.md). Set by the door controls and by some views (the
+// notes/ui_paradigm_analysis.md). Set by the door controls and by some views (the
 // room door shut on walking in, the cupboard's open for packing), and
 // turned by turnDoors(), without rebuilding
 const DOORS_START = { room: 90, tall: 0, second: 0, bedroom: 90, flat: 0, outside: 0, bedroomCupboardTall: 0, bedroomCupboardSecond: 0, desk: 0, bedroomCupboardDesk: 0, garage: 'hidden' };
@@ -1547,7 +1547,7 @@ const BACK_WALL_KEYS = Object.keys(BACK_WALL_PIECES);
 const FACING = { 0: 'the front wall', 90: 'the left wall', 180: 'the back wall', 270: 'the right wall' };
 const onBackWall = () => BACK_WALL_KEYS.filter(key => inLivingRoom(key).on);
 // The pine cupboard in the corner by the door, standing in for the corner
-// cupboard there (route b in PERMUTATIONS.md, 22 Oct 2026): moved, its back
+// cupboard there (route b in notes/PERMUTATIONS.md, 22 Oct 2026): moved, its back
 // to the left wall (facing the right wall), no further from it than
 // PINE_BY_DOOR_X. There it isn't in the bench's place: the bench, and what's
 // above it, start past it

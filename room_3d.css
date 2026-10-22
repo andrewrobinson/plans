@@ -128,7 +128,7 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
 /* A section that doesn't fold (Other options' This page), headed as the others */
 .drawer div.sec { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 6px; }
 .drawer .sec > .secHead { font-weight: bold; font-size: 14px; color: #1f4e79; padding: 2px 0; }
-/* The long drawers' tabs (kit/tabs_kit.js, MENU_TABS.md): a row under the
+/* The long drawers' tabs (kit/tabs_kit.js, notes/MENU_TABS.md): a row under the
    drawer's title that stays in view as the drawer scrolls, the chosen tab
    underlined in the sections' blue. The row runs the drawer's full width
    (its 14px side padding taken back) and sticks at its top edge (its 12px

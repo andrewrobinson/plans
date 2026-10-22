@@ -29,9 +29,34 @@ by its word, the schema's entries a path each), and the controls tests
 from the page as it opens. Each step kept what the page does (no snapshot
 or screenshot changes) unless it said otherwise.
 
-Nothing's left on a track. What's below is for as you go, or any time;
-`ui_paradigm_analysis.md`'s recommendations 3, 4 and 6 are on no list
-yet.
+### Cheaper changes (agreed 22 Oct 2026, in progress)
+
+Changes had started to feel expensive in run time, test time and tokens
+(what Claude reads is sent again with every step after it, so big files
+cost over and over). In order:
+
+1. **Notes**: finished ones moved to `notes/` and trimmed to their
+   decisions (full text in git at `05f88b7`). Done.
+2. **Measure**: time each test file and `rebuild()`, then go after the
+   slowest (a device-free check on one device only, the model's tests in
+   parallel).
+3. **`flat_model.js` into `model/`**: shared state in `model/state.js`
+   (`config`, `world`, what's shown, what's drawn); the settings, the
+   kitchen, colours, the front wall, the bench wall, loose pieces, things
+   to store, dimensions and the cupboards a file each; `flat_model.js`
+   left as the front door, its exports unchanged.
+4. **`living_room.js` into `page/`**: stored controls, tips, colours,
+   piece controls, views, room buttons; `living_room.js` keeps start-up.
+5. **`tests/controls.spec.js` into `tests/controls/`** (inputs, pieces,
+   hallway and garage, views), and the demos into `demos/`.
+6. **`CODE_MAP.md`**: a line per file, read first.
+
+Put off: the configurations as differences from a frozen base (would take
+`living_room.configurations.js` from 208 KB to about 20 KB): the user is
+thinking about it.
+
+Nothing else is on a track. `notes/ui_paradigm_analysis.md`'s
+recommendations 3, 4 and 6 are on no list yet.
 
 As you go (CLAUDE.md): a function's numbers named and long functions split
 when they're next changed; `stairWallsControls()` (about 80 lines) is the
@@ -39,11 +64,8 @@ first.
 
 Any time:
 
-- **The big files**: `flat_model.js` has grown from 1,582 lines after the
-  corner cupboard left it to 1,917, and `living_room.js` is 1,309. Which
-  pieces could leave each, to decide (suggested 19 Oct 2026, not agreed).
-- **`testing_questions.md`**: still open (phone or desktop, window size,
-  how often), with fewer browser runs now most combinations run in Node.
+- **`notes/testing_questions.md`**: question 4 (the desktop screenshots'
+  size) still open.
 
 ---
 

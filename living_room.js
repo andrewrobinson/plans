@@ -1243,7 +1243,7 @@ const ROOM_BUTTONS = {
 };
 const optionsOf = room => ROOM_BUTTONS[room] ?? ROOM_BUTTONS.hallway;     // downstairs: the hallway's
 // What each room's button offers in its ▾ (the Views menu went, 21 Oct
-// 2026, as VIEWS_MENU.md says): the views that frame any room (Bird's eye,
+// 2026, as notes/VIEWS_MENU.md says): the views that frame any room (Bird's eye,
 // Plan), the room's four walls in 2D (each named as the room's own wall),
 // the room's config-defined views (living_room.views.js) and the views saved
 // in it on this device. The hallway's carries downstairs too, which has no
@@ -1414,7 +1414,7 @@ const syncGarage = garageControls(document.getElementById('garageBlock'), edits 
   turnDoorsTo({ garage: word });
   viewKit.writeView();                                          // the view's, as the door sliders'
 });
-// The long drawers' tabs (MENU_TABS.md): Lounge, Hallway and stairs, and
+// The long drawers' tabs (notes/MENU_TABS.md): Lounge, Hallway and stairs, and
 // Garage options, the garage's built by garage.js, so after it
 drawerTabs();
 // The drawers' sections open or closed as they were left here, those the

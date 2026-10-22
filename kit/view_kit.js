@@ -145,7 +145,7 @@ function viewState({ EYES, config, firstRoom, firstView, load }) {
 // View ids: a config-defined or built-in view's own, 'saved:<name>', or
 // 'look:<place>:<thing>'
 const lookParts = id => id.split(':').slice(1);
-// A Save button greyed out says why in its tooltip (UI_CRITIQUE.md, step
+// A Save button greyed out says why in its tooltip (notes/UI_CRITIQUE.md, step
 // 9), its own tooltip back once it can be used
 function canUse(button, yes, whyNot) {
   button.dataset.title ??= button.title;
