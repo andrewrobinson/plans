@@ -2,7 +2,9 @@
 
 The broad choices for the lounge and the bedroom, narrowed with the user's
 answers (22 Oct 2026). Each step and end state named here is in the page's
-Configuration list. Today's rooms are **18 October 2026**.
+**Configs ▾** list (top right, under Look). Today's rooms are **18 October
+2026**. Set aside on 22 Oct 2026, to come back to: where it got to is
+under *To decide when this is picked up again*, at the end.
 
 ## Out of every permutation
 
@@ -140,3 +142,25 @@ the second cupboard:
   (1400). Option 11's open into the daybed chair's space.
 - The pine cupboard's end, 31 past the start of the door frame.
 - Higher chairs at the island: how many, and their room round it.
+
+## To decide when this is picked up again
+
+Where it was left (22 Oct 2026), in the order they'd settle things:
+
+1. **L1's hoover.** At 700 along the back wall, L1's option 11 holds 5 of
+   the 7 things to store, and the hoover sticks out. Ways round it: make
+   the cupboard deeper or wider (wider takes room from the daybed's chair),
+   choose another packing, or keep the hoover elsewhere. The user was
+   going to look at L1 on the page first.
+2. **A chair at the daybed's desk, or not.** This sets how wide the
+   lounge's corner cupboard can be (L1, against L2), so it's decided
+   before that cupboard is built.
+3. **The daybed or the bench** (L1/L2, against L3), and with it the Drift
+   or the Merton at the end.
+4. **Route a or b:** which room gets the one custom cupboard first.
+5. **The bedroom cupboard, option 7 or 8.** Only option 8 is drawn.
+6. **The kitchen end, K1 to K3.** Compared by hand, not in the
+   configurations.
+
+Not yet in the model: the pine cupboard's inside (what it can hold beside
+its hanging space), a smaller yellow tub, and higher chairs at the island.
