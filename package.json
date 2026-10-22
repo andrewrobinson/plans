@@ -3,6 +3,7 @@
   "private": true,
   "description": "Tests for the cupboard planner: the model's in Node (test:model), the page's in browsers. The site itself has no dependencies or build step.",
   "scripts": {
+    "prepare": "git config core.hooksPath githooks",
     "serve": "python3 serve.py",
     "test": "playwright test",
     "test:quick": "playwright test --project=iphone",

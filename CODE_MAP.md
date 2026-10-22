@@ -23,7 +23,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `cupboard_controls.js` | 130 | A corner cupboard's controls, copied for the bedroom's (`copyControls`) |
 | `living_room.views.js` | 240 | Data: rooms, places (Where), things (Looking at), eye heights, config-defined views |
 | `living_room.configurations.js` | 8,500 | Data: the named configurations in Configs ▾. Large: search it, don't read it |
-| `sw.js` | 110 | The service worker: the files cached for offline use, and `CACHE` (bump it when a file changes) |
+| `sw.js` | 110 | The service worker: the files cached for offline use, and `CACHE`, set on each commit from a hash of those files (`githooks/cache_version.mjs`; `npm install` turns the hook on) |
 
 ## The model (no page: Node builds it too)
 

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Keeps the offline cache in step with the files it holds (cache_version.mjs)
+exec node githooks/cache_version.mjs
