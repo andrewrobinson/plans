@@ -260,6 +260,22 @@
             <label for="diagLeft" title="Where the diagonal starts on the left-wall leg, in from the leg’s end">Diagonal in, left-wall leg: <span id="diagLeftValue">0</span></label>
             <input id="diagLeft" type="range" min="0" max="2700" step="10" value="0">
           </div>
+          <!-- Options 7 and 8's shallow ends (asked for, 22 Oct 2026) -->
+          <div id="endsBlock">
+            <label class="switch"><input type="checkbox" id="endsOn"> Shallow ends</label>
+            <div id="endsDetails">
+              <label for="endBack" title="How far in from the back-wall leg’s end it stands shallower">Shallow end, back-wall leg: <span id="endBackValue">400</span></label>
+              <input id="endBack" type="range" min="100" max="1200" step="10" value="400">
+              <label for="endBackD">...its depth: <span id="endBackDValue">300</span></label>
+              <input id="endBackD" type="range" min="150" max="800" step="10" value="300">
+              <div id="endLeftBlock">
+                <label for="endLeft" title="How far in from the left-wall leg’s end it stands shallower">Shallow end, left-wall leg: <span id="endLeftValue">400</span></label>
+                <input id="endLeft" type="range" min="100" max="1300" step="10" value="400">
+                <label for="endLeftD">...its depth: <span id="endLeftDValue">300</span></label>
+                <input id="endLeftD" type="range" min="150" max="800" step="10" value="300">
+              </div>
+            </div>
+          </div>
           <!-- The cupboard's height last, in every option (asked for, 18 Oct 2026) -->
           <label for="top">Cupboard height: <span id="topValue">ceiling</span></label>
           <input id="top" type="range" min="1800" max="2450" step="10" value="2450">

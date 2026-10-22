@@ -13,7 +13,8 @@ import { rearLabel } from './corner_cupboard.js';
 // The sliders, by their ids, and the settings they change, bar the
 // left-wall cupboard's depth (with its "none")
 const CUPBOARD_SLIDERS = [['rear', 'R'], ['leftLen', 'F'], ['board', 'BOARD'], ['leg', 'LEG'], ['legD', 'LEG_D'],
-  ['diagRun', 'DIAG_RUN'], ['diagBack', 'DIAG_BACK'], ['diagLeft', 'DIAG_LEFT'], ['ward', 'WARD'], ['wardD', 'WARD_D'],
+  ['diagRun', 'DIAG_RUN'], ['diagBack', 'DIAG_BACK'], ['diagLeft', 'DIAG_LEFT'],
+  ['endBack', 'END_BACK'], ['endBackD', 'END_BACK_D'], ['endLeft', 'END_LEFT'], ['endLeftD', 'END_LEFT_D'], ['ward', 'WARD'], ['wardD', 'WARD_D'],
   ['tower', 'TOWER'], ['cornerW', 'CORNER_W'], ['cornerD', 'CORNER_D'], ['sideW', 'SIDE_W'], ['sideD', 'SIDE_D'],
   ['deskW', 'DESK_W'], ['deskD', 'DESK_D'], ['deskH', 'DESK_H']];
 // The left-wall cupboard's depth slider: none at its far left (290, index.html),
@@ -86,6 +87,7 @@ export function cupboardControls({ piece, id = name => name, change, options = O
   for (const [name, key] of CUPBOARD_SLIDERS) el(name).addEventListener('input', e => setSize(key, Number(e.target.value)));
   el('sideShelfOn').addEventListener('change', e => set('SIDE_SHELF', e.target.checked));
   el('deskOn').addEventListener('change', e => set('DESK', e.target.checked));
+  el('endsOn').addEventListener('change', e => set('ENDS', e.target.checked));
   for (const k of ['back', 'left']) shelfInputs[k].addEventListener('change', () => set(`L_SHELVES.${k}`, readShelves(shelfInputs[k].value)));
 
   function sync() {
@@ -100,6 +102,7 @@ export function cupboardControls({ piece, id = name => name, change, options = O
     for (const [name, key] of CUPBOARD_SLIDERS) slide(name, value(key));
     el('sideShelfOn').checked = value('SIDE_SHELF');
     el('deskOn').checked = value('DESK');
+    el('endsOn').checked = value('ENDS');
     for (const k of ['back', 'left']) shelfInputs[k].value = value(`L_SHELVES.${k}`).join(', ');
   }
 
@@ -112,6 +115,9 @@ export function cupboardControls({ piece, id = name => name, change, options = O
     shown('tallBlock', Boolean(cupboardOf(piece)?.doors.tall.length));
     shown('legBlock', no === 7);
     shown('diagBlock', no === 8);
+    shown('endsBlock', no === 7 || no === 8);
+    shown('endsDetails', value('ENDS'));
+    shown('endLeftBlock', value('T') > 0);                      // no left-wall leg, no end to it
     shown('wardBlock', no === 9);
     shown('cornerBlock', no === 10 || no === 11);
     shown('sideShelfBlock', no === 10);                         // option 11's doors open where it would stand

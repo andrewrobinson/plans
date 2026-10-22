@@ -146,6 +146,11 @@ const config = {
       DIAG_RUN: 700,                   // option 8's back-wall leg, inside along the back wall from the left-wall cupboard: 400 up to the room's limit (700 as it was first drawn)
       DIAG_BACK: 0,                    // ...its front running straight in from the back-wall leg's end before the diagonal starts: 0 (none) on
       DIAG_LEFT: 0,                    // ...and likewise from the left-wall leg's end (both asked for, 18 Oct 2026)
+      ENDS: false,                     // options 7 and 8's shallow ends: each leg's last stretch shallower, stepping in (asked for, 22 Oct 2026)
+      END_BACK: 400,                   // ...the back-wall leg's, in from its end (100 to 1200; held to the leg) and its depth from the back wall (150 to 800): both chosen
+      END_BACK_D: 300,
+      END_LEFT: 400,                   // ...and the left-wall leg's, in from its end (100 to 1300) and its depth from the left wall
+      END_LEFT_D: 300,
       WARD: 900,                       // option 9's full-height double-door cupboard on the back wall: 600 to 1400 wide
       WARD_D: 600,                     // ...its own depth from the back wall (330 to 1000), so it can stand deeper than the bench and tower, which stay R deep
       TOWER: 400,                      // ...then an open shelving tower: 0 to 600 wide (0 for none)

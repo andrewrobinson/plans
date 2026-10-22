@@ -128,6 +128,9 @@ The right-hand wall (x = 3838), drawn so it's only visible from inside. The **Ri
 | Back-wall leg length | `DIAG_RUN` | 400 to 1200, in 10s (the bedroom's to its recess, in 1s) | 700 | Option 8: its back-wall leg, inside along the back wall from the left-wall cupboard; the bench starts at x = T + DIAG_RUN. 700 is the run it was first drawn with |
 | Diagonal starts on the back-wall leg | `DIAG_BACK` | 0 to 1800, in 10s, held to DIAG_RUN − 100 | 0 | Option 8: how far its front runs straight in from the back-wall leg's end (R out from the back wall) before the diagonal starts, with a door of its own (or more, past 600), hinged at the leg's end and opening with the diagonal doors. 0 for none, as it was first drawn |
 | Diagonal starts on the left-wall leg | `DIAG_LEFT` | 0 to 2700, in 10s, held to F − R − 100 | 0 | Option 8: likewise along the left-wall leg (T out from the left wall), with a door of its own (or more, past 600), hinged at the leg's end, on the left-wall leg door's slider. The diagonal joins the two straight runs; its pair of doors are each (its length − 9) / 2, or two pairs once that's over 600 (asked for, 18 Oct 2026) |
+| Shallow ends | `ENDS` | on, off | off | Options 7 and 8: each leg's last stretch stands shallower, with a return board at the step and no doors, as open bookshelves, and a full-height divider between it and the cupboard. A leg's deep part keeps at least 200 (`MIN_DEEP`), else the whole leg is shallow. In option 8 the ends are the outer part of each straight front (`DIAG_BACK`, `DIAG_LEFT`) (asked for, 22 Oct 2026) |
+| Shallow end, back-wall leg | `END_BACK`, `END_BACK_D` | 100 to 1200; 150 to 800, in 10s | 400; 300 | How far in from the back-wall leg's end it's shallow, and how deep it is there. None if not shallower than the leg |
+| Shallow end, left-wall leg | `END_LEFT`, `END_LEFT_D` | 100 to 1300; 150 to 800, in 10s | 400; 300 | Likewise the left-wall leg's, its depth from the left wall |
 | Double-door cupboard width | `WARD` | 600 to 1400, in 50s | 900 | Option 9: width of the full-height double-door cupboard on the back wall. Each door is (WARD − BOARD − 9) / 2, or two pairs once that's over 600 |
 | Double-door cupboard depth | `WARD_D` | 330 to 1000, in 10s | 600 | Option 9: its depth from the back wall, independent of the bench |
 | Shelving tower width | `TOWER` | 0 to 600, in 50s | 400 | Option 9: the open shelving tower beside it, R deep (0 for none) |
@@ -178,6 +181,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
   "pieces": {
     "cornerCupboard": { "design": { "option": 10, "T": 600, "R": 330, "F": 1200, "BOARD": 18, "TOP": 0, "LEG": 600, "LEG_D": 600,
       "L_SHELVES": { "back": [600, 1200, 1800], "left": [600, 1200, 1800] }, "DIAG_RUN": 700, "DIAG_BACK": 0, "DIAG_LEFT": 0,
+      "ENDS": false, "END_BACK": 400, "END_BACK_D": 300, "END_LEFT": 400, "END_LEFT_D": 300,
       "WARD": 900, "WARD_D": 600, "TOWER": 400,
       "CORNER_W": 800, "CORNER_D": 650, "SIDE_SHELF": false, "SIDE_W": 400, "SIDE_D": 330 } },
     "bedroomCupboard": { "design": { "option": 10, "…": "as the cornerCupboard's" }, "in": { "bedroom": { "on": false } } },

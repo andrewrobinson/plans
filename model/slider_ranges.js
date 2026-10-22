@@ -14,6 +14,7 @@ const SLIDER_RANGES = {
   cornerW: [500, 1200, 10], cornerD: [0, 1329, 1], sideW: [200, 800, 10], sideD: [150, 800, 10],
   deskW: [300, 1200, 10], deskD: [300, 700, 10], deskH: [650, 800, 10],
   leftLen: [1000, 1329, 1], top: [1800, 2450, 10], diagRun: [400, 1200, 10], diagBack: [0, 1800, 10], diagLeft: [0, 2700, 10],
+  endBack: [100, 1200, 10], endBackD: [150, 800, 10], endLeft: [100, 1300, 10], endLeftD: [150, 800, 10],   // options 7 and 8's shallow ends (chosen)
   shelfDepth: [150, 400, 10], islandTurn: [0, 180, 5], sofaFront: [1000, 3500, 50],
   islandLength: [1200, 3000, 10], islandWidth: [600, 1200, 10],   // the custom island's worktop (chosen: round Howdens' 2400 x 950)
   islandOverhang: [400, 800, 10],   // and how far it runs past the units (the user's, 22 Oct 2026: the plan's 2400 over a 1600 carcass is 800)
