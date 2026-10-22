@@ -29,27 +29,28 @@ by its word, the schema's entries a path each), and the controls tests
 from the page as it opens. Each step kept what the page does (no snapshot
 or screenshot changes) unless it said otherwise.
 
-### Cheaper changes (agreed 22 Oct 2026, in progress)
+### Cheaper changes (agreed 22 Oct 2026)
 
 Changes had started to feel expensive in run time, test time and tokens
 (what Claude reads is sent again with every step after it, so big files
-cost over and over). In order:
+cost over and over). Done on 22 Oct 2026: finished notes moved to
+`notes/` and trimmed; `flat_model.js` split into `model/`,
+`living_room.js` into `page/`, the controls tests into
+`tests/controls/`, the demos into `demos/`; `CODE_MAP.md` written.
 
-1. **Notes**: finished ones moved to `notes/` and trimmed to their
-   decisions (full text in git at `05f88b7`). Done.
-2. **Measure**: time each test file and `rebuild()`, then go after the
-   slowest (a device-free check on one device only, the model's tests in
-   parallel).
-3. **`flat_model.js` into `model/`**: shared state in `model/state.js`
-   (`config`, `world`, what's shown, what's drawn); the settings, the
-   kitchen, colours, the front wall, the bench wall, loose pieces, things
-   to store, dimensions and the cupboards a file each; `flat_model.js`
-   left as the front door, its exports unchanged.
-4. **`living_room.js` into `page/`**: stored controls, tips, colours,
-   piece controls, views, room buttons; `living_room.js` keeps start-up.
-5. **`tests/controls.spec.js` into `tests/controls/`** (inputs, pieces,
-   hallway and garage, views), and the demos into `demos/`.
-6. **`CODE_MAP.md`**: a line per file, read first.
+**Measured** (22 Oct 2026, all passing):
+
+- `npm run test:model`: 76 s, of which 75.6 s is one test,
+  `generated.test.mjs` (the generated configurations, one after another).
+- The full browser suite: 252 s. Test time by file: `room_3d.spec.js` on
+  the desktop 478 s (98 tests), the same on the phone 207 s, the controls
+  tests 263 s (phone only), the demo 25 s. Desktop Chrome takes over twice
+  as long per test as the phone.
+
+**Next, to decide**: run the generated configurations in parallel (a file
+per option, as `node --test` runs files at once); run on the desktop only
+the room tests that depend on its size (the screenshots, the top bar); and
+time `rebuild()` on a phone.
 
 Put off: the configurations as differences from a frozen base (would take
 `living_room.configurations.js` from 208 KB to about 20 KB): the user is

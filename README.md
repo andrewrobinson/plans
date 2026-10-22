@@ -25,45 +25,17 @@ takes new screenshots and snapshots when a change is meant to show.
 
 ## Where things are
 
-| File | What |
-| --- | --- |
-| `index.html` | The page and its menus |
-| `demos/controls_demo.html` | A demo of the page's controls and menus beside others it could use (notes/UI_CRITIQUE.md's agreed steps); it touches nothing in the model |
-| `floor.js` | The walls, doors and windows: the living room's, the hallway's (`HALLWAY`, with the stairs), downstairs (`ENTRANCE`) and the bedroom's (`OTHER_ROOM`, in its own u, v mm) |
-| `flat_model.js` | The model: the living room's fittings and cupboard options, the settings and the configuration's schema, the dimensions, cutting list and things to store, with no page, so Node builds it too (`buildFlat()`) |
-| `living_room.js` | The page: the menus and controls, the built-in views, the configurations and the page address |
-| `other_room.js` | The bedroom's furniture and fitted cupboards, and their sliders |
-| `bookcase.js`, `billy.js` | The bedroom's bookcase, and Billy (drawn as one, standing or lying) and BillyChest, each drawn wherever it stands |
-| `daybed.js` | A daybed sofa (the Drift), as a sofa or a bed |
-| `ivar.js` | The Ivar, standing or lying, wherever it is |
-| `knarrevik.js` | The Knarrevik bedside table (the bedroom has two) |
-| `kvistbro.js` | The Kvistbro storage table, in the bedroom |
-| `laundry_basket.js` | The laundry basket, in the bedroom |
-| `tables.js` | The kitchen tables, Chesham and Cornwall: on their legs, Chesham on its end, Cornwall with its legs off |
-| `castor_desk.js` | The desk on castors, parked by the door or wheeled out to the TV |
-| `desk_daybed.js` | The daybed with a desk and bookcase, on the lounge's back wall in place of the bench or Billy |
-| `work_chairs.js` | The work chairs: the office chair at the kitchen desk, and a smaller armless one for the daybed's desk |
-| `speakers.js` | The Fenris A5 speakers, a pair on the bench, on Billy or on the corner cupboard |
-| `wicker_bench.js` | The hallway's wicker bench, which can be on in any room, and its sliders |
-| `shoe_rack.js` | The shoe rack at the foot of the stairs, downstairs, and its sliders |
-| `stair_walls.js` | The shelves and pictures on the walls over the stairs, and their sliders ([notes/HALLWAY_SHELVES.md](notes/HALLWAY_SHELVES.md)) |
-| `shoe_boxes.js` | The shoe boxes on the sills either side of the top of the stairs, and their sliders ([notes/HALLWAY_SHELVES.md](notes/HALLWAY_SHELVES.md)) |
-| `garage.js` | The garage (off the site plan, in its own x, y mm), what's in it, and Garage options' sliders |
-| `living_room.views.js` | The rooms, places (Where), things (Looking at), eye heights and config-defined views, for editing |
-| `living_room.configurations.js`, `dressers.js`, `larders.js`, `sofas.js` | Named configurations and furniture catalogues, for editing |
-| `kit/config_kit.js` | The configuration: reading and writing it through a schema, and packing it for the address |
-| `tests/` | The browser tests, the saved configurations (`configs/`) and snapshots (`snapshots/`), and the model's tests in Node (`model/`) |
-| `kit/` | The engine: `floor_kit.js`, `view_kit.js` (views, rooms, Where and Looking at), `configuration_kit.js` (the Configuration list), `tabs_kit.js` (the long drawers' tabs) |
-| `drawings/` | The floor plans, and `measure_sheet.html` for sending measurements |
+`CODE_MAP.md` lists every file, what it holds and the names to search for.
 
 The notes:
 
 - `CLAUDE.md`: how to write the code.
+- `CODE_MAP.md`: where everything is.
 - `PLAN.md`: what's next.
 - `room_dimensions.md`: every dimension the model uses, and the configuration's and the page address's format.
 - `MEASUREMENTS_NEEDED.md`: what's measured and what's still to measure, in "Where it's got to".
 - `REFACTOR_PLAN.md`: tidying the code.
-- `room_3d_ui_guide.md`: where each part of the page is.
+- `room_3d_ui_guide.md`: how the page's HTML, CSS and JS fit together.
 
 ## Where it's got to (16 Oct 2026)
 

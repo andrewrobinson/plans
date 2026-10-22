@@ -1,5 +1,9 @@
 # Working on the plans
 
+Read `CODE_MAP.md` first: it says which file holds what, so only that
+file needs opening. Keep it up to date when a file is added, split or
+changes what it holds.
+
 ## Keep the code readable
 
 - Write new code for a person reading it for the first time: names that say
