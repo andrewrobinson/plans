@@ -224,11 +224,11 @@ for (const piece of PIECE_KEYS) Config.setValueAt(GARAGE_START, placeOf(piece), 
 function pieceEntries(piece) {
   const at = placeOf(piece);
   return [
-    Config.onOff(`${at}.on`, `${at}.on`),
-    ...(PIECES[piece].canLie ? [Config.onOff(`${at}.lying`, `${at}.lying`)] : []),
+    Config.onOff(`${at}.on`),
+    ...(PIECES[piece].canLie ? [Config.onOff(`${at}.lying`)] : []),
     ...placeSliders(piece).map(([name, , lo, hi, step]) => {
       const path = settingPath(name);
-      return Config.number(path, path, lo, hi, step, { onSteps: name.endsWith('.turn') });
+      return Config.number(path, lo, hi, step, { onSteps: name.endsWith('.turn') });
     }),
   ];
 }

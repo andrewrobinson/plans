@@ -117,11 +117,11 @@ for (const name of SETTING_NAMES) Config.setValueAt(WICKER_BENCH_START, settingP
 // its turn to quarter turns
 function sliderEntry([name, , lo, hi, step]) {
   const path = settingPath(name);
-  return Config.number(path, path, lo, hi, step, { onSteps: name.endsWith('.turn') });
+  return Config.number(path, lo, hi, step, { onSteps: name.endsWith('.turn') });
 }
 export const WICKER_BENCH_SCHEMA = [
   ...SIZE_SLIDERS.map(sliderEntry),
-  ...ROOM_KEYS.flatMap(room => [Config.onOff(settingPath(`${room}.on`), settingPath(`${room}.on`)), ...placeSliders(room).map(sliderEntry)]),
+  ...ROOM_KEYS.flatMap(room => [Config.onOff(settingPath(`${room}.on`)), ...placeSliders(room).map(sliderEntry)]),
 ];
 
 // ---------------------------------------------------------------------------

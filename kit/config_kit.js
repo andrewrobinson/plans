@@ -5,17 +5,17 @@
 //
 // A schema is a list of entries, one per setting, in the order the
 // configuration lists them (and reads them: a setting checked against
-// another comes after it). Each entry:
-//   path     where it is in the configuration, as 'pieces.shoeRack.design.w'
-//   state    where it is in the page's own settings (living_room.js's
-//            state), as 'shoeRack.w'. To start, the configuration is a
-//            two-way map onto state, so the drawing code needn't change yet
+// another comes after it). The page holds its settings laid out as the
+// configuration is, so an entry's path is the setting's place in both
+// (REFACTOR_PLAN.md items 14 and 15). Each entry:
+//   path     where it is, as 'pieces.shoeRack.design.w'
 //   kind     what it holds, and how it's checked (the makers below):
 //            'number'  with min, max and step (the step isn't checked:
 //                      saved designs have sizes off it, as option 7's leg
 //                      at 582), unless onSteps, as turns are
 //            'onOff'   true or false
-//            'choice'  one of `choices`, words for the page's own values
+//            'choice'  one of `choices`: the configuration's words, or
+//                      words for values of the page's own (the view's doors)
 //            'colour'  a colour code, checked by the room's `isColour`
 //            'other'   anything else, with the entry's own read and write
 //   default  the configuration's value as the page starts, filled in by
@@ -40,20 +40,20 @@ export function setValueAt(object, path, value) {
 // min; { clamp } to bring one outside the range to its nearer end, rather
 // than leave the setting as it was; { also: v => true } for a check of the
 // room's own
-export const number = (path, state, min, max, step, more = {}) => ({ path, state, kind: 'number', min, max, step, ...more });
-export const onOff = (path, state) => ({ path, state, kind: 'onOff' });
-// choices: the configuration's word for each of the page's values, as
-// { nothing: 0, shelves: 1 }; or a list, where they're the same (numbers
-// stay numbers). Kept as [configuration's, page's] pairs
-export const choice = (path, state, choices) => ({
-  path, state, kind: 'choice',
+export const number = (path, min, max, step, more = {}) => ({ path, kind: 'number', min, max, step, ...more });
+export const onOff = path => ({ path, kind: 'onOff' });
+// choices: a list of what it can be (words, or numbers that stay numbers);
+// or the word for each of the page's own values, as { foldedAway: 0,
+// down: 90 }. Kept as [configuration's, page's] pairs
+export const choice = (path, choices) => ({
+  path, kind: 'choice',
   choices: Array.isArray(choices) ? choices.map(c => [c, c]) : Object.entries(choices),
 });
-export const colour = (path, state, isColour) => ({ path, state, kind: 'colour', isColour });
+export const colour = (path, isColour) => ({ path, kind: 'colour', isColour });
 // read(value, was, settings): the page's value, or undefined to leave it as
 // it was; write(value, settings): the configuration's, or undefined to
 // leave it out
-export const other = (path, state, read, write = v => structuredClone(v)) => ({ path, state, kind: 'other', read, write });
+export const other = (path, read, write = v => structuredClone(v)) => ({ path, kind: 'other', read, write });
 
 // ---------------------------------------------------------------------------
 // Reading and writing
@@ -102,21 +102,16 @@ export function mergeInto(object, more) {
 // One setting, by its entry: its value in `settings` as the configuration
 // writes it, and a configuration's value read into `settings`, if it passes
 // its check (true if it did)
-export const configurationValue = (entry, settings) => writeValue(entry, valueAt(settings, entry.state), settings);
+export const configurationValue = (entry, settings) => writeValue(entry, valueAt(settings, entry.path), settings);
 export function readEntry(entry, value, settings) {
-  const read = readValue(entry, value, valueAt(settings, entry.state), settings);
+  const read = readValue(entry, value, valueAt(settings, entry.path), settings);
   if (read === undefined) return false;
-  setValueAt(settings, entry.state, read);
+  setValueAt(settings, entry.path, read);
   return true;
 }
-// The configuration's word for one of the page's values, as a control that
-// holds the page's (an option's index, `above`'s 0 to 4) gives it to set()
-export const wordFor = (entry, pageValue) => writeValue(entry, pageValue);
 
-// A schema's entry by its path in the configuration, and by its setting's
-// place in the page's own settings (as the rooms' controls name them)
+// A schema's entry by its path
 export const entryAt = (schema, path) => schema.find(entry => entry.path === path);
-export const entryOfSetting = (schema, setting) => schema.find(entry => entry.state === setting);
 
 // The configuration of `settings`: every entry's value, in the schema's
 // order, after `head` (as its version), bar any its entry leaves out

@@ -1,5 +1,5 @@
 // A guard on the model's settings (REFACTOR_PLAN.md item 4, 21 Oct 2026):
-// only the model (flat_model.js) writes `state`. Every other file that
+// only the model (flat_model.js) writes `config`, its settings. Every other file that
 // imports it, the page and its menus, only reads it, and changes a setting
 // through set(path, value) or setAll(edits), which check it against the
 // schema. A search of the source, so it fails before the page is run.
@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildFlat, readConfiguration, startAgain, state } from '../../flat_model.js';
+import { buildFlat, readConfiguration, startAgain, config } from '../../flat_model.js';
 import { savedConfigurations, displayOf } from './flat.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -22,13 +22,13 @@ const SOURCES = [
   ...fs.readdirSync(path.join(ROOT, 'kit')).filter(f => f.endsWith('.js')).map(f => `kit/${f}`),
 ].filter(f => f !== MODEL);
 
-// The name a file imports the model's state as, or null if it doesn't
-function stateImportedAs(source) {
+// The name a file imports the model's settings (config) as, or null if it doesn't
+function configImportedAs(source) {
   for (const [, names, from] of source.matchAll(/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"]/g)) {
     if (path.basename(from) !== MODEL) continue;
     for (const name of names.split(',')) {
       const [imported, as] = name.trim().split(/\s+as\s+/);
-      if (imported === 'state') return as ?? imported;
+      if (imported === 'config') return as ?? imported;
     }
   }
   return null;
@@ -54,12 +54,12 @@ function writesTo(name) {
   ];
 }
 
-test('only the model writes state', () => {
+test('only the model writes its settings (config)', () => {
   const importers = [];
   const writes = [];
   for (const file of SOURCES) {
     const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
-    const name = stateImportedAs(source);
+    const name = configImportedAs(source);
     if (!name) continue;
     importers.push(file);
     const patterns = writesTo(name);
@@ -67,8 +67,8 @@ test('only the model writes state', () => {
       if (patterns.some(p => p.test(line))) writes.push(`${file}:${i + 1}: ${line.trim()}`);
     });
   }
-  assert.ok(importers.includes('living_room.js'), 'living_room.js imports state (else this guards nothing)');
-  assert.deepEqual(writes, [], 'state written outside the model: change it through set(path, value) or setAll(edits)');
+  assert.ok(importers.includes('living_room.js'), 'living_room.js imports config (else this guards nothing)');
+  assert.deepEqual(writes, [], 'config written outside the model: change it through set(path, value) or setAll(edits)');
 });
 
 // ...and building writes none of it (REFACTOR_PLAN.md item 13, 22 Oct
@@ -82,9 +82,9 @@ test('building writes no settings', () => {
   for (const { name, configuration, view } of savedConfigurations()) {
     startAgain();
     readConfiguration(configuration);
-    const read = JSON.stringify(state);
+    const read = JSON.stringify(config);
     buildFlat(configuration, view ? displayOf(view) : {});
-    if (JSON.stringify(state) !== read) changed.push(name);
+    if (JSON.stringify(config) !== read) changed.push(name);
   }
   assert.deepEqual(changed, [], 'building changed these configurations\' settings');
 });

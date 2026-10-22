@@ -179,11 +179,11 @@ for (const key of ['on', ...DESIGN_KEYS]) Config.setValueAt(SHOE_RACK_START, set
 // then its design, each size held to its slider's range
 const designEntry = key => {
   const path = settingPath(key);
-  if (SWITCHES.includes(key)) return Config.onOff(path, path);
+  if (SWITCHES.includes(key)) return Config.onOff(path);
   const [, , lo, hi, step] = SLIDERS.find(([k]) => k === key);
-  return Config.number(path, path, lo, hi, step);
+  return Config.number(path, lo, hi, step);
 };
-export const SHOE_RACK_SCHEMA = [Config.onOff(settingPath('on'), settingPath('on')), ...DESIGN_KEYS.map(designEntry)];
+export const SHOE_RACK_SCHEMA = [Config.onOff(settingPath('on')), ...DESIGN_KEYS.map(designEntry)];
 
 // ---------------------------------------------------------------------------
 // Drawing: the rack in its own group, its back's middle at the origin, its

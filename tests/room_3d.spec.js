@@ -306,12 +306,12 @@ test.describe('the controls', () => {
 
   test('"Above the bench" shows the TV and shelf sliders that apply', async ({ page }) => {
     const tv = page.locator('#tvBlock'), shelf = page.locator('#shelfBlock');
-    const cases = [['0', false, false], ['1', false, true], ['2', true, false], ['3', true, true], ['4', true, true]];
+    const cases = [['nothing', false, false], ['shelves', false, true], ['tv', true, false], ['tvAndShelves', true, true], ['tvAndTopShelf', true, true]];
     for (const [value, tvShown, shelfShown] of cases) {
       await page.check(`input[name=above][value="${value}"]`);
       await expect(tv).toBeVisible({ visible: tvShown });
       await expect(shelf).toBeVisible({ visible: shelfShown });
-      expect(await setting(page, 'pieces.aboveBench.design.what')).toBe(Number(value));
+      expect(await setting(page, 'pieces.aboveBench.design.what')).toBe(value);
     }
   });
 

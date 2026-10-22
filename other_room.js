@@ -295,13 +295,13 @@ for (const name of SETTING_NAMES) Config.setValueAt(OTHER_ROOM_START, settingPat
 // slider's range, turns to quarter turns
 function sliderEntry(name) {
   const [, , lo, hi, step] = SLIDERS.find(([p]) => p === name), path = settingPath(name);
-  return Config.number(path, path, lo, hi, step, { onSteps: name.endsWith('.turn') });
+  return Config.number(path, lo, hi, step, { onSteps: name.endsWith('.turn') });
 }
-const onOffEntry = name => Config.onOff(settingPath(name), settingPath(name));
+const onOffEntry = name => Config.onOff(settingPath(name));
 const designEntries = piece => SIZES[piece].map(([k]) => sliderEntry(`${piece}.${k}`));
 const placeEntries = (piece, keys = ['u', 'v', 'turn']) => keys.map(k => sliderEntry(`${piece}.${k}`));
 const inBedroom = piece => onOffEntry(`${piece}On`);
-const wallEntry = piece => Config.choice(settingPath(`${piece}.wall`), settingPath(`${piece}.wall`), WALL_KEYS);
+const wallEntry = piece => Config.choice(settingPath(`${piece}.wall`), WALL_KEYS);
 // A piece on a wall's entries: whether it's there, its wall and how far along
 const wallPieceEntries = piece => [inBedroom(piece), wallEntry(piece), ...placeEntries(piece, ['along'])];
 export const OTHER_ROOM_SCHEMA = [

@@ -5,7 +5,7 @@
 // high up, from the hallway floor. None bought yet, so all sliders,
 // starting at the sizes and places the user set, all off to start.
 //
-// flat_model.js holds the settings (state.hallway, as the configuration's
+// flat_model.js holds the settings (config.hallway, as the configuration's
 // hallway, starting as STAIR_WALLS_START: each wall by its name there,
 // wcWall, loungeWall and tvWall, and the L, cornerShelves); this file gives their entries in the configuration
 // (STAIR_WALLS_SCHEMA), keeps a wall's shelves and picture apart
@@ -139,14 +139,14 @@ const CORNER_SLIDERS = [
 // and the L's, hallway.cornerShelves.<key>
 export const STAIR_WALLS_SCHEMA = [
   ...WALL_KEYS.flatMap(wall => ITEMS.flatMap(item => [
-    Config.onOff(`hallway.${wall}.${item}.on`, `hallway.${wall}.${item}.on`),
+    Config.onOff(`hallway.${wall}.${item}.on`),
     ...SLIDERS[item].map(([key]) => {
       const [lo, hi, step] = rangeOf(wall, item, key);
-      return Config.number(`hallway.${wall}.${item}.${key}`, `hallway.${wall}.${item}.${key}`, lo, hi, step);
+      return Config.number(`hallway.${wall}.${item}.${key}`, lo, hi, step);
     }),
   ])),
-  Config.onOff('hallway.cornerShelves.on', 'hallway.cornerShelves.on'),
-  ...CORNER_SLIDERS.map(([key, , lo, hi, step]) => Config.number(`hallway.cornerShelves.${key}`, `hallway.cornerShelves.${key}`, lo, hi, step)),
+  Config.onOff('hallway.cornerShelves.on'),
+  ...CORNER_SLIDERS.map(([key, , lo, hi, step]) => Config.number(`hallway.cornerShelves.${key}`, lo, hi, step)),
 ];
 
 // ---------------------------------------------------------------------------
@@ -207,16 +207,16 @@ function boxSpanOn(wallKey, bounds) {
   if (Math.min(...off) > APART || Math.max(...off) <= 0) return null;
   return { a0: Math.min(...along), a1: Math.max(...along), z0: bounds.z0, z1: bounds.z1 };
 }
-const boxSpansOn = (state, wallKey) =>
-  Object.entries(state.shoeBoxes).map(([key, b]) => boxSpanOn(wallKey, shoeBoxBounds(key, b))).filter(Boolean);
+const boxSpansOn = (walls, wallKey) =>
+  Object.entries(walls.shoeBoxes).map(([key, b]) => boxSpanOn(wallKey, shoeBoxBounds(key, b))).filter(Boolean);
 
 // Why the shoe box `key` can't be as `b` asks, with the walls as `state`
 // has them: it would meet a wall's shelves (the L's arm, where it's on) or
 // its picture. Null when it can
-export function shoeBoxRefusal(state, key, b) {
+export function shoeBoxRefusal(walls, key, b) {
   const meets = WALL_KEYS.filter(wall => {
     const span = boxSpanOn(wall, shoeBoxBounds(key, b));
-    return span && (overlap(span, shelvesSpan(shelvesOn(state, wall))) || overlap(span, pictureSpan(state[wall].picture)));
+    return span && (overlap(span, shelvesSpan(shelvesOn(walls, wall))) || overlap(span, pictureSpan(walls[wall].picture)));
   });
   return meets.length
     ? `No room for this box beside the shelves or picture on ${meets.map(wall => WALLS[wall].label.replace(/^The/, 'the')).join(' and ')}: make it shorter or lower, or move them, first.`
@@ -236,36 +236,36 @@ function cornerArm(wall, c) {
   const along = wall === 'tvWall' ? wallLength('tvWall') - length / 2 : length / 2;
   return { on: c.on, count: c.count, height: c.height, spacing: c.spacing, depth: c.depth, width: length, along };
 }
-const cornerOn = (state, wall) => state.cornerShelves.on && CORNER_WALLS.includes(wall);
+const cornerOn = (walls, wall) => walls.cornerShelves.on && CORNER_WALLS.includes(wall);
 // The shelves on a wall: its own, or, while the L is on, its arm
-const shelvesOn = (state, wall) => (cornerOn(state, wall) ? cornerArm(wall, state.cornerShelves) : state[wall].shelves);
+const shelvesOn = (walls, wall) => (cornerOn(walls, wall) ? cornerArm(wall, walls.cornerShelves) : walls[wall].shelves);
 // Whether the L meets the picture on either of its walls, or a shoe box
-const cornerMeetsPicture = (state, c) => CORNER_WALLS.some(wall => overlap(shelvesSpan(cornerArm(wall, c)), pictureSpan(state[wall].picture)));
-const cornerMeetsBox = (state, c) => CORNER_WALLS.some(wall => boxSpansOn(state, wall).some(span => overlap(shelvesSpan(cornerArm(wall, c)), span)));
+const cornerMeetsPicture = (walls, c) => CORNER_WALLS.some(wall => overlap(shelvesSpan(cornerArm(wall, c)), pictureSpan(walls[wall].picture)));
+const cornerMeetsBox = (walls, c) => CORNER_WALLS.some(wall => boxSpansOn(walls, wall).some(span => overlap(shelvesSpan(cornerArm(wall, c)), span)));
 
 // Every wall's, as a configuration may hold them: the shoe boxes held on
 // their sills, the right one level with the left if it's kept so; the picture held to its wall; the L under the ceiling, and
 // a shoe box it meets left out; on its walls the pictures giving way to it
 // and to the boxes, or left out where they can't; elsewhere the shelves
 // giving way to the picture and the boxes, or left out
-export function settleStairWalls(state) {
-  for (const key of Object.keys(state.shoeBoxes)) state.shoeBoxes[key] = onTheSill(key, state.shoeBoxes[key]);
-  state.shoeBoxes = levelled(state.shoeBoxes);
-  if (state.cornerShelves.on) state.cornerShelves = cornerUnderCeiling(state.cornerShelves);
-  if (state.cornerShelves.on) {
-    for (const key of Object.keys(state.shoeBoxes)) {
-      if (cornerMeetsBox({ ...state, shoeBoxes: { [key]: state.shoeBoxes[key] } }, state.cornerShelves)) state.shoeBoxes[key] = { ...state.shoeBoxes[key], on: false };
+export function settleStairWalls(walls) {
+  for (const key of Object.keys(walls.shoeBoxes)) walls.shoeBoxes[key] = onTheSill(key, walls.shoeBoxes[key]);
+  walls.shoeBoxes = levelled(walls.shoeBoxes);
+  if (walls.cornerShelves.on) walls.cornerShelves = cornerUnderCeiling(walls.cornerShelves);
+  if (walls.cornerShelves.on) {
+    for (const key of Object.keys(walls.shoeBoxes)) {
+      if (cornerMeetsBox({ ...walls, shoeBoxes: { [key]: walls.shoeBoxes[key] } }, walls.cornerShelves)) walls.shoeBoxes[key] = { ...walls.shoeBoxes[key], on: false };
     }
   }
   for (const wall of WALL_KEYS) {
-    const { picture } = state[wall], boxes = boxSpansOn(state, wall);
-    if (picture.on) state[wall] = { ...state[wall], picture: onTheWall(wall, 'picture', picture) };
-    if (cornerOn(state, wall)) {
-      const kept = keepApart(wall, { shelves: cornerArm(wall, state.cornerShelves), picture: state[wall].picture }, 'picture', boxes);
-      state[wall] = { ...state[wall], picture: kept ? kept.picture : { ...state[wall].picture, on: false } };
+    const { picture } = walls[wall], boxes = boxSpansOn(walls, wall);
+    if (picture.on) walls[wall] = { ...walls[wall], picture: onTheWall(wall, 'picture', picture) };
+    if (cornerOn(walls, wall)) {
+      const kept = keepApart(wall, { shelves: cornerArm(wall, walls.cornerShelves), picture: walls[wall].picture }, 'picture', boxes);
+      walls[wall] = { ...walls[wall], picture: kept ? kept.picture : { ...walls[wall].picture, on: false } };
     } else {
-      const kept = keepApart(wall, state[wall], 'shelves', boxes);
-      state[wall] = kept ?? { ...state[wall], shelves: { ...state[wall].shelves, on: false } };
+      const kept = keepApart(wall, walls[wall], 'shelves', boxes);
+      walls[wall] = kept ?? { ...walls[wall], shelves: { ...walls[wall].shelves, on: false } };
     }
   }
 }
@@ -303,12 +303,12 @@ function drawCorner(c) {
   shelvesAlong(WALLS.wcWall, c, c.depth, c.wcLength);
 }
 
-export function drawStairWalls(state) {
+export function drawStairWalls(walls) {
   clearDrawing(stairWalls);
-  if (state.cornerShelves.on) drawCorner(state.cornerShelves);
+  if (walls.cornerShelves.on) drawCorner(walls.cornerShelves);
   for (const key of WALL_KEYS) {
-    const wall = WALLS[key], { shelves: s, picture: p } = state[key];
-    if (!cornerOn(state, key) && shelvesSpan(s)) shelvesAlong(wall, s, s.along - s.width / 2, s.along + s.width / 2);
+    const wall = WALLS[key], { shelves: s, picture: p } = walls[key];
+    if (!cornerOn(walls, key) && shelvesSpan(s)) shelvesAlong(wall, s, s.along - s.width / 2, s.along + s.width / 2);
     const span = pictureSpan(p);
     if (span) {
       const b = FRAME.border;

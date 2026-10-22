@@ -379,8 +379,8 @@ test.describe('dropdowns', () => {
     await expect(page.locator('#sofaFrontBlock')).toBeVisible();
     await slide(page, 'sofaW', 2000);
     await expect(page.locator('#sofaPick')).toHaveValue('custom');
-    await page.selectOption('#sofaPick', '');
-    expect(await setting(page, 'pieces.sofa.design.model')).toBe('');            // none
+    await page.selectOption('#sofaPick', 'none');
+    expect(await setting(page, 'pieces.sofa.design.model')).toBe('none');
     await expect(page.locator('#sofaFrontBlock')).toBeHidden();
   });
 });
@@ -689,7 +689,7 @@ test('the desk on castors parks by the door and wheels out to the TV', async ({ 
   expect(await setting(page, 'pieces.castorDesk.in.livingRoom.move')).toEqual({ x: 2319, y: 1500, turn: 0 });
   await page.locator('#castorDeskHome').click();
   expect(await setting(page, 'pieces.castorDesk.in.livingRoom.move')).toBe(null);
-  expect(await setting(page, 'pieces.castorDesk.in.livingRoom.at')).toBe('tv');
+  expect(await setting(page, 'pieces.castorDesk.in.livingRoom.at')).toBe('atTheTv');
   await toggle(page, 'castorDeskOn', false);
   expect(await box()).toBe(null);
 });
@@ -941,17 +941,17 @@ test.describe('things to store', () => {
 
   test('shown, packed, and where they go', async ({ page }) => {
     await showStoredThenOpen(page);
-    expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 0 });
+    expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 'window' });
     await expect(page.locator('#storedInfo')).toContainText('Standing on the floor they take');
     await page.selectOption('#storedPacking', '2');
-    expect(await storedHead(page)).toEqual({ shown: true, packing: 2, where: 0 });
-    await page.check('input[name=storedWhere][value="1"]');
-    expect(await storedHead(page)).toEqual({ shown: true, packing: 2, where: 1 });
+    expect(await storedHead(page)).toEqual({ shown: true, packing: 2, where: 'window' });
+    await page.check('input[name=storedWhere][value="cupboard"]');
+    expect(await storedHead(page)).toEqual({ shown: true, packing: 2, where: 'cupboard' });
     await expect(page.locator('#storedInfo')).toContainText("corner cupboard");
     await page.click('#roomOptions');                                  // Lounge options shut
     await page.click('#storedToggle');
     await expect(page.locator('#storedToggle')).not.toBeChecked();
-    expect(await storedHead(page)).toEqual({ shown: false, packing: 2, where: 1 });
+    expect(await storedHead(page)).toEqual({ shown: false, packing: 2, where: 'cupboard' });
   });
 
   test('off the floor, then packed again', async ({ page }) => {
@@ -959,10 +959,10 @@ test.describe('things to store', () => {
     const lift = page.locator('#storedLifts input').first();             // Rack 1
     await lift.fill('300');
     await lift.press('Tab');
-    expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 2 });   // as placed by hand now
+    expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 'byHand' });   // as placed by hand now
     expect(await setting(page, 'thingsToStore.spots.0.z')).toBe(300);
     await page.click('#storedPack');                                   // back by the window
-    expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 0 });
+    expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 'window' });
   });
 
   // In the plan, with the drawers shut, the view is centred on (1400, 2860)
@@ -982,7 +982,7 @@ test.describe('things to store', () => {
     await page.mouse.down();
     await page.mouse.move(sx - 500 * perMm, sy, { steps: 5 });
     await page.mouse.up();
-    expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 2 });   // moved by hand
+    expect(await storedHead(page)).toEqual({ shown: true, packing: 0, where: 'byHand' });   // moved by hand
     const rack1 = await setting(page, 'thingsToStore.spots.0');
     expect(rack1.x).toBeGreaterThan(2000);
     expect(rack1.x).toBeLessThan(2100);
@@ -1186,7 +1186,7 @@ test('a walk through the menus, and back to the start', async ({ page }) => {
   await expect(page.locator('#summary')).toContainText('A sofa facing the TV');
 
   // Back as it started
-  await page.selectOption('#sofaPick', '');
+  await page.selectOption('#sofaPick', 'none');
   await page.check('input[name=frontPiece][value="dresser"]');
   await OPTION(10)(page);
   expect(await hash(page)).toBe(start);
