@@ -163,7 +163,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -844,7 +849,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -1480,7 +1490,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -2153,7 +2168,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -2828,7 +2848,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -3457,7 +3482,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -4086,7 +4116,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -4716,7 +4751,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -5388,7 +5428,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -6017,7 +6062,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -6689,7 +6739,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -7365,7 +7420,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {
@@ -8041,7 +8101,12 @@ window.ROOM_CONFIGURATIONS = {
               }
             },
             "design": {
-              "layout": "standard"
+              "type": "ikea",
+              "layout": "standard",
+              "custom": {
+                "length": 2400,
+                "width": 950
+              }
             }
           },
           "sofa": {

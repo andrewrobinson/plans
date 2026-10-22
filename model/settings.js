@@ -13,7 +13,7 @@ import { SHOE_BOXES_SCHEMA } from '../shoe_boxes.js';
 import { GARAGE_DOOR, GARAGE_SCHEMA } from '../garage.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, OTHER_ROOM, hallway } from '../floor.js';
 import { DOORS_START, config, doors } from './state.js';
-import { ISLAND_AT, ISLAND_CHAIRS, ISLAND_LAYOUTS } from './kitchen.js';
+import { ISLAND_AT, ISLAND_CHAIRS, ISLAND_LAYOUTS, ISLAND_TYPES } from './kitchen.js';
 import {
   BEDROOM_ALONG_BREAST, BEDROOM_PLACE, SHELF_WOODS, bedroomCupboard, cupboardLimits, shelfTopsOf, spotFits
 } from './cupboards.js';
@@ -149,7 +149,10 @@ const LIVING_ROOM_SCHEMA = [
   Config.number('pieces.island.in.livingRoom.x', 0, ROOM_WIDTH, 5),
   Config.number('pieces.island.in.livingRoom.y', 0, ROOM_DEPTH, 5),
   fromSlider('pieces.island.in.livingRoom.turn', 'islandTurn'),
+  Config.choice('pieces.island.design.type', ISLAND_TYPES),
   Config.choice('pieces.island.design.layout', ISLAND_LAYOUTS),
+  fromSlider('pieces.island.design.custom.length', 'islandLength'),
+  fromSlider('pieces.island.design.custom.width', 'islandWidth'),
   Config.choice('pieces.island.in.livingRoom.chairs', ISLAND_CHAIRS),
   Config.choice('pieces.sofa.design.model', [NO_SOFA, ...Object.keys(SOFAS)]),
   ...SOFA_SLIDERS.map(([key, id]) => fromSlider(`pieces.sofa.design.${key}`, id, { clamp: true })),

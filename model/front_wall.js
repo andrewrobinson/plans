@@ -11,7 +11,7 @@ import { bookcase } from '../bookcase.js';
 import { daybed, daybedFrame } from '../daybed.js';
 import { floor, ROOM_WIDTH, ROOM_DEPTH, DESK_RECESS } from '../floor.js';
 import { config, doors, drawn } from './state.js';
-import { KITCHEN, islandOnWall, islandSpot } from './kitchen.js';
+import { KITCHEN, islandOnWall, islandSize, islandSpot } from './kitchen.js';
 import { TOP_T, shelves } from './bench_wall.js';
 import { dresserDoorMat, dresserMat, handleMat, shelfMat, sofaMat } from './materials.js';
 
@@ -288,7 +288,7 @@ function bookcaseOnFrontWall(g) {
 function frontSpan() {
   if (islandOnWall()) {
     const { x0, x1 } = islandSpot();
-    return { x0, x1, heights: [0, KITCHEN.island.top] };
+    return { x0, x1, heights: [0, islandSize().top] };
   }
   if (config.livingRoom.frontWall === 'dresser') return { ...dresserSpan(), heights: [0, config.pieces.dresser.design.baseH, config.pieces.dresser.design.h] };
   if (config.livingRoom.frontWall === 'bookshelf') {

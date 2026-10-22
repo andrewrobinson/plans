@@ -204,6 +204,19 @@ test.describe('radio buttons', () => {
     expect(await hash(page)).toBe(before);
   });
 
+  // The custom island has its size, not IKEA's shelves
+  test('which island, and the custom one\'s size', async ({ page }) => {
+    const before = await hash(page);
+    await page.check('input[name=islandType][value="custom"]');
+    expect(await setting(page, 'pieces.island.design.type')).toBe('custom');
+    await expect(page.locator('#islandLayoutRow')).toBeHidden();
+    await endsAndBack(page, 'islandLength', at('pieces.island.design.custom.length'));
+    await endsAndBack(page, 'islandWidth', at('pieces.island.design.custom.width'));
+    await page.check('input[name=islandType][value="ikea"]');
+    await expect(page.locator('#islandSizeBlock')).toBeHidden();
+    expect(await hash(page)).toBe(before);
+  });
+
   test('what\'s on the front wall', async ({ page }) => {
     await OPTION(10)(page);                                      // the room as it is has nothing there
     const before = await settledHash(page);

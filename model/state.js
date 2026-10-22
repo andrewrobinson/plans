@@ -189,10 +189,12 @@ const config = {
       in: { livingRoom: { front: 1900,                 // its front from the TV wall
         move: LOUNGE_NOW.sofa } },   // ...or moved and turned from there: { x, y, turn } (see sofaSpot), or null where it starts
     },
-    // The island (tornviken.js): its layout, one of ISLAND_LAYOUTS; where it
-    // is, one of ISLAND_AT; out there, where its middle is and how far it's
-    // turned (ISLAND_HOME to start); and its chairs, one of ISLAND_CHAIRS
-    island: { design: { layout: 'standard' }, in: { livingRoom: { at: 'room', x: 0, y: 0, turn: 0, chairs: 'in' } } },
+    // The island: which, one of ISLAND_TYPES; IKEA's (tornviken.js) layout,
+    // one of ISLAND_LAYOUTS; the custom one's (custom_island.js) worktop's
+    // length and width (CUSTOM_ISLAND's to start); where it is, one of ISLAND_AT; out there, where its
+    // middle is and how far it's turned (ISLAND_HOME to start); and its
+    // chairs, one of ISLAND_CHAIRS
+    island: { design: { type: 'ikea', layout: 'standard', custom: { length: 0, width: 0 } }, in: { livingRoom: { at: 'room', x: 0, y: 0, turn: 0, chairs: 'in' } } },
     // In the living room in place of the bench (and what's above it), which is
     // then off whatever its own switch says: the bedroom's bookcase and pine
     // cupboard, Billy and BillyChest from the garage (billy.js), and the daybed with a desk and bookcase, each moved

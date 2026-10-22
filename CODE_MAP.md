@@ -34,7 +34,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `model/materials.js` | 15 | The materials things are drawn in |
 | `model/slider_ranges.js` | 15 | `SLIDER_RANGES`: the sliders' ranges the settings are held to |
 | `model/settings.js` | 250 | The schema (`SCHEMA`), reading and writing a configuration, `set`, `get`, `setAll`, `DEFAULT_CONFIGURATION` |
-| `model/kitchen.js` | 140 | `KITCHEN`, where the island stands (`placeIsland`), the office chair, the room door |
+| `model/kitchen.js` | 180 | `KITCHEN`, which island and where it stands (`ISLAND_TYPES`, `islandSize`, `placeIsland`), the office chair, the room door |
 | `model/cupboards.js` | 175 | The two corner cupboards: `buildOption`, `buildBedroomCupboard`, `cupboardLimits`, the bedroom door they clear, `drawBench` |
 | `model/bench_wall.js` | 230 | The back wall: `benchWall`, the TV and shelves (`benchHeights`, `drawTv`), base cupboards, Billy, the pine cupboard, the daybed (`BACK_WALL_PIECES`) |
 | `model/colours.js` | 75 | `FINISHES`, `COLOUR_TARGETS`, `applyColour` |
@@ -50,6 +50,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `wicker_bench.js`, `shoe_rack.js` | 275, 315 | The hallway's wicker bench; the shoe rack downstairs |
 | `bedroom_door.js` | 65 | The bedroom door's swing |
 | `tornviken.js`, `rosentorp.js`, `loshult.js`, `ekby_alex.js` | 170, 45, 35, 35 | The kitchen island (IKEA's TORNVIKEN): its layouts, IKEA's, facing, trolleys and drawers (`ISLAND_LAYOUTS`), and where its chairs go (`placeTornviken`); its bar stools (ROSENTORP), trolleys (LOSHULT) and drawers (EKBY ALEX). Photos in `images/tornvikken_options/` |
+| `custom_island.js` | 105 | The custom built-in island from Howdens' plan, in place of TORNVIKEN: drawers both sides, the worktop running on past them for two ROSENTORP stools, its length and width from sliders (`CUSTOM_ISLAND`, `customIsland`, `placeCustomIsland`). The plan and renders in `images/custom_island/` |
 | Furniture: `billy.js`, `bookcase.js`, `castor_desk.js`, `daybed.js`, `desk_daybed.js`, `ivar.js`, `knarrevik.js`, `kvistbro.js`, `laundry_basket.js`, `speakers.js`, `tables.js`, `work_chairs.js` | 25 to 115 | One piece each, drawn wherever it stands |
 | Catalogues: `dressers.js`, `larders.js`, `sofas.js` | 30 to 50 | Models and sizes, for editing |
 

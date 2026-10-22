@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { MM, material, box, hinge } from '../kit/floor_kit.js';
 import { officeChair } from '../work_chairs.js';
 import { tornviken, placeTornviken, TORNVIKEN, ISLAND_LAYOUTS, ISLAND_CHAIRS } from '../tornviken.js';
+import { customIsland, placeCustomIsland, CUSTOM_ISLAND } from '../custom_island.js';
 import {
   ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, FRIDGE_W, RECESS_FROM, KITCHEN_DEPTH, 
   KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, SINK_RECESS, DESK_TOP, DOOR_HINGE_AT, ROOM_DOOR, ROOM_DOOR_H, 
@@ -17,7 +18,8 @@ import { handleMat, islandMat, islandTopMat, kitchenMat, roomDoorMat, worktopMat
 
 let deskChair = null;            // the office chair
 let tornvikenIsland = null;              // the kitchen island (tornviken.js): its group, layouts and chairs
-let islandGroup = null;          // and its group, which moves
+let builtInIsland = null;        // or the custom one (custom_island.js)
+let islandGroup = null;          // the group holding both, which moves
 const CHAIR_TURN = THREE.MathUtils.degToRad(-160);   // as it stands: facing back into the room, 20° towards the door
 // The kitchen and island as they are, as rough blocks in their real colours
 // for comparing with the cupboard options: an L of 590-deep units in the
@@ -112,7 +114,8 @@ const KITCHEN = {
   face(a1 - a0, alcove.depth, tileMat, (a0 + a1) / 2, aTop, ROOM_DEPTH + alcove.depth / 2, [Math.PI / 2, 0]);    // its top, facing down
   // The island, in a group of its own so it can be moved (see placeIsland)
   tornvikenIsland = tornviken(islandMat, islandTopMat);
-  islandGroup = tornvikenIsland.group;
+  builtInIsland = customIsland(kitchenMat);
+  islandGroup = new THREE.Group();
   world.add(islandGroup);
 }
 
@@ -133,8 +136,17 @@ const islandOnWall = () => config.pieces.island.in.livingRoom.at === 'along' || 
 // middle is, and how far it's turned (0 to 180°). It starts where it is.
 const ISLAND_HOME = { x: KITCHEN.island.x + KITCHEN.island.width / 2, y: KITCHEN.island.y + KITCHEN.island.length / 2, turn: 0 };
 Object.assign(config.pieces.island.in.livingRoom, ISLAND_HOME);
+// Which island it is: IKEA's TORNVIKEN or the custom one, and the size of
+// the one shown (its top's)
+const ISLAND_TYPES = ['ikea', 'custom'];
+Object.assign(config.pieces.island.design.custom, { length: CUSTOM_ISLAND.length, width: CUSTOM_ISLAND.width });
+function islandSize() {
+  const { type, custom } = config.pieces.island.design;
+  if (type === 'custom') return { width: custom.width, length: custom.length, top: CUSTOM_ISLAND.top };
+  return { width: TORNVIKEN.width, length: TORNVIKEN.length, top: TORNVIKEN.top };
+}
 function islandSpot() {
-  const { width, length } = KITCHEN.island, move = config.pieces.island.in.livingRoom, { at } = move;
+  const { width, length } = islandSize(), move = config.pieces.island.in.livingRoom, { at } = move;
   if (at === 'room') {
     // The floor it covers, as a box square to the walls round it turned
     const a = THREE.MathUtils.degToRad(move.turn);
@@ -152,10 +164,16 @@ function placeIsland() {
   islandGroup.position.set((x0 + x1) / 2 * MM, 0, (y0 + y1) / 2 * MM);
   islandGroup.rotation.y = angle ?? (turned ? Math.PI / 2 : 0);   // turned, its chairs' side faces out into the room
   islandGroup.visible = at !== 'none';
-  placeTornviken(tornvikenIsland, config.pieces.island.design.layout, chairs, at === 'along');
+  const { type, layout, custom } = config.pieces.island.design;
+  const [shown, hidden] = type === 'custom' ? [builtInIsland, tornvikenIsland] : [tornvikenIsland, builtInIsland];
+  islandGroup.remove(hidden.group);   // taken out, so the island's size is the one shown
+  islandGroup.add(shown.group);
+  if (type === 'custom') placeCustomIsland(builtInIsland, custom, chairs);
+  else placeTornviken(tornvikenIsland, layout, chairs, at === 'along');
 }
 
 // What the other pieces of the model use
 export {
-  CHAIR_TURN, ISLAND_AT, ISLAND_CHAIRS, ISLAND_LAYOUTS, KITCHEN, deskChair, islandGroup, islandOnWall, islandSpot, placeIsland, roomHinge
+  CHAIR_TURN, ISLAND_AT, ISLAND_CHAIRS, ISLAND_LAYOUTS, ISLAND_TYPES, KITCHEN, deskChair, islandGroup, islandOnWall, islandSize, islandSpot,
+  placeIsland, roomHinge
 };

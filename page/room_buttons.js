@@ -254,6 +254,7 @@ function syncControls() {
   showLarder();
   showSofa();
   check('islandAt', island.at);
+  check('islandType', config.pieces.island.design.type);
   check('islandLayout', config.pieces.island.design.layout);
   check('islandChairs', island.chairs);
   syncOtherRoom(config);
