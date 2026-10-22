@@ -67,8 +67,8 @@ first, then open only the file you need. Sizes are rough line counts
 
 | File | What |
 |---|---|
-| `tests/model/*.test.mjs` | The model in Node (`npm run test:model`, about 75 s, nearly all of it `generated.test.mjs`) |
-| `tests/room_3d.spec.js` | The page in the browser, both devices: saved addresses, screenshots, menus |
+| `tests/model/*.test.mjs` | The model in Node (`npm run test:model`, about 20 s; the generated configurations shared among `generated_1` to `_6`, from `generated.mjs`) |
+| `tests/room_3d.spec.js` | The page in the browser: saved addresses, screenshots, menus; on the desktop only those tagged `@desktop` (its size or keyboard) |
 | `tests/controls/*.spec.js` | Every control, phone only: `inputs`, `pieces`, `hallway_garage`, `views`; shared `helpers.js` |
 | `tests/menu_demo.spec.js` | The menu demo |
 | `tests/helpers.js`, `tests/addresses.js` | Shared helpers; the saved addresses |

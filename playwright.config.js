@@ -16,6 +16,7 @@ const PORT = Number(process.env.PORT) || 8765;
 
 module.exports = defineConfig({
   testDir: 'tests',
+  testMatch: '**/*.spec.js',                 // not the model's tests (tests/model/*.test.mjs): Node runs those
   // The 3D page loads three.js from the CDN and draws in software in a
   // headless browser, so give it time
   timeout: 60_000,
@@ -37,10 +38,13 @@ module.exports = defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
+    // On the desktop, only the room tests tagged @desktop (tests/room_3d.spec.js):
+    // those that depend on its size or its keyboard; the rest are the same
+    // on any device, so they run on the phone alone.
     // The controls tests (tests/controls/) check plain JavaScript, the same
     // in any browser, so they run once, in the faster one: headless Chrome
     // draws the 3D view in software, at about a quarter of WebKit's speed
-    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } }, testIgnore: /tests\/controls\// },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } }, testIgnore: /tests\/controls\//, grep: /@desktop|menu_demo/ },
     // Safari's engine at phone size, close to the phone the app is used on
     { name: 'iphone', use: { ...devices['iPhone 13'] } },
   ],

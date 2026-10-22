@@ -9,6 +9,10 @@
 // sliders too: they stop at the walls),
 // and the same configuration back after a trip through the address. A
 // failure names the setting and gives its link, to open and look at.
+//
+// They're shared out among SHARDS files (generated_1.test.mjs and on), each
+// taking every SHARDS-th configuration, as `node --test` runs files at once
+// (one alone took about 75 s).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildFlat, SCHEMA, OPTIONS } from '../../flat_model.js';
@@ -96,10 +100,17 @@ function problems(flat) {
   return found;
 }
 
-test('generated configurations build, fit and round-trip', async () => {
+export const SHARDS = 6;              // chosen: the Mac has 8 cores, leaving two for the other tests
+const ALL_TRIED = 1000;               // at least this many in all, so a schema that lost its entries fails
+
+export function testShard(shard) {
+  test(`generated configurations build, fit and round-trip (${shard} of ${SHARDS})`, () => tryShard(shard));
+}
+async function tryShard(shard) {
   const failures = [];
-  let tried = 0;
+  let tried = 0, k = 0;
   for (const [what, configuration] of configurations()) {
+    if (k++ % SHARDS !== shard - 1) continue;
     tried++;
     const fail = async problem => failures.push(`${what}: ${problem}\n  ${PAGE}#${await pack(configuration)}`);
     let flat;
@@ -115,6 +126,6 @@ test('generated configurations build, fit and round-trip', async () => {
     const again = buildFlat(await unpack(await pack(read))).configuration;
     if (JSON.stringify(again) !== JSON.stringify(read)) await fail('changed on the way through the address');
   }
-  assert.ok(tried > 1000, `only ${tried} tried`);
+  assert.ok(tried > ALL_TRIED / SHARDS, `only ${tried} tried`);
   assert.deepStrictEqual(failures, [], `${failures.length} of ${tried} failed`);
-});
+}

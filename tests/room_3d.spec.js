@@ -36,10 +36,16 @@ const PICTURED = new Set([
 // them retakes none of these (the bar and menus have their own, below)
 const VIEW_ONLY = { stylePath: path.join(__dirname, 'view_only.css') };
 const CONTROLS_ONLY = { stylePath: path.join(__dirname, 'controls_only.css') };
+// The tests that also run on the desktop (playwright.config.js runs only
+// these there): those whose result depends on the window's size or on a
+// keyboard and mouse: the screenshots, the bar and drawers fitting, the keys,
+// and Share and Screenshot's desktop paths. The rest, the same on any
+// device, run on the phone alone
+const DESKTOP = { tag: '@desktop' };
 
 test.describe('saved addresses', () => {
   for (const { name, configuration, view } of ADDRESSES) {
-    test(`${name} looks the same and round-trips`, async ({ page }) => {
+    test(`${name} looks the same and round-trips`, PICTURED.has(name) ? DESKTOP : {}, async ({ page }) => {
       await openRoom(page, addressOf(configuration, view));
       expect(await configurationOf(page)).toEqual(configuration);
       expect(await viewOf(page)).toEqual(view);
@@ -50,7 +56,7 @@ test.describe('saved addresses', () => {
   }
 
   for (const [id, { configuration }] of CONFIGURATIONS) {
-    test(`configuration ${id} looks the same and round-trips`, async ({ page }) => {
+    test(`configuration ${id} looks the same and round-trips`, PICTURED.has(`configuration-${id}`) ? DESKTOP : {}, async ({ page }) => {
       await openRoom(page, addressOf(configuration));
       // A configuration leaves out the view, so the page shows its starting one
       expect(await configurationOf(page)).toEqual(configuration);
@@ -85,7 +91,7 @@ test.describe('saved addresses', () => {
 // The page's bar and menus, the 3D view behind them hidden: what the UI
 // changes (notes/UI_CRITIQUE.md) are meant to change, so these are retaken with
 // them. The page as it opens, then each corner menu and Lounge options open
-test.describe('the bar and menus look the same', () => {
+test.describe('the bar and menus look the same', DESKTOP, () => {
   test.beforeEach(async ({ page }) => { await openRoom(page); });
 
   test('every menu closed', async ({ page }) => {
@@ -161,7 +167,7 @@ test.describe('the drawers\' tabs', () => {
     await expect(page.locator('#garage_sean_on')).toBeHidden();
   });
 
-  test('each drawer\'s tabs fit across it', async ({ page }) => {
+  test('each drawer\'s tabs fit across it', DESKTOP, async ({ page }) => {
     for (const [room, tabs] of [['lounge', 'loungeTabs'], ['hallway', 'hallTabs'], ['garage', 'garageTabs']]) {
       await openOptions(page, room);
       const { across, needed } = await page.locator(`#${tabs} .tablist`).evaluate(l => ({ across: l.clientWidth, needed: l.scrollWidth }));
@@ -174,7 +180,7 @@ test.describe('the drawers\' tabs', () => {
 // on a phone (390 wide) its buttons take three rows at most, and on either
 // device the bar, and so its buttons, stop short of Look ▾ at the top right
 const BAR_ROWS_ON_A_PHONE = 3;          // chosen, 19 Oct 2026: about 15% of the screen
-test('the top bar fits, clear of Look ▾', async ({ page, isMobile }) => {
+test('the top bar fits, clear of Look ▾', DESKTOP, async ({ page, isMobile }) => {
   await openRoom(page);
   const boxes = await page.locator('#bar > :not(#roomViews), #roomViews > *').evaluateAll(els => els.map(e => e.getBoundingClientRect().toJSON()));
   const look = await page.locator('#viewMenu .popToggle').boundingBox();
@@ -187,7 +193,7 @@ test('the top bar fits, clear of Look ▾', async ({ page, isMobile }) => {
 test.describe('the settings drawers', () => {
   test.beforeEach(async ({ page }) => { await openRoom(page); });
 
-  test('☰ opens it, ✕ and Escape close it', async ({ page }) => {
+  test('☰ opens it, ✕ and Escape close it', DESKTOP, async ({ page }) => {
     const panel = page.locator('#panel');
     await expect(panel).not.toBeInViewport();
     await page.click('#menu');
@@ -698,7 +704,7 @@ test.describe('the controls', () => {
     await expect(page.locator('#islandMoveBlock')).toBeHidden();
   });
 
-  test('a number key chooses an option', async ({ page, isMobile }) => {
+  test('a number key chooses an option', DESKTOP, async ({ page, isMobile }) => {
     test.skip(isMobile, 'no keyboard on a phone');
     await page.click('#loungeClose');
     await page.keyboard.press('9');
@@ -764,7 +770,7 @@ test.describe('the pop-up menus', () => {
 });
 
 test.describe('Share and Reset', () => {
-  test('Share copies the address, or opens the share sheet on a phone', async ({ page, isMobile }) => {
+  test('Share copies the address, or opens the share sheet on a phone', DESKTOP, async ({ page, isMobile }) => {
     // A stand-in for the clipboard and share sheet, so the test doesn't touch
     // the real clipboard (shared by every test running at once, and yours)
     await page.addInitScript(() => {
@@ -780,7 +786,7 @@ test.describe('Share and Reset', () => {
     await expect.poll(() => page.evaluate(() => window.sent)).toEqual([`https://andrewrobinson.github.io/plans/index.html${hash}`]);
   });
 
-  test('Screenshot copies a PNG of the view', async ({ page }) => {
+  test('Screenshot copies a PNG of the view', DESKTOP, async ({ page }) => {
     // A stand-in for the clipboard, as for Share, keeping the picture's type
     // and size
     await page.addInitScript(() => {

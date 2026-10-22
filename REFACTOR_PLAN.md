@@ -47,10 +47,15 @@ cost over and over). Done on 22 Oct 2026: finished notes moved to
   tests 263 s (phone only), the demo 25 s. Desktop Chrome takes over twice
   as long per test as the phone.
 
-**Next, to decide**: run the generated configurations in parallel (a file
-per option, as `node --test` runs files at once); run on the desktop only
-the room tests that depend on its size (the screenshots, the top bar); and
-time `rebuild()` on a phone.
+**Then** (22 Oct 2026): Playwright no longer picks up the model's tests
+(it was running them a second time, as a side effect, in a worker); the
+generated configurations are shared among six files (`generated_1` to
+`_6.test.mjs`); the desktop runs only the room tests tagged `@desktop`
+(screenshots, the bar and drawers fitting, the keys, Share and
+Screenshot). `test:model` 76 s to 21 s; the full browser suite 252 s to
+138 s.
+
+**Still to do**: time `rebuild()` on a phone.
 
 Put off: the configurations as differences from a frozen base (would take
 `living_room.configurations.js` from 208 KB to about 20 KB): the user is
