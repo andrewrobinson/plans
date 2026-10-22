@@ -460,6 +460,30 @@ test.describe('the bedroom\'s cupboard', () => {
     expect(await setting(page, 'pieces.bedroomCupboard.design.TOP')).toBe(2100);
     expect(await setting(page, 'pieces.cornerCupboard.design.TOP')).toBe(0);
   });
+
+  // The bedroom door swinging left as you go in lies along the kitchen-side
+  // wall when it's open, so the cupboard's leg keeps clear of it opened as
+  // far as it must (bedroom_door.js): 2071 at 90°, at any depth; further
+  // when it needs to open less. Doors section says what that means
+  test('swinging left, the door holds the cupboard back as far as it must open', async ({ page }) => {
+    await page.locator('#otherRoom_newCupboardOn').check();
+    await pickOption(page, 7, 'bedroomCupboardCurrent');
+    await slide(page, 'bedroomCupboardDepth', 400);
+    await slide(page, 'bedroomCupboardLeftLen', 2841);
+    expect(await setting(page, 'pieces.bedroomCupboard.design.F')).toBe(2197);           // swinging right, as it was
+    await expect(page.locator('#bedroomDoorMustBlock')).toBeHidden();
+    await page.locator('input[name=bedroomDoorSwings][value=left]').check();
+    expect(await setting(page, 'bedroom.door.swings')).toBe('left');
+    expect(await setting(page, 'pieces.bedroomCupboard.design.F')).toBe(2071);           // brought in clear of it at 90°
+    await expect(page.locator('#bedroomDoorMustBlock')).toBeVisible();
+    await slide(page, 'bedroomDoorMustOpenTo', 60);
+    expect(await setting(page, 'bedroom.door.mustOpenTo')).toBe(60);
+    await slide(page, 'bedroomCupboardLeftLen', 2841);
+    expect(await setting(page, 'pieces.bedroomCupboard.design.F')).toBe(2242);           // needing 60°, it comes out further
+    await expect(page.locator('#bedroomDoorText')).toContainText('up to 2242 and still let the door open to 60°');
+    await page.locator('#bedroomDoorSwingShown').check();
+    expect(await setting(page, 'bedroom.door.swingShown')).toBe(true);
+  });
 });
 
 test.describe('option 7\'s shelves', () => {

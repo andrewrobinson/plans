@@ -47,7 +47,7 @@ import { world, setDisplay, flat, flatView, flatRoom, ROOM_BOXES, cupboardOnly, 
   placeStored, readConfiguration, screenMat, shelfMat, setAll, get, optionsOnShow,
   shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, config, storedGroup, storedMats,
   storedSize, tvAt, tvMat, updateDims, worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, storedSpots, inLivingRoom, aboveHasTv, aboveHasShelves, NO_SOFA,
-  speakerSpacingNow, cupboardTopForSpeakers } from './flat_model.js';
+  speakerSpacingNow, cupboardTopForSpeakers, bedroomDoorText } from './flat_model.js';
 import { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, frameMat, ceilingMat, OTHER_ROOM,
   OTHER_ROOM_CORNER, carpetMat, HALLWAY, ENTRANCE, floor, otherRoom, hallway, entrance, bathroom } from './floor.js';
 
@@ -1377,6 +1377,24 @@ const syncShoeBoxes = shoeBoxesControls(document.getElementById('shoeBoxesBlock'
 // they stand in the way of seeing the hallway and stairs
 const bathroomShown = document.getElementById('bathroomShown');
 bathroomShown.addEventListener('change', () => change([['hallway.bathroomShown', bathroomShown.checked]]));
+// The bedroom door (Bedroom options' Doors): which way it swings going in;
+// swinging left, how far it must open, which the new cupboard keeps clear
+// of; its swing shown on the floor; and what that means for the cupboard
+const bedroomDoorSwings = () => [...document.getElementsByName('bedroomDoorSwings')];
+const bedroomDoorMustOpenTo = document.getElementById('bedroomDoorMustOpenTo');
+const bedroomDoorSwingShown = document.getElementById('bedroomDoorSwingShown');
+for (const radio of bedroomDoorSwings()) radio.addEventListener('change', () => change([['bedroom.door.swings', radio.value]]));
+bedroomDoorMustOpenTo.addEventListener('input', () => change([['bedroom.door.mustOpenTo', Number(bedroomDoorMustOpenTo.value)]]));
+bedroomDoorSwingShown.addEventListener('change', () => change([['bedroom.door.swingShown', bedroomDoorSwingShown.checked]]));
+function syncBedroomDoor() {
+  const { swings, mustOpenTo, swingShown } = config.bedroom.door;
+  for (const radio of bedroomDoorSwings()) radio.checked = radio.value === swings;
+  document.getElementById('bedroomDoorMustBlock').hidden = swings !== 'left';
+  bedroomDoorMustOpenTo.value = String(mustOpenTo);
+  document.getElementById('bedroomDoorMustOpenToValue').textContent = `${mustOpenTo}°`;
+  bedroomDoorSwingShown.checked = swingShown;
+  document.getElementById('bedroomDoorText').textContent = bedroomDoorText();
+}
 // The garage's (garage.js), each piece's place in.garage
 const syncGarage = garageControls(document.getElementById('garageBlock'), edits => change(edits, { look: true }), word => {
   turnDoorsTo({ garage: word });
@@ -1427,6 +1445,7 @@ function syncControls() {
   syncStairWalls(config.hallway);
   syncShoeBoxes(config.hallway);
   bathroomShown.checked = config.hallway.bathroomShown;
+  syncBedroomDoor();
   syncGarage(config);
 }
 

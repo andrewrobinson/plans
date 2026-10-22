@@ -610,6 +610,13 @@ window.ROOM_CONFIGURATIONS = {
           },
           "bathroomShown": true
         },
+        "bedroom": {
+          "door": {
+            "swings": "right",
+            "mustOpenTo": 90,
+            "swingShown": false
+          }
+        },
         "thingsToStore": {
           "shown": true,
           "packing": 0,
@@ -1261,6 +1268,13 @@ window.ROOM_CONFIGURATIONS = {
           },
           "bathroomShown": true
         },
+        "bedroom": {
+          "door": {
+            "swings": "right",
+            "mustOpenTo": 90,
+            "swingShown": false
+          }
+        },
         "thingsToStore": {
           "shown": true,
           "packing": 0,
@@ -1867,6 +1881,13 @@ window.ROOM_CONFIGURATIONS = {
             }
           },
           "bathroomShown": true
+        },
+        "bedroom": {
+          "door": {
+            "swings": "right",
+            "mustOpenTo": 90,
+            "swingShown": false
+          }
         },
         "thingsToStore": {
           "shown": true,

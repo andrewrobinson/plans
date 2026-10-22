@@ -265,7 +265,7 @@ const OTHER_ROOM = {
   // The door, in the hallway wall: 60 from the kitchen-side wall (Q,
   // measured as 50 or 60), a 760 opening (R), in a 150 wall (G), all
   // measured; hinged at the end away from the kitchen and opening into the
-  // room (seen in photos).
+  // room (seen in photos), or, to try, at the kitchen end (bedroom_door.js).
   // The door and its frame are as the living room's.
   door: { fromKitchenWall: 60, width: 760, wall: 150 },
   // The window, in the window wall: 655 from the hallway wall and 1540 wide
@@ -373,10 +373,14 @@ BATHROOM.yLobby = BATHROOM.yPartition + BATHROOM.wall;                 // the lo
 BATHROOM.xWcFront = HALLWAY.xEnd - BATHROOM.lobbyLength;               // the WC's front wall, its lobby face: -3510
 BATHROOM.xWcIn = BATHROOM.xWcFront - BATHROOM.wall;                    // its WC face: -3610
 
-// The bedroom door's thickness, as the living room's (estimated); its hinge
-// is set when the room is drawn below
+// The bedroom door's thickness, as the living room's (estimated); its
+// hinges, one for each way it can swing (bedroom_door.js), are set when the
+// room is drawn below, and its swing drawn on the floor while it's asked for
 const BEDROOM_DOOR_T = 44;
-let bedroomHinge;
+const bedroomHinges = {};
+const doorSwingMat = new THREE.MeshBasicMaterial({ color: 0xc0392b, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthWrite: false });
+const SWING_ABOVE_CARPET = 2;      // the swing drawn just above the carpet, so it shows (chosen)
+let bedroomDoorSwing = null;
 // The carpet, in the bedroom and on the stairs: Cormar's Hampstead wool
 // twist in Dormouse. It's drawn in the colour from the user's photo from the
 // bedroom doorway into the hallway (15 Oct 2026), the carpet beside the
@@ -433,11 +437,15 @@ function drawBedroomShell() {
   box({ from: [doorFrom - JAMB, -door.wall, 0], to: [doorFrom, 0, FRAME_H] }, frameMat, otherRoom);            // frame, hinge side
   box({ from: [doorTo, -door.wall, 0], to: [doorTo + JAMB, 0, FRAME_H] }, frameMat, otherRoom);                // frame, kitchen side
   box({ from: [doorFrom, -door.wall, ROOM_DOOR_H], to: [doorTo, 0, FRAME_H] }, frameMat, otherRoom);           // frame head, down to the door
-  // The door, on a hinge at its hinge side's frame, drawn shut across the
-  // opening (flush with the room's face of the wall); the Doors menu's
-  // slider swings it into the room, 0 shut to 180 back against the wall
-  bedroomHinge = hinge(doorFrom, 0, otherRoom);
-  box({ from: [0, -BEDROOM_DOOR_T, 0], to: [door.width, 0, ROOM_DOOR_H] }, frameMat, bedroomHinge);
+  // The door, on a hinge at one end of the opening, drawn shut across it
+  // (flush with the room's face of the wall); the Doors menu's slider swings
+  // it into the room. Swinging right as you go in, it's hinged at the
+  // window end (doorFrom); swinging left, at the kitchen end (doorTo). Only
+  // the one it swings on is shown (flat_model.js's turnDoors())
+  bedroomHinges.right = hinge(doorFrom, 0, otherRoom);
+  box({ from: [0, -BEDROOM_DOOR_T, 0], to: [door.width, 0, ROOM_DOOR_H] }, frameMat, bedroomHinges.right);
+  bedroomHinges.left = hinge(doorTo, 0, otherRoom);
+  box({ from: [-door.width, -BEDROOM_DOOR_T, 0], to: [0, 0, ROOM_DOOR_H] }, frameMat, bedroomHinges.left);
 
   // The kitchen-side wall, then the chimney breast's face and its side
   // into the recess, and the recess's back
@@ -464,6 +472,28 @@ function drawBedroomShell() {
   top.rotation.x = Math.PI / 2;
   top.position.set(length / 2 * MM, ceiling * MM, recessBack / 2 * MM);
   otherRoom.add(top);
+}
+
+// The bedroom door's swing, on the carpet: the floor its free edge sweeps
+// going from shut to `degrees`, swinging `swings` ('right' or 'left', as
+// bedroom_door.js has it), or nothing unless `shown`. It shows what a
+// cupboard along the kitchen-side wall has to keep clear of
+function drawBedroomDoorSwing(swings, degrees, shown) {
+  if (bedroomDoorSwing) otherRoom.remove(bedroomDoorSwing);
+  bedroomDoorSwing = null;
+  if (!shown) return;
+  const { doorFrom, doorTo, door } = OTHER_ROOM;
+  const hingeU = swings === 'right' ? doorFrom : doorTo, toward = swings === 'right' ? 1 : -1;   // the door runs +u from its hinge, shut, or -u
+  const outline = new THREE.Shape();
+  outline.moveTo(hingeU * MM, 0);
+  for (let a = 0; a <= degrees; a++) {
+    const rad = THREE.MathUtils.degToRad(a);
+    outline.lineTo((hingeU + toward * door.width * Math.cos(rad)) * MM, door.width * Math.sin(rad) * MM);
+  }
+  bedroomDoorSwing = new THREE.Mesh(new THREE.ShapeGeometry(outline), doorSwingMat);
+  bedroomDoorSwing.rotation.x = Math.PI / 2;                     // lying flat: the shape's y along v
+  bedroomDoorSwing.position.y = SWING_ABOVE_CARPET * MM;
+  otherRoom.add(bedroomDoorSwing);
 }
 
 // ---------------------------------------------------------------------------
@@ -875,4 +905,4 @@ export function drawFloor() {
   drawBathroom();
 }
 
-export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, bedroomHinge, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, entrance, BATHROOM, bathroom, flatDoorHinge, outsideDoorHinge, insideFace, faceAround };
+export { ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, WALL_THICKNESS, wallMat, floorMat, FRIDGE_W, RECESS_FROM, KITCHEN_SETBACK, KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, WALL_BETWEEN_RECESSES, SINK_RECESS, DESK_TOP, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, JAMB, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat, ceilingMat, ceiling, downlightMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, otherRoom, bedroomHinges, drawBedroomDoorSwing, carpetMat, CARPET_COLOURS, HALLWAY, hallway, ENTRANCE, entrance, BATHROOM, bathroom, flatDoorHinge, outsideDoorHinge, insideFace, faceAround };

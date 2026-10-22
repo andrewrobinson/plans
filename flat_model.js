@@ -34,6 +34,7 @@ import { castorDesk, castorDeskSizes } from './castor_desk.js';
 import { FENRIS_A5, fenrisA5 } from './speakers.js';
 import { drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard,
   QUARTER_TURN, OTHER_ROOM_SCHEMA } from './other_room.js';
+import { DOOR_SWINGS, SWING_WAYS, sweepInto, opensTo } from './bedroom_door.js';
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
 import { drawShoeRack, shoeRack, SHOE_RACK_START, SHOE_RACK_SCHEMA } from './shoe_rack.js';
 import { drawStairWalls, settleStairWalls, STAIR_WALLS_START, STAIR_WALLS_SCHEMA } from './stair_walls.js';
@@ -42,7 +43,7 @@ import { drawGarage, drawGarageDoor, garagePieces, GARAGE, GARAGE_CORNER, GARAGE
 import { floor, drawFloor, ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, wallMat, floorMat, FRIDGE_W, RECESS_FROM,
   KITCHEN_DEPTH, KITCHEN_RECESS_BACK_WALL_X, DESK_RECESS, SINK_RECESS, DESK_TOP,
   DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, FRAME_H, ROOM_DOOR_H, FRAME_END, frameMat,
-  ceilingMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinge, carpetMat, CARPET_COLOURS,
+  ceilingMat, OUTER, OTHER_ROOM, OTHER_ROOM_CORNER, bedroomHinges, drawBedroomDoorSwing, carpetMat, CARPET_COLOURS,
   HALLWAY, hallway, ENTRANCE, bathroom, flatDoorHinge, outsideDoorHinge } from './floor.js';
 
 // Everything drawn: the flat, the hallway and stairs, the garage, in the
@@ -375,6 +376,11 @@ const config = {
   colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0,   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
     shelves: 0 },                  // the shelves' wood, which of SHELF_WOODS
   livingRoom: { frontWall: 'none' },   // on the front wall between the sink and the desk: one of FRONT_PIECES (none yet)
+  // The bedroom's door: which way it swings going in, 'right' as it is or
+  // 'left' (bedroom_door.js); swinging left, how far it must be able to
+  // open, which the new cupboard keeps clear of (chosen to start: right
+  // back to the wall); and its swing drawn on the floor, or not
+  bedroom: { door: { swings: 'right', mustOpenTo: 90, swingShown: false } },
   // The things to store: shown or not, which of PACKINGS, where (0 by the
   // middle window, 1 in the corner cupboard, 2 moved by hand), and each
   // thing's { x, y, turned, z } once moved by hand (set up with STORED below)
@@ -451,20 +457,48 @@ const BEDROOM_PLACE = { width: OTHER_ROOM.length, depth: OTHER_ROOM.breastFace, 
 // How far the bedroom's cupboard can reach (asked for, 18 Oct 2026): along
 // the chimney breast up to the recess, where its fitted cupboards stand
 // (OTHER_ROOM.breastLength, 1858), and out along the kitchen-side wall till
-// it meets the bedroom door's swing. The door, in the cupboard's own mm (x
-// along the breast from the kitchen-side wall, y out from the breast): in
-// the hallway wall (y = breastFace), its opening from x = fromKitchenWall to
-// fromKitchenWall + width, hinged at the far end and opening into the room,
-// so its edge sweeps a circle `width` round the hinge.
+// it meets the bedroom door's swing (bedroom_door.js). Its x along the
+// breast from the kitchen-side wall is the door's x, and its y out from the
+// breast is the room's depth there less the door's v.
 const BEDROOM_ALONG_BREAST = OTHER_ROOM.breastLength;
-const BEDROOM_DOOR_SWING = { x: OTHER_ROOM.door.fromKitchenWall + OTHER_ROOM.door.width, y: OTHER_ROOM.breastFace, r: OTHER_ROOM.door.width };
 const DOOR_SWING_CLEAR = 10;       // kept clear of the door's swing (chosen)
+// How far the door must be able to open, which the cupboard keeps clear of:
+// swinging right, all the way (as it was before it could swing left);
+// swinging left, as far as the setting says
+const bedroomDoor = () => config.bedroom.door;
+const mustOpenTo = () => (bedroomDoor().swings === 'right' ? DOOR_SWINGS.right.stopsAt : bedroomDoor().mustOpenTo);
 // How far out from the breast a cupboard `deep` out from the kitchen-side
 // wall can reach before the bedroom door's swing
 function clearOfBedroomDoor(deep) {
-  const { x, y, r } = BEDROOM_DOOR_SWING, across = x - deep;      // from the cupboard's front to the hinge, along the breast
-  const reach = across >= r ? 0 : across <= 0 ? r : Math.sqrt(r * r - across * across);   // how far into the room the door sweeps there
-  return Math.floor(y - reach - DOOR_SWING_CLEAR);
+  return Math.floor(OTHER_ROOM.breastFace - sweepInto(bedroomDoor().swings, mustOpenTo(), deep) - DOOR_SWING_CLEAR);
+}
+// The bedroom cupboard's leg along the kitchen-side wall, as built: how
+// deep it is and how far out from the breast it comes (options 10 and 11's
+// corner cupboard, or the left-wall cupboard), or null with none
+function bedroomLegAlongKitchenWall() {
+  const settings = config.pieces.bedroomCupboard.design, { option: no, T, F, CORNER_W } = settings, option = optionOf(no);
+  if (!config.pieces.bedroomCupboard.in.bedroom.on || no === CURRENT_ROOM) return null;
+  if (option.front) return { deep: CORNER_W, out: option.front(settings) };
+  return T === 0 ? null : { deep: T, out: F };
+}
+// How far the bedroom door can open as things stand: to the wall it
+// meets, or to the bedroom cupboard's leg along the kitchen-side wall
+export function bedroomDoorOpensTo() {
+  const { swings } = bedroomDoor(), leg = bedroomLegAlongKitchenWall();
+  return leg ? opensTo(swings, leg.deep, OTHER_ROOM.breastFace - leg.out) : DOOR_SWINGS[swings].stopsAt;
+}
+// What the bedroom door's settings mean for the new cupboard, for Bedroom
+// options' Doors section: how far the door opens, and how far the cupboard
+// can come out along the kitchen-side wall before its swing
+export function bedroomDoorText() {
+  const { swings } = bedroomDoor(), { stopsAt } = DOOR_SWINGS[swings], leg = bedroomLegAlongKitchenWall();
+  const door = swings === 'right'
+    ? `Swinging right as you go in, it opens back to the hallway wall (${stopsAt}°).`
+    : `Swinging left as you go in, it opens along the kitchen-side wall, to ${stopsAt}° where it meets it.`;
+  if (!leg) return `${door} Switch on the new cupboard to see how far it can come out along the kitchen-side wall before the door's swing.`;
+  const must = swings === 'right' ? 'all the way' : `to ${mustOpenTo()}°`;
+  return `${door} The new cupboard, ${leg.deep} deep, can come out along the kitchen-side wall up to ${clearOfBedroomDoor(leg.deep)} ` +
+    `and still let the door open ${must}. It comes out ${leg.out}, so the door opens to ${bedroomDoorOpensTo()}°.`;
 }
 // The most each of a cupboard's sizes can be, given its other `settings`,
 // where it's less than its slider's end. In either room, option 8's straight
@@ -1812,6 +1846,7 @@ const SLIDER_RANGES = {
   leftLen: [1000, 1329, 1], top: [1800, 2450, 10], diagRun: [400, 1200, 10], diagBack: [0, 1800, 10], diagLeft: [0, 2700, 10],
   shelfDepth: [150, 400, 10], islandTurn: [0, 180, 5], sofaFront: [1000, 3500, 50],
   speakerSpacing: [400, 3000, 10],   // between the speakers' middles, chosen: their 170 wide apart, to past the TV's width
+  bedroomDoorMustOpenTo: [45, 90, 1],   // swinging left, how far the bedroom door must open: from half open (chosen) to flat along the wall
 };
 for (const [, id, lo, hi, step] of [...DRESSER_SLIDERS, ...LARDER_SLIDERS, ...SOFA_SLIDERS]) SLIDER_RANGES[id] = [lo, hi, step];
 // A control's id in a copy of the living room's controls: the piece's name,
@@ -1965,6 +2000,10 @@ const SCHEMA = Config.withDefaults([
   ...STAIR_WALLS_SCHEMA,
   ...SHOE_BOXES_SCHEMA,
   Config.onOff('hallway.bathroomShown'),
+  // The bedroom's door: which way it swings, how far it must open, and its swing shown
+  Config.choice('bedroom.door.swings', SWING_WAYS),
+  fromSlider('bedroom.door.mustOpenTo', 'bedroomDoorMustOpenTo'),
+  Config.onOff('bedroom.door.swingShown'),
   ...GARAGE_SCHEMA,
   // The things to store: shown or not, which packing, and where
   Config.onOff('thingsToStore.shown'),
@@ -2018,7 +2057,8 @@ export function setAll(edits) {
 // Settings held to what can be built, as they're set or read, so building
 // writes none (REFACTOR_PLAN.md item 13): each cupboard's option 8 needs a
 // left-wall cupboard, so with none it's option 7, the L; the dresser's
-// upper part is never deeper than its base; and the shelves, pictures and
+// upper part is never deeper than its base; the bedroom cupboard keeps
+// clear of its door's swing; and the shelves, pictures and
 // shoe boxes over the stairs stay on their walls and sills and clear of
 // each other (stair_walls.js's settleStairWalls())
 function holdSettings() {
@@ -2027,7 +2067,16 @@ function holdSettings() {
     if (settings.T === 0 && optionOf(settings.option).needsLeft) settings.option = 7;
   }
   config.pieces.dresser.design.upperD = Math.min(config.pieces.dresser.design.upperD, config.pieces.dresser.design.baseD);
+  holdClearOfBedroomDoor();
   settleStairWalls(config.hallway);
+}
+// The bedroom cupboard brought in clear of its door's swing, which a
+// change of the door's settings may have moved: its length along the
+// kitchen-side wall first, then what that holds back (its diagonal)
+function holdClearOfBedroomDoor() {
+  const design = config.pieces.bedroomCupboard.design;
+  for (const key of ['F', 'CORNER_D']) design[key] = Math.min(design[key], cupboardLimits('bedroomCupboard')[key]);
+  for (const [key, most] of Object.entries(cupboardLimits('bedroomCupboard'))) if (design[key] > most && most >= 0) design[key] = most;
 }
 export const set = (path, value) => setAll([[path, value]]);
 // A setting's value, as the configuration has it
@@ -2126,6 +2175,7 @@ export function build(onShow = optionsOnShow()) {
   drawStairWalls(config.hallway);                             // the shelves and pictures over the stairs
   drawShoeBoxes(config.hallway.shoeBoxes);                    // and the shoe boxes on the sills
   bathroom.visible = config.hallway.bathroomShown;                       // the bathroom and WC, or not
+  drawBedroomDoorSwing(bedroomDoor().swings, mustOpenTo(), bedroomDoor().swingShown);   // what the bedroom cupboard keeps clear of
   drawGarage(config, config.pieces.pineCupboard.design);           // Sean, Billy, BillyChest and the rest, in the garage
   placeStored();                                                // the cupboard they go in may have changed
   return { option, same, aboveText };
@@ -2169,9 +2219,20 @@ export function turnDoors() {
   cupboard?.turnDoors(doors);
   bedroomCupboard?.turnDoors({ tall: doors.bedroomCupboardTall, second: doors.bedroomCupboardSecond, desk: doors.bedroomCupboardDesk });
   roomHinge.rotation.y = turn(doors.room);
-  bedroomHinge.rotation.y = -turn(doors.bedroom);              // it opens the other way, into the bedroom
+  turnBedroomDoor();
   for (const [h, name] of [[flatDoorHinge, 'flat'], [outsideDoorHinge, 'outside']]) h.rotation.y = (h.userData.dir ?? 1) * turn(doors[name]);
   drawGarageDoor(doors.garage);
+}
+
+// The bedroom door on the hinge it swings on, the other hidden, opened as
+// far as its slider says or as far as it can go (bedroomDoorOpensTo()).
+// Into the bedroom, so the other way from the living room's door; swinging
+// left it turns the other way again
+const BEDROOM_DOOR_TURN = { right: -1, left: 1 };
+function turnBedroomDoor() {
+  const { swings } = bedroomDoor();
+  for (const way of SWING_WAYS) bedroomHinges[way].visible = way === swings;
+  bedroomHinges[swings].rotation.y = BEDROOM_DOOR_TURN[swings] * turn(Math.min(doors.bedroom, bedroomDoorOpensTo()));
 }
 
 // The description of the option built: its summary (without the bench, if

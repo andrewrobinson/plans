@@ -587,6 +587,13 @@
       },
       "bathroomShown": true
     },
+    "bedroom": {
+      "door": {
+        "swings": "right",
+        "mustOpenTo": 90,
+        "swingShown": false
+      }
+    },
     "thingsToStore": {
       "shown": true,
       "packing": 0,
