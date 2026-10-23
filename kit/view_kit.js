@@ -615,5 +615,7 @@ function kitFace(k) {
     get room() { return s.room; },
     get startView() { return s.startView; },
     get hfov() { return s.hfov; },
+    get asPerson() { return s.asPerson; },                    // in a view as a person, at eye height
+    get eye() { return s.eye; },                              // the eye height chosen, as 'sit-tall'
   };
 }

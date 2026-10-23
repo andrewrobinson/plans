@@ -2,12 +2,15 @@
 // there's a connection, so updates come through, and the saved copy is used
 // when there isn't. The 3D library's files never change at a given version,
 // so they're served from the saved copy once fetched.
-const CACHE = 'cupboards-1e62e2aaea';
+const CACHE = 'cupboards-d46019bb33';
 const THREE = 'https://cdn.jsdelivr.net/npm/three@0.160.0/';
+// The game UI's icons (Tabler's icon font), which also never change at a given version
+const ICONS = 'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/';
 const FILES = [
   './index.html',
   './room_3d.html',
   './room_3d.css',
+  './game.css',
   './floor.js',
   './bedroom_door.js',
   './living_room.js',
@@ -78,6 +81,7 @@ const FILES = [
   './icons/apple-touch-icon.png',
   THREE + 'build/three.module.js',
   THREE + 'examples/jsm/controls/OrbitControls.js',
+  ICONS + 'dist/tabler-icons.min.css',
 ];
 
 self.addEventListener('install', event => {
@@ -95,8 +99,8 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const { request } = event;
   if (request.method !== 'GET') return;
-  if (request.url.startsWith(THREE)) {
-    // The library: saved copy first
+  if (request.url.startsWith(THREE) || request.url.startsWith(ICONS)) {
+    // The library and the icons: saved copy first
     event.respondWith(caches.match(request).then(hit => hit || fetch(request).then(res => {
       const copy = res.clone();
       caches.open(CACHE).then(cache => cache.put(request, copy));

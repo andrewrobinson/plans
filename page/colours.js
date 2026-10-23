@@ -134,5 +134,6 @@ palette.addEventListener('toggle', () => {
 
 // What the other pieces of the model use
 export {
+  POPULAR, FAMILIES,
   refreshColours, showShelfWood, updatePalette
 };

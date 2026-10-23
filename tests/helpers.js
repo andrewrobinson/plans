@@ -27,10 +27,12 @@ const test = base.test.extend({
 // rewriting its address (it writes it once the model is built, then again
 // once the view in the address is applied, a moment later on a phone).
 // Going via a blank page makes every load a fresh one, even when only the #
-// part differs from the page already open.
-async function openRoom(page, hash = '') {
+// part differs from the page already open. ?classic: the page without the
+// game UI, as these tests check the controls it had (tests/game.spec.js
+// checks the game UI, with `game` set)
+async function openRoom(page, hash = '', { game = false } = {}) {
   await page.goto('about:blank');
-  await page.goto(`index.html${hash}`);
+  await page.goto(`index.html${game ? '' : '?classic'}${hash}`);
   await page.waitForFunction(() => document.querySelector('#view canvas') && location.hash.length > 1);
   await page.waitForFunction(() => new Promise(resolve => {
     let last = location.hash, still = 0;

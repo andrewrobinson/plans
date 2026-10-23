@@ -12,6 +12,7 @@ import {
   cupboard, cupboardPart, deskChair, dims, updateDims, doorsNow, readDoors
 } from '../flat_model.js';
 import { display, setDisplay } from './display.js';
+import { gameInsets } from './game/insets.js';
 import { OTHER_ROOM_CORNER } from '../floor.js';
 import {
   DESK_RADIOS, DOOR_SLIDERS, anchors, builtInViews, camera, change, controls, deskRadios, drawers, fillRoomKinds, 
@@ -79,6 +80,8 @@ const { setFlat, resize, startLoop, draw, drawSoon } = flatViews({ scene, render
   set flatPerM(perM) { flatPerM = perM; },
   get hfov() { return viewKit.hfov; },
   get drawers() { return drawers; },
+  // The game UI's edges, which the 2D views fit between (page/game/shell.js)
+  insets: () => gameInsets(() => viewKit.room),
 });
 
 const startingAddress = location.hash.slice(1);                 // read before anything rewrites it

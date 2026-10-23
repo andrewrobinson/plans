@@ -21,6 +21,15 @@ first, then open only the file you need. Sizes are rough line counts
 | `page/tips.js` | 105 | The tip under the pointer (`showTip`), and where things are for the views to aim at (`anchors`, `pointOn`) |
 | `page/view.js` | 140 | The 2D views' fit (`frameCupboard`), `viewKit`, the Configuration list, loading cover, Dimensions buttons |
 | `page/room_buttons.js` | 240 | The room buttons and drawers (`goToRoom`, `showRoomOptions`), and `syncControls()`, which puts every control in step |
+| `page/game/shell.js` | 165 | The game UI's frame (mobile first, 23 Oct 2026): the room chips, the view switch (`MODES`: Plan, Overhead, Walk; `goTo`, `modeNow`), ☰'s menu (the top bar's controls), the furniture picker (tap: in or out) and the note with Undo (`toast`, `setIn`). `?classic` leaves it all out |
+| `page/game/furniture.js` | 50 | The lounge pieces the picker offers (`FURNITURE`, `SOFA`): icon, settings' place, `spot()`, `object()`; `inRoom`, `floorBox`, `facing` |
+| `page/game/plan_edit.js` | 270 | Plan's editing: select, drag (held in the room, snapping to walls), drop from and onto the picker, Turn, the sofa's resize handles, the keys |
+| `page/game/selection.js` | 130 | What's selected: the blue outline in the scene (red overlapping) and the action bar (`select`, `setActions`) |
+| `page/game/picking.js` | 55 | What's under the pointer: `planPoint`, `hitsUnder`, `pieceOf`, `colourTargetOf`, `screenOf` |
+| `page/game/colour_sheet.js` | 100 | The colour sheet: a strip that paints as you slide, More for every RAL colour, ✓ and ✕ (`openColours`) |
+| `page/game/walk.js` | 185 | Walk: tap the floor to go there, tap a thing to face it, pinch to zoom, the mini plan, Sit/Stand; a long-press on a painted surface opens its colours |
+| `page/game/insets.js` | 20 | The game UI's edges, which the 2D views fit between (`gameInsets`) |
+| `game.css` | 165 | The game UI's look, mobile first; on a phone it hides the top bar |
 | `cupboard_controls.js` | 130 | A corner cupboard's controls, copied for the bedroom's (`copyControls`) |
 | `living_room.views.js` | 240 | Data: rooms, places (Where), things (Looking at), eye heights, config-defined views |
 | `living_room.configurations.js` | 8,500 | Data: the named configurations in Configs ▾. Large: search it, don't read it |
@@ -77,6 +86,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `tests/room_3d.spec.js` | The page in the browser: saved addresses, screenshots, menus; on the desktop only those tagged `@desktop` (its size or keyboard) |
 | `tests/controls/*.spec.js` | Every control, phone only: `inputs`, `pieces`, `hallway_garage`, `views`; shared `helpers.js` |
 | `tests/menu_demo.spec.js` | The menu demo |
+| `tests/game.spec.js` | The game UI, phone only (the other page tests open it `?classic`) |
 | `tests/helpers.js`, `tests/addresses.js` | Shared helpers; the saved addresses |
 | `tests/quiet_reporter.js`, `tests/model/quiet_reporter.mjs` | The reporters both runs use: nothing for a pass, each failure in a few lines (no call log; a long diff cut to where it differs), then the totals. The whole of a browser run is in its html report (`npm run report`) |
 | `tests/configs/`, `tests/snapshots/` | Saved configurations and their snapshots (`npm run regen` rewrites them) |

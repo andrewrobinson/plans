@@ -18,6 +18,9 @@
 <meta name="apple-mobile-web-app-title" content="Cupboards">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="room_3d.css">
+<!-- The game UI's look (page/game/), and its icons: Tabler's, free, as an icon font -->
+<link rel="stylesheet" href="game.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <script type="importmap">
 { "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -26,6 +29,9 @@
 </script>
 </head>
 <body>
+<!-- ?classic in the address: the page as it was, without the game UI (the
+     tests of the old controls use it) -->
+<script>if (new URLSearchParams(location.search).has('classic')) document.body.classList.add('classic');</script>
 <div id="view"></div>
 <!-- The screen greyed while the page loads, a configuration chosen from the
      list included (it loads the page again), till the room's first drawn
@@ -746,6 +752,38 @@
 </div>
 
 <!-- The room's views and configurations, for editing; the module after them imports the kits that show them, and the dressers, larders and sofas -->
+<!-- The game UI (page/game/, agreed 23 Oct 2026): the room chips and ☰
+     at the top, the furniture picker down the left, the view switch at the
+     bottom, the action bar over what's selected, the sofa's resize handles,
+     the colour sheet, Walk's mini plan and Sit/Stand, and the note with Undo.
+     Filled in by page/game/shell.js and the rest -->
+<nav id="gameRooms" class="game" aria-label="Rooms"></nav>
+<div id="gameMenuList" class="game" role="menu" hidden></div>
+<div id="picker" class="game" aria-label="Furniture: tap to put in or take out, drag into the plan"></div>
+<div id="gameModes" class="game" role="radiogroup" aria-label="View"></div>
+<div id="actionBar" class="game" role="toolbar" aria-label="Selected" hidden></div>
+<div id="resizeHandles" class="game" hidden>
+  <div class="handle" data-side="start" aria-label="Resize"></div><div class="handle" data-side="end" aria-label="Resize"></div>
+</div>
+<div id="resizeReadout" class="game" hidden></div>
+<div id="walkTools" class="game">
+  <canvas id="miniPlan" width="240" height="240" aria-label="Where you are: tap to walk there"></canvas>
+  <button id="walkPosture" class="gameIcon" aria-label="Sit or stand" title="Sit or stand"><i class="ti ti-armchair" aria-hidden="true"></i></button>
+</div>
+<div id="walkRing" class="game"></div>
+<div id="colourSheet" class="game" role="dialog" aria-label="Colour" hidden>
+  <div class="grab"></div>
+  <div class="head">
+    <div id="colourDot"></div>
+    <div class="names"><div id="colourName"></div><div id="colourFor"></div></div>
+    <button id="colourCancel" class="gameIcon" aria-label="Put it back"><i class="ti ti-x" aria-hidden="true"></i></button>
+    <button id="colourKeep" class="gameIcon keep" aria-label="Keep this colour"><i class="ti ti-check" aria-hidden="true"></i></button>
+  </div>
+  <div id="colourStrip"></div>
+  <div class="foot"><span>Slide along the colours</span><button id="colourMore" aria-expanded="false">More colours</button></div>
+  <div id="colourGrid" hidden></div>
+</div>
+<div id="gameToast" class="game" role="status" hidden></div>
 <script src="living_room.views.js"></script>
 <script src="living_room.configurations.js"></script>
 <script type="module" src="living_room.js"></script>

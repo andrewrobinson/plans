@@ -553,13 +553,16 @@ export function flatViews(stage, view) {
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
     // Fit flatFit on screen, whichever way round is tighter, in that clear
-    // part, below the top bar
+    // part, below the top bar, and clear of anything else the page keeps
+    // over the model at its edges (view.insets(), in px, if it has any)
     const [fw, fh] = view.flatFit;
-    const below = barBottom, high = h - bottom - below;
+    const inset = view.insets?.() ?? { left: 0, top: 0, bottom: 0 };
+    const flatLeft = Math.max(left, inset.left), flatBottom = Math.max(bottom, inset.bottom), flatW = w - flatLeft;
+    const below = Math.max(barBottom, inset.top), high = h - flatBottom - below;
     // (a sheet leaves too little to keep the scale: the plan's fitted again)
-    if (!keepScale || !view.flatPerM || bottom) view.flatPerM = Math.min(clearW / fw, high / fh);
+    if (!keepScale || !view.flatPerM || bottom) view.flatPerM = Math.min(flatW / fw, high / fh);
     const perM = view.flatPerM;
-    Object.assign(flatCamera, { left: -(left + clearW / 2) / perM, right: clearW / 2 / perM, top: (below + high / 2) / perM, bottom: -(high / 2 + bottom) / perM });
+    Object.assign(flatCamera, { left: -(flatLeft + flatW / 2) / perM, right: flatW / 2 / perM, top: (below + high / 2) / perM, bottom: -(high / 2 + flatBottom) / perM });
     flatCamera.updateProjectionMatrix();
     drawSoon();                                       // setSize() cleared the canvas
   }

@@ -72,6 +72,9 @@ import {
   drawSoon, flatFit, loading, readDisplay, startLoop, startingAddress, viewCut, viewKit, viewNow
 } from './page/view.js';
 import { syncControls } from './page/room_buttons.js';
+import './page/game/shell.js';
+import './page/game/plan_edit.js';
+import './page/game/walk.js';
 
 let addressRead = false;
 // ---------------------------------------------------------------------------
@@ -200,10 +203,10 @@ export {
   update, writeAddress
 } from './page/controls.js';
 export {
-  refreshColours, showShelfWood, updatePalette
+  FAMILIES, POPULAR, refreshColours, showShelfWood, updatePalette
 } from './page/colours.js';
 export {
-  applyCut, configurationKit, draw, resize, viewKit, viewNow
+  applyCut, configurationKit, draw, drawSoon, resize, viewKit, viewNow
 } from './page/view.js';
 export {
   showCuttingLists, showStored, showStoredMenu, storedDrag, storedUnder
