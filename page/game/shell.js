@@ -102,32 +102,50 @@ window.addEventListener('pointerdown', e => { if (!menu.hidden && !e.target.clos
 // dropped, in Plan (plan_edit.js); dragging up and down scrolls the list
 // ---------------------------------------------------------------------------
 let pickerRoom = null;
-// A piece's `folder` puts it in a folder after the rest, opened and shut
-// in place by its own icon (the lounge's Other)
+// A piece's `folder` puts it in a folder, whose icon comes after the rest
+// (the lounge's Other): tapped, its pieces open in a panel beside the
+// picker, level with it, and work as the picker's own do
 const pickButton = ({ key, name, short = name, icon: i }) =>
   `<button class="pick" data-key="${key}" aria-label="${name}" title="${name}">${icon(i)}<span>${short}</span></button>`;
-const openFolders = new Set();
+const folderPanel = document.getElementById('pickerFolder');
+let pickerPieces = [];
 function fillPicker(room) {
   pickerRoom = room;
-  const pieces = ROOMS[room]?.picker ?? [], folders = [...new Set(pieces.map(p => p.folder).filter(Boolean))];
-  picker.innerHTML = pieces.filter(p => !p.folder).map(pickButton).join('') + folders.map(folder =>
-    `<button class="pick folderPick" data-folder="${folder.key}" aria-expanded="${openFolders.has(folder.key)}" title="${folder.name}">${icon(folder.icon)}<span>${folder.name}</span></button>` +
-    `<div class="folder" data-in="${folder.key}"${openFolders.has(folder.key) ? '' : ' hidden'}>${pieces.filter(p => p.folder === folder).map(pickButton).join('')}</div>`).join('');
+  closeFolder();
+  pickerPieces = ROOMS[room]?.picker ?? [];
+  const folders = [...new Set(pickerPieces.map(p => p.folder).filter(Boolean))];
+  picker.innerHTML = pickerPieces.filter(p => !p.folder).map(pickButton).join('') + folders.map(folder =>
+    `<button class="pick folderPick" data-folder="${folder.key}" aria-expanded="false" aria-controls="pickerFolder" title="${folder.name}">${icon(folder.icon)}<span>${folder.name}</span></button>`).join('');
+}
+const FOLDER_GAP = 6;              // px between the picker and the folder's panel (chosen)
+function openFolder(button) {
+  const folder = pickerPieces.find(p => p.folder?.key === button.dataset.folder).folder;
+  folderPanel.innerHTML = pickerPieces.filter(p => p.folder === folder).map(pickButton).join('');
+  folderPanel.dataset.folder = folder.key;
+  folderPanel.hidden = false;
+  button.setAttribute('aria-expanded', 'true');
+  const at = button.getBoundingClientRect(), high = folderPanel.offsetHeight;
+  folderPanel.style.left = `${picker.getBoundingClientRect().right + FOLDER_GAP}px`;
+  folderPanel.style.top = `${Math.max(FOLDER_GAP, Math.min(at.top, innerHeight - high - FOLDER_GAP))}px`;   // level with its icon, on the screen
+  showShell();
+}
+function closeFolder() {
+  folderPanel.hidden = true;
+  picker.querySelectorAll('[data-folder]').forEach(b => b.setAttribute('aria-expanded', 'false'));
 }
 picker.addEventListener('click', e => {
   const button = e.target.closest('[data-folder]');
   if (!button) return;
-  const key = button.dataset.folder, open = !openFolders.has(key);
-  if (open) openFolders.add(key); else openFolders.delete(key);
-  button.setAttribute('aria-expanded', String(open));
-  const folder = picker.querySelector(`.folder[data-in="${key}"]`);
-  folder.hidden = !open;
-  if (open) folder.scrollIntoView({ block: 'nearest', behavior: 'smooth' });   // its pieces in view, below the fold
+  if (folderPanel.hidden || folderPanel.dataset.folder !== button.dataset.folder) openFolder(button);
+  else closeFolder();
 });
-const pieceOf = button => ROOMS[pickerRoom].picker.find(p => p.key === button.dataset.key);
+// Shut by a tap anywhere else
+window.addEventListener('pointerdown', e => { if (!folderPanel.hidden && !e.target.closest('#pickerFolder, [data-folder]')) closeFolder(); });
+const pieceOf = button => pickerPieces.find(p => p.key === button.dataset.key);
 // A tap and a drag told apart by how far the pointer goes
 const DRAG_START_PX = 8;           // chosen: a finger's wobble on a tap stays under it
-picker.addEventListener('pointerdown', e => {
+// The picker's icons and the folder's
+const pressPick = e => {
   const button = e.target.closest('.pick');
   if (!button || button.dataset.folder || e.button > 0) return;
   const piece = pieceOf(button), x = e.clientX, y = e.clientY;
@@ -135,6 +153,7 @@ picker.addEventListener('pointerdown', e => {
     if (Math.hypot(m.clientX - x, m.clientY - y) < DRAG_START_PX) return;
     stop();
     if (isIn(piece) || piece.fixed) return;                     // one in is moved in the room itself; the bench has no place to drop
+    closeFolder();
     dragFromPicker(piece, m, () => { if (modeNow() !== 'plan') goTo(pickerRoom, 'plan'); });
   };
   const up = () => { stop(); togglePiece(piece); };
@@ -146,7 +165,9 @@ picker.addEventListener('pointerdown', e => {
   window.addEventListener('pointermove', move);
   window.addEventListener('pointerup', up);
   window.addEventListener('pointercancel', stop);                // the list scrolled instead
-});
+};
+picker.addEventListener('pointerdown', pressPick);
+folderPanel.addEventListener('pointerdown', pressPick);
 // In or out, from the picker
 function togglePiece(piece) {
   const on = !isIn(piece);
@@ -194,11 +215,12 @@ function showShell() {
   document.body.dataset.gameMode = mode ?? 'wall';
   if (room !== pickerRoom) fillPicker(room);
   picker.hidden = !ROOMS[room];
-  for (const button of picker.querySelectorAll('.pick[data-key]')) button.classList.toggle('in', isIn(pieceOf(button)));
+  for (const button of document.querySelectorAll('#picker .pick[data-key], #pickerFolder .pick')) button.classList.toggle('in', isIn(pieceOf(button)));
   // a folder's icon dotted while anything in it is in
   for (const button of picker.querySelectorAll('[data-folder]')) {
-    button.classList.toggle('in', Boolean(picker.querySelector(`.folder[data-in="${button.dataset.folder}"] .pick.in`)));
+    button.classList.toggle('in', pickerPieces.some(p => p.folder?.key === button.dataset.folder && isIn(p)));
   }
+  if (picker.hidden) closeFolder();
 }
 // After every change and every view: cheap, so on each frame something's drawn
 controls.addEventListener('change', showShell);

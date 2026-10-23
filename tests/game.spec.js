@@ -54,12 +54,12 @@ test('the picker puts a piece in and takes it out, with Undo', async ({ page }) 
   const chesham = 'pieces.chesham.in.livingRoom.on';
   expect(await setting(page, chesham)).toBe(false);
   // Chesham's in the Other folder
-  await expect(page.locator('#picker [data-key=chesham]')).toBeHidden();
+  await expect(page.locator('[data-key=chesham]')).toBeHidden();
   await page.click('#picker [data-folder=other]');
-  await page.click('#picker [data-key=chesham]');
+  await page.click('#pickerFolder [data-key=chesham]');
   await expect(page.locator('#picker [data-folder=other]')).toHaveClass(/\bin\b/);
   expect(await setting(page, chesham)).toBe(true);
-  await expect(page.locator('#picker [data-key=chesham]')).toHaveClass(/\bin\b/);
+  await expect(page.locator('#pickerFolder [data-key=chesham]')).toHaveClass(/\bin\b/);
   await page.click('#gameToast button');
   expect(await setting(page, chesham)).toBe(false);
 });
@@ -95,8 +95,7 @@ test('in Plan, a piece dragged in from the picker stands where it is let go', as
   await openRoom(page, '', { game: true });
   await toPlan(page);
   await page.click('#picker [data-folder=other]');
-  await page.waitForTimeout(SHEET_SLIDE_MS);                     // the picker's scrolled to the folder
-  const icon = await page.locator('#picker [data-key=cornwall]').boundingBox();
+  const icon = await page.locator('#pickerFolder [data-key=cornwall]').boundingBox();
   const to = await screenOf(page, 1500, 3500);
   await drag(page, { x: icon.x + icon.width / 2, y: icon.y + icon.height / 2 }, to);
   expect(await setting(page, 'pieces.cornwall.in.livingRoom.on')).toBe(true);
