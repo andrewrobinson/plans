@@ -102,17 +102,34 @@ window.addEventListener('pointerdown', e => { if (!menu.hidden && !e.target.clos
 // dropped, in Plan (plan_edit.js); dragging up and down scrolls the list
 // ---------------------------------------------------------------------------
 let pickerRoom = null;
+// A piece's `folder` puts it in a folder after the rest, opened and shut
+// in place by its own icon (the lounge's Other)
+const pickButton = ({ key, name, short = name, icon: i }) =>
+  `<button class="pick" data-key="${key}" aria-label="${name}" title="${name}">${icon(i)}<span>${short}</span></button>`;
+const openFolders = new Set();
 function fillPicker(room) {
   pickerRoom = room;
-  picker.innerHTML = (ROOMS[room]?.picker ?? []).map(({ key, name, short = name, icon: i }) =>
-    `<button class="pick" data-key="${key}" aria-label="${name}" title="${name}">${icon(i)}<span>${short}</span></button>`).join('');
+  const pieces = ROOMS[room]?.picker ?? [], folders = [...new Set(pieces.map(p => p.folder).filter(Boolean))];
+  picker.innerHTML = pieces.filter(p => !p.folder).map(pickButton).join('') + folders.map(folder =>
+    `<button class="pick folderPick" data-folder="${folder.key}" aria-expanded="${openFolders.has(folder.key)}" title="${folder.name}">${icon(folder.icon)}<span>${folder.name}</span></button>` +
+    `<div class="folder" data-in="${folder.key}"${openFolders.has(folder.key) ? '' : ' hidden'}>${pieces.filter(p => p.folder === folder).map(pickButton).join('')}</div>`).join('');
 }
+picker.addEventListener('click', e => {
+  const button = e.target.closest('[data-folder]');
+  if (!button) return;
+  const key = button.dataset.folder, open = !openFolders.has(key);
+  if (open) openFolders.add(key); else openFolders.delete(key);
+  button.setAttribute('aria-expanded', String(open));
+  const folder = picker.querySelector(`.folder[data-in="${key}"]`);
+  folder.hidden = !open;
+  if (open) folder.scrollIntoView({ block: 'nearest', behavior: 'smooth' });   // its pieces in view, below the fold
+});
 const pieceOf = button => ROOMS[pickerRoom].picker.find(p => p.key === button.dataset.key);
 // A tap and a drag told apart by how far the pointer goes
 const DRAG_START_PX = 8;           // chosen: a finger's wobble on a tap stays under it
 picker.addEventListener('pointerdown', e => {
   const button = e.target.closest('.pick');
-  if (!button || e.button > 0) return;
+  if (!button || button.dataset.folder || e.button > 0) return;
   const piece = pieceOf(button), x = e.clientX, y = e.clientY;
   const move = m => {
     if (Math.hypot(m.clientX - x, m.clientY - y) < DRAG_START_PX) return;
@@ -177,7 +194,11 @@ function showShell() {
   document.body.dataset.gameMode = mode ?? 'wall';
   if (room !== pickerRoom) fillPicker(room);
   picker.hidden = !ROOMS[room];
-  for (const button of picker.querySelectorAll('.pick')) button.classList.toggle('in', isIn(pieceOf(button)));
+  for (const button of picker.querySelectorAll('.pick[data-key]')) button.classList.toggle('in', isIn(pieceOf(button)));
+  // a folder's icon dotted while anything in it is in
+  for (const button of picker.querySelectorAll('[data-folder]')) {
+    button.classList.toggle('in', Boolean(picker.querySelector(`.folder[data-in="${button.dataset.folder}"] .pick.in`)));
+  }
 }
 // After every change and every view: cheap, so on each frame something's drawn
 controls.addEventListener('change', showShell);

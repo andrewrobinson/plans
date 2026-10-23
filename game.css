@@ -57,6 +57,10 @@ body.classic .game { display: none !important; }
 #picker .pick span { font-size: 10px; line-height: 1.1; max-width: 56px; text-align: center; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 #picker .pick.in { background: var(--game-blue-bg); color: var(--game-blue-ink); }
 #picker .pick.in::after { content: ''; position: absolute; top: 5px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--game-blue); }
+/* A folder (the lounge's Other): its icon, and its pieces under it, shaded */
+#picker .folder { display: flex; flex-direction: column; gap: 6px; padding: 4px 0; border-radius: 12px; background: #f1efe8; }
+#picker .folder[hidden] { display: none; }
+#picker .folderPick[aria-expanded=true] { background: #f1efe8; }
 #picker.dropOut { background: #fcebeb; box-shadow: inset 0 0 0 2px var(--game-red), var(--game-shadow); }
 #picker.dropOut .pick { opacity: 0.4; }
 .dragGhost {
