@@ -127,7 +127,7 @@ const glassMat = new THREE.MeshStandardMaterial({ color: 0xdfe8ec, roughness: 0.
 // from the window wall or the hallway wall; from where to where along it;
 // and where it stands across (its own u or v). The chimney breast's face
 // only, not the recess beside it, which the fitted cupboards fill.
-const WALLS = {
+export const WALLS = {
   breast: { label: 'The chimney breast (over the bookcase)', turn: 180, runs: 'u', from: OTHER_ROOM.recessWidth, to: OTHER_ROOM.length, at: OTHER_ROOM.breastFace },
   hallway: { label: 'The hallway wall', turn: 0, runs: 'u', from: 0, to: OTHER_ROOM.length, at: 0 },
   window: { label: 'The window wall', turn: 270, runs: 'v', from: 0, to: OTHER_ROOM.recessBack, at: 0 },

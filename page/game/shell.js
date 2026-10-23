@@ -7,7 +7,7 @@
 // leaves it out, the page as it was (the tests of the old controls use it).
 import { display } from '../display.js';
 import { viewKit, change, camera, controls, drawSoon } from '../../living_room.js';
-import { FURNITURE, at, isIn } from './furniture.js';
+import { ROOMS, at, isIn } from './furniture.js';
 import { dragFromPicker, deselect } from './plan_edit.js';
 
 const classic = document.body.classList.contains('classic');
@@ -97,13 +97,18 @@ menu.addEventListener('click', e => {
 window.addEventListener('pointerdown', e => { if (!menu.hidden && !e.target.closest('#gameMenuList, #gameMenu')) openMenu(false); });
 
 // ---------------------------------------------------------------------------
-// The picker: an icon for each piece, a dot on those in the room. Tapping
-// one puts it in or takes it out (with Undo); dragging one into the room
-// in Plan puts it where it's dropped (plan_edit.js)
+// The picker: an icon for each of the room's pieces (furniture.js's ROOMS),
+// a dot on those in it, in every view. Tapping one puts it in or takes it
+// out (with Undo); dragging one sideways into the room puts it where it's
+// dropped, in Plan (plan_edit.js); dragging up and down scrolls the list
 // ---------------------------------------------------------------------------
-picker.innerHTML = FURNITURE.map(({ key, name, short = name, icon: i }) =>
-  `<button class="pick" data-key="${key}" aria-label="${name}" title="${name}">${icon(i)}<span>${short}</span></button>`).join('');
-const pieceOf = button => FURNITURE.find(p => p.key === button.dataset.key);
+let pickerRoom = null;
+function fillPicker(room) {
+  pickerRoom = room;
+  picker.innerHTML = (ROOMS[room]?.picker ?? []).map(({ key, name, short = name, icon: i }) =>
+    `<button class="pick" data-key="${key}" aria-label="${name}" title="${name}">${icon(i)}<span>${short}</span></button>`).join('');
+}
+const pieceOf = button => ROOMS[pickerRoom].picker.find(p => p.key === button.dataset.key);
 // A tap and a drag told apart by how far the pointer goes
 const DRAG_START_PX = 8;           // chosen: a finger's wobble on a tap stays under it
 picker.addEventListener('pointerdown', e => {
@@ -114,22 +119,28 @@ picker.addEventListener('pointerdown', e => {
     if (Math.hypot(m.clientX - x, m.clientY - y) < DRAG_START_PX) return;
     stop();
     if (isIn(piece) || piece.fixed) return;                     // one in is moved in the room itself; the bench has no place to drop
-    dragFromPicker(piece, m, () => { if (modeNow() !== 'plan') goTo('livingRoom', 'plan'); });
+    dragFromPicker(piece, m, () => { if (modeNow() !== 'plan') goTo(pickerRoom, 'plan'); });
   };
   const up = () => { stop(); togglePiece(piece); };
-  const stop = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+  const stop = () => {
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', up);
+    window.removeEventListener('pointercancel', stop);
+  };
   window.addEventListener('pointermove', move);
   window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', stop);                // the list scrolled instead
 });
 // In or out, from the picker
 function togglePiece(piece) {
   const on = !isIn(piece);
   setIn(piece, on, `${piece.name} ${on ? 'put in' : 'taken out'}`);
 }
-// A piece put in or taken out, with a note to undo it
+// A piece put in or taken out, with a note to undo it: Undo puts back
+// every setting of its place in the room as it was
 function setIn(piece, on, note, edits = []) {
-  const before = [[`${piece.place}.on`, at(piece.place).on], ...(at(piece.place).move !== undefined ? [[`${piece.place}.move`, at(piece.place).move]] : [])];
-  change([[`${piece.place}.on`, on], ...edits], { look: true });
+  const before = Object.entries(at(piece.place)).map(([k, v]) => [`${piece.place}.${k}`, structuredClone(v)]);
+  change([[piece.on, on], ...edits], { look: true });
   toast(note, () => change(before, { look: true }));
 }
 // Whether the pointer's over the picker, to drop a piece on it
@@ -158,7 +169,8 @@ function showShell() {
   for (const chip of roomsRow.querySelectorAll('[data-room]')) chip.classList.toggle('on', chip.dataset.room === room);
   for (const b of modesBar.querySelectorAll('[data-view]')) b.setAttribute('aria-checked', String(b.dataset.view === mode));
   document.body.dataset.gameMode = mode ?? 'wall';
-  picker.hidden = room !== 'livingRoom';
+  if (room !== pickerRoom) fillPicker(room);
+  picker.hidden = !ROOMS[room];
   for (const button of picker.querySelectorAll('.pick')) button.classList.toggle('in', isIn(pieceOf(button)));
 }
 // After every change and every view: cheap, so on each frame something's drawn

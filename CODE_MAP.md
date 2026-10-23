@@ -21,8 +21,8 @@ first, then open only the file you need. Sizes are rough line counts
 | `page/tips.js` | 105 | The tip under the pointer (`showTip`), and where things are for the views to aim at (`anchors`, `pointOn`) |
 | `page/view.js` | 140 | The 2D views' fit (`frameCupboard`), `viewKit`, the Configuration list, loading cover, Dimensions buttons |
 | `page/room_buttons.js` | 240 | The room buttons and drawers (`goToRoom`, `showRoomOptions`), and `syncControls()`, which puts every control in step |
-| `page/game/shell.js` | 165 | The game UI's frame (mobile first, 23 Oct 2026): the room chips, the view switch (`MODES`: Plan, Overhead, Walk; `goTo`, `modeNow`), ☰'s menu (the top bar's controls), the furniture picker (tap: in or out) and the note with Undo (`toast`, `setIn`). `?classic` leaves it all out |
-| `page/game/furniture.js` | 50 | The lounge pieces the picker offers (`FURNITURE`, `SOFA`): icon, settings' place, `spot()`, `object()`; `inRoom`, `floorBox`, `facing` |
+| `page/game/shell.js` | 165 | The game UI's frame (mobile first, 23 Oct 2026): the room chips, the view switch (`MODES`: Plan, Overhead, Walk; `goTo`, `modeNow`), ☰'s menu (the top bar's controls), the furniture picker, per room, in every view (tap: in or out) and the note with Undo (`toast`, `setIn`). `?classic` leaves it all out |
+| `page/game/furniture.js` | 125 | Each room's pieces for the picker (`ROOMS`: the lounge's and the bedroom's; `SOFA`, `BED` always there): icon, settings (`on`, `spot()`, `moveTo()`; `onWall` for the bedroom's wall pieces), `object()`; `inRoom(room)`, `floorBox`, `facing` |
 | `page/game/plan_edit.js` | 270 | Plan's editing: select, drag (held in the room, snapping to walls), drop from and onto the picker, Turn, the sofa's resize handles, the keys |
 | `page/game/selection.js` | 130 | What's selected: the blue outline in the scene (red overlapping) and the action bar (`select`, `setActions`) |
 | `page/game/picking.js` | 55 | What's under the pointer: `planPoint`, `hitsUnder`, `pieceOf`, `colourTargetOf`, `screenOf` |

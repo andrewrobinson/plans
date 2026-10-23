@@ -10,11 +10,11 @@ test.skip(({ isMobile }) => !isMobile, 'the phone');
 // Where a point in the room (mm) is on the screen
 const screenOf = (page, x, y, z = 0) => page.evaluate(async ([x, y, z]) => (await import('/page/game/picking.js')).screenOf(x, y, z), [x, y, z]);
 // The middle of a lounge piece's footprint on the screen
-const pieceOnScreen = (page, key) => page.evaluate(async key => {
+const pieceOnScreen = (page, key, room = 'livingRoom') => page.evaluate(async ([key, room]) => {
   const { inRoom, floorBox } = await import('/page/game/furniture.js'), { screenOf } = await import('/page/game/picking.js');
-  const b = floorBox(inRoom().find(p => p.key === key).object());
+  const b = floorBox(inRoom(room).find(p => p.key === key).object());
   return screenOf((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2, b.top);
-}, key);
+}, [key, room]);
 async function toPlan(page) {
   await page.click('#gameModes [data-view=plan]');
   await expect(page.locator('#gameModes [data-view=plan]')).toHaveAttribute('aria-checked', 'true');
@@ -52,7 +52,7 @@ test('in Plan, a piece is dragged about, held inside the walls, and dropped on t
   await drag(page, ivar, { x: ivar.x + 400, y: ivar.y });
   const box = await page.evaluate(async () => {
     const { inRoom, floorBox } = await import('/page/game/furniture.js');
-    return floorBox(inRoom().find(p => p.key === 'ivar').object());
+    return floorBox(inRoom('livingRoom').find(p => p.key === 'ivar').object());
   });
   const width = await page.evaluate(async () => (await import('/flat_model.js')).ROOM_BOXES.livingRoom.x1);
   expect(Math.round(box.x1)).toBe(width);
@@ -74,6 +74,26 @@ test('in Plan, a piece dragged in from the picker stands where it is let go', as
   expect(Math.abs(middle.x - to.x)).toBeLessThan(6);
   expect(Math.abs(middle.y - to.y)).toBeLessThan(6);
   await expect(page.locator('#actionBar')).toBeVisible();
+});
+
+test('the bedroom has its own pieces: dragged in, one on a wall goes against the nearest; the bed moves', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  await page.click('#gameRooms [data-room=bedroom]');
+  await toPlan(page);
+  await expect(page.locator('#picker [data-key=kvistbro]')).toBeVisible();
+  await expect(page.locator('#picker [data-key=cornwall]')).toHaveCount(0);
+  // Billy, dropped by the window wall (u 0), stands against it
+  const icon = await page.locator('#picker [data-key=billy]').boundingBox();
+  const corner = await page.evaluate(async () => (await import('/floor.js')).OTHER_ROOM_CORNER);
+  const to = await screenOf(page, corner.x + 150, corner.y + 1500);
+  await drag(page, { x: icon.x + icon.width / 2, y: icon.y + icon.height / 2 }, to);
+  expect(await setting(page, 'pieces.billy.in.bedroom.on')).toBe(true);
+  expect(await setting(page, 'pieces.billy.in.bedroom.wall')).toBe('window');
+  // The bed, dragged, moves
+  const u = await setting(page, 'pieces.bed.in.bedroom.u');
+  const bed = await pieceOnScreen(page, 'bed', 'bedroom');
+  await drag(page, bed, { x: bed.x + 20, y: bed.y });
+  expect(await setting(page, 'pieces.bed.in.bedroom.u')).not.toBe(u);
 });
 
 test('the sofa resizes from its handles, and turns from the action bar', async ({ page }) => {

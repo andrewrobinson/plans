@@ -30,9 +30,9 @@ function hitsUnder(e) {
   scene.updateMatrixWorld();
   return rayFrom(e).intersectObject(scene, true).filter(h => h.object.isMesh && !h.object.userData.overlay && isShown(h.object));
 }
-// The lounge piece (furniture.js) a mesh is part of, if any
-function pieceOf(mesh) {
-  const pieces = inRoom();
+// The piece (furniture.js) in the room a mesh is part of, if any
+function pieceOf(mesh, room) {
+  const pieces = inRoom(room);
   for (let o = mesh; o; o = o.parent) {
     const piece = pieces.find(p => p.object() === o);
     if (piece) return piece;

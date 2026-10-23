@@ -1,55 +1,135 @@
-// The lounge's furniture as the game UI handles it (a piece of
-// living_room.js): each piece the picker offers, its icon, where its
-// settings are, where it stands now and the object drawn for it. The
-// picker (page/game/shell.js) puts them in and takes them out; Plan
-// (page/game/plan_edit.js) selects, moves and turns them.
+// The furniture as the game UI handles it (a piece of living_room.js),
+// room by room: each piece the picker offers in the lounge and in the
+// bedroom, its icon, where its settings are, where it stands now and the
+// object drawn for it. The picker (page/game/shell.js) puts them in and
+// takes them out; Plan (page/game/plan_edit.js) selects, moves and turns
+// them.
+//
+// Where a piece stands, spot(), is the middle of its back and its turn, in
+// its room's own mm (the bedroom's u and v are x and y here); moveTo(spot)
+// gives the settings' edits that put it there. A piece on a wall (`onWall`:
+// in the bedroom Billy, the bedside tables and so on, which stand with
+// their backs to one of its walls) is put against the wall nearest where
+// it's dropped instead.
 import * as THREE from 'three';
 import { MM } from '../../kit/floor_kit.js';
 import {
-  config, drawn, pieces, spotOf, ivarSpot, tableSpot, castorDeskSpot, sofaHome, currentSofa
+  config, drawn, pieces, spotOf, ivarSpot, tableSpot, castorDeskSpot, sofaHome, currentSofa, ROOM_BOXES
 } from '../../flat_model.js';
-
-// Each piece, in the picker's order: its key, its name (and a shorter one
-// for under its icon, where the name's too long), its icon (the
-// Tabler icon font's, loaded by index.html), where its settings are in the
-// configuration, where it stands ({ x, y, turn }: the middle of its back,
-// the sofa's middle) and the object drawn for it, or null while it's out.
-// `fixed`: it has no place of its own to move (the bench is the back
-// wall's); `stays`: it can't be taken out (the sofa: the room's always got
-// one, it's resized and moved instead)
-const FURNITURE = [
-  { key: 'billy', name: 'Billy', icon: 'books', place: 'pieces.billy.in.livingRoom', spot: () => spotOf('billy'), object: () => drawn.backWall.billy },
-  { key: 'billyChest', short: 'Chest', name: 'BillyChest', icon: 'archive', place: 'pieces.billyChest.in.livingRoom', spot: () => spotOf('billyChest'), object: () => drawn.backWall.billyChest },
-  { key: 'ivar', name: 'Ivar', icon: 'layout-columns', place: 'pieces.ivar.in.livingRoom', spot: ivarSpot, object: () => pieces.ivar },
-  { key: 'cornwall', short: 'Cornwall', name: 'Cornwall table', icon: 'table', place: 'pieces.cornwall.in.livingRoom', spot: () => tableSpot('cornwall'), object: () => pieces.cornwall },
-  { key: 'chesham', short: 'Chesham', name: 'Chesham table', icon: 'table-alias', place: 'pieces.chesham.in.livingRoom', spot: () => tableSpot('chesham'), object: () => pieces.chesham },
-  { key: 'castorDesk', short: 'Desk', name: 'Desk on castors', icon: 'desk', place: 'pieces.castorDesk.in.livingRoom', spot: castorDeskSpot, object: () => pieces.castorDesk },
-  { key: 'bookshelf', name: 'Bookcase', icon: 'bookmarks', place: 'pieces.bookcase.in.livingRoom', spot: () => spotOf('bookshelf'), object: () => drawn.backWall.bookshelf },
-  { key: 'pine', short: 'Pine', name: 'Pine cupboard', icon: 'door', place: 'pieces.pineCupboard.in.livingRoom', spot: () => spotOf('pine'), object: () => drawn.backWall.pine },
-  { key: 'deskDaybed', short: 'Daybed', name: 'Daybed and desk', icon: 'bed-flat', place: 'pieces.deskDaybed.in.livingRoom', spot: () => spotOf('deskDaybed'), object: () => drawn.backWall.deskDaybed },
-  // The bench isn't kept as one object, so it's put in and taken out from the picker alone
-  { key: 'bench', name: 'Bench', icon: 'layout-rows', place: 'pieces.bench.in.livingRoom', fixed: true, object: () => null },
-];
-const SOFA = { key: 'sofa', name: 'Sofa', icon: 'sofa', place: 'pieces.sofa.in.livingRoom', stays: true,
-  spot: () => config.pieces.sofa.in.livingRoom.move ?? sofaHome(currentSofa()), object: () => pieces.sofa };
+import { otherRoomPieces, settingPath, WALLS } from '../../other_room.js';
+import { wickerBenches } from '../../wicker_bench.js';
+import { OTHER_ROOM_CORNER } from '../../floor.js';
 
 // The setting at a dotted path in the configuration
 const at = path => path.split('.').reduce((o, k) => o?.[k], config);
-// Whether a piece is in the room: the sofa while one's chosen; the bench
-// while it's on, though something standing in its place hides it
-const isIn = piece => (piece === SOFA ? Boolean(currentSofa()) : Boolean(at(piece.place).on));
-// The pieces that can be selected in Plan, each that's in and drawn
-const inRoom = () => [SOFA, ...FURNITURE].filter(piece => isIn(piece) && piece.object());
 
-// Where a piece stands on the floor, in the room's mm: { x0, x1, y0, y1 }
-// (scene x is room x, scene z room y)
+// ---------------------------------------------------------------------------
+// The lounge's pieces: placed by `move` ({ x, y, turn }, null where they
+// start), in the room's mm
+// ---------------------------------------------------------------------------
+const lounge = (key, name, icon, place, spot, object, more = {}) =>
+  ({ key, name, icon, place, on: `${place}.on`, spot, moveTo: s => [[`${place}.move`, s]], object, ...more });
+const LOUNGE = [
+  lounge('billy', 'Billy', 'books', 'pieces.billy.in.livingRoom', () => spotOf('billy'), () => drawn.backWall.billy),
+  lounge('billyChest', 'BillyChest', 'archive', 'pieces.billyChest.in.livingRoom', () => spotOf('billyChest'), () => drawn.backWall.billyChest, { short: 'Chest' }),
+  lounge('ivar', 'Ivar', 'layout-columns', 'pieces.ivar.in.livingRoom', ivarSpot, () => pieces.ivar),
+  lounge('cornwall', 'Cornwall table', 'table', 'pieces.cornwall.in.livingRoom', () => tableSpot('cornwall'), () => pieces.cornwall, { short: 'Cornwall' }),
+  lounge('chesham', 'Chesham table', 'table-alias', 'pieces.chesham.in.livingRoom', () => tableSpot('chesham'), () => pieces.chesham, { short: 'Chesham' }),
+  lounge('castorDesk', 'Desk on castors', 'desk', 'pieces.castorDesk.in.livingRoom', castorDeskSpot, () => pieces.castorDesk, { short: 'Desk' }),
+  lounge('bookshelf', 'Bookcase', 'bookmarks', 'pieces.bookcase.in.livingRoom', () => spotOf('bookshelf'), () => drawn.backWall.bookshelf),
+  lounge('pine', 'Pine cupboard', 'door', 'pieces.pineCupboard.in.livingRoom', () => spotOf('pine'), () => drawn.backWall.pine, { short: 'Pine' }),
+  lounge('deskDaybed', 'Daybed and desk', 'bed-flat', 'pieces.deskDaybed.in.livingRoom', () => spotOf('deskDaybed'), () => drawn.backWall.deskDaybed, { short: 'Daybed' }),
+  lounge('wickerBench', 'Wicker bench', 'armchair-2', 'pieces.wickerBench.in.livingRoom', () => fromXY('pieces.wickerBench.in.livingRoom'), () => wickerBenches.livingRoom,
+    { moveTo: s => xyEdits('pieces.wickerBench.in.livingRoom', s, 'x', 'y'), short: 'Wicker' }),
+  // The bench isn't kept as one object, so it's put in and taken out from the picker alone
+  lounge('bench', 'Bench', 'layout-rows', 'pieces.bench.in.livingRoom', null, () => null, { fixed: true }),
+];
+// The sofa can't be taken out (the room's always got one): it's moved and resized instead
+const SOFA = { key: 'sofa', name: 'Sofa', icon: 'sofa', place: 'pieces.sofa.in.livingRoom', on: null,
+  spot: () => config.pieces.sofa.in.livingRoom.move ?? sofaHome(currentSofa()),
+  moveTo: s => [['pieces.sofa.in.livingRoom.move', s]], object: () => pieces.sofa };
+
+// A piece placed by two settings and its turn (the wicker bench, the bedroom's)
+function fromXY(place, x = 'x', y = 'y') {
+  const p = at(place);
+  return { x: p[x], y: p[y], turn: p.turn };
+}
+const xyEdits = (place, s, x, y) => [[`${place}.${x}`, s.x], [`${place}.${y}`, s.y], [`${place}.turn`, s.turn]];
+
+// ---------------------------------------------------------------------------
+// The bedroom's pieces (other_room.js): placed by u, v and turn, or against
+// one of its WALLS by `wall` and `along`
+// ---------------------------------------------------------------------------
+const bedroomPlace = key => settingPath(`${key}On`).replace(/\.on$/, '');
+function free(key, name, icon, more = {}) {
+  const place = bedroomPlace(key);
+  return { key, name, icon, place, on: `${place}.on`, spot: () => fromXY(place, 'u', 'v'), moveTo: s => xyEdits(place, s, 'u', 'v'),
+    object: () => otherRoomPieces[key], ...more };
+}
+function onWall(key, name, icon, more = {}) {
+  const place = bedroomPlace(key);
+  const spot = () => {
+    const { wall, along } = at(place), w = WALLS[wall];
+    return w.runs === 'u' ? { x: along, y: w.at, turn: w.turn } : { x: w.at, y: along, turn: w.turn };
+  };
+  return { key, name, icon, place, on: `${place}.on`, spot, onWall: true, moveTo: s => wallEdits(place, s),
+    object: () => otherRoomPieces[key], ...more };
+}
+// Against the wall nearest a spot, its middle along it there
+function wallEdits(place, { x, y }) {
+  const distance = w => (w.runs === 'u' ? Math.abs(y - w.at) : Math.abs(x - w.at)) + Math.max(0, w.from - (w.runs === 'u' ? x : y), (w.runs === 'u' ? x : y) - w.to);
+  const [wall, w] = Object.entries(WALLS).reduce((best, entry) => (distance(entry[1]) < distance(best[1]) ? entry : best));
+  return [[`${place}.wall`, wall], [`${place}.along`, Math.round(w.runs === 'u' ? x : y)]];
+}
+const BEDROOM = [
+  free('bookcase', 'Bookcase', 'bookmarks'),
+  free('cupboard', 'Pine cupboard', 'door', { short: 'Pine' }),
+  onWall('billy', 'Billy', 'books'),
+  onWall('billyChest', 'BillyChest', 'archive', { short: 'Chest' }),
+  onWall('ivar', 'Ivar', 'layout-columns'),
+  onWall('bedsideTable', 'Bedside table by the bed', 'lamp', { short: 'Bedside' }),
+  onWall('bedsideTableByCupboard', 'Bedside table by the pine cupboard', 'lamp-2', { short: 'Bedside 2' }),
+  onWall('kvistbro', 'Kvistbro', 'stack-2'),
+  free('laundryBasket', 'Laundry basket', 'basket', { short: 'Basket' }),
+  onWall('mirror', 'Mirror', 'frame'),
+  { key: 'wickerBench', name: 'Wicker bench', short: 'Wicker', icon: 'armchair-2', place: 'pieces.wickerBench.in.bedroom', on: 'pieces.wickerBench.in.bedroom.on',
+    spot: () => fromXY('pieces.wickerBench.in.bedroom', 'u', 'v'), moveTo: s => xyEdits('pieces.wickerBench.in.bedroom', s, 'u', 'v'), object: () => wickerBenches.bedroom },
+  // A fitted corner cupboard in the pine cupboard's place: in or out only
+  { key: 'newCupboard', name: 'New cupboard', short: 'Cupboard', icon: 'layout-board', place: bedroomPlace('newCupboard'), on: settingPath('newCupboardOn'),
+    fixed: true, object: () => null },
+];
+// The bed can't be taken out either
+const BED = { ...free('bed', 'Bed', 'bed'), on: null };
+
+// ---------------------------------------------------------------------------
+// The rooms with furniture to arrange: their pieces in the picker, those
+// always there, and where their mm start in the living room's (the
+// bedroom's group stands at its corner, unturned)
+// ---------------------------------------------------------------------------
+const ROOMS = {
+  livingRoom: { picker: LOUNGE, always: [SOFA], origin: { x: 0, y: 0 } },
+  bedroom: { picker: BEDROOM, always: [BED], origin: OTHER_ROOM_CORNER },
+};
+for (const [room, r] of Object.entries(ROOMS)) for (const piece of [...r.picker, ...r.always]) piece.room = room;
+const roomOf = piece => ROOMS[piece.room];
+
+// Whether a piece is in its room: always for those that are always there
+const isIn = piece => (piece === SOFA ? Boolean(currentSofa()) : piece.on ? Boolean(at(piece.on)) : true);
+// The pieces in a room that can be selected in Plan, each that's in and drawn
+const inRoom = room => (ROOMS[room] ? [...ROOMS[room].always, ...ROOMS[room].picker] : []).filter(piece => isIn(piece) && piece.object());
+// The room's walls, in the living room's mm (flat_model.js's ROOM_BOXES)
+const wallsOf = room => ROOM_BOXES[room];
+
+// Where a piece stands on the floor, in the living room's mm: { x0, x1, y0,
+// y1 } (scene x is room x, scene z room y), and how high it reaches
 function floorBox(object) {
   object.updateMatrixWorld(true);
   const b = new THREE.Box3().setFromObject(object);
   return { x0: b.min.x / MM, x1: b.max.x / MM, y0: b.min.z / MM, y1: b.max.z / MM, top: b.max.y / MM };
 }
 // The way a piece turned `turn` degrees faces, in the room's x and y (as
-// the menus' Turned: 0 faces the front wall, 90 the left wall)
+// the menus' Turned: 0 faces away from the back or hallway wall, 90 the
+// left or window wall)
 const facing = turn => ({ x: -Math.sin(THREE.MathUtils.degToRad(turn)), y: Math.cos(THREE.MathUtils.degToRad(turn)) });
 
-export { FURNITURE, SOFA, at, isIn, inRoom, floorBox, facing };
+export { ROOMS, SOFA, BED, at, isIn, inRoom, roomOf, wallsOf, floorBox, facing };
