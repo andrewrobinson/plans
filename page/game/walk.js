@@ -3,16 +3,15 @@
 // pinch to zoom like a lens; drag to look round (the view kit's, as before).
 // The mini plan in the corner shows where you are and which way you face,
 // and a tap on it takes you there. In Walk and Overhead, a long-press on
-// something painted (walls, floor, cupboards) opens its colours. Sit and
+// anything opens its options (options.js), or its colours. Sit and
 // Stand change your eye height (the Look menu's Eye height).
 import * as THREE from 'three';
 import { MM } from '../../kit/floor_kit.js';
 import { ROOM_BOXES } from '../../flat_model.js';
 import { renderer, camera, controls, viewKit, drawSoon } from '../../living_room.js';
-import { hitsUnder, colourTargetOf } from './picking.js';
+import { hitsUnder } from './picking.js';
 import { modeNow, classic } from './shell.js';
-import { select } from './selection.js';
-import { openColours, TARGET_NAMES } from './colour_sheet.js';
+import { optionsFor } from './options.js';
 
 const canvas = renderer.domElement;
 const TAP_PX = 8;                  // a finger's wobble on a tap stays under it (chosen)
@@ -116,12 +115,8 @@ function tap(e) {
 function longPress(e) {
   press = null;
   if (!display3d()) return;
-  const hit = hitsUnder(e)[0], target = hit ? colourTargetOf(hit.object) : null;
-  if (!target) return;
-  navigator.vibrate?.(15);
-  const surface = { target, object: hit.object, name: TARGET_NAMES[target] };
-  select({ surface });
-  openColours(surface);
+  const hit = hitsUnder(e)[0];
+  if (hit) optionsFor(hit.object);
 }
 
 // ---------------------------------------------------------------------------

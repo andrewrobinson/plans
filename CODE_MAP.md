@@ -28,7 +28,8 @@ first, then open only the file you need. Sizes are rough line counts
 | `page/game/picking.js` | 55 | What's under the pointer: `planPoint`, `hitsUnder`, `pieceOf`, `colourTargetOf`, `screenOf` |
 | `page/game/colour_sheet.js` | 100 | The colour sheet: a strip that paints as you slide, More for every RAL colour, ✓ and ✕ (`openColours`) |
 | `page/game/walk.js` | 185 | Walk: tap the floor to go there, tap a thing to face it, pinch to zoom, the mini plan, Sit/Stand; a long-press on a painted surface opens its colours |
-| `page/game/insets.js` | 20 | The game UI's edges, which the 2D views fit between (`gameInsets`) |
+| `page/game/options.js` | 140 | A thing's options from a long-press: its controls moved in from Lounge, Bedroom or Hallway options into a sheet and back (`THINGS`, `thingOf`, `optionsFor`); the room's drawer for anything else |
+| `page/game/insets.js` | 20 | The game UI's edges, which the 2D views fit between, and an open sheet, which both views fit above (`gameInsets`) |
 | `game.css` | 165 | The game UI's look, mobile first; on a phone it hides the top bar |
 | `cupboard_controls.js` | 130 | A corner cupboard's controls, copied for the bedroom's (`copyControls`) |
 | `living_room.views.js` | 240 | Data: rooms, places (Where), things (Looking at), eye heights, config-defined views |

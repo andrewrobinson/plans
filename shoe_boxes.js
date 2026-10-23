@@ -159,7 +159,7 @@ const withoutRepeats = points => points.filter(([u, z], i) => {
 // ---------------------------------------------------------------------------
 // Drawing, in a group in the hallway's
 // ---------------------------------------------------------------------------
-const shoeBoxes = new THREE.Group();
+export const shoeBoxes = new THREE.Group();
 hallway.add(shoeBoxes);
 
 function drawBox(sill, b) {

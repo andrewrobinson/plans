@@ -138,6 +138,30 @@ body[data-game-mode=walk] #walkTools { display: flex; }
 #colourGrid .swatch { height: 38px; border: none; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
 #colourGrid .family { grid-column: 1 / -1; font-size: 12px; color: #666; margin-top: 6px; }
 
+/* A thing's options, from a long-press (page/game/options.js): a sheet as
+   the colour sheet, holding the thing's controls moved in from its drawer.
+   Its body has the drawers' class for their styles, so here it's put back
+   in the sheet's flow, not slid in from the side */
+#optionsSheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 7; max-width: 520px; margin: 0 auto; box-sizing: border-box;
+  display: flex; flex-direction: column; max-height: 48vh; padding: 6px 0 env(safe-area-inset-bottom);
+  background: #fff; border-radius: 18px 18px 0 0; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(105%); transition: transform 0.22s ease-out;
+}
+#optionsSheet[hidden] { display: none; }
+#optionsSheet.up { transform: none; }
+#optionsSheet .grab { width: 40px; height: 5px; border-radius: 3px; background: #ccc; margin: 4px auto 8px; flex: none; }
+#optionsSheet .head { display: flex; align-items: center; gap: 10px; padding: 0 14px 8px; flex: none; border-bottom: 1px solid #eee; }
+#optionsTitle { flex: 1; min-width: 0; font-size: 16px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#optionsSheet .gameIcon { box-shadow: none; background: #f1efe8; }
+#optionsSheet .gameIcon[hidden] { display: none; }
+#optionsSheet .gameIcon.keep { background: var(--game-blue); color: #fff; }
+#optionsBody.drawer {
+  position: static; inset: auto; width: auto; height: auto; max-width: none; transform: none; box-shadow: none; border-radius: 0;
+  background: none; flex: 1; min-height: 0; overflow-y: auto; padding: 4px 14px 16px; z-index: auto;
+}
+#optionsBody > details.sec:first-child, #optionsBody > div:first-child { border-top: none; margin-top: 0; }
+
 /* The note at the bottom, with Undo */
 #gameToast {
   position: fixed; left: 0; right: 0; width: max-content; margin: 0 auto; bottom: calc(var(--game-bottom) + 8px); z-index: 8;

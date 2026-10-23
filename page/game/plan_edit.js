@@ -16,6 +16,7 @@ import { planPoint, hitsUnder, pieceOf, colourTargetOf, screenOf } from './picki
 import { select, deselect, selection, setActions, setOverlapping, setOverlapCheck } from './selection.js';
 import { modeNow, toast, setIn, overPicker, markDropOut, classic } from './shell.js';
 import { openColours, TARGET_NAMES } from './colour_sheet.js';
+import { optionsFor, thingOf } from './options.js';
 
 const canvas = renderer.domElement;
 const SNAP = 50;                   // mm: a piece this near a wall goes against it (chosen)
@@ -85,6 +86,7 @@ setActions({
   remove: { can: sel => Boolean(sel.piece && canTakeOut(sel.piece)), do: sel => takeOut(sel.piece) },
   resize: { can: sel => sel.piece === SOFA, do: () => startResize() },
   colour: { can: sel => Boolean(sel.surface), do: sel => openColours(sel.surface) },
+  options: { can: sel => Boolean(sel.piece && thingOf(sel.piece.object())), do: sel => optionsFor(sel.piece.object()) },
 });
 
 // ---------------------------------------------------------------------------
@@ -97,15 +99,20 @@ canvas.addEventListener('pointerdown', e => {
   if (!inPlan() || e.button > 0 || press) return;
   const hit = hitsUnder(e)[0], piece = hit ? pieceOf(hit.object, viewKit.room) : null;
   press = { id: e.pointerId, x: e.clientX, y: e.clientY, piece, hit, dragging: false, longPressed: false };
-  if (!piece) return;
+  if (!piece) {
+    // A long-press on anything else: its options (the plan pans as before if it's dragged)
+    if (hit) press.timer = setTimeout(() => { press.longPressed = true; optionsFor(hit.object); }, LONG_PRESS_MS);
+    return;
+  }
   e.stopImmediatePropagation();                                  // the plan stays still
   canvas.setPointerCapture(e.pointerId);
   const object = piece.object();
   Object.assign(press, { from: planPoint(e), box: floorBox(object), at: object.position.clone(), others: othersBoxes(piece), dx: 0, dy: 0 });
+  // A long-press: the sofa's resize handles (its options are on the action
+  // bar), any other piece's options
   press.timer = setTimeout(() => {
     press.longPressed = true;
-    select({ piece });
-    if (piece === SOFA) startResize();
+    if (piece === SOFA) { select({ piece }); startResize(); } else optionsFor(object);
   }, LONG_PRESS_MS);
 }, { capture: true });
 
@@ -113,7 +120,7 @@ canvas.addEventListener('pointermove', e => {
   if (!press || e.pointerId !== press.id) return;
   if (!press.dragging && Math.hypot(e.clientX - press.x, e.clientY - press.y) < DRAG_START_PX) return;
   clearTimeout(press.timer);
-  if (!press.piece || resizing) return;
+  if (!press.piece || resizing || press.longPressed) return;
   e.stopImmediatePropagation();
   if (!press.dragging) {
     press.dragging = true;

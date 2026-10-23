@@ -1,8 +1,9 @@
 // What's selected in the game UI (a piece of living_room.js), and how it
 // shows: a blue outline round it in the scene (red while a piece being
 // moved overlaps another) and the action bar floating over it, as phones'
-// editors do. A selection is a lounge piece ({ piece }) or something
-// painted by a colour setting ({ surface: { target, object, name } }).
+// editors do. A selection is a piece in the picker's rooms ({ piece }),
+// something painted by a colour setting ({ surface: { target, object,
+// name } }) or a thing whose options are open ({ thing: { object, name } }).
 import * as THREE from 'three';
 import { MM } from '../../kit/floor_kit.js';
 import { scene, drawSoon } from '../../living_room.js';
@@ -16,7 +17,8 @@ let overlapping = false;
 const actions = {};
 const bar = document.getElementById('actionBar');
 const BUTTONS = [
-  ['turn', 'rotate-clockwise', 'Turn'], ['colour', 'palette', 'Colour'], ['resize', 'arrows-horizontal', 'Resize'], ['remove', 'trash', 'Take out'],
+  ['turn', 'rotate-clockwise', 'Turn'], ['colour', 'palette', 'Colour'], ['resize', 'arrows-horizontal', 'Resize'], ['options', 'adjustments', 'Options'],
+  ['remove', 'trash', 'Take out'],
 ];
 bar.innerHTML = BUTTONS.map(([action, icon, label]) =>
   `<button data-action="${action}" aria-label="${label}" title="${label}"><i class="ti ti-${icon}" aria-hidden="true"></i></button>`).join('');
@@ -55,7 +57,7 @@ function frame({ x0, x1, y0, y1, top }) {
 }
 
 // The object selected, as drawn now (a change rebuilds it)
-const objectOf = sel => (sel?.piece ? sel.piece.object() : sel?.surface?.object) ?? null;
+const objectOf = sel => (sel?.piece ? sel.piece.object() : (sel?.surface ?? sel?.thing)?.object) ?? null;
 
 function select(sel) {
   selected = sel;

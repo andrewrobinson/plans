@@ -47,7 +47,9 @@ test('in Plan, a piece is dragged about, held inside the walls, and dropped on t
   const after = await setting(page, 'pieces.sofa.in.livingRoom.move');
   expect(after.y).toBeGreaterThan(before.y);
   expect(after.x).toBe(before.x);
-  // Dragged far past the right-hand wall, it stops against it
+  // Dragged far past the right-hand wall, it stops against it (the sofa
+  // let go first, so its action bar isn't over the Ivar)
+  await page.keyboard.press('Escape');
   const ivar = await pieceOnScreen(page, 'ivar');
   await drag(page, ivar, { x: ivar.x + 400, y: ivar.y });
   const box = await page.evaluate(async () => {
@@ -164,6 +166,40 @@ test('in Walk, a tap on the floor walks you there', async ({ page }) => {
   await expect.poll(async () => (await where())[0]).not.toBe(Math.round(start[0] * 1000) + 1);   // settled
   const end = await where();
   expect(end[1]).toBe(Math.round(start[1] * 1000));                // the same eye height
+});
+
+// A long-press at a point on the screen
+async function longPress(page, at) {
+  await page.mouse.move(at.x, at.y);
+  await page.mouse.down();
+  await expect(page.locator('#optionsSheet')).toBeVisible();
+  await page.mouse.up();
+}
+// The middle of an object's box on the screen, from a model's name for it
+const objectOnScreen = (page, name) => page.evaluate(async name => {
+  const THREE = await import('three'), { namedPieces } = await import('/flat_model.js'), { screenOf } = await import('/page/game/picking.js');
+  const b = new THREE.Box3().setFromObject(namedPieces()[name]), c = b.getCenter(new THREE.Vector3());
+  return screenOf(c.x * 1000, c.z * 1000, b.max.y * 1000);
+}, name);
+
+test('a long-press opens a thing\'s options, from its drawer, and Done puts them back', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  await toPlan(page);
+  await longPress(page, await objectOnScreen(page, 'island'));
+  await expect(page.locator('#optionsTitle')).toHaveText('Kitchen island');
+  await expect(page.locator('#optionsBody #islandTypeBlock')).toBeVisible();
+  // A control there works as in the drawer
+  await page.locator('#optionsBody input[name=islandType][value=custom]').check({ force: true });
+  expect(await setting(page, 'pieces.island.design.type')).toBe('custom');
+  await page.click('#optionsDone');
+  await expect(page.locator('#optionsSheet')).toBeHidden();
+  expect(await page.evaluate(() => Boolean(document.getElementById('islandTypeBlock').closest('#loungePanel')))).toBe(true);
+  // In the bedroom, in Overhead, the bed's own
+  await page.click('#gameRooms [data-room=bedroom]');
+  await page.click('#gameModes [data-view=overhead]');
+  await longPress(page, await objectOnScreen(page, 'bed'));
+  await expect(page.locator('#optionsTitle')).toHaveText('Bed');
+  await expect(page.locator('#optionsBody #otherRoomPiece_bed')).toBeVisible();
 });
 
 test('?classic leaves the game UI out', async ({ page }) => {

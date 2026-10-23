@@ -783,6 +783,15 @@
   <div class="foot"><span>Slide along the colours</span><button id="colourMore" aria-expanded="false">More colours</button></div>
   <div id="colourGrid" hidden></div>
 </div>
+<div id="optionsSheet" class="game" role="dialog" aria-labelledby="optionsTitle" hidden>
+  <div class="grab"></div>
+  <div class="head">
+    <div id="optionsTitle"></div>
+    <button id="optionsColour" class="gameIcon" aria-label="Colour" title="Colour" hidden><i class="ti ti-palette" aria-hidden="true"></i></button>
+    <button id="optionsDone" class="gameIcon keep" aria-label="Done" title="Done"><i class="ti ti-check" aria-hidden="true"></i></button>
+  </div>
+  <div id="optionsBody"></div>
+</div>
 <div id="gameToast" class="game" role="status" hidden></div>
 <script src="living_room.views.js"></script>
 <script src="living_room.configurations.js"></script>

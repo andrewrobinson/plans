@@ -278,7 +278,7 @@ export function settleStairWalls(walls) {
 // white board out from the wall, and its picture, a black frame with the
 // white picture in it, standing just proud of it
 // ---------------------------------------------------------------------------
-const stairWalls = new THREE.Group();
+export const stairWalls = new THREE.Group();
 hallway.add(stairWalls);
 
 // A box on a wall, from `off` to `off + depth` out from its face, along it

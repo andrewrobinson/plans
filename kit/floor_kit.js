@@ -536,7 +536,9 @@ export function flatViews(stage, view) {
     // An open drawer stays open over the model, so the views fit the part it
     // leaves clear: to its right, or above it as a sheet. The 3D view is the
     // whole view in that part, its frustum stretched over the rest
-    const { left, bottom } = drawers.covering();
+    // ...and above a sheet the page has open over it, as a drawer's (view.insets()'s `sheet`, px)
+    const inset = view.insets?.() ?? { left: 0, top: 0, bottom: 0, sheet: 0 };
+    const { left } = drawers.covering(), bottom = Math.max(drawers.covering().bottom, inset.sheet ?? 0);
     // ...and below the top bar on a phone (as the 2D views are), where the
     // bar's rows take a good part of the screen, so the room sits in the
     // space under them rather than up behind them (asked for, 19 Oct 2026)
@@ -556,7 +558,6 @@ export function flatViews(stage, view) {
     // part, below the top bar, and clear of anything else the page keeps
     // over the model at its edges (view.insets(), in px, if it has any)
     const [fw, fh] = view.flatFit;
-    const inset = view.insets?.() ?? { left: 0, top: 0, bottom: 0 };
     const flatLeft = Math.max(left, inset.left), flatBottom = Math.max(bottom, inset.bottom), flatW = w - flatLeft;
     const below = Math.max(barBottom, inset.top), high = h - flatBottom - below;
     // (a sheet leaves too little to keep the scale: the plan's fitted again)

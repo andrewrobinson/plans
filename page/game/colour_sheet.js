@@ -6,7 +6,7 @@
 import { RAL } from '../../kit/floor_kit.js';
 import { config, colourOf, shownCode } from '../../flat_model.js';
 import { COLOUR_TARGETS, applyColour } from '../../model/colours.js';
-import { change, drawSoon, POPULAR, FAMILIES } from '../../living_room.js';
+import { change, drawSoon, resize, POPULAR, FAMILIES } from '../../living_room.js';
 
 // What each colour setting paints, as the sheet names it
 const TARGET_NAMES = {
@@ -51,7 +51,7 @@ function openColours({ target, name }) {
   grid.hidden = true;
   more.setAttribute('aria-expanded', 'false');
   sheet.hidden = false;
-  requestAnimationFrame(() => sheet.classList.add('up'));
+  requestAnimationFrame(() => { sheet.classList.add('up'); resize(); });   // the 2D views fitted above it
   showChosen();
 }
 // Closed, keeping the colour or putting it back
@@ -64,6 +64,7 @@ function close(keep) {
   else paintAll();
   sheet.classList.remove('up');
   sheet.hidden = true;
+  resize();
 }
 
 // Sliding along the strip paints as it goes; a tap on the grid paints too
