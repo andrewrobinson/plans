@@ -10,6 +10,7 @@ import {
 import { display } from './display.js';
 import { CEILING_HEIGHT, floor } from '../floor.js';
 import { change, flatCamera, renderer, updatePalette, writeAddress } from '../living_room.js';
+import { clamp } from '../kit/units_kit.js';
 
 // A corner cupboard's cutting list as HTML, by its piece's name: the living
 // room's, in Lounge options, or the bedroom's, in Bedroom options
@@ -49,7 +50,7 @@ const liftInputs = STORED.map((s, k) => {
   const input = Object.assign(document.createElement('input'), { type: 'number', min: 0, max: CEILING_HEIGHT, step: 10, value: 0 });
   input.setAttribute('aria-label', `${s.name}: off the floor`);
   input.addEventListener('change', () => {
-    const z = Math.min(CEILING_HEIGHT, Math.max(0, Number(input.value) || 0));
+    const z = clamp(Number(input.value) || 0, 0, CEILING_HEIGHT);
     input.value = z;
     if (storedValue('where') !== BY_HAND) document.querySelectorAll('input[name=storedWhere]').forEach(r => { r.checked = false; });
     moveStored(k, { z });

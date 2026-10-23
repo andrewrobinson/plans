@@ -2,7 +2,7 @@
 // shelves and TV, the dresser, sofa and larder, the back wall's pieces,
 // Ivar, the tables, the castor desk, the speakers, the island and
 // See-through.
-import { BOOKCASE_SIZES, QUARTER_TURN } from '../other_room.js';
+import { BOOKCASE_SIZES } from '../other_room.js';
 import { SIZE_LABEL } from '../kit/controls_kit.js';
 import {
   BACK_WALL_KEYS, DRESSERS, DRESSER_SLIDERS, LARDERS, LARDER_SLIDERS, SOFAS, 
@@ -13,6 +13,7 @@ import {
 import { display, setDisplay } from './display.js';
 import { ROOM_WIDTH, ROOM_DEPTH } from '../floor.js';
 import { applyCut, change, viewKit } from '../living_room.js';
+import { clamp, QUARTER_TURN } from '../kit/units_kit.js';
 
 const shelfSlider = document.getElementById('shelfDepth');
 shelfSlider.addEventListener('input', () => change([['pieces.aboveBench.design.shelfDepth', Number(shelfSlider.value)]]));
@@ -22,7 +23,7 @@ const tvSlider = document.getElementById('tvSize');
 // (DRESSER_SLIDERS and the like, [key, id, lowest, highest]), each held to
 // its slider's range, at its path in the piece's design
 const sizeEdits = (design, sliders, sizes) => sliders.filter(([k]) => Number.isFinite(sizes[k]))
-  .map(([k, , lo, hi]) => [`${design}.${k}`, Math.min(hi, Math.max(lo, sizes[k]))]);
+  .map(([k, , lo, hi]) => [`${design}.${k}`, clamp(sizes[k], lo, hi)]);
 // The dresser's sliders (it's placed from its width as it's drawn, the model's dresserSpan())
 const setDresser = sizes => sizeEdits('pieces.dresser.design', DRESSER_SLIDERS, sizes);
 function showDresser() {

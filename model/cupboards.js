@@ -6,7 +6,8 @@ import { box, clearDrawing } from '../kit/floor_kit.js';
 import {
   CUPBOARD_MATERIALS, makeCupboard, optionOf, CURRENT_ROOM, diagonal, MIN_DIAGONAL
 } from '../corner_cupboard.js';
-import { showNewCupboard, QUARTER_TURN } from '../other_room.js';
+import { showNewCupboard } from '../other_room.js';
+import { QUARTER_TURN } from '../kit/units_kit.js';
 import { DOOR_SWINGS, sweepInto, opensTo } from '../bedroom_door.js';
 import {
   ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, OTHER_ROOM, hallway

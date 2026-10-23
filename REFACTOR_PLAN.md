@@ -95,11 +95,12 @@ Each is one rule, written again in each room's own names. Not agreed yet.
   store never.
 - **Off the wall**: the garage's `offWall`, the bedroom's `PINE.offWall`,
   `model/bench_wall.js`'s `PINE_BY_DOOR_X`.
-- **Small ones**: `rotation.y = degToRad(-turn)` in about six files;
-  `QUARTER_TURN` kept in `other_room.js`, imported by the hallway's
-  pieces; `Math.min(Math.max(…))` in about 14 files, no `clamp`; the
-  faint swing material twice (`floor.js`'s `doorSwingMat`, `garage.js`'s
-  `swingMat`).
+- **Small ones**: done (23 Oct 2026). `kit/units_kit.js` has `clamp`
+  (the lowest wins if they cross), `QUARTER_TURN` and `turnPiece`;
+  `kit/door_kit.js` has `faint()`, for the bedroom's and garage's swing
+  marks. Two holds keep their own rule, the highest winning (a piece on a
+  wall too short for it, against its far end): `other_room.js`'s
+  `alongWall` and `stair_walls.js`'s `onTheWall`.
 
 Any time:
 

@@ -17,7 +17,8 @@ import { MM, material, box, valueAt, makeCanvas } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { SIZE_LABEL, slider } from './kit/controls_kit.js';
 import { floor, hallway, otherRoom, HALLWAY, OUTER, OTHER_ROOM, ROOM_WIDTH, ROOM_DEPTH } from './floor.js';
-import { OTHER_ROOM_START, BED_FOOT, QUARTER_TURN } from './other_room.js';
+import { OTHER_ROOM_START, BED_FOOT } from './other_room.js';
+import { QUARTER_TURN } from './kit/units_kit.js';
 
 // ---------------------------------------------------------------------------
 // Its sizes, in mm: measured 15 Oct 2026 (920 long, 410 deep, 450 high to the

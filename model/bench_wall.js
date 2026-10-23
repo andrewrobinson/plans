@@ -2,7 +2,6 @@
 // TV and shelves above it, the base cupboards, the pieces that stand along
 // the wall in its place (Billy, the pine cupboard, the daybed) and the
 // daybed's TV.
-import * as THREE from 'three';
 import { MM, box } from '../kit/floor_kit.js';
 import { optionOf, DOOR_GAP, PLINTH, baseDoorCount } from '../corner_cupboard.js';
 import { bookcase } from '../bookcase.js';
@@ -14,6 +13,7 @@ import { ROOM_WIDTH, CEILING_HEIGHT } from '../floor.js';
 import { config, cupboardSettings, drawn, inLivingRoom } from './state.js';
 import { cupboard } from './cupboards.js';
 import { carcassMat, doorMat, handleMat, oakMat, screenMat, shelfMat, tvMat } from './materials.js';
+import { turnPiece } from '../kit/units_kit.js';
 
 // ---------------------------------------------------------------------------
 // Above the bench, on the clear back wall from x0 to W: nothing, three
@@ -217,7 +217,7 @@ function pieceOnBenchWall(key, x0, g) {
   const moved = inLivingRoom(key).move, { x, y, turn } = spotOf(key);
   const piece = draw({ w, d, h });                              // drawn with its back's middle at its origin, facing out
   piece.position.set(x * MM, 0, y * MM);
-  piece.rotation.y = THREE.MathUtils.degToRad(-turn);
+  turnPiece(piece, turn);
   g.add(piece);
   drawn.backWall[key] = piece;
   const named = `${name} (${w} wide, ${d} deep, ${h} high)`;

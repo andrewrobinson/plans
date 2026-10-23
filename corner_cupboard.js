@@ -25,6 +25,7 @@ import * as THREE from 'three';
 import { MM, material, box, slab, part, skewHinge, dimLabel, chain } from './kit/floor_kit.js';
 import { planDoor } from './kit/door_kit.js';
 import { boxesMeet } from './kit/shape_kit.js';
+import { clamp } from './kit/units_kit.js';
 
 // A cupboard's own materials: its boards (carcass), shelves and doors, the
 // handles, and option 9's and 10's oak shelves and light strips. Each
@@ -401,8 +402,8 @@ function backLegDoors(job, g, x0, E, front) {
 // MIN_DIAGONAL along each wall.
 function diagonalFront({ T, R, F, DIAG_RUN, DIAG_BACK, DIAG_LEFT }) {
   const E = T + DIAG_RUN;
-  const back = Math.max(0, Math.min(DIAG_BACK, DIAG_RUN - MIN_DIAGONAL));
-  const left = Math.max(0, Math.min(DIAG_LEFT, F - R - MIN_DIAGONAL));
+  const back = clamp(DIAG_BACK, 0, DIAG_RUN - MIN_DIAGONAL);
+  const left = clamp(DIAG_LEFT, 0, F - R - MIN_DIAGONAL);
   return { E, back, left, xd: E - back, yd: F - left };
 }
 
@@ -611,7 +612,7 @@ const sideShelfTops = ({ BOARD }, H) => [...Array(SIDE_SHELVES).keys()].map(k =>
 function sideBookshelf(job, g) {
   const { CORNER_W: X, CORNER_D, BOARD: B, SIDE_W, SIDE_D: d } = job.s, { H, mats } = job;
   const alone = cornerTooShallow(job.s, 'kitchen');               // no cupboard beside it, nor its rear panel
-  const x1 = X + SIDE_W, shared = alone ? B : Math.max(B, Math.min(CORNER_D, d));   // y the cupboard's side covers
+  const x1 = X + SIDE_W, shared = alone ? B : clamp(CORNER_D, B, d);   // y the cupboard's side covers
   board(job, 'Bookshelf rear panel', { from: [alone ? X - B : X, 0, 0], to: [x1, B, H] }, g);     // against the back wall, on from the cupboard's
   board(job, 'Bookshelf side', { from: [x1 - B, B, 0], to: [x1, d, H] }, g);
   board(job, 'Bookshelf side, past the cupboard', { from: [X - B, shared, 0], to: [X, d, H] }, g);
@@ -914,7 +915,7 @@ export function makeCupboard(settings, place, materials) {
       const open = (h, degrees) => { h.rotation.y = (h.userData.dir ?? 1) * turn(Math.min(degrees, opensTo(h, group, place))); };
       for (const h of tall) open(h, angles.tall);
       for (const h of second) open(h, angles.second);
-      const lowered = Math.min(Math.max(angles.desk ?? 0, 0), 90);   // the desk's flap from upright (0) to level (90)
+      const lowered = clamp(angles.desk ?? 0, 0, 90);   // the desk's flap from upright (0) to level (90)
       for (const h of desk) h.rotation.z = h.userData.dir * turn(90 - lowered);
     },
     cuttingList: () => cuttingList(group, settings.BOARD),

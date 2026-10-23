@@ -65,8 +65,9 @@ first, then open only the file you need. Sizes are rough line counts
 | `kit/configuration_kit.js` | 105 | The Configuration list |
 | `kit/controls_kit.js` | 80 | Sliders, switches and the number boxes beside them: `slider`, `numberBoxes`, `resetButtons` |
 | `kit/tabs_kit.js` | 90 | The long drawers' tabs |
+| `kit/units_kit.js` | 20 | Numbers every room uses: `clamp` (the lowest wins if they cross), `QUARTER_TURN`, `turnPiece` (a piece turned as the menus' Turned) |
 | `kit/shape_kit.js` | 45 | Shapes meeting, for any room, touching not counting: ranges and boxes (`rangesMeet`, `boxesMeet`, a Box3's `rangesOf`), convex outlines (`overlap`) and `clip`. Used by the stair walls, the shelves cut round stored things, the tables stacking, the radiator check and the doors |
-| `kit/door_kit.js` | 150 | A hinged door in plan, for any room (`planDoor`): its outline at an angle, what it sweeps, how far it opens before something (in whole degrees, `OPEN_STEP`), its gap to a shape in line with it, and its swing marked on the floor (`swingMark`). The bedroom door, the shoe rack's internal door and option 8's room door use it |
+| `kit/door_kit.js` | 150 | A hinged door in plan, for any room (`planDoor`): its outline at an angle, what it sweeps, how far it opens before something (in whole degrees, `OPEN_STEP`), its gap to a shape in line with it, and its swing marked on the floor (`swingMark`, `faint`). The bedroom door, the shoe rack's internal door and option 8's room door use it |
 
 ## Tests
 

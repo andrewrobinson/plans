@@ -11,6 +11,7 @@
 // REFACTOR_PLAN.md step 4 moves the general code here a piece at a time.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { clamp } from './units_kit.js';
 
 export const MM = 0.001;
 
@@ -375,7 +376,7 @@ export function createDrawers(drawers, moved) {
 function sheetHandles(moved) {
   const KEY = SHEET_HEIGHT_KEY;
   const setHeight = share => {
-    const clamped = Math.min(SHEET_HIGHEST, Math.max(SHEET_LOWEST, share));
+    const clamped = clamp(share, SHEET_LOWEST, SHEET_HIGHEST);
     document.documentElement.style.setProperty('--sheet', `${Math.round(clamped * 100)}vh`);
     return clamped;
   };

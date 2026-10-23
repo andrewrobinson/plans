@@ -6,7 +6,7 @@
 // the materials the colours menu changes, for living_room.js.
 import * as THREE from 'three';
 import { MM, material, box, slab, hinge, skewHinge, oakBoards } from './kit/floor_kit.js';
-import { swingMark } from './kit/door_kit.js';
+import { swingMark, faint } from './kit/door_kit.js';
 
 export const floor = new THREE.Group();
 
@@ -392,7 +392,7 @@ BATHROOM.xWcIn = BATHROOM.xWcFront - BATHROOM.wall;                    // its WC
 // room is drawn below, and its swing drawn on the floor while it's asked for
 const BEDROOM_DOOR_T = 44;
 const bedroomHinges = {};
-const doorSwingMat = new THREE.MeshBasicMaterial({ color: 0xc0392b, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthWrite: false });
+const doorSwingMat = faint(new THREE.MeshBasicMaterial({ color: 0xc0392b, side: THREE.DoubleSide }));
 const SWING_ABOVE_CARPET = 2;      // the swing drawn just above the carpet, so it shows (chosen)
 let bedroomDoorSwing = null;
 // The carpet, in the bedroom and on the stairs: Cormar's Hampstead wool

@@ -23,6 +23,7 @@
 // A value missing from a configuration, or failing its check, leaves the
 // setting as it was: as the page starts.
 // ---------------------------------------------------------------------------
+import { clamp as clampTo } from './units_kit.js';
 
 // The value at `path` in `object` (undefined if it isn't there), and
 // setting it, making the objects on the way
@@ -65,7 +66,7 @@ function readValue(entry, value, was, settings) {
     case 'number': {
       if (!finite(value)) return undefined;
       const { min, max, step, onSteps, clamp, also } = entry;
-      const v = clamp ? Math.min(max, Math.max(min, value)) : value;
+      const v = clamp ? clampTo(value, min, max) : value;
       if (v < min || v > max) return undefined;
       if (onSteps && (v - min) % step !== 0) return undefined;
       return !also || also(v) ? v : undefined;

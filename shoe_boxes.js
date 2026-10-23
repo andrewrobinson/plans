@@ -21,6 +21,7 @@ import { profile, clearDrawing } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { hallway, HALLWAY, frameMat } from './floor.js';
 import { slider } from './kit/controls_kit.js';
+import { clamp } from './kit/units_kit.js';
 
 // ---------------------------------------------------------------------------
 // The two sills, in the living room's mm (as floor.js's HALLWAY), seen
@@ -94,7 +95,7 @@ export function onTheSill(key, b) {
 export function levelled(boxes) {
   if (!boxes.right.levelWithLeft) return boxes;
   const height = boxes.left.height + SILLS.left.z - SILLS.right.z;
-  return { ...boxes, right: { ...boxes.right, height: Math.min(Math.max(height, HEIGHTS[0]), HEIGHTS[1]) } };
+  return { ...boxes, right: { ...boxes.right, height: clamp(height, HEIGHTS[0], HEIGHTS[1]) } };
 }
 
 // ---------------------------------------------------------------------------

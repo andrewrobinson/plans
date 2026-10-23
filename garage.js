@@ -12,9 +12,11 @@
 import * as THREE from 'three';
 import { MM, material, box, slab, valueAt, clearDrawing } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
+import { faint } from './kit/door_kit.js';
 import { slider, lyingSwitch } from './kit/controls_kit.js';
 import { hallway, HALLWAY, ENTRANCE, ceilingMat, insideFace, faceAround } from './floor.js';
-import { pineCupboard, OTHER_ROOM_START, QUARTER_TURN } from './other_room.js';
+import { pineCupboard, OTHER_ROOM_START } from './other_room.js';
+import { QUARTER_TURN, turnPiece } from './kit/units_kit.js';
 import { bookcase } from './bookcase.js';
 import { BILLY, BILLY_CHEST, billy, billyChest } from './billy.js';
 import { IVAR, ivar } from './ivar.js';
@@ -247,10 +249,7 @@ const furniture = new THREE.Group();
 garage.add(furniture);
 const doorGroup = new THREE.Group();                   // the door, as Garage options say
 garage.add(doorGroup);
-const swingMat = material(0x8f969c);                   // the ground the door swings over: the door's grey, faint (chosen)
-swingMat.transparent = true;
-swingMat.opacity = 0.25;
-swingMat.depthWrite = false;
+const swingMat = faint(material(0x8f969c));            // the ground the door swings over: the door's grey (chosen), faint
 
 // The door: closed, filling the doorway just inside the end wall; or open,
 // level on its rail just under the opening's head, its bottom edge as far
@@ -284,7 +283,7 @@ export function drawGarage(settings, pineSizes) {
     body.position.z = off * MM;                   // its depth, out from the wall, is the group's z
     g.add(body);
     g.position.set(x * MM, z * MM, y * MM);
-    g.rotation.y = THREE.MathUtils.degToRad(-turn);
+    turnPiece(g, turn);
     g.visible = s[piece].on;
     furniture.add(g);
     garagePieces[piece] = g;

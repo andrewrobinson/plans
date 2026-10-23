@@ -108,6 +108,14 @@ export function planDoor({ hinge, width, thick = 0, shut, turn, stopsAt = 180 })
     opensClearOf: shape => opensTo(deg => overlap(outline(deg), shape)) };
 }
 
+// `material` made faint, for marking where a door swings: see-through, and
+// drawn without hiding what's under it
+const FAINT = 0.25;                  // its opacity (chosen)
+export function faint(material) {
+  Object.assign(material, { transparent: true, opacity: FAINT, depthWrite: false });
+  return material;
+}
+
 // The swing opened to `deg` marked on the floor in `material`, `lift` above
 // it so it shows: lying flat in the room's group, its plan's x and y as
 // the room's

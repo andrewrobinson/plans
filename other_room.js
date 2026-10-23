@@ -27,6 +27,7 @@ import { IVAR, ivar } from './ivar.js';
 import { KNARREVIK, knarrevik } from './knarrevik.js';
 import { KVISTBRO, kvistbro } from './kvistbro.js';
 import { LAUNDRY_BASKET, laundryBasket } from './laundry_basket.js';
+import { QUARTER_TURN, turnPiece } from './kit/units_kit.js';
 const { valueAt } = Config;
 
 // ---------------------------------------------------------------------------
@@ -136,6 +137,7 @@ const WALL_KEYS = Object.keys(WALLS);
 const ALONG_LABEL = { u: 'Middle from the window wall', v: 'Middle from the hallway wall' };
 // Held to its wall, a piece's middle at least `half` (half its width) in
 // from each end; on a wall too short for it, against its far end
+// (not clamp(), where the lowest wins)
 const alongWall = (wall, along, half = 0) => Math.min(WALLS[wall].to - half, Math.max(WALLS[wall].from + half, along));
 // Where the things by the bed start: each one's middle along its wall,
 // worked out from the bed and the pine cupboard as they start
@@ -193,7 +195,6 @@ const AS_THEY_START = {
 // highest, step, unit], in the menu's order under each piece's heading.
 // Turned goes in quarter turns, all that's needed to stand a piece square
 // to a wall (chosen 15 Oct 2026)
-export const QUARTER_TURN = 90;
 const PLACE = (piece) => [
   [`${piece}.u`, 'Back’s middle from the window wall', 0, OTHER_ROOM.length, 5, ''],
   [`${piece}.v`, 'Back’s middle from the hallway wall', 0, OTHER_ROOM.recessBack, 5, ''],
@@ -382,7 +383,7 @@ function showPiece(key, g, where, on) {
 
 function place(g, { u, v, turn }) {
   g.position.set(u * MM, 0, v * MM);
-  g.rotation.y = THREE.MathUtils.degToRad(-turn);
+  turnPiece(g, turn);
   furniture.add(g);
   return g;
 }

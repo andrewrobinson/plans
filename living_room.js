@@ -31,7 +31,7 @@ import {
   MM, createStage, RAL, popMenus, createDrawers, reloadButton, resetButton, SHEET_HEIGHT_KEY, shareButton, 
   screenshotButton, workOffline, flatViews, cutViews
 } from './kit/floor_kit.js';
-import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, QUARTER_TURN, BED_SPOTS } from './other_room.js';
+import { otherRoomControls, otherRoomPieces, BOOKCASE_SIZES, BED_SPOTS } from './other_room.js';
 import { SIZE_LABEL, numberBoxes } from './kit/controls_kit.js';
 import { drawerTabs, showTabOf } from './kit/tabs_kit.js';
 import { wickerBenches, wickerBenchControls } from './wicker_bench.js';

@@ -35,9 +35,8 @@ Where it stands (23 Oct 2026):
   tests change, so it can go with the next deploy.
 - **Next for the code**: `REFACTOR_PLAN.md`'s "Generic rules written more
   than once". Not agreed yet. The overlaps are done (`kit/shape_kit.js`,
-  23 Oct 2026); next, fold the small ones (a `clamp`, turning a piece,
-  `QUARTER_TURN`'s home) into whichever change touches their files. Leave
-  "moved until clear", "standing on another" and "off the wall" for now:
+  23 Oct 2026), and the small ones (`kit/units_kit.js`). Left as they
+  are: "moved until clear", "standing on another" and "off the wall", as
   sharing them would change what those pieces do.
 - **What's generic and what's yours** (looked at 23 Oct 2026, no change
   made): only two facts are about your body, the UK 11 shoes

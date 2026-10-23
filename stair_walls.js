@@ -20,6 +20,7 @@ import { hallway, HALLWAY, BATHROOM, CEILING_HEIGHT, DOOR_FRAME_STARTS_AT } from
 import { slider } from './kit/controls_kit.js';
 import { boxesMeet } from './kit/shape_kit.js';
 import { SHOE_BOXES_START, onTheSill, levelled, shoeBoxBounds } from './shoe_boxes.js';
+import { clamp } from './kit/units_kit.js';
 
 // ---------------------------------------------------------------------------
 // The three walls, all seen from the hallway, in the living room's mm (as
@@ -173,7 +174,8 @@ function onTheWall(wall, item, s) {
     ? CEILING_HEIGHT - TOP_SHELF_ROOM - (s.count - 1) * s.spacing
     : CEILING_HEIGHT - PICTURE_ROOM - s.tall / 2;
   const half = s.width / 2;
-  return { ...s, height: Math.max(lowest, Math.min(s.height, highest)), along: Math.min(Math.max(s.along, half), wallLength(wall) - half) };
+  // along: on a wall too short for it, against its far end (not clamp(), where the lowest wins)
+  return { ...s, height: clamp(s.height, lowest, highest), along: Math.min(Math.max(s.along, half), wallLength(wall) - half) };
 }
 
 // A wall's settings with `moving` (shelves or picture) kept on the wall
@@ -228,7 +230,7 @@ export function shoeBoxRefusal(walls, key, b) {
 // than its slider goes)
 function cornerUnderCeiling(c) {
   const highest = CEILING_HEIGHT - TOP_SHELF_ROOM - (c.count - 1) * c.spacing;
-  return { ...c, height: Math.max(TV_WALL_LOWEST_SHELF, Math.min(c.height, highest)) };
+  return { ...c, height: clamp(c.height, TV_WALL_LOWEST_SHELF, highest) };
 }
 // One of the L's arms, as shelves on its wall: on the TV wall it runs back
 // from the wall's far end, on the WC wall out from its start

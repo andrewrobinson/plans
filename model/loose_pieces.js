@@ -27,6 +27,7 @@ import {
 } from './bench_wall.js';
 import { pieces, sofa } from './front_wall.js';
 import { SLIDER_RANGES } from './slider_ranges.js';
+import { clamp, turnPiece } from '../kit/units_kit.js';
 
 // ---------------------------------------------------------------------------
 // The work chair at the daybed's desk (asked for, 22 Oct 2026): pulled up,
@@ -162,7 +163,7 @@ function tablesInLivingRoom(g) {
     const { table, name, pose, posed } = TABLES[key], { x, y, turn } = tableSpot(key), { w, d, h } = tableSizes(table, pose());
     const piece = kitchenTable(table, pose());
     piece.position.set(x * MM, 0, y * MM);
-    piece.rotation.y = THREE.MathUtils.degToRad(-turn);
+    turnPiece(piece, turn);
     // measured before it joins the group, so in the room's own scene units
     const under = placed.find(other => overlaps(footprint(piece), other));
     if (under) piece.position.y = under.max.y;                  // on top of it
@@ -198,7 +199,7 @@ function castorDeskInLivingRoom(g) {
   const { x, y, turn } = castorDeskSpot(), { w, d, h } = castorDeskSizes();
   const piece = castorDesk();
   piece.position.set(x * MM, 0, y * MM);
-  piece.rotation.y = THREE.MathUtils.degToRad(-turn);
+  turnPiece(piece, turn);
   // measured before it joins the group, as the tables are, with the cupboard's doors still shut
   const clash = cupboard && overlaps(footprint(piece), footprint(cupboard.group)) ? ' It stands where the corner cupboard is.' : '';
   g.add(piece);
@@ -212,7 +213,7 @@ function ivarInLivingRoom(g) {
   const { x, y, turn } = ivarSpot(), { w, d, h } = ivarSizes(config.pieces.ivar.in.livingRoom.lying);
   const piece = ivar(config.pieces.ivar.in.livingRoom.lying);
   piece.position.set(x * MM, 0, y * MM);
-  piece.rotation.y = THREE.MathUtils.degToRad(-turn);
+  turnPiece(piece, turn);
   g.add(piece);
   pieces.ivar = piece;
   const named = `The Ivar, ${config.pieces.ivar.in.livingRoom.lying ? 'lying on its side' : 'standing'} (${w} long, ${d} wide, ${h} high)`;
@@ -291,7 +292,7 @@ function speakerSpacingOn(place, surface) {
   const { w } = FENRIS_A5, [least, highest] = SLIDER_RANGES.speakerSpacing;
   const most = Math.min(highest, 2 * Math.min(surface.middle - surface.x0, surface.x1 - surface.middle) - w);
   const asked = config.pieces.speakers.in.livingRoom.spacing[place] ?? surface.start;
-  return { spacing: Math.max(least, Math.min(asked, most)), most, held: asked > most };
+  return { spacing: clamp(asked, least, most), most, held: asked > most };
 }
 // The spacing slider's, for the menu: the spacing in use and the most it
 // can be, or null where it can't be set (no speakers, the cupboard, or

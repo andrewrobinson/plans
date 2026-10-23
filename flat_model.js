@@ -45,7 +45,7 @@ import { FENRIS_A5, fenrisA5 } from './speakers.js';
 import { DESK_DAYBED, DAYBED_TOP_D, deskDaybed, bedMiddle, deskOpenEnd } from './desk_daybed.js';
 import { WORK_CHAIRS, officeChair } from './work_chairs.js';
 import {
-  drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard, QUARTER_TURN, 
+  drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard, 
   OTHER_ROOM_SCHEMA
 } from './other_room.js';
 import { DOOR_SWINGS, SWING_WAYS } from './bedroom_door.js';
