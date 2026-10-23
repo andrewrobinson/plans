@@ -78,7 +78,6 @@ const MENU = [
   ['adjustments', 'Room options', () => document.getElementById('roomOptions').click()],
   ['settings', 'Other options', () => document.getElementById('menu').click()],
   ['share', 'Share', () => document.getElementById('share').click()],
-  ['package', 'Things to store: on or off', () => document.getElementById('storedToggle').click()],
   ['camera', 'Screenshot', () => document.getElementById('screenshot').click()],
 ];
 const menuButton = document.getElementById('gameMenu'), menu = document.getElementById('gameMenuList');
@@ -137,9 +136,16 @@ function togglePiece(piece) {
   setIn(piece, on, `${piece.name} ${on ? 'put in' : 'taken out'}`);
 }
 // A piece put in or taken out, with a note to undo it: Undo puts back
-// every setting of its place in the room as it was
+// every setting of its place in the room as it was (one that's fixed, its
+// switch alone)
 function setIn(piece, on, note, edits = []) {
-  const before = Object.entries(at(piece.place)).map(([k, v]) => [`${piece.place}.${k}`, structuredClone(v)]);
+  if (piece.viaSwitch) {                                         // its own switch, which does the rest
+    const flip = () => document.getElementById(piece.viaSwitch).click();
+    flip();
+    return toast(note, flip);
+  }
+  const before = piece.fixed ? [[piece.on, at(piece.on)]]
+    : Object.entries(at(piece.place)).map(([k, v]) => [`${piece.place}.${k}`, structuredClone(v)]);
   change([[piece.on, on], ...edits], { look: true });
   toast(note, () => change(before, { look: true }));
 }

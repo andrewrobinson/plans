@@ -1,22 +1,23 @@
 // Arranging a room in Plan, the lounge or the bedroom (a piece of
 // living_room.js): tap a piece to
 // select it, drag it to move it, drop it on the picker to take it out,
-// drag one in from the picker, turn it, and long-press the sofa to resize
-// it. A tap on something painted (the walls, the floor, the cupboards)
+// drag one in from the picker, turn it, and long-press anything for its
+// options, with handles to resize it where it has sizes (options.js,
+// resize.js). A tap on something painted (the walls, the floor, the cupboards)
 // selects it for its colour. Pieces snap to the walls and never go
 // through them; one overlapping another shows red, but isn't stopped.
-// On the desktop the mouse does the same, a double-click resizes the sofa,
+// On the desktop the mouse does the same, a double-click for a long-press,
 // and the keys: Delete takes out, R turns, the arrows nudge, Esc lets go.
-import { SOFAS, SOFA_SLIDERS, config, sofaOwnSize } from '../../flat_model.js';
 import { boxesMeet } from '../../kit/shape_kit.js';
 import { MM } from '../../kit/floor_kit.js';
 import { renderer, change, drawSoon, viewKit } from '../../living_room.js';
-import { SOFA, inRoom, roomOf, wallsOf, floorBox, facing } from './furniture.js';
-import { planPoint, hitsUnder, pieceOf, colourTargetOf, screenOf } from './picking.js';
+import { inRoom, roomOf, wallsOf, floorBox, facing } from './furniture.js';
+import { planPoint, hitsUnder, pieceOf, colourTargetOf } from './picking.js';
 import { select, deselect, selection, setActions, setOverlapping, setOverlapCheck } from './selection.js';
 import { modeNow, toast, setIn, overPicker, markDropOut, classic } from './shell.js';
 import { openColours, TARGET_NAMES } from './colour_sheet.js';
 import { optionsFor, thingOf } from './options.js';
+import { resizing } from './resize.js';
 
 const canvas = renderer.domElement;
 const SNAP = 50;                   // mm: a piece this near a wall goes against it (chosen)
@@ -24,7 +25,6 @@ const STEP = 10;                   // mm: where a dragged piece stops, as the sl
 const NUDGE = 10, BIG_NUDGE = 100; // mm an arrow key moves one, with Shift (chosen)
 const DRAG_START_PX = 8;           // a finger's wobble on a tap stays under it (chosen)
 const LONG_PRESS_MS = 500;         // as phones' own long-press
-const SOFA_SNAP = 40;              // mm: resizing, the sofa's own width catches within this (chosen)
 const roundTo = (n, step) => Math.round(n / step) * step;
 const QUARTER = 90;
 
@@ -84,7 +84,6 @@ setActions({
   // one on a wall faces out from it, so it's turned by moving it to another
   turn: { can: sel => Boolean(sel.piece && !sel.piece.fixed && !sel.piece.onWall), do: sel => turn(sel.piece) },
   remove: { can: sel => Boolean(sel.piece && canTakeOut(sel.piece)), do: sel => takeOut(sel.piece) },
-  resize: { can: sel => sel.piece === SOFA, do: () => startResize() },
   colour: { can: sel => Boolean(sel.surface), do: sel => openColours(sel.surface) },
   options: { can: sel => Boolean(sel.piece && thingOf(sel.piece.object())), do: sel => optionsFor(sel.piece.object()) },
 });
@@ -108,19 +107,15 @@ canvas.addEventListener('pointerdown', e => {
   canvas.setPointerCapture(e.pointerId);
   const object = piece.object();
   Object.assign(press, { from: planPoint(e), box: floorBox(object), at: object.position.clone(), others: othersBoxes(piece), dx: 0, dy: 0 });
-  // A long-press: the sofa's resize handles (its options are on the action
-  // bar), any other piece's options
-  press.timer = setTimeout(() => {
-    press.longPressed = true;
-    if (piece === SOFA) { select({ piece }); startResize(); } else optionsFor(object);
-  }, LONG_PRESS_MS);
+  // A long-press: its options, and its handles if it has sizes
+  press.timer = setTimeout(() => { press.longPressed = true; optionsFor(object); }, LONG_PRESS_MS);
 }, { capture: true });
 
 canvas.addEventListener('pointermove', e => {
   if (!press || e.pointerId !== press.id) return;
   if (!press.dragging && Math.hypot(e.clientX - press.x, e.clientY - press.y) < DRAG_START_PX) return;
   clearTimeout(press.timer);
-  if (!press.piece || resizing || press.longPressed) return;
+  if (!press.piece || press.longPressed) return;
   e.stopImmediatePropagation();
   if (!press.dragging) {
     press.dragging = true;
@@ -158,15 +153,15 @@ window.addEventListener('pointerup', e => {
   if (piece) return select({ piece });
   const target = hit ? colourTargetOf(hit.object) : null;
   if (target) return select({ surface: { target, object: hit.object, name: TARGET_NAMES[target] } });
-  if (!resizing) deselect();
+  if (!resizing()) deselect();
 });
 window.addEventListener('pointercancel', () => { if (press) clearTimeout(press.timer); press = null; });
 
-// The desktop's stand-ins for a long-press: a double-click on the sofa resizes it
+// The desktop's stand-in for a long-press: a double-click
 canvas.addEventListener('dblclick', e => {
   if (!inPlan()) return;
   const hit = hitsUnder(e)[0];
-  if (hit && pieceOf(hit.object, viewKit.room) === SOFA) { select({ piece: SOFA }); startResize(); }
+  if (hit) optionsFor(hit.object);
 });
 canvas.addEventListener('contextmenu', e => { if (inPlan() && selection()) e.preventDefault(); });
 
@@ -211,77 +206,13 @@ function dropIn(piece, p) {
 }
 
 // ---------------------------------------------------------------------------
-// Resizing the sofa: a round handle at each end; dragging one widens or
-// narrows it about its middle, in 10s, within its slider's range, catching
-// at its own width. It's stretched in the scene as it's dragged, and the
-// setting changes as it's let go
-// ---------------------------------------------------------------------------
-const [, , SOFA_MIN_W, SOFA_MAX_W] = SOFA_SLIDERS.find(([k]) => k === 'w');
-const handles = document.getElementById('resizeHandles'), readout = document.getElementById('resizeReadout');
-let resizing = false;
-function startResize() {
-  resizing = true;
-  handles.hidden = false;
-  readout.hidden = true;
-  navigator.vibrate?.(15);
-}
-function stopResize() {
-  resizing = false;
-  handles.hidden = true;
-  readout.hidden = true;
-}
-// The sofa's width runs along x, or along y once it's turned a quarter
-const alongX = () => SOFA.spot().turn % 180 === 0;
-// The handles kept at the sofa's ends, each frame while resizing
-(function placeHandles() {
-  requestAnimationFrame(placeHandles);
-  if (!resizing) return;
-  if (selection()?.piece !== SOFA || modeNow() !== 'plan') return stopResize();
-  const b = floorBox(SOFA.object());
-  const ends = alongX() ? [[b.x0, (b.y0 + b.y1) / 2], [b.x1, (b.y0 + b.y1) / 2]] : [[(b.x0 + b.x1) / 2, b.y0], [(b.x0 + b.x1) / 2, b.y1]];
-  [...handles.children].forEach((h, i) => {
-    const s = screenOf(ends[i][0], ends[i][1], b.top);
-    h.style.left = `${s.x}px`;
-    h.style.top = `${s.y}px`;
-  });
-})();
-handles.addEventListener('pointerdown', e => {
-  const handle = e.target.closest('.handle');
-  if (!handle) return;
-  e.stopPropagation();
-  handle.setPointerCapture(e.pointerId);
-  const side = handle.dataset.side === 'start' ? -1 : 1, from = planPoint(e), startW = config.pieces.sofa.design.w;
-  const own = sofaOwnSize(SOFAS[config.pieces.sofa.design.model]).w, object = SOFA.object();
-  let w = startW;
-  const move = m => {
-    const p = planPoint(m), along = alongX() ? p.x - from.x : p.y - from.y;
-    w = Math.min(SOFA_MAX_W, Math.max(SOFA_MIN_W, roundTo(startW + 2 * side * along, STEP)));
-    if (Math.abs(w - own) < SOFA_SNAP) w = own;
-    object.scale.x = w / startW;
-    readout.hidden = false;
-    readout.textContent = `${w} mm${w === own ? ' (its own)' : ''}`;
-    readout.style.left = handle.style.left;
-    readout.style.top = handle.style.top;
-    drawSoon();
-  };
-  const up = () => {
-    handle.removeEventListener('pointermove', move);
-    handle.removeEventListener('pointerup', up);
-    readout.hidden = true;
-    if (w !== startW) change([['pieces.sofa.design.w', w]]);
-  };
-  handle.addEventListener('pointermove', move);
-  handle.addEventListener('pointerup', up);
-});
-
-// ---------------------------------------------------------------------------
 // The keys, on the desktop, while something's selected in Plan
 // ---------------------------------------------------------------------------
 const ARROWS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
 window.addEventListener('keydown', e => {
   const piece = selection()?.piece;
   if (!inPlan() || e.target.closest?.('input, select, textarea')) return;
-  if (e.key === 'Escape') { stopResize(); deselect(); return; }
+  if (e.key === 'Escape') { deselect(); return; }
   if (!piece) return;
   if ((e.key === 'Delete' || e.key === 'Backspace') && canTakeOut(piece)) { e.preventDefault(); takeOut(piece); }
   else if (e.key.toLowerCase() === 'r' && !piece.fixed && !piece.onWall && !e.metaKey && !e.ctrlKey) turn(piece);
@@ -293,5 +224,5 @@ window.addEventListener('keydown', e => {
   }
 });
 
-export { dragFromPicker, stopResize };
+export { dragFromPicker };
 export { deselect } from './selection.js';

@@ -27,6 +27,28 @@ async function drag(page, from, to) {
   await page.mouse.up();
 }
 
+// The colour sheet opened, and still once it's slid up
+const SHEET_SLIDE_MS = 300;        // game.css's 0.22 s, and a little over
+async function openSheet(page) {
+  await page.click('#actionBar [data-action=colour]');
+  await expect(page.locator('#colourSheet')).toHaveClass(/\bup\b/);
+  await page.waitForTimeout(SHEET_SLIDE_MS);
+}
+
+// A long-press at a point on the screen
+async function longPress(page, at) {
+  await page.mouse.move(at.x, at.y);
+  await page.mouse.down();
+  await expect(page.locator('#optionsSheet')).toBeVisible();
+  await page.mouse.up();
+}
+// The middle of an object's box on the screen, from a model's name for it
+const objectOnScreen = (page, name) => page.evaluate(async name => {
+  const THREE = await import('three'), { namedPieces } = await import('/flat_model.js'), { screenOf } = await import('/page/game/picking.js');
+  const b = new THREE.Box3().setFromObject(namedPieces()[name]), c = b.getCenter(new THREE.Vector3());
+  return screenOf(c.x * 1000, c.z * 1000, b.max.y * 1000);
+}, name);
+
 test('the picker puts a piece in and takes it out, with Undo', async ({ page }) => {
   await openRoom(page, '', { game: true });
   const chesham = 'pieces.chesham.in.livingRoom.on';
@@ -98,34 +120,44 @@ test('the bedroom has its own pieces: dragged in, one on a wall goes against the
   expect(await setting(page, 'pieces.bed.in.bedroom.u')).not.toBe(u);
 });
 
-test('the sofa resizes from its handles, and turns from the action bar', async ({ page }) => {
+test('a long-press shows the sofa\'s options and handles; a handle resizes it; it turns from the action bar', async ({ page }) => {
   await openRoom(page, '', { game: true });
   await toPlan(page);
-  const at = await pieceOnScreen(page, 'sofa');
-  // A long-press
-  await page.mouse.move(at.x, at.y);
-  await page.mouse.down();
-  await expect(page.locator('#resizeHandles [data-side=end]')).toBeVisible();
-  await page.mouse.up();
+  await longPress(page, await pieceOnScreen(page, 'sofa'));
+  await expect(page.locator('#optionsTitle')).toHaveText('Sofa');
+  await expect(page.locator('#resizeHandles .handle')).toHaveCount(4);
+  // The rightmost handle, an end of its width (it stands square to the back wall), dragged out
+  await page.waitForTimeout(SHEET_SLIDE_MS);                     // the plan fitted above the sheet
+  const boxes = await page.locator('#resizeHandles .handle').evaluateAll(hs => hs.map(h => h.getBoundingClientRect().toJSON()));
+  const right = boxes.reduce((a, b) => (b.x > a.x ? b : a));
   const w = await setting(page, 'pieces.sofa.design.w');
-  const handle = await page.locator('#resizeHandles [data-side=end]').boundingBox();
-  const from = { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 };
+  const from = { x: right.x + right.width / 2, y: right.y + right.height / 2 };
   await drag(page, from, { x: from.x + 6, y: from.y });
   expect(await setting(page, 'pieces.sofa.design.w')).toBeGreaterThan(w);
-  await page.keyboard.press('Escape');
+  await page.click('#optionsDone');
+  await expect(page.locator('#resizeHandles')).toBeHidden();
+  const at = await pieceOnScreen(page, 'sofa');
   await page.mouse.click(at.x, at.y);
   const turn = (await setting(page, 'pieces.sofa.in.livingRoom.move')).turn;
   await page.click('#actionBar [data-action=turn]');
   expect((await setting(page, 'pieces.sofa.in.livingRoom.move')).turn).toBe((turn + 90) % 360);
 });
 
-// The colour sheet opened, and still once it's slid up
-const SHEET_SLIDE_MS = 300;        // game.css's 0.22 s, and a little over
-async function openSheet(page) {
-  await page.click('#actionBar [data-action=colour]');
-  await expect(page.locator('#colourSheet')).toHaveClass(/\bup\b/);
-  await page.waitForTimeout(SHEET_SLIDE_MS);
-}
+test('the hallway\'s and the garage\'s pickers, and the things to store in the lounge\'s', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  const stored = await setting(page, 'thingsToStore.shown');
+  await page.click('#picker [data-key=stored]');
+  expect(await setting(page, 'thingsToStore.shown')).toBe(!stored);
+  await page.click('#gameRooms [data-room=hallway]');
+  await page.click('#picker [data-key=cornerShelves]');
+  expect(await setting(page, 'hallway.cornerShelves.on')).toBe(true);
+  await page.click('#gameRooms [data-room=garage]');
+  await toPlan(page);
+  const before = await setting(page, 'pieces.yellow.in.garage');
+  const yellow = await pieceOnScreen(page, 'yellow', 'garage');
+  await drag(page, yellow, { x: yellow.x - 30, y: yellow.y });
+  expect((await setting(page, 'pieces.yellow.in.garage')).x).toBeLessThan(before.x);
+});
 
 test('the colour sheet paints as you slide, ✕ puts it back and ✓ keeps it', async ({ page }) => {
   await openRoom(page, '', { game: true });
@@ -167,20 +199,6 @@ test('in Walk, a tap on the floor walks you there', async ({ page }) => {
   const end = await where();
   expect(end[1]).toBe(Math.round(start[1] * 1000));                // the same eye height
 });
-
-// A long-press at a point on the screen
-async function longPress(page, at) {
-  await page.mouse.move(at.x, at.y);
-  await page.mouse.down();
-  await expect(page.locator('#optionsSheet')).toBeVisible();
-  await page.mouse.up();
-}
-// The middle of an object's box on the screen, from a model's name for it
-const objectOnScreen = (page, name) => page.evaluate(async name => {
-  const THREE = await import('three'), { namedPieces } = await import('/flat_model.js'), { screenOf } = await import('/page/game/picking.js');
-  const b = new THREE.Box3().setFromObject(namedPieces()[name]), c = b.getCenter(new THREE.Vector3());
-  return screenOf(c.x * 1000, c.z * 1000, b.max.y * 1000);
-}, name);
 
 test('a long-press opens a thing\'s options, from its drawer, and Done puts them back', async ({ page }) => {
   await openRoom(page, '', { game: true });

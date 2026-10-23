@@ -22,13 +22,14 @@ first, then open only the file you need. Sizes are rough line counts
 | `page/view.js` | 140 | The 2D views' fit (`frameCupboard`), `viewKit`, the Configuration list, loading cover, Dimensions buttons |
 | `page/room_buttons.js` | 240 | The room buttons and drawers (`goToRoom`, `showRoomOptions`), and `syncControls()`, which puts every control in step |
 | `page/game/shell.js` | 165 | The game UI's frame (mobile first, 23 Oct 2026): the room chips, the view switch (`MODES`: Plan, Overhead, Walk; `goTo`, `modeNow`), ☰'s menu (the top bar's controls), the furniture picker, per room, in every view (tap: in or out) and the note with Undo (`toast`, `setIn`). `?classic` leaves it all out |
-| `page/game/furniture.js` | 125 | Each room's pieces for the picker (`ROOMS`: the lounge's and the bedroom's; `SOFA`, `BED` always there): icon, settings (`on`, `spot()`, `moveTo()`; `onWall` for the bedroom's wall pieces), `object()`; `inRoom(room)`, `floorBox`, `facing` |
+| `page/game/furniture.js` | 190 | Each room's pieces for the picker (`ROOMS`): the lounge's, the bedroom's (`onWall` for its wall pieces), the hallway's switches (also downstairs), the garage's, and the things to store (`STORED`, by their own switch); `SOFA`, `BED` always there. Each: icon, `on`, `spot()`, `moveTo()`, `object()`; `inRoom(room)`, `floorBox`, `facing` |
 | `page/game/plan_edit.js` | 270 | Plan's editing: select, drag (held in the room, snapping to walls), drop from and onto the picker, Turn, the sofa's resize handles, the keys |
 | `page/game/selection.js` | 130 | What's selected: the blue outline in the scene (red overlapping) and the action bar (`select`, `setActions`) |
 | `page/game/picking.js` | 55 | What's under the pointer: `planPoint`, `hitsUnder`, `pieceOf`, `colourTargetOf`, `screenOf` |
 | `page/game/colour_sheet.js` | 100 | The colour sheet: a strip that paints as you slide, More for every RAL colour, ✓ and ✕ (`openColours`) |
 | `page/game/walk.js` | 185 | Walk: tap the floor to go there, tap a thing to face it, pinch to zoom, the mini plan, Sit/Stand; a long-press on a painted surface opens its colours |
-| `page/game/options.js` | 140 | A thing's options from a long-press: its controls moved in from Lounge, Bedroom or Hallway options into a sheet and back (`THINGS`, `thingOf`, `optionsFor`); the room's drawer for anything else |
+| `page/game/options.js` | 140 | A thing's options from a long-press, with its size handles (`sizes`): its controls moved in from Lounge, Bedroom or Hallway options into a sheet and back (`THINGS`, `thingOf`, `optionsFor`); the room's drawer for anything else |
+| `page/game/resize.js` | 105 | Resize handles in Plan: they drag a thing's own size sliders (`startResize`, `stopResize`), started with its options |
 | `page/game/insets.js` | 20 | The game UI's edges, which the 2D views fit between, and an open sheet, which both views fit above (`gameInsets`) |
 | `game.css` | 165 | The game UI's look, mobile first; on a phone it hides the top bar |
 | `cupboard_controls.js` | 130 | A corner cupboard's controls, copied for the bedroom's (`copyControls`) |

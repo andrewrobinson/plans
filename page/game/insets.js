@@ -1,10 +1,10 @@
 // The game UI's edges, in px, which the 2D views fit between (a piece of
 // living_room.js, for page/view.js): the picker on the left while it's
-// shown (in the lounge and the bedroom), the room chips at the top, and
+// shown (in the rooms with one), the room chips at the top, and
 // the view switch at the bottom, or the options or colour sheet while one's
 // open, so what's being set stays in view above it. None with ?classic.
 const NONE = { left: 0, top: 0, bottom: 0, sheet: 0 };
-const PICKER_ROOMS = ['livingRoom', 'bedroom'];   // furniture.js's ROOMS (not imported: this loads before the model's set up)
+const PICKER_ROOMS = ['livingRoom', 'bedroom', 'hallway', 'downstairs', 'garage'];   // furniture.js's ROOMS (not imported: this loads before the model's set up)
 const GAP = 6;                     // px between the plan and the game UI (chosen)
 // roomNow(): the room on show, the view kit's, once it's set up
 export function gameInsets(roomNow) {

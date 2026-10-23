@@ -18,12 +18,23 @@ import { drawers, resize } from '../../living_room.js';
 import { colourTargetOf } from './picking.js';
 import { select, deselect } from './selection.js';
 import { openColours, TARGET_NAMES } from './colour_sheet.js';
+import { startResize, stopResize } from './resize.js';
 
 // ---------------------------------------------------------------------------
 // Each thing: its name, the objects drawn for it (any part of one, pressed,
-// is it) or the materials it's made of, and its controls' ids in the
-// drawers (sections, or blocks within one), in the order they're shown
+// is it) or the materials it's made of, its controls' ids in the drawers
+// (sections, or blocks within one), in the order they're shown, and the
+// size sliders its handles move in Plan (resize.js: `along` its width or
+// depth; factor 2 where it grows both ways about its middle, 1 from its
+// back or one side). Heights have no handles: the plan looks down on them
 // ---------------------------------------------------------------------------
+const w = (id, factor = 2) => ({ id, along: 'w', factor });
+const d = (id, factor = 1) => ({ id, along: 'd', factor });
+const BEDROOM_SIZES = {
+  bookcase: [w('otherRoom_bookcase_w'), d('otherRoom_bookcase_d')],
+  cupboard: [w('otherRoom_cupboard_w'), d('otherRoom_cupboard_d')],
+  mirror: [w('otherRoom_mirror_w')],
+};
 const ISLAND = ['islandBlock', 'islandMoveBlock', 'islandTypeBlock', 'islandSizeBlock', 'islandSeatBlock'];
 const BEDROOM_PIECES = {
   bed: 'Bed', bookcase: 'Bookcase', cupboard: 'Pine cupboard', billy: 'Billy', billyChest: 'BillyChest', ivar: 'Ivar',
@@ -31,10 +42,13 @@ const BEDROOM_PIECES = {
 };
 const THINGS = [
   // The lounge
-  { name: 'Sofa', objects: () => [pieces.sofa], ids: ['secSofa'] },
-  { name: 'Kitchen island', objects: () => [islandGroup], ids: ISLAND },
-  { name: 'Dresser', objects: () => [pieces.dresser], ids: ['frontBlock', 'dresserBlock'] },
-  { name: 'Larder', objects: () => [pieces.larder], ids: ['frontBlock', 'larderBlock'] },
+  { name: 'Sofa', objects: () => [pieces.sofa], ids: ['secSofa'], sizes: [w('sofaW'), d('sofaD', 2)] },
+  // the custom island's: IKEA's is the size it is (its sliders are hidden then, and so its handles)
+  // (its length runs front to back, as its own axes go)
+  { name: 'Kitchen island', objects: () => [islandGroup], ids: ISLAND, sizes: [w('islandWidth'), d('islandLength', 2)] },
+  // the dresser and larder grow from their left-hand side, along the front wall
+  { name: 'Dresser', objects: () => [pieces.dresser], ids: ['frontBlock', 'dresserBlock'], sizes: [w('dresserW', 1)] },
+  { name: 'Larder', objects: () => [pieces.larder], ids: ['frontBlock', 'larderBlock'], sizes: [w('larderW', 1), d('larderD')] },
   { name: 'Corner cupboard', objects: () => [cupboard?.group], ids: ['secCupboard'] },
   { name: 'Ivar', objects: () => [pieces.ivar], ids: ['secIvar'] },
   { name: 'Cornwall table', objects: () => [pieces.cornwall], ids: ['secCornwall'] },
@@ -43,15 +57,16 @@ const THINGS = [
   { name: 'Speakers', objects: () => [pieces.speakers], ids: ['secSpeakers'] },
   { name: 'Billy', objects: () => [drawn.backWall.billy], ids: ['billyMoveBlock'] },
   { name: 'BillyChest', objects: () => [drawn.backWall.billyChest], ids: ['billyChestMoveBlock'] },
-  { name: 'Bookcase', objects: () => [drawn.backWall.bookshelf], ids: ['bookshelfMoveBlock'] },
-  { name: 'Pine cupboard', objects: () => [drawn.backWall.pine], ids: ['pineMoveBlock'] },
+  // the lounge's bookcase and pine cupboard are the bedroom's, at the bedroom's sizes
+  { name: 'Bookcase', objects: () => [drawn.backWall.bookshelf], ids: ['bookshelfMoveBlock'], sizes: BEDROOM_SIZES.bookcase },
+  { name: 'Pine cupboard', objects: () => [drawn.backWall.pine], ids: ['pineMoveBlock'], sizes: BEDROOM_SIZES.cupboard },
   { name: 'Daybed and desk', objects: () => [drawn.backWall.deskDaybed], ids: ['deskDaybedMoveBlock'] },
   { name: 'The back wall: bench, TV and shelves', materials: () => [benchMat, tvMat], ids: ['secBench'] },
   // The bedroom
-  ...Object.entries(BEDROOM_PIECES).map(([key, name]) => ({ name, objects: () => [otherRoomPieces[key]], ids: [`otherRoomPiece_${key}`] })),
+  ...Object.entries(BEDROOM_PIECES).map(([key, name]) => ({ name, objects: () => [otherRoomPieces[key]], ids: [`otherRoomPiece_${key}`], sizes: BEDROOM_SIZES[key] })),
   { name: "The bedroom's new cupboard", objects: () => [namedPieces().bedroomCupboard], ids: ['secBedroomCupboard'] },
   // Any room's wicker bench
-  { name: 'Wicker bench', objects: () => Object.values(wickerBenches), ids: ['secWickerBench'] },
+  { name: 'Wicker bench', objects: () => Object.values(wickerBenches), ids: ['secWickerBench'], sizes: [w('wickerBench_w'), d('wickerBench_d')] },
   // The hallway and stairs, and the garage
   { name: 'Shelves and pictures over the stairs', objects: () => [stairWalls], ids: ['secStairWalls'] },
   { name: 'Shoe boxes', objects: () => [shoeBoxes], ids: ['secShoeBoxes'] },
@@ -68,7 +83,8 @@ function thingOf(mesh) {
   if (byMaterial) return { thing: byMaterial, object: mesh };
   for (let o = mesh; o; o = o.parent) {
     const thing = THINGS.find(t => t.objects?.().includes(o));
-    if (thing) return { thing, object: o };
+    // the object as drawn now, as a change draws it again
+    if (thing) { const i = thing.objects().indexOf(o); return { thing, object: o, now: () => thing.objects()[i] }; }
   }
   return null;
 }
@@ -86,7 +102,7 @@ let colourFor = null;
 // so this isn't given one
 body.classList.add('drawer');
 
-function openOptions({ thing, object }, target = null) {
+function openOptions({ thing, object, now }, target = null) {
   closeOptions();
   drawers.setMenu(null);
   for (const id of thing.ids) {
@@ -102,12 +118,26 @@ function openOptions({ thing, object }, target = null) {
   colourFor = target;
   colourButton.hidden = !target;
   select({ thing: { object, name: thing.name } });
+  // Its handles, for those of its sizes shown (IKEA's island has none)
+  const shown = (thing.sizes ?? []).filter(s => sliderShown(document.getElementById(s.id)));
+  if (now && shown.length) startResize(now, shown);
   sheet.hidden = false;
   body.scrollTop = 0;
   requestAnimationFrame(() => { sheet.classList.add('up'); resize(); });   // the 2D views fitted above it
 }
+// A slider shown where it is, in the sheet or its drawer, open or not:
+// none of the blocks round it hidden (as IKEA's island hides the custom
+// one's sizes), though its drawer, tab or section may be shut
+function sliderShown(slider) {
+  for (let o = slider; o && o !== body && !o.classList.contains('drawer'); o = o.parentElement) {
+    if (o.classList.contains('tabpanel')) continue;
+    if (o.hidden || getComputedStyle(o).display === 'none') return false;
+  }
+  return Boolean(slider);
+}
 function closeOptions() {
   if (sheet.hidden) return;
+  stopResize();
   for (const [el, placeholder] of borrowed) placeholder.replaceWith(el);
   borrowed = [];
   sheet.classList.remove('up');

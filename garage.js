@@ -270,6 +270,9 @@ export function drawGarageDoor(state) {
 }
 // Each piece as drawn now, to look at: one taken out is hidden, but still
 // placed, so Looking at it aims at its spot
+// For the game UI's picker (page/game/furniture.js): each piece's name, and
+// where its settings are
+export { PIECES as GARAGE_PIECES, placeOf as garagePlace };
 export const garagePieces = Object.fromEntries(PIECE_KEYS.map(piece => [piece, null]));
 
 // From the settings (laid out as the configuration is); `pineSizes`: the
