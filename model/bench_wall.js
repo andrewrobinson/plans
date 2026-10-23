@@ -200,7 +200,8 @@ function pineByTheDoor() {
   const { on, move } = inLivingRoom('pine');
   return on && Boolean(move) && move.turn === FACING_RIGHT_WALL && move.x <= PINE_BY_DOOR_X;
 }
-// The back wall's pieces standing in the bench's place
+// The back wall's pieces standing where the bench would be: in front of
+// it while it's there, in its place while it isn't
 const benchStandIns = () => onBackWall().filter(key => key !== 'pine' || !pineByTheDoor());
 // Past the pine cupboard by the door, if it's there
 const pastPine = x => (pineByTheDoor() ? Math.max(x, inLivingRoom('pine').move.x + config.pieces.pineCupboard.design.d) : x);
@@ -208,9 +209,18 @@ const pastPine = x => (pineByTheDoor() ? Math.max(x, inLivingRoom('pine').move.x
 // for the option: past its cupboards, and past the pine cupboard by the door
 const benchStart = option => pastPine(option.benchFrom(cupboardSettings()));
 const wallClearFrom = option => pastPine(option.clearFrom(cupboardSettings()));
-// The bench is drawn when it's on and nothing stands in its place
-const benchDrawn = () => config.pieces.bench.in.livingRoom.on && benchStandIns().length === 0;
-const spotOf = key => inLivingRoom(key).move ?? BACK_WALL_PIECES[key].home(optionOf(config.pieces.cornerCupboard.design.option).clearFrom(cupboardSettings()), BACK_WALL_PIECES[key].sizes().w);
+// The bench is drawn whenever it's on: it matters more than the pieces
+// that once stood in its place and hid it (the user's, 24 Oct 2026)
+const benchDrawn = () => config.pieces.bench.in.livingRoom.on;
+// Where a piece stands: where it's been moved to, else its home against
+// the back wall, or just in front of the bench while that's there (the
+// bench is the cupboards' depth from the wall, R)
+function spotOf(key) {
+  const { move } = inLivingRoom(key);
+  if (move) return move;
+  const home = BACK_WALL_PIECES[key].home(optionOf(config.pieces.cornerCupboard.design.option).clearFrom(cupboardSettings()), BACK_WALL_PIECES[key].sizes().w);
+  return benchDrawn() ? { ...home, y: home.y + config.pieces.cornerCupboard.design.R } : home;
+}
 // Draw one, clear of the bench wall from x0. Returns a sentence for the summary.
 function pieceOnBenchWall(key, x0, g) {
   const { sizes, draw, name, homeText } = BACK_WALL_PIECES[key], { w, d, h } = sizes();
@@ -222,8 +232,8 @@ function pieceOnBenchWall(key, x0, g) {
   drawn.backWall[key] = piece;
   const named = `${name} (${w} wide, ${d} deep, ${h} high)`;
   if (key === 'pine' && pineByTheDoor()) return ` ${named} in the corner by the door, standing in for a corner cupboard: the middle of its back at x ${x}, y ${y}, facing ${FACING[turn]}.`;
-  if (moved) return ` ${named} in place of the bench, moved: the middle of its back at x ${x}, y ${y}, facing ${FACING[turn]}.`;
-  return ` ${named} on the back wall, ${homeText(x0, w)}.`;
+  if (moved) return ` ${named}${benchDrawn() ? '' : ' in place of the bench'}, moved: the middle of its back at x ${x}, y ${y}, facing ${FACING[turn]}.`;
+  return ` ${named} ${benchDrawn() ? 'in front of the bench' : 'on the back wall'}, ${homeText(x0, w)}.`;
 }
 
 // The TV on the wall above the daybed (asked for, 22 Oct 2026), while the

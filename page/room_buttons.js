@@ -11,7 +11,7 @@ import { stairWallsControls, shoeBoxRefusal } from '../stair_walls.js';
 import { shoeBoxesControls } from '../shoe_boxes.js';
 import { garage, garageControls } from '../garage.js';
 import {
-  settle, BACK_WALL_KEYS, TV_H, TV_SIZES, TV_W, benchDrawn, benchStandIns, optionOf, config, 
+  settle, BACK_WALL_KEYS, TV_H, TV_SIZES, TV_W, benchDrawn, optionOf, config, 
   inLivingRoom, bedroomDoorText
 } from '../flat_model.js';
 import { display } from './display.js';
@@ -237,7 +237,6 @@ function syncControls() {
   bedroomCupboardControls.sync();
   benchSwitch.checked = benchDrawn();
   firstRadiatorSwitch.checked = config.livingRoom.firstRadiator;
-  benchSwitch.disabled = benchStandIns().length > 0;
   for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = inLivingRoom(key).on;
   billyLying.checked = config.pieces.billy.in.livingRoom.lying;
   deskDaybedRight.checked = config.pieces.deskDaybed.design.deskAt === 'right';

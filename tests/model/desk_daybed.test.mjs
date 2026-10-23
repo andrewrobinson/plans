@@ -29,15 +29,15 @@ test('its desk at the left end, or put together the other way round', () => {
   assert.ok(Math.abs(right + left) <= 1, `${left} and ${right}`);   // mirrored (its middle on a half mm, rounded)
 });
 
-test('out to start; on, in place of the bench, said where', () => {
+test('out to start; on, in front of the bench (drawn whenever it\'s on), said where', () => {
   assert.doesNotMatch(buildFlat(DEFAULT_CONFIGURATION).description, /daybed with a desk/);
   const configuration = structuredClone(DEFAULT_CONFIGURATION);
   configuration.pieces.billy.in.livingRoom.on = false;
   configuration.pieces.bench.in.livingRoom.on = true;
   Object.assign(configuration.pieces.deskDaybed, { design: { deskAt: 'right' }, in: { livingRoom: { on: true, move: null } } });
   const { description } = buildFlat(configuration);
-  assert.match(description, /The daybed with a desk and bookcase, its desk at the right end \(2630 wide, 1140 deep, 1000 high\) on the back wall/);
-  assert.match(description, /No bench: BillyChest and the daybed stand there instead/);
+  assert.match(description, /The daybed with a desk and bookcase, its desk at the right end \(2630 wide, 1140 deep, 1000 high\) in front of the bench/);
+  assert.doesNotMatch(description, /No bench/);
 });
 
 // The daybed in the room as it opens, in Billy's place, with the TV above it

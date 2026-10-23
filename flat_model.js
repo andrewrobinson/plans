@@ -179,9 +179,10 @@ export function build(onShow = optionsOnShow()) {
   if (benchDrawn()) drawBench(option, group);
   else keepTvPlace(option);
   const clearFrom = wallClearFrom(option);
-  const besideBench = onBackWall().filter(key => !benchStandIns().includes(key));   // the pine cupboard by the door
-  const backWall = benchDrawn() ? besideBench.map(key => pieceOnBenchWall(key, clearFrom, group)).join('') + benchWall(clearFrom, group)
-    : onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('') + tvAboveDaybed(group);
+  // The back wall's pieces, in front of the bench if it's there; the TV
+  // above the bench, or else above the daybed, never both
+  const standing = onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('');
+  const backWall = standing + (benchDrawn() ? benchWall(clearFrom, group) : tvAboveDaybed(group));
   const aboveText = backWall + frontWall(group) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + deskShelves(group) + firstRadiator() + chairAtDaybedDesk();
   if (!same) doors.second = 0;
   drawOtherRoom(config);                                         // the bedroom's furniture

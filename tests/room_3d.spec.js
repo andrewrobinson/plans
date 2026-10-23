@@ -440,16 +440,18 @@ test.describe('the controls', () => {
     expect(await setting(page, 'pieces.mirror.design')).toEqual({ w: 1000, h: 800 });
   });
 
-  test('the bookshelf takes the bench\'s place and turns its switch off', async ({ page }) => {
+  // The bench is drawn whenever it's on (the user's, 24 Oct 2026): the
+  // bookshelf stands in front of it, and its switch stays as it's set
+  test('the bookshelf stands in front of the bench, which stays', async ({ page }) => {
     await withBench(page);
     await page.locator('#bookshelfOn').check();
-    await expect(page.locator('#benchOn')).toBeDisabled();
-    await expect(page.locator('#benchOn')).not.toBeChecked();
-    await expect(page.locator('#benchDetails')).toBeHidden();
+    await expect(page.locator('#benchOn')).toBeEnabled();
+    await expect(page.locator('#benchOn')).toBeChecked();
+    await expect(page.locator('#benchDetails')).toBeVisible();
+    await expect(page.locator('#summary')).toContainText('in front of the bench');
     expect(await setting(page, 'pieces.bookcase.in.livingRoom.on')).toBe(true);
     await page.locator('#bookshelfOn').uncheck();
-    await expect(page.locator('#benchOn')).toBeEnabled();
-    await expect(page.locator('#benchOn')).toBeChecked();             // the bench as it was
+    await expect(page.locator('#benchOn')).toBeChecked();
     expect(await setting(page, 'pieces.bookcase.in.livingRoom.on')).toBe(false);
   });
 
@@ -460,7 +462,7 @@ test.describe('the controls', () => {
     await openTab(page, 'Furniture');
     await expect(page.locator('#pineMoveBlock')).toBeHidden();
     await page.locator('#pineOn').check();
-    await expect(page.locator('#benchOn')).toBeDisabled();
+    await expect(page.locator('#benchOn')).toBeEnabled();             // the bench drawn whenever it's on
     await expect(page.locator('#pineMoveBlock')).toBeVisible();
     expect(await setting(page, 'pieces.pineCupboard.in.livingRoom.on')).toBe(true);
     expect(await setting(page, 'pieces.pineCupboard.in.livingRoom.move')).toBe(null);                    // where it starts
@@ -470,7 +472,7 @@ test.describe('the controls', () => {
     expect(await setting(page, 'pieces.pineCupboard.in.livingRoom.move')).toBe(null);                    // where it starts
     await page.locator('#bookshelfOn').check();
     await page.locator('#pineOn').uncheck();
-    await expect(page.locator('#benchOn')).toBeDisabled();            // the bookshelf's still there
+    await expect(page.locator('#benchOn')).toBeEnabled();             // the bench drawn whenever it's on
     expect(await setting(page, 'pieces.pineCupboard.in.bedroom.on')).toBe(true);
     await openOptions(page, 'bedroom');
     await openTab(page, 'Furniture');
@@ -489,7 +491,7 @@ test.describe('the controls', () => {
     await page.locator('#billyOn').uncheck();
     await expect(page.locator('#billyMoveBlock')).toBeHidden();
     await page.locator('#billyOn').check();
-    await expect(page.locator('#benchOn')).toBeDisabled();
+    await expect(page.locator('#benchOn')).toBeEnabled();             // the bench drawn whenever it's on
     expect(await setting(page, 'pieces.billy.in.livingRoom.lying')).toBe(true);
     await page.locator('#billyHome').click();
     expect(await setting(page, 'pieces.billy.in.livingRoom.move')).toBe(null);                   // against the cupboards, where the bench starts
@@ -517,7 +519,7 @@ test.describe('the controls', () => {
   test('BillyChest can be on the back wall and in the bedroom', async ({ page }) => {
     await openTab(page, 'Furniture');
     expect(await setting(page, 'pieces.billyChest.in.livingRoom.on')).toBe(true);
-    await expect(page.locator('#benchOn')).toBeDisabled();
+    await expect(page.locator('#benchOn')).toBeEnabled();             // the bench drawn whenever it's on
     await page.locator('#billyChestHome').click();                    // against the cupboards, where the bench starts
     await page.locator('#billyChestY').fill('500');
     expect(await setting(page, 'pieces.billyChest.in.livingRoom.move')).toMatchObject({ y: 500, turn: 0 });

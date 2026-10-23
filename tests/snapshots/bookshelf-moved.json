@@ -727,7 +727,7 @@
     "bedroom": null
   },
   "dimensions": [],
-  "description": "No left-wall cupboard. A full-height cupboard on the back wall (x 0-900, 600 deep) with a pair of 437 doors, then a 400-wide, 330-deep open shelving tower (to x 1300), floor to ceiling, with five lit shelves. No base cupboards (no bench), so nothing on the back wall beyond. Inside, within its 18 boards (rear panels against the walls included): 864 × 582, 2407 high. A bookcase like the bedroom's (1490 wide, 290 deep, 1220 high) in place of the bench, moved: the middle of its back at x 2500, y 2000, facing the left wall. A dresser on the front wall between the sink and the desk (x 823-2193): 1370 wide overall (its body 1330), 1940 high, 410 deep up to 830 (two drawers over two doors, under a wooden top), then 340 deep with three open shelves. The Ivar, lying on its side (830 long, 300 wide, 800 high), against the first radiator, 830 out into the room.From option 7 and the photo (new)",
+  "description": "No left-wall cupboard. A full-height cupboard on the back wall (x 0-900, 600 deep) with a pair of 437 doors, then a 400-wide, 330-deep open shelving tower (to x 1300), floor to ceiling, with five lit shelves. Base cupboards with 6 doors under an oak top run on to the right-hand wall: 2538 long, 780 high, 330 deep. Inside, within its 18 boards (rear panels against the walls included): 864 × 582, 2407 high. A bookcase like the bedroom's (1490 wide, 290 deep, 1220 high), moved: the middle of its back at x 2500, y 2000, facing the left wall. Above the bench: a 75\" TV (1680 × 960), centred on the 2538 of clear wall, from 1100 to 2060. 250-deep shelves right across, 2538 long, below it at 1000 and above it at 2210. A middle shelf at 1550 either side, 279 long, 150 clear of the TV. A dresser on the front wall between the sink and the desk (x 823-2193): 1370 wide overall (its body 1330), 1940 high, 410 deep up to 830 (two drawers over two doors, under a wooden top), then 340 deep with three open shelves. The Ivar, lying on its side (830 long, 300 wide, 800 high), against the first radiator, 830 out into the room.From option 7 and the photo (new)",
   "boxes": {
     "livingRoom": {
       "from": [
@@ -736,7 +736,7 @@
         0
       ],
       "to": [
-        3706,
+        3838,
         5379,
         2443
       ],

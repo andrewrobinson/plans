@@ -827,7 +827,7 @@
     ]
   },
   "dimensions": [],
-  "description": "A 2010-high cupboard in the corner, 700 along the back wall and 1329 out along the left wall, right up to the door frame, with a pair of 481 doors on its side, facing the windows (y 340-1329). Behind the doors it runs back to the back wall. No bench: the daybed stands there instead. Inside, within its 18 boards (rear panels against the walls included): 664 × 1293, 1974 high. The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high) in place of the bench, moved: the middle of its back at x 2523, y 0, facing the front wall. Above the daybed: a 75\" TV (1680 × 960), centred on its bed, from 1150 to 2110. A dresser on the front wall between the sink and the desk (x 1008-2008): 1000 wide overall (its body 960), 1930 high, 420 deep up to 830 (two drawers over two doors, under a wooden top), then 420 deep with three open shelves. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.): 1690 wide, 1000 deep, 920 high, its seat at 505. Its front is 1900 from the TV wall (x 1734-3424, y 1900-2900). Behind it, 41 to the island. The speakers (Argon Fenris A5, 170 wide, 220 deep, 280 high) on the daybed's bookcase, either side of the TV above it, their middles 2050 apart. The radiator under the first window is taken out, and its pipes. At the daybed's desk there's 486 from its end to the corner cupboard. Pulled up to it, the smaller armless chair (drawn) reaches 430 past it, 56 to spare; the office chair reaches 470 past it, 16 to spare.From option 11 (new)",
+  "description": "A 2010-high cupboard in the corner, 700 along the back wall and 1329 out along the left wall, right up to the door frame, with a pair of 481 doors on its side, facing the windows, where it's clear of the 340-deep bench (y 340-1329). Behind the doors it runs back to the back wall, behind the bench end. Bench 3138, from x = 700, 340 deep. Inside, within its 18 boards (rear panels against the walls included): 664 × 1293, 1974 high. The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high), moved: the middle of its back at x 2523, y 0, facing the front wall. Above the bench: a 75\" TV (1680 × 960), centred on the 3138 of clear wall, from 1100 to 2060. A 250-deep shelf right across above it, 3138 long, at 2210. A dresser on the front wall between the sink and the desk (x 1008-2008): 1000 wide overall (its body 960), 1930 high, 420 deep up to 830 (two drawers over two doors, under a wooden top), then 420 deep with three open shelves. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.): 1690 wide, 1000 deep, 920 high, its seat at 505. Its front is 1900 from the TV wall (x 1424-3114, y 1900-2900). Behind it, 41 to the island. The speakers (Argon Fenris A5, 170 wide, 220 deep, 280 high) on the daybed's bookcase, either side of the TV above it, their middles 2050 apart. The radiator under the first window is taken out, and its pipes. At the daybed's desk there's 486 from its end to the corner cupboard. Pulled up to it, the smaller armless chair (drawn) reaches 430 past it, 56 to spare; the office chair reaches 470 past it, 16 to spare.From option 11 (new)",
   "boxes": {
     "livingRoom": {
       "from": [
@@ -838,7 +838,7 @@
       "to": [
         3838,
         5379,
-        2110
+        2210
       ],
       "shown": true
     },
@@ -871,12 +871,12 @@
     "larder": null,
     "sofa": {
       "from": [
-        1734,
+        1424,
         1900,
         0
       ],
       "to": [
-        3424,
+        3114,
         2900,
         920
       ],

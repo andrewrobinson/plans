@@ -268,7 +268,7 @@ test('the first window\'s radiator can be taken out, and the bench starts past t
   for (const id of ['billyOn', 'billyChestOn']) await toggle(page, id, false);
   await toggle(page, 'benchOn', true);
   await toggle(page, 'pineOn', true);
-  await expect(page.locator('#benchOn')).toBeDisabled();                 // on the back wall, in the bench's place
+  await expect(page.locator('#summary')).toContainText('in front of the bench');   // on the back wall, in front of it
   await slide(page, 'pineTurn', 270);
   await slide(page, 'pineX', 60);
   await slide(page, 'pineY', 710);
@@ -286,7 +286,7 @@ test('the daybed with a desk stands on the back wall, its desk at either end', a
   await toggle(page, 'billyOn', false);
   await toggle(page, 'deskDaybedOn', true);
   await expect(page.locator('#deskDaybedMoveBlock')).toBeVisible();
-  await expect(page.locator('#benchOn')).toBeDisabled();
+  await expect(page.locator('#benchOn')).toBeEnabled();                  // the bench drawn whenever it's on
   await expect(page.locator('#summary')).toContainText('The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high) on the back wall');
   await toggle(page, 'deskDaybedRight', true);
   expect(await setting(page, 'pieces.deskDaybed.design.deskAt')).toBe('right');

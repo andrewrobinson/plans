@@ -39,7 +39,9 @@ test('the pine cupboard by the door stands beside the bench, which starts past i
   const { description } = buildFlat(c);
   assert.match(description, /Bench 3278, from x 560 \(past the pine cupboard by the door\) to the right-hand wall/);
   assert.match(description, /pine cupboard \(1300 wide, 500 deep, 1790 high\) in the corner by the door/);
-  // ...but on the back wall, it's in the bench's place, as before
+  // ...and on the back wall, it stands in front of the bench, which is still drawn
   c.pieces.pineCupboard.in.livingRoom.move = null;
-  assert.match(buildFlat(c).description, /No bench: the pine cupboard stands there instead\./);
+  const { description: onTheWall } = buildFlat(c);
+  assert.match(onTheWall, /pine cupboard \(1300 wide, 500 deep, 1790 high\) in front of the bench/);
+  assert.doesNotMatch(onTheWall, /No bench/);
 });

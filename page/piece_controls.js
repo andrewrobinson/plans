@@ -103,9 +103,8 @@ benchSwitch.addEventListener('change', () => change([['pieces.bench.in.livingRoo
 // The radiator under the first window: in, or taken out
 const firstRadiatorSwitch = document.getElementById('firstRadiatorOn');
 firstRadiatorSwitch.addEventListener('change', () => change([['livingRoom.firstRadiator', firstRadiatorSwitch.checked]], { look: true }));
-// The bookshelf and the pine cupboard, in place of the bench. While either
-// is on, the Bench switch is off and can't be changed; benchOn is kept, for
-// when they're off again. Moving one, and turning it in quarter turns: the
+// The bookshelf and the pine cupboard, against the back wall, or in front
+// of the bench while it's on (the bench is drawn whenever it's on). Moving one, and turning it in quarter turns: the
 // first move starts from where it stands; Reset location puts it back
 // against the wall
 const PLACE_SLIDERS = [['x', 'X', ROOM_WIDTH, 5, ''], ['y', 'Y', ROOM_DEPTH, 5, ''], ['turn', 'Turn', 360 - QUARTER_TURN, QUARTER_TURN, '°']];
