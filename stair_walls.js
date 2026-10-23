@@ -18,6 +18,7 @@ import { material, box, clearDrawing, valueAt } from './kit/floor_kit.js';
 import * as Config from './kit/config_kit.js';
 import { hallway, HALLWAY, BATHROOM, CEILING_HEIGHT, DOOR_FRAME_STARTS_AT } from './floor.js';
 import { slider } from './kit/controls_kit.js';
+import { boxesMeet } from './kit/shape_kit.js';
 import { SHOE_BOXES_START, onTheSill, levelled, shoeBoxBounds } from './shoe_boxes.js';
 
 // ---------------------------------------------------------------------------
@@ -162,7 +163,7 @@ function pictureSpan(p) {
   return { a0: p.along - p.width / 2, a1: p.along + p.width / 2, z0: p.height - p.tall / 2, z1: p.height + p.tall / 2 };
 }
 const spanOf = (item, settings) => (item === 'shelves' ? shelvesSpan : pictureSpan)(settings);
-const overlap = (r, q) => r && q && r.a0 < q.a1 + APART && q.a0 < r.a1 + APART && r.z0 < q.z1 + APART && q.z0 < r.z1 + APART;
+const overlap = (r, q) => r && q && boxesMeet([[r.a0, r.a1], [r.z0, r.z1]], [[q.a0, q.a1], [q.z0, q.z1]], APART);
 
 // One of them held to its wall: below the ceiling (its height brought
 // down, no lower than its slider goes), and within the wall's length

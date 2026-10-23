@@ -34,8 +34,8 @@ Where it stands (23 Oct 2026):
   (`tests/quiet_reporter.js`, `tests/model/quiet_reporter.mjs`). Only the
   tests change, so it can go with the next deploy.
 - **Next for the code**: `REFACTOR_PLAN.md`'s "Generic rules written more
-  than once". Not agreed yet. Suggested next: one set of overlap tests in
-  `kit/`, then fold the small ones (a `clamp`, turning a piece,
+  than once". Not agreed yet. The overlaps are done (`kit/shape_kit.js`,
+  23 Oct 2026); next, fold the small ones (a `clamp`, turning a piece,
   `QUARTER_TURN`'s home) into whichever change touches their files. Leave
   "moved until clear", "standing on another" and "off the wall" for now:
   sharing them would change what those pieces do.

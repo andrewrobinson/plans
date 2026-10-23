@@ -17,7 +17,8 @@ import * as Config from './kit/config_kit.js';
 import { SIZE_LABEL, slider } from './kit/controls_kit.js';
 import { hallway, HALLWAY, ENTRANCE } from './floor.js';
 import { QUARTER_TURN } from './other_room.js';
-import { planDoor, clip } from './kit/door_kit.js';
+import { planDoor } from './kit/door_kit.js';
+import { clip } from './kit/shape_kit.js';
 
 // ---------------------------------------------------------------------------
 // Its sizes, in mm: the user's conclusion (15 Oct 2026), to fit a pair of

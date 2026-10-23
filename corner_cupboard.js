@@ -24,6 +24,7 @@
 import * as THREE from 'three';
 import { MM, material, box, slab, part, skewHinge, dimLabel, chain } from './kit/floor_kit.js';
 import { planDoor } from './kit/door_kit.js';
+import { boxesMeet } from './kit/shape_kit.js';
 
 // A cupboard's own materials: its boards (carcass), shelves and doors, the
 // handles, and option 9's and 10's oak shelves and light strips. Each
@@ -192,7 +193,8 @@ function drawShelves(shelves, things, BOARD, group) {
     // Things up through it (not those resting on it, or above it)
     const clash = things.map((t, k) => k).filter(k => {
       const { x, y, z, w, d, h } = things[k];
-      return z < top - BOARD && Math.max(z, BOARD) + h + LIFT > top - BOARD && x < sx1 && x + w > sx0 && y < sy1 && y + d > sy0;
+      const thing = [[x, x + w], [y, y + d], [z, Math.max(z, BOARD) + h + LIFT]], shelf = [[sx0, sx1], [sy0, sy1], [top - BOARD, top - BOARD]];
+      return boxesMeet(thing, shelf);
     });
     if (!clash.length) {
       ofKind('Shelves', part(`Shelf at ${top}`, slab(poly, top - BOARD, top, mat, group)));

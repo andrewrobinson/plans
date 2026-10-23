@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import * as Cupboard from '../corner_cupboard.js';
 import { MM, box } from '../kit/floor_kit.js';
+import { boxesMeet, rangesOf } from '../kit/shape_kit.js';
 import { optionOf } from '../corner_cupboard.js';
 import { bookcase } from '../bookcase.js';
 import { billy, billySizes } from '../billy.js';
@@ -120,12 +121,10 @@ function firstRadiator() {
   if (!config.livingRoom.firstRadiator) return ' The radiator under the first window is taken out, and its pipes.';
   drawn.radiator = radiators[FIRST_WINDOW];
   const [radiator] = meshBoxes(drawn.radiator);
-  const meeting = loosePieces().filter(([piece]) => meshBoxes(piece).some(box => box.intersectsBox(radiator) && !touchingOnly(box, radiator)));
+  const meeting = loosePieces().filter(([piece]) => meshBoxes(piece).some(box => boxesMeet(rangesOf(box, 'xyz'), rangesOf(radiator, 'xyz'), -TOUCHING)));
   return meeting.map(([, name]) => ` ${name[0].toUpperCase()}${name.slice(1)} runs into ${RADIATOR_NAME}.`).join('');
 }
-const TOUCHING = 1e-6;             // in scene units (a thousandth of a mm): closer than that, two faces meet (chosen)
-// Two boxes that only meet at a face (a piece set against the radiator's front)
-const touchingOnly = (a, b) => ['x', 'y', 'z'].some(k => Math.abs(a.max[k] - b.min[k]) < TOUCHING || Math.abs(b.max[k] - a.min[k]) < TOUCHING);
+const TOUCHING = 1e-6;             // in scene units (a thousandth of a mm): overlapping by less, a piece only touches the radiator, as set against its front (chosen)
 
 // The Ivar in the living room, where it is now (the user's, 18 Oct 2026):
 // by the first radiator (the one nearest the back wall), a 300 side to the
@@ -153,7 +152,7 @@ const TABLE_KEYS = Object.keys(TABLES);                         // Cornwall firs
 const tableSpot = key => inLivingRoom(key).move ?? LOUNGE_NOW[key];
 // Where a piece stands on the floor, in the scene: its box's x and z
 const footprint = piece => { piece.updateMatrixWorld(true); return new THREE.Box3().setFromObject(piece); };
-const overlaps = (a, b) => a.min.x < b.max.x && b.min.x < a.max.x && a.min.z < b.max.z && b.min.z < a.max.z;
+const overlaps = (a, b) => boxesMeet(rangesOf(a, 'xz'), rangesOf(b, 'xz'));
 // Drawn into the option's group, each that's in. Returns their sentences for the summary
 function tablesInLivingRoom(g) {
   const placed = [];

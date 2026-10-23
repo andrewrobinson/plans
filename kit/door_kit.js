@@ -11,6 +11,7 @@
 // hinge; its thickness trails behind.
 import * as THREE from 'three';
 import { MM } from './floor_kit.js';
+import { overlap, clip } from './shape_kit.js';
 
 // Every door's opening is tried in whole degrees, as the doors' sliders
 // set them (chosen, 23 Oct 2026: one step for every door)
@@ -117,32 +118,4 @@ export function swingMark(door, deg, material, lift) {
   mark.rotation.x = Math.PI / 2;                                   // lying flat: the shape's y along the room's
   mark.position.y = lift * MM;
   return mark;
-}
-
-// Whether two convex outlines overlap: they don't if some edge of either
-// has the other wholly on its far side (separating axes)
-export function overlap(p, q) {
-  for (const poly of [p, q]) {
-    for (let i = 0; i < poly.length; i++) {
-      const [x0, y0] = poly[i], [x1, y1] = poly[(i + 1) % poly.length], axis = [y0 - y1, x1 - x0];
-      const span = pts => pts.map(pt => dot(pt, axis));
-      const sp = span(p), sq = span(q);
-      if (Math.max(...sp) <= Math.min(...sq) || Math.max(...sq) <= Math.min(...sp)) return false;
-    }
-  }
-  return true;
-}
-
-// An outline less the part where f < 0, f being straight (Sutherland-Hodgman)
-export function clip(points, f) {
-  const out = [];
-  points.forEach((p, i) => {
-    const q = points[(i + 1) % points.length], fp = f(p), fq = f(q);
-    if (fp >= 0) out.push(p);
-    if (fp * fq < 0) {
-      const t = fp / (fp - fq);
-      out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]);
-    }
-  });
-  return out;
 }

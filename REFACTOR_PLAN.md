@@ -81,10 +81,11 @@ Each is one rule, written again in each room's own names. Not agreed yet.
   door; every door opened in whole degrees. Changed: the shoe rack's door
   without the bevel opens to 65° (was 65.5°), option 8's gap is 93 (was
   94, now measured exactly).
-- **Overlap tests**, about six: `kit/door_kit.js`'s `overlap` (outlines, from `shoe_rack.js`),
-  `stair_walls.js`'s (spans on a wall), `model/loose_pieces.js`'s
-  `overlaps` and `obstacles` (boxes), `corner_cupboard.js`'s shelf
-  `clash`, `model/stored.js`'s fits test (points). One set in `kit/`.
+- **Overlap tests**: done (23 Oct 2026). One set in `kit/shape_kit.js`,
+  touching not counting: the stair walls' spans, the shelves' clash with
+  stored things, the tables stacking, the radiator check, the doors'
+  outlines. No snapshot changed. The things to store's fit check stays
+  its own (inside a space, not meeting).
 - **Moved until clear**: `stair_walls.js`'s `keepApart`,
   `model/cupboards.js`'s `cupboardLimits` with `holdClearOfBedroomDoor`,
   `shoe_boxes.js`'s `onTheSill`: a piece held in its place and out of the
