@@ -30,7 +30,9 @@ module.exports = defineConfig({
     toHaveScreenshot: { maxDiffPixelRatio: 0 },
   },
   fullyParallel: true,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  // Only the failures, briefly, and the totals (tests/quiet_reporter.js);
+  // the html report has the rest
+  reporter: [['./tests/quiet_reporter.js'], ['html', { open: 'never' }]],
   use: {
     baseURL: `http://localhost:${PORT}/`,
     // The offline service worker would serve saved copies between tests

@@ -8,7 +8,7 @@
     "test": "playwright test",
     "test:quick": "playwright test --project=iphone",
     "test:update": "playwright test --update-snapshots",
-    "test:model": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test 'tests/model/*.test.mjs'",
+    "test:model": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test --test-reporter=./tests/model/quiet_reporter.mjs 'tests/model/*.test.mjs'",
     "regen": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/model/regenerate.mjs",
     "report": "playwright show-report"
   },

@@ -76,6 +76,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `tests/controls/*.spec.js` | Every control, phone only: `inputs`, `pieces`, `hallway_garage`, `views`; shared `helpers.js` |
 | `tests/menu_demo.spec.js` | The menu demo |
 | `tests/helpers.js`, `tests/addresses.js` | Shared helpers; the saved addresses |
+| `tests/quiet_reporter.js`, `tests/model/quiet_reporter.mjs` | The reporters both runs use: nothing for a pass, each failure in a few lines (no call log; a long diff cut to where it differs), then the totals. The whole of a browser run is in its html report (`npm run report`) |
 | `tests/configs/`, `tests/snapshots/` | Saved configurations and their snapshots (`npm run regen` rewrites them) |
 
 ## How the page works
