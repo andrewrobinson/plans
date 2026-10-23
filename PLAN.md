@@ -26,6 +26,27 @@ Done: the code's tidying, `REFACTOR_PLAN.md`'s tracks (the tests, the
 small items, and `state`'s track, 11 to 16, by 22 Oct 2026). Its any-time
 list stays.
 
+Where it stands (23 Oct 2026):
+
+- **Live on main** (3c2e70a): one door for every door swing,
+  `kit/door_kit.js` (`planDoor`), in whole degrees.
+- **Committed, not pushed** (4c4c469): the test runners quiet by default
+  (`tests/quiet_reporter.js`, `tests/model/quiet_reporter.mjs`). Only the
+  tests change, so it can go with the next deploy.
+- **Next for the code**: `REFACTOR_PLAN.md`'s "Generic rules written more
+  than once". Not agreed yet. Suggested next: one set of overlap tests in
+  `kit/`, then fold the small ones (a `clamp`, turning a piece,
+  `QUARTER_TURN`'s home) into whichever change touches their files. Leave
+  "moved until clear", "standing on another" and "off the wall" for now:
+  sharing them would change what those pieces do.
+- **What's generic and what's yours** (looked at 23 Oct 2026, no change
+  made): only two facts are about your body, the UK 11 shoes
+  (`shoe_rack.js`'s `SHOE`) and the tall eye heights
+  (`living_room.views.js`); the rest is your belongings (`STORED`, the
+  garage's `PIECES`, the monitors), your choices (`MAX_DOOR_W`, finishes),
+  or the furniture fitted to this flat (`floor.js`, door clearances).
+  To make it work for any room, those would become data.
+
 1. **Measurements still to come in** (`MEASUREMENTS_NEEDED.md`, with
    `drawings/measure_sheet.html`; the values come back as "A = 2240"
    lines, to go into `room_dimensions.md` and the model):
