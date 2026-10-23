@@ -55,7 +55,13 @@ generated configurations are shared among six files (`generated_1` to
 Screenshot). `test:model` 76 s to 21 s; the full browser suite 252 s to
 138 s.
 
-**Still to do**: time `rebuild()` on a phone.
+**`rebuild()` timed** (23 Oct 2026, an emulated iPhone 13 in headless
+Chrome on the Mac, the Lounge's depth slider, medians of 10): 13 ms at
+the Mac's speed, 55 ms with the CPU 4× slower, 82 ms at 6× (a mid-range
+phone is about 4 to 6×). So a drag rebuilds at roughly 12 to 18 a second
+on a phone, without the draw. The frame after it (190 to 320 ms) was drawn
+in software, with no GPU, so it says nothing about a phone's drawing.
+Nothing to do unless drags feel slow on the real phone.
 
 Put off: the configurations as differences from a frozen base (would take
 `living_room.configurations.js` from 208 KB to about 20 KB): the user is
@@ -73,7 +79,10 @@ factories, long for their small inner functions: `flatViews()` and
 
 ### Generic rules written more than once (found 23 Oct 2026)
 
-Each is one rule, written again in each room's own names. Not agreed yet.
+Each is one rule, written again in each room's own names. Done: door
+swings, overlaps, the small ones. Left as they are (decided 23 Oct 2026):
+"moved until clear", "standing on another" and "off the wall", as sharing
+them would change what those pieces do.
 
 - **Door swings**: done (23 Oct 2026). One door in `kit/door_kit.js`
   (`planDoor`), used by the bedroom door's limit and its mark on the
