@@ -71,6 +71,37 @@ when they're next changed. `stairWallsControls()` and
 factories, long for their small inner functions: `flatViews()` and
 `cameraControls()` (about 100 lines each), `cupboardControls()` (90).
 
+### Generic rules written more than once (found 23 Oct 2026)
+
+Each is one rule, written again in each room's own names. Not agreed yet.
+
+- **Door swings**, four times: `bedroom_door.js` (`sweepInto`, `opensTo`),
+  `floor.js`'s `drawBedroomDoorSwing` (the same door's arc again, its
+  hinge from `OTHER_ROOM` rather than `DOOR_SWINGS`), `shoe_rack.js`
+  (`doorAt`, `doorOutline`, `doorOpensTo`, the bevel), and
+  `corner_cupboard.js`'s `roomDoorGap`. Steps of 1° and 0.5°. One door in
+  `kit/` (hinge, width, thickness, way, stop) giving its outline at an
+  angle, what it sweeps, how far it opens before a shape, and its mark
+  on the floor.
+- **Overlap tests**, about six: `shoe_rack.js`'s `overlap` (outlines),
+  `stair_walls.js`'s (spans on a wall), `model/loose_pieces.js`'s
+  `overlaps` and `obstacles` (boxes), `corner_cupboard.js`'s shelf
+  `clash`, `model/stored.js`'s fits test (points). One set in `kit/`.
+- **Moved until clear**: `stair_walls.js`'s `keepApart`,
+  `model/cupboards.js`'s `cupboardLimits` with `holdClearOfBedroomDoor`,
+  `shoe_boxes.js`'s `onTheSill`: a piece held in its place and out of the
+  others' way.
+- **Standing on another**: the tables found by overlap
+  (`loose_pieces.js`), the garage's by hand (`lifted`), the things to
+  store never.
+- **Off the wall**: the garage's `offWall`, the bedroom's `PINE.offWall`,
+  `model/bench_wall.js`'s `PINE_BY_DOOR_X`.
+- **Small ones**: `rotation.y = degToRad(-turn)` in about six files;
+  `QUARTER_TURN` kept in `other_room.js`, imported by the hallway's
+  pieces; `Math.min(Math.max(…))` in about 14 files, no `clamp`; the
+  faint swing material twice (`floor.js`'s `doorSwingMat`, `garage.js`'s
+  `swingMat`).
+
 Any time:
 
 - **`notes/testing_questions.md`**: question 4 (the desktop screenshots'
