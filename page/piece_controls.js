@@ -119,9 +119,6 @@ billyLying.addEventListener('change', () => change([[`${BACK_WALL_PLACES.billy}.
 // ...and the daybed's desk can be at its right-hand end
 const deskDaybedRight = document.getElementById('deskDaybedRight');
 deskDaybedRight.addEventListener('change', () => change([['pieces.deskDaybed.design.deskAt', deskDaybedRight.checked ? 'right' : 'left']], { look: true }));
-// ...and the TV can hang on the wall above it
-const deskDaybedTv = document.getElementById('deskDaybedTv');
-deskDaybedTv.addEventListener('change', () => change([[`${BACK_WALL_PLACES.deskDaybed}.tvAbove`, deskDaybedTv.checked]], { look: true }));
 // ...and the work chair at its desk, or none (the summary says the room to sit there either way)
 const deskDaybedChair = [...document.getElementsByName('deskDaybedChair')];
 for (const radio of deskDaybedChair) radio.addEventListener('change', () => change([[`${BACK_WALL_PLACES.deskDaybed}.chair`, radio.value]], { look: true }));
@@ -294,8 +291,17 @@ larderPick.addEventListener('change', () => change([['pieces.larder.design.model
 for (const [key, id] of LARDER_SLIDERS) {
   document.getElementById(id).addEventListener('input', e => change(setLarderSize({ [key]: Number(e.target.value) }), { look: true }));
 }
-tvSlider.addEventListener('input', () => change([['pieces.aboveBench.design.tv', TV_SIZES[Number(tvSlider.value)][0]]]));
-// The radios hold the page's 0 to 4
+tvSlider.addEventListener('input', () => change([['pieces.tv.design.inches', TV_SIZES[Number(tvSlider.value)][0]]]));
+// The TV: on or not, moved along the back wall and up and down from where
+// it goes on its own, and back there by Reset location
+const TV_PLACE = 'pieces.tv.in.livingRoom';
+const tvOnSwitch = document.getElementById('tvOn');
+tvOnSwitch.addEventListener('change', () => change([[`${TV_PLACE}.on`, tvOnSwitch.checked]], { look: true }));
+for (const [key, id] of [['along', 'tvAlong'], ['bottom', 'tvBottom']]) {
+  document.getElementById(id).addEventListener('input', e => change([[`${TV_PLACE}.${key}`, Number(e.target.value)]]));
+}
+document.getElementById('tvHome').addEventListener('click', () => change([[`${TV_PLACE}.along`, null], [`${TV_PLACE}.bottom`, null]], { look: true }));
+// The radios hold the shelves' words
 const ABOVE = 'pieces.aboveBench.design.what';
 document.querySelectorAll('input[name=above]').forEach(r => r.addEventListener('change', () => change([[ABOVE, r.value]])));
 // The shelves over the desk: how many, and how deep
@@ -318,7 +324,7 @@ xraySwitch.addEventListener('change', () => {
 
 // What the other pieces of the model use
 export {
-  backWallSwitches, benchSwitch, billyLying, deskDaybedChair, deskDaybedRight, deskDaybedTv, firstRadiatorSwitch, 
+  backWallSwitches, benchSwitch, billyLying, deskDaybedChair, deskDaybedRight, firstRadiatorSwitch, tvOnSwitch, 
   setCupboardOnly, setSeeThrough, showBookshelfSizes, showCastorDesk, showDresser, showIvar, showLarder, 
   showPlace, showSofa, showSofaPlace, showSpeakers, showTables, xray
 };

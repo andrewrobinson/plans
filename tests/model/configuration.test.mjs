@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { buildFlat, configurationNow, get, set, setAll, startAgain } from '../../flat_model.js';
 import { setValueAt } from '../../kit/config_kit.js';
 
-const DEFAULT = structuredClone(buildFlat({ version: 2 }).configuration);
+const DEFAULT = structuredClone(buildFlat({ version: 3 }).configuration);
 // The default configuration with settings changed, as { path: value };
 // undefined takes one out
 function edited(changes) {
@@ -53,7 +53,24 @@ test('set(path, value) changes the configuration at its path, and only with a va
 });
 
 test('a configuration of another version isn\'t read', () => {
-  assert.deepStrictEqual(read(edited({ version: 3, 'pieces.cornerCupboard.design.option': 7 })), DEFAULT);
+  assert.deepStrictEqual(read(edited({ version: 4, 'pieces.cornerCupboard.design.option': 7 })), DEFAULT);
+});
+
+// Version 2 had the TV as a choice of what's above the bench, and a switch
+// on the daybed; version 3 reads it as the TV, a piece of its own, on where
+// it showed, and the bench's shelves as they were
+test('a version 2 configuration\'s TV is read as the TV of its own', () => {
+  const v2 = c => { const old = structuredClone(c); old.version = 2; delete old.pieces.tv; return old; };
+  const benchTv = v2(DEFAULT);
+  benchTv.pieces.bench.in.livingRoom.on = true;
+  benchTv.pieces.aboveBench.design = { what: 'tvAndTopShelf', shelfDepth: 250, tv: 65 };
+  const read2 = read(benchTv);
+  assert.deepStrictEqual(read2.pieces.tv, { design: { inches: 65 }, in: { livingRoom: { on: true, along: null, bottom: null } } });
+  assert.equal(read2.pieces.aboveBench.design.what, 'topShelf');
+  const daybedTv = v2(DEFAULT);
+  daybedTv.pieces.deskDaybed.in.livingRoom = { ...daybedTv.pieces.deskDaybed.in.livingRoom, on: true, tvAbove: true };
+  assert.equal(read(daybedTv).pieces.tv.in.livingRoom.on, true);
+  assert.equal(read(v2(DEFAULT)).pieces.tv.in.livingRoom.on, false);        // the bench off: no TV showed
 });
 
 // The doors are the view's (REFACTOR_PLAN.md item 12): not in the

@@ -70,7 +70,7 @@ export const ROOM_BOXES = {
 // middle (room [x, y, height], or where it would be), the first window's
 // radiator while it's in (floor.js draws it), and the back wall's pieces by
 // their keys
-const drawn = { tvAt: null, radiator: null, backWall: {} };
+const drawn = { tvAt: null, tv: null, radiator: null, backWall: {} };
 
 drawFloor();                                                    // once: the walls, the rooms' shells, the stairs
 world.add(floor);
@@ -177,10 +177,15 @@ const config = {
     // drawn, with what's above it; off, the back wall's bare (there's none
     // yet: LOUNGE_NOW)
     bench: { design: { height: 780 }, in: { livingRoom: { on: false } } },
-    // Above the bench: what, one of ABOVE_BENCH (TV and shelves), the
-    // shelves' depth (150 to 400) and the TV's size in inches, one of
-    // TV_SIZES
-    aboveBench: { design: { what: 'tvAndShelves', shelfDepth: 250, tv: 75 } },
+    // Above the bench: its shelves, one of ABOVE_BENCH (laid out round the
+    // TV while that's on), and their depth (150 to 400)
+    aboveBench: { design: { what: 'shelves', shelfDepth: 250 } },
+    // The TV, a piece of its own (the user's, 24 Oct 2026): its size in
+    // inches, one of TV_SIZES; on the back wall or not; and its middle from
+    // the left wall and its bottom off the floor, or null for where it
+    // goes on its own (tvSpot(): over the bench, else over the daybed, else
+    // on the clear wall)
+    tv: { design: { inches: 75 }, in: { livingRoom: { on: false, along: null, bottom: null } } },
     // The dresser's, larder's and sofa's sizes, and which larder and sofa:
     // these until set from dressers.js, larders.js and sofas.js below
     dresser: { design: { w: 1320, h: 2100, baseD: 400, baseH: 900, upperD: 290 } },
@@ -197,8 +202,8 @@ const config = {
     // middle is and how far it's turned (ISLAND_HOME to start); and its
     // chairs, one of ISLAND_CHAIRS
     island: { design: { type: 'ikea', layout: 'standard', custom: { length: 0, width: 0, overhang: 0 } }, in: { livingRoom: { at: 'room', x: 0, y: 0, turn: 0, chairs: 'in' } } },
-    // In the living room in place of the bench (and what's above it), which is
-    // then off whatever its own switch says: the bedroom's bookcase and pine
+    // In the living room against the back wall, or in front of the bench
+    // while it's on: the bedroom's bookcase and pine
     // cupboard, Billy and BillyChest from the garage (billy.js), and the daybed with a desk and bookcase, each moved
     // round the room from there ({ x, y, turn }, see BACK_WALL_PIECES, or null
     // where it starts), Billy standing or lying on its long side, its open
@@ -209,9 +214,8 @@ const config = {
     billyChest: { in: { livingRoom: { on: true, move: LOUNGE_NOW.billyChest } } },       // in the corner, as now
     // ...and the daybed with a desk and bookcase (desk_daybed.js), out to
     // start, its desk at the left end or the right (deskAt), as it can be
-    // put together; the TV on the wall above it, or not; and the work chair
-    // at its desk: none, or one of WORK_CHAIRS (the smaller, for who'll use it)
-    deskDaybed: { design: { deskAt: 'left' }, in: { livingRoom: { on: false, move: null, tvAbove: false, chair: 'small' } } },
+    // put together; and the work chair at its desk: none, or one of WORK_CHAIRS (the smaller, for who'll use it)
+    deskDaybed: { design: { deskAt: 'left' }, in: { livingRoom: { on: false, move: null, chair: 'small' } } },
     // The Ivar (ivar.js), by the first radiator, lying on its side, as it is
     // now (IVAR_HOME), and moved round the room from there, or null where it
     // starts

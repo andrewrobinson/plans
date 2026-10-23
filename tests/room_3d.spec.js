@@ -389,16 +389,19 @@ test.describe('the controls', () => {
     expect(await optionShown(page)).toBe(8);
   });
 
-  test('"Above the bench" shows the TV and shelf sliders that apply', async ({ page }) => {
+  // The shelves above the bench, and the TV a piece of its own (24 Oct 2026)
+  test('the shelves above the bench show their slider; the TV its own, while it\'s on', async ({ page }) => {
     await withBench(page);
     const tv = page.locator('#tvBlock'), shelf = page.locator('#shelfBlock');
-    const cases = [['nothing', false, false], ['shelves', false, true], ['tv', true, false], ['tvAndShelves', true, true], ['tvAndTopShelf', true, true]];
-    for (const [value, tvShown, shelfShown] of cases) {
+    for (const [value, shelfShown] of [['nothing', false], ['shelves', true], ['topShelf', true]]) {
       await page.check(`input[name=above][value="${value}"]`);
-      await expect(tv).toBeVisible({ visible: tvShown });
       await expect(shelf).toBeVisible({ visible: shelfShown });
       expect(await setting(page, 'pieces.aboveBench.design.what')).toBe(value);
     }
+    await expect(tv).toBeHidden();
+    await page.locator('#tvOn').check();
+    await expect(tv).toBeVisible();
+    await expect(page.locator('#summary')).toContainText('Above the bench: a 75" TV (1680 × 960)');
   });
 
   test('the bench switch hides the bench settings', async ({ page }) => {

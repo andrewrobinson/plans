@@ -21,9 +21,11 @@ function withSpeakers(on, edit = () => {}, spacing = { bench: null, billy: null 
 const pair = built => built.boxes['speakers.livingRoom'];
 const apart = box => box.to[0] - box.from[0] - SPEAKER_W;
 // The bench in place of Billy and BillyChest
+// The bench on, with the TV over it (a piece of its own since 24 Oct 2026)
 const benchOn = c => {
   c.pieces.billy.in.livingRoom.on = c.pieces.billyChest.in.livingRoom.on = false;
   c.pieces.bench.in.livingRoom.on = true;
+  c.pieces.tv.in.livingRoom.on = true;
 };
 
 test('none to start', () => {
@@ -47,7 +49,7 @@ test('on the bench, set apart, and held to the bench', () => {
 
 test('under the shelf below the TV, the description says they clash', () => {
   assert.match(withSpeakers('bench', benchOn).description, /They clash with the shelf at 1000/);
-  assert.doesNotMatch(withSpeakers('bench', c => { benchOn(c); c.pieces.aboveBench.design.what = 'tv'; }).description, /clash/);
+  assert.doesNotMatch(withSpeakers('bench', c => { benchOn(c); c.pieces.aboveBench.design.what = 'nothing'; }).description, /clash/);
 });
 
 test('on Billy, lying: 100 in from its ends, on its top, flush with its front less the set-back', () => {

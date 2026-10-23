@@ -22,7 +22,7 @@ import { LOUNGE_NOW, config, cupboardSettings, drawn, inLivingRoom } from './sta
 import { islandGroup } from './kitchen.js';
 import { LIVING_ROOM_PLACE, cupboard } from './cupboards.js';
 import {
-  BACK_WALL_PIECES, FACING, SHELF_T, TV_SHELF_TOPS, TV_W, aboveHasTv, benchDrawn, benchStart, daybedTvShown, 
+  BACK_WALL_PIECES, FACING, SHELF_T, TV_SHELF_TOPS, TV_W, aboveHasTv, aboveNow, benchDrawn, benchStart, daybedTvShown, 
   spotOf
 } from './bench_wall.js';
 import { pieces, sofa } from './front_wall.js';
@@ -252,8 +252,8 @@ const SPEAKER_BILLY_END = 100;              // on Billy, each starting this far 
 const SPEAKER_SURFACES = {
   bench() {
     if (!benchDrawn()) return { missing: 'the bench, which isn\'t there' };
-    const option = optionOf(config.pieces.cornerCupboard.design.option), { what } = config.pieces.aboveBench.design;
-    const x0 = benchStart(option), tvShown = aboveHasTv(what) && ROOM_WIDTH - x0 >= TV_W + 20;   // as benchWallItems() draws it
+    const option = optionOf(config.pieces.cornerCupboard.design.option);
+    const x0 = benchStart(option), tvShown = aboveHasTv(aboveNow()) && ROOM_WIDTH - x0 >= TV_W + 20;   // as benchWallItems() draws it
     return { spot: { x: 0, y: 0, turn: 0 }, x0, x1: ROOM_WIDTH, front: config.pieces.cornerCupboard.design.R, top: config.pieces.bench.design.height,
       middle: drawn.tvAt[0], start: tvShown ? TV_W + 2 * SPEAKER_TV_CLEAR + FENRIS_A5.w : SPEAKER_SPACING_NO_TV,
       on: tvShown ? 'on the bench, either side of the TV' : 'on the bench, centred on it' };
@@ -311,7 +311,7 @@ export const cupboardTopForSpeakers = () => {
 // On the bench, the shelf right across under the TV (TV and shelves) may
 // come down lower than the speakers' tops, over them: a sentence saying so
 function speakersUnderShelf(surface) {
-  const { what, shelfDepth } = config.pieces.aboveBench.design, [below] = TV_SHELF_TOPS, bench = config.pieces.bench.design.height;
+  const { shelfDepth } = config.pieces.aboveBench.design, what = aboveNow(), [below] = TV_SHELF_TOPS, bench = config.pieces.bench.design.height;
   const speakersBack = surface.front - SPEAKER_SET_BACK - FENRIS_A5.d, clear = below - SHELF_T - bench;
   if (what !== 'tvAndShelves' || clear >= FENRIS_A5.h || shelfDepth <= speakersBack) return '';
   return ` They clash with the shelf at ${below}: it's only ${clear} clear of the bench.`;

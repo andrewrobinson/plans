@@ -128,7 +128,9 @@ canvas.addEventListener('pointermove', e => {
 // settings change once, as it's let go)
 function dragTo(e) {
   const p = planPoint(e), { box, at: start, others, piece } = press;
-  const { dx, dy } = heldInRoom(piece, box, roundTo(p.x - press.from.x, STEP), roundTo(p.y - press.from.y, STEP));
+  // (one that slides along its wall only keeps to it)
+  const along = d => (piece.slides && piece.slides !== d ? 0 : 1);
+  const { dx, dy } = heldInRoom(piece, box, along('x') * roundTo(p.x - press.from.x, STEP), along('y') * roundTo(p.y - press.from.y, STEP));
   Object.assign(press, { dx, dy });
   piece.object().position.set(start.x + dx * MM, start.y, start.z + dy * MM);
   const moved = { x0: box.x0 + dx, x1: box.x1 + dx, y0: box.y0 + dy, y1: box.y1 + dy };

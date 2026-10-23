@@ -54,7 +54,7 @@ import {
   ivarSpot, tableSpot, castorDeskSpot, config, storedGroup, storedMats, storedSize, drawn, tvMat, updateDims, 
   worktopMat, BEDROOM_CUPBOARD_RANGES, DOORS_SCHEMA, doorsNow, readDoors, setDoors, doorAngles, dresserSpan, 
   storedSpots, inLivingRoom, aboveHasTv, aboveHasShelves, NO_SOFA, speakerSpacingNow, cupboardTopForSpeakers, 
-  daybedTvShown, bedroomDoorText
+  daybedTvShown, bedroomDoorText, aboveNow, tvOn
 } from './flat_model.js';
 import { display } from './page/display.js';
 import {
@@ -212,7 +212,7 @@ export {
   showCuttingLists, showStored, showStoredMenu, storedDrag, storedUnder
 } from './page/stored_controls.js';
 export {
-  backWallSwitches, benchSwitch, billyLying, deskDaybedChair, deskDaybedRight, deskDaybedTv, firstRadiatorSwitch, 
+  backWallSwitches, benchSwitch, billyLying, deskDaybedChair, deskDaybedRight, firstRadiatorSwitch, tvOnSwitch, 
   setCupboardOnly, setSeeThrough, showBookshelfSizes, showCastorDesk, showDresser, showIvar, showLarder, 
   showPlace, showSofa, showSofaPlace, showSpeakers, showTables, xray
 } from './page/piece_controls.js';

@@ -74,7 +74,7 @@ import {
 } from './model/cupboards.js';
 import {
   BACK_WALL_KEYS, TV_H, TV_SIZES, TV_W, benchDrawn, benchHeights, benchStandIns, benchStart, benchWall, 
-  onBackWall, pieceOnBenchWall, shelves, spotOf, tvAboveDaybed, wallClearFrom
+  onBackWall, pieceOnBenchWall, shelves, spotOf, tvPiece, tvSpot, wallClearFrom
 } from './model/bench_wall.js';
 import { COLOUR_TARGETS, FINISHES, applyColour, colourOf, shownCode } from './model/colours.js';
 import {
@@ -179,10 +179,14 @@ export function build(onShow = optionsOnShow()) {
   if (benchDrawn()) drawBench(option, group);
   else keepTvPlace(option);
   const clearFrom = wallClearFrom(option);
-  // The back wall's pieces, in front of the bench if it's there; the TV
-  // above the bench, or else above the daybed, never both
+  // The back wall's pieces, in front of the bench if it's there; the
+  // bench's shelves; and the TV, a piece of its own (its place kept, for
+  // the sofa and the views, even when it's off)
   const standing = onBackWall().map(key => pieceOnBenchWall(key, clearFrom, group)).join('');
-  const backWall = standing + (benchDrawn() ? benchWall(clearFrom, group) : tvAboveDaybed(group));
+  const tv = tvSpot(clearFrom);
+  drawn.tv = null;
+  drawn.tvAt = [tv.middle, 0, tv.bottom + TV_H / 2];
+  const backWall = standing + (benchDrawn() ? benchWall(clearFrom, group, tv) : '') + tvPiece(tv, clearFrom, group);
   const aboveText = backWall + frontWall(group) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + deskShelves(group) + firstRadiator() + chairAtDaybedDesk();
   if (!same) doors.second = 0;
   drawOtherRoom(config);                                         // the bedroom's furniture
@@ -327,7 +331,7 @@ export {
   bedroomDoorOpensTo, bedroomDoorText, cupboardLimits, cupboardOf, optionsOnShow
 } from './model/cupboards.js';
 export {
-  aboveHasShelves, aboveHasTv, daybedTvShown
+  aboveHasShelves, aboveHasTv, aboveNow, daybedTvShown, tvOn, tvSpotNow
 } from './model/bench_wall.js';
 export {
   NO_SOFA, dresserSpan

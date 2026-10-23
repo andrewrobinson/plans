@@ -328,7 +328,7 @@
         </div>
       </details>
       <details class="sec" id="secBench" open>
-        <summary>The back wall: bench, TV and shelves</summary>
+        <summary>The back wall: bench and shelves</summary>
         <label class="switch"><input type="checkbox" id="benchOn" checked> Bench</label>
         <label class="switch" title="The radiator under the window nearest the back wall; off, it's taken out, pipes and all"><input type="checkbox" id="firstRadiatorOn" checked> First window's radiator</label>
         <label class="switch" title="A bookcase like the bedroom's against the back wall, in place of the bench"><input type="checkbox" id="bookshelfOn"> Bookshelf</label>
@@ -375,7 +375,6 @@
         <label class="switch" title="The daybed with a desk and bookcase (B&amp;Q), on the back wall in place of the bench"><input type="checkbox" id="deskDaybedOn"> Daybed with desk</label>
         <div id="deskDaybedMoveBlock" class="depth">
           <label class="switch"><input type="checkbox" id="deskDaybedRight"> Desk at the right-hand end</label>
-          <label class="switch" title="Centred on its bed, 150 above it, while it's against the back wall; its size is the TV size below"><input type="checkbox" id="deskDaybedTv"> TV on the wall above it</label>
           <div id="deskDaybedChair">Chair at its desk, pulled up:
           <span class="seg" role="radiogroup" aria-label="Chair">
             <label><input type="radio" name="deskDaybedChair" value="none"> None</label>
@@ -398,22 +397,32 @@
           <label><input type="radio" name="bench" value="800"> 800</label>
           <label><input type="radio" name="bench" value="900"> 900</label></span>
         </div>
-        <div id="above" class="depth">Above the bench:
-          <span class="seg" role="radiogroup" aria-label="Above the bench">
+        <div id="above" class="depth">Shelves above the bench (round the TV while it's on):
+          <span class="seg" role="radiogroup" aria-label="Shelves above the bench">
           <label><input type="radio" name="above" value="nothing"> None</label>
-          <label><input type="radio" name="above" value="shelves"> Shelves</label>
-          <label><input type="radio" name="above" value="tv"> TV</label>
-          <label title="TV and shelves"><input type="radio" name="above" value="tvAndShelves" checked> TV + shelves</label>
-          <label title="TV and top shelf"><input type="radio" name="above" value="tvAndTopShelf"> TV + top</label></span>
+          <label title="Three right across, or round the TV"><input type="radio" name="above" value="shelves" checked> Shelves</label>
+          <label title="One right across at the top"><input type="radio" name="above" value="topShelf"> Top shelf</label></span>
         </div>
-        </div>
-        <div id="tvBlock">
-          <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
-          <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
         </div>
         <div id="shelfBlock">
           <label for="shelfDepth">Shelf depth: <span id="shelfDepthValue">250</span></label>
           <input id="shelfDepth" type="range" min="150" max="400" step="10" value="250">
+        </div>
+      </details>
+      <!-- The TV, a piece of its own (24 Oct 2026): on the back wall, over
+           the bench, else over the daybed, else centred on the clear wall,
+           until it's moved along the wall or up and down -->
+      <details class="sec" id="secTv" open>
+        <summary>TV</summary>
+        <label class="switch"><input type="checkbox" id="tvOn"> TV on the back wall</label>
+        <div id="tvBlock" class="depth">
+          <label for="tvSize">TV size: <span id="tvSizeValue">75" (1680 × 960)</span></label>
+          <input id="tvSize" type="range" min="0" max="14" step="1" value="10">
+          <label for="tvAlong">TV's middle from the left wall: <span id="tvAlongValue"></span></label>
+          <input id="tvAlong" type="range" min="0" max="3838" step="5">
+          <label for="tvBottom">TV's bottom off the floor: <span id="tvBottomValue"></span></label>
+          <input id="tvBottom" type="range" min="0" max="2400" step="5">
+          <button id="tvHome" title="Back over the bench, the daybed or the middle of the clear wall, as it goes on its own">Reset location</button>
         </div>
       </details>
       <details class="sec" id="secDeskShelves">

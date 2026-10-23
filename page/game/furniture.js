@@ -44,6 +44,10 @@ const LOUNGE = [
   lounge('deskDaybed', 'Daybed and desk', 'bed-flat', 'pieces.deskDaybed.in.livingRoom', () => spotOf('deskDaybed'), () => drawn.backWall.deskDaybed, { short: 'Daybed' }),
   lounge('wickerBench', 'Wicker bench', 'armchair-2', 'pieces.wickerBench.in.livingRoom', () => fromXY('pieces.wickerBench.in.livingRoom'), () => wickerBenches.livingRoom,
     { moveTo: s => xyEdits('pieces.wickerBench.in.livingRoom', s, 'x', 'y'), short: 'Wicker', folder: OTHER }),
+  // The TV, on the back wall: dragged along it only (`slides`), its middle
+  // setting `along` (its height's on its slider, in its options)
+  lounge('tv', 'TV', 'device-tv', 'pieces.tv.in.livingRoom', () => ({ x: drawn.tvAt[0], y: 0, turn: 0 }), () => drawn.tv,
+    { moveTo: s => [['pieces.tv.in.livingRoom.along', Math.round(s.x)]], slides: 'x', onWall: true }),
   // The bench isn't kept as one object, so it's put in and taken out from the picker alone
   lounge('bench', 'Bench', 'layout-rows', 'pieces.bench.in.livingRoom', null, () => null, { fixed: true }),
 ];

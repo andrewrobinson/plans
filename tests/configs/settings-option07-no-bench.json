@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "version": 2,
+    "version": 3,
     "colours": {
       "floor": 0,
       "cupboard": 5,
@@ -118,8 +118,19 @@
       "aboveBench": {
         "design": {
           "what": "shelves",
-          "shelfDepth": 200,
-          "tv": 43
+          "shelfDepth": 200
+        }
+      },
+      "tv": {
+        "design": {
+          "inches": 43
+        },
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "along": null,
+            "bottom": null
+          }
         }
       },
       "deskShelves": {
@@ -371,7 +382,6 @@
         "in": {
           "livingRoom": {
             "on": false,
-            "tvAbove": false,
             "chair": "small",
             "move": null
           }

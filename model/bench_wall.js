@@ -2,6 +2,7 @@
 // TV and shelves above it, the base cupboards, the pieces that stand along
 // the wall in its place (Billy, the pine cupboard, the daybed) and the
 // daybed's TV.
+import * as THREE from 'three';
 import { MM, box } from '../kit/floor_kit.js';
 import { optionOf, DOOR_GAP, PLINTH, baseDoorCount } from '../corner_cupboard.js';
 import { bookcase } from '../bookcase.js';
@@ -26,11 +27,21 @@ const SHELF_T = 25, TV_GAP = 150;
 // Standard TV sizes in inches, with each TV's overall width and height in mm,
 // from LG UK's size guide (lg.com/uk, "How to measure and read TV sizes").
 // The slider steps through them; 75" (1680 x 960) to start with.
-// What can be above the bench (aboveBench.design.what), by its word, and
-// whether each has a TV, and shelves
-const ABOVE_BENCH = ['nothing', 'shelves', 'tv', 'tvAndShelves', 'tvAndTopShelf'];
+// The shelves above the bench (aboveBench.design.what), by their word:
+// none, three right across (round the TV while it's on), or one at the top
+const ABOVE_BENCH = ['nothing', 'shelves', 'topShelf'];
+// The TV's a piece of its own (pieces.tv, the user's, 24 Oct 2026), so
+// what's above the bench is its shelves and, while the bench and the TV are
+// both there, the TV: as one word, as it was before ('tv' alone, 'tvAndShelves',
+// 'tvAndTopShelf'), which the layout and the dimensions go by
+export const tvOn = () => config.pieces.tv.in.livingRoom.on;
+const WITH_TV = { nothing: 'tv', shelves: 'tvAndShelves', topShelf: 'tvAndTopShelf' };
+export const aboveNow = () => {
+  const { what } = config.pieces.aboveBench.design;
+  return tvOn() && benchDrawn() ? WITH_TV[what] : what;
+};
 export const aboveHasTv = what => what.startsWith('tv');
-export const aboveHasShelves = what => what === 'shelves' || what === 'tvAndShelves' || what === 'tvAndTopShelf';
+export const aboveHasShelves = what => what !== 'nothing' && what !== 'tv';
 const TV_SIZES = [[32, 720, 440], [40, 900, 500], [42, 930, 540], [43, 970, 570], [48, 1070, 620],
   [50, 1120, 650], [55, 1230, 710], [60, 1340, 770], [65, 1450, 830], [70, 1570, 910], [75, 1680, 960],
   [77, 1710, 980], [83, 1840, 1050], [85, 1890, 1080], [86, 1930, 1110]];
@@ -44,7 +55,7 @@ const TV_SIZES = [[32, 720, 440], [40, 900, 500], [42, 930, 540], [43, 970, 570]
 let TV_W, TV_H, SHELF_TOPS, TV_BOTTOM, TV_SHELF_TOPS, TV_MIDDLE_SHELF;
 function benchHeights() {
   const BENCH = config.pieces.bench.design.height;
-  [, TV_W, TV_H] = TV_SIZES.find(([inches]) => inches === config.pieces.aboveBench.design.tv);
+  [, TV_W, TV_H] = TV_SIZES.find(([inches]) => inches === config.pieces.tv.design.inches);
   SHELF_TOPS = [BENCH + 420, BENCH + 770, BENCH + 1120];
   TV_BOTTOM = BENCH + 320;
   const top = Math.max(BENCH + 1300, TV_BOTTOM + TV_H + TV_GAP);
@@ -59,57 +70,109 @@ function shelves(x0, x1, g, tops = SHELF_TOPS) {
 
 // The TV on the back wall, its middle at x along it and its bottom that
 // high: its case 50 deep and its screen, 15 in from its edges; drawn.tvAt there
+// The TV drawn in a group of its own (drawn.tv), so it can be picked out:
+// its middle `middle` along the back wall, its bottom `bottom` off the floor
 function drawTv(middle, bottom, g) {
-  const tx = middle - TV_W / 2;
+  const tx = middle - TV_W / 2, tv = new THREE.Group();
   drawn.tvAt = [middle, 0, bottom + TV_H / 2];
-  box({ from: [tx, 0, bottom], to: [tx + TV_W, 50, bottom + TV_H] }, tvMat, g);
-  box({ from: [tx + 15, 50, bottom + 15], to: [tx + TV_W - 15, 52, bottom + TV_H - 15] }, screenMat, g, false);
+  box({ from: [tx, 0, bottom], to: [tx + TV_W, 50, bottom + TV_H] }, tvMat, tv);
+  box({ from: [tx + 15, 50, bottom + 15], to: [tx + TV_W - 15, 52, bottom + TV_H - 15] }, screenMat, tv, false);
+  g.add(tv);
+  drawn.tv = tv;
 }
 // "a 75"" or "an 85"", for the summary
 const tvWords = inches => `${String(inches).startsWith('8') ? 'an' : 'a'} ${inches}"`;
-function benchWall(x0, g) {
-  const { what: above, shelfDepth } = config.pieces.aboveBench.design, { R } = config.pieces.cornerCupboard.design;
+
+// ---------------------------------------------------------------------------
+// The TV, a piece of its own: where it goes on its own, over the bench
+// (centred on the clear wall, TV_BOTTOM up), else over the daybed against
+// the back wall, else on the clear wall as over the bench; or where it's
+// been put (along and bottom, either or both). x0: where the back wall's
+// clear from. { middle, bottom, how }: how it got there, 'bench', 'daybed',
+// 'wall' or 'moved'
+// ---------------------------------------------------------------------------
+function tvSpot(x0) {
+  const onWall = { middle: (x0 + ROOM_WIDTH) / 2, bottom: TV_BOTTOM };
+  const daybed = daybedTv();
+  // (over the daybed only while it's on: off, its place is the wall's, as the sofa's centred on it)
+  const auto = benchDrawn() ? { ...onWall, how: 'bench' } : tvOn() && 'middle' in daybed ? { ...daybed, how: 'daybed' } : { ...onWall, how: 'wall' };
+  const { along, bottom } = config.pieces.tv.in.livingRoom;
+  if (along === null && bottom === null) return auto;
+  return { middle: along ?? auto.middle, bottom: bottom ?? auto.bottom, how: 'moved' };
+}
+// Where the TV is with the settings as they are now, for its sliders
+export const tvSpotNow = () => tvSpot(wallClearFrom(optionOf(config.pieces.cornerCupboard.design.option)));
+// The TV's over the daybed (where the speakers there go either side of it)
+export const daybedTvShown = () => tvOn() && tvSpot(0).how === 'daybed';
+// Drawn, if it's on, unless over the bench, where the bench's shelves are
+// laid out round it and say it (benchWallItems()). Returns a sentence for
+// the summary
+function tvPiece(tv, x0, g) {
+  if (!tvOn() || tv.how === 'bench') return '';
+  drawTv(tv.middle, tv.bottom, g);
+  const what = `${tvWords(config.pieces.tv.design.inches)} TV (${TV_W} × ${TV_H})`, height = `from ${tv.bottom} to ${tv.bottom + TV_H}`;
+  if (tv.how === 'daybed') return ` Above the daybed: ${what}, centred on its bed, ${height}.`;
+  if (tv.how === 'wall') return ` On the back wall: ${what}, centred on the ${ROOM_WIDTH - x0} of clear wall, ${height}.`;
+  return ` On the back wall: ${what}, its middle ${Math.round(tv.middle)} from the left wall, ${height}.`;
+}
+
+function benchWall(x0, g, tv) {
+  const { shelfDepth } = config.pieces.aboveBench.design, above = aboveNow(), { R } = config.pieces.cornerCupboard.design;
   const span = ROOM_WIDTH - x0;
-  drawn.tvAt = [(x0 + ROOM_WIDTH) / 2, 0, TV_BOTTOM + TV_H / 2];
   if (above === 'nothing' || span <= 0) return '';                         // nothing, or no bench (the current room)
-  return benchWallItems(x0, span, g) +
+  return benchWallItems(x0, span, g, tv) +
     (shelfDepth > R && above !== 'tv' ? ` The shelves stand ${shelfDepth - R} proud of the ${R}-deep bench.` : '');
 }
 
-function benchWallItems(x0, span, g) {
-  const { what: above, shelfDepth, tv } = config.pieces.aboveBench.design;
+// Above the bench: its shelves, and the TV while it's on, the shelves laid
+// out round it. Over the bench by itself, the TV's drawn here, centred on
+// the clear wall if it fits; put somewhere else, it's drawn as a piece
+// (tvPiece()) and the shelves beside it still keep TV_GAP clear of it
+function benchWallItems(x0, span, g, tv) {
+  const { shelfDepth } = config.pieces.aboveBench.design, above = aboveNow(), inches = config.pieces.tv.design.inches;
   if (above === 'shelves') {
     shelves(x0, ROOM_WIDTH, g);
     return ` Above the bench: three ${shelfDepth}-deep shelves, ${span} long, at ${SHELF_TOPS.join(', ')}.`;
   }
-  if (span < TV_W + 20) {                                         // the TV doesn't fit beside the cupboards
-    const none = ` Above the bench: no room for the ${tv}" TV, ${TV_W} wide, only ${span} of clear wall.`;
+  const [below, over] = TV_SHELF_TOPS;
+  if (above === 'topShelf') {
+    if (!over) return ` Above the bench: no room for a top shelf: it would be within 60 of the ceiling.`;
+    shelves(x0, ROOM_WIDTH, g, [over]);
+    return ` Above the bench: a ${shelfDepth}-deep shelf right across, ${span} long, at ${over}.`;
+  }
+  const own = tv.how === 'bench';
+  if (own && span < TV_W + 20) {                                 // the TV doesn't fit beside the cupboards
+    const none = ` Above the bench: no room for the ${inches}" TV, ${TV_W} wide, only ${span} of clear wall.`;
     if (above === 'tv') return none;
     const tops = above === 'tvAndTopShelf' ? TV_SHELF_TOPS.slice(1) : TV_SHELF_TOPS;
     if (!tops.length) return none;
     shelves(x0, ROOM_WIDTH, g, tops);
     return none + ` ${shelfDepth}-deep shelves right across, ${span} long, at ${tops.join(' and ')}.`;
   }
-  drawTv(x0 + span / 2, TV_BOTTOM, g);                             // centred on the clear wall
-  const tvText = ` Above the bench: ${tvWords(tv)} TV (${TV_W} × ${TV_H}), centred on the ${span} of clear wall, from ${TV_BOTTOM} to ${TV_BOTTOM + TV_H}.`;
-  const [below, over] = TV_SHELF_TOPS;
+  if (own) drawTv(tv.middle, tv.bottom, g);                      // centred on the clear wall
+  const tvText = own ? ` Above the bench: ${tvWords(inches)} TV (${TV_W} × ${TV_H}), centred on the ${span} of clear wall, from ${TV_BOTTOM} to ${TV_BOTTOM + TV_H}.` : '';
+  const shelvesText = own ? '' : ' Above the bench:';
   const noTop = ` No room for a shelf above it: it would be within 60 of the ceiling.`;
   if (above === 'tv') return tvText;
   if (above === 'tvAndTopShelf') {
     if (!over) return tvText + noTop;
     shelves(x0, ROOM_WIDTH, g, [over]);
-    return tvText + ` A ${shelfDepth}-deep shelf right across above it, ${span} long, at ${over}.`;
+    return tvText + `${shelvesText} A ${shelfDepth}-deep shelf right across above it, ${span} long, at ${over}.`;
   }
   shelves(x0, ROOM_WIDTH, g, TV_SHELF_TOPS);
   const shelfText = over
-    ? ` ${shelfDepth}-deep shelves right across, ${span} long, below it at ${below} and above it at ${over}.`
-    : ` A ${shelfDepth}-deep shelf right across below it, ${span} long, at ${below}.` + noTop;
-  const side = Math.floor((span - TV_W) / 2 - TV_GAP);
-  if (side < 200) return tvText + shelfText + ` No room for a middle shelf beside it: only ${Math.max(side, 0)} each side.`;
-  shelves(x0, x0 + side, g, [TV_MIDDLE_SHELF]);
-  shelves(ROOM_WIDTH - side, ROOM_WIDTH, g, [TV_MIDDLE_SHELF]);
-  return tvText + shelfText + ` A middle shelf at ${TV_MIDDLE_SHELF} either side, ${side} long, ${TV_GAP} clear of the TV.`;
+    ? `${shelvesText} ${shelfDepth}-deep shelves right across, ${span} long, below it at ${below} and above it at ${over}.`
+    : `${shelvesText} A ${shelfDepth}-deep shelf right across below it, ${span} long, at ${below}.` + noTop;
+  // A middle shelf each side of the TV, TV_GAP clear of it, where there's room
+  const left = Math.floor(tv.middle - TV_W / 2 - TV_GAP - x0), right = Math.floor(ROOM_WIDTH - (tv.middle + TV_W / 2 + TV_GAP));
+  if (left < 200 && right < 200) return tvText + shelfText + ` No room for a middle shelf beside it: only ${Math.max(Math.min(left, right), 0)} each side.`;
+  if (left >= 200) shelves(x0, x0 + left, g, [TV_MIDDLE_SHELF]);
+  if (right >= 200) shelves(ROOM_WIDTH - right, ROOM_WIDTH, g, [TV_MIDDLE_SHELF]);
+  if (left === right) return tvText + shelfText + ` A middle shelf at ${TV_MIDDLE_SHELF} either side, ${left} long, ${TV_GAP} clear of the TV.`;
+  const sides = [left >= 200 ? `${left} long on its left` : '', right >= 200 ? `${right} long on its right` : ''].filter(Boolean).join(' and ');
+  return tvText + shelfText + ` A middle shelf at ${TV_MIDDLE_SHELF}, ${sides}, ${TV_GAP} clear of the TV.`;
 }
+
 
 // ---------------------------------------------------------------------------
 // The bench's base cupboards (option 9's), drawn by drawBench()
@@ -236,31 +299,22 @@ function pieceOnBenchWall(key, x0, g) {
   return ` ${named} ${benchDrawn() ? 'in front of the bench' : 'on the back wall'}, ${homeText(x0, w)}.`;
 }
 
-// The TV on the wall above the daybed (asked for, 22 Oct 2026), while the
-// daybed stands with its back to the back wall: centred on its bed, its
-// bottom TV_GAP clear of the daybed's top, at the TV size above the bench's.
-// Where it is: { middle, bottom } along the back wall; or { missing }, the
-// summary's sentence saying why it isn't there ('' when it's not asked for)
+// Over the daybed (asked for, 22 Oct 2026), where the TV goes on its own
+// while the daybed stands with its back to the back wall and there's no
+// bench: centred on its bed, its bottom TV_GAP clear of the daybed's top.
+// { middle, bottom } along the back wall, or { missing } when it can't
 function daybedTv() {
-  const place = config.pieces.deskDaybed.in.livingRoom, { tv: inches } = config.pieces.aboveBench.design;
-  if (!place.on || !place.tvAbove) return { missing: '' };
+  const place = config.pieces.deskDaybed.in.livingRoom;
+  if (!place.on) return { missing: 'no daybed' };
   const { x, y, turn } = spotOf('deskDaybed'), bottom = DESK_DAYBED.h + TV_GAP;
-  if (y !== 0 || turn !== 0) return { missing: ' No TV above the daybed: it isn\'t against the back wall.' };
-  if (bottom + TV_H > CEILING_HEIGHT) return { missing: ` No room for the ${inches}" TV above the daybed: it would reach ${bottom + TV_H}, past the ceiling.` };
+  if (y !== 0 || turn !== 0) return { missing: 'not against the back wall' };
+  if (bottom + TV_H > CEILING_HEIGHT) return { missing: 'past the ceiling' };
   return { middle: x + bedMiddle(config.pieces.deskDaybed.design.deskAt), bottom };
-}
-export const daybedTvShown = () => !('missing' in daybedTv());
-// Drawn into the option's group, if it's there. Returns a sentence for the summary
-function tvAboveDaybed(g) {
-  const tv = daybedTv(), { tv: inches } = config.pieces.aboveBench.design;
-  if ('missing' in tv) return tv.missing;
-  drawTv(tv.middle, tv.bottom, g);
-  return ` Above the daybed: ${tvWords(inches)} TV (${TV_W} × ${TV_H}), centred on its bed, from ${tv.bottom} to ${tv.bottom + TV_H}.`;
 }
 
 // What the other pieces of the model use
 export {
   ABOVE_BENCH, BACK_WALL_KEYS, BACK_WALL_PIECES, FACING, SHELF_T, SHELF_TOPS, TOP_T, TV_BOTTOM, TV_GAP, TV_H, 
   TV_MIDDLE_SHELF, TV_SHELF_TOPS, TV_SIZES, TV_W, baseCupboards, benchDrawn, benchHeights, benchStandIns, 
-  benchStart, benchWall, onBackWall, pieceOnBenchWall, shelves, spotOf, tvAboveDaybed, wallClearFrom
+  benchStart, benchWall, onBackWall, pieceOnBenchWall, shelves, spotOf, tvPiece, tvSpot, wallClearFrom
 };

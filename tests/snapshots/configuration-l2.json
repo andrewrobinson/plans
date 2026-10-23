@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "version": 2,
+    "version": 3,
     "colours": {
       "floor": 0,
       "cupboard": 4,
@@ -121,9 +121,20 @@
       },
       "aboveBench": {
         "design": {
-          "what": "tvAndTopShelf",
-          "shelfDepth": 250,
-          "tv": 75
+          "what": "topShelf",
+          "shelfDepth": 250
+        }
+      },
+      "tv": {
+        "design": {
+          "inches": 75
+        },
+        "in": {
+          "livingRoom": {
+            "on": true,
+            "along": null,
+            "bottom": null
+          }
         }
       },
       "deskShelves": {
@@ -371,7 +382,6 @@
         "in": {
           "livingRoom": {
             "on": true,
-            "tvAbove": true,
             "chair": "none",
             "move": {
               "x": 2285,
@@ -816,7 +826,7 @@
     ]
   },
   "dimensions": [],
-  "description": "A 2050-high cupboard in the corner, 900 along the back wall and 1150 out along the left wall, with a pair of 437 doors on its end, facing the kitchen. Opened to 90°, they reach 1587 from the back wall, past the room door's hinge at 1400: they can't open fully while the room door is open. Bench 2938, from x = 900, 330 deep. Inside, within its 18 boards (rear panels against the walls included): 864 × 1114, 2014 high. The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high), moved: the middle of its back at x 2285, y 0, facing the front wall. Above the bench: a 75\" TV (1680 × 960), centred on the 2938 of clear wall, from 1100 to 2060. A 250-deep shelf right across above it, 2938 long, at 2210. A dresser on the front wall between the sink and the desk (x 1008-2008): 1000 wide overall (its body 960), 1930 high, 420 deep up to 830 (two drawers over two doors, under a wooden top), then 420 deep with three open shelves. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.): 1690 wide, 1000 deep, 920 high, its seat at 505. Its front is 1900 from the TV wall (x 1524-3214, y 1900-2900). Behind it, 41 to the island. The speakers (Argon Fenris A5, 170 wide, 220 deep, 280 high) on the daybed's bookcase, either side of the TV above it, their middles 2050 apart. At the daybed's desk there's 70 from its end to the corner cupboard. Pulled up to it, the smaller armless chair reaches 430 past it, 360 short; the office chair reaches 470 past it, 400 short.From option 10 (new)",
+  "description": "A 2050-high cupboard in the corner, 900 along the back wall and 1150 out along the left wall, with a pair of 437 doors on its end, facing the kitchen. Opened to 90°, they reach 1587 from the back wall, past the room door's hinge at 1400: they can't open fully while the room door is open. Bench 2938, from x = 900, 330 deep. Inside, within its 18 boards (rear panels against the walls included): 864 × 1114, 2014 high. The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high), moved: the middle of its back at x 2285, y 0, facing the front wall. Above the bench: a 75\" TV (1680 × 960), centred on the 2938 of clear wall, from 1100 to 2060. A 250-deep shelf right across above it, 2938 long, at 2210. A dresser on the front wall between the sink and the desk (x 1008-2008): 1000 wide overall (its body 960), 1930 high, 420 deep up to 830 (two drawers over two doors, under a wooden top), then 420 deep with three open shelves. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.): 1690 wide, 1000 deep, 920 high, its seat at 505. Its front is 1900 from the TV wall (x 1524-3214, y 1900-2900). Behind it, 41 to the island. The speakers (Argon Fenris A5, 170 wide, 220 deep, 280 high) on the daybed's bookcase, centred on its bed, their middles 1500 apart. At the daybed's desk there's 70 from its end to the corner cupboard. Pulled up to it, the smaller armless chair reaches 430 past it, 360 short; the office chair reaches 470 past it, 400 short.From option 10 (new)",
   "boxes": {
     "livingRoom": {
       "from": [
@@ -890,12 +900,12 @@
     "castorDesk.livingRoom": null,
     "speakers.livingRoom": {
       "from": [
-        1231,
+        1506,
         20,
         1000
       ],
       "to": [
-        3451,
+        3176,
         242,
         1280
       ],

@@ -5,7 +5,7 @@
 // thing changes above the sheet as it's set. What has no section of its
 // own opens its room's whole drawer. Something painted also gets a Colour
 // button, for the colour sheet. Asked for, 23 Oct 2026.
-import { cupboard, drawn, islandGroup, pieces, tvMat, namedPieces } from '../../flat_model.js';
+import { cupboard, drawn, islandGroup, pieces, namedPieces } from '../../flat_model.js';
 import { benchMat } from '../../model/materials.js';
 import { otherRoomPieces } from '../../other_room.js';
 import { wickerBenches } from '../../wicker_bench.js';
@@ -61,7 +61,8 @@ const THINGS = [
   { name: 'Bookcase', objects: () => [drawn.backWall.bookshelf], ids: ['bookshelfMoveBlock'], sizes: BEDROOM_SIZES.bookcase },
   { name: 'Pine cupboard', objects: () => [drawn.backWall.pine], ids: ['pineMoveBlock'], sizes: BEDROOM_SIZES.cupboard },
   { name: 'Daybed and desk', objects: () => [drawn.backWall.deskDaybed], ids: ['deskDaybedMoveBlock'] },
-  { name: 'The back wall: bench, TV and shelves', materials: () => [benchMat, tvMat], ids: ['secBench'] },
+  { name: 'TV', objects: () => [drawn.tv], ids: ['secTv'] },
+  { name: 'The back wall: bench and shelves', materials: () => [benchMat], ids: ['secBench'] },
   // The bedroom
   ...Object.entries(BEDROOM_PIECES).map(([key, name]) => ({ name, objects: () => [otherRoomPieces[key]], ids: [`otherRoomPiece_${key}`], sizes: BEDROOM_SIZES[key] })),
   { name: "The bedroom's new cupboard", objects: () => [namedPieces().bedroomCupboard], ids: ['secBedroomCupboard'] },

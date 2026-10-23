@@ -225,6 +225,19 @@ test('a long-press opens a thing\'s options, from its drawer, and Done puts them
   await expect(page.locator('#optionsBody #otherRoomPiece_bed')).toBeVisible();
 });
 
+test('the TV is a piece of its own: put in from the picker, it slides along the back wall in Plan', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  await page.click('#picker [data-key=tv]');
+  expect(await setting(page, 'pieces.tv.in.livingRoom.on')).toBe(true);
+  await toPlan(page);
+  const tv = await pieceOnScreen(page, 'tv');
+  await drag(page, tv, { x: tv.x - 30, y: tv.y + 40 });
+  const { along, bottom } = await setting(page, 'pieces.tv.in.livingRoom');
+  expect(along).toBeLessThan(3838 / 2);                          // moved along the wall from the middle...
+  expect(bottom).toBeNull();                                     // ...not up or down
+  await expect(page.locator('#summary')).toContainText(`On the back wall: a 75" TV (1680 × 960), its middle ${along} from the left wall`);
+});
+
 test('?classic leaves the game UI out', async ({ page }) => {
   await openRoom(page);
   await expect(page.locator('#picker')).toBeHidden();

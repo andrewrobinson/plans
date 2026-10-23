@@ -36,7 +36,7 @@ import { readDoors } from '../flat_model.js';
 // in the configuration and in `config` alike, its check and its default.
 // Ranges are the sliders' in index.html, unless an entry says.
 // ---------------------------------------------------------------------------
-const CONFIGURATION_VERSION = 2;   // up only when a setting changes its path or meaning: 2 when the doors went into the view (22 Oct 2026)
+const CONFIGURATION_VERSION = 3;   // up only when a setting changes its path or meaning: 2 when the doors went into the view (22 Oct 2026), 3 when the TV became a piece of its own (24 Oct 2026)
 for (const [, id, lo, hi, step] of [...DRESSER_SLIDERS, ...LARDER_SLIDERS, ...SOFA_SLIDERS]) SLIDER_RANGES[id] = [lo, hi, step];
 // A control's id in a copy of the living room's controls: the piece's name,
 // then the living room's id with a capital, as 'bedroomCupboardDepth' for
@@ -62,6 +62,8 @@ function speakerSpacingEntry(path) {
   const [min, max, step] = SLIDER_RANGES.speakerSpacing;
   return Config.other(path, v => (v === null ? null : Number.isFinite(v) && v >= min && v <= max && (v - min) % step === 0 ? v : undefined));
 }
+// A number of mm within a range, or null for the piece's own choice
+const orItsOwn = (path, min, max) => Config.other(path, v => (v === null ? null : Number.isFinite(v) && v >= min && v <= max ? Math.round(v) : undefined));
 // A place moved to in the living room, or null where it starts
 const spotOrHome = path => Config.other(path, v => (v === null ? null : v && spotFits(v) ? { x: v.x, y: v.y, turn: v.turn } : undefined));
 // The things to store's places are read only when they've been moved by
@@ -143,7 +145,11 @@ const LIVING_ROOM_SCHEMA = [
   Config.onOff('pieces.bench.in.livingRoom.on'),
   Config.choice('pieces.aboveBench.design.what', ABOVE_BENCH),
   fromSlider('pieces.aboveBench.design.shelfDepth', 'shelfDepth'),
-  Config.choice('pieces.aboveBench.design.tv', TV_SIZES.map(([inches]) => inches)),
+  // The TV: its size, on or not, and where on the back wall (null where it goes on its own)
+  Config.choice('pieces.tv.design.inches', TV_SIZES.map(([inches]) => inches)),
+  Config.onOff('pieces.tv.in.livingRoom.on'),
+  orItsOwn('pieces.tv.in.livingRoom.along', 0, ROOM_WIDTH),
+  orItsOwn('pieces.tv.in.livingRoom.bottom', 0, CEILING_HEIGHT),
   // The shelves over the desk: how many, and how deep
   Config.choice('pieces.deskShelves.design.count', DESK_SHELF_COUNTS),
   fromSlider('pieces.deskShelves.design.depth', 'deskShelfDepth'),
@@ -182,7 +188,6 @@ const LIVING_ROOM_SCHEMA = [
   spotOrHome('pieces.billyChest.in.livingRoom.move'),
   Config.choice('pieces.deskDaybed.design.deskAt', ['left', 'right']),
   Config.onOff('pieces.deskDaybed.in.livingRoom.on'),
-  Config.onOff('pieces.deskDaybed.in.livingRoom.tvAbove'),
   Config.choice('pieces.deskDaybed.in.livingRoom.chair', ['none', ...Object.keys(WORK_CHAIRS)]),
   spotOrHome('pieces.deskDaybed.in.livingRoom.move'),
   Config.onOff('pieces.ivar.in.livingRoom.on'),
@@ -228,14 +233,33 @@ const configurationNow = () => Config.writeConfiguration(SCHEMA, config, { versi
 function readConfiguration(configuration) {
   if (configuration?.version === 1) {
     readDoors(configuration.doors);
-    configuration = { ...configuration, version: CONFIGURATION_VERSION };
+    configuration = { ...configuration, version: 2 };
   }
+  if (configuration?.version === 2) configuration = { ...tvOfItsOwn(configuration), version: 3 };
   if (configuration?.version !== CONFIGURATION_VERSION) {
     console.warn(`A configuration of version ${configuration?.version}, not ${CONFIGURATION_VERSION}: the page starts as it is`);
     return;
   }
   Config.readConfiguration(SCHEMA, configuration, config);
   holdSettings();
+}
+// Version 2's TV, read as version 3's (24 Oct 2026): it was a choice of
+// what's above the bench ('tv', 'tvAndShelves', 'tvAndTopShelf', with its
+// size there) and a switch on the daybed (tvAbove); now it's a piece of its
+// own, on where it showed before: over the bench, else over the daybed. The
+// bench's choice keeps its shelves
+const SHELVES_OF = { nothing: 'nothing', shelves: 'shelves', tv: 'nothing', tvAndShelves: 'shelves', tvAndTopShelf: 'topShelf' };
+function tvOfItsOwn(configuration) {
+  const c = structuredClone(configuration), pieces = c.pieces ?? {};
+  const above = pieces.aboveBench?.design ?? {}, daybed = pieces.deskDaybed?.in?.livingRoom ?? {};
+  const overBench = Boolean(pieces.bench?.in?.livingRoom?.on) && String(above.what ?? '').startsWith('tv');
+  const overDaybed = Boolean(daybed.on && daybed.tvAbove);
+  pieces.tv = { design: { inches: above.tv ?? config.pieces.tv.design.inches }, in: { livingRoom: { on: overBench || overDaybed, along: null, bottom: null } } };
+  if (above.what in SHELVES_OF) above.what = SHELVES_OF[above.what];
+  delete above.tv;
+  delete daybed.tvAbove;
+  c.pieces = pieces;
+  return c;
 }
 const DEFAULT_CONFIGURATION = Config.defaultConfiguration(SCHEMA, { version: CONFIGURATION_VERSION });
 

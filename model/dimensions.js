@@ -15,7 +15,7 @@ import {
 import { KITCHEN, MONITOR_TOP, deskShelfTops } from './kitchen.js';
 import { bedroomDoor, cupboard, cupboardOf } from './cupboards.js';
 import {
-  BACK_WALL_PIECES, SHELF_TOPS, TV_BOTTOM, TV_GAP, TV_H, TV_MIDDLE_SHELF, TV_SHELF_TOPS, TV_W, aboveHasShelves, 
+  BACK_WALL_PIECES, SHELF_TOPS, TV_BOTTOM, TV_GAP, TV_H, TV_MIDDLE_SHELF, TV_SHELF_TOPS, TV_W, aboveHasShelves, aboveNow, 
   benchDrawn, benchStart, onBackWall, shelves, wallClearFrom
 } from './bench_wall.js';
 import { frontSpan } from './front_wall.js';
@@ -32,9 +32,10 @@ const P = (x, y, z) => new THREE.Vector3(x * MM, z * MM, y * MM);
 
 // Heights of what's above the bench: shelf tops, and the TV's bottom and top
 function aboveHeights(x0) {
-  const above = config.pieces.aboveBench.design.what;
+  const above = aboveNow();
   const tv = [TV_BOTTOM, TV_BOTTOM + TV_H];
   if (above === 'shelves') return SHELF_TOPS;
+  if (above === 'topShelf') return TV_SHELF_TOPS.slice(1);
   if (above === 'tv') return tv;
   if (above === 'tvAndTopShelf') return [...tv, ...TV_SHELF_TOPS.slice(1)];
   if (above === 'tvAndShelves') {
@@ -68,7 +69,7 @@ function updateDims(display) {
   if (!flat || !showDims || !flatView) return;
   dims = new THREE.Group();
   world.add(dims);
-  const BENCH = config.pieces.bench.design.height, { what: above, shelfDepth } = config.pieces.aboveBench.design, { T, R, F } = config.pieces.cornerCupboard.design;
+  const BENCH = config.pieces.bench.design.height, { shelfDepth } = config.pieces.aboveBench.design, above = aboveNow(), { T, R, F } = config.pieces.cornerCupboard.design;
   const option = optionOf(config.pieces.cornerCupboard.design.option), settings = cupboardSettings();
   const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks(settings) : []), benchStart(option), wallClearFrom(option), ROOM_WIDTH];
   const alongLeft = [0, R, ...(option.front ? [option.front(settings)] : T || option.fixedWidth ? [F] : []), DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, DOOR_HINGE_AT + ROOM_DOOR, FRAME_END];

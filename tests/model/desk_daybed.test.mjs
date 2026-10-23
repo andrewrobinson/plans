@@ -40,12 +40,13 @@ test('out to start; on, in front of the bench (drawn whenever it\'s on), said wh
   assert.doesNotMatch(description, /No bench/);
 });
 
-// The daybed in the room as it opens, in Billy's place, with the TV above it
-// and the speakers on it
+// The daybed in the room as it opens, in Billy's place, with the TV on
+// (over it, with no bench) and the speakers on it
 function withTvAndSpeakers(edit = () => {}) {
   const configuration = structuredClone(DEFAULT_CONFIGURATION);
   configuration.pieces.billy.in.livingRoom.on = false;
-  configuration.pieces.deskDaybed.in.livingRoom = { on: true, move: null, tvAbove: true };
+  configuration.pieces.deskDaybed.in.livingRoom = { on: true, move: null };
+  configuration.pieces.tv.in.livingRoom.on = true;
   configuration.pieces.speakers.in.livingRoom.on = 'deskDaybed';
   edit(configuration);
   return buildFlat(configuration);
@@ -55,7 +56,8 @@ test('the TV above it: centred on its bed, 150 over its top', () => {
   const { description } = withTvAndSpeakers();
   assert.match(description, /Above the daybed: a 75" TV \(1680 × 960\), centred on its bed, from 1150 to 2110\./);
   const pulledOut = withTvAndSpeakers(c => { c.pieces.deskDaybed.in.livingRoom.move = { x: 1500, y: 500, turn: 0 }; });
-  assert.match(pulledOut.description, /No TV above the daybed: it isn't against the back wall\./);
+  // pulled out from the wall, the TV stays on the wall, centred on it
+  assert.match(pulledOut.description, /On the back wall: a 75" TV \(1680 × 960\), centred on the \d+ of clear wall/);
 });
 
 test('the speakers on its bookcase, either side of the TV, their fronts flush with it', () => {
@@ -71,7 +73,7 @@ test('the speakers on its bookcase, either side of the TV, their fronts flush wi
 function atX(x, edit = () => {}) {
   const configuration = structuredClone(DEFAULT_CONFIGURATION);
   configuration.pieces.billy.in.livingRoom.on = false;
-  configuration.pieces.deskDaybed.in.livingRoom = { on: true, move: { x, y: 0, turn: 0 }, tvAbove: false, chair: 'small' };
+  configuration.pieces.deskDaybed.in.livingRoom = { on: true, move: { x, y: 0, turn: 0 }, chair: 'small' };
   edit(configuration);
   return buildFlat(configuration);
 }

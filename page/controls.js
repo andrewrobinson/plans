@@ -6,7 +6,7 @@ import { cupboardControls, copyControls, idIn } from '../cupboard_controls.js';
 import {
   rebuild, turnDoors, describe, BACK_WALL_KEYS, CURRENT_ROOM, OPTIONS, benchDrawn, configurationNow, dims, 
   islandOnWall, optionOf, pieces, setAll, optionsOnShow, config, updateDims, BEDROOM_CUPBOARD_RANGES, doorsNow, 
-  setDoors, inLivingRoom, aboveHasTv, aboveHasShelves, daybedTvShown
+  setDoors, inLivingRoom, aboveHasShelves, aboveNow, tvOn
 } from '../flat_model.js';
 import { display } from './display.js';
 import {
@@ -99,12 +99,12 @@ function show(onShow) {
 // The menus for option `no`: the option list, the description, and only the
 // blocks of controls that apply to it
 function showInMenus(option, no, aboveText) {
-  const above = config.pieces.aboveBench.design.what;
+  const above = aboveNow();
   loungeCupboard.showBlocks();
   showBedroomCupboard();
   document.getElementById('summary').innerHTML = describe(option, aboveText);
   const shown = (id, yes) => { document.getElementById(id).style.display = yes ? '' : 'none'; };
-  shown('tvBlock', (benchDrawn() && aboveHasTv(above)) || daybedTvShown());   // the bench's TV, or the daybed's
+  shown('tvBlock', tvOn());                                      // the TV's size and place, while it's on
   shown('shelfBlock', benchDrawn() && aboveHasShelves(above));   // only with shelves above the bench
   shown('benchDetails', benchDrawn());
   const piece = islandOnWall() ? 'none' : config.livingRoom.frontWall;   // the dresser or a larder, if either is drawn

@@ -3,7 +3,7 @@ import { RAL } from '../kit/floor_kit.js';
 import {
   CURRENT_ROOM, FINISHES, SHELF_WOODS, STORED, carcassMat, colourOf, cupboard, dresserMat, handleMat, islandMat, 
   islandOnWall, islandTopMat, kitchenMat, oakMat, screenMat, shelfMat, shownCode, config, storedMats, drawn, 
-  tvMat, worktopMat, aboveHasTv
+  tvMat, worktopMat, tvOn, aboveNow
 } from '../flat_model.js';
 import { wallMat, frameMat, ceilingMat, carpetMat } from '../floor.js';
 import { about, change } from '../living_room.js';
@@ -94,7 +94,7 @@ shelfSelect.addEventListener('change', () => change([['colours.shelves', Number(
 // read from the model's own materials so it follows the choices above. Parts
 // whose materials are local to their drawing code are listed by value.
 function updatePalette() {
-  const { shelves: shelfWood } = config.colours, above = config.pieces.aboveBench.design.what, { option } = config.pieces.cornerCupboard.design;
+  const { shelves: shelfWood } = config.colours, above = aboveNow(), { option } = config.pieces.cornerCupboard.design;
   const current = option === CURRENT_ROOM;                       // the room as it is, no cupboards
   const paintedFront = !islandOnWall() && ['dresser', 'larder'].includes(config.livingRoom.frontWall);   // in the dresser colour
   const hex = m => `#${m.color.getHexString().toUpperCase()}`;
@@ -103,7 +103,7 @@ function updatePalette() {
     ...(paintedFront ? [['Dresser', hex(dresserMat), colourOf(shownCode('dresser')).name]] : []),
     ['Shelves', hex(shelfMat), SHELF_WOODS[shelfWood].name],
     ...(option === 9 ? [['Tower shelves and oak top', hex(oakMat), SHELF_WOODS[shelfWood].name]] : []),
-    ...(aboveHasTv(above) ? [['TV', hex(tvMat)], ['TV screen', hex(screenMat)]] : []),
+    ...(tvOn() ? [['TV', hex(tvMat)], ['TV screen', hex(screenMat)]] : []),
     ['Walls', hex(wallMat), colourOf(shownCode('wall')).name],
     ['Door, frame and sills', hex(frameMat), colourOf(shownCode('woodwork')).name],
     ['Ceiling', hex(ceilingMat), 'Pure Brilliant White, matt'],

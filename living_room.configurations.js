@@ -19,7 +19,7 @@ window.ROOM_CONFIGURATIONS = {
     // measurements: the page's defaults that day
     oct18: { label: '18 October 2026', title: 'The rooms as they are on 18 October 2026: the lounge with no cupboard yet, the tables in the corner by the door',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -140,9 +140,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndShelves",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "shelves",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -394,7 +405,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
-                "tvAbove": false,
                 "chair": "small",
                 "move": null
               }
@@ -722,7 +732,7 @@ window.ROOM_CONFIGURATIONS = {
     // the first window's radiator is where it would go
     option12: { label: 'Option 12', title: 'The lounge like the photo: a 900 × 1150 corner cupboard, as high as the doorway, holding the things to store, a fold-down desk on its side, lit shelves beside it, the bench, the TV and one shelf',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -843,9 +853,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndTopShelf",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "topShelf",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": true,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -1093,7 +1114,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
-                "tvAbove": false,
                 "chair": "small",
                 "move": null
               }
@@ -1380,7 +1400,7 @@ window.ROOM_CONFIGURATIONS = {
     // corner cupboard)
     pretty: { label: 'Pretty', title: 'Option 12 with a 327-deep, 1880-high corner cupboard and the desk on castors parked by the door; the bedroom with the new cupboard as option 8 and its door swinging left',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -1501,9 +1521,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndTopShelf",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "topShelf",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": true,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -1751,7 +1782,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
-                "tvAbove": false,
                 "chair": "small",
                 "move": null
               }
@@ -2075,7 +2105,7 @@ window.ROOM_CONFIGURATIONS = {
     // Pretty's
     daybed: { label: 'Daybed', title: 'Pretty with the daybed on the back wall, its TV above and the speakers on it, an option 11 corner cupboard out to the door frame, and the Merton sofa',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -2196,9 +2226,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndTopShelf",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "topShelf",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": true,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -2446,7 +2487,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": true,
-                "tvAbove": true,
                 "chair": "small",
                 "move": {
                   "x": 2285,
@@ -2772,7 +2812,7 @@ window.ROOM_CONFIGURATIONS = {
     // basket). The things to store packed in the cupboard: 5 of 7 fit
     l1: { label: 'L1 Daybed, chair', title: 'The daybed flush to the window wall (the first radiator out) with the smaller chair at its desk, an option 11 corner cupboard 700 along the back wall and out to the door frame, the dresser',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -2893,9 +2933,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndTopShelf",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "topShelf",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": true,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -3143,7 +3194,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": true,
-                "tvAbove": true,
                 "chair": "small",
                 "move": {
                   "x": 2523,
@@ -3423,7 +3473,7 @@ window.ROOM_CONFIGURATIONS = {
     // store packed in it; otherwise as L1
     l2: { label: 'L2 Daybed, no chair', title: 'The daybed with no chair at its desk, Option 12\'s 900 × 1150 corner cupboard holding the things to store, the dresser',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -3544,9 +3594,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndTopShelf",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "topShelf",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": true,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -3794,7 +3855,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": true,
-                "tvAbove": true,
                 "chair": "none",
                 "move": {
                   "x": 2285,
@@ -4074,7 +4134,7 @@ window.ROOM_CONFIGURATIONS = {
     // bench, its TV and top shelf, the speakers on the bench; otherwise as L1
     l3: { label: 'L3 Bench', title: 'Option 12\'s corner cupboard and side bookshelf holding the things to store, the bench with its TV, top shelf and the speakers, the dresser',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -4195,9 +4255,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndTopShelf",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "topShelf",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": true,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -4445,7 +4516,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
-                "tvAbove": true,
                 "chair": "small",
                 "move": {
                   "x": 2285,
@@ -4726,7 +4796,7 @@ window.ROOM_CONFIGURATIONS = {
     // still in the bedroom; the things to store hidden
     a1n: { label: 'a1 Narrow cupboard', title: 'Route a, step 1: L1\'s narrow corner cupboard, Billy still the bench, the Drift, the pine cupboard still in the bedroom',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -4847,9 +4917,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndShelves",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "shelves",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -5101,7 +5182,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
-                "tvAbove": false,
                 "chair": "small",
                 "move": null
               }
@@ -5420,7 +5500,7 @@ window.ROOM_CONFIGURATIONS = {
     // the things to store packed in it
     a1w: { label: 'a1 Wide cupboard', title: 'Route a, step 1: Option 12\'s 900 × 1150 corner cupboard holding the things to store, Billy still the bench, the Drift',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -5541,9 +5621,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndShelves",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "shelves",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -5795,7 +5886,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
-                "tvAbove": false,
                 "chair": "small",
                 "move": null
               }
@@ -6071,7 +6161,7 @@ window.ROOM_CONFIGURATIONS = {
     // the bench with the speakers on it, the things to store on the floor
     b1: { label: 'b1 Bedroom cupboard', title: 'Route b, step 1: the bedroom\'s new cupboard (option 8), the lounge as today with Billy and the Drift',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -6192,9 +6282,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndShelves",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "shelves",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -6446,7 +6547,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
-                "tvAbove": false,
                 "chair": "small",
                 "move": null
               }
@@ -6765,7 +6865,7 @@ window.ROOM_CONFIGURATIONS = {
     // the corner cupboard); the things to store hidden
     b2: { label: 'b2 Pine, Billy', title: 'Route b: the pine cupboard in the lounge\'s corner by the door, Billy still the bench, the Drift',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -6886,9 +6986,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndShelves",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "shelves",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -7144,7 +7255,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
-                "tvAbove": false,
                 "chair": "small",
                 "move": null
               }
@@ -7463,7 +7573,7 @@ window.ROOM_CONFIGURATIONS = {
     // desk and the speakers on it; the Drift facing the back wall
     p1: { label: 'P1 Pine, daybed', title: 'Route b: the pine cupboard by the door, the daybed flush to the window wall (the radiator out) with the smaller chair, the Drift',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -7584,9 +7694,20 @@ window.ROOM_CONFIGURATIONS = {
           },
           "aboveBench": {
             "design": {
-              "what": "tvAndShelves",
-              "shelfDepth": 250,
-              "tv": 75
+              "what": "shelves",
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -7838,7 +7959,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": true,
-                "tvAbove": false,
                 "chair": "small",
                 "move": {
                   "x": 2523,
@@ -8161,7 +8281,7 @@ window.ROOM_CONFIGURATIONS = {
     // the back wall
     p3: { label: 'P3 Pine, bench', title: 'Route b: the pine cupboard by the door, the bench past it with the speakers, the Drift',
       configuration: {
-        "version": 2,
+        "version": 3,
         "colours": {
           "floor": 0,
           "cupboard": 4,
@@ -8283,8 +8403,19 @@ window.ROOM_CONFIGURATIONS = {
           "aboveBench": {
             "design": {
               "what": "nothing",
-              "shelfDepth": 250,
-              "tv": 75
+              "shelfDepth": 250
+            }
+          },
+          "tv": {
+            "design": {
+              "inches": 75
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "along": null,
+                "bottom": null
+              }
             }
           },
           "deskShelves": {
@@ -8536,7 +8667,6 @@ window.ROOM_CONFIGURATIONS = {
             "in": {
               "livingRoom": {
                 "on": false,
-                "tvAbove": false,
                 "chair": "small",
                 "move": null
               }

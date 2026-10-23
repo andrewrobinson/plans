@@ -29,6 +29,14 @@ by its word, the schema's entries a path each), and the controls tests
 from the page as it opens. Each step kept what the page does (no snapshot
 or screenshot changes) unless it said otherwise.
 
+### The TV out of `model/bench_wall.js` (noted 24 Oct 2026, mobile-first)
+
+The TV became a piece of its own (`tvSpot`, `tvPiece`, `drawTv`, `tvOn`,
+`daybedTv`), which took `bench_wall.js` to 320 lines. It could move to a
+`model/tv.js` of its own, `TV_SIZES` and the TV's width and height with
+it; `benchWallItems()` would take the TV's spot and size from there. No
+change to what the page does.
+
 ### Cheaper changes (agreed 22 Oct 2026)
 
 Changes had started to feel expensive in run time, test time and tokens

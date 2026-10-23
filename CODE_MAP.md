@@ -48,7 +48,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `model/settings.js` | 250 | The schema (`SCHEMA`), reading and writing a configuration, `set`, `get`, `setAll`, `DEFAULT_CONFIGURATION` |
 | `model/kitchen.js` | 200 | `KITCHEN`, which island and where it stands (`ISLAND_TYPES`, `islandSize`, `placeIsland`), the desk and monitors in the desk recess and the shelves over them (`deskShelves`), the office chair, the room door |
 | `model/cupboards.js` | 175 | The two corner cupboards: `buildOption`, `buildBedroomCupboard`, `cupboardLimits`, the bedroom door they clear, `drawBench` |
-| `model/bench_wall.js` | 230 | The back wall: `benchWall`, the TV and shelves (`benchHeights`, `drawTv`), base cupboards, Billy, the pine cupboard, the daybed (`BACK_WALL_PIECES`) |
+| `model/bench_wall.js` | 315 | The back wall: the bench (drawn whenever it's on, `benchDrawn`), its shelves (`benchWall`, `aboveNow`), the TV, a piece of its own (`tvSpot`, `tvPiece`, `drawTv`, `tvOn`), base cupboards, Billy, the pine cupboard, the daybed (`BACK_WALL_PIECES`) |
 | `model/colours.js` | 75 | `FINISHES`, `COLOUR_TARGETS`, `applyColour` |
 | `model/front_wall.js` | 285 | The dresser, larder, sofa, front wall and bookcase: `DRESSERS`, `LARDERS`, `SOFAS`, `frontWall` |
 | `model/loose_pieces.js` | 310 | The daybed desk's chair and what's in its way, the first radiator, Ivar, the tables, the castor desk, the speakers |

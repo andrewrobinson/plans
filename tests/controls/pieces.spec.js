@@ -244,6 +244,7 @@ test('the speakers stand on Billy, the bench or the corner cupboard', async ({ p
   await slide(page, 'speakerSpacing', 1200);
   expect(await setting(page, 'pieces.speakers.in.livingRoom.spacing')).toEqual({ bench: null, billy: 1200, deskDaybed: null });
   await BENCH(page);
+  await toggle(page, 'tvOn', true);                                         // the TV over the bench, a piece of its own
   await expect(page.locator('#summary')).toContainText('No speakers: they go on Billy, which isn\'t in the lounge');
   await putOn('bench');
   await expect(page.locator('#speakerSpacingValue')).toHaveText('2050');   // the 75" TV's 1680, 100 clear each side
@@ -295,10 +296,10 @@ test('the daybed with a desk stands on the back wall, its desk at either end', a
   expect(await setting(page, 'pieces.deskDaybed.in.livingRoom.move')).toEqual({ x: 1315, y: 1500, turn: 0 });
   await page.locator('#deskDaybedHome').click();
   expect(await setting(page, 'pieces.deskDaybed.in.livingRoom.move')).toBe(null);
-  // The TV above it, sized by the TV size slider, shown with it; and the
-  // speakers on it, either side of the TV
+  // The TV, on, goes above it (there's no bench), its sliders shown with
+  // it; and the speakers on it, either side of the TV
   await expect(page.locator('#tvBlock')).toBeHidden();
-  await toggle(page, 'deskDaybedTv', true);
+  await toggle(page, 'tvOn', true);
   await expect(page.locator('#tvBlock')).toBeVisible();
   await expect(page.locator('#summary')).toContainText('Above the daybed: a 75" TV (1680 × 960), centred on its bed');
   await page.locator('input[name=speakersOn][value=deskDaybed]').evaluate(el => { el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true })); });

@@ -118,8 +118,19 @@ test.describe('sliders, to each end and back', () => {
   test('the bench', async ({ page }) => {
     await BENCH(page);
     await endsAndBack(page, 'shelfDepth', at('pieces.aboveBench.design.shelfDepth'));
+  });
+
+  // The TV, a piece of its own (24 Oct 2026): its size, and where on the back wall
+  test('the TV', async ({ page }) => {
+    await BENCH(page);
+    await toggle(page, 'tvOn', true);
     const TV = { 0: [32, '32" (720 × 440)'], 14: [86, '86" (1930 × 1110)'] };   // the ends of TV_SIZES
-    await endsAndBack(page, 'tvSize', at('pieces.aboveBench.design.tv'), { text: v => TV[v][1], setting: v => TV[v][0] });
+    await endsAndBack(page, 'tvSize', at('pieces.tv.design.inches'), { text: v => TV[v][1], setting: v => TV[v][0] });
+    // (moved, it's set where it was, not on its own: Reset location puts that back)
+    await endsAndBack(page, 'tvAlong', at('pieces.tv.in.livingRoom.along'), { back: false });
+    await endsAndBack(page, 'tvBottom', at('pieces.tv.in.livingRoom.bottom'), { back: false });
+    await page.locator('#tvHome').click();
+    expect(await setting(page, 'pieces.tv.in.livingRoom')).toEqual({ on: true, along: null, bottom: null });
   });
 
   test('the dresser', async ({ page }) => {

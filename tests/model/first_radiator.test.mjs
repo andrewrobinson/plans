@@ -11,7 +11,7 @@ const DEFAULT = structuredClone(buildFlat({ version: 2 }).configuration);   // t
 function withDaybed(x, firstRadiator = true) {
   const c = structuredClone(DEFAULT);
   for (const key of ['billy', 'billyChest', 'ivar']) c.pieces[key].in.livingRoom.on = false;
-  c.pieces.deskDaybed.in.livingRoom = { on: true, tvAbove: false, chair: 'none', move: { x, y: 0, turn: 0 } };
+  c.pieces.deskDaybed.in.livingRoom = { on: true, chair: 'none', move: { x, y: 0, turn: 0 } };
   c.livingRoom.firstRadiator = firstRadiator;
   return c;
 }

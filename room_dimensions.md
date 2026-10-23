@@ -177,7 +177,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
 
 ```json
 {
-  "version": 2,
+  "version": 3,
   "colours": { "floor": 0, "cupboard": 4, "wall": 0, "woodwork": 0, "dresser": 0, "carpet": 0, "bedroomCupboard": 0, "shelves": 0 },
   "livingRoom": { "frontWall": "dresser" },
   "pieces": {
@@ -188,7 +188,8 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
       "CORNER_W": 800, "CORNER_D": 650, "SIDE_SHELF": false, "SIDE_W": 400, "SIDE_D": 330 } },
     "bedroomCupboard": { "design": { "option": 10, "…": "as the cornerCupboard's" }, "in": { "bedroom": { "on": false } } },
     "bench": { "design": { "height": 780 }, "in": { "livingRoom": { "on": true } } },
-    "aboveBench": { "design": { "what": "tvAndShelves", "shelfDepth": 250, "tv": 75 } },
+    "aboveBench": { "design": { "what": "shelves", "shelfDepth": 250 } },
+    "tv": { "design": { "inches": 75 }, "in": { "livingRoom": { "on": true, "along": null, "bottom": null } } },
     "sofa": { "design": { "model": "none", "w": 1690, "d": 1000, "h": 920, "asBed": false }, "in": { "livingRoom": { "front": 1900, "move": null } } },
     "pineCupboard": { "design": { "w": 1300, "d": 500, "h": 1790 },
       "in": { "bedroom": { "on": true, "u": 3682, "v": 1901, "turn": 90 },
@@ -203,7 +204,7 @@ The default page's configuration, shortened (`tests/configs/default.json` has al
 }
 ```
 
-- **`version`**: 2. It goes up only when a setting changes its path or meaning (not when one is added): 2 since the doors went into the view (22 Oct 2026). Version 1 had them as `doors`, and is still read, its doors as the view's. A configuration of any other version isn't read: the page says so in the console and starts as it is.
+- **`version`**: 3. It goes up only when a setting changes its path or meaning (not when one is added): 2 since the doors went into the view (22 Oct 2026), 3 since the TV became a piece of its own, `pieces.tv` (24 Oct 2026). Version 1 had the doors as `doors`, and is still read, its doors as the view's. Version 2 had the TV in `pieces.aboveBench.design` (`what`: `tv`, `tvAndShelves` or `tvAndTopShelf`, and its size as `tv`) and as the daybed's `tvAbove`, and is still read: the TV's on where it showed, and `what` keeps the shelves (`nothing`, `shelves` or `topShelf`). A configuration of any other version isn't read: the page says so in the console and starts as it is.
 - **`colours`**: a code for each colour box. 0 is the default (the room as it is now); 1 to 13 are the room's finishes, the named cupboard colours and the carpet's (see "The room's finishes"); four-figure codes are RAL colours. `shelves` is the shelf colour, 0 to 3 as listed in the table above.
 - **`livingRoom.frontWall`**: what's on the front wall between the sink and the desk: `dresser`, `larder`, `none` or `bookshelf`.
 - **`bedroom.door`**: the bedroom door: `swings`, `right` or `left` going in; `mustOpenTo`, 45 to 90, how far it must open swinging left; `swingShown`, its swing drawn on the floor.

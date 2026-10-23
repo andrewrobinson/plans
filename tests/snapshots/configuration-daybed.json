@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "version": 2,
+    "version": 3,
     "colours": {
       "floor": 0,
       "cupboard": 4,
@@ -121,9 +121,20 @@
       },
       "aboveBench": {
         "design": {
-          "what": "tvAndTopShelf",
-          "shelfDepth": 250,
-          "tv": 75
+          "what": "topShelf",
+          "shelfDepth": 250
+        }
+      },
+      "tv": {
+        "design": {
+          "inches": 75
+        },
+        "in": {
+          "livingRoom": {
+            "on": true,
+            "along": null,
+            "bottom": null
+          }
         }
       },
       "deskShelves": {
@@ -371,7 +382,6 @@
         "in": {
           "livingRoom": {
             "on": true,
-            "tvAbove": true,
             "chair": "small",
             "move": {
               "x": 2285,
@@ -853,7 +863,7 @@
     ]
   },
   "dimensions": [],
-  "description": "A 2010-high cupboard in the corner, 540 along the back wall and 1329 out along the left wall, right up to the door frame, with a pair of 481 doors on its side, facing the windows, where it's clear of the 340-deep bench (y 340-1329). Behind the doors it runs back to the back wall, behind the bench end. Bench 3298, from x = 540, 340 deep. Inside, within its 18 boards (rear panels against the walls included): 504 × 1293, 1974 high. The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high), moved: the middle of its back at x 2285, y 0, facing the front wall. Above the bench: a 75\" TV (1680 × 960), centred on the 3298 of clear wall, from 1100 to 2060. A 250-deep shelf right across above it, 3298 long, at 2210. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.): 1690 wide, 1000 deep, 920 high, its seat at 505. Its front is 1900 from the TV wall (x 1344-3034, y 1900-2900). Behind it, 41 to the island. The speakers (Argon Fenris A5, 170 wide, 220 deep, 280 high) on the daybed's bookcase, either side of the TV above it, their middles 2050 apart. At the daybed's desk there's 408 from its end to the corner cupboard. Pulled up to it, the smaller armless chair (drawn) reaches 430 past it, 22 short; the office chair reaches 470 past it, 62 short.From option 11 (new)",
+  "description": "A 2010-high cupboard in the corner, 540 along the back wall and 1329 out along the left wall, right up to the door frame, with a pair of 481 doors on its side, facing the windows, where it's clear of the 340-deep bench (y 340-1329). Behind the doors it runs back to the back wall, behind the bench end. Bench 3298, from x = 540, 340 deep. Inside, within its 18 boards (rear panels against the walls included): 504 × 1293, 1974 high. The daybed with a desk and bookcase, its desk at the left end (2630 wide, 1140 deep, 1000 high), moved: the middle of its back at x 2285, y 0, facing the front wall. Above the bench: a 75\" TV (1680 × 960), centred on the 3298 of clear wall, from 1100 to 2060. A 250-deep shelf right across above it, 3298 long, at 2210. A sofa facing the TV, the Merton 2 Seater (Habitat x Morris & Co.): 1690 wide, 1000 deep, 920 high, its seat at 505. Its front is 1900 from the TV wall (x 1344-3034, y 1900-2900). Behind it, 41 to the island. The speakers (Argon Fenris A5, 170 wide, 220 deep, 280 high) on the daybed's bookcase, centred on its bed, their middles 1500 apart. At the daybed's desk there's 408 from its end to the corner cupboard. Pulled up to it, the smaller armless chair (drawn) reaches 430 past it, 22 short; the office chair reaches 470 past it, 62 short.From option 11 (new)",
   "boxes": {
     "livingRoom": {
       "from": [
@@ -915,12 +925,12 @@
     "castorDesk.livingRoom": null,
     "speakers.livingRoom": {
       "from": [
-        1231,
+        1506,
         20,
         1000
       ],
       "to": [
-        3451,
+        3176,
         242,
         1280
       ],

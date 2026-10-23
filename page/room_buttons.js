@@ -12,13 +12,13 @@ import { shoeBoxesControls } from '../shoe_boxes.js';
 import { garage, garageControls } from '../garage.js';
 import {
   settle, BACK_WALL_KEYS, TV_H, TV_SIZES, TV_W, benchDrawn, optionOf, config, 
-  inLivingRoom, bedroomDoorText
+  inLivingRoom, bedroomDoorText, tvSpotNow
 } from '../flat_model.js';
 import { display } from './display.js';
 import { hallway } from '../floor.js';
 import {
   backWallSwitches, bedroomCupboardControls, benchSwitch, billyLying, builtInViews, change, controls, 
-  deskDaybedChair, deskDaybedRight, deskDaybedTv, draw, firstRadiatorSwitch, loungeCupboard, refreshColours, 
+  deskDaybedChair, deskDaybedRight, draw, firstRadiatorSwitch, tvOnSwitch, loungeCupboard, refreshColours, 
   renderer, resize, setCupboardOnly, showBookshelfSizes, showDresser, showLarder, showShelfWood, showSofa, 
   turnDoorsTo, viewKit
 } from '../living_room.js';
@@ -226,7 +226,7 @@ for (const sec of DRAWER_SECTIONS) {
 
 function syncControls() {
   settle();                                                     // the TV's size and the colours, worked out
-  const BENCH = config.pieces.bench.design.height, { what: above, shelfDepth, tv } = config.pieces.aboveBench.design;
+  const BENCH = config.pieces.bench.design.height, { what: above, shelfDepth } = config.pieces.aboveBench.design, tv = config.pieces.tv.design.inches;
   const { frontWall: frontPiece } = config.livingRoom, island = config.pieces.island.in.livingRoom;
   const slide = (id, value, text = value) => {
     document.getElementById(id).value = String(value);
@@ -240,7 +240,6 @@ function syncControls() {
   for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = inLivingRoom(key).on;
   billyLying.checked = config.pieces.billy.in.livingRoom.lying;
   deskDaybedRight.checked = config.pieces.deskDaybed.design.deskAt === 'right';
-  deskDaybedTv.checked = config.pieces.deskDaybed.in.livingRoom.tvAbove;
   for (const radio of deskDaybedChair) radio.checked = radio.value === config.pieces.deskDaybed.in.livingRoom.chair;
   showBookshelfSizes();
   check('bench', BENCH);
@@ -251,6 +250,11 @@ function syncControls() {
   slide('deskShelfDepth', deskShelves.depth);
   document.getElementById('deskShelfBlock').style.display = deskShelves.count ? '' : 'none';
   slide('tvSize', TV_SIZES.findIndex(([inches]) => inches === tv), `${tv}" (${TV_W} × ${TV_H})`);
+  // The TV: on or not, and where it is, set or as it goes on its own
+  tvOnSwitch.checked = config.pieces.tv.in.livingRoom.on;
+  const tvAt = tvSpotNow();
+  slide('tvAlong', Math.round(tvAt.middle));
+  slide('tvBottom', Math.round(tvAt.bottom));
   refreshColours();
   showShelfWood();
   check('frontPiece', frontPiece);
