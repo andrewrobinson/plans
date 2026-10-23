@@ -49,7 +49,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `garage.js` | 460 | The garage, what's in it, and Garage options' sliders |
 | `stair_walls.js`, `shoe_boxes.js` | 415, 235 | The shelves and pictures over the stairs; the shoe boxes on the sills |
 | `wicker_bench.js`, `shoe_rack.js` | 275, 315 | The hallway's wicker bench; the shoe rack downstairs |
-| `bedroom_door.js` | 65 | The bedroom door's swing |
+| `bedroom_door.js` | 50 | The bedroom door, both ways it can swing, as `kit/door_kit.js`'s doors (`DOOR_SWINGS`), and how far it sweeps into the room (`sweepInto`, `opensTo`) |
 | `tornviken.js`, `rosentorp.js`, `loshult.js`, `ekby_alex.js` | 170, 45, 35, 35 | The kitchen island (IKEA's TORNVIKEN): its layouts, IKEA's, facing, trolleys and drawers (`ISLAND_LAYOUTS`), and where its chairs go (`placeTornviken`); its bar stools (ROSENTORP), trolleys (LOSHULT) and drawers (EKBY ALEX). Photos in `images/tornvikken_options/` |
 | `custom_island.js` | 105 | The custom built-in island from Howdens' plan, in place of TORNVIKEN: drawers both sides, the worktop running on past them for two ROSENTORP stools, its length, width and overhang from sliders (`CUSTOM_ISLAND`, `customIsland`, `placeCustomIsland`). The plan and renders in `images/custom_island/` |
 | Furniture: `billy.js`, `bookcase.js`, `castor_desk.js`, `daybed.js`, `desk_daybed.js`, `ivar.js`, `knarrevik.js`, `kvistbro.js`, `laundry_basket.js`, `speakers.js`, `tables.js`, `work_chairs.js` | 25 to 115 | One piece each, drawn wherever it stands |
@@ -65,6 +65,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `kit/configuration_kit.js` | 105 | The Configuration list |
 | `kit/controls_kit.js` | 80 | Sliders, switches and the number boxes beside them: `slider`, `numberBoxes`, `resetButtons` |
 | `kit/tabs_kit.js` | 90 | The long drawers' tabs |
+| `kit/door_kit.js` | 150 | A hinged door in plan, for any room (`planDoor`): its outline at an angle, what it sweeps, how far it opens before something (in whole degrees, `OPEN_STEP`), its gap to a shape in line with it, and its swing marked on the floor (`swingMark`); convex `overlap` and `clip`. The bedroom door, the shoe rack's internal door and option 8's room door use it |
 
 ## Tests
 

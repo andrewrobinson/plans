@@ -48,7 +48,7 @@ import {
   drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard, QUARTER_TURN, 
   OTHER_ROOM_SCHEMA
 } from './other_room.js';
-import { DOOR_SWINGS, SWING_WAYS, sweepInto, opensTo } from './bedroom_door.js';
+import { DOOR_SWINGS, SWING_WAYS } from './bedroom_door.js';
 import { drawWickerBench, wickerBenches, WICKER_BENCH_START, WICKER_BENCH_SCHEMA } from './wicker_bench.js';
 import { drawShoeRack, shoeRack, SHOE_RACK_START, SHOE_RACK_SCHEMA } from './shoe_rack.js';
 import { drawStairWalls, settleStairWalls, STAIR_WALLS_START, STAIR_WALLS_SCHEMA } from './stair_walls.js';
@@ -191,7 +191,7 @@ export function build(onShow = optionsOnShow()) {
   drawStairWalls(config.hallway);                             // the shelves and pictures over the stairs
   drawShoeBoxes(config.hallway.shoeBoxes);                    // and the shoe boxes on the sills
   bathroom.visible = config.hallway.bathroomShown;                       // the bathroom and WC, or not
-  drawBedroomDoorSwing(bedroomDoor().swings, mustOpenTo(), bedroomDoor().swingShown);   // what the bedroom cupboard keeps clear of
+  drawBedroomDoorSwing(DOOR_SWINGS[bedroomDoor().swings], mustOpenTo(), bedroomDoor().swingShown);   // what the bedroom cupboard keeps clear of
   drawGarage(config, config.pieces.pineCupboard.design);           // Sean, Billy, BillyChest and the rest, in the garage
   placeStored();                                                // the cupboard they go in may have changed
   return { option, same, aboveText };

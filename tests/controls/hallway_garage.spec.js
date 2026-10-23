@@ -327,7 +327,7 @@ test.describe('the shoe rack', () => {
     expect(await setting(page, 'pieces.shoeRack.design')).toEqual({ w: 460, d: 300, h: 1290, bevel: false, slope: 45, shoes: true, bevelDoor: 80 });
     await expect(page.locator('#shoeRack_w')).toBeEnabled();
     await expect(page.locator('#shoeRack_bevelDoor')).toBeHidden();
-    await expect(page.locator('#shoeRack_door')).toContainText('opens to 65.5°');  // the door stops on its corner
+    await expect(page.locator('#shoeRack_door')).toContainText('opens to 65°');  // the door stops on its corner (in whole degrees, kit/door_kit.js's OPEN_STEP)
     await slide(page, 'shoeRack_slope', 0);
     await expect(page.locator('#shoeRack_fits')).toContainText('sticks out 15');    // a UK 11, about 315, on 300
     await slide(page, 'shoeRack_d', 200);

@@ -23,6 +23,7 @@
 // from it, z up), and gives what's asked of it. REFACTOR_PLAN.md step 6d.
 import * as THREE from 'three';
 import { MM, material, box, slab, part, skewHinge, dimLabel, chain } from './kit/floor_kit.js';
+import { planDoor } from './kit/door_kit.js';
 
 // A cupboard's own materials: its boards (carcass), shelves and doors, the
 // handles, and option 9's and 10's oak shelves and light strips. Each
@@ -415,23 +416,19 @@ export function diagonal(settings) {
 }
 
 // The gap between option 8's left door, opened to 90°, and the room's door
-// opened into the room (its hinge at y door.hingeAt on the left wall, so it
-// stands door.thickness thick and door.width out from the wall); below 0
-// they clash. The open door points straight out from the front, so sample
-// its outline there.
+// opened into the room as far (its hinge at y door.hingeAt on the left
+// wall, running +y shut), both kit/door_kit.js's doors: how far past the
+// room door's free edge the left door is, in line with it; below 0 they
+// clash.
+const BOTH_OPEN = 90;
 function roomDoorGap(settings, { door: roomDoor }) {
   const { BOARD } = settings;
   const { from, ux, uy, door } = diagonal(settings);
   const ox = -uy, oy = ux;                                      // out of the cupboard
-  const x0 = from[0] + DOOR_GAP * ux + BOARD * ox, y0 = from[1] + DOOR_GAP * uy + BOARD * oy;   // the left door's hinge (doorRow())
-  let nearest = Infinity;
-  for (let a = 0; a <= door; a += 1) {
-    for (const b of [0, BOARD]) {                                  // the door's two faces, BOARD apart
-      const x = x0 + a * ox + b * ux, y = y0 + a * oy + b * uy;
-      if (y >= roomDoor.hingeAt && y <= roomDoor.hingeAt + roomDoor.thickness) nearest = Math.min(nearest, x);
-    }
-  }
-  return nearest === Infinity ? Infinity : Math.round(nearest - roomDoor.width);
+  const hinge = [from[0] + DOOR_GAP * ux + BOARD * ox, from[1] + DOOR_GAP * uy + BOARD * oy];   // the left door's hinge (doorRow())
+  const leftDoor = planDoor({ hinge, width: door, thick: BOARD, shut: [ux, uy], turn: 1 });   // shut along the front, opening out of it
+  const roomsDoor = planDoor({ hinge: [0, roomDoor.hingeAt], width: roomDoor.width, thick: roomDoor.thickness, shut: [0, 1], turn: -1 });
+  return Math.round(roomsDoor.clearBeyond(BOTH_OPEN, leftDoor.outline(BOTH_OPEN)));
 }
 
 // Option 8's carcass: rear panels and ends as option 7's, and a top and

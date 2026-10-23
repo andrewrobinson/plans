@@ -75,15 +75,13 @@ factories, long for their small inner functions: `flatViews()` and
 
 Each is one rule, written again in each room's own names. Not agreed yet.
 
-- **Door swings**, four times: `bedroom_door.js` (`sweepInto`, `opensTo`),
-  `floor.js`'s `drawBedroomDoorSwing` (the same door's arc again, its
-  hinge from `OTHER_ROOM` rather than `DOOR_SWINGS`), `shoe_rack.js`
-  (`doorAt`, `doorOutline`, `doorOpensTo`, the bevel), and
-  `corner_cupboard.js`'s `roomDoorGap`. Steps of 1° and 0.5°. One door in
-  `kit/` (hinge, width, thickness, way, stop) giving its outline at an
-  angle, what it sweeps, how far it opens before a shape, and its mark
-  on the floor.
-- **Overlap tests**, about six: `shoe_rack.js`'s `overlap` (outlines),
+- **Door swings**: done (23 Oct 2026). One door in `kit/door_kit.js`
+  (`planDoor`), used by the bedroom door's limit and its mark on the
+  carpet, the shoe rack's door and bevel, and option 8's gap to the room
+  door; every door opened in whole degrees. Changed: the shoe rack's door
+  without the bevel opens to 65° (was 65.5°), option 8's gap is 93 (was
+  94, now measured exactly).
+- **Overlap tests**, about six: `kit/door_kit.js`'s `overlap` (outlines, from `shoe_rack.js`),
   `stair_walls.js`'s (spans on a wall), `model/loose_pieces.js`'s
   `overlaps` and `obstacles` (boxes), `corner_cupboard.js`'s shelf
   `clash`, `model/stored.js`'s fits test (points). One set in `kit/`.

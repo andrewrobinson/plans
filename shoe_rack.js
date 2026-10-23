@@ -17,6 +17,7 @@ import * as Config from './kit/config_kit.js';
 import { SIZE_LABEL, slider } from './kit/controls_kit.js';
 import { hallway, HALLWAY, ENTRANCE } from './floor.js';
 import { QUARTER_TURN } from './other_room.js';
+import { planDoor, clip } from './kit/door_kit.js';
 
 // ---------------------------------------------------------------------------
 // Its sizes, in mm: the user's conclusion (15 Oct 2026), to fit a pair of
@@ -66,17 +67,11 @@ const onFoot = (w, [x, y]) => [y, w / 2 - x];
 // ---------------------------------------------------------------------------
 // The internal door, on the foot's floor: hinged at the back wall's end of
 // its opening, it turns from lying along its wall (0°) to across the foot
-// (90°). Its leading face runs from the hinge; its thickness trails behind.
-// At `deg`: how far a point is ahead of that face, the way it swings
-// (`ahead`), and how far out along it from the hinge (`out`)
+// (90°), as kit/door_kit.js's door: DOOR.at(deg) says how far a point is
+// ahead of its leading face (`ahead`) and out along it (`out`)
 // ---------------------------------------------------------------------------
-const HINGE = [ENTRANCE.flatDoor.fromBackWall, FOOT_WIDTH];
-function doorAt(deg) {
-  const t = THREE.MathUtils.degToRad(deg), along = [Math.cos(t), -Math.sin(t)], lead = [-Math.sin(t), -Math.cos(t)];
-  const rel = ([a, b]) => [a - HINGE[0], b - HINGE[1]];
-  const dot = (u, v) => u[0] * v[0] + u[1] * v[1];
-  return { ahead: p => dot(rel(p), lead), out: p => dot(rel(p), along) };
-}
+const DOOR = planDoor({ hinge: [ENTRANCE.flatDoor.fromBackWall, FOOT_WIDTH], width: ENTRANCE.flatDoor.width, thick: ENTRANCE.doorT,
+  shut: [1, 0], turn: -1, stopsAt: 90 });
 
 // ---------------------------------------------------------------------------
 // The bevel (asked for, 15 Oct 2026): the rack is as wide as it can be, the
@@ -94,7 +89,7 @@ export const widthOf = s => (s.bevel ? FOOT_WIDTH : s.w);
 // door at `deg` has swept what it reaches: the part still ahead of its
 // face (by BEVEL_GAP), and the part beyond its end
 function aroundTheDoor(points, w, deg) {
-  const door = doorAt(deg), reach = ENTRANCE.flatDoor.width + BEVEL_GAP;
+  const door = DOOR.at(deg), reach = ENTRANCE.flatDoor.width + BEVEL_GAP;
   const ahead = p => door.ahead(onFoot(w, p)) - BEVEL_GAP;              // >= 0: not swept yet
   const beyond = p => door.out(onFoot(w, p)) - reach;                    // >= 0: past its end
   return [clip(points, ahead), clip(clip(points, beyond), p => -ahead(p))].filter(o => o.length >= 3);
@@ -102,7 +97,7 @@ function aroundTheDoor(points, w, deg) {
 // With the bevel, how wide the rack's front edge is left, in mm, to the
 // nearest one: its points not swept by the door
 export function frontLeft(s, deg) {
-  const w = widthOf(s), door = doorAt(deg), reach = ENTRANCE.flatDoor.width + BEVEL_GAP;
+  const w = widthOf(s), door = DOOR.at(deg), reach = ENTRANCE.flatDoor.width + BEVEL_GAP;
   let kept = 0;
   for (let x = -w / 2 + 0.5; x < w / 2; x++) {
     const p = onFoot(w, [x, s.d]);
@@ -110,50 +105,10 @@ export function frontLeft(s, deg) {
   }
   return kept;
 }
-// An outline less the part where f < 0, f being straight (Sutherland-Hodgman)
-function clip(points, f) {
-  const out = [];
-  points.forEach((p, i) => {
-    const q = points[(i + 1) % points.length], fp = f(p), fq = f(q);
-    if (fp >= 0) out.push(p);
-    if (fp * fq < 0) {
-      const t = fp / (fp - fq);
-      out.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]);
-    }
-  });
-  return out;
-}
-
-// How far the door opens before it meets the rack, uncut, in degrees to
-// the nearest DOOR_STEP, up to its 90°: each angle tried in turn until the
-// door's outline overlaps the rack's
-const DOOR_STEP = 0.5;             // degrees between the angles tried (chosen)
+// How far the door opens before it meets the rack, uncut, in degrees, up
+// to its 90°
 export function doorOpensTo({ w, d }) {
-  const rackOutline = [[-w / 2, 0], [w / 2, 0], [w / 2, d], [-w / 2, d]].map(p => onFoot(w, p));
-  let open = 0;
-  for (let deg = DOOR_STEP; deg <= 90; deg += DOOR_STEP) {
-    if (overlap(doorOutline(deg), rackOutline)) break;
-    open = deg;
-  }
-  return open;
-}
-function doorOutline(deg) {
-  const t = THREE.MathUtils.degToRad(deg), along = [Math.cos(t), -Math.sin(t)], lead = [-Math.sin(t), -Math.cos(t)];
-  const at = (l, k) => [HINGE[0] + l * along[0] + k * lead[0], HINGE[1] + l * along[1] + k * lead[1]];
-  return [at(0, 0), at(ENTRANCE.flatDoor.width, 0), at(ENTRANCE.flatDoor.width, -ENTRANCE.doorT), at(0, -ENTRANCE.doorT)];
-}
-// Whether two convex outlines overlap: they don't if some edge of either
-// has the other wholly on its far side (separating axes)
-function overlap(p, q) {
-  for (const poly of [p, q]) {
-    for (let i = 0; i < poly.length; i++) {
-      const [x0, y0] = poly[i], [x1, y1] = poly[(i + 1) % poly.length], axis = [y0 - y1, x1 - x0];
-      const span = pts => pts.map(([x, y]) => x * axis[0] + y * axis[1]);
-      const sp = span(p), sq = span(q);
-      if (Math.max(...sp) <= Math.min(...sq) || Math.max(...sq) <= Math.min(...sp)) return false;
-    }
-  }
-  return true;
+  return DOOR.opensClearOf([[-w / 2, 0], [w / 2, 0], [w / 2, d], [-w / 2, d]].map(p => onFoot(w, p)));
 }
 
 // The sliders, as other_room.js's: [key in the rack (rackOf()), label, lowest,

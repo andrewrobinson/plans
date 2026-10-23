@@ -6,6 +6,7 @@
 // the materials the colours menu changes, for living_room.js.
 import * as THREE from 'three';
 import { MM, material, box, slab, hinge, skewHinge, oakBoards } from './kit/floor_kit.js';
+import { swingMark } from './kit/door_kit.js';
 
 export const floor = new THREE.Group();
 
@@ -488,24 +489,14 @@ function drawBedroomShell() {
 }
 
 // The bedroom door's swing, on the carpet: the floor its free edge sweeps
-// going from shut to `degrees`, swinging `swings` ('right' or 'left', as
-// bedroom_door.js has it), or nothing unless `shown`. It shows what a
+// going from shut to `degrees`, for `door` (one of bedroom_door.js's
+// DOOR_SWINGS), or nothing unless `shown`. It shows what a
 // cupboard along the kitchen-side wall has to keep clear of
-function drawBedroomDoorSwing(swings, degrees, shown) {
+function drawBedroomDoorSwing(door, degrees, shown) {
   if (bedroomDoorSwing) otherRoom.remove(bedroomDoorSwing);
   bedroomDoorSwing = null;
   if (!shown) return;
-  const { doorFrom, doorTo, door } = OTHER_ROOM;
-  const hingeU = swings === 'right' ? doorFrom : doorTo, toward = swings === 'right' ? 1 : -1;   // the door runs +u from its hinge, shut, or -u
-  const outline = new THREE.Shape();
-  outline.moveTo(hingeU * MM, 0);
-  for (let a = 0; a <= degrees; a++) {
-    const rad = THREE.MathUtils.degToRad(a);
-    outline.lineTo((hingeU + toward * door.width * Math.cos(rad)) * MM, door.width * Math.sin(rad) * MM);
-  }
-  bedroomDoorSwing = new THREE.Mesh(new THREE.ShapeGeometry(outline), doorSwingMat);
-  bedroomDoorSwing.rotation.x = Math.PI / 2;                     // lying flat: the shape's y along v
-  bedroomDoorSwing.position.y = SWING_ABOVE_CARPET * MM;
+  bedroomDoorSwing = swingMark(door, degrees, doorSwingMat, SWING_ABOVE_CARPET);
   otherRoom.add(bedroomDoorSwing);
 }
 
