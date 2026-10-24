@@ -14,7 +14,7 @@
 import * as THREE from 'three';
 import { MM } from '../../kit/floor_kit.js';
 import {
-  config, drawn, pieces, spotOf, ivarSpot, tableSpot, castorDeskSpot, sofaHome, currentSofa, ROOM_BOXES
+  config, drawn, pieces, spotOf, ivarSpot, tableSpot, castorDeskSpot, sofaHome, currentSofa, ROOM_BOXES, CURRENT_ROOM
 } from '../../flat_model.js';
 import { otherRoomPieces, settingPath, WALLS } from '../../other_room.js';
 import { wickerBenches } from '../../wicker_bench.js';
@@ -30,9 +30,25 @@ const at = path => path.split('.').reduce((o, k) => o?.[k], config);
 // ---------------------------------------------------------------------------
 // The picker's Other folder, for the less important pieces (asked for, 24 Oct 2026)
 const OTHER = { key: 'other', name: 'Other', icon: 'folder' };
+// The lounge's corner cupboard, in or out: in, it's the option last chosen
+// (10 to start, as the bedroom's copy starts); out, the room as it is
+// (CURRENT_ROOM). Its `on` is the option, `isIn` and `inValue` read and set
+// it as a switch
+const CUPBOARD_OPTION = 'pieces.cornerCupboard.design.option';
+const FIRST_CUPBOARD = 10;         // the option it comes in as till one's chosen (chosen)
+let lastCupboard = FIRST_CUPBOARD;
+const CORNER_CUPBOARD = { key: 'cornerCupboard', name: 'Corner cupboard', short: 'Cupboard', icon: 'layout-board', on: CUPBOARD_OPTION,
+  place: 'pieces.cornerCupboard.design', fixed: true, object: () => null,
+  isIn: () => {
+    const option = at(CUPBOARD_OPTION);
+    if (option !== CURRENT_ROOM) lastCupboard = option;          // kept, to come back as
+    return option !== CURRENT_ROOM;
+  },
+  inValue: on => (on ? lastCupboard : CURRENT_ROOM) };
 const lounge = (key, name, icon, place, spot, object, more = {}) =>
   ({ key, name, icon, place, on: `${place}.on`, spot, moveTo: s => [[`${place}.move`, s]], object, ...more });
 const LOUNGE = [
+  CORNER_CUPBOARD,
   lounge('billy', 'Billy', 'books', 'pieces.billy.in.livingRoom', () => spotOf('billy'), () => drawn.backWall.billy),
   lounge('billyChest', 'BillyChest', 'archive', 'pieces.billyChest.in.livingRoom', () => spotOf('billyChest'), () => drawn.backWall.billyChest, { short: 'Chest', folder: OTHER }),
   lounge('ivar', 'Ivar', 'layout-columns', 'pieces.ivar.in.livingRoom', ivarSpot, () => pieces.ivar, { folder: OTHER }),
@@ -97,6 +113,9 @@ const STORED = { key: 'stored', name: 'Things to store', short: 'Stored', icon: 
   room: 'livingRoom', fixed: true, viaSwitch: 'storedToggle', object: () => null };
 
 const BEDROOM = [
+  // A fitted corner cupboard in the pine cupboard's place, in or out only: first, the most important
+  { key: 'newCupboard', name: 'New cupboard', short: 'Cupboard', icon: 'layout-board', place: bedroomPlace('newCupboard'), on: settingPath('newCupboardOn'),
+    fixed: true, object: () => null },
   free('bookcase', 'Bookcase', 'bookmarks'),
   free('cupboard', 'Pine cupboard', 'door', { short: 'Pine' }),
   onWall('billy', 'Billy', 'books'),
@@ -109,10 +128,7 @@ const BEDROOM = [
   onWall('mirror', 'Mirror', 'frame'),
   { key: 'wickerBench', name: 'Wicker bench', short: 'Wicker', icon: 'armchair-2', place: 'pieces.wickerBench.in.bedroom', on: 'pieces.wickerBench.in.bedroom.on',
     spot: () => fromXY('pieces.wickerBench.in.bedroom', 'u', 'v'), moveTo: s => xyEdits('pieces.wickerBench.in.bedroom', s, 'u', 'v'), object: () => wickerBenches.bedroom },
-  // A fitted corner cupboard in the pine cupboard's place: in or out only
   STORED,
-  { key: 'newCupboard', name: 'New cupboard', short: 'Cupboard', icon: 'layout-board', place: bedroomPlace('newCupboard'), on: settingPath('newCupboardOn'),
-    fixed: true, object: () => null },
 ];
 // The bed can't be taken out either
 const BED = { ...free('bed', 'Bed', 'bed'), on: null };
@@ -170,7 +186,7 @@ for (const [room, r] of Object.entries(ROOMS)) for (const piece of [...r.picker,
 const roomOf = piece => ROOMS[piece.room];
 
 // Whether a piece is in its room: always for those that are always there
-const isIn = piece => (piece === SOFA ? Boolean(currentSofa()) : piece.on ? Boolean(at(piece.on)) : true);
+const isIn = piece => (piece === SOFA ? Boolean(currentSofa()) : piece.isIn ? piece.isIn() : piece.on ? Boolean(at(piece.on)) : true);
 // The pieces in a room that can be selected in Plan, each that's in and drawn
 const inRoom = room => (ROOMS[room] ? [...ROOMS[room].always, ...ROOMS[room].picker] : []).filter(piece => isIn(piece) && piece.object());
 // The room's walls, in the living room's mm (flat_model.js's ROOM_BOXES)

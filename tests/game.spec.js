@@ -255,6 +255,21 @@ test('after using the lounge\'s picker and its folder, the room chips still go t
   }
 });
 
+test('each room\'s corner cupboard is its picker\'s first icon, putting it in and taking it out', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  const option = 'pieces.cornerCupboard.design.option';
+  await expect(page.locator('#picker .pick').first()).toHaveAttribute('data-key', 'cornerCupboard');
+  expect(await setting(page, option)).toBe(16);                  // the room as it is
+  await page.click('#picker [data-key=cornerCupboard]');
+  expect(await setting(page, option)).toBe(10);                  // in, as it comes to start
+  await page.click('#picker [data-key=cornerCupboard]');
+  expect(await setting(page, option)).toBe(16);
+  await page.click('#gameRooms [data-room=bedroom]');
+  await expect(page.locator('#picker .pick').first()).toHaveAttribute('data-key', 'newCupboard');
+  await page.click('#picker [data-key=newCupboard]');
+  expect(await setting(page, 'pieces.bedroomCupboard.in.bedroom.on')).toBe(true);
+});
+
 test('?classic leaves the game UI out', async ({ page }) => {
   await openRoom(page);
   await expect(page.locator('#picker')).toBeHidden();

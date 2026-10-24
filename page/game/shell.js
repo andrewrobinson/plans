@@ -185,7 +185,7 @@ function setIn(piece, on, note, edits = []) {
   }
   const before = piece.fixed ? [[piece.on, at(piece.on)]]
     : Object.entries(at(piece.place)).map(([k, v]) => [`${piece.place}.${k}`, structuredClone(v)]);
-  change([[piece.on, on], ...edits], { look: true });
+  change([[piece.on, piece.inValue ? piece.inValue(on) : on], ...edits], { look: true });
   toast(note, () => change(before, { look: true }));
 }
 // Whether the pointer's over the picker, to drop a piece on it
