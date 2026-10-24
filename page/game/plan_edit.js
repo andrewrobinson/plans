@@ -13,7 +13,7 @@ import { MM } from '../../kit/floor_kit.js';
 import { renderer, change, drawSoon, viewKit } from '../../living_room.js';
 import { inRoom, roomOf, wallsOf, floorBox, facing } from './furniture.js';
 import { planPoint, hitsUnder, pieceOf, colourTargetOf } from './picking.js';
-import { select, deselect, selection, setActions, setOverlapping, setOverlapCheck } from './selection.js';
+import { select, deselect, selection, setActions, setOverlapping, setOverlapCheck, objectOf } from './selection.js';
 import { modeNow, toast, setIn, overPicker, markDropOut, classic } from './shell.js';
 import { openColours, TARGET_NAMES } from './colour_sheet.js';
 import { optionsFor, thingOf } from './options.js';
@@ -85,7 +85,8 @@ setActions({
   turn: { can: sel => Boolean(sel.piece && !sel.piece.fixed && !sel.piece.onWall), do: sel => turn(sel.piece) },
   remove: { can: sel => Boolean(sel.piece && canTakeOut(sel.piece)), do: sel => takeOut(sel.piece) },
   colour: { can: sel => Boolean(sel.surface), do: sel => openColours(sel.surface) },
-  options: { can: sel => Boolean(sel.piece && thingOf(sel.piece.object())), do: sel => optionsFor(sel.piece.object()) },
+  // a piece's, or a fitted thing's selected for its colour (a cupboard, say)
+  options: { can: sel => Boolean(thingOf(objectOf(sel) ?? {})), do: sel => optionsFor(objectOf(sel)) },
 });
 
 // ---------------------------------------------------------------------------
@@ -159,13 +160,6 @@ window.addEventListener('pointerup', e => {
 });
 window.addEventListener('pointercancel', () => { if (press) clearTimeout(press.timer); press = null; });
 
-// The desktop's stand-in for a long-press: a double-click
-canvas.addEventListener('dblclick', e => {
-  if (!inPlan()) return;
-  const hit = hitsUnder(e)[0];
-  if (hit) optionsFor(hit.object);
-});
-canvas.addEventListener('contextmenu', e => { if (inPlan() && selection()) e.preventDefault(); });
 
 // ---------------------------------------------------------------------------
 // Dragging a piece in from the picker (shell.js): its icon follows the

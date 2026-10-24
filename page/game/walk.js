@@ -16,6 +16,7 @@ import { optionsFor } from './options.js';
 const canvas = renderer.domElement;
 const TAP_PX = 8;                  // a finger's wobble on a tap stays under it (chosen)
 const TAP_MS = 300;                // longer is a hold, not a tap (chosen)
+const DOUBLE_TAP_MS = 300;         // a second tap within this makes a double-tap (chosen: brisker than the system's)
 const LONG_PRESS_MS = 500;         // as phones' own long-press
 const GLIDE_MS = 600;              // the walk to where you tapped (chosen)
 const WALL_CLEARANCE = 300;        // mm: you stop this far from a wall, as you would (chosen)
@@ -74,7 +75,8 @@ function ripple(point) {
 const pointers = new Map();
 let press = null, pinchFrom = null;
 canvas.addEventListener('pointerdown', e => {
-  if (classic || display3d() === false) return;
+  if (classic || display3d() === false || e.button > 0) return;   // the right button's for options (options.js)
+  clearTimeout(pendingTap);                                      // a second tap: a double-tap, not two
   pointers.set(e.pointerId, e);
   if (pointers.size === 2) { clearTimeout(press?.timer); press = null; pinchFrom = spread(); return; }
   press = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() };
@@ -97,8 +99,13 @@ const endPointer = e => {
   clearTimeout(press.timer);
   const quick = performance.now() - press.t < TAP_MS;
   press = null;
-  if (quick && inWalk()) tap(e);
+  // A tap walks a moment later, unless it's the first of a double-tap,
+  // which opens options (options.js)
+  const at = { clientX: e.clientX, clientY: e.clientY };
+  if (quick && inWalk()) pendingTap = setTimeout(() => tap(at), DOUBLE_TAP_MS);
 };
+let pendingTap = null;
+canvas.addEventListener('dblclick', () => clearTimeout(pendingTap));
 canvas.addEventListener('pointerup', endPointer);
 canvas.addEventListener('pointercancel', endPointer);
 const spread = () => { const [a, b] = [...pointers.values()]; return Math.max(1, Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)); };

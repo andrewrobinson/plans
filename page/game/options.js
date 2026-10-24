@@ -14,9 +14,9 @@ import { stairWalls } from '../../stair_walls.js';
 import { shoeBoxes } from '../../shoe_boxes.js';
 import { garage } from '../../garage.js';
 import { bathroom } from '../../floor.js';
-import { drawers, resize } from '../../living_room.js';
-import { colourTargetOf } from './picking.js';
-import { select, deselect } from './selection.js';
+import { drawers, resize, renderer } from '../../living_room.js';
+import { colourTargetOf, hitsUnder } from './picking.js';
+import { select, deselect, selection, objectOf } from './selection.js';
 import { openColours, TARGET_NAMES } from './colour_sheet.js';
 import { startResize, stopResize } from './resize.js';
 
@@ -170,5 +170,38 @@ function optionsFor(mesh) {
   document.getElementById('roomOptions').click();
 }
 const hasOptions = mesh => Boolean(thingOf(mesh));
+
+// ---------------------------------------------------------------------------
+// The laptop's ways to a thing's options, in every view, as a long-press:
+// a right-click (not a right-drag, which pans), a double-click, and Enter
+// or O for what's selected
+// ---------------------------------------------------------------------------
+const canvas = renderer.domElement;
+const gameOn = () => !document.body.classList.contains('classic');
+const CLICK_PX = 6;                // a right-click moves no further than this; more is a drag (chosen)
+let rightDown = null;
+canvas.addEventListener('pointerdown', e => { if (e.button === 2) rightDown = { x: e.clientX, y: e.clientY }; });
+canvas.addEventListener('pointerup', e => {
+  if (e.button !== 2 || !rightDown || !gameOn()) return;
+  const still = Math.hypot(e.clientX - rightDown.x, e.clientY - rightDown.y) <= CLICK_PX;
+  rightDown = null;
+  const hit = still ? hitsUnder(e)[0] : null;
+  if (hit) optionsFor(hit.object);
+});
+canvas.addEventListener('contextmenu', e => { if (gameOn()) e.preventDefault(); });   // the browser's own menu, not over the room
+canvas.addEventListener('dblclick', e => {
+  if (!gameOn()) return;
+  const hit = hitsUnder(e)[0];
+  if (hit) optionsFor(hit.object);
+});
+window.addEventListener('keydown', e => {
+  if (!gameOn() || !sheet.hidden || e.metaKey || e.ctrlKey || e.altKey || e.target.closest?.('input, select, textarea, button')) return;
+  if (e.key !== 'Enter' && e.key.toLowerCase() !== 'o') return;
+  if (!document.getElementById('colourSheet').hidden) return;     // Enter keeps a colour there
+  const object = objectOf(selection());
+  if (!object) return;
+  e.preventDefault();
+  optionsFor(object);
+});
 
 export { optionsFor, openOptions, closeOptions, thingOf, hasOptions };

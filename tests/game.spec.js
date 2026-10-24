@@ -27,6 +27,8 @@ async function drag(page, from, to) {
   await page.mouse.up();
 }
 
+// The camera's glide between views done (shell.js's GLIDE_MS, 450, and a little over)
+const GLIDE_DONE_MS = 600;
 // The colour sheet opened, and still once it's slid up
 const SHEET_SLIDE_MS = 300;        // game.css's 0.22 s, and a little over
 async function openSheet(page) {
@@ -194,11 +196,13 @@ test('in Walk, a tap on the floor walks you there', async ({ page }) => {
   await openRoom(page, '', { game: true });
   await page.click('#gameModes [data-view=walk]');
   await expect(page.locator('#miniPlan')).toBeVisible();
+  await page.waitForTimeout(GLIDE_DONE_MS);                      // down from Overhead, at eye height
   const where = () => page.evaluate(() => window.plans.view().camera?.position ?? null);
-  // A spot on the floor ahead, 1.5 m in front of you
+  // A spot on the floor ahead, 3 m in front of you (nearer's below the
+  // screen at eye height)
   const spot = await page.evaluate(async () => {
     const { camera, controls } = await import('/living_room.js'), { screenOf } = await import('/page/game/picking.js');
-    const ahead = controls.target.clone().sub(camera.position).setY(0).normalize().multiplyScalar(1.5).add(camera.position);
+    const ahead = controls.target.clone().sub(camera.position).setY(0).normalize().multiplyScalar(3).add(camera.position);
     return screenOf(ahead.x * 1000, ahead.z * 1000, 0);
   });
   await page.mouse.click(spot.x, spot.y);
@@ -291,6 +295,33 @@ test('a piece something else stands in place of is greyed, and a tap swaps them'
   await expect(pine).toHaveClass(/\bin\b/);
   await page.click('#gameToast button');                         // Undo: the new cupboard back in
   expect(await setting(page, 'pieces.bedroomCupboard.in.bedroom.on')).toBe(true);
+});
+
+// The laptop's ways to a thing's options (24 Oct 2026): the Options button
+// for a fitted thing clicked in Plan, Enter or O for what's selected, a
+// right-click and a double-click in any view
+test('a thing\'s options from the action bar, the keys, a right-click and a double-click', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  const title = page.locator('#optionsTitle'), done = () => page.click('#optionsDone');
+  await page.click('#picker [data-key=cornerCupboard]');
+  await toPlan(page);
+  const cupboard = await objectOnScreen(page, 'cornerCupboard');
+  await page.mouse.click(cupboard.x, cupboard.y);
+  await page.click('#actionBar [data-action=options]');
+  await expect(title).toHaveText('Corner cupboard');
+  await done();
+  await page.mouse.click(cupboard.x, cupboard.y);
+  await page.keyboard.press('o');
+  await expect(title).toHaveText('Corner cupboard');
+  await done();
+  await page.click('#gameModes [data-view=overhead]');
+  const island = await objectOnScreen(page, 'island');
+  await page.mouse.click(island.x, island.y, { button: 'right' });
+  await expect(title).toHaveText('Kitchen island');
+  await done();
+  const sofa = await objectOnScreen(page, 'sofa');
+  await page.mouse.dblclick(sofa.x, sofa.y);
+  await expect(title).toHaveText('Sofa');
 });
 
 test('?classic leaves the game UI out', async ({ page }) => {
