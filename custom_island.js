@@ -1,4 +1,4 @@
-// The custom kitchen island: a built-in one from Howdens' plan (asked for,
+// The custom kitchen island: a built-in one (asked for,
 // 22 Oct 2026), in place of IKEA's TORNVIKEN (tornviken.js). Base units back
 // to back, drawers on both the kitchen side (-x) and the window side (+x),
 // under a grey oak effect worktop at the kitchen's height; the worktop runs
@@ -7,24 +7,22 @@
 // sliders.
 // Drawn round its middle, its long side along y, like TORNVIKEN;
 // model/kitchen.js says where it stands.
-//
-// Howdens' plan and renders are in images/custom_island/.
 import * as THREE from 'three';
 import { MM, material, box } from './kit/floor_kit.js';
 import { rosentorpChair, ROSENTORP } from './rosentorp.js';
 
-// From Howdens' plan: the worktop 2400 x 950 (handwritten), white gloss
-// fronts ("Clerkenwell gloss white"), units in 1000 widths with 16 end
-// panels; the rest estimated
+// The user's: the worktop 2400 x 950, white gloss fronts (Clerkenwell
+// gloss white, as the kitchen), units in 1000 widths with 16 end panels;
+// the rest estimated
 export const CUSTOM_ISLAND = {
-  length: 2400, width: 950,     // the worktop, as it starts (the plan)
-  overhang: 400,                // how far it runs past the units for the stools' knees, as it starts (chosen: 2400 leaves 2000, two units each side, as the render)
+  length: 2400, width: 950,     // the worktop, as it starts (the user's)
+  overhang: 400,                // how far it runs past the units for the stools' knees, as it starts (chosen: 2400 leaves 2000, two units each side)
   top: 894, topT: 40,           // as the kitchen's worktop (KITCHEN.worktop, measured; its thickness estimated)
-  unitMax: 1000,                // the units' widest, as the plan's "1000 3 Drw"
-  endPanelT: 16,                // the plan's "BEP 16" end panels
+  unitMax: 1000,                // the units' widest (the user's)
+  endPanelT: 16,                // end panels (the user's)
   proud: 20,                    // how far the worktop stands out past the fronts along each side (estimated, as the kitchen's)
   plinth: 150, plinthBack: 50,  // the plinth's height, and how far it's set back under the fronts (estimated)
-  drawers: 3,                   // each unit's drawers, as the plan's "3 Drw"
+  drawers: 3,                   // each unit's drawers (the user's)
   frontGap: 3,                  // between the drawer fronts (estimated)
   frontT: 18,                   // the fronts' thickness (estimated)
 };
@@ -34,7 +32,7 @@ export const CUSTOM_ISLAND = {
 // it's 300 further out than pushed in, as TORNVIKEN's)
 const STOOL_CLEAR = 20, STOOL_OUT_PAST_TOP = 370;
 
-const worktopMat = material(0x9c958c);   // grey oak effect (the plan)
+const worktopMat = material(0x9c958c);   // grey oak effect (the user's)
 const carcassMat = material(0xf2f2ee);   // white
 
 // The island, its fronts in `frontMat` (the kitchen's gloss white): a group

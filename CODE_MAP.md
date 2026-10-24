@@ -63,7 +63,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `wicker_bench.js`, `shoe_rack.js` | 275, 315 | The hallway's wicker bench; the shoe rack downstairs |
 | `bedroom_door.js` | 50 | The bedroom door, both ways it can swing, as `kit/door_kit.js`'s doors (`DOOR_SWINGS`), and how far it sweeps into the room (`sweepInto`, `opensTo`) |
 | `tornviken.js`, `rosentorp.js`, `loshult.js`, `ekby_alex.js` | 170, 45, 35, 35 | The kitchen island (IKEA's TORNVIKEN): its layouts, IKEA's, facing, trolleys and drawers (`ISLAND_LAYOUTS`), and where its chairs go (`placeTornviken`); its bar stools (ROSENTORP), trolleys (LOSHULT) and drawers (EKBY ALEX). Photos in `images/tornvikken_options/` |
-| `custom_island.js` | 105 | The custom built-in island from Howdens' plan, in place of TORNVIKEN: drawers both sides, the worktop running on past them for two ROSENTORP stools, its length, width and overhang from sliders (`CUSTOM_ISLAND`, `customIsland`, `placeCustomIsland`). The plan and renders in `images/custom_island/` |
+| `custom_island.js` | 105 | The custom built-in island, in place of TORNVIKEN: drawers both sides, the worktop running on past them for two ROSENTORP stools, its length, width and overhang from sliders (`CUSTOM_ISLAND`, `customIsland`, `placeCustomIsland`) |
 | Furniture: `billy.js`, `bookcase.js`, `castor_desk.js`, `daybed.js`, `desk_daybed.js`, `ivar.js`, `knarrevik.js`, `kvistbro.js`, `laundry_basket.js`, `speakers.js`, `tables.js`, `work_chairs.js` | 25 to 115 | One piece each, drawn wherever it stands |
 | Catalogues: `dressers.js`, `larders.js`, `sofas.js` | 30 to 50 | Models and sizes, for editing |
 
