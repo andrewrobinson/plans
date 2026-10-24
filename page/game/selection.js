@@ -115,8 +115,8 @@ function placeBar({ x0, x1, y0, y1, top }) {
   bar.style.top = `${roomAbove ? above - h - BAR_GAP : Math.min(below + BAR_GAP, innerHeight - h - BOTTOM_ROW)}px`;
 }
 (function everyFrame() {
+  requestAnimationFrame(everyFrame);                             // first, so one frame's failing doesn't stop it
   if (selected) follow();
-  requestAnimationFrame(everyFrame);
 })();
 
 const setActions = more => Object.assign(actions, more);

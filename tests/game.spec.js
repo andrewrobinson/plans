@@ -238,6 +238,23 @@ test('the TV is a piece of its own: put in from the picker, it slides along the 
   await expect(page.locator('#summary')).toContainText(`On the back wall: a 75" TV (1680 × 960), its middle ${along} from the left wall`);
 });
 
+// After the Other folder's been opened in the lounge, going to another room
+// once threw (its pieces aren't that room's), inside the render loop, so the
+// room changed but was never drawn (24 Oct 2026)
+test('after using the lounge\'s picker and its folder, the room chips still go to each room and draw it', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  for (const key of ['pine', 'tv', 'bench']) await page.click(`#picker [data-key=${key}]`);
+  await page.click('#picker [data-folder=other]');
+  await page.click('#pickerFolder [data-key=chesham]');
+  const frames = () => page.evaluate(async () => (await import('/living_room.js')).renderer.info.render.frame);
+  for (const room of ['bedroom', 'hallway', 'garage', 'livingRoom']) {
+    const before = await frames();
+    await page.locator(`#gameRooms [data-room=${room}]`).click();
+    expect(await page.evaluate(async () => (await import('/living_room.js')).viewKit.room)).toBe(room);
+    await expect.poll(frames).toBeGreaterThan(before);           // drawn
+  }
+});
+
 test('?classic leaves the game UI out', async ({ page }) => {
   await openRoom(page);
   await expect(page.locator('#picker')).toBeHidden();

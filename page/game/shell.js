@@ -131,6 +131,7 @@ function openFolder(button) {
 }
 function closeFolder() {
   folderPanel.hidden = true;
+  folderPanel.replaceChildren();                                 // its pieces are its room's, so gone with it
   picker.querySelectorAll('[data-folder]').forEach(b => b.setAttribute('aria-expanded', 'false'));
 }
 picker.addEventListener('click', e => {
@@ -215,18 +216,28 @@ function showShell() {
   document.body.dataset.gameMode = mode ?? 'wall';
   if (room !== pickerRoom) fillPicker(room);
   picker.hidden = !ROOMS[room];
-  for (const button of document.querySelectorAll('#picker .pick[data-key], #pickerFolder .pick')) button.classList.toggle('in', isIn(pieceOf(button)));
+  for (const button of document.querySelectorAll('#picker .pick[data-key], #pickerFolder .pick')) {
+    const piece = pieceOf(button);
+    if (piece) button.classList.toggle('in', isIn(piece));
+  }
   // a folder's icon dotted while anything in it is in
   for (const button of picker.querySelectorAll('[data-folder]')) {
     button.classList.toggle('in', pickerPieces.some(p => p.folder?.key === button.dataset.folder && isIn(p)));
   }
   if (picker.hidden) closeFolder();
 }
-// After every change and every view: cheap, so on each frame something's drawn
-controls.addEventListener('change', showShell);
-window.addEventListener('pointerup', () => requestAnimationFrame(showShell));
-window.addEventListener('change', () => requestAnimationFrame(showShell));
-window.addEventListener('popstate', () => requestAnimationFrame(showShell));
-requestAnimationFrame(showShell);
+// After every change and every view, at the next frame, once however many
+// asked: never inside the controls' own 'change', which the render loop
+// sends, so nothing here can stop the room being drawn (as a piece no
+// longer in the picker once did, 24 Oct 2026)
+let shellWanted = false;
+function showShellSoon() {
+  if (shellWanted) return;
+  shellWanted = true;
+  requestAnimationFrame(() => { shellWanted = false; showShell(); });
+}
+controls.addEventListener('change', showShellSoon);
+for (const type of ['pointerup', 'change', 'popstate']) window.addEventListener(type, showShellSoon);
+showShellSoon();
 
 export { modeNow, goTo, toast, setIn, overPicker, markDropOut, showShell, classic };
