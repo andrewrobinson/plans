@@ -6,7 +6,8 @@
 // the top bar; on the desktop it sits beside it. `?classic` in the address
 // leaves it out, the page as it was (the tests of the old controls use it).
 import { display } from '../display.js';
-import { viewKit, change, camera, controls, drawSoon } from '../../living_room.js';
+import { viewKit, change, camera, controls, drawSoon, renderer, showRoomOptions } from '../../living_room.js';
+import { hitsUnder, roomAt } from './picking.js';
 import { ROOMS, at, isIn, replacerOf, replacedNow } from './furniture.js';
 import { dragFromPicker, deselect } from './plan_edit.js';
 
@@ -198,6 +199,28 @@ function setIn(piece, on, note, edits = []) {
 // Whether the pointer's over the picker, to drop a piece on it
 const overPicker = e => !picker.hidden && e.clientX <= picker.getBoundingClientRect().right;
 const markDropOut = on => picker.classList.toggle('dropOut', on);
+
+// ---------------------------------------------------------------------------
+// A click in another room, in Plan or Overhead, chooses it where you are:
+// its picker, its options and its long-presses, the camera left as it is
+// (asked for, 24 Oct 2026: turned round in the bird's eye to the bedroom,
+// a click there is the bedroom's). A press that moves is a drag, not a click
+// ---------------------------------------------------------------------------
+const CLICK_PX = 8;                // a finger's wobble on a tap stays under it (chosen)
+let pressedAt = null;
+// (on the window, capturing, so seen before Plan picks up a piece under it)
+const onRoom = e => e.target === renderer.domElement;
+window.addEventListener('pointerdown', e => { pressedAt = onRoom(e) && e.button === 0 ? { x: e.clientX, y: e.clientY } : null; }, { capture: true });
+window.addEventListener('pointerup', e => {
+  const still = pressedAt && Math.hypot(e.clientX - pressedAt.x, e.clientY - pressedAt.y) < CLICK_PX;
+  pressedAt = null;
+  if (!still || classic || !['plan', 'overhead'].includes(modeNow())) return;
+  const hit = hitsUnder(e)[0], room = hit ? roomAt(hit.point) : null;
+  if (!room || room === viewKit.room) return;
+  viewKit.chooseRoom(room);
+  showRoomOptions(room);
+  showShell();
+}, { capture: true });
 
 // ---------------------------------------------------------------------------
 // The note at the bottom, with Undo, a few seconds

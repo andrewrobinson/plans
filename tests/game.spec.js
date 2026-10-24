@@ -324,6 +324,31 @@ test('a thing\'s options from the action bar, the keys, a right-click and a doub
   await expect(title).toHaveText('Sofa');
 });
 
+// Turned round in the bird's eye to look at the bedroom, a click in it makes
+// it the room chosen (its picker), the camera left where it is; and a click
+// back in the lounge, the lounge (asked for, 24 Oct 2026)
+test('a click in another room in Overhead or Plan chooses it, the camera left as it is', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  const camera = () => page.evaluate(async () => (await import('/living_room.js')).camera.position.toArray().map(n => n.toFixed(3)).join());
+  const room = () => page.evaluate(async () => (await import('/living_room.js')).viewKit.room);
+  const floorOf = (page, name) => page.evaluate(async name => {
+    const { ROOM_BOXES } = await import('/flat_model.js'), { screenOf } = await import('/page/game/picking.js');
+    const b = ROOM_BOXES[name];
+    return screenOf((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2, b.floor);
+  }, name);
+  await page.click('#gameModes [data-view=plan]');
+  const before = await camera();
+  const bedroom = await floorOf(page, 'bedroom');
+  await page.mouse.click(bedroom.x, bedroom.y);
+  expect(await room()).toBe('bedroom');
+  await expect(page.locator('#picker [data-key=newCupboard]')).toBeVisible();
+  const lounge = await floorOf(page, 'livingRoom');
+  await page.mouse.click(lounge.x, lounge.y);
+  expect(await room()).toBe('livingRoom');
+  await expect(page.locator('#picker [data-key=cornerCupboard]')).toBeVisible();
+  expect(await camera()).toBe(before);
+});
+
 test('?classic leaves the game UI out', async ({ page }) => {
   await openRoom(page);
   await expect(page.locator('#picker')).toBeHidden();

@@ -12,7 +12,7 @@ import { boxesMeet } from '../../kit/shape_kit.js';
 import { MM } from '../../kit/floor_kit.js';
 import { renderer, change, drawSoon, viewKit } from '../../living_room.js';
 import { inRoom, roomOf, wallsOf, floorBox, facing } from './furniture.js';
-import { planPoint, hitsUnder, pieceOf, colourTargetOf } from './picking.js';
+import { planPoint, hitsUnder, pieceOf, colourTargetOf, roomAt } from './picking.js';
 import { select, deselect, selection, setActions, setOverlapping, setOverlapCheck, objectOf } from './selection.js';
 import { modeNow, toast, setIn, overPicker, markDropOut, classic } from './shell.js';
 import { openColours, TARGET_NAMES } from './colour_sheet.js';
@@ -97,7 +97,8 @@ const inPlan = () => !classic && modeNow() === 'plan';
 let press = null;
 canvas.addEventListener('pointerdown', e => {
   if (!inPlan() || e.button > 0 || press) return;
-  const hit = hitsUnder(e)[0], piece = hit ? pieceOf(hit.object, viewKit.room) : null;
+  // (a piece in the room under the press, which a click makes the room chosen: shell.js)
+  const hit = hitsUnder(e)[0], piece = hit ? pieceOf(hit.object, roomAt(hit.point) ?? viewKit.room) : null;
   press = { id: e.pointerId, x: e.clientX, y: e.clientY, piece, hit, dragging: false, longPressed: false };
   if (!piece) {
     // A long-press on anything else: its options (the plan pans as before if it's dragged)

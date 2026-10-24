@@ -608,6 +608,9 @@ function kitFace(k) {
       k.setView(id);
       if (!hooks.isFlat()) remember('startView', s.startView = s.viewId);
     },
+    // Room r chosen where the view is, the camera left as it is (a click in
+    // it on the page's plan or bird's eye)
+    chooseRoom(r) { k.setRoom(r); k.writeView(); },
     // The room changed: work the view out again, if it's worked out from it
     refresh() { if (s.follows) k.setView(s.viewId); },
     get viewId() { return s.viewId; },
