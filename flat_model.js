@@ -45,7 +45,7 @@ import { FENRIS_A5, fenrisA5 } from './speakers.js';
 import { DESK_DAYBED, DAYBED_TOP_D, deskDaybed, bedMiddle, deskOpenEnd } from './desk_daybed.js';
 import { WORK_CHAIRS, officeChair } from './work_chairs.js';
 import {
-  drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard, 
+  drawOtherRoom, pineCupboard, otherRoomPieces, OTHER_ROOM_START, showNewCupboard, turnRecessDoors, 
   OTHER_ROOM_SCHEMA
 } from './other_room.js';
 import { DOOR_SWINGS, SWING_WAYS } from './bedroom_door.js';
@@ -77,6 +77,7 @@ import {
   onBackWall, pieceOnBenchWall, shelves, spotOf, tvPiece, tvSpot, wallClearFrom
 } from './model/bench_wall.js';
 import { COLOUR_TARGETS, FINISHES, applyColour, colourOf, shownCode } from './model/colours.js';
+import { drawHanging } from './model/hanging.js';
 import {
   DRESSERS, DRESSER_SLIDERS, LARDERS, LARDER_SLIDERS, SOFAS, SOFA_SLIDERS, currentSofa, frontFrom, frontGap, 
   frontWall, larderHeight, larderOwnSize, pieces, sofa, sofaHome, sofaOwnSize
@@ -212,12 +213,13 @@ export function build(onShow = optionsOnShow()) {
 
 // Build the option chosen and draw everything that follows from it, in the order
 // each needs (REFACTOR_PLAN.md item 6), as both the page and buildFlat()
-// do: build(), the things to store (and the cupboard's shelves cut round
+// do: build(), the hanging space (while it's compared), the things to store (and the cupboard's shelves cut round
 // them), the doors turned, and last the dimensions, of the shelves and
 // doors as drawn. Returns build()'s, and what drawStored() says of the
 // things to store
 export function rebuild(display, onShow = optionsOnShow()) {
   const built = build(onShow);
+  drawHanging(display.hanging);
   const storedText = drawStored(display);
   turnDoors();
   updateDims(display);
@@ -242,13 +244,14 @@ export function setDoors(edits) {
 export const doorAngles = () => structuredClone(doors);
 
 // The doors turned to their angles (they don't rebuild), each corner
-// cupboard's second doors stopping at its room's walls, and the garage
-// door drawn as it is
+// cupboard's second doors stopping at its room's walls, the recess
+// cupboard's together, and the garage door drawn as it is
 export function turnDoors() {
   cupboard?.turnDoors(doors);
   bedroomCupboard?.turnDoors({ tall: doors.bedroomCupboardTall, second: doors.bedroomCupboardSecond, desk: doors.bedroomCupboardDesk });
   roomHinge.rotation.y = turn(doors.room);
   turnBedroomDoor();
+  turnRecessDoors(doors.recess);
   for (const [h, name] of [[flatDoorHinge, 'flat'], [outsideDoorHinge, 'outside']]) h.rotation.y = (h.userData.dir ?? 1) * turn(doors[name]);
   drawGarageDoor(doors.garage);
 }
@@ -353,3 +356,6 @@ export {
 export {
   BEDROOM_CUPBOARD_RANGES, DESK_SHOWN, DOORS_SCHEMA, get, idIn, set, setAll
 } from './model/settings.js';
+export {
+  hangingText, hangingVerdict, railIn, PINE_RAIL, IDEAL_RAIL
+} from './model/hanging.js';

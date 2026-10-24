@@ -736,6 +736,7 @@
       "outside": 0,
       "bedroomCupboardTall": 0,
       "bedroomCupboardSecond": 0,
+      "recess": 0,
       "desk": "foldedAway",
       "bedroomCupboardDesk": "foldedAway",
       "garage": "hidden"

@@ -4,11 +4,11 @@
 import * as Config from '../kit/config_kit.js';
 import { cupboardControls, copyControls, idIn } from '../cupboard_controls.js';
 import {
-  rebuild, turnDoors, describe, BACK_WALL_KEYS, CURRENT_ROOM, OPTIONS, benchDrawn, configurationNow, dims, 
+  rebuild, turnDoors, describe, hangingText, hangingVerdict, BACK_WALL_KEYS, CURRENT_ROOM, OPTIONS, benchDrawn, configurationNow, dims, 
   islandOnWall, optionOf, pieces, setAll, optionsOnShow, config, updateDims, BEDROOM_CUPBOARD_RANGES, doorsNow, 
   setDoors, inLivingRoom, aboveHasShelves, aboveNow, tvOn
 } from '../flat_model.js';
-import { display } from './display.js';
+import { display, setDisplay } from './display.js';
 import {
   addressRead, applyCut, configurationKit, showCastorDesk, showCuttingLists, showIvar, showPlace, showSofaPlace, 
   showSpeakers, showStoredMenu, showTables, syncControls, updatePalette, viewKit, viewNow, xray
@@ -44,6 +44,7 @@ const DOOR_SLIDERS = {
   outside: document.getElementById('outsideDoor'),
   bedroomCupboardTall: document.getElementById('bedroomCupboardTallDoor'),
   bedroomCupboardSecond: document.getElementById('bedroomCupboardSecondDoor'),
+  recess: document.getElementById('recessDoor'),
 };
 // Each cupboard's fold-down desk, folded away or down (its two radios, by
 // their name, each worth its word in the configuration: flat_model.js's
@@ -96,12 +97,32 @@ function show(onShow) {
   redrawAround(storedText);
 }
 
+// Compare hanging space to pine cupboard (model/hanging.js): a switch in
+// each room's cupboard controls (the bedroom's a copy), kept in step, each
+// with its room's line under it, marked in the bedroom with its verdict
+const HANGING_SWITCHES = [['hanging', 'livingRoom'], [idIn(BEDROOM_CUPBOARD)('hanging'), 'bedroom']];
+for (const [id] of HANGING_SWITCHES) {
+  document.getElementById(id).addEventListener('change', e => {
+    setDisplay({ hanging: e.target.checked });
+    show();
+  });
+}
+function showHanging() {
+  for (const [id, room] of HANGING_SWITCHES) {
+    document.getElementById(id).checked = display.hanging;
+    const line = document.getElementById(`${id}Text`);
+    line.textContent = display.hanging ? hangingText(room) : '';
+    line.dataset.verdict = (display.hanging && hangingVerdict(room)) || '';
+  }
+}
+
 // The menus for option `no`: the option list, the description, and only the
 // blocks of controls that apply to it
 function showInMenus(option, no, aboveText) {
   const above = aboveNow();
   loungeCupboard.showBlocks();
   showBedroomCupboard();
+  showHanging();
   document.getElementById('summary').innerHTML = describe(option, aboveText);
   const shown = (id, yes) => { document.getElementById(id).style.display = yes ? '' : 'none'; };
   shown('tvBlock', tvOn());                                      // the TV's size and place, while it's on

@@ -9,6 +9,7 @@
 const SLIDER_RANGES = {
   roomDoor: [0, 110, 1], tallDoor: [0, 180, 1], secondDoor: [0, 180, 1], bedroomDoor: [0, 180, 1], flatDoor: [0, 90, 1], outsideDoor: [0, 90, 1],
   bedroomCupboardTallDoor: [0, 180, 1], bedroomCupboardSecondDoor: [0, 180, 1],
+  recessDoor: [0, 90, 1],          // the upper recess cupboard's doors (the user's, 24 Oct 2026)
   rear: [300, 800, 10], board: [12, 25, 1], leg: [400, 1200, 1], legD: [330, 1000, 1],
   ward: [600, 1400, 50], wardD: [330, 1000, 10], tower: [0, 600, 50],
   cornerW: [500, 1200, 10], cornerD: [0, 1329, 1], sideW: [200, 800, 10], sideD: [150, 800, 10],

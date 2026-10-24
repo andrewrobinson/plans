@@ -212,6 +212,10 @@
             <input id="rear" type="range" min="300" max="800" step="10" value="330">
           </div>
           <label class="switch" id="xrayRow"><input type="checkbox" id="xray"> See-through cupboards</label>
+          <div id="hangingBlock">
+            <label class="switch" title="A rail where a section is 475 deep or more inside; red where it's shallower"><input type="checkbox" id="hanging"> Compare hanging space to pine cupboard</label>
+            <div id="hangingText" class="hint"></div>
+          </div>
           <div id="wardBlock">
             <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
             <input id="wardD" type="range" min="330" max="1000" step="10" value="600">
@@ -772,6 +776,8 @@
         </div>
         <label class="switch"><input type="checkbox" id="bedroomDoorSwingShown"> Show its swing on the floor</label>
         <div class="hint" id="bedroomDoorText"></div>
+        <label for="recessDoor">Recess cupboard doors: <span id="recessDoorValue">0°</span></label>
+        <input id="recessDoor" type="range" min="0" max="90" value="0">
       </details>
     </div>
   </div>

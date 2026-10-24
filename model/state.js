@@ -30,8 +30,9 @@ export const world = new THREE.Group();
 // (notes/ui_paradigm_analysis.md, recommendation 3): a 2D view or not
 // (flat), which (flatView: 'plan', 'back', …) and the room it's of
 // (flatRoom); the cupboard on its own (Cupboard only); and the Dimensions
-// and Door sizes buttons. As the page opens:
-export const DISPLAY_START = { flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true };
+// and Door sizes buttons; and the cupboards' hanging space compared with
+// the pine cupboard's (hanging, model/hanging.js). As the page opens:
+export const DISPLAY_START = { flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true, hanging: false };
 
 // The rooms whose wall views the hallway's stairwell would hang below the
 // floor of, next door (the hallway's group holds downstairs and the garage
@@ -297,7 +298,7 @@ export const inLivingRoom = key => config.pieces[LIVING_ROOM_PIECES[key] ?? key]
 // notes/ui_paradigm_analysis.md). Set by the door controls and by some views (the
 // room door shut on walking in, the cupboard's open for packing), and
 // turned by turnDoors(), without rebuilding
-const DOORS_START = { room: 90, tall: 0, second: 0, bedroom: 90, flat: 0, outside: 0, bedroomCupboardTall: 0, bedroomCupboardSecond: 0, desk: 0, bedroomCupboardDesk: 0, garage: 'hidden' };
+const DOORS_START = { room: 90, tall: 0, second: 0, bedroom: 90, flat: 0, outside: 0, bedroomCupboardTall: 0, bedroomCupboardSecond: 0, desk: 0, bedroomCupboardDesk: 0, recess: 0, garage: 'hidden' };   // recess: the upper recess cupboard's doors, all together
 const doors = structuredClone(DOORS_START);
 
 

@@ -171,7 +171,7 @@ test.describe('sliders, to each end and back', () => {
   // The doors turn without rebuilding
   test('the doors', async ({ page }) => {
     await LEFT_CUPBOARD(page);                                         // so the left-wall cupboard has a door
-    for (const [id, door] of [['roomDoor', 'room'], ['tallDoor', 'tall'], ['secondDoor', 'second'], ['bedroomDoor', 'bedroom'], ['flatDoor', 'flat'], ['outsideDoor', 'outside']]) await endsAndBack(page, id, at(`doors.${door}`), { text: v => `${v}°` });
+    for (const [id, door] of [['roomDoor', 'room'], ['tallDoor', 'tall'], ['secondDoor', 'second'], ['bedroomDoor', 'bedroom'], ['flatDoor', 'flat'], ['outsideDoor', 'outside'], ['recessDoor', 'recess']]) await endsAndBack(page, id, at(`doors.${door}`), { text: v => `${v}°` });
   });
 });
 
@@ -355,6 +355,17 @@ test.describe('switches and buttons', () => {
     await expect(page.locator('#xray')).toBeChecked();
     await page.click('#xray');
     await expect(page.locator('#xray')).not.toBeChecked();
+  });
+
+  // Compare hanging space to pine cupboard: the lounge's line, and the
+  // bedroom's switch (a copy) kept in step
+  test('compare hanging space to the pine cupboard', async ({ page }) => {
+    await OPTION(7)(page);
+    await page.locator('#hanging').check();
+    await expect(page.locator('#hangingText')).toContainText("of the pine cupboard's 1240");
+    await expect(page.locator('#bedroomCupboardHanging')).toBeChecked();
+    await page.locator('#hanging').uncheck();
+    await expect(page.locator('#hangingText')).toHaveText('');
   });
 
   test('cupboard only, in 3D and in the plan', async ({ page }) => {

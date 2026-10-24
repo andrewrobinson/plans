@@ -54,10 +54,11 @@ first, then open only the file you need. Sizes are rough line counts
 | `model/front_wall.js` | 285 | The dresser, larder, sofa, front wall and bookcase: `DRESSERS`, `LARDERS`, `SOFAS`, `frontWall` |
 | `model/loose_pieces.js` | 375 | The daybed desk's chair and what's in its way, the first radiator, Ivar, the tables, the dining table (`diningTableSpot`, from the room's middle), the castor desk, the speakers |
 | `model/stored.js` | 275 | The things to store: `STORED`, `PACKINGS`, `placeStored`, `drawStored` |
+| `model/hanging.js` | 60 | Hanging space against the pine cupboard's 1240 of rail (`PINE_RAIL`, `IDEAL_RAIL`): each room's rail (`railIn`), the bedroom's verdict (`hangingVerdict`), the menus' line (`hangingText`), the rails and red drawn while compared (`drawHanging`, after each build; the page's `display.hanging`, switched in `page/controls.js`). HANGING_SPACE.md has the choices |
 | `model/dimensions.js` | 155 | The 2D views' dimensions (`updateDims`), door sizes, `cuttingList` |
-| `corner_cupboard.js` | 1,030 | The corner cupboard: each option's build (`OPTIONS`), shelves, inside spaces, dimensions, cutting list; `makeCupboard` |
+| `corner_cupboard.js` | 1,280 | The corner cupboard: each option's build (`OPTIONS`), shelves, inside spaces, its sections for hanging (`hangingSections`, `HANG_DEPTH`), dimensions, cutting list; `makeCupboard` |
 | `floor.js` | 915 | The walls, doors, windows and radiators of every room: `drawFloor`, `HALLWAY`, `ENTRANCE`, `OTHER_ROOM` |
-| `other_room.js` | 565 | The bedroom's furniture and fitted cupboards, and their sliders |
+| `other_room.js` | 660 | The bedroom's furniture and fitted cupboards, and their sliders; the pine cupboard's rails (`PINE.rails`); the recess's upper cupboard, an IKEA PLATSA with SANNIDAL doors that open together (`recessDoor`, `turnRecessDoors`, the view's `doors.recess`) |
 | `garage.js` | 490 | The garage, what's in it (its own things, and the flat's furniture put away there: group `home`, Garage options' Home tab and the picker's Home folder), and Garage options' sliders |
 | `stair_walls.js`, `shoe_boxes.js` | 415, 235 | The shelves and pictures over the stairs; the shoe boxes on the sills |
 | `wicker_bench.js`, `shoe_rack.js` | 275, 315 | The hallway's wicker bench; the shoe rack downstairs |
