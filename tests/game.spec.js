@@ -300,6 +300,27 @@ test('a piece something else stands in place of is greyed, and a tap swaps them'
   expect(await setting(page, 'pieces.bedroomCupboard.in.bedroom.on')).toBe(true);
 });
 
+// The lounge's Front wall and island folder (24 Oct 2026): the dresser and
+// larder share the front wall, so one put in takes the other out, one Undo
+// putting it back; the island out and back where it last stood
+test('the front wall and island folder: the dresser and larder swap, the island comes back where it stood', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  await page.click('#picker [data-folder=kitchen]');
+  await page.click('#pickerFolder [data-key=dresser]');
+  expect(await setting(page, 'livingRoom.frontWall')).toBe('dresser');
+  await page.click('#pickerFolder [data-key=larder]');
+  expect(await setting(page, 'livingRoom.frontWall')).toBe('larder');
+  await expect(page.locator('#gameToast')).toContainText('Dresser taken out');
+  await expect(page.locator('#pickerFolder [data-key=dresser]')).not.toHaveClass(/\bin\b/);
+  await page.click('#gameToast button');                         // Undo: the dresser back
+  expect(await setting(page, 'livingRoom.frontWall')).toBe('dresser');
+  await page.click('#picker [data-folder=kitchen]');
+  await page.click('#pickerFolder [data-key=island]');
+  expect(await setting(page, 'pieces.island.in.livingRoom.at')).toBe('none');
+  await page.click('#pickerFolder [data-key=island]');
+  expect(await setting(page, 'pieces.island.in.livingRoom.at')).toBe('room');   // out in the room, as it stood
+});
+
 // The laptop's ways to a thing's options (24 Oct 2026): the Options button
 // for a fitted thing clicked in Plan, Enter or O for what's selected, a
 // right-click and a double-click in any view

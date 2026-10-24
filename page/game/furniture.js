@@ -32,6 +32,9 @@ const at = path => path.split('.').reduce((o, k) => o?.[k], config);
 // The pickers' Other folder, the lounge's and the bedroom's, for the less
 // important pieces (asked for, 24 Oct 2026)
 const OTHER = { key: 'other', name: 'Other', icon: 'folder' };
+// The lounge's Front wall and island folder: the island, and the dresser
+// and larder, which share the front wall (asked for, 24 Oct 2026)
+const KITCHEN = { key: 'kitchen', name: 'Front wall and island', short: 'Kitchen', icon: 'tools-kitchen-2' };
 // The lounge's corner cupboard, in or out: in, it's the option last chosen
 // (10 to start, as the bedroom's copy starts); out, the room as it is
 // (CURRENT_ROOM). Its `on` is the option, `isIn` and `inValue` read and set
@@ -77,6 +80,26 @@ const SPEAKERS = { key: 'speakers', name: 'Speakers', icon: 'device-speaker', on
     return place !== NO_SPEAKERS;
   },
   inValue: on => (on ? speakerPlaceFor(lastSpeakerPlace) : NO_SPEAKERS) };
+// The island, in or out as the cupboard: its setting is where it stands
+// (out in the room, or its long or short side to the front wall, or none);
+// in, where it last stood (out in the room to start). Moved by its options'
+// sliders
+const ISLAND_AT = 'pieces.island.in.livingRoom.at';
+const NO_ISLAND = 'none';
+let lastIslandAt = 'room';
+const ISLAND = { key: 'island', name: 'Kitchen island', short: 'Island', icon: 'chef-hat', on: ISLAND_AT, place: 'pieces.island.in.livingRoom',
+  fixed: true, object: () => null, folder: KITCHEN,
+  isIn: () => {
+    const where = at(ISLAND_AT);
+    if (where !== NO_ISLAND) lastIslandAt = where;              // kept, to come back to
+    return where !== NO_ISLAND;
+  },
+  inValue: on => (on ? lastIslandAt : NO_ISLAND) };
+// The dresser and the larder, each the front wall's piece or not: one put
+// in takes the other out, as they share the setting (`on`)
+const FRONT_WALL = 'livingRoom.frontWall';
+const frontPiece = (key, name, icon) => ({ key, name, icon, on: FRONT_WALL, place: 'livingRoom', fixed: true, object: () => null, folder: KITCHEN,
+  isIn: () => at(FRONT_WALL) === key, inValue: on => (on ? key : 'none') });
 const lounge = (key, name, icon, place, spot, object, more = {}) =>
   ({ key, name, icon, place, on: `${place}.on`, spot, moveTo: s => [[`${place}.move`, s]], object, ...more });
 // In the picker's order, the most important first (asked for, 24 Oct 2026)
@@ -86,6 +109,10 @@ const LOUNGE = [
   lounge('deskDaybed', 'Daybed and desk', 'bed-flat', 'pieces.deskDaybed.in.livingRoom', () => spotOf('deskDaybed'), () => drawn.backWall.deskDaybed, { short: 'Daybed' }),
   // The bench isn't kept as one object, so it's put in and taken out from the picker alone
   lounge('bench', 'Bench', 'layout-rows', 'pieces.bench.in.livingRoom', null, () => null, { fixed: true }),
+  // (the Front wall and island folder before Other)
+  ISLAND,
+  frontPiece('dresser', 'Dresser', 'layout-board-split'),
+  frontPiece('larder', 'Larder', 'fridge'),
   lounge('billy', 'Billy', 'books', 'pieces.billy.in.livingRoom', () => spotOf('billy'), () => drawn.backWall.billy),
   lounge('billyChest', 'BillyChest', 'archive', 'pieces.billyChest.in.livingRoom', () => spotOf('billyChest'), () => drawn.backWall.billyChest, { short: 'Chest', folder: OTHER }),
   lounge('ivar', 'Ivar', 'layout-columns', 'pieces.ivar.in.livingRoom', ivarSpot, () => pieces.ivar, { folder: OTHER }),

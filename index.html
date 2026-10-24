@@ -211,8 +211,6 @@
             <label for="rear"><span id="rearLabel">Back-wall cupboard depth</span>: <span id="rearValue">330</span></label>
             <input id="rear" type="range" min="300" max="800" step="10" value="330">
           </div>
-          <label for="board">Board thickness: <span id="boardValue">18</span></label>
-          <input id="board" type="range" min="12" max="25" step="1" value="18">
           <label class="switch" id="xrayRow"><input type="checkbox" id="xray"> See-through cupboards</label>
           <div id="wardBlock">
             <label for="wardD">Double-door cupboard depth: <span id="wardDValue">600</span></label>
@@ -282,9 +280,12 @@
               </div>
             </div>
           </div>
-          <!-- The cupboard's height last, in every option (asked for, 18 Oct 2026) -->
+          <!-- The cupboard's height, in every option (asked for, 18 Oct 2026),
+               then its board's thickness, seldom changed, last (asked for, 24 Oct 2026) -->
           <label for="top">Cupboard height: <span id="topValue">ceiling</span></label>
           <input id="top" type="range" min="1800" max="2450" step="10" value="2450">
+          <label for="board">Board thickness: <span id="boardValue">18</span></label>
+          <input id="board" type="range" min="12" max="25" step="1" value="18">
         </div>
         <!-- The corner cupboard's cutting list, folded away till opened (the
              bedroom cupboard has its own, in Bedroom options) -->

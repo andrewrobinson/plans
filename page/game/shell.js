@@ -116,7 +116,7 @@ function fillPicker(room) {
   pickerPieces = ROOMS[room]?.picker ?? [];
   const folders = [...new Set(pickerPieces.map(p => p.folder).filter(Boolean))];
   picker.innerHTML = pickerPieces.filter(p => !p.folder).map(pickButton).join('') + folders.map(folder =>
-    `<button class="pick folderPick" data-folder="${folder.key}" aria-expanded="false" aria-controls="pickerFolder" title="${folder.name}">${icon(folder.icon)}<span>${folder.name}</span></button>`).join('');
+    `<button class="pick folderPick" data-folder="${folder.key}" aria-expanded="false" aria-controls="pickerFolder" title="${folder.name}">${icon(folder.icon)}<span>${folder.short ?? folder.name}</span></button>`).join('');
 }
 const FOLDER_GAP = 6;              // px between the picker and the folder's panel (chosen)
 function openFolder(button) {
@@ -179,6 +179,9 @@ function togglePiece(piece) {
 // every setting of its place in the room as it was (one that's fixed, its
 // switch alone)
 function setIn(piece, on, note, edits = []) {
+  // Put in where another shares its setting (the dresser and larder, on the front wall): that one's out with it
+  const sharing = on ? ROOMS[piece.room].picker.filter(p => p !== piece && p.on === piece.on && isIn(p)) : [];
+  if (sharing.length) note = `${note}, ${sharing.map(p => p.name).join(', ')} taken out`;
   // Put in where something else stands in its place: that one's taken out, a swap
   if (on && replacedNow(piece)) {
     const other = replacerOf(piece);
