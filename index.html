@@ -445,17 +445,31 @@
           <button id="tvHome" title="Back over the bench, the daybed or the middle of the clear wall, as it goes on its own">Reset location</button>
         </div>
       </details>
-      <details class="sec" id="secDeskShelves">
-        <summary>Desk shelves</summary>
-        <div>Over the monitors, right across the desk recess:
-          <span class="seg" role="radiogroup" aria-label="Desk shelves">
-          <label><input type="radio" name="deskShelves" value="0"> None</label>
-          <label><input type="radio" name="deskShelves" value="1"> 1</label>
-          <label><input type="radio" name="deskShelves" value="2"> 2</label></span>
-        </div>
-        <div id="deskShelfBlock" class="depth">
-          <label for="deskShelfDepth">Shelf depth: <span id="deskShelfDepthValue">250</span></label>
-          <input id="deskShelfDepth" type="range" min="150" max="400" step="10" value="250">
+      <details class="sec" id="secDiningTable">
+        <summary>Dining table</summary>
+        <label class="switch"><input type="checkbox" id="diningTableOn"> In the lounge, with the four Foxglove chairs</label>
+        <div id="diningTableMoveBlock" class="depth">
+          <span class="seg" role="radiogroup" aria-label="Dining table's shape"><label><input type="radio" name="diningShape" value="rectangular"> Rectangular</label>
+          <label><input type="radio" name="diningShape" value="round"> Round</label></span>
+          <div id="diningRectBlock">
+            <label for="diningLength">Table length: <span id="diningLengthValue"></span></label>
+            <input id="diningLength" type="range" min="1000" max="2400" step="10">
+            <label for="diningWidth">Table width: <span id="diningWidthValue"></span></label>
+            <input id="diningWidth" type="range" min="700" max="1100" step="10">
+          </div>
+          <div id="diningRoundBlock">
+            <label for="diningDiameter">Table diameter: <span id="diningDiameterValue"></span></label>
+            <input id="diningDiameter" type="range" min="800" max="1400" step="10">
+          </div>
+          <div id="diningFit" class="hint"></div>
+          <label class="switch"><input type="checkbox" id="diningTableChairsOut"> Chairs pulled out</label>
+          <label for="diningTableX" title="The dining table’s middle, from the left wall">Middle from the left wall: <span id="diningTableXValue"></span></label>
+          <input id="diningTableX" type="range">
+          <label for="diningTableY" title="The dining table’s middle, from the back wall">Middle from the back wall: <span id="diningTableYValue"></span></label>
+          <input id="diningTableY" type="range">
+          <label for="diningTableTurn">Dining table turned: <span id="diningTableTurnValue"></span></label>
+          <input id="diningTableTurn" type="range">
+          <div class="row"><button id="diningTableHome">Reset location</button></div>
         </div>
       </details>
       <details class="sec" id="secFrontWall" open>
@@ -603,6 +617,19 @@
           <label for="cheshamTurn">Chesham table turned: <span id="cheshamTurnValue"></span></label>
           <input id="cheshamTurn" type="range">
           <div class="row"><button id="cheshamHome">Reset location</button></div>
+        </div>
+      </details>
+      <details class="sec" id="secDeskShelves">
+        <summary>Desk shelves</summary>
+        <div>Over the monitors, right across the desk recess:
+          <span class="seg" role="radiogroup" aria-label="Desk shelves">
+          <label><input type="radio" name="deskShelves" value="0"> None</label>
+          <label><input type="radio" name="deskShelves" value="1"> 1</label>
+          <label><input type="radio" name="deskShelves" value="2"> 2</label></span>
+        </div>
+        <div id="deskShelfBlock" class="depth">
+          <label for="deskShelfDepth">Shelf depth: <span id="deskShelfDepthValue">250</span></label>
+          <input id="deskShelfDepth" type="range" min="150" max="400" step="10" value="250">
         </div>
       </details>
       <details class="sec" id="secCastorDesk">

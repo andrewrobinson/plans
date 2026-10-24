@@ -14,7 +14,7 @@
 import * as THREE from 'three';
 import { MM } from '../../kit/floor_kit.js';
 import {
-  config, drawn, pieces, spotOf, ivarSpot, tableSpot, castorDeskSpot, sofaHome, currentSofa, NO_SOFA, speakerPlaceFor, ROOM_BOXES, CURRENT_ROOM
+  config, drawn, pieces, spotOf, ivarSpot, tableSpot, castorDeskSpot, diningTableSpot, sofaHome, currentSofa, NO_SOFA, speakerPlaceFor, ROOM_BOXES, CURRENT_ROOM
 } from '../../flat_model.js';
 import { SOFA_MODELS } from '../../sofas.js';
 import { otherRoomPieces, settingPath, WALLS } from '../../other_room.js';
@@ -118,6 +118,7 @@ const LOUNGE = [
   lounge('ivar', 'Ivar', 'layout-columns', 'pieces.ivar.in.livingRoom', ivarSpot, () => pieces.ivar, { folder: OTHER }),
   lounge('cornwall', 'Cornwall table', 'table', 'pieces.cornwall.in.livingRoom', () => tableSpot('cornwall'), () => pieces.cornwall, { short: 'Cornwall', folder: OTHER }),
   lounge('chesham', 'Chesham table', 'table-alias', 'pieces.chesham.in.livingRoom', () => tableSpot('chesham'), () => pieces.chesham, { short: 'Chesham', folder: OTHER }),
+  lounge('diningTable', 'Dining table', 'tools-kitchen-2', 'pieces.diningTable.in.livingRoom', diningTableSpot, () => pieces.diningTable, { short: 'Dining', folder: OTHER }),
   lounge('castorDesk', 'Desk on castors', 'desk', 'pieces.castorDesk.in.livingRoom', castorDeskSpot, () => pieces.castorDesk, { short: 'Desk', folder: OTHER }),
   lounge('bookshelf', 'Bookcase', 'bookmarks', 'pieces.bookcase.in.livingRoom', () => spotOf('bookshelf'), () => drawn.backWall.bookshelf, { folder: OTHER }),
   lounge('pine', 'Pine cupboard', 'door', 'pieces.pineCupboard.in.livingRoom', () => spotOf('pine'), () => drawn.backWall.pine, { short: 'Pine' }),

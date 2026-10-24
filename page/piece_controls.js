@@ -1,15 +1,16 @@
 // The living room's pieces' controls (a piece of living_room.js): the
 // shelves and TV, the dresser, sofa and larder, the back wall's pieces,
-// Ivar, the tables, the castor desk, the speakers, the island and
+// Ivar, the tables (the dining table too), the castor desk, the speakers, the island and
 // See-through.
 import { BOOKCASE_SIZES } from '../other_room.js';
 import { SIZE_LABEL } from '../kit/controls_kit.js';
 import {
   BACK_WALL_KEYS, DRESSERS, DRESSER_SLIDERS, LARDERS, LARDER_SLIDERS, SOFAS, 
   SOFA_SLIDERS, TV_SIZES, cupboard, currentSofa, larderHeight, larderOwnSize, pieces, get, sofaHome, sofaOwnSize, 
-  spotOf, ivarSpot, tableSpot, castorDeskSpot, config, updateDims, inLivingRoom, NO_SOFA, speakerSpacingNow, 
+  spotOf, ivarSpot, tableSpot, castorDeskSpot, diningTableSpot, config, updateDims, inLivingRoom, NO_SOFA, speakerSpacingNow, 
   cupboardTopForSpeakers
 } from '../flat_model.js';
+import { chairsFit } from '../dining_table.js';
 import { display, setDisplay } from './display.js';
 import { ROOM_WIDTH, ROOM_DEPTH } from '../floor.js';
 import { applyCut, change, viewKit } from '../living_room.js';
@@ -172,6 +173,36 @@ function showTables() {
     document.getElementById(`${key}MoveBlock`).style.display = inLivingRoom(key).on ? '' : 'none';
     showPlace(key, tableSpot(key));
   }
+  showDiningTable();
+}
+// The dining table: in the lounge or not, rectangular or round, its size,
+// its chairs pulled out or not, and moved from the middle of the room
+// (flat_model.js's diningTableSpot()); and whether the chairs fit
+const DINING_PLACE = 'pieces.diningTable.in.livingRoom', DINING_DESIGN = 'pieces.diningTable.design';
+const DINING_SLIDERS = [['length', 'diningLength'], ['width', 'diningWidth'], ['diameter', 'diningDiameter']];
+const diningOn = document.getElementById('diningTableOn'), diningChairsOut = document.getElementById('diningTableChairsOut');
+const diningShape = [...document.getElementsByName('diningShape')];
+diningOn.addEventListener('change', () => change([[`${DINING_PLACE}.on`, diningOn.checked]], { look: true }));
+diningChairsOut.addEventListener('change', () => change([[`${DINING_PLACE}.chairsOut`, diningChairsOut.checked]]));
+for (const radio of diningShape) radio.addEventListener('change', () => change([[`${DINING_DESIGN}.shape`, radio.value]]));
+for (const [k, id] of DINING_SLIDERS) {
+  document.getElementById(id).addEventListener('input', e => change([[`${DINING_DESIGN}.${k}`, Number(e.target.value)]]));
+}
+placeControls('diningTable', DINING_PLACE, diningTableSpot);
+function showDiningTable() {
+  const { on, chairsOut } = config.pieces.diningTable.in.livingRoom, design = config.pieces.diningTable.design;
+  diningOn.checked = on;
+  diningChairsOut.checked = chairsOut;
+  for (const radio of diningShape) radio.checked = radio.value === design.shape;
+  for (const [k, id] of DINING_SLIDERS) {
+    document.getElementById(id).value = String(design[k]);
+    document.getElementById(`${id}Value`).textContent = String(design[k]);
+  }
+  document.getElementById('diningTableMoveBlock').style.display = on ? '' : 'none';
+  document.getElementById('diningRectBlock').style.display = design.shape === 'round' ? 'none' : '';
+  document.getElementById('diningRoundBlock').style.display = design.shape === 'round' ? '' : 'none';
+  document.getElementById('diningFit').textContent = chairsFit(design.shape, design);
+  showPlace('diningTable', diningTableSpot());
 }
 // The desk on castors: in the lounge or not, parked by the door or at the
 // TV (choosing one wheels it there), and moved from either

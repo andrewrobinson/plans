@@ -53,6 +53,8 @@ const THINGS = [
   { name: 'Ivar', objects: () => [pieces.ivar], ids: ['secIvar'] },
   { name: 'Cornwall table', objects: () => [pieces.cornwall], ids: ['secCornwall'] },
   { name: 'Chesham table', objects: () => [pieces.chesham], ids: ['secChesham'] },
+  // the dining table grows both ways about its middle; round, its diameter (the other sliders hidden, so their handles)
+  { name: 'Dining table', objects: () => [pieces.diningTable], ids: ['secDiningTable'], sizes: [w('diningLength'), d('diningWidth', 2), w('diningDiameter')] },
   { name: 'Desk on castors', objects: () => [pieces.castorDesk], ids: ['secCastorDesk'] },
   { name: 'Speakers', objects: () => [pieces.speakers], ids: ['secSpeakers'] },
   { name: 'Billy', objects: () => [drawn.backWall.billy], ids: ['billyMoveBlock'] },
@@ -121,7 +123,7 @@ function openOptions({ thing, object, now }, target = null) {
   select({ thing: { object, name: thing.name } });
   // Its handles, for those of its sizes shown (IKEA's island has none)
   const shown = (thing.sizes ?? []).filter(s => sliderShown(document.getElementById(s.id)));
-  if (now && shown.length) startResize(now, shown);
+  if (now && shown.length) startResize(now, thing.sizes);   // all of them, each handle hidden while its slider is (resize.js)
   sheet.hidden = false;
   body.scrollTop = 0;
   requestAnimationFrame(() => { sheet.classList.add('up'); resize(); });   // the 2D views fitted above it

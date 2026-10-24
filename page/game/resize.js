@@ -40,6 +40,10 @@ function stopResize() {
 // ways; the front alone for one that grows from the back
 const ends = ({ along, factor = along === 'w' ? 2 : 1 }) => (along === 'd' && factor === 1 ? [1] : [-1, 1]);
 const factorOf = ({ along, factor = along === 'w' ? 2 : 1 }) => factor;
+// A size whose slider's block is hidden now, as a change can hide it with
+// the sheet open (a round dining table's length and width, a rectangular
+// one's diameter): syncControls() hides blocks by their style, or hidden
+const sizeHidden = ({ id }) => Boolean(document.getElementById(id)?.closest('[style*="display: none"], [hidden]'));
 
 // The thing's own axes on the floor: its width runs along its local x, its
 // front is its local +z, each as the living room's x and y
@@ -58,6 +62,7 @@ function axes(object) {
   const b = floorBox(object), mid = { x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2 }, half = { x: (b.x1 - b.x0) / 2, y: (b.y1 - b.y0) / 2 };
   const ax = axes(object);
   for (const h of handles.children) {
+    h.hidden = sizeHidden(h.size);
     const a = ax[h.size.along];
     // the footprint's edge the way the axis runs (the box is square to the walls)
     const out = Math.abs(a.x) > Math.abs(a.y) ? { x: Math.sign(a.x) * half.x, y: 0 } : { x: 0, y: Math.sign(a.y) * half.y };

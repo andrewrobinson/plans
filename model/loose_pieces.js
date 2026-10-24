@@ -1,6 +1,6 @@
 // The living room's loose pieces (a piece of flat_model.js): the chair at
 // the daybed's desk and what's in its way, the first window's radiator,
-// Ivar, the kitchen tables, the castor desk and the speakers.
+// Ivar, the kitchen tables, the dining table, the castor desk and the speakers.
 import * as THREE from 'three';
 import * as Cupboard from '../corner_cupboard.js';
 import { MM, box } from '../kit/floor_kit.js';
@@ -12,6 +12,7 @@ import { daybed } from '../daybed.js';
 import { ivar, ivarSizes } from '../ivar.js';
 import { CHESHAM, CORNWALL, kitchenTable, tableSizes } from '../tables.js';
 import { castorDesk, castorDeskSizes } from '../castor_desk.js';
+import { DINING_TABLE, chairsFit, diningTable } from '../dining_table.js';
 import { FENRIS_A5, fenrisA5 } from '../speakers.js';
 import { DESK_DAYBED, DAYBED_TOP_D, deskDaybed, bedMiddle, deskOpenEnd } from '../desk_daybed.js';
 import { WORK_CHAIRS } from '../work_chairs.js';
@@ -59,7 +60,7 @@ function obstacles(daybed) {
 // The living room's loose pieces as drawn, as [object, name]: the sofa, the
 // Ivar, the tables, the desk on castors and the back wall's pieces
 const loosePieces = () => [[pieces.sofa, 'the sofa'], [pieces.ivar, 'the Ivar'], [pieces.chesham, 'Chesham'], [pieces.cornwall, 'Cornwall'],
-  [pieces.castorDesk, 'the desk on castors'], ...Object.entries(drawn.backWall).map(([key, piece]) => [piece, BACK_WALL_PIECES[key].short])]
+  [pieces.castorDesk, 'the desk on castors'], [pieces.diningTable, 'the dining table'], ...Object.entries(drawn.backWall).map(([key, piece]) => [piece, BACK_WALL_PIECES[key].short])]
   .filter(([piece]) => piece);
 // The boxes, in the scene, of each solid part of an object (none for none)
 function meshBoxes(object) {
@@ -175,6 +176,30 @@ function tablesInLivingRoom(g) {
   }
   return text;
 }
+// The dining table and its four Foxglove chairs (dining_table.js): out to
+// start; in, in the middle of the room (chosen: the open floor, to be
+// dragged from there), its length across the room, and moved from there
+// by its sliders. Its spot is its middle, as it can be round
+const DINING_HOME = { x: Math.round(ROOM_WIDTH / 2), y: Math.round(ROOM_DEPTH / 2), turn: 0 };
+const diningTableSpot = () => config.pieces.diningTable.in.livingRoom.move ?? DINING_HOME;
+const diningSizes = () => config.pieces.diningTable.design;
+// Drawn into the option's group if it's in. Returns its sentences for the
+// summary: its size, where, the floor it takes with its chairs, and
+// whether they fit
+function diningTableInLivingRoom(g) {
+  if (!config.pieces.diningTable.in.livingRoom.on) return '';
+  const { shape, length, width, diameter } = diningSizes(), { chairsOut } = config.pieces.diningTable.in.livingRoom;
+  const { x, y, turn } = diningTableSpot();
+  const piece = diningTable(shape, diningSizes(), { pulledOut: chairsOut });
+  piece.position.set(x * MM, 0, y * MM);
+  turnPiece(piece, turn);
+  const b = footprint(piece), taken = `${Math.round((b.max.x - b.min.x) / MM)} by ${Math.round((b.max.z - b.min.z) / MM)}`;
+  g.add(piece);
+  pieces.diningTable = piece;
+  const size = shape === 'round' ? `round, ${diameter} across` : `${length} long, ${width} wide`;
+  return ` The dining table (${size}, ${DINING_TABLE.H} high) with four Foxglove chairs ${chairsOut ? 'pulled out' : 'tucked in'}: its middle at x ${Math.round(x)}, y ${Math.round(y)}, turned ${turn}°, taking ${taken} of the floor. ${chairsFit(shape, diningSizes())}`;
+}
+
 // The desk on castors: parked against the left wall, its far end
 // CASTOR_DESK_CLEAR short of the door frame, so it sits between the frame
 // and the corner cupboard; or wheeled out in front of the TV, centred on it,
@@ -347,6 +372,6 @@ function speakersInLivingRoom(g) {
 
 // What the other pieces of the model use
 export {
-  CASTOR_DESK_HOMES, SPEAKER_PLACES, castorDeskInLivingRoom, castorDeskSpot, chairAtDaybedDesk, firstRadiator, 
+  CASTOR_DESK_HOMES, SPEAKER_PLACES, castorDeskInLivingRoom, castorDeskSpot, chairAtDaybedDesk, diningTableInLivingRoom, diningTableSpot, firstRadiator, 
   ivarInLivingRoom, ivarSpot, speakersInLivingRoom, tableSpot, tablesInLivingRoom
 };

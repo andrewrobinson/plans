@@ -28,6 +28,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -485,6 +486,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -795,6 +811,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -1248,6 +1265,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -1517,6 +1549,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -1970,6 +2003,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -2276,6 +2324,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -2733,6 +2782,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -3037,6 +3101,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -3494,6 +3559,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -3752,6 +3832,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -4209,6 +4290,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -4467,6 +4563,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -4924,6 +5021,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -5183,6 +5295,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -5640,6 +5753,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -5941,6 +6069,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -6398,6 +6527,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -6656,6 +6800,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -7113,6 +7258,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -7414,6 +7574,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -7875,6 +8036,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -8176,6 +8352,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -8637,6 +8814,21 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
+              }
+            }
+          },
           "speakers": {
             "in": {
               "livingRoom": {
@@ -8938,6 +9130,7 @@ window.ROOM_CONFIGURATIONS = {
           "dresser": 0,
           "carpet": 0,
           "bedroomCupboard": 0,
+          "diningChairs": 0,
           "shelves": 0
         },
         "livingRoom": {
@@ -9392,6 +9585,21 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3800,
                 "y": 1435,
                 "turn": 270
+              }
+            }
+          },
+          "diningTable": {
+            "design": {
+              "shape": "rectangular",
+              "length": 1500,
+              "width": 850,
+              "diameter": 1050
+            },
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "chairsOut": false,
+                "move": null
               }
             }
           },

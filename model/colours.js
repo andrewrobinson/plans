@@ -3,6 +3,7 @@
 import { RAL, oakBoards } from '../kit/floor_kit.js';
 import { floor, wallMat, floorMat, frameMat, carpetMat, CARPET_COLOURS } from '../floor.js';
 import { config, drawn } from './state.js';
+import { chairMat } from '../dining_table.js';
 import { cupboard } from './cupboards.js';
 import {
   BEDROOM_MATERIALS, benchMat, carcassMat, doorMat, dresserDoorMat, dresserMat, roomDoorMat
@@ -42,6 +43,8 @@ const FINISHES = {
   12: { name: 'Carpet from the photos', hex: CARPET_COLOURS.fromPhotos },
   13: { name: 'Carpet, lighter', hex: CARPET_COLOURS.lighter },
   14: { name: 'Carpet from the doorway photo', hex: CARPET_COLOURS.doorwayPhoto },
+  // The user's Foxglove chairs' dark blue (24 Oct 2026), estimated: a deep navy linen
+  15: { name: 'Foxglove navy', hex: '#1F2B45' },
 };
 const colourOf = code => RAL[code] ? { name: RAL[code][0], hex: RAL[code][1] } : FINISHES[code];
 
@@ -53,6 +56,7 @@ const COLOUR_TARGETS = {
   dresser: { mats: [dresserMat, dresserDoorMat], follows: 'cupboard' },
   carpet: { mats: [carpetMat], room: 14 },
   bedroomCupboard: { mats: [BEDROOM_MATERIALS.carcass, BEDROOM_MATERIALS.door], follows: 'cupboard' },
+  diningChairs: { mats: [chairMat], room: 15 },
 };
 
 

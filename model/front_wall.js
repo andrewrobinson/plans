@@ -161,7 +161,7 @@ function placePiece(g) {
 // a bookcase like the bedroom's or nothing, in every option but the current room.
 // The configuration names them as here.
 const FRONT_PIECES = ['dresser', 'larder', 'none', 'bookshelf'];
-const pieces = { dresser: null, larder: null, sofa: null, ivar: null, chesham: null, cornwall: null, castorDesk: null, speakers: null, workChair: null };
+const pieces = { dresser: null, larder: null, sofa: null, ivar: null, chesham: null, cornwall: null, castorDesk: null, diningTable: null, speakers: null, workChair: null };
 
 
 const frontFrom = () => KITCHEN.frontRunTo + KITCHEN.counterPast;

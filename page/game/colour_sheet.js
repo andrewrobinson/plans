@@ -12,7 +12,7 @@ import { spectrum } from '../spectrum.js';
 // What each colour setting paints, as the sheet names it
 const TARGET_NAMES = {
   floor: 'The floor', cupboard: 'The cupboards and bench', wall: 'The walls', woodwork: 'The door frames and doors',
-  dresser: 'The dresser', carpet: 'The carpet', bedroomCupboard: "The bedroom's cupboard",
+  dresser: 'The dresser', carpet: 'The carpet', bedroomCupboard: "The bedroom's cupboard", diningChairs: 'The dining chairs',
 };
 // The strip: the room's own finishes, then the cupboard colours most
 // chosen (page/colours.js's POPULAR), as many as fit a phone's width

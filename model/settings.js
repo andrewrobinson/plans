@@ -24,6 +24,7 @@ import {
 } from './front_wall.js';
 import { BY_HAND, PACKINGS, STORED_WHERE } from './stored.js';
 import { CASTOR_DESK_HOMES, SPEAKER_PLACES } from './loose_pieces.js';
+import { DINING_SHAPES } from '../dining_table.js';
 import { SLIDER_RANGES } from './slider_ranges.js';
 import { readDoors } from '../flat_model.js';
 
@@ -202,6 +203,14 @@ const LIVING_ROOM_SCHEMA = [
   Config.onOff('pieces.cornwall.in.livingRoom.on'),
   Config.onOff('pieces.cornwall.in.livingRoom.legsOff'),
   spotOrHome('pieces.cornwall.in.livingRoom.move'),
+  // The dining table: its shape and size, in or out, its chairs pulled out or not, and where
+  Config.choice('pieces.diningTable.design.shape', DINING_SHAPES),
+  fromSlider('pieces.diningTable.design.length', 'diningLength'),
+  fromSlider('pieces.diningTable.design.width', 'diningWidth'),
+  fromSlider('pieces.diningTable.design.diameter', 'diningDiameter'),
+  Config.onOff('pieces.diningTable.in.livingRoom.on'),
+  Config.onOff('pieces.diningTable.in.livingRoom.chairsOut'),
+  spotOrHome('pieces.diningTable.in.livingRoom.move'),
   // The speakers: where, and how far apart on the bench and on Billy (null
   // for where they start)
   Config.choice('pieces.speakers.in.livingRoom.on', SPEAKER_PLACES),

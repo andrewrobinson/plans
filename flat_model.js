@@ -86,7 +86,7 @@ import {
   PACKINGS, STORED, drawStored, insideText, placeStored, storedGroup, storedMats, storedSize
 } from './model/stored.js';
 import {
-  castorDeskInLivingRoom, castorDeskSpot, chairAtDaybedDesk, firstRadiator, ivarInLivingRoom, ivarSpot, 
+  castorDeskInLivingRoom, castorDeskSpot, chairAtDaybedDesk, diningTableInLivingRoom, diningTableSpot, firstRadiator, ivarInLivingRoom, ivarSpot, 
   speakersInLivingRoom, tableSpot, tablesInLivingRoom
 } from './model/loose_pieces.js';
 import {
@@ -135,6 +135,7 @@ const flatPieces = () => ({
   cornerCupboard: cupboard?.group,                              // the option's own build, without the bench
   dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup, 'ivar.livingRoom': pieces.ivar,
   'chesham.livingRoom': pieces.chesham, 'cornwall.livingRoom': pieces.cornwall, 'castorDesk.livingRoom': pieces.castorDesk,
+  'diningTable.livingRoom': pieces.diningTable,
   'speakers.livingRoom': pieces.speakers,
   'workChair.livingRoom': pieces.workChair,
   bedroomCupboard: otherRoomPieces.newCupboard,
@@ -194,7 +195,7 @@ export function build(onShow = optionsOnShow()) {
   drawn.tv = null;
   drawn.tvAt = [tv.middle, 0, tv.bottom + TV_H / 2];
   const backWall = standing + (benchDrawn() ? benchWall(clearFrom, group, tv) : '') + tvPiece(tv, clearFrom, group);
-  const aboveText = backWall + frontWall(group) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + speakersInLivingRoom(group) + deskShelves(group) + firstRadiator() + chairAtDaybedDesk();
+  const aboveText = backWall + frontWall(group) + sofa(group) + ivarInLivingRoom(group) + tablesInLivingRoom(group) + castorDeskInLivingRoom(group) + diningTableInLivingRoom(group) + speakersInLivingRoom(group) + deskShelves(group) + firstRadiator() + chairAtDaybedDesk();
   if (!same) doors.second = 0;
   drawOtherRoom(config);                                         // the bedroom's furniture
   buildBedroomCupboard(onShow.bedroomCupboard);                 // and its own corner cupboard
@@ -325,7 +326,7 @@ export {
   islandOnWall, islandTopMat, kitchenMat, larderHeight, larderOwnSize,
   cupboardSettings, oakMat, onBackWall, benchStandIns, optionOf, namedPieces, pieceBoxes, pieces,
   readConfiguration, readShelves, screenMat, shelfMat,
-  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, config, storedGroup,
+  shownCode, sizesInOrder, sofaHome, sofaOwnSize, spotOf, ivarSpot, tableSpot, castorDeskSpot, diningTableSpot, config, storedGroup,
   storedMats, storedSize, drawn, tvMat, updateDims, worktopMat,
 };
 

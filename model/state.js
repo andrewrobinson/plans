@@ -231,6 +231,13 @@ const config = {
     // ('byTheDoor') or wheeled out in front of the TV ('atTheTv'): CASTOR_DESK_HOMES;
     // and moved from there, as the Ivar
     castorDesk: { in: { livingRoom: { on: false, at: 'byTheDoor', move: null } } },
+    // The dining table (dining_table.js), to try with the four Foxglove
+    // chairs: rectangular or round (one of DINING_SHAPES), its size (chosen
+    // to start: what two chairs a side want, and four round), out to start,
+    // its chairs tucked in or pulled out, and moved from the middle of the
+    // room (null there), as the Ivar
+    diningTable: { design: { shape: 'rectangular', length: 1500, width: 850, diameter: 1050 },
+      in: { livingRoom: { on: false, chairsOut: false, move: null } } },
     // The speakers (speakers.js), a pair: on nothing to start ('none'), or
     // on one of SPEAKER_PLACES; and on the bench, Billy and the daybed, the distance
     // between their middles, or null for where they start there
@@ -240,7 +247,7 @@ const config = {
     deskShelves: { design: { count: 0, depth: 250 } },
     speakers: { in: { livingRoom: { on: 'none', spacing: { bench: null, billy: null, deskDaybed: null } } } },
   },
-  colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0,   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
+  colours: { floor: 0, cupboard: 4, wall: 0, woodwork: 0, dresser: 0, carpet: 0, bedroomCupboard: 0, diningChairs: 0,   // a RAL code or finish for each of COLOUR_TARGETS, 0 for its default: AI Olive cupboards, the bedroom's following them
     shelves: 0 },                  // the shelves' wood, which of SHELF_WOODS
   livingRoom: { frontWall: 'none',     // on the front wall between the sink and the desk: one of FRONT_PIECES (none yet)
     firstRadiator: true },             // the radiator under the first window, which could be taken out (asked for, 22 Oct 2026)

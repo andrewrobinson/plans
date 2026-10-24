@@ -1,4 +1,4 @@
-// The controls tests: the bedroom's cupboard, option 7's shelves, the wicker bench, what's by the bed, the kitchen tables, the castor desk, the speakers, the first radiator, the daybed with a desk and the things to store.
+// The controls tests: the bedroom's cupboard, option 7's shelves, the wicker bench, what's by the bed, the kitchen tables and the dining table, the castor desk, the speakers, the first radiator, the daybed with a desk and the things to store.
 // The helpers they share are in helpers.js.
 const {
   test, expect, openRoom, openOptions, pickOption, setting, optionShown, inPlan, storedHead, view, openDrawer, 
@@ -194,6 +194,25 @@ test.describe('the kitchen tables', () => {
     await page.locator('#cheshamOn').uncheck();
     await expect(page.locator('#cheshamMoveBlock')).toBeHidden();
     expect(await boxOf(page, 'chesham')).toBe(null);
+  });
+
+  test('the dining table says whether the four Foxglove chairs fit', async ({ page }) => {
+    expect(await boxOf(page, 'diningTable')).toBe(null);
+    await page.locator('#diningTableOn').check();
+    // 1500 by 850, a chair each side of each long side, 400 out past its edges
+    expect(await boxOf(page, 'diningTable')).toEqual({ from: [1169, 1865, 0], to: [2669, 3515, 970], shown: true });
+    await expect(page.locator('#diningFit')).toHaveText(/need 1160: 140 to spare/);
+    await slide(page, 'diningLength', 1200);
+    await expect(page.locator('#diningFit')).toHaveText(/160 short: it needs to be 1360 long/);
+    // Round, its diameter shown in place of the length and width
+    await page.locator('input[name=diningShape][value=round]').check();
+    await expect(page.locator('#diningLength')).toBeHidden();
+    expect(await boxOf(page, 'diningTable')).toEqual({ from: [994, 1765, 0], to: [2844, 3615, 970], shown: true });
+    await slide(page, 'diningDiameter', 800);
+    await expect(page.locator('#diningFit')).toHaveText(/it needs 892 across/);
+    // The chairs pulled out 600 each way
+    await page.locator('#diningTableChairsOut').check();
+    expect(await boxOf(page, 'diningTable')).toEqual({ from: [519, 1290, 0], to: [3319, 4090, 970], shown: true });
   });
 });
 

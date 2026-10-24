@@ -17,7 +17,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `page/controls.js` | 185 | `change(edits)`, which every control goes through; `show()`, `showInMenus()`, `redrawAround()`; the doors' sliders; the address (`writeAddress`) |
 | `page/colours.js` | 160 | The colour pickers and palette: `colourPicker`, its swatch's spectrum (`spectrumUnder`), `paintAll`, `updatePalette` |
 | `page/spectrum.js` | 125 | The spectrum to drag over, for both UIs: hue across, light to dark down, greys at the side, snapping to the nearest RAL (`spectrum`, `nearestRal`) |
-| `page/piece_controls.js` | 290 | The lounge's pieces' controls: dresser, sofa, larder, back wall, Ivar, tables, castor desk, speakers, island, See-through (`placeControls`, `setCupboardOnly`) |
+| `page/piece_controls.js` | 360 | The lounge's pieces' controls: dresser, sofa, larder, back wall, Ivar, tables, the dining table (`showDiningTable`), castor desk, speakers, island, See-through (`placeControls`, `setCupboardOnly`) |
 | `page/views.js` | 125 | The built-in views (`builtInViews`): each room's plan and 2D walls (`wallView`), Packing (`packingView`) |
 | `page/tips.js` | 105 | The tip under the pointer (`showTip`), and where things are for the views to aim at (`anchors`, `pointOn`) |
 | `page/view.js` | 140 | The 2D views' fit (`frameCupboard`), `viewKit`, the Configuration list, loading cover, Dimensions buttons |
@@ -52,7 +52,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `model/bench_wall.js` | 315 | The back wall: the bench (drawn whenever it's on, `benchDrawn`), its shelves (`benchWall`, `aboveNow`), the TV, a piece of its own (`tvSpot`, `tvPiece`, `drawTv`, `tvOn`), base cupboards, Billy, the pine cupboard, the daybed (`BACK_WALL_PIECES`) |
 | `model/colours.js` | 75 | `FINISHES`, `COLOUR_TARGETS`, `applyColour` |
 | `model/front_wall.js` | 285 | The dresser, larder, sofa, front wall and bookcase: `DRESSERS`, `LARDERS`, `SOFAS`, `frontWall` |
-| `model/loose_pieces.js` | 310 | The daybed desk's chair and what's in its way, the first radiator, Ivar, the tables, the castor desk, the speakers |
+| `model/loose_pieces.js` | 375 | The daybed desk's chair and what's in its way, the first radiator, Ivar, the tables, the dining table (`diningTableSpot`, from the room's middle), the castor desk, the speakers |
 | `model/stored.js` | 275 | The things to store: `STORED`, `PACKINGS`, `placeStored`, `drawStored` |
 | `model/dimensions.js` | 155 | The 2D views' dimensions (`updateDims`), door sizes, `cuttingList` |
 | `corner_cupboard.js` | 1,030 | The corner cupboard: each option's build (`OPTIONS`), shelves, inside spaces, dimensions, cutting list; `makeCupboard` |
@@ -65,6 +65,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `tornviken.js`, `rosentorp.js`, `loshult.js`, `ekby_alex.js` | 170, 45, 35, 35 | The kitchen island (IKEA's TORNVIKEN): its layouts, IKEA's, facing, trolleys and drawers (`ISLAND_LAYOUTS`), and where its chairs go (`placeTornviken`); its bar stools (ROSENTORP), trolleys (LOSHULT) and drawers (EKBY ALEX). Photos in `images/tornvikken_options/` |
 | `custom_island.js` | 105 | The custom built-in island, in place of TORNVIKEN: drawers both sides, the worktop running on past them for two ROSENTORP stools, its length, width and overhang from sliders (`CUSTOM_ISLAND`, `customIsland`, `placeCustomIsland`) |
 | Furniture: `billy.js`, `bookcase.js`, `castor_desk.js`, `daybed.js`, `desk_daybed.js`, `ivar.js`, `knarrevik.js`, `kvistbro.js`, `laundry_basket.js`, `speakers.js`, `tables.js`, `work_chairs.js` | 25 to 115 | One piece each, drawn wherever it stands |
+| `dining_table.js` | 125 | The dining table to try with the user's four Foxglove chairs (navy, colour target `diningChairs`): rectangular (two a side) or round on a pedestal, its size from sliders, chairs tucked in or pulled out (`FOXGLOVE`, `DINING_TABLE`, `diningTable`), and whether they fit (`chairsFit`) |
 | Catalogues: `dressers.js`, `larders.js`, `sofas.js` | 30 to 50 | Models and sizes, for editing |
 
 ## The engine (`kit/`)
