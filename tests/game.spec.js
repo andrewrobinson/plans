@@ -195,6 +195,22 @@ test('the colour sheet paints as you slide, ✕ puts it back and ✓ keeps it', 
   expect(await floorColour()).toBe(previewed);
 });
 
+test('the spectrum in the colour sheet paints the nearest RAL colour as you drag', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  await toPlan(page);
+  const spot = await screenOf(page, 1000, 2500);
+  await page.mouse.click(spot.x, spot.y);
+  await openSheet(page);
+  await page.click('#colourSpectrumButton');
+  const box = await page.locator('#colourSpectrum .spectrum').boundingBox();
+  // Across the blues, two thirds of the way along, about halfway down
+  await drag(page, { x: box.x + box.width * 0.55, y: box.y + box.height / 2 }, { x: box.x + box.width * 0.62, y: box.y + box.height / 2 });
+  await page.click('#colourKeep');
+  const code = await setting(page, 'colours.floor');
+  expect(code).toBeGreaterThan(1000);              // a RAL code, not one of the room's finishes
+  expect(String(code)[0]).toBe('5');               // a blue
+});
+
 test('in Walk, a tap on the floor walks you there', async ({ page }) => {
   await openRoom(page, '', { game: true });
   await page.click('#gameModes [data-view=walk]');

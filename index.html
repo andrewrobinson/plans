@@ -619,7 +619,7 @@
             <button id="colPrev" aria-label="Previous named colour">◀</button>
             <select id="ral-cupboard" aria-label="Cupboard colour"></select>
             <button id="colNext" aria-label="Next named colour">▶</button>
-            <span class="swatch" id="cupboardSwatch"></span>
+            <button class="swatch" id="cupboardSwatch" aria-expanded="false" title="Every colour, to drag over"></button>
           </div>
           <div class="colrow" id="otherRow" hidden>
             <select id="ral-other" aria-label="Other cupboard colour"></select>
@@ -629,7 +629,7 @@
             <button id="dresserPrev" aria-label="Previous named dresser colour">◀</button>
             <select id="ral-dresser" aria-label="Dresser colour"></select>
             <button id="dresserNext" aria-label="Next named dresser colour">▶</button>
-            <span class="swatch" id="dresserSwatch"></span>
+            <button class="swatch" id="dresserSwatch" aria-expanded="false" title="Every colour, to drag over"></button>
           </div>
           <div class="colrow" id="dresserOtherRow" hidden>
             <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
@@ -697,7 +697,7 @@
               <button id="bedroomCupboardColPrev" aria-label="Previous named bedroom cupboard colour">◀</button>
               <select id="ral-bedroomCupboard" aria-label="Bedroom cupboard colour"></select>
               <button id="bedroomCupboardColNext" aria-label="Next named bedroom cupboard colour">▶</button>
-              <span class="swatch" id="bedroomCupboardSwatch"></span>
+              <button class="swatch" id="bedroomCupboardSwatch" aria-expanded="false" title="Every colour, to drag over"></button>
             </div>
             <div class="colrow" id="bedroomCupboardOtherRow" hidden>
               <select id="ral-bedroomCupboard-other" aria-label="Other bedroom cupboard colour"></select>
@@ -720,7 +720,7 @@
             <button id="carpetPrev" aria-label="Previous named carpet colour">◀</button>
             <select id="ral-carpet" aria-label="Carpet colour"></select>
             <button id="carpetNext" aria-label="Next named carpet colour">▶</button>
-            <span class="swatch" id="carpetSwatch"></span>
+            <button class="swatch" id="carpetSwatch" aria-expanded="false" title="Every colour, to drag over"></button>
           </div>
           <div class="colrow" id="carpetOtherRow" hidden>
             <select id="ral-carpet-other" aria-label="Other carpet colour"></select>
@@ -791,7 +791,8 @@
     <button id="colourKeep" class="gameIcon keep" aria-label="Keep this colour"><i class="ti ti-check" aria-hidden="true"></i></button>
   </div>
   <div id="colourStrip"></div>
-  <div class="foot"><span>Slide along the colours</span><button id="colourMore" aria-expanded="false">More colours</button></div>
+  <div class="foot"><span>Slide along the colours</span><span><button id="colourSpectrumButton" aria-expanded="false">Spectrum</button><button id="colourMore" aria-expanded="false">More colours</button></span></div>
+  <div id="colourSpectrum" hidden></div>
   <div id="colourGrid" hidden></div>
 </div>
 <div id="optionsSheet" class="game" role="dialog" aria-labelledby="optionsTitle" hidden>

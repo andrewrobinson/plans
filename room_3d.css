@@ -190,6 +190,13 @@ body:is(.menu-open, .lounge-open, .bed-open, .garage-open, .hall-open) #bottomLe
 .colours select { flex: 1; min-width: 0; font: inherit; padding: 4px 5px; border: 1px solid #999; border-radius: 5px; background: #fff; }
 .colours .swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #999; flex: none; background: transparent; }
 #paletteList .colrow { margin: 3px 0; }
+/* The spectrum to drag over (page/spectrum.js), and its ring on the colour chosen */
+.spectrum { position: relative; height: 90px; border-radius: 6px; touch-action: none; cursor: crosshair; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
+.spectrum canvas { display: block; width: 100%; height: 100%; border-radius: inherit; }
+.colours .spectrumRow .spectrum { flex: 1; }
+.spectrum .ring { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5); pointer-events: none; box-sizing: border-box; }
+.spectrum .ring[hidden] { display: none; }
+.colours button.swatch { padding: 0; cursor: pointer; }
 #paletteList .what { flex: 1; min-width: 0; }
 #paletteList code { color: #666; font-size: 11px; }
 /* The name and size of a thing to store, by the pointer */

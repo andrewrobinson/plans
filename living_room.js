@@ -203,7 +203,7 @@ export {
   update, writeAddress
 } from './page/controls.js';
 export {
-  FAMILIES, POPULAR, refreshColours, showShelfWood, updatePalette
+  FAMILIES, POPULAR, paintAll, refreshColours, showShelfWood, updatePalette
 } from './page/colours.js';
 export {
   applyCut, configurationKit, draw, drawSoon, resize, viewKit, viewNow

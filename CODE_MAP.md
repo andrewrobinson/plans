@@ -15,7 +15,8 @@ first, then open only the file you need. Sizes are rough line counts
 | `page/display.js` | 15 | What the page shows (`display`, given to each build) and `setDisplay` |
 | `page/stored_controls.js` | 160 | The things to store's menu, lifting and dragging them, the cutting lists: `showStored`, `moveStored`, `restow` |
 | `page/controls.js` | 185 | `change(edits)`, which every control goes through; `show()`, `showInMenus()`, `redrawAround()`; the doors' sliders; the address (`writeAddress`) |
-| `page/colours.js` | 125 | The colour pickers and palette: `colourPicker`, `updatePalette` |
+| `page/colours.js` | 160 | The colour pickers and palette: `colourPicker`, its swatch's spectrum (`spectrumUnder`), `paintAll`, `updatePalette` |
+| `page/spectrum.js` | 125 | The spectrum to drag over, for both UIs: hue across, light to dark down, greys at the side, snapping to the nearest RAL (`spectrum`, `nearestRal`) |
 | `page/piece_controls.js` | 290 | The lounge's pieces' controls: dresser, sofa, larder, back wall, Ivar, tables, castor desk, speakers, island, See-through (`placeControls`, `setCupboardOnly`) |
 | `page/views.js` | 125 | The built-in views (`builtInViews`): each room's plan and 2D walls (`wallView`), Packing (`packingView`) |
 | `page/tips.js` | 105 | The tip under the pointer (`showTip`), and where things are for the views to aim at (`anchors`, `pointOn`) |
@@ -26,7 +27,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `page/game/plan_edit.js` | 270 | Plan's editing: select, drag (held in the room, snapping to walls), drop from and onto the picker, Turn, the sofa's resize handles, the keys |
 | `page/game/selection.js` | 130 | What's selected: the blue outline in the scene (red overlapping) and the action bar (`select`, `setActions`) |
 | `page/game/picking.js` | 55 | What's under the pointer: `planPoint`, `hitsUnder`, `pieceOf`, `colourTargetOf`, `screenOf` |
-| `page/game/colour_sheet.js` | 100 | The colour sheet: a strip that paints as you slide, More for every RAL colour, ✓ and ✕ (`openColours`) |
+| `page/game/colour_sheet.js` | 100 | The colour sheet: a strip that paints as you slide, Spectrum to drag over, More for every RAL colour, ✓ and ✕ (`openColours`) |
 | `page/game/walk.js` | 185 | Walk: tap the floor to go there, tap a thing to face it, pinch to zoom, the mini plan, Sit/Stand; a long-press on a painted surface opens its colours |
 | `page/game/options.js` | 140 | A thing's options from a long-press, with its size handles (`sizes`): its controls moved in from Lounge, Bedroom or Hallway options into a sheet and back (`THINGS`, `thingOf`, `optionsFor`); the room's drawer for anything else |
 | `page/game/resize.js` | 105 | Resize handles in Plan: they drag a thing's own size sliders (`startResize`, `stopResize`), started with its options |

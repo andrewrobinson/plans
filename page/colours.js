@@ -5,8 +5,10 @@ import {
   islandOnWall, islandTopMat, kitchenMat, oakMat, screenMat, shelfMat, shownCode, config, storedMats, drawn, 
   tvMat, worktopMat, tvOn, aboveNow
 } from '../flat_model.js';
+import { COLOUR_TARGETS, applyColour } from '../model/colours.js';
 import { wallMat, frameMat, ceilingMat, carpetMat } from '../floor.js';
-import { about, change } from '../living_room.js';
+import { about, change, drawSoon } from '../living_room.js';
+import { spectrum } from './spectrum.js';
 
 // The cupboard and dresser colours: named colours to compare, or "Other
 // colours…", which shows a second dropdown of popular cupboard colours and
@@ -32,8 +34,12 @@ const OTHER_OPTIONS =
     '</optgroup>').join('');
 const colourRefreshers = [];
 const refreshColours = () => colourRefreshers.forEach(f => f());
+// Every target painted as the settings say, so those following one follow it
+// too: for a colour tried before it's kept
+const paintAll = () => { for (const target of Object.keys(COLOUR_TARGETS)) applyColour(target); drawSoon(); };
 // A colour picker for one target: a dropdown of the named colours and the
-// extras, ◀ ▶ to step between them, and "Other colours…" for any RAL colour
+// extras, ◀ ▶ to step between them, "Other colours…" for any RAL colour, and
+// the swatch, which opens a spectrum to drag over
 function colourPicker(target, [selectId, otherId, otherRowId, prevId, nextId, swatchId], extras, named = NAMED) {
   const select = document.getElementById(selectId), other = document.getElementById(otherId);
   const choices = [...named, ...extras], compare = choices.map(([code]) => code);
@@ -49,8 +55,10 @@ function colourPicker(target, [selectId, otherId, otherRowId, prevId, nextId, sw
     if (!named && Number(other.value) !== code) other.value = String(code);
     const colour = colourOf(shownCode(target));
     document.getElementById(swatchId).style.background = colour ? colour.hex : 'transparent';
+    picker.show(shownCode(target));
   });
   const pick = code => change([[`colours.${target}`, code]]);   // anything following it changes too (settle())
+  const picker = spectrumUnder(target, document.getElementById(otherRowId), document.getElementById(swatchId), pick);
   // "Other colours…" starts on the other dropdown's current choice
   select.addEventListener('change', () => pick(select.value === OTHER ? Number(other.value) : Number(select.value)));
   other.addEventListener('change', () => pick(Number(other.value)));
@@ -61,6 +69,37 @@ function colourPicker(target, [selectId, otherId, otherRowId, prevId, nextId, sw
       pick(compare[k < 0 ? 0 : (k + step + compare.length) % compare.length]);
     });
   }
+}
+// The swatch's spectrum, in a row of its own after `row`: dragging over it
+// paints as it goes, and letting go keeps the colour (one change)
+function spectrumUnder(target, row, swatch, pick) {
+  let before = null;                          // the setting as the drag began
+  const picker = spectrum({
+    onSlide: code => {
+      if (before === null) before = config.colours[target];
+      config.colours[target] = code;
+      paintAll();
+      swatch.style.background = colourOf(code).hex;
+    },
+    onLetGo: keep => {
+      if (before === null) return;
+      const code = config.colours[target];
+      config.colours[target] = before;
+      before = null;
+      if (keep && code !== config.colours[target]) pick(code);
+      else { paintAll(); refreshColours(); }
+    },
+  });
+  const spectrumRow = document.createElement('div');
+  spectrumRow.className = 'colrow spectrumRow';
+  spectrumRow.hidden = true;
+  spectrumRow.append(picker.element);
+  row.after(spectrumRow);
+  swatch.addEventListener('click', () => {
+    spectrumRow.hidden = !spectrumRow.hidden;
+    swatch.setAttribute('aria-expanded', String(!spectrumRow.hidden));
+  });
+  return picker;
 }
 colourPicker('cupboard', ['ral-cupboard', 'ral-other', 'otherRow', 'colPrev', 'colNext', 'cupboardSwatch'],
   [[0, 'Same colour as the door'], [1, 'Same colour as the walls']]);
@@ -134,6 +173,6 @@ palette.addEventListener('toggle', () => {
 
 // What the other pieces of the model use
 export {
-  POPULAR, FAMILIES,
+  POPULAR, FAMILIES, paintAll,
   refreshColours, showShelfWood, updatePalette
 };
