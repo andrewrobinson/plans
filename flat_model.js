@@ -122,7 +122,15 @@ function boxOf(object) {
 // Each piece drawn, by its name, null where it isn't built: for
 // pieceBoxes() and the page's view snapshot (which says how much of each a
 // view shows)
-const namedPieces = () => ({
+const namedPieces = () => {
+  const named = flatPieces();
+  // The garage's by their keys, but '.garage' after one the flat has already
+  // (the pine cupboard, and since 24 Oct 2026 the bookcase, the bedside
+  // tables and the rest put away there)
+  for (const [key, piece] of Object.entries(garagePieces)) named[key === 'pine' ? 'pineCupboard.garage' : key in named ? `${key}.garage` : key] = piece;
+  return named;
+};
+const flatPieces = () => ({
   livingRoom: livingGroup,                                      // the option and all round it: the bench wall, the front wall, the sofa
   cornerCupboard: cupboard?.group,                              // the option's own build, without the bench
   dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup, 'ivar.livingRoom': pieces.ivar,
@@ -136,7 +144,6 @@ const namedPieces = () => ({
   kvistbro: otherRoomPieces.kvistbro, laundryBasket: otherRoomPieces.laundryBasket,
   ...Object.fromEntries(Object.entries(wickerBenches).map(([room, bench]) => [`wickerBench.${room}`, bench])),
   shoeRack,
-  ...Object.fromEntries(Object.entries(garagePieces).map(([key, piece]) => [key === 'pine' ? 'pineCupboard.garage' : key, piece])),
 });
 const pieceBoxes = () => Object.fromEntries(Object.entries(namedPieces()).map(([name, object]) => [name, boxOf(object)]));
 
@@ -197,7 +204,7 @@ export function build(onShow = optionsOnShow()) {
   drawShoeBoxes(config.hallway.shoeBoxes);                    // and the shoe boxes on the sills
   bathroom.visible = config.hallway.bathroomShown;                       // the bathroom and WC, or not
   drawBedroomDoorSwing(DOOR_SWINGS[bedroomDoor().swings], mustOpenTo(), bedroomDoor().swingShown);   // what the bedroom cupboard keeps clear of
-  drawGarage(config, config.pieces.pineCupboard.design);           // Sean, Billy, BillyChest and the rest, in the garage
+  drawGarage(config);                                          // Sean, Billy, BillyChest and the rest, in the garage
   placeStored();                                                // the cupboard they go in may have changed
   return { option, same, aboveText };
 }

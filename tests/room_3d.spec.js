@@ -160,7 +160,7 @@ test.describe('the drawers\' tabs', () => {
 
   test('the garage\'s pieces are in their groups\' tabs', async ({ page }) => {
     await openOptions(page, 'garage');
-    await expect(page.locator('#garageTabs [role=tab]')).toHaveText(['Cupboards & shelves', 'Tables & benches', 'Boxes']);
+    await expect(page.locator('#garageTabs [role=tab]')).toHaveText(['Cupboards & shelves', 'Tables & benches', 'Boxes', 'Home']);
     await expect(page.locator('#garageDoorBlock')).toBeVisible();   // the door, above the tabs
     await tab(page, 'garageTabs', 'Boxes').click();
     await expect(page.locator('#garage_trellis_on')).toBeVisible();
@@ -521,7 +521,8 @@ test.describe('the controls', () => {
   // the page opens
   test('BillyChest can be on the back wall and in the bedroom', async ({ page }) => {
     await openTab(page, 'Furniture');
-    expect(await setting(page, 'pieces.billyChest.in.livingRoom.on')).toBe(true);
+    expect(await setting(page, 'pieces.billyChest.in.livingRoom.on')).toBe(false);   // out to start
+    await page.locator('#billyChestOn').check();
     await expect(page.locator('#benchOn')).toBeEnabled();             // the bench drawn whenever it's on
     await page.locator('#billyChestHome').click();                    // against the cupboards, where the bench starts
     await page.locator('#billyChestY').fill('500');
@@ -539,11 +540,12 @@ test.describe('the controls', () => {
     expect(await setting(page, 'pieces.billyChest.in.garage.on')).toBe(false);       // and the garage's, out as it starts
   });
 
-  // The Ivar: in the lounge to start, lying by the first radiator; moved
+  // The Ivar: out of the lounge to start, put in lying by the first radiator; moved
   // and put back; standing; and in the bedroom and garage, each on its own
   test('the Ivar is by the first radiator, and can go to the bedroom and garage', async ({ page }) => {
     await openTab(page, 'Furniture');
-    expect(await setting(page, 'pieces.ivar.in.livingRoom.on')).toBe(true);
+    expect(await setting(page, 'pieces.ivar.in.livingRoom.on')).toBe(false);
+    await page.locator('#ivarOn').check();
     expect(await setting(page, 'pieces.ivar.in.livingRoom.lying')).toBe(true);
     await expect(page.locator('#ivarXValue')).toHaveText('3291');      // 830 out from the radiator's front, at 3706
     await page.locator('#ivarY').fill('2000');

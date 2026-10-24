@@ -220,6 +220,12 @@
           "livingRoom": {
             "on": false,
             "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -315,6 +321,12 @@
             "on": false,
             "wall": "hallway",
             "along": 2275
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -324,6 +336,12 @@
             "on": false,
             "wall": "kitchen",
             "along": 1016
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -333,6 +351,12 @@
             "on": false,
             "wall": "hallway",
             "along": 400
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -343,6 +367,12 @@
             "u": 400,
             "v": 460,
             "turn": 0
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -385,6 +415,12 @@
             "on": false,
             "onItsEnd": true,
             "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -394,6 +430,12 @@
             "on": false,
             "at": "byTheDoor",
             "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -403,6 +445,12 @@
             "on": false,
             "legsOff": true,
             "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -443,6 +491,12 @@
             "x": 3686,
             "y": 2910,
             "turn": 90
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },

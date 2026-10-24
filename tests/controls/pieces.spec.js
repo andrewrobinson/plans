@@ -1,7 +1,7 @@
 // The controls tests: the bedroom's cupboard, option 7's shelves, the wicker bench, what's by the bed, the kitchen tables, the castor desk, the speakers, the first radiator, the daybed with a desk and the things to store.
 // The helpers they share are in helpers.js.
 const {
-  test, expect, openRoom, pickOption, setting, optionShown, inPlan, storedHead, view, openDrawer, 
+  test, expect, openRoom, openOptions, pickOption, setting, optionShown, inPlan, storedHead, view, openDrawer, 
   OPTION, BENCH, at, slide, toggle, readout, endsAndBack
 } = require('./helpers');
 
@@ -324,13 +324,20 @@ test('the daybed with a desk stands on the back wall, its desk at either end', a
 // opens; its switch shows its settings
 
 test.describe('things to store', () => {
-  // Shown as the page opens, where they are now (placed by hand); packed by
-  // the middle window, with option 10, so there's a corner cupboard to pack
-  // them into. Shown or hidden from the top bar (asked for, 19 Oct 2026),
-  // which on a phone is hidden while a drawer's open: so after closing it
+  // Hidden as the page opens (asked for, 24 Oct 2026), so shown first,
+  // where they are now (placed by hand); packed by the middle window, with
+  // option 10, so there's a corner cupboard to pack them into. Shown or
+  // hidden from the top bar (asked for, 19 Oct 2026), which on a phone is
+  // hidden while a drawer's open: so after closing it
   async function packedByTheWindow(page) {
-    await openDrawer(page);
-    await expect(page.locator('#storedToggle')).toBeChecked();
+    await openRoom(page);
+    await expect(page.locator('#storedToggle')).not.toBeChecked();
+    await page.click('#storedToggle');
+    await openOptions(page, 'lounge');
+    await page.evaluate(() => {
+      document.querySelectorAll('.drawer details').forEach(d => { d.open = true; });
+      document.querySelectorAll('.drawer .tabpanel').forEach(p => { p.hidden = false; });
+    });
     await OPTION(10)(page);
     await page.click('#storedPack');
   }

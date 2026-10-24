@@ -22,7 +22,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `page/view.js` | 140 | The 2D views' fit (`frameCupboard`), `viewKit`, the Configuration list, loading cover, Dimensions buttons |
 | `page/room_buttons.js` | 240 | The room buttons and drawers (`goToRoom`, `showRoomOptions`), and `syncControls()`, which puts every control in step |
 | `page/game/shell.js` | 165 | The game UI's frame (mobile first, 23 Oct 2026): the room chips, the view switch (`MODES`: Plan, Overhead, Walk; `goTo`, `modeNow`), ☰'s menu (the top bar's controls), the furniture picker, per room, in every view (tap: in or out) and the note with Undo (`toast`, `setIn`). `?classic` leaves it all out |
-| `page/game/furniture.js` | 190 | Each room's pieces for the picker (`ROOMS`): the lounge's, the bedroom's (`onWall` for its wall pieces), the hallway's switches (also downstairs), the garage's, and the things to store (`STORED`, by their own switch); `SOFA`, `BED` always there. Each: icon, `on`, `spot()`, `moveTo()`, `object()`; `inRoom(room)`, `floorBox`, `facing` |
+| `page/game/furniture.js` | 190 | Each room's pieces for the picker (`ROOMS`): the lounge's, the bedroom's (`onWall` for its wall pieces), the hallway's switches (also downstairs), the garage's (the flat's pieces in a Home folder), and the things to store (`STORED`, by their own switch); `SOFA` in or out by its model (`NO_SOFA` out), `BED` always there. Each: icon, `on`, `spot()`, `moveTo()`, `object()`; `inRoom(room)`, `floorBox`, `facing` |
 | `page/game/plan_edit.js` | 270 | Plan's editing: select, drag (held in the room, snapping to walls), drop from and onto the picker, Turn, the sofa's resize handles, the keys |
 | `page/game/selection.js` | 130 | What's selected: the blue outline in the scene (red overlapping) and the action bar (`select`, `setActions`) |
 | `page/game/picking.js` | 55 | What's under the pointer: `planPoint`, `hitsUnder`, `pieceOf`, `colourTargetOf`, `screenOf` |
@@ -57,7 +57,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `corner_cupboard.js` | 1,030 | The corner cupboard: each option's build (`OPTIONS`), shelves, inside spaces, dimensions, cutting list; `makeCupboard` |
 | `floor.js` | 915 | The walls, doors, windows and radiators of every room: `drawFloor`, `HALLWAY`, `ENTRANCE`, `OTHER_ROOM` |
 | `other_room.js` | 565 | The bedroom's furniture and fitted cupboards, and their sliders |
-| `garage.js` | 460 | The garage, what's in it, and Garage options' sliders |
+| `garage.js` | 490 | The garage, what's in it (its own things, and the flat's furniture put away there: group `home`, Garage options' Home tab and the picker's Home folder), and Garage options' sliders |
 | `stair_walls.js`, `shoe_boxes.js` | 415, 235 | The shelves and pictures over the stairs; the shoe boxes on the sills |
 | `wicker_bench.js`, `shoe_rack.js` | 275, 315 | The hallway's wicker bench; the shoe rack downstairs |
 | `bedroom_door.js` | 50 | The bedroom door, both ways it can swing, as `kit/door_kit.js`'s doors (`DOOR_SWINGS`), and how far it sweeps into the room (`sweepInto`, `opensTo`) |

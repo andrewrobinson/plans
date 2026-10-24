@@ -78,6 +78,9 @@ test('in Plan, a piece is dragged about, held inside the walls, and dropped on t
   // Dragged far past the right-hand wall, it stops against it (the sofa
   // let go first, so its action bar isn't over the Ivar)
   await page.keyboard.press('Escape');
+  await page.click('#picker [data-folder=other]');            // out as the page opens: put in from Other
+  await page.click('#pickerFolder [data-key=ivar]');
+  await page.keyboard.press('Escape');
   const ivar = await pieceOnScreen(page, 'ivar');
   await drag(page, ivar, { x: ivar.x + 400, y: ivar.y });
   const box = await page.evaluate(async () => {

@@ -92,6 +92,7 @@ test('the chair\'s room, with a corner cupboard in the way, or the desk at the o
     Object.assign(c.pieces.deskDaybed, { design: { deskAt: 'right' } });
     c.pieces.deskDaybed.in.livingRoom.chair = 'office';
     c.pieces.sofa.design.model = 'none';                      // the Drift, as the page opens, stands across that end
+    c.pieces.billyChest.in.livingRoom.on = true;              // out as the page opens: in, it's what the chair's room ends at
   });
   assert.match(right.description, /there's 634 from its end to BillyChest\..*the office chair \(drawn\) reaches 470 past it, 164 to spare/);
   assert.equal(atX(1950, c => { c.pieces.deskDaybed.in.livingRoom.chair = 'none'; }).boxes['workChair.livingRoom'], null);

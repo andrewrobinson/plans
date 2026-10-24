@@ -20,6 +20,12 @@ import { QUARTER_TURN, turnPiece } from './kit/units_kit.js';
 import { bookcase } from './bookcase.js';
 import { BILLY, BILLY_CHEST, billy, billyChest } from './billy.js';
 import { IVAR, ivar } from './ivar.js';
+import { CHESHAM, CORNWALL, kitchenTable, tableSizes } from './tables.js';
+import { castorDesk, castorDeskSizes } from './castor_desk.js';
+import { KNARREVIK, knarrevik } from './knarrevik.js';
+import { KVISTBRO, kvistbro } from './kvistbro.js';
+import { LAUNDRY_BASKET, laundryBasket } from './laundry_basket.js';
+import { wickerBench } from './wicker_bench.js';
 
 // ---------------------------------------------------------------------------
 // Its sizes, in mm (the user's, 16 Oct 2026): 5327 long, from its door to
@@ -107,8 +113,12 @@ const garageDoorMat = material(0x8f969c);          // a grey steel door (chosen)
 // the scaffold bench, a scaffold board on legs; Small Billy, a cupboard;
 // Potters, open shelves; and Biltong and Trellis, boxes open at the top;
 // the bedroom's pine cupboard (other_room.js's pineCupboard()), at the
-// sizes set in Bedroom options (`bedroomSizes`), as its copy in the living
-// room. Each can be taken out, as the bedroom's furniture. Their sizes are the
+// sizes set in Bedroom options (`sizesFrom`), as its copy in the living
+// room. And (24 Oct 2026) the flat's less likely furniture, the pickers'
+// Other pieces, so they can be seen put away here: the kitchen tables, the
+// desk on castors, the bookcase, the wicker bench, both bedside tables
+// (Knarrevik), the Kvistbro and the laundry basket, each drawn as in the
+// flat, the tables on their legs. Each can be taken out, as the bedroom's furniture. Their sizes are the
 // user's: w along its back, d out from it, h high; their colours chosen.
 // Each is in a group, a tab in Garage options (GROUPS, below)
 // Yellow sits on the scaffold bench and Biltong on Trellis, so those two
@@ -122,8 +132,8 @@ const newPine = material(0xe3c48f);                // pale, as new construction 
 const scaffoldBoard = material(0xc9a66b);          // a scaffold board's sandy pine
 const PIECES = {
   sean: { group: 'shelves', label: 'Sean', w: 2500, d: 535, h: 1575, mat: newPine, shape: 'timber shelves' },
-  billy: { group: 'shelves', label: 'Billy', ...BILLY, shape: 'billy', canLie: true },
-  billyChest: { group: 'shelves', label: 'BillyChest', ...BILLY_CHEST, shape: 'billyChest' },
+  billy: { group: 'home', label: 'Billy', ...BILLY, shape: 'billy', canLie: true },
+  billyChest: { group: 'home', label: 'BillyChest', ...BILLY_CHEST, shape: 'billyChest' },
   metal: { group: 'tables', label: 'Metal', w: 710, d: 670, h: 895, mat: steel, shape: 'table' },
   yellow: { group: 'shelves', label: 'Yellow', w: 875, d: 310, h: 700, mat: material(0xe2b93b), shape: 'box', lifted: true },
   scaffoldBench: { group: 'tables', label: 'Scaffold bench', w: 1820, d: 220, h: 438, mat: scaffoldBoard, shape: 'bench' },
@@ -131,13 +141,25 @@ const PIECES = {
   potters: { group: 'shelves', label: 'Potters', w: 430, d: 390, h: 1535, mat: material(0x9a7b55), shape: 'shelves', offWall: true },   // a mid wood
   biltong: { group: 'boxes', label: 'Biltong', w: 940, d: 445, h: 460, mat: material(0x8a6a4a), shape: 'open box', lifted: true },
   trellis: { group: 'boxes', label: 'Trellis', w: 860, d: 720, h: 750, mat: material(0x6f8a5a), shape: 'open box' },   // a garden green
-  pine: { group: 'shelves', label: 'Pine cupboard', ...sizesOf(OTHER_ROOM_START.pieces.pineCupboard.design), shape: 'pine', bedroomSizes: true },
-  ivar: { group: 'shelves', label: 'Ivar', ...IVAR, shape: 'ivar' },
+  pine: { group: 'home', label: 'Pine cupboard', ...sizesOf(OTHER_ROOM_START.pieces.pineCupboard.design), shape: 'pine',
+    sizesFrom: { path: 'pieces.pineCupboard.design', menu: 'Bedroom options' } },
+  ivar: { group: 'home', label: 'Ivar', ...IVAR, shape: 'ivar' },
+  cornwall: { group: 'home', label: 'Cornwall table', ...tableSizes(CORNWALL), shape: 'cornwall' },
+  chesham: { group: 'home', label: 'Chesham table', ...tableSizes(CHESHAM), shape: 'chesham' },
+  castorDesk: { group: 'home', label: 'Desk on castors', ...castorDeskSizes(), shape: 'castorDesk' },
+  bookcase: { group: 'home', label: 'Bookcase', shape: 'bookcase', sizesFrom: { path: 'pieces.bookcase.design', menu: 'Bedroom options' } },
+  wickerBench: { group: 'home', label: 'Wicker bench', shape: 'wickerBench', sizesFrom: { path: 'pieces.wickerBench.design', menu: 'Hallway options' } },
+  bedsideTable: { group: 'home', label: 'Bedside table by the bed', ...KNARREVIK, shape: 'knarrevik' },
+  bedsideTableByCupboard: { group: 'home', label: 'Bedside table by the pine cupboard', ...KNARREVIK, shape: 'knarrevik' },
+  kvistbro: { group: 'home', label: 'Kvistbro', w: KVISTBRO.w, d: KVISTBRO.w, h: KVISTBRO.h, shape: 'kvistbro' },   // round: as deep as it's wide
+  laundryBasket: { group: 'home', label: 'Laundry basket', w: LAUNDRY_BASKET.w, d: LAUNDRY_BASKET.w, h: LAUNDRY_BASKET.h, shape: 'laundryBasket' },
 };
 function sizesOf({ w, d, h }) { return { w, d, h }; }
 const PIECE_KEYS = Object.keys(PIECES);
-// Garage options' tabs, the pieces by their group (notes/MENU_TABS.md, chosen)
-const GROUPS = { shelves: 'Cupboards & shelves', tables: 'Tables & benches', boxes: 'Boxes' };
+// Garage options' tabs, the pieces by their group (notes/MENU_TABS.md,
+// chosen): the garage's own, then the flat's furniture put away here (asked
+// for, 24 Oct 2026: home furniture apart from what's already there)
+const GROUPS = { shelves: 'Cupboards & shelves', tables: 'Tables & benches', boxes: 'Boxes', home: 'Home' };
 const LYING_KEYS = PIECE_KEYS.filter(piece => PIECES[piece].canLie);
 
 // Their make, chosen as typical, none measured: the table's top and legs,
@@ -182,6 +204,9 @@ const MOST_OFF_WALL = 200;
 // living room and the bedroom
 // As they start, by the pieces' keys here (GARAGE_START is them laid out as
 // the configuration is, below)
+// Where the flat's furniture starts, once put in: in the middle across,
+// clear of the doorway by a table's length, facing the door (chosen)
+const FROM_THE_FLAT_SPOT = { x: 3800, y: 1435, turn: 270 };
 const AS_THEY_START = {
   sean: { on: true, x: 1255, y: 2865, turn: 180 },
   billy: { on: false, x: 0, y: 1920, turn: 270, lying: false },   // out, as now (18 Oct 2026): in the living room
@@ -195,6 +220,10 @@ const AS_THEY_START = {
   trellis: { on: true, x: 735, y: 1475, turn: 90 },   // moved (the user's link, 18 Oct 2026)
   pine: { on: false, x: 1425, y: 0, turn: 0 },   // out, as now (18 Oct 2026): in the bedroom
   ivar: { on: false, x: 0, y: 1100, turn: 270 },     // out to start, at BillyChest's spot (asked for, 18 Oct 2026)
+  // The flat's less likely furniture, out to start (asked for, 24 Oct
+  // 2026), each at the same spot till placed
+  ...Object.fromEntries(['cornwall', 'chesham', 'castorDesk', 'bookcase', 'wickerBench', 'bedsideTable', 'bedsideTableByCupboard', 'kvistbro', 'laundryBasket']
+    .map(piece => [piece, { on: false, ...FROM_THE_FLAT_SPOT }])),
 };
 
 // The sliders, as other_room.js's: [the setting's name, as 'sean.x', label, lowest,
@@ -275,13 +304,13 @@ export function drawGarageDoor(state) {
 export { PIECES as GARAGE_PIECES, placeOf as garagePlace };
 export const garagePieces = Object.fromEntries(PIECE_KEYS.map(piece => [piece, null]));
 
-// From the settings (laid out as the configuration is); `pineSizes`: the
-// pine cupboard's sizes as set in Bedroom options
-export function drawGarage(settings, pineSizes) {
+// From the settings (laid out as the configuration is), those sized
+// elsewhere (`sizesFrom`) at their sizes there
+export function drawGarage(settings) {
   const s = inGarage(settings);
   clearDrawing(furniture);
   for (const piece of PIECE_KEYS) {
-    const sizes = PIECES[piece].bedroomSizes ? sizesOf(pineSizes) : {};
+    const { sizesFrom } = PIECES[piece], sizes = sizesFrom ? valueAt(settings, sizesFrom.path) : {};
     const { x, y, turn, z = 0, off = 0, lying } = s[piece], g = new THREE.Group(), body = drawn({ ...PIECES[piece], ...sizes }, lying);
     body.position.z = off * MM;                   // its depth, out from the wall, is the group's z
     g.add(body);
@@ -292,8 +321,16 @@ export function drawGarage(settings, pineSizes) {
     garagePieces[piece] = g;
   }
 }
-function drawn({ w, d, h, mat, shape }, lying) {
+function drawn({ w, d, h, legs, mat, shape }, lying) {
   if (shape === 'billy') return billy(lying);
+  if (shape === 'cornwall') return kitchenTable(CORNWALL);
+  if (shape === 'chesham') return kitchenTable(CHESHAM);
+  if (shape === 'castorDesk') return castorDesk();
+  if (shape === 'bookcase') return bookcase({ w, d, h });
+  if (shape === 'wickerBench') return wickerBench({ w, d, h, legs });
+  if (shape === 'knarrevik') return knarrevik();
+  if (shape === 'kvistbro') return kvistbro();
+  if (shape === 'laundryBasket') return laundryBasket();
   if (shape === 'billyChest') return billyChest();
   if (shape === 'ivar') return ivar(false);
   if (shape === 'shelves') return bookcase({ w, d, h }, mat);
@@ -401,8 +438,8 @@ function doorBlock() {
 // A piece's part of Garage options: its name and sizes, its In the garage
 // switch, and its place's sliders and Reset, hidden while it's out
 function pieceBlock(piece, id) {
-  const { label, w, d, h, bedroomSizes } = PIECES[piece];
-  const sizes = bedroomSizes ? 'its sizes as in Bedroom options' : `${w} wide, ${d} deep, ${h} high`;
+  const { label, w, d, h, sizesFrom } = PIECES[piece];
+  const sizes = sizesFrom ? `its sizes as in ${sizesFrom.menu}` : `${w} wide, ${d} deep, ${h} high`;
   return `<div class="depth"><div><b>${label}</b> (${sizes})</div>` +
     `<label class="switch"><input type="checkbox" id="${id(`${piece}.on`)}"> In the garage</label>` +
     `<div id="${id(`${piece}.details`)}">` +                // hidden while it's out (asked for, 18 Oct 2026)

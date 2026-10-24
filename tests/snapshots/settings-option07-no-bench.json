@@ -224,6 +224,12 @@
               "y": 300,
               "turn": 180
             }
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -323,6 +329,12 @@
             "on": false,
             "wall": "hallway",
             "along": 2275
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -332,6 +344,12 @@
             "on": false,
             "wall": "kitchen",
             "along": 1016
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -341,6 +359,12 @@
             "on": false,
             "wall": "hallway",
             "along": 400
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -351,6 +375,12 @@
             "u": 400,
             "v": 460,
             "turn": 0
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -393,6 +423,12 @@
             "on": false,
             "onItsEnd": true,
             "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -402,6 +438,12 @@
             "on": false,
             "at": "byTheDoor",
             "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -411,6 +453,12 @@
             "on": false,
             "legsOff": true,
             "move": null
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
+            "turn": 270
           }
         }
       },
@@ -450,6 +498,12 @@
             "on": false,
             "x": 1000,
             "y": 3000,
+            "turn": 270
+          },
+          "garage": {
+            "on": false,
+            "x": 3800,
+            "y": 1435,
             "turn": 270
           }
         }
@@ -1255,6 +1309,123 @@
         -35692,
         -11187,
         -2020
+      ],
+      "shown": false
+    },
+    "cornwall": {
+      "from": [
+        -32192,
+        -11852,
+        -2850
+      ],
+      "to": [
+        -31392,
+        -10652,
+        -2120
+      ],
+      "shown": false
+    },
+    "chesham": {
+      "from": [
+        -32192,
+        -11847,
+        -2850
+      ],
+      "to": [
+        -31452,
+        -10657,
+        -2120
+      ],
+      "shown": false
+    },
+    "castorDesk": {
+      "from": [
+        -32192,
+        -11727,
+        -2850
+      ],
+      "to": [
+        -31642,
+        -10777,
+        -2110
+      ],
+      "shown": false
+    },
+    "bookcase.garage": {
+      "from": [
+        -32192,
+        -11752,
+        -2850
+      ],
+      "to": [
+        -31942,
+        -10752,
+        -1850
+      ],
+      "shown": false
+    },
+    "wickerBench": {
+      "from": [
+        -32192,
+        -11752,
+        -2850
+      ],
+      "to": [
+        -31692,
+        -10752,
+        -2350
+      ],
+      "shown": false
+    },
+    "bedsideTable.garage": {
+      "from": [
+        -32192,
+        -11437,
+        -2850
+      ],
+      "to": [
+        -31912,
+        -11067,
+        -2400
+      ],
+      "shown": false
+    },
+    "bedsideTableByCupboard.garage": {
+      "from": [
+        -32192,
+        -11437,
+        -2850
+      ],
+      "to": [
+        -31912,
+        -11067,
+        -2400
+      ],
+      "shown": false
+    },
+    "kvistbro.garage": {
+      "from": [
+        -32192,
+        -11472,
+        -2850
+      ],
+      "to": [
+        -31752,
+        -11032,
+        -2430
+      ],
+      "shown": false
+    },
+    "laundryBasket.garage": {
+      "from": [
+        -32192,
+        -11472,
+        -2850
+      ],
+      "to": [
+        -31752,
+        -11032,
+        -2370
       ],
       "shown": false
     }

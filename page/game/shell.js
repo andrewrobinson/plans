@@ -192,7 +192,7 @@ function setIn(piece, on, note, edits = []) {
   }
   const before = (piece.fixed ? [[piece.on, at(piece.on)]]
     : Object.entries(at(piece.place)).map(([k, v]) => [`${piece.place}.${k}`, structuredClone(v)]))
-    .concat(edits.filter(([path]) => !path.startsWith(`${piece.place}.`)).map(([path]) => [path, structuredClone(at(path))]));   // and anything else it changes
+    .concat([[piece.on], ...edits].filter(([path]) => !path.startsWith(`${piece.place}.`)).map(([path]) => [path, structuredClone(at(path))]));   // and its switch, if elsewhere (the sofa's model), and anything else it changes
   change([[piece.on, piece.inValue ? piece.inValue(on) : on], ...edits], { look: true });
   toast(note, () => change(before, { look: true }));
 }

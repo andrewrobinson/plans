@@ -211,15 +211,15 @@ const config = {
     bookcase: { in: { livingRoom: { on: false, move: null } } },
     pineCupboard: { in: { livingRoom: { on: false, move: null } } },
     billy: { in: { livingRoom: { on: true, lying: true, move: LOUNGE_NOW.billy } } },   // where it is now
-    billyChest: { in: { livingRoom: { on: true, move: LOUNGE_NOW.billyChest } } },       // in the corner, as now
+    billyChest: { in: { livingRoom: { on: false, move: LOUNGE_NOW.billyChest } } },      // in the corner, as now, but out to start (asked for, 24 Oct 2026: the lounge not cluttered)
     // ...and the daybed with a desk and bookcase (desk_daybed.js), out to
     // start, its desk at the left end or the right (deskAt), as it can be
     // put together; and the work chair at its desk: none, or one of WORK_CHAIRS (the smaller, for who'll use it)
     deskDaybed: { design: { deskAt: 'left' }, in: { livingRoom: { on: false, move: null, chair: 'small' } } },
     // The Ivar (ivar.js), by the first radiator, lying on its side, as it is
-    // now (IVAR_HOME), and moved round the room from there, or null where it
-    // starts
-    ivar: { in: { livingRoom: { on: true, lying: true, move: null } } },
+    // now (IVAR_HOME), out to start (asked for, 24 Oct 2026), and moved
+    // round the room from there, or null where it starts
+    ivar: { in: { livingRoom: { on: false, lying: true, move: null } } },
     // The kitchen tables (tables.js), in the corner by the door, as it is now
     // (LOUNGE_NOW), hidden to start (asked for, 19 Oct 2026): Chesham on its
     // end, its top against the wall behind it (else on its legs), Cornwall
@@ -252,7 +252,7 @@ const config = {
   // The things to store: shown or not, which of PACKINGS, where (0 by the
   // middle window, 1 in the corner cupboard, 2 moved by hand), and each
   // thing's { x, y, turned, z } once moved by hand (set up with STORED below)
-  thingsToStore: { shown: false, packing: 0, where: 'window', spots: [] },   // ...shown where they are now once STORED is set up (STORED_NOW)
+  thingsToStore: { shown: false, packing: 0, where: 'window', spots: [] },   // ...where they are now once STORED is set up (STORED_NOW)
   // The hallway: the shelves and pictures on the walls over the stairs, and
   // the shoe boxes on the sills, none to start (stair_walls.js,
   // shoe_boxes.js); and the bathroom and WC drawn, or hidden to see the

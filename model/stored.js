@@ -73,7 +73,7 @@ const STORED_NOW = [
   { x: 820, y: 1380, turned: false, z: ON_THE_FLOOR },           // the tub
   { x: 30, y: 30, turned: false, z: ON_THE_FLOOR },              // Rack 2
 ];
-Object.assign(config.thingsToStore, { shown: true, where: BY_HAND, spots: structuredClone(STORED_NOW) });   // shown, as they are now
+Object.assign(config.thingsToStore, { where: BY_HAND, spots: structuredClone(STORED_NOW) });   // where they are now, hidden to start (asked for, 24 Oct 2026)
 const storedGroup = new THREE.Group();
 world.add(storedGroup);
 const storedMats = STORED.map(s => new THREE.MeshStandardMaterial({ color: s.colour, roughness: 0.7 }));

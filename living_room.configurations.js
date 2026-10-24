@@ -243,6 +243,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -346,6 +352,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -355,6 +367,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -364,6 +382,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -374,6 +398,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -416,6 +446,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -425,6 +461,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -434,6 +476,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -474,6 +522,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -952,6 +1006,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1055,6 +1115,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1064,6 +1130,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1073,6 +1145,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1083,6 +1161,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1125,6 +1209,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1134,6 +1224,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1143,6 +1239,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1183,6 +1285,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1620,6 +1728,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1723,6 +1837,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1732,6 +1852,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1741,6 +1867,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1751,6 +1883,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1793,6 +1931,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1802,6 +1946,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1811,6 +1961,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -1851,6 +2007,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -2325,6 +2487,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -2428,6 +2596,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -2437,6 +2611,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -2446,6 +2626,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": true,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -2456,6 +2642,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -2502,6 +2694,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -2511,6 +2709,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -2520,6 +2724,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -2560,6 +2770,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3032,6 +3248,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3135,6 +3357,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3144,6 +3372,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3153,6 +3387,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3163,6 +3403,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3209,6 +3455,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3218,6 +3470,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3227,6 +3485,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3267,6 +3531,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3693,6 +3963,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3796,6 +4072,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3805,6 +4087,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3814,6 +4102,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3824,6 +4118,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3870,6 +4170,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3879,6 +4185,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3888,6 +4200,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -3928,6 +4246,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -4354,6 +4678,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -4457,6 +4787,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -4466,6 +4802,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -4475,6 +4817,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -4485,6 +4833,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -4531,6 +4885,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -4540,6 +4900,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -4549,6 +4915,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -4589,6 +4961,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5020,6 +5398,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5123,6 +5507,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5132,6 +5522,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5141,6 +5537,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5151,6 +5553,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5193,6 +5601,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5202,6 +5616,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5211,6 +5631,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5251,6 +5677,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5724,6 +6156,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5827,6 +6265,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5836,6 +6280,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5845,6 +6295,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5855,6 +6311,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5897,6 +6359,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5906,6 +6374,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5915,6 +6389,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -5955,6 +6435,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -6385,6 +6871,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -6488,6 +6980,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -6497,6 +6995,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -6506,6 +7010,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -6516,6 +7026,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -6558,6 +7074,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -6567,6 +7089,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -6576,6 +7104,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -6616,6 +7150,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7089,6 +7629,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7196,6 +7742,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7205,6 +7757,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7214,6 +7772,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7224,6 +7788,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7266,6 +7836,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7275,6 +7851,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7284,6 +7866,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7324,6 +7912,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7793,6 +8387,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7900,6 +8500,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7909,6 +8515,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7918,6 +8530,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7928,6 +8546,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7974,6 +8598,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7983,6 +8613,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -7992,6 +8628,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8032,6 +8674,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8501,6 +9149,12 @@ window.ROOM_CONFIGURATIONS = {
               "livingRoom": {
                 "on": false,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8608,6 +9262,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 2275
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8617,6 +9277,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "kitchen",
                 "along": 1016
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8626,6 +9292,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "wall": "hallway",
                 "along": 400
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8636,6 +9308,12 @@ window.ROOM_CONFIGURATIONS = {
                 "u": 400,
                 "v": 460,
                 "turn": 0
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8678,6 +9356,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "onItsEnd": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8687,6 +9371,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "at": "byTheDoor",
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8696,6 +9386,12 @@ window.ROOM_CONFIGURATIONS = {
                 "on": false,
                 "legsOff": true,
                 "move": null
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },
@@ -8736,6 +9432,12 @@ window.ROOM_CONFIGURATIONS = {
                 "x": 3686,
                 "y": 2910,
                 "turn": 90
+              },
+              "garage": {
+                "on": false,
+                "x": 3800,
+                "y": 1435,
+                "turn": 270
               }
             }
           },

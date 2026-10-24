@@ -211,7 +211,7 @@ const lidMat = new THREE.MeshStandardMaterial({ color: 0xffffff, map: floralFabr
 
 // Legs at its corners, the wicker on them, and the lid over it: a wooden
 // rim with the padded top on it, standing out over the wicker all round
-function wickerBench({ w, d, h, legs }) {
+export function wickerBench({ w, d, h, legs }) {
   const g = new THREE.Group(), half = w / 2;
   const { lid, rim, lidProud: p, legIn } = BENCH;
   const lidFrom = h - lid, legH = Math.min(legs, lidFrom - BENCH.minWicker);
