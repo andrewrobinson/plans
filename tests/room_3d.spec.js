@@ -141,11 +141,11 @@ test.describe('the drawers\' tabs', () => {
     await page.keyboard.press('ArrowRight');
     await expect(chosen(page, 'loungeTabs')).toHaveText('Furniture');
     await page.keyboard.press('End');
-    await expect(chosen(page, 'loungeTabs')).toHaveText('Colours & stored');
+    await expect(chosen(page, 'loungeTabs')).toHaveText('Stored');
     await page.keyboard.press('ArrowRight');                     // round the end
     await expect(chosen(page, 'loungeTabs')).toHaveText('Cupboard');
     await page.keyboard.press('ArrowLeft');
-    await expect(chosen(page, 'loungeTabs')).toHaveText('Colours & stored');
+    await expect(chosen(page, 'loungeTabs')).toHaveText('Stored');
     await expect(page.locator('#secStored')).toBeVisible();
   });
 

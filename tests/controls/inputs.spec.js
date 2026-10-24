@@ -262,6 +262,7 @@ test.describe('dropdowns', () => {
   });
 
   test('the dresser colour, ◀ ▶, and other colours', async ({ page }) => {
+    await page.check('input[name=frontPiece][value=dresser]');    // its colour shows with a dresser or larder in
     await page.selectOption('#ral-dresser', '6');
     expect(await setting(page, 'colours.dresser')).toBe(6);
     await page.click('#dresserNext');

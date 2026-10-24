@@ -183,7 +183,7 @@
      (notes/MENU_TABS.md; kit/tabs_kit.js makes the buttons): Cupboard (the
      option and its settings), Furniture (the sofa, the back wall, the
      front wall and the island, the speakers, the Ivar, the tables and the
-     desk), Walls & doors (the doors) and Colours & stored; under them, the
+     desk), Walls & doors (the doors) and Stored; under them, the
      description, which is the whole room's -->
 <div id="loungePanel" class="drawer">
   <div class="head">
@@ -286,6 +286,25 @@
           <input id="top" type="range" min="1800" max="2450" step="10" value="2450">
           <label for="board">Board thickness: <span id="boardValue">18</span></label>
           <input id="board" type="range" min="12" max="25" step="1" value="18">
+        </div>
+        <!-- Its colour and the shelves' (moved from Colours & stored, 24 Oct 2026) -->
+        <div class="colours">
+          <div class="colhead">Its colour</div>
+          <div class="colrow">
+            <button id="colPrev" aria-label="Previous named colour">◀</button>
+            <select id="ral-cupboard" aria-label="Cupboard colour"></select>
+            <button id="colNext" aria-label="Next named colour">▶</button>
+            <button class="swatch" id="cupboardSwatch" aria-expanded="false" title="Every colour, to drag over"></button>
+          </div>
+          <div class="colrow" id="otherRow" hidden>
+            <select id="ral-other" aria-label="Other cupboard colour"></select>
+          </div>
+          <div class="colhead" style="margin-top: 8px">Shelves (both cupboards)</div>
+          <div class="colrow">
+            <select id="shelfWood" aria-label="Shelf colour"></select>
+            <span class="swatch" id="shelfSwatch"></span>
+          </div>
+          <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboard. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
         </div>
         <!-- The corner cupboard's cutting list, folded away till opened (the
              bedroom cupboard has its own, in Bedroom options) -->
@@ -512,6 +531,18 @@
           <label for="larderD">Larder depth: <span id="larderDValue">510</span></label>
           <input id="larderD" type="range" min="300" max="700" step="10" value="510">
         </div>
+        <div id="dresserColourBlock" class="colours">
+          <div class="colhead">Dresser and larder</div>
+          <div class="colrow">
+            <button id="dresserPrev" aria-label="Previous named dresser colour">◀</button>
+            <select id="ral-dresser" aria-label="Dresser colour"></select>
+            <button id="dresserNext" aria-label="Next named dresser colour">▶</button>
+            <button class="swatch" id="dresserSwatch" aria-expanded="false" title="Every colour, to drag over"></button>
+          </div>
+          <div class="colrow" id="dresserOtherRow" hidden>
+            <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
+          </div>
+        </div>
         <div id="bookshelfBlock">
           <div class="hint">A bookcase like the bedroom's, at its sizes: these sliders and the Bedroom options' are the same.</div>
           <div id="bookshelfSizes"></div>
@@ -610,38 +641,7 @@
         <input id="roomDoor" type="range" min="0" max="110" value="90">
       </details>
     </div>
-    <div class="tabpanel" data-tab="Colours &amp; stored">
-      <details class="sec" id="secColours">
-        <summary>Colours</summary>
-        <div class="colours">
-          <div class="colhead">Cupboards</div>
-          <div class="colrow">
-            <button id="colPrev" aria-label="Previous named colour">◀</button>
-            <select id="ral-cupboard" aria-label="Cupboard colour"></select>
-            <button id="colNext" aria-label="Next named colour">▶</button>
-            <button class="swatch" id="cupboardSwatch" aria-expanded="false" title="Every colour, to drag over"></button>
-          </div>
-          <div class="colrow" id="otherRow" hidden>
-            <select id="ral-other" aria-label="Other cupboard colour"></select>
-          </div>
-          <div class="colhead" style="margin-top: 8px">Dresser and larder</div>
-          <div class="colrow">
-            <button id="dresserPrev" aria-label="Previous named dresser colour">◀</button>
-            <select id="ral-dresser" aria-label="Dresser colour"></select>
-            <button id="dresserNext" aria-label="Next named dresser colour">▶</button>
-            <button class="swatch" id="dresserSwatch" aria-expanded="false" title="Every colour, to drag over"></button>
-          </div>
-          <div class="colrow" id="dresserOtherRow" hidden>
-            <select id="ral-dresser-other" aria-label="Other dresser colour"></select>
-          </div>
-          <div class="colhead" style="margin-top: 8px">Shelves (both cupboards)</div>
-          <div class="colrow">
-            <select id="shelfWood" aria-label="Shelf colour"></select>
-            <span class="swatch" id="shelfSwatch"></span>
-          </div>
-          <div class="hint">◀ ▶ flip between the named colours. The bench goes with the cupboards. Floor (Howdens oak), walls (Crown Gallery White) and woodwork (Dulux Pure Brilliant White) are as the room is. Screen colours are approximate.</div>
-        </div>
-      </details>
+    <div class="tabpanel" data-tab="Stored">
       <details class="sec" id="secStored">
         <summary>Things to store</summary>
         <div id="storedBlock">

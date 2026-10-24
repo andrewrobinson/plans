@@ -126,6 +126,7 @@ function showInMenus(option, no, aboveText) {
   }
   shown('dresserBlock', piece === 'dresser');
   shown('larderBlock', piece === 'larder');
+  shown('dresserColourBlock', piece === 'dresser' || piece === 'larder');
   shown('bookshelfBlock', piece === 'bookshelf');
   for (const key of BACK_WALL_KEYS) {
     shown(`${key}MoveBlock`, inLivingRoom(key).on);

@@ -33,10 +33,10 @@ bottom sheet, and finding a setting means scrolling past everything else.
 
 | Tab | Sections |
 |---|---|
-| **Cupboard** | The corner cupboard (with its cutting list) |
+| **Cupboard** | The corner cupboard (with its colour, the shelves' and its cutting list) |
 | **Furniture** | Sofa; The back wall: bench, TV and shelves; The front wall and the island; Speakers; Ivar; Cornwall table; Chesham table; Desk on castors |
 | **Walls & doors** | Doors |
-| **Colours & stored** | Colours; Things to store; Description |
+| **Stored** | Things to store; Description |
 
 ### Hallway and stairs: two tabs
 

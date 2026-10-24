@@ -47,8 +47,8 @@ const THINGS = [
   // (its length runs front to back, as its own axes go)
   { name: 'Kitchen island', objects: () => [islandGroup], ids: ISLAND, sizes: [w('islandWidth'), d('islandLength', 2)] },
   // the dresser and larder grow from their left-hand side, along the front wall
-  { name: 'Dresser', objects: () => [pieces.dresser], ids: ['frontBlock', 'dresserBlock'], sizes: [w('dresserW', 1)] },
-  { name: 'Larder', objects: () => [pieces.larder], ids: ['frontBlock', 'larderBlock'], sizes: [w('larderW', 1), d('larderD')] },
+  { name: 'Dresser', objects: () => [pieces.dresser], ids: ['frontBlock', 'dresserBlock', 'dresserColourBlock'], sizes: [w('dresserW', 1)] },
+  { name: 'Larder', objects: () => [pieces.larder], ids: ['frontBlock', 'larderBlock', 'dresserColourBlock'], sizes: [w('larderW', 1), d('larderD')] },
   { name: 'Corner cupboard', objects: () => [cupboard?.group], ids: ['secCupboard'] },
   { name: 'Ivar', objects: () => [pieces.ivar], ids: ['secIvar'] },
   { name: 'Cornwall table', objects: () => [pieces.cornwall], ids: ['secCornwall'] },
