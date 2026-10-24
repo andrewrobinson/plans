@@ -285,6 +285,13 @@ const SPEAKER_SURFACES = {
       start: null, spacing: top.x1 - top.x0 - 2 * gap - FENRIS_A5.w, on: `on the corner cupboard, ${top.h} high, spread evenly along its ${top.x1 - top.x0} on the back wall` };
   },
 };
+// Where they go when put in from the picker: `wanted` (the place last
+// chosen) if it's there now, else the first place that is, else `wanted`
+// anyway (the summary says why they aren't drawn)
+export function speakerPlaceFor(wanted) {
+  const there = place => place !== 'none' && !SPEAKER_SURFACES[place]().missing;
+  return there(wanted) ? wanted : SPEAKER_PLACES.find(there) ?? wanted;
+}
 // The spacing on a surface: as set, or where it starts, held to what they
 // stand on (centred on its middle); `most`, the furthest apart they can be
 function speakerSpacingOn(place, surface) {

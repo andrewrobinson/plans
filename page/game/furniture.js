@@ -14,7 +14,7 @@
 import * as THREE from 'three';
 import { MM } from '../../kit/floor_kit.js';
 import {
-  config, drawn, pieces, spotOf, ivarSpot, tableSpot, castorDeskSpot, sofaHome, currentSofa, NO_SOFA, ROOM_BOXES, CURRENT_ROOM
+  config, drawn, pieces, spotOf, ivarSpot, tableSpot, castorDeskSpot, sofaHome, currentSofa, NO_SOFA, speakerPlaceFor, ROOM_BOXES, CURRENT_ROOM
 } from '../../flat_model.js';
 import { SOFA_MODELS } from '../../sofas.js';
 import { otherRoomPieces, settingPath, WALLS } from '../../other_room.js';
@@ -61,6 +61,22 @@ const SOFA = { key: 'sofa', name: 'Sofa', icon: 'sofa', place: 'pieces.sofa.in.l
   inValue: on => (on ? lastSofa : NO_SOFA),
   spot: () => config.pieces.sofa.in.livingRoom.move ?? sofaHome(currentSofa()),
   moveTo: s => [['pieces.sofa.in.livingRoom.move', s]], object: () => pieces.sofa };
+// The speakers, a pair, in or out as the cupboard: their setting is what
+// they stand on (Lounge options' Speakers: none, or a place); in, they go
+// where they last stood if it's there now, else on the first place that is
+// (speakerPlaceFor()), Billy to start. They move with what they're on, so
+// aren't moved in Plan (asked for, 24 Oct 2026)
+const SPEAKERS_ON = 'pieces.speakers.in.livingRoom.on';
+const NO_SPEAKERS = 'none';
+let lastSpeakerPlace = 'billy';
+const SPEAKERS = { key: 'speakers', name: 'Speakers', icon: 'device-speaker', on: SPEAKERS_ON, place: 'pieces.speakers.in.livingRoom',
+  fixed: true, object: () => null, folder: OTHER,
+  isIn: () => {
+    const place = at(SPEAKERS_ON);
+    if (place !== NO_SPEAKERS) lastSpeakerPlace = place;           // kept, to come back to
+    return place !== NO_SPEAKERS;
+  },
+  inValue: on => (on ? speakerPlaceFor(lastSpeakerPlace) : NO_SPEAKERS) };
 const lounge = (key, name, icon, place, spot, object, more = {}) =>
   ({ key, name, icon, place, on: `${place}.on`, spot, moveTo: s => [[`${place}.move`, s]], object, ...more });
 // In the picker's order, the most important first (asked for, 24 Oct 2026)
@@ -80,6 +96,7 @@ const LOUNGE = [
   lounge('pine', 'Pine cupboard', 'door', 'pieces.pineCupboard.in.livingRoom', () => spotOf('pine'), () => drawn.backWall.pine, { short: 'Pine' }),
   lounge('wickerBench', 'Wicker bench', 'armchair-2', 'pieces.wickerBench.in.livingRoom', () => fromXY('pieces.wickerBench.in.livingRoom'), () => wickerBenches.livingRoom,
     { moveTo: s => xyEdits('pieces.wickerBench.in.livingRoom', s, 'x', 'y'), short: 'Wicker', folder: OTHER }),
+  SPEAKERS,
   // The TV, on the back wall: dragged along it only (`slides`), its middle
   // setting `along` (its height's on its slider, in its options)
   lounge('tv', 'TV', 'device-tv', 'pieces.tv.in.livingRoom', () => ({ x: drawn.tvAt[0], y: 0, turn: 0 }), () => drawn.tv,

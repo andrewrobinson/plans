@@ -347,7 +347,7 @@ export {
   placeStored, storedSpots
 } from './model/stored.js';
 export {
-  cupboardTopForSpeakers, speakerSpacingNow
+  cupboardTopForSpeakers, speakerSpacingNow, speakerPlaceFor
 } from './model/loose_pieces.js';
 export {
   BEDROOM_CUPBOARD_RANGES, DESK_SHOWN, DOORS_SCHEMA, get, idIn, set, setAll
