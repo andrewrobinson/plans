@@ -65,6 +65,8 @@ body.classic .game { display: none !important; }
   background: var(--game-panel); border-radius: 16px; box-shadow: var(--game-shadow); animation: gamePop 0.15s ease-out;
 }
 #pickerFolder[hidden] { display: none; }
+/* A piece with something else in its place: greyed, a tap swaps them */
+#picker .pick.replaced, #pickerFolder .pick.replaced { opacity: 0.45; }
 #picker.dropOut { background: #fcebeb; box-shadow: inset 0 0 0 2px var(--game-red), var(--game-shadow); }
 #picker.dropOut .pick { opacity: 0.4; }
 .dragGhost {

@@ -7,7 +7,7 @@
 // leaves it out, the page as it was (the tests of the old controls use it).
 import { display } from '../display.js';
 import { viewKit, change, camera, controls, drawSoon } from '../../living_room.js';
-import { ROOMS, at, isIn } from './furniture.js';
+import { ROOMS, at, isIn, replacerOf, replacedNow } from './furniture.js';
 import { dragFromPicker, deselect } from './plan_edit.js';
 
 const classic = document.body.classList.contains('classic');
@@ -178,13 +178,20 @@ function togglePiece(piece) {
 // every setting of its place in the room as it was (one that's fixed, its
 // switch alone)
 function setIn(piece, on, note, edits = []) {
+  // Put in where something else stands in its place: that one's taken out, a swap
+  if (on && replacedNow(piece)) {
+    const other = replacerOf(piece);
+    edits = [...edits, [other.on, false]];
+    note = `${note}, ${other.name} taken out`;
+  }
   if (piece.viaSwitch) {                                         // its own switch, which does the rest
     const flip = () => document.getElementById(piece.viaSwitch).click();
     flip();
     return toast(note, flip);
   }
-  const before = piece.fixed ? [[piece.on, at(piece.on)]]
-    : Object.entries(at(piece.place)).map(([k, v]) => [`${piece.place}.${k}`, structuredClone(v)]);
+  const before = (piece.fixed ? [[piece.on, at(piece.on)]]
+    : Object.entries(at(piece.place)).map(([k, v]) => [`${piece.place}.${k}`, structuredClone(v)]))
+    .concat(edits.filter(([path]) => !path.startsWith(`${piece.place}.`)).map(([path]) => [path, structuredClone(at(path))]));   // and anything else it changes
   change([[piece.on, piece.inValue ? piece.inValue(on) : on], ...edits], { look: true });
   toast(note, () => change(before, { look: true }));
 }
@@ -218,7 +225,12 @@ function showShell() {
   picker.hidden = !ROOMS[room];
   for (const button of document.querySelectorAll('#picker .pick[data-key], #pickerFolder .pick')) {
     const piece = pieceOf(button);
-    if (piece) button.classList.toggle('in', isIn(piece));
+    if (!piece) continue;
+    button.classList.toggle('in', isIn(piece));
+    // greyed while something else stands in its place: a tap swaps them
+    const replaced = replacedNow(piece);
+    button.classList.toggle('replaced', replaced);
+    button.title = replaced ? `${piece.name}: ${replacerOf(piece).name} is in its place. Tap to swap` : piece.name;
   }
   // a folder's icon dotted while anything in it is in
   for (const button of picker.querySelectorAll('[data-folder]')) {

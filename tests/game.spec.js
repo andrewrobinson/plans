@@ -274,6 +274,25 @@ test('each room\'s corner cupboard is its picker\'s first icon, putting it in an
   expect(await setting(page, 'pieces.bedroomCupboard.in.bedroom.on')).toBe(true);
 });
 
+// The bedroom's new cupboard stands in the pine cupboard's place, as its
+// menu has it: with it in, the pine cupboard's icon's greyed, and tapped,
+// the two swap, one Undo putting both back
+test('a piece something else stands in place of is greyed, and a tap swaps them', async ({ page }) => {
+  await openRoom(page, '', { game: true });
+  await page.click('#gameRooms [data-room=bedroom]');
+  const pine = page.locator('#picker [data-key=cupboard]');
+  await expect(pine).toHaveClass(/\bin\b/);
+  await page.click('#picker [data-key=newCupboard]');
+  await expect(pine).toHaveClass(/\breplaced\b/);
+  await expect(pine).not.toHaveClass(/\bin\b/);
+  await pine.click();
+  expect(await setting(page, 'pieces.bedroomCupboard.in.bedroom.on')).toBe(false);
+  expect(await setting(page, 'pieces.pineCupboard.in.bedroom.on')).toBe(true);
+  await expect(pine).toHaveClass(/\bin\b/);
+  await page.click('#gameToast button');                         // Undo: the new cupboard back in
+  expect(await setting(page, 'pieces.bedroomCupboard.in.bedroom.on')).toBe(true);
+});
+
 test('?classic leaves the game UI out', async ({ page }) => {
   await openRoom(page);
   await expect(page.locator('#picker')).toBeHidden();

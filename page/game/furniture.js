@@ -118,7 +118,7 @@ const BEDROOM = [
   { key: 'newCupboard', name: 'New cupboard', short: 'Cupboard', icon: 'layout-board', place: bedroomPlace('newCupboard'), on: settingPath('newCupboardOn'),
     fixed: true, object: () => null },
   free('bookcase', 'Bookcase', 'bookmarks'),
-  free('cupboard', 'Pine cupboard', 'door', { short: 'Pine' }),
+  free('cupboard', 'Pine cupboard', 'door', { short: 'Pine', replacedBy: 'newCupboard' }),
   onWall('billy', 'Billy', 'books'),
   onWall('billyChest', 'BillyChest', 'archive', { short: 'Chest' }),
   onWall('ivar', 'Ivar', 'layout-columns'),
@@ -141,11 +141,11 @@ const BED = { ...free('bed', 'Bed', 'bed'), on: null };
 // ---------------------------------------------------------------------------
 const toggle = (key, name, short, icon, on) => ({ key, name, short, icon, on, place: on.replace(/\.[^.]+$/, ''), fixed: true, object: () => null });
 const HALLWAY = [
-  toggle('wcShelves', "Shelves on the WC's wall", 'WC shelves', 'align-justified', 'hallway.wcWall.shelves.on'),
+  { ...toggle('wcShelves', "Shelves on the WC's wall", 'WC shelves', 'align-justified', 'hallway.wcWall.shelves.on'), replacedBy: 'cornerShelves' },
   toggle('wcPicture', "Picture on the WC's wall", 'WC picture', 'photo', 'hallway.wcWall.picture.on'),
   toggle('loungeShelves', "Shelves on the lounge's wall", 'Lounge shelves', 'align-justified', 'hallway.loungeWall.shelves.on'),
   toggle('loungePicture', "Picture on the lounge's wall", 'Lounge picture', 'photo', 'hallway.loungeWall.picture.on'),
-  toggle('tvShelves', "Shelves on the TV's wall", 'TV shelves', 'align-justified', 'hallway.tvWall.shelves.on'),
+  { ...toggle('tvShelves', "Shelves on the TV's wall", 'TV shelves', 'align-justified', 'hallway.tvWall.shelves.on'), replacedBy: 'cornerShelves' },
   toggle('tvPicture', "Picture on the TV's wall", 'TV picture', 'photo', 'hallway.tvWall.picture.on'),
   toggle('cornerShelves', 'L-shaped shelves in the corner', 'L shelves', 'border-corner-square', 'hallway.cornerShelves.on'),
   toggle('leftShoeBoxes', 'Shoe boxes on the left sill', 'Left boxes', 'box', 'hallway.shoeBoxes.left.on'),
@@ -186,8 +186,14 @@ const ROOMS = {
 for (const [room, r] of Object.entries(ROOMS)) for (const piece of [...r.picker, ...r.always]) piece.room ??= room;
 const roomOf = piece => ROOMS[piece.room];
 
-// Whether a piece is in its room: always for those that are always there
-const isIn = piece => (piece === SOFA ? Boolean(currentSofa()) : piece.isIn ? piece.isIn() : piece.on ? Boolean(at(piece.on)) : true);
+// Whether a piece is in its room: always for those that are always there.
+// One `replacedBy` another (the pine cupboard by the bedroom's new
+// cupboard, the TV and WC walls' shelves by the L-shaped shelves, as their
+// menus have it) isn't while that one's in, whatever its own switch says
+const switchedOn = piece => (piece === SOFA ? Boolean(currentSofa()) : piece.isIn ? piece.isIn() : piece.on ? Boolean(at(piece.on)) : true);
+const replacerOf = piece => (piece.replacedBy ? ROOMS[piece.room].picker.find(p => p.key === piece.replacedBy) : null);
+const replacedNow = piece => Boolean(replacerOf(piece) && switchedOn(replacerOf(piece)));
+const isIn = piece => switchedOn(piece) && !replacedNow(piece);
 // The pieces in a room that can be selected in Plan, each that's in and drawn
 const inRoom = room => (ROOMS[room] ? [...ROOMS[room].always, ...ROOMS[room].picker] : []).filter(piece => isIn(piece) && piece.object());
 // The room's walls, in the living room's mm (flat_model.js's ROOM_BOXES)
@@ -205,4 +211,4 @@ function floorBox(object) {
 // left or window wall)
 const facing = turn => ({ x: -Math.sin(THREE.MathUtils.degToRad(turn)), y: Math.cos(THREE.MathUtils.degToRad(turn)) });
 
-export { ROOMS, SOFA, BED, at, isIn, inRoom, roomOf, wallsOf, floorBox, facing };
+export { ROOMS, SOFA, BED, at, isIn, replacerOf, replacedNow, inRoom, roomOf, wallsOf, floorBox, facing };
