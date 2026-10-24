@@ -28,7 +28,8 @@ const at = path => path.split('.').reduce((o, k) => o?.[k], config);
 // The lounge's pieces: placed by `move` ({ x, y, turn }, null where they
 // start), in the room's mm
 // ---------------------------------------------------------------------------
-// The picker's Other folder, for the less important pieces (asked for, 24 Oct 2026)
+// The pickers' Other folder, the lounge's and the bedroom's, for the less
+// important pieces (asked for, 24 Oct 2026)
 const OTHER = { key: 'other', name: 'Other', icon: 'folder' };
 // The lounge's corner cupboard, in or out: in, it's the option last chosen
 // (10 to start, as the bedroom's copy starts); out, the room as it is
@@ -121,12 +122,12 @@ const BEDROOM = [
   onWall('billy', 'Billy', 'books'),
   onWall('billyChest', 'BillyChest', 'archive', { short: 'Chest' }),
   onWall('ivar', 'Ivar', 'layout-columns'),
-  onWall('bedsideTable', 'Bedside table by the bed', 'lamp', { short: 'Bedside' }),
-  onWall('bedsideTableByCupboard', 'Bedside table by the pine cupboard', 'lamp-2', { short: 'Bedside 2' }),
-  onWall('kvistbro', 'Kvistbro', 'stack-2'),
-  free('laundryBasket', 'Laundry basket', 'basket', { short: 'Basket' }),
+  onWall('bedsideTable', 'Bedside table by the bed', 'lamp', { short: 'Bedside', folder: OTHER }),
+  onWall('bedsideTableByCupboard', 'Bedside table by the pine cupboard', 'lamp-2', { short: 'Bedside 2', folder: OTHER }),
+  onWall('kvistbro', 'Kvistbro', 'stack-2', { folder: OTHER }),
+  free('laundryBasket', 'Laundry basket', 'basket', { short: 'Basket', folder: OTHER }),
   onWall('mirror', 'Mirror', 'frame'),
-  { key: 'wickerBench', name: 'Wicker bench', short: 'Wicker', icon: 'armchair-2', place: 'pieces.wickerBench.in.bedroom', on: 'pieces.wickerBench.in.bedroom.on',
+  { key: 'wickerBench', name: 'Wicker bench', short: 'Wicker', icon: 'armchair-2', place: 'pieces.wickerBench.in.bedroom', on: 'pieces.wickerBench.in.bedroom.on', folder: OTHER,
     spot: () => fromXY('pieces.wickerBench.in.bedroom', 'u', 'v'), moveTo: s => xyEdits('pieces.wickerBench.in.bedroom', s, 'u', 'v'), object: () => wickerBenches.bedroom },
   STORED,
 ];

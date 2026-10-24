@@ -109,7 +109,11 @@ test('the bedroom has its own pieces: dragged in, one on a wall goes against the
   await openRoom(page, '', { game: true });
   await page.click('#gameRooms [data-room=bedroom]');
   await toPlan(page);
-  await expect(page.locator('#picker [data-key=kvistbro]')).toBeVisible();
+  // the Kvistbro's in its Other folder
+  await expect(page.locator('#picker [data-key=kvistbro]')).toHaveCount(0);
+  await page.click('#picker [data-folder=other]');
+  await expect(page.locator('#pickerFolder [data-key=kvistbro]')).toBeVisible();
+  await page.click('#picker [data-folder=other]');
   await expect(page.locator('#picker [data-key=cornwall]')).toHaveCount(0);
   // Billy, dropped by the window wall (u 0), stands against it
   const icon = await page.locator('#picker [data-key=billy]').boundingBox();
