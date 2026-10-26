@@ -899,9 +899,11 @@ export const CURRENT_ROOM = 16;
 //   partOf(o, withDoors), dims(view, g), doorDims(view, g)
 //                     what Cupboard only shows, and its dimensions in a view
 //                     ({ flat, flatView })
-//   hanging           its sections for hanging (hangingSections())
+//   hanging           its sections for hanging (hangingSections()), with
+//                     the ladders it was given ({ ladders }: each
+//                     { w, d, h, colour }) standing in its corner
 //   showHanging(on)   their rails and red drawn in it, or taken out
-export function makeCupboard(settings, place, materials) {
+export function makeCupboard(settings, place, materials, { ladders = [] } = {}) {
   const job = cupboardJob(settings, place, materials);
   const group = new THREE.Group();
   const { tall = [], second = [], desk = [] } = optionOf(settings.option).build(job, group);
@@ -909,7 +911,8 @@ export function makeCupboard(settings, place, materials) {
   shelfGroup.userData.cupShelves = true;                         // so its dimensions know the shelves from an open tower's
   group.add(shelfGroup);
   let cuts = [];                                                 // what drawShelves() last cut
-  const hanging = hangingSections(settings, place);
+  const { sections: hanging, standing } = withLadders(hangingSections(settings, place), ladders);
+  drawLadders(standing, settings.BOARD, group);
   let hangingGroup = null;                                       // drawn only while shown, so it's never in the cupboard's size
   const turn = degrees => THREE.MathUtils.degToRad(degrees);
   return {
@@ -978,19 +981,29 @@ export function insideSpaces(settings, place) {
 // back of the doors: the pine cupboard's 475, just enough (measured by the
 // user, 24 Oct 2026)
 export const HANG_DEPTH = 475;
+// ...and the least it hangs in without being tight: the usual advice, 550 to
+// 600 inside (HANGING_SPACE.md); less, and a section still counts but shows
+// amber (asked for, 26 Oct 2026)
+export const HANG_TIGHT = 550;
 // A rail hangs RAIL_DROP under the inside's top, RAIL_THICK square (chosen)
 const RAIL_DROP = 60, RAIL_THICK = 20;
 // Sections too shallow to hang in are drawn over in this see-through red
 export const SHALLOW_MAT = new THREE.MeshStandardMaterial({ color: 0xd03030, transparent: true, opacity: 0.45, depthWrite: false });
+// ...and those that hang, but tightly, in this see-through amber
+const TIGHT_MAT = new THREE.MeshStandardMaterial({ color: 0xe0a020, transparent: true, opacity: 0.35, depthWrite: false });
+// Whether a section `depth` deep hangs, and whether tightly
+const hangs = depth => ({ deep: depth >= HANG_DEPTH, tight: depth >= HANG_DEPTH && depth < HANG_TIGHT });
 
 // The cupboard's sections for hanging, each
-//   { name, axis, from, to, depth, h, deep, poly }
+//   { name, axis, from, to, depth, h, deep, tight, corner, poly }
 // its rail's run along `axis` (0 along the back wall, in x; 1 along the
 // left wall, in y) from `from` to `to`; its least inside depth back to its
 // wall's rear panel, and its clear height (shelves taken to be removable);
-// whether it's HANG_DEPTH deep, to hang in; and its plan outline, its doors
-// included. In an L, one leg's rail runs into the corner and the other's
-// starts where those clothes end, so the corner counts once (lShaped()).
+// whether it's HANG_DEPTH deep, to hang in, and if so less than HANG_TIGHT;
+// whether its rail runs into the L's corner; and its plan outline, its
+// doors included. In an L, one leg's rail runs into the corner and the
+// other's starts where those clothes end, so the corner counts once
+// (lShaped()).
 export function hangingSections(settings, place) {
   const { T, F, BOARD: B, WARD, WARD_D, CORNER_W, CORNER_D } = settings;
   const h = cupboardHeight(settings, place) - 2 * B;
@@ -1018,10 +1031,10 @@ export function hangingSections(settings, place) {
 // across it its front (the doors' back) at `front`, from its wall's rear
 // panel, B thick. Its outline runs on out over its doors, also B thick, so
 // the red shows on them.
-function rectSection(name, axis, from, to, B, front, h) {
+function rectSection(name, axis, from, to, B, front, h, corner = false) {
   const depth = front - B, doorFace = front + B;
   const poly = axis === 0 ? rectPoly(from, B, to, doorFace) : rectPoly(B, from, doorFace, to);
-  return { name, axis, from, to, depth, h, deep: depth >= HANG_DEPTH, poly };
+  return { name, axis, from, to, depth, h, ...hangs(depth), corner, poly };
 }
 
 // An L of two legs, each [from, to, front] along its wall: the back-wall
@@ -1033,9 +1046,9 @@ function lShaped(B, h, [x0, x1, backFront], left) {
   if (!left) return [rectSection('Back-wall cupboard', 0, x0, x1, B, backFront, h)];
   const [y0, y1, leftFront] = left;
   if (backFront - B >= HANG_DEPTH) {
-    return [rectSection('Back-wall leg, into the corner', 0, x0, x1, B, backFront, h), rectSection('Left-wall leg', 1, y0, y1, B, leftFront, h)];
+    return [rectSection('Back-wall leg, into the corner', 0, x0, x1, B, backFront, h, true), rectSection('Left-wall leg', 1, y0, y1, B, leftFront, h)];
   }
-  return [rectSection('Back-wall leg', 0, leftFront, x1, B, backFront, h), rectSection('Left-wall leg, into the corner', 1, B, y1, B, leftFront, h)];
+  return [rectSection('Back-wall leg', 0, leftFront, x1, B, backFront, h), rectSection('Left-wall leg, into the corner', 1, B, y1, B, leftFront, h, true)];
 }
 
 // Option 8's sections: along each leg of its inside (to the doors), the
@@ -1050,13 +1063,14 @@ function diagonalSections(settings, h) {
   const backTo = deepRun(inside, 0, B, xMost, B);
   const leftFrom = backTo > B ? B + HANG_DEPTH : B, leftTo = deepRun(inside, 1, leftFrom, yMost, B);
   const sections = [];
-  const leg = (name, axis, from, to, rest) => {
-    if (to > from) sections.push({ name, axis, from, to, depth: Math.round(reachAt(inside, axis, to) - B), h, deep: true, poly: clipPoly(inside, axis, to, true) });
+  const leg = (name, axis, from, to, rest, corner = false) => {
+    const depth = Math.round(reachAt(inside, axis, to) - B);
+    if (to > from) sections.push({ name, axis, from, to, depth, h, ...hangs(depth), corner, poly: clipPoly(inside, axis, to, true) });
     const shallow = withoutRepeats(clipPoly(inside, axis, Math.max(to, from), false));
     const [a, b] = spanOf(shallow, axis);
-    if (shallow.length >= 3 && b - a > 1) sections.push({ name: rest, axis, from: a, to: b, depth: Math.round(reachAt(inside, axis, b) - B), h, deep: false, poly: shallow });
+    if (shallow.length >= 3 && b - a > 1) sections.push({ name: rest, axis, from: a, to: b, depth: Math.round(reachAt(inside, axis, b) - B), h, deep: false, tight: false, corner: false, poly: shallow });
   };
-  leg('Back-wall leg, into the corner', 0, B, backTo, 'Back-wall leg, by the diagonal');
+  leg('Back-wall leg, into the corner', 0, B, backTo, 'Back-wall leg, by the diagonal', true);
   leg('Left-wall leg', 1, leftFrom, leftTo, 'Left-wall leg, by the diagonal');
   if (back) sections.push(rectSection("Back-wall leg's shallow end", 0, xs, E - B, B, db, h));
   if (left) sections.push(rectSection("Left-wall leg's shallow end", 1, ys, F - B, B, dl, h));
@@ -1092,18 +1106,41 @@ function deepRun(poly, axis, from, to, back) {
 }
 
 // The sections drawn into `group`: a rail across each that's deep enough,
-// RAIL_DROP under its top and half its depth out from its wall, and the
-// rest drawn over in red, up to just over the cupboard's top
+// RAIL_DROP under its top and half its depth out from its wall, those that
+// are tight drawn over in amber, and the rest in red, up to just over the
+// cupboard's top
 function drawHanging(sections, B, handleMat, group) {
-  for (const { axis, from, to, depth, h, deep, poly } of sections) {
-    if (!deep) {
-      const red = slab(poly, 0, h + 2 * B + 1, SHALLOW_MAT, group);
-      red.castShadow = red.receiveShadow = false;
-      continue;
+  for (const { axis, from, to, depth, h, deep, tight, poly } of sections) {
+    if (!deep || tight) {
+      const over = slab(poly, 0, h + 2 * B + 1, deep ? TIGHT_MAT : SHALLOW_MAT, group);
+      over.castShadow = over.receiveShadow = false;
+      if (!deep) continue;
     }
     const across = B + depth / 2, z = B + h - RAIL_DROP, half = RAIL_THICK / 2;
     const [a, b] = axis === 0 ? [[from, across - half], [to, across + half]] : [[across - half, from], [across + half, to]];
     box({ from: [a[0], a[1], z - RAIL_THICK], to: [b[0], b[1], z] }, handleMat, group, false);
+  }
+}
+
+// The ladders stood in the L's corner (asked for, 26 Oct 2026): each
+// { w, d, h, colour }, upright side by side from the corner along the rail
+// that runs into it, their w along it. That rail then starts past them;
+// its section says how much they take (`ladders`). None without such a rail
+function withLadders(sections, ladders) {
+  const corner = sections.find(s => s.corner && s.deep);
+  if (!corner || !ladders.length) return { sections, standing: [] };
+  const take = ladders.reduce((sum, l) => sum + l.w, 0);
+  let at = corner.from;
+  const standing = ladders.map(l => ({ ...l, axis: corner.axis, at: (at += l.w) - l.w }));
+  const shortened = { ...corner, from: Math.min(corner.from + take, corner.to), ladders: take };
+  return { sections: sections.map(s => (s === corner ? shortened : s)), standing };
+}
+// ...drawn into `group`, on the cupboard's bottom board, against the wall
+// behind that rail
+function drawLadders(standing, B, group) {
+  for (const { w, d, h, colour, axis, at } of standing) {
+    const [x0, y0, x1, y1] = axis === 0 ? [at, B, at + w, B + d] : [B, at, B + d, at + w];
+    box({ from: [x0, y0, B], to: [x1, y1, B + h] }, material(colour), group);
   }
 }
 

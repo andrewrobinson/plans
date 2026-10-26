@@ -125,7 +125,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": false
+                "on": false,
+                "ladders": false
               }
             }
           },
@@ -909,7 +910,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": false
+                "on": false,
+                "ladders": false
               }
             }
           },
@@ -1648,7 +1650,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": true
+                "on": true,
+                "ladders": false
               }
             }
           },
@@ -2424,7 +2427,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": true
+                "on": true,
+                "ladders": false
               }
             }
           },
@@ -3202,7 +3206,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": true
+                "on": true,
+                "ladders": false
               }
             }
           },
@@ -3934,7 +3939,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": true
+                "on": true,
+                "ladders": false
               }
             }
           },
@@ -4666,7 +4672,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": true
+                "on": true,
+                "ladders": false
               }
             }
           },
@@ -5399,7 +5406,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": false
+                "on": false,
+                "ladders": false
               }
             }
           },
@@ -6174,7 +6182,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": false
+                "on": false,
+                "ladders": false
               }
             }
           },
@@ -6906,7 +6915,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": true
+                "on": true,
+                "ladders": false
               }
             }
           },
@@ -7681,7 +7691,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": true
+                "on": true,
+                "ladders": false
               }
             }
           },
@@ -8460,7 +8471,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": true
+                "on": true,
+                "ladders": false
               }
             }
           },
@@ -9239,7 +9251,8 @@ window.ROOM_CONFIGURATIONS = {
             },
             "in": {
               "bedroom": {
-                "on": true
+                "on": true,
+                "ladders": false
               }
             }
           },

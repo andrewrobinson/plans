@@ -120,3 +120,22 @@ Claude's comments:
 - To model it later: let the ladders be put in the bedroom cupboard's
   corner, and take the length they stand along off the rail they're
   under. Until that's decided, the hanging count doesn't allow for them.
+
+## Decided (the user, 26 Oct 2026)
+
+The open questions above, answered:
+
+- **Front-to-back rails** count at their own length, on a line of their
+  own. The total compared with the pine cupboard's 1,240 stays rails
+  across only.
+- **A shallow section of the new cupboards** doesn't get a front-to-back
+  rail: it stays red.
+- **475 to 549 deep** still counts, but shows amber and says "tight".
+  550 or more is plain.
+- **The ladders:** a switch, "Ladders in the corner", draws them in the
+  L's corner and takes the length they stand along off the corner rail.
+
+Built 26 Oct 2026: `HANG_TIGHT` (550) in corner_cupboard.js; the recess
+columns' `frontToBack` (other_room.js's `recessHanging()`); the ladders as
+`pieces.bedroomCupboard.in.bedroom.ladders`, for options 7 to 9, both
+upright side by side from the corner (380 + 520 = 900 off that rail).

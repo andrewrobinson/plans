@@ -19,6 +19,7 @@ import {
 import { pieces } from './front_wall.js';
 import { BEDROOM_MATERIALS, benchMat } from './materials.js';
 import { SLIDER_RANGES } from './slider_ranges.js';
+import { STORED } from './stored.js';
 
 // The living room, as the cupboard stands in it: its back-left corner,
 // and the room door it can meet (760 x 44, hinged at y 1400 on the left wall)
@@ -104,6 +105,11 @@ let livingGroup = null;      // the cupboard and everything round it that the op
 let bedroomCupboard = null;  // the bedroom's own corner cupboard (BEDROOM_PLACE), while its New cupboard switch is on
 
 
+// The two ladders (of the things to store), when Ladders in the corner is
+// on: in the bedroom cupboard's L, if it has one (asked for, 26 Oct 2026)
+const LADDERS = STORED.filter(thing => / ladder$/i.test(thing.name));
+const laddersInBedroomCupboard = () => (config.pieces.bedroomCupboard.in.bedroom.ladders ? LADDERS : []);
+
 // The bedroom's New cupboard switch: its own cupboard, built from its own
 // settings against the bedroom (BEDROOM_PLACE) in its own materials, its
 // shelves whole (nothing's stored in it), or none. As the living room's
@@ -114,7 +120,7 @@ function buildBedroomCupboard(onShow) {
   bedroomCupboard = null;
   if (config.pieces.bedroomCupboard.design.option !== onShow) doors.bedroomCupboardSecond = 0;
   if (!config.pieces.bedroomCupboard.in.bedroom.on) return showNewCupboard(null);
-  bedroomCupboard = makeCupboard(cupboardSettings('bedroomCupboard'), BEDROOM_PLACE, BEDROOM_MATERIALS);
+  bedroomCupboard = makeCupboard(cupboardSettings('bedroomCupboard'), BEDROOM_PLACE, BEDROOM_MATERIALS, { ladders: laddersInBedroomCupboard() });
   bedroomCupboard.drawShelves([]);
   showNewCupboard(bedroomCupboard.group);
 }

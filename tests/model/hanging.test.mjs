@@ -31,7 +31,8 @@ test("option 7's L: the back-wall leg's rail runs into the corner, the left-wall
   ]);
   assert.equal(railIn('bedroom'), 1746);
   assert.equal(hangingVerdict('bedroom'), 'enough');
-  assert.match(hangingText('bedroom'), /Recess cupboard's left column \(its rail runs front to back\): 384 deep, too shallow/);
+  assert.match(hangingText('bedroom'), /Recess cupboard's left column: 384 deep, too shallow, with a 384 rail front to back/);
+  assert.match(hangingText('bedroom'), /Front-to-back rails, not in that: 768 \(2 of 384\)\.$/);
 });
 
 test("a back-wall leg too shallow to hang in: the left-wall leg's rail runs into the corner instead", () => {
@@ -64,4 +65,21 @@ test('the recess cupboard as all drawers: no hanging there', () => {
   assert.equal(railIn('bedroom'), 0);
   assert.match(hangingText('bedroom'), /Recess cupboard: all drawers, no hanging\.$/);
   assert.doesNotMatch(hangingText('bedroom'), /column/);
+});
+
+test('a section 475 to 549 deep hangs, but tightly', () => {
+  const [back, left] = bedroomWith({ option: 7, T: 520, F: 1200, LEG: 600, LEG_D: 600, ENDS: false });
+  assert.deepEqual([back.deep, back.tight, left.deep, left.tight], [true, false, true, true]);
+  assert.match(hangingText('bedroom'), /Left-wall leg: \d+ of rail, 502 deep \(tight\)/);
+});
+
+test('the ladders in the corner: the rail into it starts past them', () => {
+  const configuration = structuredClone(DEFAULT_CONFIGURATION);
+  configuration.pieces.bedroomCupboard.in.bedroom = { ...configuration.pieces.bedroomCupboard.in.bedroom, on: true, ladders: true };
+  Object.assign(configuration.pieces.bedroomCupboard.design, { option: 7, T: 600, F: 1200, LEG: 600, LEG_D: 600, ENDS: false });
+  buildFlat(configuration, { hanging: true });
+  const [corner] = cupboardOf('bedroomCupboard').hanging;
+  assert.deepEqual([corner.from, corner.ladders], [B + 380 + 520, 900]);
+  assert.equal(railIn('bedroom'), 1746 - 900);
+  assert.match(hangingText('bedroom'), /into the corner: 264 of rail \(the ladders take 900\)/);
 });

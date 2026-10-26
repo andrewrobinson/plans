@@ -1,8 +1,10 @@
 // Hanging space (asked for, 24 Oct 2026; HANGING_SPACE.md has the choices):
 // each room's cupboards' rails, compared with the pine cupboard's, and
 // drawn while Compare hanging space is on. A section HANG_DEPTH deep or
-// more has a rail; a shallower one has none and is drawn over in red.
-import { HANG_DEPTH, SHALLOW_MAT } from '../corner_cupboard.js';
+// more has a rail (in amber, tight, under HANG_TIGHT); a shallower one has
+// none across it and is drawn over in red. Rails running front to back (the
+// recess cupboard's) are counted on their own line, not in the total.
+import { HANG_DEPTH, HANG_TIGHT, SHALLOW_MAT } from '../corner_cupboard.js';
 import { PINE, recessHanging, markRecessShallow } from '../other_room.js';
 import { config } from './state.js';
 import { cupboardOf } from './cupboards.js';
@@ -19,7 +21,7 @@ export const IDEAL_RAIL = PINE_RAIL * 1.5;
 // drawers)
 function sectionsIn(room) {
   if (room === 'livingRoom') return cupboardOf('cornerCupboard')?.hanging ?? [];
-  const recess = recessHanging(config.pieces.recessCupboards.design).map(column => ({ ...column, deep: column.depth >= HANG_DEPTH, from: 0, to: column.w }));
+  const recess = recessHanging(config.pieces.recessCupboards.design).map(column => ({ ...column, deep: column.depth >= HANG_DEPTH, tight: column.depth < HANG_TIGHT, from: 0, to: column.w }));
   return [...(cupboardOf('bedroomCupboard')?.hanging ?? []), ...recess];
 }
 const railOf = ({ from, to }) => Math.round(to - from);
@@ -49,10 +51,22 @@ export function hangingText(room) {
     enough: ` That's enough, ${Math.round(IDEAL_RAIL - rail)} short of the ideal ${IDEAL_RAIL} (half as much again).`,
     ideal: ` That's the ideal ${IDEAL_RAIL} (half as much again) or more.`,
   }[hangingVerdict(room)] ?? '';
-  const each = sections.map(s => s.deep
-    ? `${s.name}: ${railOf(s)} of rail, ${s.depth} deep${s.h ? `, ${s.h} high` : ''}`
-    : `${s.name}: ${s.depth} deep, too shallow`).concat(notes);
-  return `Hanging rail ${HANG_DEPTH} deep or more: ${rail}, ${percent}% of the pine cupboard's ${PINE_RAIL}.${judged} ${each.join('; ')}.`;
+  const each = sections.map(sectionText).concat(notes);
+  return `Hanging rail ${HANG_DEPTH} deep or more: ${rail}, ${percent}% of the pine cupboard's ${PINE_RAIL}.${judged} ${each.join('; ')}.${frontToBackText(sections)}`;
+}
+// A section's part of the line: its rail (less what the ladders take), its
+// depth (tight, under HANG_TIGHT) and height; or, too shallow, any rail it
+// has front to back
+function sectionText(s) {
+  if (!s.deep) return `${s.name}: ${s.depth} deep, too shallow${s.frontToBack ? `, with a ${s.frontToBack} rail front to back` : ''}`;
+  const ladders = s.ladders ? ` (the ladders take ${s.ladders})` : '';
+  return `${s.name}: ${railOf(s)} of rail${ladders}, ${s.depth} deep${s.tight ? ' (tight)' : ''}${s.h ? `, ${s.h} high` : ''}`;
+}
+// ...and the front-to-back rails, together, or '' with none
+function frontToBackText(sections) {
+  const rails = sections.filter(s => s.frontToBack).map(s => s.frontToBack);
+  if (!rails.length) return '';
+  return ` Front-to-back rails, not in that: ${rails.reduce((sum, r) => sum + r, 0)} (${rails.length === 1 ? 'one' : `${rails.length} of ${rails[0]}`}).`;
 }
 
 // The rails and the red drawn in each room's cupboards, or taken out (the

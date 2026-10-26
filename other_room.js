@@ -187,6 +187,7 @@ const AS_THEY_START = {
   cupboardOn: true,                // the pine cupboard likewise
   mirrorOn: false,                 // the mirror likewise: none yet (the user's, 18 Oct 2026)
   newCupboardOn: false,            // a corner cupboard of its own (NEW_CUPBOARD), in place of the pine cupboard
+  newCupboard: { ladders: false }, // ...with the two ladders standing in its L's corner (asked for, 26 Oct 2026)
   lowerD: RECESS_CUPBOARDS.lowerD,
   upperDrawers: false,             // the upper recess cupboard: drawers in place of its middle's open shelves
   upperMirrors: false,             // ...and mirrors on its two tall doors
@@ -262,7 +263,8 @@ const IN_THE_BEDROOM = 'In the bedroom';
 const PIECES = [
   // The new cupboard first, just its switch (asked for, 16 Oct 2026), at the
   // menu's top, over the new cupboard's own section (`top`, asked for 18 Oct 2026)
-  { key: 'newCupboard', sizes: [], place: [], switches: [['newCupboardOn', 'New cupboard']], top: true },
+  { key: 'newCupboard', sizes: [], place: [], top: true, switches: [['newCupboardOn', 'New cupboard'],
+    ['newCupboard.ladders', 'Ladders in the corner', 'The two ladders upright in the corner of its L, the rail into the corner starting past them']] },
   { key: 'bed', section: 'bed', heading: 'Bed (with its headboard and mattress)', sizes: [], place: PLACE('bed') },
   { key: 'bedsideTable', section: 'bed', heading: 'Bedside table by the bed (Knarrevik)', sizes: [], place: placeAlongWall('bedsideTable'), wall: 'bedsideTable.wall',
     on: 'bedsideTableOn', halfAlong: () => KNARREVIK.w / 2 },
@@ -331,7 +333,7 @@ const wallEntry = piece => Config.choice(settingPath(`${piece}.wall`), WALL_KEYS
 // A piece on a wall's entries: whether it's there, its wall and how far along
 const wallPieceEntries = piece => [inBedroom(piece), wallEntry(piece), ...placeEntries(piece, ['along'])];
 export const OTHER_ROOM_SCHEMA = [
-  inBedroom('newCupboard'),
+  inBedroom('newCupboard'), onOffEntry('newCupboard.ladders'),
   ...placeEntries('bed'),
   ...designEntries('bookcase'), inBedroom('bookcase'), ...placeEntries('bookcase'),
   ...designEntries('cupboard'), inBedroom('cupboard'), ...placeEntries('cupboard'),
@@ -562,13 +564,14 @@ function openShelves(a0, a1, v, under) {
 // The upper recess cupboard's sections for hanging (model/hanging.js): its
 // two outer columns, each as deep inside as from its doors to its back
 // board, and as wide inside as between its sides. Their rails run front
-// to back, so they aren't counted as rails across (HANGING_SPACE.md). With
-// drawers in every column there are none
+// to back, so they're counted on their own, not as rails across
+// (HANGING_SPACE.md). With drawers in every column there are none
 const { w: RECESS_W, upperD: RECESS_D, front: RECESS_FRONT, board: RECESS_BOARD } = RECESS_CUPBOARDS;
 export const recessHanging = ({ upperAllDrawers }) => (upperAllDrawers ? [] : ['left', 'right'].map(side => ({
-  name: `Recess cupboard's ${side} column (its rail runs front to back)`,
+  name: `Recess cupboard's ${side} column`,
   depth: RECESS_D - RECESS_FRONT - RECESS_BOARD,
   w: RECESS_W / 3 - 2 * RECESS_BOARD,
+  frontToBack: RECESS_D - RECESS_FRONT - RECESS_BOARD,   // its rail's length, as hangingColumn() draws it
 })));
 // ...drawn over in `mat` (the red of a section too shallow to hang in),
 // under their fixed shelves, a millimetre proud of their doors
@@ -624,6 +627,8 @@ export function turnRecessDoors(degrees) {
 // function returned puts the controls in step with the settings `s`.
 // ---------------------------------------------------------------------------
 
+// The new cupboard's options with an L's corner the ladders can stand in
+const LADDER_OPTIONS = [7, 8, 9];
 export function otherRoomControls(topContainer, container, change) {
   const id = path => `otherRoom_${path.replace('.', '_')}`;
   let shown = name => valueAt(OTHER_ROOM_START, settingPath(name));   // the settings last put in the controls, by name
@@ -670,6 +675,9 @@ export function otherRoomControls(topContainer, container, change) {
     for (const [name] of SWITCHES) document.getElementById(id(name)).checked = at(name);
     for (const piece of PIECES.filter(p => p.on)) document.getElementById(`otherRoomPiece_${piece.key}Details`).hidden = !at(piece.on);
     document.getElementById(id('cupboardOn')).disabled = at('newCupboardOn');   // the new cupboard stands in its place
+    // The ladders only where the new cupboard has an L's corner (options 7 to 9)
+    const hasCorner = at('newCupboardOn') && LADDER_OPTIONS.includes(s.pieces.bedroomCupboard.design.option);
+    document.getElementById(id('newCupboard.ladders')).closest('label').style.display = hasCorner ? '' : 'none';
     // With all drawers, there's no open middle and no tall doors to change
     for (const name of ['upperDrawers', 'upperMirrors']) document.getElementById(id(name)).closest('label').style.display = at('upperAllDrawers') ? 'none' : '';
     for (const { key, halfAlong } of ON_A_WALL) followWall(id, key, { wall: at(`${key}.wall`), along: at(`${key}.along`) }, halfAlong(at));
