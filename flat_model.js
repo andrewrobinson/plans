@@ -78,6 +78,7 @@ import {
 } from './model/bench_wall.js';
 import { COLOUR_TARGETS, FINISHES, applyColour, colourOf, shownCode } from './model/colours.js';
 import { drawHanging } from './model/hanging.js';
+import { drawWalking } from './model/walking.js';
 import {
   DRESSERS, DRESSER_SLIDERS, LARDERS, LARDER_SLIDERS, SOFAS, SOFA_SLIDERS, currentSofa, frontFrom, frontGap, 
   frontWall, larderHeight, larderOwnSize, pieces, sofa, sofaHome, sofaOwnSize
@@ -215,13 +216,15 @@ export function build(onShow = optionsOnShow()) {
 // Build the option chosen and draw everything that follows from it, in the order
 // each needs (REFACTOR_PLAN.md item 6), as both the page and buildFlat()
 // do: build(), the hanging space (while it's compared), the things to store (and the cupboard's shelves cut round
-// them), the doors turned, and last the dimensions, of the shelves and
+// them), the walking space round the bed (while it's shown, with the doors shut), the doors turned, and last the dimensions, of the shelves and
 // doors as drawn. Returns build()'s, and what drawStored() says of the
 // things to store
 export function rebuild(display, onShow = optionsOnShow()) {
   const built = build(onShow);
   drawHanging(display.hanging);
   const storedText = drawStored(display);
+  if (display.walking) withDoorsShut(() => drawWalking(true, walkingPieces()));
+  else drawWalking(false);
   turnDoors();
   updateDims(display);
   return { ...built, storedText };
@@ -247,6 +250,28 @@ export const doorAngles = () => structuredClone(doors);
 // The doors turned to their angles (they don't rebuild), each corner
 // cupboard's second doors stopping at its room's walls, the recess
 // cupboard's together, and the garage door drawn as it is
+// Every door shut but the bedroom's while `measure` runs (walking space:
+// a cupboard's door is measured from its face; the bedroom door stays as
+// the view has it, as the user keeps it open, 26 Oct 2026), then back as
+// the view has them, for turnDoors() to turn
+const KEPT_OPEN = ['bedroom'];
+// What walking space measures from: the bed, the new cupboard, and the
+// bedroom door as it stands, which must be able to swing shut
+function walkingPieces() {
+  const { swings } = bedroomDoor();
+  return {
+    bed: otherRoomPieces.bed, bedSpot: config.pieces.bed.in.bedroom, cupboard: otherRoomPieces.newCupboard,
+    bedroomDoor: { swing: DOOR_SWINGS[swings], open: Math.min(doors.bedroom, bedroomDoorOpensTo()), leaf: bedroomHinges[swings] },
+  };
+}
+function withDoorsShut(measure) {
+  const open = { ...doors };
+  for (const [name, angle] of Object.entries(doors)) if (typeof angle === 'number' && !KEPT_OPEN.includes(name)) doors[name] = 0;
+  turnDoors();
+  measure();
+  Object.assign(doors, open);
+}
+
 export function turnDoors() {
   cupboard?.turnDoors(doors);
   rightCupboard?.turnDoors(doors);                              // the right-hand cupboard's with the left one's
@@ -364,3 +389,4 @@ export {
 export {
   hangingText, hangingVerdict, railIn, PINE_RAIL, IDEAL_RAIL
 } from './model/hanging.js';
+export { walkingText, walkingVerdict, walkingNow, WALK_EASY, WALK_TIGHT } from './model/walking.js';

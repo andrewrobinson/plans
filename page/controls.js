@@ -4,7 +4,7 @@
 import * as Config from '../kit/config_kit.js';
 import { cupboardControls, copyControls, idIn } from '../cupboard_controls.js';
 import {
-  rebuild, turnDoors, describe, hangingText, hangingVerdict, BACK_WALL_KEYS, CURRENT_ROOM, OPTIONS, benchDrawn, configurationNow, dims, 
+  rebuild, turnDoors, describe, hangingText, hangingVerdict, walkingText, walkingVerdict, BACK_WALL_KEYS, CURRENT_ROOM, OPTIONS, benchDrawn, configurationNow, dims, 
   islandOnWall, optionOf, pieces, setAll, optionsOnShow, config, updateDims, BEDROOM_CUPBOARD_RANGES, doorsNow, 
   setDoors, inLivingRoom, aboveHasShelves, aboveNow, tvOn
 } from '../flat_model.js';
@@ -116,6 +116,19 @@ function showHanging() {
   }
 }
 
+// Show walking space (model/walking.js): a switch in Bedroom options, its
+// line under it, coloured by the narrowest gap
+document.getElementById('walking').addEventListener('change', e => {
+  setDisplay({ walking: e.target.checked });
+  show();
+});
+function showWalking() {
+  document.getElementById('walking').checked = display.walking;
+  const line = document.getElementById('walkingText');
+  line.textContent = display.walking ? walkingText() : '';
+  line.dataset.verdict = (display.walking && walkingVerdict()) || '';
+}
+
 // The menus for option `no`: the option list, the description, and only the
 // blocks of controls that apply to it
 function showInMenus(option, no, aboveText) {
@@ -123,6 +136,7 @@ function showInMenus(option, no, aboveText) {
   loungeCupboard.showBlocks();
   showBedroomCupboard();
   showHanging();
+  showWalking();
   document.getElementById('summary').innerHTML = describe(option, aboveText);
   const shown = (id, yes) => { document.getElementById(id).style.display = yes ? '' : 'none'; };
   shown('tvBlock', tvOn());                                      // the TV's size and place, while it's on

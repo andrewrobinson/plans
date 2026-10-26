@@ -344,7 +344,7 @@
       "bedsideTable": {
         "in": {
           "bedroom": {
-            "on": false,
+            "on": true,
             "wall": "hallway",
             "along": 2275
           },
@@ -374,7 +374,7 @@
       "kvistbro": {
         "in": {
           "bedroom": {
-            "on": false,
+            "on": true,
             "wall": "hallway",
             "along": 400
           },
@@ -1065,7 +1065,7 @@
         2801,
         450
       ],
-      "shown": false
+      "shown": true
     },
     "bedsideTableByCupboard": {
       "from": [
@@ -1091,7 +1091,7 @@
         2961,
         420
       ],
-      "shown": false
+      "shown": true
     },
     "laundryBasket": {
       "from": [

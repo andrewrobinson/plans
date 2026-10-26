@@ -10369,7 +10369,7 @@ window.ROOM_CONFIGURATIONS = {
           "bedsideTable": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 2275
               },
@@ -10399,7 +10399,7 @@ window.ROOM_CONFIGURATIONS = {
           "kvistbro": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 400
               },
@@ -11146,7 +11146,7 @@ window.ROOM_CONFIGURATIONS = {
           "bedsideTable": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 2275
               },
@@ -11176,7 +11176,7 @@ window.ROOM_CONFIGURATIONS = {
           "kvistbro": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 400
               },
@@ -11886,7 +11886,7 @@ window.ROOM_CONFIGURATIONS = {
           "bedsideTable": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 2275
               },
@@ -11916,7 +11916,7 @@ window.ROOM_CONFIGURATIONS = {
           "kvistbro": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 400
               },
@@ -12623,7 +12623,7 @@ window.ROOM_CONFIGURATIONS = {
           "bedsideTable": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 2275
               },
@@ -12653,7 +12653,7 @@ window.ROOM_CONFIGURATIONS = {
           "kvistbro": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 400
               },
@@ -13362,7 +13362,7 @@ window.ROOM_CONFIGURATIONS = {
           "bedsideTable": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 2275
               },
@@ -13392,7 +13392,7 @@ window.ROOM_CONFIGURATIONS = {
           "kvistbro": {
             "in": {
               "bedroom": {
-                "on": false,
+                "on": true,
                 "wall": "hallway",
                 "along": 400
               },

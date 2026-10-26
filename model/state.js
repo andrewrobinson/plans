@@ -32,7 +32,7 @@ export const world = new THREE.Group();
 // (flatRoom); the cupboard on its own (Cupboard only); and the Dimensions
 // and Door sizes buttons; and the cupboards' hanging space compared with
 // the pine cupboard's (hanging, model/hanging.js). As the page opens:
-export const DISPLAY_START = { flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true, hanging: false };
+export const DISPLAY_START = { flat: false, flatView: null, flatRoom: 'livingRoom', cupboardOnly: false, showDims: true, showDoorDims: true, hanging: false, walking: false };
 
 // The rooms whose wall views the hallway's stairwell would hang below the
 // floor of, next door (the hallway's group holds downstairs and the garage
