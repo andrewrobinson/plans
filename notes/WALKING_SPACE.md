@@ -41,6 +41,7 @@ Cupboard tab (not saved in the address).
 | Designer 3 (shortest L) | 699 | 545 | |
 | Designer 4 (straight wardrobe) | 917 | 545 | drawn as the pine cupboard made bigger |
 | Designer 5 (shallow end, 250) | 626 | 545 | |
+| Designer 6 (bookshelf all along the breast) | 608 | 545 | the deep cupboard only along the kitchen-side wall |
 
 With the door kept open against the Knarrevik, the bed's door side is 817
 (the wardrobe's corner to the door's edge) in Designer 1, 3 and 5, and the

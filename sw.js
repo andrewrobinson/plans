@@ -2,7 +2,7 @@
 // there's a connection, so updates come through, and the saved copy is used
 // when there isn't. The 3D library's files never change at a given version,
 // so they're served from the saved copy once fetched.
-const CACHE = 'cupboards-8ccc78e4b2';
+const CACHE = 'cupboards-4186646063';
 const THREE = 'https://cdn.jsdelivr.net/npm/three@0.160.0/';
 // The game UI's icons (Tabler's icon font), which also never change at a given version
 const ICONS = 'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/';

@@ -179,6 +179,10 @@ Configs ▾, reworked the same day with walking space round the bed
   one mirrored, no side bookshelf (with it, a 75" TV doesn't fit).
 - **Designer 4: straight wardrobe** and **Designer 5: shallow end**: the
   same lounge, other bedroom cupboards to compare.
+- **Designer 6: bookshelf** (the user's, from Designer 5): the cupboard
+  600 deep only along the kitchen-side wall (1913 of rail), a bookshelf 250
+  deep all along the chimney breast into it, with a 1000 × 560 mirror at
+  its back between the shelves at 1200 and 1800; 608 round the bed's foot.
 - The first end state, Designer 2 (the full L along the chimney breast), is
   removed: 258 round the bed's foot, worse than today's 586.
 - All have the bedside tables, the bed where the user has it, and the
