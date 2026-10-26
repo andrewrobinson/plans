@@ -11546,9 +11546,9 @@ window.ROOM_CONFIGURATIONS = {
         }
       } },
     // Walking round the bed forwards, 600 clear everywhere (the user, 26 Oct
-    // 2026): the bed 80 towards the door, and the bedroom cupboard's back leg
+    // 2026; the window side's 545 adequate, the bed where it is): the bedroom cupboard's back leg
     // as short as it goes, or none
-    designerShortL: { label: 'Designer 3: shortest L', title: 'Designer 2 with the bedroom\'s L as short along the chimney breast as it goes (1000), the ladders elsewhere: 2313 of rail, 610 round the foot of the bed; the bed 80 towards the door, 625 on its window side',
+    designerShortL: { label: 'Designer 3: shortest L', title: 'Designer 2 with the bedroom\'s L as short along the chimney breast as it goes (1000), the ladders elsewhere: 2313 of rail, about 700 round the foot of the bed, 545 on its window side',
       configuration: {
         "version": 3,
         "colours": {
@@ -11758,7 +11758,7 @@ window.ROOM_CONFIGURATIONS = {
           "bed": {
             "in": {
               "bedroom": {
-                "u": 1440,
+                "u": 1360,
                 "v": 0,
                 "turn": 0
               }
@@ -12285,7 +12285,7 @@ window.ROOM_CONFIGURATIONS = {
           "where": "cupboard"
         }
       } },
-    designerStraight: { label: 'Designer 4: straight wardrobe', title: 'Designer 2 with a straight wardrobe along the bedroom\'s kitchen-side wall, 1967 × 600, as tall as the room: drawn as the pine cupboard made that size, so its hanging isn\'t counted (about 1930 of rail); 770 round the foot of the bed; the bed 80 towards the door',
+    designerStraight: { label: 'Designer 4: straight wardrobe', title: 'Designer 2 with a straight wardrobe along the bedroom\'s kitchen-side wall, 1967 × 600, as tall as the room: drawn as the pine cupboard made that size, so its hanging isn\'t counted (about 1930 of rail); 776 round the foot of the bed',
       configuration: {
         "version": 3,
         "colours": {
@@ -12495,7 +12495,7 @@ window.ROOM_CONFIGURATIONS = {
           "bed": {
             "in": {
               "bedroom": {
-                "u": 1440,
+                "u": 1360,
                 "v": 0,
                 "turn": 0
               }
@@ -13234,7 +13234,7 @@ window.ROOM_CONFIGURATIONS = {
           "bed": {
             "in": {
               "bedroom": {
-                "u": 1440,
+                "u": 1360,
                 "v": 0,
                 "turn": 0
               }
