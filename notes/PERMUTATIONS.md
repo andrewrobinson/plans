@@ -164,3 +164,18 @@ Where it was left (22 Oct 2026), in the order they'd settle things:
 
 Not yet in the model: the pine cupboard's inside (what it can hold beside
 its hanging space), a smaller yellow tub, and higher chairs at the island.
+
+## The designer's pick (26 Oct 2026)
+
+Claude's answer to "as an interior designer, which would you choose", in
+Configs ▾ as **Designer 1: bedroom first** (route b's step, from b2) and
+**Designer 2: the pair** (the end, from L3):
+
+- **Bedroom first:** option 7, both legs 600 deep (582 inside, not tight),
+  the ladders in its corner: 2271 of rail, 183% of the pine cupboard's.
+  Option 8 as drawn in L3 has 709.
+- **Lounge:** L3's bench, TV and top shelf between two option 10 cupboards,
+  the right one mirrored. The side bookshelf is left out: with it, a 75" TV
+  doesn't fit between the pair (1238 of wall); without, 2038.
+- Still as in L3: the left cupboard's doors can't open fully while the room
+  door is open, and the right one is 724 deep against the left's 1150.
