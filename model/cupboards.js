@@ -9,6 +9,8 @@ import {
 import { showNewCupboard } from '../other_room.js';
 import { QUARTER_TURN } from '../kit/units_kit.js';
 import { DOOR_SWINGS, sweepInto, opensTo } from '../bedroom_door.js';
+import { KNARREVIK } from '../knarrevik.js';
+import { KVISTBRO } from '../kvistbro.js';
 import {
   ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, OTHER_ROOM, OUTER, hallway
 } from '../floor.js';
@@ -67,10 +69,35 @@ function bedroomLegAlongKitchenWall() {
   return T === 0 ? null : { deep: T, out: F };
 }
 // How far the bedroom door can open as things stand: to the wall it
-// meets, or to the bedroom cupboard's leg along the kitchen-side wall
+// meets, to the bedroom cupboard's leg along the kitchen-side wall, or to a
+// bedside table against the hallway wall (the user keeps it open against
+// the Knarrevik, 26 Oct 2026)
 export function bedroomDoorOpensTo() {
-  const { swings } = bedroomDoor(), leg = bedroomLegAlongKitchenWall();
-  return leg ? opensTo(swings, leg.deep, OTHER_ROOM.breastFace - leg.out) : DOOR_SWINGS[swings].stopsAt;
+  const { swings } = bedroomDoor(), swing = DOOR_SWINGS[swings], leg = bedroomLegAlongKitchenWall();
+  const toCupboard = leg ? opensTo(swings, leg.deep, OTHER_ROOM.breastFace - leg.out) : swing.stopsAt;
+  const tables = tablesOnHallwayWall();
+  const toTables = tables.length ? swing.opensTo(deg => doorMeets(swing, deg, tables)) : swing.stopsAt;
+  return Math.min(toCupboard, toTables);
+}
+// The bedside tables standing against the hallway wall, each as its
+// footprint [u0, v0, u1, v1] from its middle along the wall (other_room.js's
+// WALLS); the Kvistbro's round, taken as its square
+const BEDSIDE_TABLES = [['bedsideTable', KNARREVIK.w, KNARREVIK.d], ['bedsideTableByCupboard', KNARREVIK.w, KNARREVIK.d], ['kvistbro', KVISTBRO.w, KVISTBRO.w]];
+function tablesOnHallwayWall() {
+  return BEDSIDE_TABLES.map(([key, w, d]) => [config.pieces[key].in.bedroom, w, d])
+    .filter(([at]) => at.on && at.wall === 'hallway')
+    .map(([{ along }, w, d]) => [along - w / 2, 0, along + w / 2, d]);
+}
+// Whether the door opened to `deg` meets any of `boxes`: a point every
+// DOOR_SAMPLE along its leading face inside one
+const DOOR_SAMPLE = 10;            // mm (chosen)
+function doorMeets(swing, deg, boxes) {
+  const [du, dv] = swing.along(deg), [hu, hv] = swing.hinge;
+  for (let s = 0; s <= swing.width; s += DOOR_SAMPLE) {
+    const u = hu + du * s, v = hv + dv * s;
+    if (boxes.some(([u0, v0, u1, v1]) => u >= u0 && u <= u1 && v >= v0 && v <= v1)) return true;
+  }
+  return false;
 }
 // What the bedroom door's settings mean for the new cupboard, for Bedroom
 // options' Doors section: how far the door opens, and how far the cupboard

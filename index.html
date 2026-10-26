@@ -713,6 +713,11 @@
     <h1>Bedroom options</h1>
     <button id="bedClose" class="close" aria-label="Close bedroom options">✕</button>
   </div>
+  <!-- Walking space round the bed (model/walking.js): a way of looking, not saved -->
+  <div id="walkingBlock">
+    <label class="switch" title="A dimension across each gap on the way round the bed and in front of each cupboard door: green 600 or more, orange 460 to 599 (tight), red under 460"><input type="checkbox" id="walking"> Show walking space</label>
+    <div id="walkingText" class="hint"></div>
+  </div>
   <div class="tabs" id="bedTabs" data-label="Bedroom options">
     <div class="tablist"></div>
     <!-- The New cupboard switch, then the new cupboard's own section; the
@@ -747,11 +752,6 @@
           </details>
         </div>
       </details>
-      <!-- Walking space round the bed (model/walking.js): a way of looking, not saved -->
-      <div id="walkingBlock">
-        <label class="switch" title="A dimension across each gap on the way round the bed and in front of each cupboard door: green 600 or more, orange 460 to 599 (tight), red under 460"><input type="checkbox" id="walking"> Show walking space</label>
-        <div id="walkingText" class="hint"></div>
-      </div>
     </div>
     <div class="tabpanel" data-tab="Furniture">
       <div id="otherRoomBlock"></div>

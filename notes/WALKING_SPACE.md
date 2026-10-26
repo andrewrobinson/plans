@@ -23,9 +23,13 @@ Cupboard tab (not saved in the address).
 - Colours: green 600 or more, orange 460 to 599 (forwards, but tight), red
   under 460 (sideways, or not at all). A cupboard door is red if it can't open
   to 90°, orange if it opens but leaves under 600 to stand at.
-- Shown in plan and 3D, as dimensions on the floor, with a line of text.
-- The bedroom door is measured where the view has it; every cupboard door
-  shut. Its swing back to shut must be clear (red if not).
+- Shown in plan and 3D, as dimensions on the floor, with a line of text;
+  the switch at the top of Bedroom options, above its tabs.
+- The bedroom door is measured as the user keeps it: opened as far as it
+  goes, which is against the Knarrevik (the model stops it at a bedside
+  table against the hallway wall). Every cupboard door is measured shut.
+  The bedroom door's swing back to shut must be clear (red if not).
+- Designer 1 to 5's bedroom door swings right, as the user's does.
 
 ## Measured, 26 Oct 2026 (the bed where the user has it)
 
@@ -37,8 +41,10 @@ Cupboard tab (not saved in the address).
 | Designer 4 (straight wardrobe) | 917 | 545 | drawn as the pine cupboard made bigger |
 | Designer 5 (shallow end, 250) | 626 | 545 | |
 
+With the door kept open against the Knarrevik, the bed's door side is 817
+(the wardrobe's corner to the door's edge) in Designer 1, 2, 3 and 5, and
+the door swings shut in all five.
+
 ## Not yet
 
-- The bedroom door stops only at the cupboard: opened past where it meets a
-  bedside table, it's drawn through it (and the swing goes red).
 - The lounge has no walking space.

@@ -10753,7 +10753,7 @@ window.ROOM_CONFIGURATIONS = {
         },
         "bedroom": {
           "door": {
-            "swings": "left",
+            "swings": "right",
             "mustOpenTo": 90,
             "swingShown": true
           }
@@ -11534,7 +11534,7 @@ window.ROOM_CONFIGURATIONS = {
         },
         "bedroom": {
           "door": {
-            "swings": "left",
+            "swings": "right",
             "mustOpenTo": 90,
             "swingShown": true
           }
@@ -12274,7 +12274,7 @@ window.ROOM_CONFIGURATIONS = {
         },
         "bedroom": {
           "door": {
-            "swings": "left",
+            "swings": "right",
             "mustOpenTo": 90,
             "swingShown": true
           }
@@ -13011,7 +13011,7 @@ window.ROOM_CONFIGURATIONS = {
         },
         "bedroom": {
           "door": {
-            "swings": "left",
+            "swings": "right",
             "mustOpenTo": 90,
             "swingShown": true
           }
@@ -13750,7 +13750,7 @@ window.ROOM_CONFIGURATIONS = {
         },
         "bedroom": {
           "door": {
-            "swings": "left",
+            "swings": "right",
             "mustOpenTo": 90,
             "swingShown": true
           }

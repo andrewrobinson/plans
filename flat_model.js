@@ -247,31 +247,31 @@ export function setDoors(edits) {
 // The doors' angles as they're drawn (a desk's in degrees), for the tests
 export const doorAngles = () => structuredClone(doors);
 
-// The doors turned to their angles (they don't rebuild), each corner
-// cupboard's second doors stopping at its room's walls, the recess
-// cupboard's together, and the garage door drawn as it is
-// Every door shut but the bedroom's while `measure` runs (walking space:
-// a cupboard's door is measured from its face; the bedroom door stays as
-// the view has it, as the user keeps it open, 26 Oct 2026), then back as
-// the view has them, for turnDoors() to turn
-const KEPT_OPEN = ['bedroom'];
 // What walking space measures from: the bed, the new cupboard, and the
-// bedroom door as it stands, which must be able to swing shut
+// bedroom door as it's kept (withDoorsShut()), which must be able to swing shut
 function walkingPieces() {
   const { swings } = bedroomDoor();
   return {
     bed: otherRoomPieces.bed, bedSpot: config.pieces.bed.in.bedroom, cupboard: otherRoomPieces.newCupboard,
-    bedroomDoor: { swing: DOOR_SWINGS[swings], open: Math.min(doors.bedroom, bedroomDoorOpensTo()), leaf: bedroomHinges[swings] },
+    bedroomDoor: { swing: DOOR_SWINGS[swings], open: doors.bedroom, leaf: bedroomHinges[swings] },
   };
 }
+// Every door shut while `measure` runs (walking space: a cupboard's door is
+// measured from its face) but the bedroom's, opened as far as it goes, as
+// the user keeps it, against the Knarrevik (26 Oct 2026); then back as the
+// view has them, for turnDoors() to turn
 function withDoorsShut(measure) {
   const open = { ...doors };
-  for (const [name, angle] of Object.entries(doors)) if (typeof angle === 'number' && !KEPT_OPEN.includes(name)) doors[name] = 0;
+  for (const [name, angle] of Object.entries(doors)) if (typeof angle === 'number') doors[name] = 0;
+  doors.bedroom = bedroomDoorOpensTo();
   turnDoors();
   measure();
   Object.assign(doors, open);
 }
 
+// The doors turned to their angles (they don't rebuild), each corner
+// cupboard's second doors stopping at its room's walls, the recess
+// cupboard's together, and the garage door drawn as it is
 export function turnDoors() {
   cupboard?.turnDoors(doors);
   rightCupboard?.turnDoors(doors);                              // the right-hand cupboard's with the left one's
