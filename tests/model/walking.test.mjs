@@ -24,11 +24,18 @@ test("today: the bookcase leaves 586 round the foot, the radiator 545 on the win
   assert.deepEqual(gaps["The bed's window side"], [545, 'tight']);
 });
 
-test("Designer 2's L: 258 round the foot, and the door at the bed's foot can't open", () => {
-  const gaps = gapsIn('designerEnd');
+test("the full L (Designer 3's back-wall leg on to the recess): 258 round the foot, and the door at the bed's foot can't open", () => {
+  const configuration = structuredClone(named.designerShortL.configuration);
+  configuration.pieces.bedroomCupboard.design.LEG = 1258;
+  buildFlat(configuration, { walking: true });
+  const gaps = Object.fromEntries(walkingNow().map(g => [g.name, [g.width, g.shade]]));
   assert.deepEqual(gaps['Round the foot'], [258, 'narrow']);
   assert.deepEqual(gaps['Cupboard door 6 (409 wide)'], [250, 'narrow']);
   assert.match(walkingText(), /Round the foot: 258 \(too narrow\)/);
+});
+
+test("Designer 1, bedroom first, has Designer 3's L: 699 round the foot", () => {
+  assert.deepEqual(gapsIn('designerStep')['Round the foot'], [699, 'easy']);
 });
 
 test("Designer 3's shortest L: 699 round the foot, corner to corner", () => {
@@ -36,14 +43,14 @@ test("Designer 3's shortest L: 699 round the foot, corner to corner", () => {
 });
 
 test('the bedroom door, kept open, stops at the Knarrevik by the bed and swings shut', () => {
-  gapsIn('designerEnd');
+  gapsIn('designerShortL');
   const opensTo = bedroomDoorOpensTo();
   assert.ok(opensTo > 90 && opensTo < 180, `opens to ${opensTo}°`);
   assert.deepEqual(walkingNow().find(g => g.name === 'Bedroom door swinging shut').shade, 'easy');
 });
 
 test("something in the bedroom door's sweep that it doesn't stop at (the laundry basket) is red", () => {
-  const configuration = structuredClone(named.designerEnd.configuration);
+  const configuration = structuredClone(named.designerShortL.configuration);
   Object.assign(configuration.pieces.laundryBasket.in.bedroom, { on: true, u: 2700, v: 300 });
   buildFlat(configuration, { walking: true });
   assert.equal(walkingNow().find(g => g.name === 'Bedroom door swinging shut').shade, 'narrow');

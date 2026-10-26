@@ -69,7 +69,7 @@
           "F": 1967,
           "BOARD": 18,
           "TOP": 0,
-          "LEG": 1258,
+          "LEG": 400,
           "LEG_D": 600,
           "L_SHELVES": {
             "back": [
@@ -107,7 +107,7 @@
         "in": {
           "bedroom": {
             "on": true,
-            "ladders": true
+            "ladders": false
           }
         }
       },
@@ -799,7 +799,7 @@
       {
         "kind": "Panels",
         "length": 2445,
-        "width": 1858,
+        "width": 1000,
         "shaped": false,
         "count": 1,
         "parts": [
@@ -819,17 +819,6 @@
       },
       {
         "kind": "Panels",
-        "length": 1822,
-        "width": 582,
-        "shaped": false,
-        "count": 2,
-        "parts": [
-          "Back-wall leg top",
-          "Back-wall leg bottom"
-        ]
-      },
-      {
-        "kind": "Panels",
         "length": 1349,
         "width": 582,
         "shaped": false,
@@ -837,6 +826,17 @@
         "parts": [
           "Left-wall leg top",
           "Left-wall leg bottom"
+        ]
+      },
+      {
+        "kind": "Panels",
+        "length": 964,
+        "width": 582,
+        "shaped": false,
+        "count": 2,
+        "parts": [
+          "Back-wall leg top",
+          "Back-wall leg bottom"
         ]
       },
       {
@@ -852,16 +852,16 @@
       {
         "kind": "Doors",
         "length": 2439,
-        "width": 409,
+        "width": 376,
         "shaped": false,
-        "count": 3,
+        "count": 1,
         "parts": [
           "Back-wall leg door"
         ]
       },
       {
         "kind": "Shelves",
-        "length": 1822,
+        "length": 1367,
         "width": 564,
         "shaped": false,
         "count": 3,
@@ -873,7 +873,7 @@
       },
       {
         "kind": "Shelves",
-        "length": 1367,
+        "length": 964,
         "width": 564,
         "shaped": false,
         "count": 3,
@@ -952,7 +952,7 @@
     "workChair.livingRoom": null,
     "bedroomCupboard": {
       "from": [
-        -3003,
+        -2145,
         3395,
         0
       ],

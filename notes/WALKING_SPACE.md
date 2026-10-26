@@ -36,14 +36,15 @@ Cupboard tab (not saved in the address).
 | Configuration | Round the foot | Window side | Notes |
 |---|---|---|---|
 | 18 October 2026 (today) | 586 | 545 | the bookcase |
-| Designer 1, 2 (full L) | 258 | 545 | the L's door at the bed's foot can't open (250) |
+| The full L (Designer 1 and 2 as first made) | 258 | 545 | the L's door at the bed's foot can't open (250); Designer 1 reworked as Designer 3's L, Designer 2 removed |
+| Designer 1 (bedroom first) | 699 | 545 | |
 | Designer 3 (shortest L) | 699 | 545 | |
 | Designer 4 (straight wardrobe) | 917 | 545 | drawn as the pine cupboard made bigger |
 | Designer 5 (shallow end, 250) | 626 | 545 | |
 
 With the door kept open against the Knarrevik, the bed's door side is 817
-(the wardrobe's corner to the door's edge) in Designer 1, 2, 3 and 5, and
-the door swings shut in all five.
+(the wardrobe's corner to the door's edge) in Designer 1, 3 and 5, and the
+door swings shut in all four.
 
 ## Not yet
 

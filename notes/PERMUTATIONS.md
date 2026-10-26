@@ -168,14 +168,20 @@ its hanging space), a smaller yellow tub, and higher chairs at the island.
 ## The designer's pick (26 Oct 2026)
 
 Claude's answer to "as an interior designer, which would you choose", in
-Configs ▾ as **Designer 1: bedroom first** (route b's step, from b2) and
-**Designer 2: the pair** (the end, from L3):
+Configs ▾, reworked the same day with walking space round the bed
+(notes/WALKING_SPACE.md):
 
-- **Bedroom first:** option 7, both legs 600 deep (582 inside, not tight),
-  the ladders in its corner: 2271 of rail, 183% of the pine cupboard's.
-  Option 8 as drawn in L3 has 709.
-- **Lounge:** L3's bench, TV and top shelf between two option 10 cupboards,
-  the right one mirrored. The side bookshelf is left out: with it, a 75" TV
-  doesn't fit between the pair (1238 of wall); without, 2038.
-- Still as in L3: the left cupboard's doors can't open fully while the room
-  door is open, and the right one is 724 deep against the left's 1150.
+- **Designer 1: bedroom first** (route b's step, from b2): the bedroom's
+  option 7, both legs 600 deep, its back-wall leg as short as it goes
+  (1000), the ladders elsewhere: 2313 of rail, 699 round the bed's foot.
+- **Designer 3: shortest L** (the end): Designer 1's bedroom, and the lounge
+  as L3's bench, TV and top shelf between two option 10 cupboards, the right
+  one mirrored, no side bookshelf (with it, a 75" TV doesn't fit).
+- **Designer 4: straight wardrobe** and **Designer 5: shallow end**: the
+  same lounge, other bedroom cupboards to compare.
+- The first end state, Designer 2 (the full L along the chimney breast), is
+  removed: 258 round the bed's foot, worse than today's 586.
+- All have the bedside tables, the bed where the user has it, and the
+  bedroom door swinging right, kept open against the Knarrevik.
+- Still as in L3: the lounge's left cupboard's doors can't open fully while
+  the room door is open, and the right one is 724 deep against the left's 1150.
