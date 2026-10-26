@@ -412,7 +412,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 301,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -1191,7 +1192,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 301,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -1929,7 +1931,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 448,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -2704,7 +2707,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 448,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -3481,7 +3485,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 448,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -4212,7 +4217,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 448,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -4943,7 +4949,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 448,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -5679,7 +5686,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 301,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -6453,7 +6461,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 301,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -7184,7 +7193,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 448,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -7962,7 +7972,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 448,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -8736,7 +8747,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 448,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {
@@ -9514,7 +9526,8 @@ window.ROOM_CONFIGURATIONS = {
             "design": {
               "lowerD": 448,
               "upperDrawers": false,
-              "upperMirrors": false
+              "upperMirrors": false,
+              "upperAllDrawers": false
             }
           },
           "mirror": {

@@ -56,3 +56,12 @@ test("the lounge's cupboard is only compared: no verdict", () => {
   assert.equal(hangingVerdict('livingRoom'), null);
   assert.equal(railIn('livingRoom'), 1200 - 2 * B);
 });
+
+test('the recess cupboard as all drawers: no hanging there', () => {
+  const configuration = structuredClone(DEFAULT_CONFIGURATION);
+  configuration.pieces.recessCupboards.design.upperAllDrawers = true;
+  buildFlat(configuration, { hanging: true });
+  assert.equal(railIn('bedroom'), 0);
+  assert.match(hangingText('bedroom'), /Recess cupboard: all drawers, no hanging\.$/);
+  assert.doesNotMatch(hangingText('bedroom'), /column/);
+});

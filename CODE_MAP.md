@@ -58,7 +58,7 @@ first, then open only the file you need. Sizes are rough line counts
 | `model/dimensions.js` | 155 | The 2D views' dimensions (`updateDims`), door sizes, `cuttingList` |
 | `corner_cupboard.js` | 1,280 | The corner cupboard: each option's build (`OPTIONS`), shelves, inside spaces, its sections for hanging (`hangingSections`, `HANG_DEPTH`), dimensions, cutting list; `makeCupboard` |
 | `floor.js` | 915 | The walls, doors, windows and radiators of every room: `drawFloor`, `HALLWAY`, `ENTRANCE`, `OTHER_ROOM` |
-| `other_room.js` | 660 | The bedroom's furniture and fitted cupboards, and their sliders; the pine cupboard's rails (`PINE.rails`); the recess's upper cupboard, an IKEA PLATSA with SANNIDAL doors that open together (`recessDoor`, `turnRecessDoors`, the view's `doors.recess`) |
+| `other_room.js` | 690 | The bedroom's furniture and fitted cupboards, and their sliders; the pine cupboard's rails (`PINE.rails`); the recess's upper cupboard, an IKEA PLATSA with SANNIDAL doors that open together (`recessDoor`, `turnRecessDoors`, the view's `doors.recess`), or all drawers under its short doors (`upperAllDrawers`, `sannidalDrawers`) |
 | `garage.js` | 490 | The garage, what's in it (its own things, and the flat's furniture put away there: group `home`, Garage options' Home tab and the picker's Home folder), and Garage options' sliders |
 | `stair_walls.js`, `shoe_boxes.js` | 415, 235 | The shelves and pictures over the stairs; the shoe boxes on the sills |
 | `wicker_bench.js`, `shoe_rack.js` | 275, 315 | The hallway's wicker bench; the shoe rack downstairs |

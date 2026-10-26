@@ -77,9 +77,12 @@ export const PINE = {
 // clothes rail running front to back (IKEA HJÄLPA) under that shelf, and a
 // shelf over a wire basket at the bottom; the middle open, with two
 // shelves. Its boards' thickness and the heights inside are estimated from
-// IKEA's pictures. Two changes can be tried on the upper one: drawers in
-// place of the middle's open shelves, as many as fit `drawerH` high, and a
-// mirror on each tall door's panel, inside its frame, `mirrorThick` proud.
+// IKEA's pictures. Three changes can be tried on the upper one: drawers in
+// place of the middle's open shelves; drawers in all three columns, in
+// place of the tall doors and the open shelves (the short doors stay over
+// them); and a mirror on each tall door's panel, inside its frame,
+// `mirrorThick` proud. The drawers are IKEA HJÄLPA (made for a 600 × 400
+// PLATSA frame) behind SANNIDAL fronts, drawn shut.
 const RECESS_CUPBOARDS = {
   w: 1800, upperD: 420, lowerTop: 820, lowerD: 301,
   tallDoors: 1200, topDoors: 400,  // the upper one's doors' heights (the user's, 24 Oct 2026), from its bottom up; its top shows over them
@@ -90,7 +93,9 @@ const RECESS_CUPBOARDS = {
   lowShelf: 300,                   // the outer columns' shelf over the basket, likewise (estimated)
   basket: [40, 260],               // ...and the wire basket under it, its bottom and top (estimated)
   railDrop: 60, rail: 20,          // the rails under the fixed shelf, and how thick (estimated)
-  drawerH: 190,                    // the middle's drawers, if tried (about as the lower drawers were drawn)
+  // The SANNIDAL drawer fronts: 200 high and 16 thick (IKEA's sizes), so
+  // six fill a 1200 column; their frame round the panel estimated
+  drawerFront: { h: 200, thick: 16, frame: 40 },
   // Its doors are IKEA SANNIDAL (the user's, 24 Oct 2026): a raised frame
   // round a panel set in from it (both estimated from IKEA's picture)
   doorFrame: 60, panelSetIn: 5,
@@ -185,6 +190,7 @@ const AS_THEY_START = {
   lowerD: RECESS_CUPBOARDS.lowerD,
   upperDrawers: false,             // the upper recess cupboard: drawers in place of its middle's open shelves
   upperMirrors: false,             // ...and mirrors on its two tall doors
+  upperAllDrawers: false,          // ...or drawers in all three columns, under the short doors (asked for, 26 Oct 2026)
   mirror: { wall: 'breast', along: OVER_THE_BOOKCASE, bottom: MIRROR.bottom, w: MIRROR.w, h: MIRROR.h },
   // Billy, out to start; when it's in, standing against the chimney breast,
   // where the mirror starts (asked for, 18 Oct 2026)
@@ -277,7 +283,8 @@ const PIECES = [
   // The lower one's depth up to 800, as far as it might go (asked for, 15 Oct 2026);
   // no heading, its section's name says what it is
   { key: 'recess', section: 'recess', sizes: [['lowerD', 'Lower cupboard’s depth', 150, 800, 1, '']], place: [],
-    switches: [['upperDrawers', 'Upper cupboard: drawers', 'Drawers in place of the upper cupboard’s open shelves'],
+    switches: [['upperAllDrawers', 'Upper cupboard: all drawers', 'Drawers in all three columns, in place of the tall doors and the open shelves'],
+      ['upperDrawers', 'Upper cupboard: drawers', 'Drawers in place of the upper cupboard’s open shelves'],
       ['upperMirrors', 'Upper cupboard: mirrors', 'Mirrors on the upper cupboard’s two tall doors']] },
 ];
 // Those on a wall (`wall` the name of its choice of wall): the mirror,
@@ -298,7 +305,7 @@ const SWITCHES = PIECES.flatMap(p => [...(p.on ? [[p.on, IN_THE_BEDROOM]] : []),
 const CONFIG_NAME = { cupboard: 'pineCupboard', newCupboard: 'bedroomCupboard' };
 const pieceAt = piece => `pieces.${CONFIG_NAME[piece] ?? piece}`;
 const DESIGN_KEYS = ['w', 'd', 'h'];
-const RECESS_KEYS = ['lowerD', 'upperDrawers', 'upperMirrors'];
+const RECESS_KEYS = ['lowerD', 'upperDrawers', 'upperMirrors', 'upperAllDrawers'];
 export function settingPath(name) {
   if (RECESS_KEYS.includes(name)) return `pieces.recessCupboards.design.${name}`;
   if (name.endsWith('On')) return `${pieceAt(name.slice(0, -'On'.length))}.in.bedroom.on`;
@@ -333,7 +340,7 @@ export const OTHER_ROOM_SCHEMA = [
   inBedroom('ivar'), wallEntry('ivar'), ...placeEntries('ivar', ['along']),
   ...wallPieceEntries('bedsideTable'), ...wallPieceEntries('bedsideTableByCupboard'), ...wallPieceEntries('kvistbro'),
   inBedroom('laundryBasket'), ...placeEntries('laundryBasket'),
-  sliderEntry('lowerD'), onOffEntry('upperDrawers'), onOffEntry('upperMirrors'),
+  sliderEntry('lowerD'), onOffEntry('upperDrawers'), onOffEntry('upperMirrors'), onOffEntry('upperAllDrawers'),
   ...designEntries('mirror'), inBedroom('mirror'), wallEntry('mirror'), ...placeEntries('mirror', ['along', 'bottom']),
 ];
 
@@ -461,7 +468,7 @@ function mirror({ w, h, bottom }) {
 
 // The recess's two fitted cupboards, against its back wall and filling its
 // width: the upper one up to the ceiling, standing out over the lower one
-function recessCupboards({ lowerD, upperDrawers, upperMirrors }) {
+function recessCupboards({ lowerD, upperDrawers, upperMirrors, upperAllDrawers }) {
   const { w, upperD, lowerTop, tallDoors, topDoors, plinth, lowerDoors, front, gap } = RECESS_CUPBOARDS;
   const back = OTHER_ROOM.recessBack, top = OTHER_ROOM.ceiling;
   const u0 = (OTHER_ROOM.recessWidth - w) / 2, u1 = u0 + w;     // centred in the recess
@@ -476,22 +483,53 @@ function recessCupboards({ lowerD, upperDrawers, upperMirrors }) {
   for (let i = 0; i < lowerDoors; i++) panel(u0 + i * doorW, u0 + (i + 1) * doorW, plinth, lowerTop, lowFront + front);
 
   // The upper one, the PLATSA: its three columns' frames, short doors along
-  // the top, tall doors either side (with mirrors, if chosen), and the
-  // middle open, or drawers there. Its doors open (turnRecessDoors()): the
-  // left column's and the middle's on their left, the right column's on
-  // their right
+  // the top, and under them drawers in every column, or tall doors either
+  // side (with mirrors, if chosen) and the middle open or drawers there. Its
+  // doors open (turnRecessDoors()): the left column's and the middle's on
+  // their left, the right column's on their right
   recessHinges.length = 0;
+  recessAllDrawers = upperAllDrawers;
   const upFront = back - upperD, col = w / 3, under = lowerTop + tallDoors;
   for (let i = 0; i < 3; i++) {
     platsaFrame(u0 + i * col, u0 + (i + 1) * col, upFront + front, under);
     recessDoor(u0 + i * col, u0 + (i + 1) * col, under, under + topDoors, i === 2 ? 'right' : 'left');
   }
+  if (upperAllDrawers) {
+    for (let i = 0; i < 3; i++) sannidalDrawers(u0 + i * col, u0 + (i + 1) * col, lowerTop, under);
+    return;
+  }
   for (const a0 of [u0, u1 - col]) {
     hangingColumn(a0, a0 + col, upFront + front, under);
     recessDoor(a0, a0 + col, lowerTop, under, a0 === u0 ? 'left' : 'right', upperMirrors);
   }
-  if (upperDrawers) drawerStack(u0 + col, u1 - col, lowerTop, under, Math.max(1, Math.round((under - lowerTop) / RECESS_CUPBOARDS.drawerH)), panel, upFront + front);
+  if (upperDrawers) sannidalDrawers(u0 + col, u1 - col, lowerTop, under);
   else openShelves(u0 + col, u1 - col, upFront + front, under);
+}
+// Whether the upper one was last drawn with drawers in every column (for
+// its hanging: none then)
+let recessAllDrawers = false;
+
+// A column's SANNIDAL drawer fronts, a0 to a1 across the recess, from z0 up
+// to z1: as many as fit `drawerFront.h` high, their faces flush with the
+// doors', each a frame round a panel set in
+function sannidalDrawers(a0, a1, z0, z1) {
+  const { upperD, gap, panelSetIn, drawerFront: { h, thick, frame } } = RECESS_CUPBOARDS;
+  const faceV = OTHER_ROOM.recessBack - upperD, n = Math.max(1, Math.round((z1 - z0) / h)), each = (z1 - z0) / n;
+  for (let k = 0; k < n; k++) {
+    const bottom = z0 + k * each + gap / 2, top = z0 + (k + 1) * each - gap / 2;
+    frameAndPanel(furniture, [a0 + gap / 2, a1 - gap / 2], faceV, thick, [bottom, top], frame, panelSetIn);
+  }
+}
+// A SANNIDAL front in `parent`'s mm: across x0 to x1, its face at v (the
+// room's side) and `thick` back from it, z0 to z1 up; a raised frame
+// `frame` wide round a panel set in by `setIn`
+function frameAndPanel(parent, [x0, x1], v, thick, [z0, z1], frame, setIn) {
+  const part = (a0, a1, v0, b0, b1) => box({ from: [a0, v0, b0], to: [a1, v + thick, b1] }, fittedMat, parent);
+  part(x0, x1, v + setIn, z0, z1);                               // its back, the panel's face set in
+  part(x0, x0 + frame, v, z0, z1);                               // the frame: its two stiles,
+  part(x1 - frame, x1, v, z0, z1);
+  part(x0 + frame, x1 - frame, v, z0, z0 + frame);               // ...and its rails
+  part(x0 + frame, x1 - frame, v, z1 - frame, z1);
 }
 
 // A PLATSA column's frame, a0 to a1 across the recess, from its front (the
@@ -524,28 +562,24 @@ function openShelves(a0, a1, v, under) {
 // The upper recess cupboard's sections for hanging (model/hanging.js): its
 // two outer columns, each as deep inside as from its doors to its back
 // board, and as wide inside as between its sides. Their rails run front
-// to back, so they aren't counted as rails across (HANGING_SPACE.md)
+// to back, so they aren't counted as rails across (HANGING_SPACE.md). With
+// drawers in every column there are none
 const { w: RECESS_W, upperD: RECESS_D, front: RECESS_FRONT, board: RECESS_BOARD } = RECESS_CUPBOARDS;
-export const RECESS_HANGING = ['left', 'right'].map(side => ({
+export const recessHanging = ({ upperAllDrawers }) => (upperAllDrawers ? [] : ['left', 'right'].map(side => ({
   name: `Recess cupboard's ${side} column (its rail runs front to back)`,
   depth: RECESS_D - RECESS_FRONT - RECESS_BOARD,
   w: RECESS_W / 3 - 2 * RECESS_BOARD,
-}));
+})));
 // ...drawn over in `mat` (the red of a section too shallow to hang in),
 // under their fixed shelves, a millimetre proud of their doors
 export function markRecessShallow(mat) {
+  if (recessAllDrawers) return;
   const { w, upperD, lowerTop, tallDoors } = RECESS_CUPBOARDS, back = OTHER_ROOM.recessBack;
   const u0 = (OTHER_ROOM.recessWidth - w) / 2, col = w / 3;
   for (const a0 of [u0, u0 + w - col]) {
     const red = box({ from: [a0, back - upperD - 1, lowerTop], to: [a0 + col, back, lowerTop + tallDoors] }, mat, furniture, false);
     red.castShadow = red.receiveShadow = false;
   }
-}
-
-// n drawer fronts, of equal height, from z0 up to z1 between a0 and a1
-function drawerStack(a0, a1, z0, z1, n, panel, frontV) {
-  const each = (z1 - z0) / n;
-  for (let i = 0; i < n; i++) panel(a0, a1, z0 + i * each, z0 + (i + 1) * each, frontV);
 }
 
 // The upper recess cupboard's doors' hinges, as drawn, each turning its
@@ -566,19 +600,14 @@ function recessDoor(a0, a1, z0, z1, side, mirrored = false) {
   recessHinges.push(hinge);
   // In the hinge's own mm: across from it (out to `width`, the way `dir`
   // says), v back from the outside face, z up
-  const width = a1 - a0 - gap, x = d => dir * d;
-  const across = (d0, d1) => [Math.min(x(d0), x(d1)), Math.max(x(d0), x(d1))];
-  const door = (d0, d1, v0, v1, b0, b1, mat = fittedMat) => {
-    const [u0, u1] = across(d0, d1);
-    return box({ from: [u0, v0, b0], to: [u1, v1, b1] }, mat, hinge);
-  };
+  const width = a1 - a0 - gap;
+  const across = (d0, d1) => [Math.min(dir * d0, dir * d1), Math.max(dir * d0, dir * d1)];
   const bottom = z0 + gap / 2, top = z1 - gap / 2;
-  door(0, width, setIn, front, bottom, top);                    // its back, the panel's face set in
-  door(0, f, 0, setIn, bottom, top);                            // the frame: its two stiles,
-  door(width - f, width, 0, setIn, bottom, top);
-  door(f, width - f, 0, setIn, bottom, bottom + f);             // ...and its rails
-  door(f, width - f, 0, setIn, top - f, top);
-  if (mirrored) door(f, width - f, setIn - mirrorThick, setIn, bottom + f, top - f, glassMat);
+  frameAndPanel(hinge, across(0, width), 0, front, [bottom, top], f, setIn);
+  if (mirrored) {
+    const [m0, m1] = across(f, width - f);
+    box({ from: [m0, setIn - mirrorThick, bottom + f], to: [m1, setIn, top - f] }, glassMat, hinge);
+  }
 }
 // The upper recess cupboard's doors opened to `degrees`, all together, out
 // into the room (none stops them)
@@ -641,6 +670,8 @@ export function otherRoomControls(topContainer, container, change) {
     for (const [name] of SWITCHES) document.getElementById(id(name)).checked = at(name);
     for (const piece of PIECES.filter(p => p.on)) document.getElementById(`otherRoomPiece_${piece.key}Details`).hidden = !at(piece.on);
     document.getElementById(id('cupboardOn')).disabled = at('newCupboardOn');   // the new cupboard stands in its place
+    // With all drawers, there's no open middle and no tall doors to change
+    for (const name of ['upperDrawers', 'upperMirrors']) document.getElementById(id(name)).closest('label').style.display = at('upperAllDrawers') ? 'none' : '';
     for (const { key, halfAlong } of ON_A_WALL) followWall(id, key, { wall: at(`${key}.wall`), along: at(`${key}.along`) }, halfAlong(at));
   };
 }

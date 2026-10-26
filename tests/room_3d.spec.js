@@ -430,6 +430,10 @@ test.describe('the controls', () => {
     expect(await setting(page, 'pieces.recessCupboards.design')).toMatchObject({ upperDrawers: true, upperMirrors: false });
     await page.locator('#otherRoom_upperMirrors').check();
     expect(await setting(page, 'pieces.recessCupboards.design')).toMatchObject({ upperDrawers: true, upperMirrors: true });
+    await page.locator('#otherRoom_upperAllDrawers').check();          // all drawers: no tall doors or open middle to change
+    expect(await setting(page, 'pieces.recessCupboards.design.upperAllDrawers')).toBe(true);
+    await expect(page.locator('#otherRoom_upperDrawers')).toBeHidden();
+    await page.locator('#otherRoom_upperAllDrawers').uncheck();
     await page.selectOption('#otherRoom_mirror_wall', 'kitchen');
     await expect(page.locator('#otherRoom_mirror_alongLabel')).toHaveText('Middle from the hallway wall');
     expect(await setting(page, 'pieces.mirror.in.bedroom')).toMatchObject({ wall: 'kitchen', along: 2569, bottom: 1400 });

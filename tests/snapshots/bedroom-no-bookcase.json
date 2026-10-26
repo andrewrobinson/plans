@@ -381,7 +381,8 @@
         "design": {
           "lowerD": 301,
           "upperDrawers": false,
-          "upperMirrors": false
+          "upperMirrors": false,
+          "upperAllDrawers": false
         }
       },
       "mirror": {
