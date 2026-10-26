@@ -28,6 +28,7 @@
     "shell.bathroom": "all",
     "livingRoom": "all",
     "cornerCupboard": "all",
+    "rightCupboard": null,
     "dresser": "all",
     "larder": null,
     "sofa": "all",

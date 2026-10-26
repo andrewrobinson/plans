@@ -2,19 +2,19 @@
 // the bedroom's door they must clear, building the option on show, and the
 // bench and shelves the living room's option draws round it.
 import * as THREE from 'three';
-import { box, clearDrawing } from '../kit/floor_kit.js';
+import { MM, box, clearDrawing } from '../kit/floor_kit.js';
 import {
-  CUPBOARD_MATERIALS, makeCupboard, optionOf, CURRENT_ROOM, diagonal, MIN_DIAGONAL
+  CUPBOARD_MATERIALS, makeCupboard, optionOf, CURRENT_ROOM, cornerTooShallow, diagonal, MIN_DIAGONAL
 } from '../corner_cupboard.js';
 import { showNewCupboard } from '../other_room.js';
 import { QUARTER_TURN } from '../kit/units_kit.js';
 import { DOOR_SWINGS, sweepInto, opensTo } from '../bedroom_door.js';
 import {
-  ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, OTHER_ROOM, hallway
+  ROOM_WIDTH, ROOM_DEPTH, CEILING_HEIGHT, DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, ROOM_DOOR, OTHER_ROOM, OUTER, hallway
 } from '../floor.js';
 import { config, cupboardSettings, doors, drawn, world } from './state.js';
 import {
-  BACK_WALL_PIECES, TV_BOTTOM, TV_H, baseCupboards, benchDrawn, benchStandIns, benchStart, wallClearFrom
+  BACK_WALL_PIECES, TV_BOTTOM, TV_H, baseCupboards, benchDrawn, benchStandIns, benchStart, rightCupboardOn, wallClearFrom, wallEnd
 } from './bench_wall.js';
 import { pieces } from './front_wall.js';
 import { BEDROOM_MATERIALS, benchMat } from './materials.js';
@@ -100,7 +100,31 @@ export function cupboardLimits(piece, settings = config.pieces[piece].design) {
   return { ...diagonal, LEG: BEDROOM_ALONG_BREAST - T, DIAG_RUN: BEDROOM_ALONG_BREAST - T, CORNER_W: BEDROOM_ALONG_BREAST,
     F: clearOfBedroomDoor(T), CORNER_D: clearOfBedroomDoor(CORNER_W) };
 }
+// The right-hand cupboard (asked for, 26 Oct 2026): the living room's
+// option, with its sizes, mirrored into the back-right corner. Its own
+// reach out along the right-hand wall stops WINDOW_CLEAR short of the first
+// window's recess (the radiator under it starts further out), so it's
+// never as long as the left one, which can reach the room door's frame. No
+// door on its walls. Its doors turn with the left one's
+const WINDOW_CLEAR = 10;                                         // chosen
+export const RIGHT_REACH_MOST = OUTER.windows[0].y[0] - WINDOW_CLEAR;   // 724
+const RIGHT_PLACE = { ...LIVING_ROOM_PLACE, door: null };
+// The least it reaches in options 7 to 9: RIGHT_LEG_LEAST past the part of
+// it along the back wall, so it has a leg along the right wall (option 9's
+// won't build without one). Options 10 and 11 don't build it when it's too
+// shallow (cornerTooShallow())
+const RIGHT_LEG_LEAST = 100;                                     // chosen
+const RIGHT_REACH_LEAST = { 7: s => s.LEG_D + RIGHT_LEG_LEAST, 8: s => s.R + MIN_DIAGONAL, 9: s => s.WARD_D + RIGHT_LEG_LEAST };
+const DOORS_FACE = { 10: 'kitchen', 11: 'windows' };                 // options 10 and 11's doors, for cornerTooShallow()
+// Its settings: the left one's, with its reach in place of F (or CORNER_D,
+// options 10 and 11's)
+export function rightCupboardSettings() {
+  const s = cupboardSettings(), { reach } = config.pieces.rightCupboard.in.livingRoom;
+  return { ...s, F: Math.max(reach, RIGHT_REACH_LEAST[s.option]?.(s) ?? 0), CORNER_D: reach };
+}
+
 let cupboard = null;         // the living room's corner cupboard (makeCupboard())
+let rightCupboard = null;    // the right-hand cupboard, mirrored, while it's on (and there's an option to mirror)
 let livingGroup = null;      // the cupboard and everything round it that the option's build draws: the bench wall, the front wall, the sofa
 let bedroomCupboard = null;  // the bedroom's own corner cupboard (BEDROOM_PLACE), while its New cupboard switch is on
 
@@ -126,7 +150,7 @@ function buildBedroomCupboard(onShow) {
 }
 // Each corner cupboard as built (makeCupboard()), by its piece's name, or
 // null while there's none
-export const cupboardOf = piece => ({ cornerCupboard: cupboard, bedroomCupboard })[piece] ?? null;
+export const cupboardOf = piece => ({ cornerCupboard: cupboard, rightCupboard, bedroomCupboard })[piece] ?? null;
 // The options on show, each cupboard's, as build() is told them when the
 // menus have already set new ones
 export const optionsOnShow = () => ({ cornerCupboard: config.pieces.cornerCupboard.design.option, bedroomCupboard: config.pieces.bedroomCupboard.design.option });
@@ -161,18 +185,44 @@ function buildOption() {
   drawn.radiator = null;
   cupboard = makeCupboard(cupboardSettings(), LIVING_ROOM_PLACE, CUPBOARD_MATERIALS);
   livingGroup.add(cupboard.group);
+  buildRightCupboard(livingGroup);
   return livingGroup;
+}
+// The right-hand cupboard, built as the left one stands in its corner, then
+// mirrored across the room: so its doors hinge the other way
+function buildRightCupboard(group) {
+  rightCupboard = null;
+  if (!rightCupboardOn() || config.pieces.cornerCupboard.design.option === CURRENT_ROOM) return;
+  rightCupboard = makeCupboard(rightCupboardSettings(), RIGHT_PLACE, CUPBOARD_MATERIALS);
+  rightCupboard.drawShelves([]);                                 // whole: nothing's stored in it
+  const mirrored = new THREE.Group();
+  mirrored.scale.x = -1;
+  mirrored.position.x = ROOM_WIDTH * MM;
+  mirrored.add(rightCupboard.group);
+  group.add(mirrored);
+}
+// What the right-hand cupboard adds to the description
+export function rightCupboardText() {
+  if (!rightCupboardOn()) return '';
+  if (!rightCupboard) return ' No right-hand cupboard: there\'s no cupboard to mirror in this option.';
+  const { reach } = config.pieces.rightCupboard.in.livingRoom, s = rightCupboardSettings(), option = optionOf(s.option);
+  const out = option.front ? option.front(s) : s.F;
+  if (DOORS_FACE[s.option] && cornerTooShallow(s, DOORS_FACE[s.option])) return ` No right-hand cupboard: at ${out} out along the right-hand wall it's too shallow to build.`;
+  const held = out > reach ? ` (held to ${out}, past its part along the back wall)` : '';
+  const window = OUTER.windows[0].y[0], past = out > RIGHT_REACH_MOST ? `, across the first window's recess at ${window}: too deep for this corner` : `, short of the first window's recess at ${window}`;
+  return ` A matching cupboard in the right-hand corner, the same mirrored, coming ${out} out along the right-hand wall${held}${past}. ` +
+    `The bench and the wall above it end where it starts, at x = ${wallEnd()}.`;
 }
 
 // The bench beside the option's cupboard, from where the option says it
-// starts to the right-hand wall, R deep and BENCH high: base cupboards for
+// starts to the right-hand wall (or the right-hand cupboard), R deep and BENCH high: base cupboards for
 // option 9, a bench top for the rest
 function drawBench(option, group) {
   const BENCH = config.pieces.bench.design.height, { R } = config.pieces.cornerCupboard.design, from = benchStart(option);
   const bench = new THREE.Group();
   group.add(bench);
   if (option.no === 9) baseCupboards(from, bench);
-  else box({ from: [from, 0, 0], to: [ROOM_WIDTH, R, BENCH] }, benchMat, bench);
+  else box({ from: [from, 0, 0], to: [wallEnd(), R, BENCH] }, benchMat, bench);
 }
 
 // The bench off: nothing above it either, but the TV's place is kept for
@@ -203,7 +253,7 @@ const readShelves = text => shelfTopsOf(String(text).split(/[^0-9]+/).map(Number
 
 // What the other pieces of the model use
 export {
-  BEDROOM_ALONG_BREAST, BEDROOM_PLACE, LIVING_ROOM_PLACE, SHELF_WOODS, bedroomCupboard, bedroomDoor, 
+  BEDROOM_ALONG_BREAST, BEDROOM_PLACE, LIVING_ROOM_PLACE, SHELF_WOODS, bedroomCupboard, bedroomDoor, rightCupboard, 
   buildBedroomCupboard, buildOption, cupboard, drawBench, keepTvPlace, livingGroup, mustOpenTo, readShelves, 
   shelfTopsOf, spotFits, withoutBench
 };

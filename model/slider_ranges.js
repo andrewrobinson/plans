@@ -22,6 +22,7 @@ const SLIDER_RANGES = {
   deskShelfDepth: [150, 400, 10],   // the desk shelves', as the TV wall's shelves' (shelfDepth)
   speakerSpacing: [400, 3000, 10],   // between the speakers' middles, chosen: their 170 wide apart, to past the TV's width
   bedroomDoorMustOpenTo: [45, 90, 1],
+  rightReach: [300, 724, 1],      // the right-hand cupboard's reach along the right wall: up to 10 short of the first window's recess, at 734 (cupboards.js's RIGHT_REACH_MOST)
   diningLength: [1000, 2400, 10], diningWidth: [700, 1100, 10], diningDiameter: [800, 1400, 10],   // the dining table's, chosen: round the sizes such tables are sold in   // swinging left, how far the bedroom door must open: from half open (chosen) to flat along the wall
 };
 

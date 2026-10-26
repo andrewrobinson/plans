@@ -50,6 +50,10 @@ const CORNER_CUPBOARD = { key: 'cornerCupboard', name: 'Corner cupboard', short:
     return option !== CURRENT_ROOM;
   },
   inValue: on => (on ? lastCupboard : CURRENT_ROOM) };
+// The right-hand cupboard, the corner cupboard mirrored (asked for, 26 Oct
+// 2026), in or out only
+const RIGHT_CUPBOARD = { key: 'rightCupboard', name: 'Right-hand cupboard', short: 'Right', icon: 'layout-board', on: 'pieces.rightCupboard.in.livingRoom.on',
+  place: 'pieces.rightCupboard.in.livingRoom', fixed: true, object: () => null };
 // The sofa, in or out as the cupboard: in, the model last chosen (the
 // Drift to start, SOFA_MODELS.start); out, none (NO_SOFA). Moved and
 // resized in Plan
@@ -105,6 +109,7 @@ const lounge = (key, name, icon, place, spot, object, more = {}) =>
 // In the picker's order, the most important first (asked for, 24 Oct 2026)
 const LOUNGE = [
   CORNER_CUPBOARD,
+  RIGHT_CUPBOARD,
   SOFA,
   lounge('deskDaybed', 'Daybed and desk', 'bed-flat', 'pieces.deskDaybed.in.livingRoom', () => spotOf('deskDaybed'), () => drawn.backWall.deskDaybed, { short: 'Daybed' }),
   // The bench isn't kept as one object, so it's put in and taken out from the picker alone

@@ -111,6 +111,14 @@
           }
         }
       },
+      "rightCupboard": {
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "reach": 724
+          }
+        }
+      },
       "bench": {
         "design": {
           "height": 780
@@ -813,6 +821,7 @@
       ],
       "shown": true
     },
+    "rightCupboard": null,
     "dresser": {
       "from": [
         823,

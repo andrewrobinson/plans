@@ -107,6 +107,14 @@
           }
         }
       },
+      "rightCupboard": {
+        "in": {
+          "livingRoom": {
+            "on": false,
+            "reach": 724
+          }
+        }
+      },
       "bench": {
         "design": {
           "height": 700

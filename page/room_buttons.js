@@ -18,7 +18,7 @@ import { display } from './display.js';
 import { hallway } from '../floor.js';
 import {
   backWallSwitches, bedroomCupboardControls, benchSwitch, billyLying, builtInViews, change, controls, 
-  deskDaybedChair, deskDaybedRight, draw, firstRadiatorSwitch, tvOnSwitch, loungeCupboard, refreshColours, 
+  deskDaybedChair, deskDaybedRight, draw, firstRadiatorSwitch, rightCupboardSwitch, tvOnSwitch, loungeCupboard, refreshColours, 
   renderer, resize, setCupboardOnly, showBookshelfSizes, showDresser, showLarder, showShelfWood, showSofa, 
   turnDoorsTo, viewKit
 } from '../living_room.js';
@@ -237,6 +237,10 @@ function syncControls() {
   bedroomCupboardControls.sync();
   benchSwitch.checked = benchDrawn();
   firstRadiatorSwitch.checked = config.livingRoom.firstRadiator;
+  const right = config.pieces.rightCupboard.in.livingRoom;
+  rightCupboardSwitch.checked = right.on;
+  slide('rightReach', right.reach);
+  document.getElementById('rightReachRow').hidden = !right.on;
   for (const key of BACK_WALL_KEYS) backWallSwitches[key].checked = inLivingRoom(key).on;
   billyLying.checked = config.pieces.billy.in.livingRoom.lying;
   deskDaybedRight.checked = config.pieces.deskDaybed.design.deskAt === 'right';

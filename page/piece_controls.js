@@ -102,6 +102,11 @@ cupboardOnlySwitch.addEventListener('change', () => {
 const benchSwitch = document.getElementById('benchOn');
 benchSwitch.addEventListener('change', () => change([['pieces.bench.in.livingRoom.on', benchSwitch.checked]], { look: true }));
 // The radiator under the first window: in, or taken out
+// The right-hand cupboard: the corner cupboard mirrored, and its length
+// along the right-hand wall, shown while it's on
+const rightCupboardSwitch = document.getElementById('rightCupboardOn'), rightReachSlider = document.getElementById('rightReach');
+rightCupboardSwitch.addEventListener('change', () => change([['pieces.rightCupboard.in.livingRoom.on', rightCupboardSwitch.checked]], { look: true }));
+rightReachSlider.addEventListener('input', () => change([['pieces.rightCupboard.in.livingRoom.reach', Number(rightReachSlider.value)]]));
 const firstRadiatorSwitch = document.getElementById('firstRadiatorOn');
 firstRadiatorSwitch.addEventListener('change', () => change([['livingRoom.firstRadiator', firstRadiatorSwitch.checked]], { look: true }));
 // The bookshelf and the pine cupboard, against the back wall, or in front
@@ -355,7 +360,7 @@ xraySwitch.addEventListener('change', () => {
 
 // What the other pieces of the model use
 export {
-  backWallSwitches, benchSwitch, billyLying, deskDaybedChair, deskDaybedRight, firstRadiatorSwitch, tvOnSwitch, 
+  backWallSwitches, benchSwitch, billyLying, deskDaybedChair, deskDaybedRight, firstRadiatorSwitch, rightCupboardSwitch, tvOnSwitch, 
   setCupboardOnly, setSeeThrough, showBookshelfSizes, showCastorDesk, showDresser, showIvar, showLarder, 
   showPlace, showSofa, showSofaPlace, showSpeakers, showTables, xray
 };

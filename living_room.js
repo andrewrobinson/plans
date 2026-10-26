@@ -212,7 +212,7 @@ export {
   showCuttingLists, showStored, showStoredMenu, storedDrag, storedUnder
 } from './page/stored_controls.js';
 export {
-  backWallSwitches, benchSwitch, billyLying, deskDaybedChair, deskDaybedRight, firstRadiatorSwitch, tvOnSwitch, 
+  backWallSwitches, benchSwitch, billyLying, deskDaybedChair, deskDaybedRight, firstRadiatorSwitch, rightCupboardSwitch, tvOnSwitch, 
   setCupboardOnly, setSeeThrough, showBookshelfSizes, showCastorDesk, showDresser, showIvar, showLarder, 
   showPlace, showSofa, showSofaPlace, showSpeakers, showTables, xray
 } from './page/piece_controls.js';

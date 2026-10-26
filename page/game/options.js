@@ -5,7 +5,7 @@
 // thing changes above the sheet as it's set. What has no section of its
 // own opens its room's whole drawer. Something painted also gets a Colour
 // button, for the colour sheet. Asked for, 23 Oct 2026.
-import { cupboard, drawn, islandGroup, pieces, namedPieces } from '../../flat_model.js';
+import { cupboard, drawn, islandGroup, pieces, namedPieces, rightCupboard } from '../../flat_model.js';
 import { benchMat } from '../../model/materials.js';
 import { otherRoomPieces } from '../../other_room.js';
 import { wickerBenches } from '../../wicker_bench.js';
@@ -49,7 +49,7 @@ const THINGS = [
   // the dresser and larder grow from their left-hand side, along the front wall
   { name: 'Dresser', objects: () => [pieces.dresser], ids: ['frontBlock', 'dresserBlock', 'dresserColourBlock'], sizes: [w('dresserW', 1)] },
   { name: 'Larder', objects: () => [pieces.larder], ids: ['frontBlock', 'larderBlock', 'dresserColourBlock'], sizes: [w('larderW', 1), d('larderD')] },
-  { name: 'Corner cupboard', objects: () => [cupboard?.group], ids: ['secCupboard'] },
+  { name: 'Corner cupboard', objects: () => [cupboard?.group, rightCupboard?.group], ids: ['secCupboard'] },   // the right-hand one is its mirror
   { name: 'Ivar', objects: () => [pieces.ivar], ids: ['secIvar'] },
   { name: 'Cornwall table', objects: () => [pieces.cornwall], ids: ['secCornwall'] },
   { name: 'Chesham table', objects: () => [pieces.chesham], ids: ['secChesham'] },

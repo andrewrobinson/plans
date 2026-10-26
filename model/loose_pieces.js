@@ -21,10 +21,10 @@ import {
 } from '../floor.js';
 import { LOUNGE_NOW, config, cupboardSettings, drawn, inLivingRoom } from './state.js';
 import { islandGroup } from './kitchen.js';
-import { LIVING_ROOM_PLACE, cupboard } from './cupboards.js';
+import { LIVING_ROOM_PLACE, cupboard, rightCupboard } from './cupboards.js';
 import {
   BACK_WALL_PIECES, FACING, SHELF_T, TV_SHELF_TOPS, TV_W, aboveHasTv, aboveNow, benchDrawn, benchStart, daybedTvShown, 
-  spotOf
+  spotOf, wallEnd
 } from './bench_wall.js';
 import { pieces, sofa } from './front_wall.js';
 import { SLIDER_RANGES } from './slider_ranges.js';
@@ -52,7 +52,7 @@ function obstacles(daybed) {
   const wall = (x0, y0, x1, y1) => new THREE.Box3(new THREE.Vector3(x0 * MM, 0, y0 * MM), new THREE.Vector3(x1 * MM, CEILING_HEIGHT * MM, y1 * MM));
   const found = [[WALL_NAMES.left, wall(-solid, 0, 0, ROOM_DEPTH)], [WALL_NAMES.right, wall(ROOM_WIDTH, 0, ROOM_WIDTH + solid, ROOM_DEPTH)],
     [WALL_NAMES.back, wall(0, -solid, ROOM_WIDTH, 0)], [WALL_NAMES.front, wall(0, ROOM_DEPTH, ROOM_WIDTH, ROOM_DEPTH + solid)]];
-  const named = [[cupboard?.group, 'the corner cupboard'], [islandGroup, 'the island'], [drawn.radiator, RADIATOR_NAME],
+  const named = [[cupboard?.group, 'the corner cupboard'], [rightCupboard?.group, 'the right-hand cupboard'], [islandGroup, 'the island'], [drawn.radiator, RADIATOR_NAME],
     ...loosePieces().filter(([piece]) => piece !== daybed)];
   for (const [object, name] of named) found.push(...meshBoxes(object).map(box => [name, box]));
   return found;
@@ -278,8 +278,8 @@ const SPEAKER_SURFACES = {
   bench() {
     if (!benchDrawn()) return { missing: 'the bench, which isn\'t there' };
     const option = optionOf(config.pieces.cornerCupboard.design.option);
-    const x0 = benchStart(option), tvShown = aboveHasTv(aboveNow()) && ROOM_WIDTH - x0 >= TV_W + 20;   // as benchWallItems() draws it
-    return { spot: { x: 0, y: 0, turn: 0 }, x0, x1: ROOM_WIDTH, front: config.pieces.cornerCupboard.design.R, top: config.pieces.bench.design.height,
+    const x0 = benchStart(option), tvShown = aboveHasTv(aboveNow()) && wallEnd() - x0 >= TV_W + 20;   // as benchWallItems() draws it
+    return { spot: { x: 0, y: 0, turn: 0 }, x0, x1: wallEnd(), front: config.pieces.cornerCupboard.design.R, top: config.pieces.bench.design.height,
       middle: drawn.tvAt[0], start: tvShown ? TV_W + 2 * SPEAKER_TV_CLEAR + FENRIS_A5.w : SPEAKER_SPACING_NO_TV,
       on: tvShown ? 'on the bench, either side of the TV' : 'on the bench, centred on it' };
   },

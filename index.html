@@ -198,6 +198,13 @@
         <label for="current">Option</label>
         <select id="current" class="pick" aria-label="Cupboard option"></select>
         <label class="switch" title="Hide the rest of the room and show the cupboard's dimensions"><input type="checkbox" id="cupboardOnly"> Cupboard only, with dimensions</label>
+        <div id="rightCupboardBlock">
+          <label class="switch" title="The same cupboard, mirrored, in the right-hand corner: the bench runs between them"><input type="checkbox" id="rightCupboardOn"> Matching cupboard on the right</label>
+          <div id="rightReachRow">
+            <label for="rightReach" title="Out from the back wall, short of the first window">Right-hand cupboard length: <span id="rightReachValue">724</span></label>
+            <input id="rightReach" type="range" min="300" max="724" step="1" value="724">
+          </div>
+        </div>
         <div id="cupboardControls">
           <div id="depthBlock">
             <label for="depth">Left-wall cupboard depth: <span id="depthValue">none</span></label>

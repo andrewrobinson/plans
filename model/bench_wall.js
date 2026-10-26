@@ -92,7 +92,7 @@ const tvWords = inches => `${String(inches).startsWith('8') ? 'an' : 'a'} ${inch
 // 'wall' or 'moved'
 // ---------------------------------------------------------------------------
 function tvSpot(x0) {
-  const onWall = { middle: (x0 + ROOM_WIDTH) / 2, bottom: TV_BOTTOM };
+  const onWall = { middle: (x0 + wallEnd()) / 2, bottom: TV_BOTTOM };
   const daybed = daybedTv();
   // (over the daybed only while it's on: off, its place is the wall's, as the sofa's centred on it)
   const auto = benchDrawn() ? { ...onWall, how: 'bench' } : tvOn() && 'middle' in daybed ? { ...daybed, how: 'daybed' } : { ...onWall, how: 'wall' };
@@ -112,13 +112,13 @@ function tvPiece(tv, x0, g) {
   drawTv(tv.middle, tv.bottom, g);
   const what = `${tvWords(config.pieces.tv.design.inches)} TV (${TV_W} × ${TV_H})`, height = `from ${tv.bottom} to ${tv.bottom + TV_H}`;
   if (tv.how === 'daybed') return ` Above the daybed: ${what}, centred on its bed, ${height}.`;
-  if (tv.how === 'wall') return ` On the back wall: ${what}, centred on the ${ROOM_WIDTH - x0} of clear wall, ${height}.`;
+  if (tv.how === 'wall') return ` On the back wall: ${what}, centred on the ${wallEnd() - x0} of clear wall, ${height}.`;
   return ` On the back wall: ${what}, its middle ${Math.round(tv.middle)} from the left wall, ${height}.`;
 }
 
 function benchWall(x0, g, tv) {
   const { shelfDepth } = config.pieces.aboveBench.design, above = aboveNow(), { R } = config.pieces.cornerCupboard.design;
-  const span = ROOM_WIDTH - x0;
+  const span = wallEnd() - x0;
   if (above === 'nothing' || span <= 0) return '';                         // nothing, or no bench (the current room)
   return benchWallItems(x0, span, g, tv) +
     (shelfDepth > R && above !== 'tv' ? ` The shelves stand ${shelfDepth - R} proud of the ${R}-deep bench.` : '');
@@ -131,13 +131,13 @@ function benchWall(x0, g, tv) {
 function benchWallItems(x0, span, g, tv) {
   const { shelfDepth } = config.pieces.aboveBench.design, above = aboveNow(), inches = config.pieces.tv.design.inches;
   if (above === 'shelves') {
-    shelves(x0, ROOM_WIDTH, g);
+    shelves(x0, wallEnd(), g);
     return ` Above the bench: three ${shelfDepth}-deep shelves, ${span} long, at ${SHELF_TOPS.join(', ')}.`;
   }
   const [below, over] = TV_SHELF_TOPS;
   if (above === 'topShelf') {
     if (!over) return ` Above the bench: no room for a top shelf: it would be within 60 of the ceiling.`;
-    shelves(x0, ROOM_WIDTH, g, [over]);
+    shelves(x0, wallEnd(), g, [over]);
     return ` Above the bench: a ${shelfDepth}-deep shelf right across, ${span} long, at ${over}.`;
   }
   const own = tv.how === 'bench';
@@ -146,7 +146,7 @@ function benchWallItems(x0, span, g, tv) {
     if (above === 'tv') return none;
     const tops = above === 'tvAndTopShelf' ? TV_SHELF_TOPS.slice(1) : TV_SHELF_TOPS;
     if (!tops.length) return none;
-    shelves(x0, ROOM_WIDTH, g, tops);
+    shelves(x0, wallEnd(), g, tops);
     return none + ` ${shelfDepth}-deep shelves right across, ${span} long, at ${tops.join(' and ')}.`;
   }
   if (own) drawTv(tv.middle, tv.bottom, g);                      // centred on the clear wall
@@ -156,18 +156,18 @@ function benchWallItems(x0, span, g, tv) {
   if (above === 'tv') return tvText;
   if (above === 'tvAndTopShelf') {
     if (!over) return tvText + noTop;
-    shelves(x0, ROOM_WIDTH, g, [over]);
+    shelves(x0, wallEnd(), g, [over]);
     return tvText + `${shelvesText} A ${shelfDepth}-deep shelf right across above it, ${span} long, at ${over}.`;
   }
-  shelves(x0, ROOM_WIDTH, g, TV_SHELF_TOPS);
+  shelves(x0, wallEnd(), g, TV_SHELF_TOPS);
   const shelfText = over
     ? `${shelvesText} ${shelfDepth}-deep shelves right across, ${span} long, below it at ${below} and above it at ${over}.`
     : `${shelvesText} A ${shelfDepth}-deep shelf right across below it, ${span} long, at ${below}.` + noTop;
   // A middle shelf each side of the TV, TV_GAP clear of it, where there's room
-  const left = Math.floor(tv.middle - TV_W / 2 - TV_GAP - x0), right = Math.floor(ROOM_WIDTH - (tv.middle + TV_W / 2 + TV_GAP));
+  const left = Math.floor(tv.middle - TV_W / 2 - TV_GAP - x0), right = Math.floor(wallEnd() - (tv.middle + TV_W / 2 + TV_GAP));
   if (left < 200 && right < 200) return tvText + shelfText + ` No room for a middle shelf beside it: only ${Math.max(Math.min(left, right), 0)} each side.`;
   if (left >= 200) shelves(x0, x0 + left, g, [TV_MIDDLE_SHELF]);
-  if (right >= 200) shelves(ROOM_WIDTH - right, ROOM_WIDTH, g, [TV_MIDDLE_SHELF]);
+  if (right >= 200) shelves(wallEnd() - right, wallEnd(), g, [TV_MIDDLE_SHELF]);
   if (left === right) return tvText + shelfText + ` A middle shelf at ${TV_MIDDLE_SHELF} either side, ${left} long, ${TV_GAP} clear of the TV.`;
   const sides = [left >= 200 ? `${left} long on its left` : '', right >= 200 ? `${right} long on its right` : ''].filter(Boolean).join(' and ');
   return tvText + shelfText + ` A middle shelf at ${TV_MIDDLE_SHELF}, ${sides}, ${TV_GAP} clear of the TV.`;
@@ -183,10 +183,10 @@ const TOP_T = 30;                                               // the bench top
 // wide hinged in pairs, and an oak top at BENCH. Returns how many doors.
 function baseCupboards(x0, g) {
   const BENCH = config.pieces.bench.design.height, { R, BOARD } = config.pieces.cornerCupboard.design;
-  box({ from: [x0, 0, PLINTH], to: [ROOM_WIDTH, R - BOARD, BENCH - TOP_T] }, carcassMat, g);   // carcass behind the doors
-  box({ from: [x0, 0, 0], to: [ROOM_WIDTH, R - 60, PLINTH] }, carcassMat, g);              // plinth, set back 60
-  box({ from: [x0, 0, BENCH - TOP_T], to: [ROOM_WIDTH, R, BENCH] }, oakMat, g);            // top
-  const span = ROOM_WIDTH - x0;
+  box({ from: [x0, 0, PLINTH], to: [wallEnd(), R - BOARD, BENCH - TOP_T] }, carcassMat, g);   // carcass behind the doors
+  box({ from: [x0, 0, 0], to: [wallEnd(), R - 60, PLINTH] }, carcassMat, g);              // plinth, set back 60
+  box({ from: [x0, 0, BENCH - TOP_T], to: [wallEnd(), R, BENCH] }, oakMat, g);            // top
+  const span = wallEnd() - x0;
   const n = baseDoorCount(span);
   const w = (span - DOOR_GAP * (n + 1)) / n;
   for (let k = 0; k < n; k++) {
@@ -224,8 +224,8 @@ const BACK_WALL_PIECES = {
   },
   pine: {
     sizes: () => config.pieces.pineCupboard.design, draw: pineCupboard, name: "The bedroom's pine cupboard", short: 'the pine cupboard',
-    home: (x0, w) => ({ x: ROOM_WIDTH - w / 2, y: 0, turn: 0 }),
-    homeText: () => 'in the corner by the right-hand wall',
+    home: (x0, w) => ({ x: wallEnd() - w / 2, y: 0, turn: 0 }),
+    homeText: () => (rightCupboardOn() ? 'against the right-hand cupboard' : 'in the corner by the right-hand wall'),
   },
   billy: {
     sizes: () => billySizes(config.pieces.billy.in.livingRoom.lying), draw: () => billy(config.pieces.billy.in.livingRoom.lying), short: 'Billy',
@@ -248,7 +248,7 @@ const BACK_WALL_PIECES = {
 // Where the bookcase's clear wall ends: at the right-hand wall, or at the
 // pine cupboard while it's in the corner there, where it starts
 const pineInCorner = () => config.pieces.pineCupboard.in.livingRoom.on && !config.pieces.pineCupboard.in.livingRoom.move;
-const clearTo = () => (pineInCorner() ? ROOM_WIDTH - config.pieces.pineCupboard.design.w : ROOM_WIDTH);
+const clearTo = () => (pineInCorner() ? wallEnd() - config.pieces.pineCupboard.design.w : wallEnd());
 const BACK_WALL_KEYS = Object.keys(BACK_WALL_PIECES);
 const FACING = { 0: 'the front wall', 90: 'the left wall', 180: 'the back wall', 270: 'the right wall' };
 const onBackWall = () => BACK_WALL_KEYS.filter(key => inLivingRoom(key).on);
@@ -266,6 +266,11 @@ function pineByTheDoor() {
 // The back wall's pieces standing where the bench would be: in front of
 // it while it's there, in its place while it isn't
 const benchStandIns = () => onBackWall().filter(key => key !== 'pine' || !pineByTheDoor());
+// Where the bench and the back wall above it end: at the right-hand wall,
+// or at the right-hand cupboard while it's there, which takes the option's
+// run along the back wall from that corner (asked for, 26 Oct 2026)
+const rightCupboardOn = () => config.pieces.rightCupboard.in.livingRoom.on;
+const wallEnd = () => ROOM_WIDTH - (rightCupboardOn() ? optionOf(config.pieces.cornerCupboard.design.option).clearFrom(cupboardSettings()) : 0);
 // Past the pine cupboard by the door, if it's there
 const pastPine = x => (pineByTheDoor() ? Math.max(x, inLivingRoom('pine').move.x + config.pieces.pineCupboard.design.d) : x);
 // Where the bench starts, and where the back wall above it is clear from,
@@ -316,5 +321,5 @@ function daybedTv() {
 export {
   ABOVE_BENCH, BACK_WALL_KEYS, BACK_WALL_PIECES, FACING, SHELF_T, SHELF_TOPS, TOP_T, TV_BOTTOM, TV_GAP, TV_H, 
   TV_MIDDLE_SHELF, TV_SHELF_TOPS, TV_SIZES, TV_W, baseCupboards, benchDrawn, benchHeights, benchStandIns, 
-  benchStart, benchWall, onBackWall, pieceOnBenchWall, shelves, spotOf, tvPiece, tvSpot, wallClearFrom
+  benchStart, benchWall, onBackWall, pieceOnBenchWall, rightCupboardOn, shelves, spotOf, tvPiece, tvSpot, wallClearFrom, wallEnd
 };

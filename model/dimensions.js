@@ -16,7 +16,7 @@ import { KITCHEN, MONITOR_TOP, deskShelfTops } from './kitchen.js';
 import { bedroomDoor, cupboard, cupboardOf } from './cupboards.js';
 import {
   BACK_WALL_PIECES, SHELF_TOPS, TV_BOTTOM, TV_GAP, TV_H, TV_MIDDLE_SHELF, TV_SHELF_TOPS, TV_W, aboveHasShelves, aboveNow, 
-  benchDrawn, benchStart, onBackWall, shelves, wallClearFrom
+  benchDrawn, benchStart, onBackWall, shelves, wallClearFrom, wallEnd
 } from './bench_wall.js';
 import { frontSpan } from './front_wall.js';
 
@@ -39,7 +39,7 @@ function aboveHeights(x0) {
   if (above === 'tv') return tv;
   if (above === 'tvAndTopShelf') return [...tv, ...TV_SHELF_TOPS.slice(1)];
   if (above === 'tvAndShelves') {
-    const side = Math.floor((ROOM_WIDTH - x0 - TV_W) / 2 - TV_GAP);
+    const side = Math.floor((wallEnd() - x0 - TV_W) / 2 - TV_GAP);
     return [...TV_SHELF_TOPS, ...tv, ...(side >= 200 ? [TV_MIDDLE_SHELF] : [])];
   }
   return [];
@@ -71,7 +71,7 @@ function updateDims(display) {
   world.add(dims);
   const BENCH = config.pieces.bench.design.height, { shelfDepth } = config.pieces.aboveBench.design, above = aboveNow(), { T, R, F } = config.pieces.cornerCupboard.design;
   const option = optionOf(config.pieces.cornerCupboard.design.option), settings = cupboardSettings();
-  const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks(settings) : []), benchStart(option), wallClearFrom(option), ROOM_WIDTH];
+  const alongBack = [0, option.fixedWidth ? 0 : T, ...(option.marks ? option.marks(settings) : []), benchStart(option), wallClearFrom(option), wallEnd(), ROOM_WIDTH];
   const alongLeft = [0, R, ...(option.front ? [option.front(settings)] : T || option.fixedWidth ? [F] : []), DOOR_FRAME_STARTS_AT, DOOR_HINGE_AT, DOOR_HINGE_AT + ROOM_DOOR, FRAME_END];
   if (flatView === 'plan' && flatRoom === 'bedroom') {
     bedroomPlanDims(dims);

@@ -174,6 +174,13 @@ const config = {
     // the living room's. To start, a copy of the living room's (set below
     // OPTIONS)
     bedroomCupboard: { design: null },
+    // The right-hand corner cupboard (asked for, 26 Oct 2026): the living
+    // room's corner cupboard mirrored into the back-right corner, so the
+    // bench runs between two matching cupboards; on or off, and its own
+    // reach out along the right-hand wall from the back wall, which the first
+    // window's recess holds short (cupboards.js's RIGHT_REACH_MOST: 724).
+    // Its option, sizes, colour and doors are the left one's
+    rightCupboard: { in: { livingRoom: { on: false, reach: 724 } } },
     // The bench along the back wall: its height (700, 780, 800 or 900), and
     // drawn, with what's above it; off, the back wall's bare (there's none
     // yet: LOUNGE_NOW)

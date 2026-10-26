@@ -141,6 +141,9 @@ const LIVING_ROOM_SCHEMA = [
   Config.onOff('livingRoom.firstRadiator'),
   ...cupboardEntries('pieces.cornerCupboard.design', CEILING_HEIGHT),
   ...cupboardEntries('pieces.bedroomCupboard.design', BEDROOM_PLACE.ceiling, { id: idIn('bedroomCupboard'), ranges: BEDROOM_CUPBOARD_RANGES }),
+  // The right-hand cupboard: on or off, and its reach along the right wall
+  Config.onOff('pieces.rightCupboard.in.livingRoom.on'),
+  fromSlider('pieces.rightCupboard.in.livingRoom.reach', 'rightReach'),
   // The bench along the back wall, and what's above it
   Config.choice('pieces.bench.design.height', [700, 780, 800, 900]),
   Config.onOff('pieces.bench.in.livingRoom.on'),

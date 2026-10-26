@@ -70,11 +70,11 @@ import { CHAIR_TURN, deskChair, deskShelves, islandGroup, islandOnWall, placeIsl
 import {
   LIVING_ROOM_PLACE, SHELF_WOODS, bedroomCupboard, bedroomDoor, bedroomDoorOpensTo, buildBedroomCupboard, 
   buildOption, cupboard, drawBench, keepTvPlace, livingGroup, mustOpenTo, optionsOnShow, readShelves, 
-  withoutBench
+  rightCupboard, rightCupboardText, withoutBench
 } from './model/cupboards.js';
 import {
   BACK_WALL_KEYS, TV_H, TV_SIZES, TV_W, benchDrawn, benchHeights, benchStandIns, benchStart, benchWall, 
-  onBackWall, pieceOnBenchWall, shelves, spotOf, tvPiece, tvSpot, wallClearFrom
+  onBackWall, pieceOnBenchWall, shelves, spotOf, tvPiece, tvSpot, wallClearFrom, wallEnd
 } from './model/bench_wall.js';
 import { COLOUR_TARGETS, FINISHES, applyColour, colourOf, shownCode } from './model/colours.js';
 import { drawHanging } from './model/hanging.js';
@@ -134,6 +134,7 @@ const namedPieces = () => {
 const flatPieces = () => ({
   livingRoom: livingGroup,                                      // the option and all round it: the bench wall, the front wall, the sofa
   cornerCupboard: cupboard?.group,                              // the option's own build, without the bench
+  rightCupboard: rightCupboard?.group,                          // ...and mirrored in the right-hand corner, while it's on
   dresser: pieces.dresser, larder: pieces.larder, sofa: pieces.sofa, island: islandGroup, 'ivar.livingRoom': pieces.ivar,
   'chesham.livingRoom': pieces.chesham, 'cornwall.livingRoom': pieces.cornwall, 'castorDesk.livingRoom': pieces.castorDesk,
   'diningTable.livingRoom': pieces.diningTable,
@@ -248,6 +249,7 @@ export const doorAngles = () => structuredClone(doors);
 // cupboard's together, and the garage door drawn as it is
 export function turnDoors() {
   cupboard?.turnDoors(doors);
+  rightCupboard?.turnDoors(doors);                              // the right-hand cupboard's with the left one's
   bedroomCupboard?.turnDoors({ tall: doors.bedroomCupboardTall, second: doors.bedroomCupboardSecond, desk: doors.bedroomCupboardDesk });
   roomHinge.rotation.y = turn(doors.room);
   turnBedroomDoor();
@@ -272,7 +274,8 @@ function turnBedroomDoor() {
 // as HTML
 export function describe(option, aboveText) {
   const summary = config.pieces.cornerCupboard.design.T === 0 && option.summaryNoLeft ? option.summaryNoLeft : option.summary;
-  return `${withoutBench(summary(cupboardSettings(), LIVING_ROOM_PLACE, { BENCH: config.pieces.bench.design.height, benchFrom: benchDrawn() ? benchStart(option) : 0 }))}${insideText()}${aboveText}<div class="src">From ${option.source}</div>`;
+  // (the bench's length in it, from the room's width: to the right-hand cupboard while it's there)
+  return `${withoutBench(summary(cupboardSettings(), { ...LIVING_ROOM_PLACE, width: wallEnd() }, { BENCH: config.pieces.bench.design.height, benchFrom: benchDrawn() ? benchStart(option) : 0 }))}${rightCupboardText()}${insideText()}${aboveText}<div class="src">From ${option.source}</div>`;
 }
 
 // The flat built from a configuration, with no page, seen as `view` shows it
@@ -298,10 +301,12 @@ export function buildFlat(configuration, view = {}) {
     doors: doorsNow(),
   };
 }
-// Each corner cupboard's cutting list as rows: the living room's and the
-// bedroom's own, while it's there (none for the current room)
+// Each corner cupboard's cutting list as rows: the living room's (and its
+// mirror on the right, while it's on) and the bedroom's own, while it's
+// there (none for the current room)
 export const cupboardRows = () => ({
   livingRoom: config.pieces.cornerCupboard.design.option === CURRENT_ROOM ? null : cupboard.cuttingRows(),
+  ...(rightCupboard ? { livingRoomRight: rightCupboard.cuttingRows() } : {}),
   bedroom: bedroomCupboard && config.pieces.bedroomCupboard.design.option !== CURRENT_ROOM ? bedroomCupboard.cuttingRows() : null,
 });
 
@@ -339,7 +344,7 @@ export {
   DISPLAY_START, ROOM_BOXES, inLivingRoom, seeThroughCupboards, showHallway, world
 } from './model/state.js';
 export {
-  bedroomDoorOpensTo, bedroomDoorText, cupboardLimits, cupboardOf, optionsOnShow
+  bedroomDoorOpensTo, bedroomDoorText, cupboardLimits, cupboardOf, optionsOnShow, rightCupboard
 } from './model/cupboards.js';
 export {
   aboveHasShelves, aboveHasTv, aboveNow, daybedTvShown, tvOn, tvSpotNow

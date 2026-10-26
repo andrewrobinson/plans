@@ -48,8 +48,8 @@ first, then open only the file you need. Sizes are rough line counts
 | `model/slider_ranges.js` | 15 | `SLIDER_RANGES`: the sliders' ranges the settings are held to |
 | `model/settings.js` | 250 | The schema (`SCHEMA`), reading and writing a configuration, `set`, `get`, `setAll`, `DEFAULT_CONFIGURATION` |
 | `model/kitchen.js` | 200 | `KITCHEN`, which island and where it stands (`ISLAND_TYPES`, `islandSize`, `placeIsland`), the desk and monitors in the desk recess and the shelves over them (`deskShelves`), the office chair, the room door |
-| `model/cupboards.js` | 175 | The two corner cupboards: `buildOption`, `buildBedroomCupboard`, `cupboardLimits`, the bedroom door they clear, `drawBench` |
-| `model/bench_wall.js` | 315 | The back wall: the bench (drawn whenever it's on, `benchDrawn`), its shelves (`benchWall`, `aboveNow`), the TV, a piece of its own (`tvSpot`, `tvPiece`, `drawTv`, `tvOn`), base cupboards, Billy, the pine cupboard, the daybed (`BACK_WALL_PIECES`) |
+| `model/cupboards.js` | 230 | The corner cupboards: `buildOption`, the living room's mirrored in the right-hand corner, its own reach short of the first window (`buildRightCupboard`, `rightCupboardSettings`, `RIGHT_REACH_MOST`, `rightCupboardText`), `buildBedroomCupboard`, `cupboardLimits`, the bedroom door they clear, `drawBench` |
+| `model/bench_wall.js` | 320 | The back wall: the bench (drawn whenever it's on, `benchDrawn`; to the right-hand wall or the right-hand cupboard, `wallEnd`), its shelves (`benchWall`, `aboveNow`), the TV, a piece of its own (`tvSpot`, `tvPiece`, `drawTv`, `tvOn`), base cupboards, Billy, the pine cupboard, the daybed (`BACK_WALL_PIECES`) |
 | `model/colours.js` | 75 | `FINISHES`, `COLOUR_TARGETS`, `applyColour` |
 | `model/front_wall.js` | 285 | The dresser, larder, sofa, front wall and bookcase: `DRESSERS`, `LARDERS`, `SOFAS`, `frontWall` |
 | `model/loose_pieces.js` | 375 | The daybed desk's chair and what's in its way, the first radiator, Ivar, the tables, the dining table (`diningTableSpot`, from the room's middle), the castor desk, the speakers |

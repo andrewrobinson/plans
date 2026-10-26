@@ -13,12 +13,13 @@ import { change, flatCamera, renderer, updatePalette, writeAddress } from '../li
 import { clamp } from '../kit/units_kit.js';
 
 // A corner cupboard's cutting list as HTML, by its piece's name: the living
-// room's, in Lounge options, or the bedroom's, in Bedroom options
-function cuttingListHtml(piece) {
+// room's, in Lounge options, or the bedroom's, in Bedroom options; or the
+// boards of `listOf`, built from its settings (the right-hand cupboard's)
+function cuttingListHtml(piece, listOf = piece) {
   const design = key => get(`pieces.${piece}.design.${key}`);
   const option = optionOf(design('option'));
   if (option.no === CURRENT_ROOM) return '<b>No cutting list</b>: no cupboard in this option.';
-  const kinds = cuttingList(piece);
+  const kinds = cuttingList(listOf);
   let boards = 0, area = 0;
   const rows = CUT_KINDS.filter(k => kinds.has(k)).map(kind => {
     return `<div class="cutKind">${kind}</div>` + sizesInOrder(kinds.get(kind)).map(({ l, w, shaped, n, parts }) => {
@@ -38,9 +39,12 @@ function cuttingListHtml(piece) {
 const CUTTING_LISTS = [['loungeCutting', 'loungeCutList', 'cornerCupboard'], ['bedroomCutting', 'bedroomCutList', 'bedroomCupboard']];
 function showCuttingLists() {
   for (const [details, list, piece] of CUTTING_LISTS) {
-    if (document.getElementById(details).open) document.getElementById(list).innerHTML = cuttingListHtml(piece);
+    if (document.getElementById(details).open) document.getElementById(list).innerHTML = cuttingListHtml(piece) + rightCuttingListHtml(piece);
   }
 }
+// The lounge's right-hand cupboard's, after the left one's, while it's built
+const rightCuttingListHtml = piece => (piece === 'cornerCupboard' && cuttingList('rightCupboard').size
+  ? `<div class="cutHead">The right-hand cupboard, the same mirrored, with its own length</div>${cuttingListHtml(piece, 'rightCupboard')}` : '');
 for (const [details] of CUTTING_LISTS) document.getElementById(details).addEventListener('toggle', showCuttingLists);
 
 // Each thing's height off the floor, as on a shelf: 0 on the floor

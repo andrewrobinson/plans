@@ -33,6 +33,7 @@
     "shell.bathroom": "none",
     "livingRoom": "all",
     "cornerCupboard": null,
+    "rightCupboard": null,
     "dresser": null,
     "larder": null,
     "sofa": "all",

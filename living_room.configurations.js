@@ -130,6 +130,14 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
+              }
+            }
+          },
           "bench": {
             "design": {
               "height": 780
@@ -915,6 +923,14 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
+              }
+            }
+          },
           "bench": {
             "design": {
               "height": 780
@@ -1652,6 +1668,14 @@ window.ROOM_CONFIGURATIONS = {
               "bedroom": {
                 "on": true,
                 "ladders": false
+              }
+            }
+          },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
               }
             }
           },
@@ -2429,6 +2453,14 @@ window.ROOM_CONFIGURATIONS = {
               "bedroom": {
                 "on": true,
                 "ladders": false
+              }
+            }
+          },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
               }
             }
           },
@@ -3211,6 +3243,14 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
+              }
+            }
+          },
           "bench": {
             "design": {
               "height": 780
@@ -3941,6 +3981,14 @@ window.ROOM_CONFIGURATIONS = {
               "bedroom": {
                 "on": true,
                 "ladders": false
+              }
+            }
+          },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
               }
             }
           },
@@ -4677,6 +4725,14 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
+              }
+            }
+          },
           "bench": {
             "design": {
               "height": 780
@@ -5408,6 +5464,14 @@ window.ROOM_CONFIGURATIONS = {
               "bedroom": {
                 "on": false,
                 "ladders": false
+              }
+            }
+          },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
               }
             }
           },
@@ -6187,6 +6251,14 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
+              }
+            }
+          },
           "bench": {
             "design": {
               "height": 780
@@ -6917,6 +6989,14 @@ window.ROOM_CONFIGURATIONS = {
               "bedroom": {
                 "on": true,
                 "ladders": false
+              }
+            }
+          },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
               }
             }
           },
@@ -7693,6 +7773,14 @@ window.ROOM_CONFIGURATIONS = {
               "bedroom": {
                 "on": true,
                 "ladders": false
+              }
+            }
+          },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
               }
             }
           },
@@ -8476,6 +8564,14 @@ window.ROOM_CONFIGURATIONS = {
               }
             }
           },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
+              }
+            }
+          },
           "bench": {
             "design": {
               "height": 780
@@ -9253,6 +9349,14 @@ window.ROOM_CONFIGURATIONS = {
               "bedroom": {
                 "on": true,
                 "ladders": false
+              }
+            }
+          },
+          "rightCupboard": {
+            "in": {
+              "livingRoom": {
+                "on": false,
+                "reach": 724
               }
             }
           },
